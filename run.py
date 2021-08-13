@@ -14,27 +14,25 @@ import subprocess
 import sys
 import warnings
 import numpy_financial as npf
-from datetime import datetime
 
 
 class UsefulInputFiles(object):
     """Class of input files to be opened by this routine.
 
     Attributes:
-        metadata = Baseline metadata including common min/max for year range.
+        glob_vars (str) = Global run settings from ecm_prep.
         meas_summary_data (tuple): High-level measure summary data.
         meas_compete_data (tuple): Contributing microsegment data needed
             for measure competition.
-        active_measures (tuple): Measures that are active for the analysis.
+        active_measures (str): Measures that are active for the analysis.
         meas_engine_out (tuple): Measure output summaries.
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
     """
 
     def __init__(self, energy_out, regions):
-        self.metadata = "metadata.json"
+        self.glob_vars = "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
-        # self.metadata = "metadata_2017.json"
         self.meas_summary_data = \
             ("supporting_data", "ecm_prep.json")
         self.meas_compete_data = ("supporting_data", "ecm_competition_data")
@@ -119,31 +117,26 @@ class UsefulVars(object):
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
         regions (str): Regions to use in geographically breaking out the data.
-        region_check (dict): Acceptable input names for each region set.
         region_inout_namepairs (dict): Input/output region name pairs.
     """
 
-    def __init__(self, base_dir, handyfiles, regions):
-        self.adopt_schemes = ['Technical potential', 'Max adoption potential']
-        self.retro_rate = 0.01
-        # Load metadata including AEO year range
-        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+    def __init__(self, base_dir, handyfiles):
+        # Pull in global variable settings from ecm_prep
+        with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
             try:
-                aeo_yrs = json.load(aeo_yrs)
-            except ValueError as e:
+                gvars = json.load(gv)
+            except ValueError:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.metadata + "': " + str(e)) from None
-        # # Set minimum AEO modeling year
-        # aeo_min = aeo_yrs["min year"]
-        # Set minimum year to current year
-        aeo_min = datetime.today().year
-        # Set maximum AEO modeling year
-        aeo_max = aeo_yrs["max year"]
-        # Derive time horizon from min/max years
-        self.aeo_years = [
-            str(i) for i in range(aeo_min, aeo_max + 1)]
-        self.discount_rate = 0.07
+                    "Error reading in '" + handyfiles.glob_vars + "'")
+        self.adopt_schemes = gvars["adopt_schemes"]
+        self.retro_rate = gvars["retro_rate"]
+        self.aeo_years = gvars["aeo_years"]
+        self.discount_rate = gvars["discount_rate"]
+        self.out_break_czones = gvars["out_break_czones"]
+        self.out_break_bldgtypes = gvars["out_break_bldg_types"]
+        self.out_break_enduses = gvars["out_break_enduses"]
+        # Set commercial time prefs and region in/out name pairs as unique
+        # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
             "distributions": {
@@ -168,20 +161,6 @@ class UsefulVars(object):
                 "refrigeration": {
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
-        self.region_check = {
-            "AIA": ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5'],
-            "EMM": [
-                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN'],
-            "State": [
-                'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-                'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-                'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-                'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-                'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
-                'WY']}
         self.region_inout_namepairs = {
             "AIA": [
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
@@ -199,40 +178,6 @@ class UsefulVars(object):
                 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
                 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
                 'WY']]}
-        regions_out = self.region_inout_namepairs[regions]
-        self.out_break_czones = OrderedDict(regions_out)
-        self.out_break_bldgtypes = OrderedDict([
-            ('Residential (New)', [
-                'new', 'single family home', 'multi family home',
-                'mobile home']),
-            ('Residential (Existing)', [
-                'existing', 'single family home', 'multi family home',
-                'mobile home'],),
-            ('Commercial (New)', [
-                'new', 'assembly', 'education', 'food sales',
-                'food service', 'health care', 'mercantile/service',
-                'lodging', 'large office', 'small office', 'warehouse',
-                'other']),
-            ('Commercial (Existing)', [
-                'existing', 'assembly', 'education', 'food sales',
-                'food service', 'health care', 'mercantile/service',
-                'lodging', 'large office', 'small office', 'warehouse',
-                'other'])])
-        self.out_break_enduses = OrderedDict([
-            ('Heating (Equip.)', ["heating", "secondary heating"]),
-            ('Cooling (Equip.)', ["cooling"]),
-            ('Heating (Env.)', ["heating", "secondary heating"]),
-            ('Cooling (Env.)', ["cooling"]),
-            ('Ventilation', ["ventilation"]),
-            ('Lighting', ["lighting"]),
-            ('Water Heating', ["water heating"]),
-            ('Refrigeration', ["refrigeration", "other"]),
-            ('Cooking', ["cooking"]),
-            ('Computers and Electronics', [
-                "PCs", "non-PC office equipment", "TVs", "computers"]),
-            ('Other', [
-                "cooking", "drying", "ceiling fan", "fans & pumps",
-                "MELs", "other"])])
 
 
 class Measure(object):
@@ -446,7 +391,7 @@ class Engine(object):
                     n in range(5))
             # Shorthand for data used to determine uncompeted and competed
             # savings by adoption scheme
-            markets_c = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
+            markets_save = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
 
             # Calculate measure energy/carbon savings, capital cost savings,
             # and energy/carbon cost savings for each projection year
@@ -456,20 +401,20 @@ class Engine(object):
                 # savings reflect the impact of all measure adoptions
                 # simulated up until and including the current year
                 esave_tot[yr] = \
-                    markets_c["energy"]["total"]["baseline"][yr] - \
-                    markets_c["energy"]["total"]["efficient"][yr]
+                    markets_save["energy"]["total"]["baseline"][yr] - \
+                    markets_save["energy"]["total"]["efficient"][yr]
                 csave_tot[yr] = \
-                    markets_c["carbon"]["total"]["baseline"][yr] - \
-                    markets_c["carbon"]["total"]["efficient"][yr]
+                    markets_save["carbon"]["total"]["baseline"][yr] - \
+                    markets_save["carbon"]["total"]["efficient"][yr]
                 scostsave_tot[yr] = \
-                    markets_c["cost"]["stock"]["total"]["baseline"][yr] - \
-                    markets_c["cost"]["stock"]["total"]["efficient"][yr]
+                    markets_save["cost"]["stock"]["total"]["baseline"][yr] - \
+                    markets_save["cost"]["stock"]["total"]["efficient"][yr]
                 ecostsave_tot[yr] = \
-                    markets_c["cost"]["energy"]["total"]["baseline"][yr] - \
-                    markets_c["cost"]["energy"]["total"]["efficient"][yr]
+                    markets_save["cost"]["energy"]["total"]["baseline"][yr] - \
+                    markets_save["cost"]["energy"]["total"]["efficient"][yr]
                 ccostsave_tot[yr] = \
-                    markets_c["cost"]["carbon"]["total"]["baseline"][yr] - \
-                    markets_c["cost"]["carbon"]["total"]["efficient"][yr]
+                    markets_save["cost"]["carbon"]["total"]["baseline"][yr] - \
+                    markets_save["cost"]["carbon"]["total"]["efficient"][yr]
 
             # Record final measure savings figures (across all years)
 
@@ -495,19 +440,9 @@ class Engine(object):
                 # Shorthand for data used to determine financial metrics (since
                 # these data do not vary based on competition or adoption
                 # scheme, use only uncompeted data for the calculations)
-                if self.handyvars.adopt_schemes[0] in [
-                        "Technical potential", "Max adoption potential"]:
-                    markets_uc = m.markets[self.handyvars.adopt_schemes[0]][
-                        "uncompeted"]["master_mseg"]
-                else:
-                    raise ValueError(
-                        "Data from adoption scheme in which measure captures "
-                        "less than 100 pct. of competed stock is being used "
-                        "for financial metrics calculations, which is "
-                        "inconsistent with the assumptions of these "
-                        "calculations; add one or both of 'Technical "
-                        "potential' or 'Max adoption potential' to the list "
-                        "defined by 'self.adopt_schemes' to address.")
+                markets_uc = m.markets[self.handyvars.adopt_schemes[0]][
+                    "uncompeted"]["master_mseg"]
+
                 # Initialize per unit measure stock, energy, and carbon costs;
                 # per unit energy and carbon cost savings; per sunit energy and
                 # carbon savings; unit stock, energy, and carbon costs to use
@@ -536,19 +471,19 @@ class Engine(object):
                         "competed"]["efficient"][yr]
                     # Energy savings
                     esave_comp = \
-                        markets_c["energy"]["competed"]["baseline"][yr] - \
-                        markets_c["energy"]["competed"]["efficient"][yr]
+                        markets_uc["energy"]["competed"]["baseline"][yr] - \
+                        markets_uc["energy"]["competed"]["efficient"][yr]
                     # Carbon savings
                     csave_comp = \
-                        markets_c["carbon"]["competed"]["baseline"][yr] - \
-                        markets_c["carbon"]["competed"]["efficient"][yr]
+                        markets_uc["carbon"]["competed"]["baseline"][yr] - \
+                        markets_uc["carbon"]["competed"]["efficient"][yr]
                     # Energy cost savings
-                    ecostsave_comp = markets_c["cost"]["energy"]["competed"][
-                            "baseline"][yr] - markets_c["cost"]["energy"][
+                    ecostsave_comp = markets_uc["cost"]["energy"]["competed"][
+                            "baseline"][yr] - markets_uc["cost"]["energy"][
                             "competed"]["efficient"][yr]
                     # Carbon cost savings
-                    ccostsave_comp = markets_c["cost"]["carbon"]["competed"][
-                        "baseline"][yr] - markets_c["cost"]["carbon"][
+                    ccostsave_comp = markets_uc["cost"]["carbon"]["competed"][
+                        "baseline"][yr] - markets_uc["cost"]["carbon"][
                         "competed"]["efficient"][yr]
                     # Number of applicable baseline stock units
                     nunits_comp = \
@@ -598,6 +533,22 @@ class Engine(object):
                             markets_uc["cost"]["carbon"]["competed"][
                                 "baseline"][yr] / nunits_comp) - \
                             ccostsave_unit[yr]
+                    # If no competition data are available for the measure in
+                    # the given year, use data from the previous year
+                    elif yr != self.handyvars.aeo_years[0]:
+                        # Set the one year lag key
+                        lag_yr = str(int(yr) - 1)
+                        # Set values for the current year to those of lagged yr
+                        scostbase_unit[yr], scostmeas_delt_unit[yr], \
+                            scostmeas_unit[yr], esave_unit[yr], \
+                            csave_unit[yr], ecostsave_unit[yr], \
+                            ccostsave_unit[yr], ecost_meas_unit[yr], \
+                            ccost_meas_unit[yr] = scostbase_unit[lag_yr], \
+                            scostmeas_delt_unit[lag_yr], \
+                            scostmeas_unit[lag_yr], esave_unit[lag_yr], \
+                            csave_unit[lag_yr], ecostsave_unit[lag_yr], \
+                            ccostsave_unit[lag_yr], ecost_meas_unit[lag_yr], \
+                            ccost_meas_unit[lag_yr]
 
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
@@ -635,7 +586,8 @@ class Engine(object):
                                 irr_e[yr], irr_ec[yr], payback_e[yr], \
                                 payback_ec[yr], cce[yr], cce_bens[yr], \
                                 ccc[yr], ccc_bens[yr] = [
-                                    999 for n in range(14)]
+                                    None for n in range(6)] + [
+                                    999 for n in range(8)]
                         else:
                             yr_prev = str(int(yr) - 1)
                             stock_unit_cost_res[yr], \
@@ -1005,7 +957,7 @@ class Engine(object):
                         raise(ValueError)
             except ValueError:
                 unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                    999 for n in range(3))
+                    None for n in range(3))
         # If measure does not apply to commercial sector, set commercial
         # unit costs to 'None'
         else:
@@ -1282,25 +1234,30 @@ class Engine(object):
                     # regression equation that takes capital/operating
                     # costs as inputs
 
-                    # Calculate weighted sum of incremental capital and
-                    # operating costs
-                    sum_wt = cap_cost * m.markets[adopt_scheme]["competed"][
-                        "mseg_adjust"]["competed choice parameters"][
-                            str(mseg_key)]["b1"][yr] + op_cost * \
-                        m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                        "competed choice parameters"][
-                            str(mseg_key)]["b2"][yr]
+                    # Handle case where cost is None
+                    try:
+                        # Calculate weighted sum of incremental capital and
+                        # operating costs
+                        sum_wt = cap_cost * \
+                            m.markets[adopt_scheme]["competed"][
+                                "mseg_adjust"]["competed choice parameters"][
+                                str(mseg_key)]["b1"][yr] + op_cost * \
+                            m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                                "competed choice parameters"][
+                                str(mseg_key)]["b2"][yr]
 
-                    # Guard against cases with very low weighted sums of
-                    # incremental capital and operating costs
-                    if type(sum_wt) != numpy.ndarray and sum_wt < -500:
-                        sum_wt = -500
-                    elif type(sum_wt) == numpy.ndarray and any([
-                            x < -500 for x in sum_wt]):
-                        sum_wt = [-500 if x < -500 else x for x in sum_wt]
+                        # Guard against cases with very low weighted sums of
+                        # incremental capital and operating costs
+                        if type(sum_wt) != numpy.ndarray and sum_wt < -500:
+                            sum_wt = -500
+                        elif type(sum_wt) == numpy.ndarray and any([
+                                x < -500 for x in sum_wt]):
+                            sum_wt = [-500 if x < -500 else x for x in sum_wt]
 
-                    # Calculate market fraction
-                    mkt_fracs[ind][yr] = numpy.exp(sum_wt)
+                        # Calculate market fraction
+                        mkt_fracs[ind][yr] = numpy.exp(sum_wt)
+                    except TypeError:
+                        mkt_fracs[ind][yr] = 0
 
                     # Add calculated market fraction to mkt fraction sum
                     mkt_fracs_tot[yr] = \
@@ -1311,16 +1268,6 @@ class Engine(object):
         # market shares to make adjustments to each measure's master
         # microsegment values
         for ind, m in enumerate(measures_adj):
-            # Set measure markets and market adjustment information
-            # Establish starting energy/carbon/cost totals, energy/carbon/cost
-            # results breakout information, and current contributing primary
-            # energy/carbon/cost information for measure
-            mast, mast_brk_base_energy, mast_brk_base_cost, \
-                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
-                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
-                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
             # Calculate annual market share fraction for the measure and
             # adjust measure's master microsegment values accordingly
             for yr in self.handyvars.aeo_years:
@@ -1342,73 +1289,18 @@ class Engine(object):
         added_sbmkt_fracs = self.find_added_sbmkt_fracs(
             mkt_fracs, measures_adj, mseg_key, adopt_scheme)
 
-        # Find an overall ECM stock turnover rate for each year in the competed
-        # time horizon, where the overall rate is an average across all ECMs
-
-        # Initialize weighted average lifetime across all competing ECMs
-        eff_life = {yr: 0 for yr in self.handyvars.aeo_years}
-
-        # Add each competing ECM's lifetime weighted by its market share
-        # to the overall weighted ECM lifetime
-        for ind2, m in enumerate(measures_adj):
-            for yr in self.handyvars.aeo_years:
-                eff_life[yr] += m.markets[adopt_scheme]["competed"][
-                    "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
-
-        # Initialize overall ECM turnover rate; handle case where overall
-        # weighted ECM lifetime is an array
-        eff_turnover_rt = {
-            yr: 0 if type(eff_life[yr]) != numpy.ndarray else
-            numpy.zeros(len(eff_life[yr])) for yr in self.handyvars.aeo_years}
-
-        # Loop through all years in the ECM competition time horizon
-        for ind1, yr in enumerate(years_on_mkt_all):
-            # Handle case where overall weighted ECM lifetime is an array
-            if type(eff_life[yr]) == numpy.ndarray:
-                # Loop through all elements in the weighted ECM lifetime array
-                for i in range(0, len(eff_life[yr])):
-                    # Determine the future year in which the competed ECM stock
-                    # from the current year will turn over, calculated as the
-                    # current year being looped through plus the overall
-                    # weighted ECM lifetime
-                    future_eff_turnover_yr = ind1 + int(eff_life[yr][i]) + 1
-                    # If the future year calculated above is within the ECM
-                    # competition time horizon, set ECM stock turnover rate for
-                    # that future year as 1/weighted ECM lifetime for the
-                    # current year plus the retrofit rate
-                    if future_eff_turnover_yr < len(years_on_mkt_all):
-                        eff_turnover_rt[years_on_mkt_all[
-                            future_eff_turnover_yr]][i] = \
-                            (1 / eff_life[yr][i]) + self.handyvars.retro_rate
-            # Handle case where overall weighted lifetime across all competing
-            # ECMs is a point value
-            else:
-                # Determine the future year in which the competed ECM stock
-                # from the current year will turn over, calculated as the
-                # current year being looped through plus the overall
-                # weighted ECM lifetime
-                future_eff_turnover_yr = ind1 + int(eff_life[yr])
-                # If the future year calculated above is within the ECM
-                # competition time horizon, set ECM stock turnover rate for
-                # that future year as 1/weighted ECM lifetime for the current
-                # year plus the retrofit rate
-                if future_eff_turnover_yr < len(years_on_mkt_all):
-                    eff_turnover_rt[years_on_mkt_all[
-                        future_eff_turnover_yr]] = \
-                        (1 / eff_life[yr]) + self.handyvars.retro_rate
-
         # For new baseline stock segments, calculate the portion of total stock
         # that is newly added in each year, as well as the total new stock in
-        # each year that was captured by a comparable baseline technology
-        # (e.g., because an efficient technology was not yet on the market).
-        # The sum of these fractions determines the baseline stock replacement
-        # rate calculated below for new stock segments, and is consistent
-        # across all competing measures
+        # each year that was previously captured by a baseline technology
+        # (e.g., because an efficient technology was not yet on the market) or
+        # by an efficient technology. The sum of these fractions determines
+        # the baseline stock replacement rate calculated below for new stock
+        # segments, and is consistent across all competing measures
         if "new" in mseg_key:
             # Initialize the annual fractions of new stock additions and total
-            # new stock previously captured by the baseline technology
-            new_stock_add_frac, new_stock_base = ({
-                yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+            # new stock previously captured by the baseline/efficient tech.
+            new_stock_add_frac, new_stock_base, new_stock_eff = ({
+                yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
             # Set variable that represents the total new stock in each year
             # across all competing measures; use the first measure's data
             # to set the variable (these data will be the same across all
@@ -1419,20 +1311,24 @@ class Engine(object):
                 "total"]["all"]
 
             # Update the annual fraction of new stock additions and total
-            # new stock previously captured by the baseline technology given
+            # new stock previously captured by the base/efficient tech. given
             # the total new stock data for each year
             for ind, yr in enumerate(self.handyvars.aeo_years):
                 # In the first year of the time horizon, 100% of new stock has
                 # been added in that year (as 'new' stock accumulates from
                 # this year on)
                 if ind == 0:
+                    # Set new stock addition fraction to 1
                     new_stock_add_frac[yr] = 1
                     # If year is before earliest measure market entry year,
                     # assign the new stock to the baseline
                     if int(yr) < min(mkt_entry_yrs):
                         new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
+                        new_stock_eff[yr] = 0
                     else:
                         new_stock_base[yr] = 0
+                        new_stock_eff[yr] = copy.deepcopy(new_stock_tot[yr])
+
                 # Otherwise, update both variables in accordance with the total
                 # new stock data for that year (if total new stock is not zero)
                 elif new_stock_tot[yr] != 0:
@@ -1448,8 +1344,12 @@ class Engine(object):
                         new_stock_base[yr] = (
                             new_stock_tot[yr] - new_stock_tot[
                                 str(int(yr) - 1)])
+                        new_stock_eff[yr] = 0
                     else:
                         new_stock_base[yr] = 0
+                        new_stock_eff[yr] = (
+                            new_stock_tot[yr] - new_stock_tot[
+                                str(int(yr) - 1)])
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1466,6 +1366,74 @@ class Engine(object):
                 adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
+            # Find an efficient stock turnover rate for each year in the
+            # modeling time horizon
+
+            # Use a common lifetime for efficient replacement; use baseline
+            # lifetime as an estimate that will be consistent across measures;
+            # round baseline lifetime to the nearest integer
+            eff_life = {
+                yr: round(adj["lifetime"]["baseline"][yr]) for
+                yr in self.handyvars.aeo_years}
+
+            # Initialize overall ECM turnover rate; handle case where overall
+            # ECM lifetime is an array
+            eff_turnover_rt = {
+                yr: 0 if type(eff_life[yr]) != numpy.ndarray else
+                numpy.zeros(len(eff_life[yr])) for
+                yr in self.handyvars.aeo_years}
+
+            # Loop through all years in the ECM competition time horizon
+            for ind1, yr in enumerate(years_on_mkt_all):
+                # Handle case where ECM lifetime is an array
+                if type(eff_life[yr]) == numpy.ndarray:
+                    # Loop through all elements in the ECM life array
+                    for i in range(0, len(eff_life[yr])):
+                        # Determine the future year in which the competed ECM
+                        # stock from the current year will turn over,
+                        # calculated as the current year being looped through
+                        # plus the overall ECM lifetime
+                        future_eff_turnover_yr = \
+                            ind1 + int(eff_life[yr][i]) + 1
+                        # If the future year calculated above is within the ECM
+                        # competition time horizon, set ECM stock turnover rate
+                        # for that future year as 1/overall ECM lifetime for
+                        # the current year *** DO NOT ASSUME EARLY
+                        # RETROFITS ****
+                        if future_eff_turnover_yr < len(years_on_mkt_all):
+                            if "new" in mseg_key:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]][i] = \
+                                    new_stock_eff[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_eff_turnover_yr]]
+                            else:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]][i] = \
+                                    (1 / eff_life[yr][i])
+                # Handle case where overall lifetime across all
+                # competing ECMs is a point value
+                else:
+                    # Determine the future year in which the competed ECM stock
+                    # from the current year will turn over, calculated as the
+                    # current year being looped through plus the overall
+                    # ECM lifetime
+                    future_eff_turnover_yr = ind1 + int(eff_life[yr])
+                    # If the future year calculated above is within the ECM
+                    # competition time horizon, set ECM stock turnover rate for
+                    # that future year as 1/ECM lifetime for the current
+                    # year *** DO NOT ASSUME EARLY RETROFITS ****
+                    if future_eff_turnover_yr < len(years_on_mkt_all):
+                        if "new" in mseg_key:
+                            eff_turnover_rt[years_on_mkt_all[
+                                future_eff_turnover_yr]] = \
+                                new_stock_eff[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_eff_turnover_yr]]
+                        else:
+                            eff_turnover_rt[years_on_mkt_all[
+                                future_eff_turnover_yr]] = (1 / eff_life[yr])
+
             # Find a baseline stock turnover rate for each year in the modeling
             # time horizon
 
@@ -1476,9 +1444,13 @@ class Engine(object):
                 base_turnover_rt = {yr: new_stock_add_frac[yr] for
                                     yr in self.handyvars.aeo_years}
             else:
-                base_turnover_rt = {yr: (1 / adj["lifetime"]["baseline"][yr]) +
-                                    self.handyvars.retro_rate for yr in
-                                    self.handyvars.aeo_years}
+                # Note: do not assign base turnover in cases where no
+                # competing measures were on the market
+                base_turnover_rt = {
+                    yr: ((1 / adj["lifetime"]["baseline"][yr])
+                         + self.handyvars.retro_rate[yr]) if
+                    yr in years_on_mkt_all
+                    else 0 for yr in self.handyvars.aeo_years}
             # Loop through all years in the modeling time horizon
             for ind1, yr in enumerate(self.handyvars.aeo_years):
                 # Set baseline lifetime for the contributing microsegment;
@@ -1507,17 +1479,17 @@ class Engine(object):
                         # stock is zero, set fraction to zero accordingly
                         if new_stock_tot[self.handyvars.aeo_years[
                                 future_base_turnover_yr]] != 0:
-                            add_base_capt_frac = (
+                            add_prev_capt = (
                                 new_stock_base[yr] / new_stock_tot[
                                     self.handyvars.aeo_years[
                                         future_base_turnover_yr]])
                         else:
-                            add_base_capt_frac = 0
+                            add_prev_capt = 0
                         # Add any previously captured baseline stock that
                         # is turning over in the future year to the replacement
                         # rate for that future year
                         base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += add_base_capt_frac
+                            future_base_turnover_yr]] += add_prev_capt
                         # Safeguard ensures new turnover rate never > 1
                         if base_turnover_rt[self.handyvars.aeo_years[
                                 future_base_turnover_yr]] > 1:
@@ -1530,7 +1502,37 @@ class Engine(object):
                         # replacement or retrofit
                         base_turnover_rt[self.handyvars.aeo_years[
                             future_base_turnover_yr]] = (1 / base_life) + \
-                            self.handyvars.retro_rate
+                            self.handyvars.retro_rate[yr]
+
+            # Ensure that cumulative turnover of existing stock never exceeds 1
+            if adopt_scheme != "Technical potential" and \
+                    "existing" in mseg_key:
+                # Set variables to track cumulative turnover
+                base_turnover_rt_cum, eff_turnover_rt_cum = ({
+                    yr: 0 for yr in self.handyvars.aeo_years} for
+                    n in range(2))
+                # Loop through all years in modeling time horizon
+                for yr in self.handyvars.aeo_years:
+                    # First year in modeling time horizon
+                    if yr == self.handyvars.aeo_years[0]:
+                        # Baseline stock in current year turnover
+                        base_turnover_rt_cum[yr] = base_turnover_rt[yr]
+                        # Previously captured efficient stock turnover
+                        eff_turnover_rt_cum[yr] = eff_turnover_rt[yr]
+                    # Subsequent years in modeling time horizon
+                    else:
+                        # Baseline stock in current year turnover
+                        base_turnover_rt_cum[yr] = base_turnover_rt_cum[
+                            str(int(yr) - 1)] + base_turnover_rt[yr]
+                        # Previously captured efficient stock turnover
+                        eff_turnover_rt_cum[yr] = eff_turnover_rt_cum[
+                            str(int(yr) - 1)] + eff_turnover_rt[yr]
+                    # Cap cumulative baseline and previously captured efficient
+                    # stock turnover at 1 (no further turnover in current year)
+                    if base_turnover_rt_cum[yr] > 1:
+                        base_turnover_rt[yr] = 0
+                    if eff_turnover_rt_cum[yr] > 1:
+                        eff_turnover_rt[yr] = 0
 
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
@@ -1650,10 +1652,14 @@ class Engine(object):
                         # total cost dict entry for the given measure
                         tot_cost[ind][yr] = [
                             [] for n in range(length_array[ind_l])]
-                        for c_l in range(0, len(tot_cost[ind][yr])):
-                            for dr in sorted(cap_cost[c_l].keys()):
-                                tot_cost[ind][yr][c_l].append(
-                                    cap_cost[c_l][dr] + op_cost[c_l][dr])
+                        # Handle case where cost is None
+                        try:
+                            for c_l in range(0, len(tot_cost[ind][yr])):
+                                for dr in sorted(cap_cost[c_l].keys()):
+                                    tot_cost[ind][yr][c_l].append(
+                                        cap_cost[c_l][dr] + op_cost[c_l][dr])
+                        except AttributeError:
+                            pass
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as point values for all competing measures
                     else:
@@ -1665,9 +1671,13 @@ class Engine(object):
                         # Sum capital and operating cost point values and add
                         # to the total cost dict entry for the given measure
                         tot_cost[ind][yr] = []
-                        for dr in sorted(cap_cost.keys()):
-                            tot_cost[ind][yr].append(
-                                cap_cost[dr] + op_cost[dr])
+                        # Handle case where cost is None
+                        try:
+                            for dr in sorted(cap_cost.keys()):
+                                tot_cost[ind][yr].append(
+                                    cap_cost[dr] + op_cost[dr])
+                        except AttributeError:
+                            pass
 
         # Loop through competing measures and use total annualized capital
         # + operating costs to determine the overall share of the market
@@ -1698,33 +1708,38 @@ class Engine(object):
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as lists for at least one of the competing
                     # measures.
-                    if length_array[ind_l] > 0:
+                    if length_array[ind_l] > 0 and len(
+                            tot_cost[ind][yr][0]) != 0:
                         mkt_fracs[ind][yr] = [
                             [] for n in range(length_array[ind_l])]
                         for c_l in range(length_array[ind_l]):
-                            for ind2, dr in enumerate(tot_cost[ind][yr][c_l]):
-                                # Find the lowest annualized cost for the given
-                                # set of competing measures and discount bin
+                            for ind2, dr in enumerate(
+                                    tot_cost[ind][yr][c_l]):
+                                # Find the lowest annualized cost for the
+                                # set of competing measures/discount bin
                                 min_val = min([
                                     tot_cost[x][yr][c_l][ind2] for x in
                                     range(0, len(measures_adj)) if
-                                    yr in tot_cost[x].keys()])
-                                # Determine how many of the competing measures
+                                    (yr in tot_cost[x].keys() and
+                                     len(tot_cost[x][yr][0]) != 0)])
+                                # Determine how many competing measures
                                 # have the lowest annualized cost under
                                 # the given discount rate bin
                                 min_val_ecms = [
                                     x for x in range(0, len(measures_adj)) if
-                                    yr in tot_cost[x].keys() and
+                                    (yr in tot_cost[x].keys() and
+                                     len(tot_cost[x][yr][0]) != 0) and
                                     tot_cost[x][yr][c_l][ind2] == min_val]
                                 # If the current measure has the lowest
-                                # annualized cost, assign it the appropriate
-                                # market share for the current discount rate
-                                # category being looped through, divided by the
-                                # total number of competing measures that share
-                                # the lowest annualized cost
+                                # annualized cost, assign it appropriate
+                                # market share for current discount rate
+                                # category being looped through, divided by
+                                # total number of competing measures that
+                                # share the lowest annualized cost
                                 if tot_cost[ind][yr][c_l][ind2] == min_val:
                                     mkt_fracs[ind][yr][c_l].append(
-                                        mkt_dists[ind2] / len(min_val_ecms))
+                                        mkt_dists[ind2] /
+                                        len(min_val_ecms))
                                 # Otherwise, set its market share for that
                                 # discount rate bin to zero
                                 else:
@@ -1737,38 +1752,48 @@ class Engine(object):
                             mkt_fracs[ind][yr])
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as point values for all competing measures
+                    elif length_array[ind_l] == 0:
+                        if len(tot_cost[ind][yr]) != 0:
+                            mkt_fracs[ind][yr] = []
+                            for ind2, dr in enumerate(tot_cost[ind][yr]):
+                                # Find the lowest annualized cost for the given
+                                # set of competing measures and discount bin
+                                min_val = min([
+                                    tot_cost[x][yr][ind2] for x in
+                                    range(0, len(measures_adj)) if (
+                                        yr in tot_cost[x].keys() and
+                                        len(tot_cost[x][yr]) != 0)])
+                                # Determine how many of the competing measures
+                                # have the lowest annualized cost under
+                                # the given discount rate bin
+                                min_val_ecms = [
+                                    x for x in range(0, len(measures_adj)) if
+                                    (yr in tot_cost[x].keys() and
+                                     len(tot_cost[x][yr]) != 0) and
+                                    tot_cost[x][yr][ind2] == min_val]
+                                # If the current measure has the lowest
+                                # annualized cost, assign it the appropriate
+                                # market share for the current discount rate
+                                # category being looped through, divided by the
+                                # total number of competing measures that share
+                                # the lowest annualized cost
+                                if tot_cost[ind][yr][ind2] == min_val:
+                                    mkt_fracs[ind][yr].append(
+                                        mkt_dists[ind2] / len(min_val_ecms))
+                                # Otherwise, set its market share for that
+                                # discount rate bin to zero
+                                else:
+                                    mkt_fracs[ind][yr].append(0)
+                            mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
+                        else:
+                            mkt_fracs[ind][yr] = 0
                     else:
-                        mkt_fracs[ind][yr] = []
-                        for ind2, dr in enumerate(tot_cost[ind][yr]):
-                            # Find the lowest annualized cost for the given
-                            # set of competing measures and discount bin
-                            min_val = min([
-                                tot_cost[x][yr][ind2] for x in
-                                range(0, len(measures_adj)) if
-                                yr in tot_cost[x].keys()])
-                            # Determine how many of the competing measures
-                            # have the lowest annualized cost under
-                            # the given discount rate bin
-                            min_val_ecms = [
-                                x for x in range(0, len(measures_adj)) if
-                                yr in tot_cost[x].keys() and
-                                tot_cost[x][yr][ind2] == min_val]
-                            # If the current measure has the lowest
-                            # annualized cost, assign it the appropriate
-                            # market share for the current discount rate
-                            # category being looped through, divided by the
-                            # total number of competing measures that share
-                            # the lowest annualized cost
-                            if tot_cost[ind][yr][ind2] == min_val:
-                                mkt_fracs[ind][yr].append(
-                                    mkt_dists[ind2] / len(min_val_ecms))
-                            # Otherwise, set its market share for that
-                            # discount rate bin to zero
-                            else:
-                                mkt_fracs[ind][yr].append(0)
-                        mkt_fracs[ind][yr] = sum(mkt_fracs[ind][yr])
+                        mkt_fracs[ind][yr] = 0
                 elif yr not in years_on_mkt_all:
-                    mkt_fracs[ind][yr] = 1 / len(measures_adj)
+                    if len(measures_adj) > 1:
+                        mkt_fracs[ind][yr] = 1 / len(measures_adj)
+                    else:
+                        mkt_fracs[ind][yr] = 0
                 else:
                     mkt_fracs[ind][yr] = 0
 
@@ -1778,72 +1803,18 @@ class Engine(object):
         added_sbmkt_fracs = self.find_added_sbmkt_fracs(
             mkt_fracs, measures_adj, mseg_key, adopt_scheme)
 
-        # Find an overall ECM stock turnover rate for each year in the competed
-        # time horizon, where the overall rate is an average across all ECMs
-
-        # Initialize weighted average lifetime across all competing ECMs
-        eff_life = {yr: 0 for yr in self.handyvars.aeo_years}
-
-        # Add each competing ECM's lifetime weighted by its market share
-        # to the overall weighted ECM lifetime
-        for ind2, m in enumerate(measures_adj):
-            for yr in self.handyvars.aeo_years:
-                eff_life[yr] += m.markets[adopt_scheme]["competed"][
-                    "master_mseg"]["lifetime"]["measure"] * mkt_fracs[ind2][yr]
-        # Initialize overall ECM turnover rate as dict; handle case where
-        # overall weighted ECM lifetime is an array
-        eff_turnover_rt = {
-            yr: 0 if type(eff_life[yr]) != numpy.ndarray else
-            numpy.zeros(len(eff_life[yr])) for yr in self.handyvars.aeo_years}
-
-        # Loop through all years in the ECM competition time horizon
-        for ind1, yr in enumerate(years_on_mkt_all):
-            # Handle case where overall weighted ECM lifetime is an array
-            if type(eff_life[yr]) == numpy.ndarray:
-                # Loop through all elements in the weighted ECM lifetime array
-                for i in range(0, len(eff_life[yr])):
-                    # Determine the future year in which the competed ECM stock
-                    # from the current year will turn over, calculated as the
-                    # current year being looped through plus the overall
-                    # weighted ECM lifetime
-                    future_eff_turnover_yr = ind1 + int(eff_life[yr][i]) + 1
-                    # If the future year calculated above is within the ECM
-                    # competition time horizon, set ECM stock turnover rate for
-                    # that future year as 1/weighted ECM lifetime for the
-                    # current year plus the retrofit rate
-                    if future_eff_turnover_yr < len(years_on_mkt_all):
-                        eff_turnover_rt[years_on_mkt_all[
-                            future_eff_turnover_yr]][i] = \
-                            (1 / eff_life[yr][i]) + self.handyvars.retro_rate
-            # Handle case where overall weighted lifetime across all competing
-            # ECMs is a point value
-            else:
-                # Determine the future year in which the competed ECM stock
-                # from the current year will turn over, calculated as the
-                # current year being looped through plus the overall
-                # weighted ECM lifetime
-                future_eff_turnover_yr = ind1 + int(eff_life[yr])
-                # If the future year calculated above is within the ECM
-                # competition time horizon, set ECM stock turnover rate for
-                # that future year as 1/weighted ECM lifetime for the current
-                # year plus the retrofit rate
-                if future_eff_turnover_yr < len(years_on_mkt_all):
-                    eff_turnover_rt[years_on_mkt_all[
-                        future_eff_turnover_yr]] = \
-                        (1 / eff_life[yr]) + self.handyvars.retro_rate
-
         # For new baseline stock segments, calculate the portion of total stock
         # that is newly added in each year, as well as the total new stock in
-        # each year that was captured by a comparable baseline technology
-        # (e.g., because an efficient technology was not yet on the market).
-        # The sum of these fractions determines the baseline stock replacement
-        # rate calculated below for new stock segments, and is consistent
-        # across all competing measures
+        # each year that was previously captured by a baseline technology
+        # (e.g., because an efficient technology was not yet on the market) or
+        # by an efficient technology. The sum of these fractions determines
+        # the baseline stock replacement rate calculated below for new stock
+        # segments, and is consistent across all competing measures
         if "new" in mseg_key:
             # Initialize the annual fractions of new stock additions and total
-            # new stock previously captured by the baseline technology
-            new_stock_add_frac, new_stock_base = ({
-                yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+            # new stock previously captured by the baseline/efficient tech.
+            new_stock_add_frac, new_stock_base, new_stock_eff = ({
+                yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
             # Set variable that represents the total new stock in each year
             # across all competing measures; use the first measure's data
             # to set the variable (these data will be the same across all
@@ -1854,20 +1825,24 @@ class Engine(object):
                 "total"]["all"]
 
             # Update the annual fraction of new stock additions and total
-            # new stock previously captured by the baseline technology given
+            # new stock previously captured by the base/efficient tech. given
             # the total new stock data for each year
             for ind, yr in enumerate(self.handyvars.aeo_years):
                 # In the first year of the time horizon, 100% of new stock has
                 # been added in that year (as 'new' stock accumulates from
                 # this year on)
                 if ind == 0:
+                    # Set new stock addition fraction to 1
                     new_stock_add_frac[yr] = 1
                     # If year is before earliest measure market entry year,
                     # assign the new stock to the baseline
                     if int(yr) < min(mkt_entry_yrs):
                         new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
+                        new_stock_eff[yr] = 0
                     else:
                         new_stock_base[yr] = 0
+                        new_stock_eff[yr] = copy.deepcopy(new_stock_tot[yr])
+
                 # Otherwise, update both variables in accordance with the total
                 # new stock data for that year (if total new stock is not zero)
                 elif new_stock_tot[yr] != 0:
@@ -1883,8 +1858,12 @@ class Engine(object):
                         new_stock_base[yr] = (
                             new_stock_tot[yr] - new_stock_tot[
                                 str(int(yr) - 1)])
+                        new_stock_eff[yr] = 0
                     else:
                         new_stock_base[yr] = 0
+                        new_stock_eff[yr] = (
+                            new_stock_tot[yr] - new_stock_tot[
+                                str(int(yr) - 1)])
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1901,6 +1880,72 @@ class Engine(object):
                 adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
+            # Use a common lifetime for efficient replacement; use baseline
+            # lifetime as an estimate that will be consistent across measures;
+            # round baseline lifetime to the nearest integer
+            eff_life = {
+                yr: round(adj["lifetime"]["baseline"][yr]) for
+                yr in self.handyvars.aeo_years}
+
+            # Initialize overall ECM turnover rate; handle case where overall
+            # ECM lifetime is an array
+            eff_turnover_rt = {
+                yr: 0 if type(eff_life[yr]) != numpy.ndarray else
+                numpy.zeros(len(eff_life[yr])) for
+                yr in self.handyvars.aeo_years}
+
+            # Loop through all years in the ECM competition time horizon
+            for ind1, yr in enumerate(years_on_mkt_all):
+                # Handle case where ECM lifetime is an array
+                if type(eff_life[yr]) == numpy.ndarray:
+                    # Loop through all elements in the ECM life array
+                    for i in range(0, len(eff_life[yr])):
+                        # Determine the future year in which the competed ECM
+                        # stock from the current year will turn over,
+                        # calculated as the current year being looped through
+                        # plus the overall ECM lifetime
+                        future_eff_turnover_yr = \
+                            ind1 + int(eff_life[yr][i]) + 1
+                        # If the future year calculated above is within the ECM
+                        # competition time horizon, set ECM stock turnover rate
+                        # for that future year as 1/overall ECM lifetime for
+                        # the current year *** DO NOT ASSUME EARLY
+                        # RETROFITS ****
+                        if future_eff_turnover_yr < len(years_on_mkt_all):
+                            if "new" in mseg_key:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]][i] = \
+                                    new_stock_eff[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_eff_turnover_yr]]
+                            else:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]][i] = \
+                                    (1 / eff_life[yr][i])
+                # Handle case where overall lifetime across all
+                # competing ECMs is a point value
+                else:
+                    # Determine the future year in which the competed ECM stock
+                    # from the current year will turn over, calculated as the
+                    # current year being looped through plus the overall
+                    # ECM lifetime
+                    future_eff_turnover_yr = ind1 + int(eff_life[yr])
+                    # If the future year calculated above is within the ECM
+                    # competition time horizon, set ECM stock turnover rate for
+                    # that future year as 1/ECM lifetime for the current
+                    # year *** DO NOT ASSUME EARLY RETROFITS ****
+                    if future_eff_turnover_yr < len(years_on_mkt_all):
+                        if "new" in mseg_key:
+                            eff_turnover_rt[years_on_mkt_all[
+                                future_eff_turnover_yr]] = \
+                                new_stock_eff[yr] / new_stock_tot[
+                                    self.handyvars.aeo_years[
+                                        future_eff_turnover_yr]]
+                        else:
+                            eff_turnover_rt[years_on_mkt_all[
+                                future_eff_turnover_yr]] = \
+                                (1 / eff_life[yr])
+
             # Find a baseline stock turnover rate for each year in the modeling
             # time horizon
 
@@ -1911,9 +1956,13 @@ class Engine(object):
                 base_turnover_rt = {yr: new_stock_add_frac[yr] for
                                     yr in self.handyvars.aeo_years}
             else:
-                base_turnover_rt = {yr: (1 / adj["lifetime"]["baseline"][yr]) +
-                                    self.handyvars.retro_rate for yr in
-                                    self.handyvars.aeo_years}
+                # Note: do not assign base turnover in cases where no
+                # competing measures were on the market
+                base_turnover_rt = {
+                    yr: ((1 / adj["lifetime"]["baseline"][yr])
+                         + self.handyvars.retro_rate[yr])
+                    if yr in years_on_mkt_all
+                    else 0 for yr in self.handyvars.aeo_years}
             # Loop through all years in the modeling time horizon
             for ind1, yr in enumerate(self.handyvars.aeo_years):
                 # Set baseline lifetime for the contributing microsegment;
@@ -1942,17 +1991,17 @@ class Engine(object):
                         # stock is zero, set fraction to zero accordingly
                         if new_stock_tot[self.handyvars.aeo_years[
                                 future_base_turnover_yr]] != 0:
-                            add_base_capt_frac = (
+                            add_prev_capt = (
                                 new_stock_base[yr] / new_stock_tot[
                                     self.handyvars.aeo_years[
                                         future_base_turnover_yr]])
                         else:
-                            add_base_capt_frac = 0
+                            add_prev_capt = 0
                         # Add any previously captured baseline stock that
                         # is turning over in the future year to the replacement
                         # rate for that future year
                         base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += add_base_capt_frac
+                            future_base_turnover_yr]] += add_prev_capt
                         # Safeguard ensures new turnover rate never > 1
                         if base_turnover_rt[self.handyvars.aeo_years[
                                 future_base_turnover_yr]] > 1:
@@ -1965,7 +2014,37 @@ class Engine(object):
                         # replacement or retrofit
                         base_turnover_rt[self.handyvars.aeo_years[
                             future_base_turnover_yr]] = (1 / base_life) + \
-                            self.handyvars.retro_rate
+                            self.handyvars.retro_rate[yr]
+
+            # Ensure that cumulative turnover of existing stock never exceeds 1
+            if adopt_scheme != "Technical potential" and \
+                    "existing" in mseg_key:
+                # Set variables to track cumulative turnover
+                base_turnover_rt_cum, eff_turnover_rt_cum = ({
+                    yr: 0 for yr in self.handyvars.aeo_years} for
+                    n in range(2))
+                # Loop through all years in modeling time horizon
+                for yr in self.handyvars.aeo_years:
+                    # First year in modeling time horizon
+                    if yr == self.handyvars.aeo_years[0]:
+                        # Baseline stock in current year turnover
+                        base_turnover_rt_cum[yr] = base_turnover_rt[yr]
+                        # Previously captured efficient stock turnover
+                        eff_turnover_rt_cum[yr] = eff_turnover_rt[yr]
+                    # Subsequent years in modeling time horizon
+                    else:
+                        # Baseline stock in current year turnover
+                        base_turnover_rt_cum[yr] = base_turnover_rt_cum[
+                            str(int(yr) - 1)] + base_turnover_rt[yr]
+                        # Previously captured efficient stock turnover
+                        eff_turnover_rt_cum[yr] = eff_turnover_rt_cum[
+                            str(int(yr) - 1)] + eff_turnover_rt[yr]
+                    # Cap cumulative baseline and previously captured efficient
+                    # stock turnover at 1 (no further turnover in current year)
+                    if base_turnover_rt_cum[yr] > 1:
+                        base_turnover_rt[yr] = 0
+                    if eff_turnover_rt_cum[yr] > 1:
+                        eff_turnover_rt[yr] = 0
 
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
@@ -2835,9 +2914,13 @@ class Engine(object):
 
         # Set primary microsegment competed and total weighted market shares
 
+        # Calculate the market share weight based on turnover
+        # in the given year
+        wt_comp_yr = base_turnover_rt[yr] + eff_turnover_rt[yr]
+
         # Competed stock market share (represents adjustment for current
         # year)
-        adj_frac_comp = adj_fracs[yr] + added_sbmkt_fracs[yr]
+        adj_frac_comp = wt_comp_yr * (adj_fracs[yr] + added_sbmkt_fracs[yr])
 
         # Weight the market share adjustment for the stock captured by the
         # measure in the current year against that of the stock captured
@@ -2853,10 +2936,6 @@ class Engine(object):
                 x for x in adj_fracs.keys() if
                 (int(x) <= int(yr) and int(x) >= min(mkt_entry_yrs))])
 
-            # Initialize previously captured efficient fraction and remaining
-            # baseline stock fraction, used in the max adoption potential case
-            eff_frac_map, base_frac_map = (0, 1)
-
             # Loop through the above set of years, successively updating the
             # weighted market share using a simple moving average
             for ind, wyr in enumerate(weighting_yrs):
@@ -2870,53 +2949,23 @@ class Engine(object):
                 # weighted market share averages market share for captured
                 # stock in current year and all previous years
                 else:
-                    # New stock segment case
-                    if "new" in mseg_key:
-                        base_turnover_wt, eff_turnover_wt = [
-                            base_turnover_rt[wyr], eff_turnover_rt[wyr]]
-                    # Existing stock segment case
-                    else:
-                        # Calculate the portion of previously captured baseline
-                        # stock that is up for replacement/retrofit; cap this
-                        # portion by the portion of the total existing stock
-                        # that remains with the comparable baseline technology
-                        if base_turnover_rt[wyr] < base_frac_map:
-                            base_turnover_wt = base_turnover_rt[wyr]
-                        else:
-                            base_turnover_wt = base_frac_map
-                        # Calculate the portion of existing stock previously
-                        # captured by ECMs that is up for replacement/retrofit
-                        eff_turnover_wt = eff_turnover_rt[wyr] * eff_frac_map
-                        # Update previously captured efficient fraction and
-                        # remaining baseline stock fraction, capping the
-                        # efficient fraction at 1
-                        if eff_frac_map + base_turnover_rt[wyr] < 1:
-                            eff_frac_map += base_turnover_rt[wyr]
-                            base_frac_map = 1 - eff_frac_map
-                        else:
-                            eff_frac_map = 1
-                            base_frac_map = 0
-
-                    # Calculate the market share weight as the
-                    # combination of all existing baseline stock that is
-                    # up for replacement/retrofit in the current year plus
-                    # all existing stock previously captured by ECMs that
-                    # is up for replacement/retrofit
-                    wt_comp = base_turnover_wt + eff_turnover_wt
+                    # Calculate the market share weight based on turnover
+                    # in the given year
+                    wt_comp_wyr = base_turnover_rt[wyr] + eff_turnover_rt[wyr]
 
                     # Weighted market share equals the "long run" market share
                     # for the current year weighted by the fraction of the
                     # total market that is competed, plus any market share
                     # captured in previous years
                     adj_frac_tot = \
-                        (1 - wt_comp) * adj_frac_tot + \
-                        wt_comp * (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
-
-        # Ensure that total captured market share is never above 1
-        if type(adj_frac_tot) != numpy.ndarray and adj_frac_tot > 1:
-            adj_frac_tot = 1
-        elif type(adj_frac_tot) == numpy.ndarray:
-            adj_frac_tot[numpy.where(adj_frac_tot > 1)] = 1
+                        (1 - wt_comp_wyr) * adj_frac_tot + \
+                        wt_comp_wyr * (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
+                    # Ensure that total weighted market share is never above 1
+                    if type(adj_frac_tot) != numpy.ndarray and \
+                            adj_frac_tot > 1:
+                        adj_frac_tot = 1
+                    elif type(adj_frac_tot) == numpy.ndarray:
+                        adj_frac_tot[numpy.where(adj_frac_tot > 1)] = 1
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3526,8 +3575,8 @@ def main(base_dir):
     # used by default to calculate site-source conversions, with no TSV metrics
     # and AIA regions)
     handyfiles = UsefulInputFiles(energy_out=energy_out, regions="AIA")
-    # Instantiate useful variables object (AIA climate regions used by default)
-    handyvars = UsefulVars(base_dir, handyfiles, regions="AIA")
+    # Instantiate useful variables object
+    handyvars = UsefulVars(base_dir, handyfiles)
 
     # Import measure files
     with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
@@ -3721,7 +3770,7 @@ def main(base_dir):
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(base_dir, handyfiles, regions)
+        handyvars = UsefulVars(base_dir, handyfiles)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to

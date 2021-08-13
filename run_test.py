@@ -334,7 +334,7 @@ class TestMeasureInit(unittest.TestCase):
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -367,7 +367,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
@@ -468,9 +468,12 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         # Reset aeo_years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Technical potential'
@@ -1440,7 +1443,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1503,7 +1506,7 @@ class PaybackTest(unittest.TestCase):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1589,9 +1592,12 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         cls.handyvars.aeo_years = ["2009", "2010"]
-        cls.handyvars.retro_rate = 0
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
+        cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
             ('primary', 'AIA_CZ1', 'single family home', 'electricity',
@@ -16108,9 +16114,13 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
-        cls.handyvars.retro_rate = 0
+            regions="AIA"))
+        # Reset AEO years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
             ('primary', 'AIA_CZ1', 'assembly', 'electricity',
@@ -26578,7 +26588,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26636,8 +26646,11 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
         cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"), regions="AIA")
+            regions="AIA"))
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Set standard adoption schemes
+        cls.handyvars.adopt_schemes = [
+            "Technical potential", "Max adoption potential"]
         sample_measure1 = {
             "name": "sample sub-market test measure 1",
             "measure_type": "full service",
