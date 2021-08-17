@@ -261,6 +261,8 @@ class UsefulVars(object):
             currently be handled, thus the associated segment must be removed.
         tech_units_map (dict): Maps baseline performance units to measure units
             in cases where the conversion is expected (e.g., EER to COP).
+        sf_to_house (dict): Stores information for mapping stock units in
+            sf to number of households, as applicable.
         cconv_htclkeys_map (dict): Maps measure cost units to cost conversion
             dict keys for the heating and cooling end uses.
         cconv_tech_htclsupply_map (dict): Maps measure cost units to cost
@@ -277,11 +279,6 @@ class UsefulVars(object):
             applies only to the residential sector, where conversions from
             $/ft^2 floor to $/unit depend on number of units per household,
             which varies according to technology type).
-        res_typ_sf_household (dict): Typical household-level square footages,
-            used to translate ECM costs from $/ft^2 floor to $/household.
-        res_typ_units_household (dict): Typical number of technology units per
-            household, used to translate ECM costs from $/household to the
-            $/unit scale expected by the residential ECM competition approach
         deflt_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
@@ -895,29 +892,7 @@ class UsefulVars(object):
             "AFUE": {"COP": 1}, "UEF": {"SEF": 1},
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
             "SEF": {"UEF": 1}}
-        # Typical household square footages based on RECS 2015 Table HC 1.10,
-        # "Total square footage of U.S. homes, 2015"; divide total square
-        # footage for each housing type by total number of homes for each
-        # housing type (combine single family detached/attached into single
-        # family home, combine apartments with 2-4 and 5 or more units into
-        # multi family home)
-        self.res_typ_sf_household = {
-            "single family home": 2491, "mobile home": 1176,
-            "multi family home": 882}
-        # Typical number of lighting units per household based on RECS 2015
-        # Table HC 5.1, "Lighting in U.S. homes by housing unit type, 2015";
-        # take the median value for each bin in the table rows (e.g., for
-        # bin 0-20 lights, median is 10), and compute a housing unit-weighted
-        # sum across all the bins and housing types (combine single family
-        # detached/attached into single family home, combine apartments with
-        # 2-4 and 5 or more units into multi family home). Assume one unit
-        # per household for all other technologies; note that windows are
-        # included in this assumption (homeowners install/replace multiple
-        # windows at once as one 'unit').
-        self.res_typ_units_household = {
-            "lighting": {"single family home": 36, "mobile home": 18,
-                         "multi family home": 15},
-            "all other technologies": 1}
+        self.sf_to_house = {}
         # Assume that missing technology choice parameters come from the
         # appliances/MELs areas; default is thus the EIA choice parameters
         # for refrigerator technologies
@@ -3021,13 +2996,9 @@ class Measure(object):
                     valid_keys += 1
                     valid_keys_stk_energy += 1
                     # Flag use of ft^2 floor area as stock when number of stock
-                    # units is unavailable, or in any residential add-on ECM
-                    # case where user has not defined the add-on cost in terms
-                    # of '$/unit'
-                    if mseg["stock"] == "NA" or (
-                        bldg_sect == "residential" and
-                        '$/unit' not in cost_units and
-                            self.measure_type == "add-on"):
+                    # units is unavailable (applicable to residential envelope
+                    # and all commercial technologies)
+                    if mseg["stock"] == "NA":
                         sqft_subst = 1
 
                 # If sub-market scaling fraction is non-numeric (indicating
@@ -3290,16 +3261,35 @@ class Measure(object):
                             perf_meas, perf_units = [
                                 0, "relative savings (constant)"]
 
-                        # Handle residential add-on ECM case where user has not
-                        # defined the add-on cost in terms of '$/unit'; in such
-                        # cases, baseline costs should always be zero, in units
-                        # of $/ft^2 floor
+                        # If the baseline technology is a heat pump in the
+                        # residential sector, account for the fact that EIA
+                        # divides all heat pump costs by 2 when separately
+                        # considered across the heating and cooling services
                         if bldg_sect == "residential" and (
-                            '$/unit' not in cost_units and
-                                self.measure_type == "add-on"):
+                                mskeys[-2] is not None and "HP" in mskeys[-2]):
+                            # Multiply heat pump baseline cost units by 2
+                            # to account for EIA heat pump cost handling
                             cost_base, cost_base_units = \
-                                [{yr: 0 for yr in self.handyvars.aeo_years},
-                                 "$/ft^2 floor"]
+                                [{yr: base_cpl[
+                                    "installed cost"]["typical"][yr] * 2
+                                    for yr in self.handyvars.aeo_years},
+                                 base_cpl["installed cost"]["units"]]
+                            # Warn the user about the modification to EIA's
+                            # baseline cost data (and stock data, which is
+                            # also multiplied by 2 below) for this segment
+                            if mskeys[-2] not in hp_warn:
+                                hp_warn.append(mskeys[-2])
+                                verboseprint(
+                                    opts.verbose,
+                                    "WARNING: Stock/stock cost data for "
+                                    "comparable residential baseline "
+                                    "technology '" + str(mskeys[-2]) + "' "
+                                    "multiplied by two to account for EIA "
+                                    "handling of heat pump stock/stock costs "
+                                    "for the residential heating and cooling "
+                                    "end uses (both are divided by 2 when "
+                                    "separately considered across heating and "
+                                    "cooling in the raw EIA data)")
                         # For all other baseline technologies, pull baseline
                         # costs and cost units in as is from the baseline data
                         else:
@@ -3337,7 +3327,8 @@ class Measure(object):
                     except (TypeError, ValueError):
                         # In cases with missing baseline technology cost,
                         # performance, or lifetime data where the user
-                        # specifies the measure as an 'add-on' type AND
+                        # specifies the measure as an 'add-on' type or
+                        # applies to a secondary heating technology AND
                         # specifies relative savings for energy performance
                         # units, set the baseline cost to zero and - if no
                         # baseline lifetime data are available - set baseline
@@ -3348,14 +3339,15 @@ class Measure(object):
                         # market segments without complete unit-level cost,
                         # performance, and/or lifetime data will be removed
                         # from further analysis. The exception is needed to
-                        # handle controls-focused ECMs that apply to baseline
-                        # market segments with poor technology-level data - for
-                        # example, residential vacancy sensors that reduce MELs
+                        # handle ECMs that apply to baseline market segments
+                        # with poor technology-level data - for example,
+                        # residential vacancy sensors that reduce MELs
                         # energy use by turning off power draws to circuits
                         # when an occupant isn't home. The user will now be
                         # able to evaluate such measures given measure relative
                         # performance, incremental cost, and lifetime data
-                        if self.measure_type == "add-on" and \
+                        if (self.measure_type == "add-on" or
+                            "secondary heating" in mskeys) and \
                                 perf_units == "relative savings (constant)":
                             # Set baseline cost to zero with appropriate units
                             # for the building sector of interest
@@ -3476,8 +3468,14 @@ class Measure(object):
                     cost_base_units, perf_base_units = [cost_units, perf_units]
 
                 # Convert user-defined measure cost units to align with
-                # baseline cost units, given input cost conversion data
-                if mskeys[0] == "primary" and cost_base_units != cost_units:
+                # baseline cost units, given input cost conversion data;
+                # screen out special case where residential non-envelope cost
+                # units are given in $/ft^2 floor and must be converted to
+                # $/unit (handled separately below)
+                if mskeys[0] == "primary" and (
+                        "$/ft^2 floor" not in cost_units or
+                        "$/ft^2 floor" in cost_units and sqft_subst == 1) and \
+                        cost_base_units != cost_units:
                     # Case where measure cost has not yet been recast across
                     # AEO years
                     if not isinstance(cost_meas, dict):
@@ -3497,6 +3495,54 @@ class Measure(object):
                     # tracking list for cases where cost conversion need
                     # occur only once per building type
                     bldgs_costconverted[mskeys[2]] = [cost_meas, cost_units]
+
+                # Handle special case where residential cost units in $/ft^2
+                # floor must be converted to a per household basis for
+                # compatibility with other res. equipment measure types
+                if bldg_sect == "residential" and (sqft_subst == 1 or (
+                        sqft_subst != 1 and "$/ft^2 floor" in cost_units)):
+                    # Key for pulling sf to household (assumed synonymous with
+                    # "unit" for these cases) conversion data
+                    sf_to_house_key = str((mskeys[1], mskeys[2]))
+                    # Check if data were already pulled for current
+                    # combination of climate/building type; if not,
+                    # pull and store the data
+                    if sf_to_house_key not in \
+                            self.handyvars.sf_to_house.keys():
+                        # Conversion from $/sf to $/home divides number of
+                        # homes in a given climate/res. building type by the
+                        # total square footage of those homes; multiply by 1M
+                        # given EIA convention of reporting in Msf
+                        self.handyvars.sf_to_house[sf_to_house_key] = {
+                            yr: mseg_sqft_stock["total homes"][yr] / (
+                                mseg_sqft_stock["total square footage"][yr] *
+                                1000000) for yr in self.handyvars.aeo_years}
+
+                    # Convert measure costs to $/home (assumed synonymous with
+                    # $/unit); handle cases where measure cost is separated
+                    # out by year or not
+                    try:
+                        cost_meas = {
+                            yr: cost_meas[yr] / self.handyvars.sf_to_house[
+                                sf_to_house_key][yr]
+                            for yr in self.handyvars.aeo_years}
+                    except (IndexError, TypeError):
+                        cost_meas = {
+                            yr: cost_meas / self.handyvars.sf_to_house[
+                                sf_to_house_key][yr]
+                            for yr in self.handyvars.aeo_years}
+                    # Convert residential envelope baseline costs, which will
+                    # be in $/ft^2 floor, to $/home ($/unit)
+                    if sqft_subst == 1:
+                        cost_base = {
+                            yr: cost_base[yr] / self.handyvars.sf_to_house[
+                                sf_to_house_key][yr]
+                            for yr in self.handyvars.aeo_years}
+                    # Set measure and baseline cost units to $/unit (again,
+                    # household is assumed synonymous with "unit" here)
+                    cost_units, cost_base_units = ("$/unit" for n in range(2))
+                else:
+                    sf_to_house_key = None
 
                 # Determine relative measure performance after checking for
                 # consistent baseline/measure performance and cost units;
@@ -3723,34 +3769,6 @@ class Measure(object):
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
                     else:
-                        # Add technology choice parameter scaling factor for
-                        # residential ECMs with costs specified in units of
-                        # $/ft^2 floor. This scaling factor effectively
-                        # translates the technology choice cost inputs
-                        # for such ECMs from $/ft^2 floor to $/unit
-                        if sqft_subst == 1:
-                            # Calculate the choice parameter scaling factor as
-                            # the typical square footage of the building type
-                            # divided by the typical number of technology units
-                            # for the current end use and building type. If the
-                            # necessary data for the calculation are not
-                            # available, set the scaling factor to one
-                            try:
-                                choice_param_adj = \
-                                    self.handyvars.res_typ_sf_household[
-                                        mskeys[2]] / \
-                                    self.handyvars.res_typ_units_household[
-                                        mskeys[4]][mskeys[2]]
-                            except KeyError:
-                                try:
-                                    choice_param_adj = \
-                                        self.handyvars.res_typ_sf_household[
-                                            mskeys[2]] / 1
-                                except KeyError:
-                                    choice_param_adj = 1
-                        else:
-                            choice_param_adj = 1
-
                         # Use try/except to handle cases with missing
                         # or invalid consumer choice data (where choice
                         # parameter values of 0 or "NA" are invalid)
@@ -3763,12 +3781,12 @@ class Measure(object):
                                 "b1": {
                                     key: base_cpl["consumer choice"][
                                         "competed market share"]["parameters"][
-                                        "b1"][yr] * choice_param_adj for key in
+                                        "b1"][yr] for key in
                                     self.handyvars.aeo_years},
                                 "b2": {
                                     key: base_cpl["consumer choice"][
                                         "competed market share"]["parameters"][
-                                        "b2"][yr] * choice_param_adj for key in
+                                        "b2"][yr] for key in
                                     self.handyvars.aeo_years}}
                             # Add to count of primary microsegment key chains
                             # with valid consumer choice data
@@ -3791,13 +3809,11 @@ class Measure(object):
                                         "refrigeration end use")
                             choice_params = {
                                 "b1": {
-                                    key: self.handyvars.deflt_choice[0] *
-                                    choice_param_adj for key in
-                                    self.handyvars.aeo_years},
+                                    key: self.handyvars.deflt_choice[0] for
+                                    key in self.handyvars.aeo_years},
                                 "b2": {
-                                    key: self.handyvars.deflt_choice[1] *
-                                    choice_param_adj for key in
-                                    self.handyvars.aeo_years}}
+                                    key: self.handyvars.deflt_choice[1] for
+                                    key in self.handyvars.aeo_years}}
                 else:
                     # Update new building construction information
                     for yr in self.handyvars.aeo_years:
@@ -3912,16 +3928,43 @@ class Measure(object):
                 if mskeys[0] == 'secondary':
                     add_stock = dict.fromkeys(self.handyvars.aeo_years, 0)
                 elif sqft_subst == 1:  # Use ft^2 floor area in lieu of # units
-                    add_stock = {
-                        key: val * new_existing_frac[key] * 1000000 for
-                        key, val in mseg_sqft_stock[
-                            "total square footage"].items()
-                        if key in self.handyvars.aeo_years}
+                    # For residential envelope microsegments, stock is
+                    # converted to a per house (per "unit") basis to facilitate
+                    # comparison and packaging with res. equipment measures;
+                    # the required conversion factor was already calculated
+                    # above and applied to the stock costs for these
+                    # microsegments, and is reused here for the stock
+                    if sf_to_house_key and sf_to_house_key in \
+                            self.handyvars.sf_to_house.keys():
+                        add_stock = {
+                            key: val * new_existing_frac[key] *
+                            self.handyvars.sf_to_house[sf_to_house_key][key] *
+                            1000000 for key, val in mseg_sqft_stock[
+                                "total square footage"].items()
+                            if key in self.handyvars.aeo_years}
+                    else:
+                        add_stock = {
+                            key: val * new_existing_frac[key] * 1000000 for
+                            key, val in mseg_sqft_stock[
+                                "total square footage"].items()
+                            if key in self.handyvars.aeo_years}
                 else:
                     add_stock = {
                         key: val * new_existing_frac[key] for key, val in
                         mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
+
+                # If the baseline technology is a heat pump in the residential
+                # sector, account for the fact that EIA divides all heat pump
+                # stocks by 2 when separately considered across the heating
+                # and cooling services; note that per unit stock costs for
+                # these technologies are treated in the same way by EIA and
+                # were also multiplied by 2 above
+                if bldg_sect == "residential" and (
+                        mskeys[-2] is not None and "HP" in mskeys[-2]):
+                    add_stock = {yr: add_stock[yr] * 2 for
+                                 yr in self.handyvars.aeo_years}
+
                 # Total energy use
                 add_energy = {
                     key: val * site_source_conv_base[key] *
@@ -3997,6 +4040,32 @@ class Measure(object):
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
                             contrib_mseg_key, contrib_meas_pkg)
+
+                    # Remove double counted stock and stock cost for equipment
+                    # measures that apply to more than one end use that
+                    # includes heating or cooling. In these cases, always
+                    # anchor stock/cost on heating end use tech., provided
+                    # heating is included, because they are generally
+                    # of greatest interest for the stock of measures like
+                    # ASHPs and span fuels (e.g., electric resistance, gas
+                    # furnace, oil furnace, etc.). If heating is not covered,
+                    # anchor on the cooling end use technologies. This
+                    # adjustment covers heat pump measures as well as HVAC
+                    # controls measures that apply across heating/cooling
+                    # (and possibly other) end uses
+                    if sqft_subst != 1 and len(ms_lists[3]) > 1 and ((
+                        "heating" in ms_lists[3] and
+                        "heating" not in mskeys) or (
+                        "heating" not in ms_lists[3] and
+                        "cooling" in ms_lists[3] and
+                            "cooling" not in mskeys)):
+                        add_stock_total, add_stock_compete, \
+                            add_stock_total_meas, add_stock_compete_meas, \
+                            add_stock_cost, add_stock_cost_compete, \
+                            add_stock_cost_meas, \
+                            add_stock_cost_compete_meas = ({
+                                yr: 0 for yr in self.handyvars.aeo_years}
+                                for n in range(8))
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
@@ -4442,6 +4511,8 @@ class Measure(object):
 
                 # Remove stock multipliers from lifetime values in
                 # contributing microsegment (values used in competition later)
+
+                # Shorthand for contributing microsegment information
                 contrib_msegs = self.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"]
                 for key in contrib_msegs.keys():
@@ -4452,7 +4523,8 @@ class Measure(object):
                         else 10 for yr in self.handyvars.aeo_years}
 
                 # In microsegments where square footage must be used as stock,
-                # the square footages cannot be summed to calculate the master
+                # the square footages (or number of households, in the
+                # residential case) cannot be summed to calculate the master
                 # microsegment stock values (as is the case when using no. of
                 # units).  For example, 1000 Btu of cooling and heating in the
                 # same 1000 square foot building should not yield 2000 total
@@ -4463,9 +4535,9 @@ class Measure(object):
                 # bldg types * # structure types)), where the numerator refers
                 # to the number of full dict key chains that contributed to the
                 # mseg stock, energy, and cost calcs, and the denominator
-                # reflects the breakdown of square footage by climate zone,
-                # building type, and the structure type that the measure
-                # applies to.
+                # reflects the breakdown of square footage (or number of
+                # households) by climate zone, building type, and the
+                # structure type that the measure applies to.
                 if sqft_subst == 1:
                     # Determine number of structure types the measure applies
                     # to (could be just new, just existing, or both)
@@ -5707,26 +5779,9 @@ class Measure(object):
                     # Restrict to building sector of current microsegment
                     cval_bldgtyp = \
                         cval['conversion factor']['value'][bldg_sect]
-                    # Case where conversion data is further nested
-                    # by Scout building type and technology type (needed for
-                    # conversion to $/unit)
-                    if cval['original units'] == "$/ft^2 floor":
-                        cval_bldgtyp = cval_bldgtyp[mskeys[2]]
-                        # Case with $/ft^2 floor to $/unit cost conversion
-                        # for lighting technology (multiple units per house)
-                        if mskeys[5] is not None and any([
-                                k in mskeys[5] for k in cval_bldgtyp.keys()]):
-                            convert_units *= next(
-                                x[1] for x in cval_bldgtyp.items() if
-                                x[0] in mskeys[5])
-                        # Case with $/ft^2 floor to $/unit cost conversion
-                        # for non-lighting technology (one unit per house)
-                        else:
-                            convert_units *= cval_bldgtyp[
-                                "all other technologies"]
                     # Case where conversion data is further nested by
                     # Scout building type and EnergyPlus building type
-                    elif isinstance(cval_bldgtyp, dict) and isinstance(
+                    if isinstance(cval_bldgtyp, dict) and isinstance(
                             cval_bldgtyp[mskeys[2]], dict):
                         # Develop weighting factors to map conversion data
                         # from multiple EnergyPlus building types to the

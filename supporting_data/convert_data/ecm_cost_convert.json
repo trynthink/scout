@@ -53,29 +53,17 @@
 				"conversion factor": {
 					"description": "Typical number of wireless sensor nodes required per square foot residential/commercial area",
 					"value": {
-						"residential": {
-							"single family home": 0.0027,
-							"mobile home": 0.0047,
-							"multi family home": 0.0041},
 						"commercial": 0.002},
 					"units": "nodes/ft^2 floor",
 					"source": {
-						"residential": "EIA, Residential Energy Consumption Survey (RECS) 2015, Table HC 1.10, 'Total square footage of U.S. homes, 2015'; EIA, Residential Energy Consumption Survey (RECS) 2015, Table HC 2.1, 'Structural and geographic characteristics of U.S. homes by housing unit type, 2015'",
 						"commercial": "Kintner-Meyer et al, Opportunities of Wireless Sensors and Controls for Building Operation, Table 1"},
-					"notes": "Residential values assume one sensor is required per room, use RECS table HC 2.1 to devise an average of 5 rooms (and sensors) per household across residential building types, and divide that sensors number by typical residential household square footages in RECS Table HC 1.10; Commercial values take average of 30 sensors per 70000 square feet floor area (demonstration bldg. 1) and 120 sensors per 200000 square feet floor area (demonstration bldg. 2)"}},
+					"notes": "Commercial values take average of 30 sensors per 70000 square feet floor area (demonstration bldg. 1) and 120 sensors per 200000 square feet floor area (demonstration bldg. 2)"}},
 			"occupant-centered sensing and controls": {
 				"original units": "$/occupant",
 				"revised units": "$/ft^2 floor",
 				"conversion factor": {
 					"description": "Typical occupant density per square foot floor area",
 					"value": {
-						"residential": {
-							"single family home": {
-								"Single-Family": 0.001036},
-							"mobile home": {
-								"Single-Family": 0.002194},
-							"multi family home": {
-								"Multifamily": 0.002925}},
 						"commercial": {
 							"assembly": {
 								"Hospital": 0.005},
@@ -105,9 +93,8 @@
 							"other": 0.005}},
 					"units": "occupants/ft^2 floor",
 					"source": {
-						"residential": "U.S. Census, Households and Families 2010, p.1; EIA, Residential Energy Consumption Survey (RECS) 2015, Table HC 1.10, 'Total square footage of U.S. homes, 2015'",
 						"commercial": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 4"},
-					"notes": "Residential estimates divide U.S. 2010 Census estimate of 2.58 people per household by typical single and multi-family home square foot floor area estimates from the RECS source. Commercial occupant density estimates for 'assembly', 'lodging', 'large office', the 'SmallOffice' component of 'small office', 'health care', and 'other' building types correspond to the occupant density estimate for 'Office' in Table 4 of Deru source; 'education' corresponds to 'Classrooms' in Table 4; 'food sales' corresponds to 'Supermarket' in Table 4; 'food service' corresponds to 'Restaurant dining rooms' in Table 4; 'mercantile/service' corresponds to 'Sales' in Table 4; 'warehouse' corresponds to 'Warehouse' in Table 4; the 'Outpatient' component of 'small office' corresponds to 'Outpatient spaces' in Table 4"}}},
+					"notes": "Commercial occupant density estimates for 'assembly', 'lodging', 'large office', the 'SmallOffice' component of 'small office', 'health care', and 'other' building types correspond to the occupant density estimate for 'Office' in Table 4 of Deru source; 'education' corresponds to 'Classrooms' in Table 4; 'food sales' corresponds to 'Supermarket' in Table 4; 'food service' corresponds to 'Restaurant dining rooms' in Table 4; 'mercantile/service' corresponds to 'Sales' in Table 4; 'warehouse' corresponds to 'Warehouse' in Table 4; the 'Outpatient' component of 'small office' corresponds to 'Outpatient spaces' in Table 4"}}},
 		"heating and cooling": {
 			"supply": {
 				"heating equipment": {
