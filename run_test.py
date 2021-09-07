@@ -1594,6 +1594,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                 "fossil_equivalent", "NA", "NA", "NA", "NA"],
             regions="AIA"))
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Force climate zone breakouts to AIA
+        cls.handyvars.out_break_czones = {
+            "AIA CZ1": "AIA_CZ1",
+            "AIA CZ2": "AIA_CZ2",
+            "AIA CZ3": "AIA_CZ3",
+            "AIA CZ4": "AIA_CZ4",
+            "AIA CZ5": "AIA_CZ5",
+        }
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]
@@ -16117,6 +16125,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             regions="AIA"))
         # Reset AEO years
         cls.handyvars.aeo_years = ["2009", "2010"]
+        # Force climate zone breakouts to AIA
+        cls.handyvars.out_break_czones = {
+            "AIA CZ1": "AIA_CZ1",
+            "AIA CZ2": "AIA_CZ2",
+            "AIA CZ3": "AIA_CZ3",
+            "AIA CZ4": "AIA_CZ4",
+            "AIA CZ5": "AIA_CZ5",
+        }
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
