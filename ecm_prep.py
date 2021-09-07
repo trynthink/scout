@@ -50,21 +50,19 @@ class UsefulInputFiles(object):
             analysis engine.
         ecm_compete_data (tuple): Folder with contributing microsegment data
             needed to run measure competition in the analysis engine.
-        run_setup (tuple): Names of active measures that should be run in
+        run_setup (str): Names of active measures that should be run in
             the analysis engine.
-        cpi_data (CSV): Historical Consumer Price Index data.
-        ss_data (JSON): Site-source, emissions, and price data, national.
-        ss_data_altreg (JSON): Emissions/price data, EMM- or state-resolved.
-        tsv_load_data (JSON): Time sensitive energy demand data.
-        tsv_cost_data (JSON): Time sensitive electricity price data.
-        tsv_carbon_data (JSON): Time sensitive average CO2 emissions data.
-        tsv_shape_data (CSV): Custom time sensitive hourly savings shape data.
-        tsv_metrics_data_tot (CSV): Total system load shape data by EMM region.
-        tsv_metrics_data_net (CSV): Net system load shape data by EMM region.
-        health_data (CSV): EPA public health benefits data by EMM region.
-        regions (str): Specifies which baseline data file to choose, based on
-            intended regional breakout.
-        ash_emm_map (TXT): Factors for mapping ASHRAE climates to EMM regions.
+        cpi_data (tuple): Historical Consumer Price Index data.
+        ss_data (tuple): Site-source, emissions, and price data, national.
+        ss_data_altreg (tuple): Emissions/price data, EMM- or state-resolved.
+        tsv_load_data (tuple): Time sensitive energy demand data.
+        tsv_cost_data (tuple): Time sensitive electricity price data.
+        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data.
+        tsv_shape_data (tuple): Custom hourly savings shape data.
+        tsv_metrics_data_tot (tuple): Total system load data by EMM region.
+        tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
+        health_data (tuple): EPA public health benefits data by EMM region.
+        hp_convert_rates (tuple): Fuel switching conversion rates.
     """
 
     def __init__(self, capt_energy, regions, site_energy):
@@ -148,6 +146,8 @@ class UsefulInputFiles(object):
             "supporting_data", "tsv_data", "tsv_hrs_net_hr.csv")
         self.health_data = (
             "supporting_data", "convert_data", "epa_costs.csv")
+        self.hp_convert_rates = ("supporting_data", "convert_data",
+                                 "hp_convert_rates.json")
 
 
 class UsefulVars(object):
@@ -176,6 +176,8 @@ class UsefulVars(object):
         ecosts (dict): Energy costs by building and fuel type ($/MMBtu).
         ccosts (dict): Carbon costs ($/MTon).
         com_timeprefs (dict): Commercial adoption time preference premiums.
+        hp_rates (dict): Exogenous rates of conversions from baseline
+            equipment to heat pumps, if applicable.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
             list of climates, buildings, fuels, end uses, or technologies.
         valid_mktnames (list): List of all valid applicable baseline market
@@ -245,7 +247,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
-                 health_costs, split_fuel, floor_start):
+                 health_costs, split_fuel, floor_start, exog_hp_rates):
         # * DECARBONIZATION ANALYSIS: RESTRICT TO MAX ADOPTION POTENTIAL *
         self.adopt_schemes = ['Max adoption potential']
         self.discount_rate = 0.07
@@ -262,12 +264,7 @@ class UsefulVars(object):
         # # Set minimum AEO modeling year
         # aeo_min = aeo_yrs["min year"]
         # Set minimum year to current year
-        # If a global delay to market entry of the measure set has been
-        # imposed by the user, set minimum year to delayed start year
-        if floor_start is not None:
-            aeo_min = floor_start
-        else:
-            aeo_min = datetime.today().year
+        aeo_min = datetime.today().year
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -413,6 +410,17 @@ class UsefulVars(object):
                 "refrigeration": {
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
+        # Load external data on conversion rates for HP measures
+        if exog_hp_rates in ['1', '2']:
+            with open(path.join(
+                    base_dir, *handyfiles.hp_convert_rates), 'r') as fs_r:
+                try:
+                    self.hp_rates = json.load(fs_r)
+                except ValueError:
+                    print("Error reading in '" +
+                          handyfiles.hp_convert_rates + "'")
+        else:
+            self.hp_rates = None
         # Set valid region names and regional output categories
         if regions == "AIA":
             valid_regions = [
@@ -437,6 +445,8 @@ class UsefulVars(object):
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_reg_map, "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)])}
+            # HP conversion rates unsupported for AIA regional breakouts
+            self.hp_rates_reg_map = None
         elif regions in ["EMM", "State"]:
             if regions == "EMM":
                 valid_regions = [
@@ -454,6 +464,23 @@ class UsefulVars(object):
                     raise ValueError(
                         "Error reading in '" +
                         handyfiles.ash_emm_map + "': " + str(e)) from None
+                # If applicable, pull regional mapping needed to read in
+                # HP conversion rate data for certain measures/microsegments
+                if self.hp_rates:
+                    self.hp_rates_reg_map = {
+                        "midwest": [
+                            "SPPN", "MISW", "SPPC", "MISC",
+                            "PJMW", "PJMC", "MISE"],
+                        "northeast": [
+                            "PJME", "NYCW", "NYUP", "ISNE"],
+                        "south": [
+                            "SPPS", "TRE", "MISS", "SRCE", "PJMD",
+                            "SRCA", "SRSE", "FRCC"],
+                        "west": [
+                            "NWPP", "BASN", "RMRG", "SRSG", "CASO", "CANO"]
+                    }
+                else:
+                    self.hp_rates_reg_map = None
             else:
                 # Note: for now, exclude AK and HI
                 valid_regions = [
@@ -476,6 +503,26 @@ class UsefulVars(object):
                     "mountain": [
                         'AZ', 'CO', 'ID', 'MT', 'NM', 'NV', 'UT', 'WY'],
                     "pacific": ['AK', 'CA', 'HI', 'OR', 'WA']}
+                # If applicable, pull regional mapping needed to read in
+                # HP conversion rate data for certain measures/microsegments
+                if self.hp_rates:
+                    self.hp_rates_reg_map = {
+                        "midwest": [
+                            "ND", "SD", "NE", "KS", "MO", "IA", "MN", "WI",
+                            "IL", "IN", "MI", "OH"],
+                        "northeast": [
+                            "PA", "NY", "NJ", "CT", "RI", "MA", "VT", "NH",
+                            "ME"],
+                        "south": [
+                            "TX", "OK", "AR", "LA", "MS", "AL", "GA", "FL",
+                            "SC", "NC", "TN", "KY", "WV", "VA", "DC", "MD",
+                            "DE"],
+                        "west": [
+                            "WA", "OR", "ID", "MT", "WY", "CA", "NV", "UT",
+                            "AZ", "NM", "CO", "AK", "HI"]
+                    }
+                else:
+                    self.hp_rates_reg_map = None
             regions_out = [(x, x) for x in valid_regions]
 
             # Read in mapping for alternate performance/cost unit breakouts
@@ -901,7 +948,7 @@ class UsefulVars(object):
                 "7": {
                     "set 1": [3, (3, 19)],
                     "set 2": [24, (7, 24, 25)]}}
-            if tsv_metrics is not None:
+            if tsv_metrics is not False:
                 # Develop weekend day flags
                 wknd_day_flags = [0 for n in range(365)]
                 current_wkdy = 1
@@ -1511,10 +1558,8 @@ class Measure(object):
             from an input dictionary.
         remove (boolean): Determines whether measure should be removed from
             analysis engine due to insufficient market source data.
-        energy_outputs (dict): Indicates whether site energy or captured
-            energy site-source conversions were used in measure preparation,
-            as well as regions used for this preparation and whether or not
-            public health cost adders were specified.
+        energy_outputs (dict): Records several user command line input
+            selections that affect measure energy outputs.
         eff_fuelswitch_splits (dict): Data needed to calculate efficient-case
             fuel splits for any pkg. incl. the measure if measure fuel switches
         handyvars (object): Global variables useful across class methods.
@@ -1535,7 +1580,7 @@ class Measure(object):
     def __init__(
             self, base_dir, handyvars, handyfiles, site_energy, capt_energy,
             regions, tsv_metrics, health_costs, split_fuel, floor_start,
-            **kwargs):
+            exog_hp_rates, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1549,14 +1594,14 @@ class Measure(object):
         self.energy_outputs = {
             "site_energy": False, "captured_energy_ss": False,
             "alt_regions": False, "tsv_metrics": False, "health_costs": False,
-            "split_fuel": False}
+            "split_fuel": False, "floor_start": False, "exog_hp_rates": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
             self.energy_outputs["captured_energy_ss"] = True
         if regions != "AIA":
             self.energy_outputs["alt_regions"] = regions
-        if tsv_metrics is not None:
+        if tsv_metrics is not False:
             if (self.fuel_type not in ["electricity", ["electricity"]]) and \
                     self.fuel_switch_to != "electricity":
                 raise ValueError(
@@ -1575,6 +1620,10 @@ class Measure(object):
                 self.energy_outputs["health_costs"] = "Uniform EE-high"
         if split_fuel is True:
             self.energy_outputs["split_fuel"] = True
+        if floor_start is not False:
+            self.energy_outputs["floor_start"] = floor_start
+        if exog_hp_rates is not False:
+            self.energy_outputs["exog_hp_rates"] = exog_hp_rates
         self.eff_fuelswitch_splits = {}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -1835,8 +1884,7 @@ class Measure(object):
             'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
             'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
             'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-        if (any([x is not None for x in [
-            self.tsv_features, tsv_metrics]]) and ((
+        if ((self.tsv_features is not None or tsv_metrics is not False) and ((
                 type(self.climate_zone) == list and any([
                     x not in valid_tsv_regions for x in self.climate_zone])) or
             (type(self.climate_zone) != list and self.climate_zone != "all"
@@ -2098,6 +2146,16 @@ class Measure(object):
 
         # Determine "primary" microsegment key chains
         ms_iterable, ms_lists = self.create_keychain("primary")
+
+        # Insert a flag for linking heating and cooling microsegments, if
+        # applicable; when linked, heat pump conversion rates for heating
+        # microsegments will also be applied to the cooling microsegments
+        # affected by the measure in a given building type/region
+        if self.handyvars.hp_rates and all([
+                x in ms_lists[3] for x in ["heating", "cooling"]]):
+            link_htcl_fs_rates = True
+        else:
+            link_htcl_fs_rates = ""
 
         # If needed, fill out any secondary microsegment fuel type, end use,
         # and/or technology input attributes marked 'all' by users. Determine
@@ -2925,6 +2983,109 @@ class Measure(object):
                     # and all commercial technologies)
                     if mseg["stock"] == "NA":
                         sqft_subst = 1
+
+                # If applicable, determine the rate of conversion from baseline
+                # equipment to heat pumps (including fuel switching cases and
+                # like-for-like replacements of e.g., resistance heating/WH).
+                # Currently, assume only heating/water heating end uses are
+                # covered by these exogenous rates, and ensure that these rates
+                # are only assessed for equipment microsegments (e.g., they do
+                # not apply to envelope component heating energy msegs);
+                # equipment cooling microsegments that are linked with the
+                # heating microsegments are subject to the rates; set to None
+                # otherwise
+                if self.handyvars.hp_rates and "demand" not in mskeys and (any(
+                    [x in mskeys for x in ["heating", "water heating"]]) or (
+                        link_htcl_fs_rates and "cooling" in mskeys)):
+                    # Map the current mseg region to the regionality of the
+                    # HP conversion rate data
+                    reg = [r[0] for r in
+                           self.handyvars.hp_rates_reg_map.items() if
+                           mskeys[1] in r[1]][0]
+                    # Pull in HP conversion rate data for the region and
+                    # building type of the current microsegment
+                    hp_rate_dat = self.handyvars.hp_rates[
+                        "data"][reg][bldg_sect]
+                    # Attempt to further restrict HP conversion data by
+                    # fuel type, end use, technology, and building vintage;
+                    # handle cases where data are applicable to "all"
+                    # technologies within a given combination of fuel, end use,
+                    # and vintage, or otherwise set the HP conversion rate to
+                    # None if no data are available for the current mseg
+                    try:
+                        hp_rate = hp_rate_dat[
+                            mskeys[3]][mskeys[4]][mskeys[-2]][mskeys[-1]]
+                    except KeyError:
+                        try:
+                            hp_rate = hp_rate_dat[
+                                mskeys[3]][mskeys[4]]["all"][mskeys[-1]]
+                        except KeyError:
+                            # HP conversion rates for NGHP cooling msegs are
+                            # not directly addressed in the exogenous file
+                            # structure but should be set to the same as
+                            # NGHP heating
+                            if "cooling" in mskeys and "NGHP" in mskeys:
+                                try:
+                                    hp_rate = hp_rate_dat[mskeys[3]][
+                                        "heating"][mskeys[-2]][mskeys[-1]]
+                                except KeyError:
+                                    hp_rate = None
+                            # HP conversion rates for electric cooling msegs
+                            # attached to heating msegs that are fuel
+                            # switching from fossil to electric and subject to
+                            # the HP rates should be subject to the same rates;
+                            # attach cooling scaling to NG rates, and use NG
+                            # furnaces if those rates are resolved by
+                            # technology (NG furnaces are most prevalent
+                            # fossil-based heating technology)
+                            elif self.fuel_switch_to == "electricity" and \
+                                    "cooling" in mskeys:
+                                try:
+                                    hp_rate = hp_rate_dat["natural gas"][
+                                        "heating"]["furnace (NG)"][mskeys[-1]]
+                                except KeyError:
+                                    try:
+                                        hp_rate = hp_rate_dat["natural gas"][
+                                            "heating"]["all"][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                            # HP conversion rates for electric cooling msegs
+                            # attached to electric resistance heating msegs
+                            # that are subject to the HP rates should be
+                            # subject to the same rates
+                            elif self.fuel_switch_to is None and \
+                                    "cooling" in mskeys:
+                                try:
+                                    hp_rate = hp_rate_dat["electricity"][
+                                        "heating"]["resistance heat"][
+                                        mskeys[-1]]
+                                except KeyError:
+                                    try:
+                                        hp_rate = hp_rate_dat["electricity"][
+                                            "heating"]["all"][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                            else:
+                                hp_rate = None
+                else:
+                    hp_rate = None
+
+                # For cases where the measure is switching fuel to a HP
+                # and an external HP conversion rate has been imposed,
+                # and the current mseg applies to fossil fuel (e.g., is
+                # being switched away from), append an '-FS' to the
+                # contributing microsegment tech. information needed for ECM
+                # competition; this will ensure that the mseg is not
+                # directly competed with fossil msegs for other non-FS
+                # measures (e.g., gas efficiency), which is necessary b/c
+                # the overlap between such measures will have already been
+                # accounted for via the HP conversion rate calculations
+                if hp_rate and (self.fuel_switch_to == "electricity" and
+                                "electricity" not in mskeys):
+                    contrib_mseg_key = list(contrib_mseg_key)
+                    # Tech info. is second to last mseg list element
+                    contrib_mseg_key[-2] += "-FS"
+                    contrib_mseg_key = tuple(contrib_mseg_key)
 
                 # If sub-market scaling fraction is non-numeric (indicating
                 # it is not applicable to current microsegment), set to 1
@@ -3972,7 +4133,8 @@ class Measure(object):
                      add_energy_cost_compete, add_carb_cost_compete,
                      add_stock_cost_compete_meas, add_energy_cost_compete_eff,
                      add_carb_cost_compete_eff, add_fs_energy_eff_remain,
-                     add_fs_carb_eff_remain, add_fs_energy_cost_eff_remain] = \
+                     add_fs_carb_eff_remain, add_fs_energy_cost_eff_remain,
+                     mkt_scale_frac_fin] = \
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys,
                             mkt_scale_frac, new_constr, add_stock,
@@ -3982,7 +4144,7 @@ class Measure(object):
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
-                            contrib_mseg_key, contrib_meas_pkg)
+                            contrib_mseg_key, contrib_meas_pkg, hp_rate)
 
                     # Remove double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
@@ -4161,10 +4323,11 @@ class Measure(object):
                                      add_carb_total]
                         eff_data = [add_energy_total_eff, add_energy_cost_eff,
                                     add_carb_total_eff]
-                        # For a fuel switching case, create shorthands for
+                        # For a fuel switching case where the user desires that
+                        # the outputs be split by fuel, create shorthands for
                         # any efficient energy/carbon/cost that remains with
                         # the baseline fuel
-                        if self.fuel_switch_to is not None:
+                        if self.fuel_switch_to is not None and out_fuel_save:
                             eff_data_fs = [add_fs_energy_eff_remain,
                                            add_fs_energy_cost_eff_remain,
                                            add_fs_carb_eff_remain]
@@ -4391,13 +4554,14 @@ class Measure(object):
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
+                    contrib_mseg_key_str = str(contrib_mseg_key)
 
                     # Case with no existing 'windows' contributing microsegment
                     # for the current climate zone, building type, fuel type,
                     # and end use (create new 'contributing mseg keys and
                     # values' and 'competed choice parameters' microsegment
                     # information)
-                    if str(contrib_mseg_key) not in self.markets[adopt_scheme][
+                    if contrib_mseg_key_str not in self.markets[adopt_scheme][
                         "mseg_adjust"][
                             "contributing mseg keys and values"].keys():
                         # Register contributing microsegment information for
@@ -4405,14 +4569,14 @@ class Measure(object):
                         # measures that apply to this microsegment
                         self.markets[adopt_scheme]["mseg_adjust"][
                             "contributing mseg keys and values"][
-                            str(contrib_mseg_key)] = add_dict
+                            contrib_mseg_key_str] = add_dict
                         # Register choice parameters associated with
                         # contributing microsegment for later use in
                         # apportioning out various technology options across
                         # competed stock
                         self.markets[adopt_scheme]["mseg_adjust"][
                             "competed choice parameters"][
-                            str(contrib_mseg_key)] = choice_params
+                            contrib_mseg_key_str] = choice_params
                     # Case with existing 'windows' contributing microsegment
                     # for the current climate zone, building type, fuel type,
                     # and end use (add to existing 'contributing mseg keys and
@@ -4420,16 +4584,27 @@ class Measure(object):
                     else:
                         self.markets[adopt_scheme]["mseg_adjust"][
                             "contributing mseg keys and values"][
-                            str(contrib_mseg_key)] = self.add_keyvals(
+                            contrib_mseg_key_str] = self.add_keyvals(
                                 self.markets[adopt_scheme]["mseg_adjust"][
                                     "contributing mseg keys and values"][
-                                    str(contrib_mseg_key)], add_dict)
+                                    contrib_mseg_key_str], add_dict)
+
+                    # Market scaling fraction comes out of
+                    # "partition_microsegment" function in dict format, broken
+                    # by year; reformat as single value if values for each year
+                    # are identical
+                    if all([round(x[1], 3) == round(mkt_scale_frac_fin[
+                            self.handyvars.aeo_years[0]], 3) for
+                            x in mkt_scale_frac_fin.items()]):
+                        mkt_scale_frac_fin = mkt_scale_frac_fin[
+                            self.handyvars.aeo_years[0]]
+
                     # Record the sub-market scaling fraction associated with
                     # the current contributing microsegment
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"][
-                        str(contrib_mseg_key)]["sub-market scaling"] = \
-                        mkt_scale_frac
+                        contrib_mseg_key_str]["sub-market scaling"] = \
+                        mkt_scale_frac_fin
 
                     # Add all updated contributing microsegment stock, energy
                     # carbon, cost, and lifetime information to existing master
@@ -5859,7 +6034,7 @@ class Measure(object):
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
-            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg):
+            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg, hp_rate):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -5898,6 +6073,8 @@ class Measure(object):
             contrib_mseg_key (tuple): The same as mskeys, but adjusted to merge
                 windows solar/conduction msegs into "windows" if applicable.
             contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+            hp_rate (dict): Exogenous rate of conversion of the baseline mseg
+                to HPs, if applicable.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -5907,24 +6084,31 @@ class Measure(object):
         """
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total, energy_total, carb_total, energy_total_sbmkt, \
-            carb_total_sbmkt, stock_total_meas, stock_total_alt, \
-            energy_total_eff, carb_total_eff, stock_compete, \
+        stock_total, stock_total_sbmkt, energy_total, carb_total, \
+            energy_total_sbmkt, carb_total_sbmkt, stock_total_meas, \
+            stock_comp_cum_sbmkt, stock_total_hp_convert, energy_total_eff, \
+            carb_total_eff, stock_compete, stock_compete_meas, \
+            stock_compete_sbmkt, stock_comp_hp_convert, stock_comp_hp_remain, \
             energy_compete, carb_compete, energy_compete_sbmkt, \
-            carb_compete_sbmkt, stock_compete_meas, \
-            energy_compete_eff, carb_compete_eff, stock_total_cost, \
-            energy_total_cost, carb_total_cost, stock_total_cost_eff, \
-            energy_total_eff_cost, carb_total_eff_cost, \
+            carb_compete_sbmkt, energy_compete_eff, carb_compete_eff, \
+            stock_total_cost, energy_total_cost, carb_total_cost, \
+            stock_total_cost_eff, energy_total_eff_cost, carb_total_eff_cost, \
             stock_compete_cost, energy_compete_cost, carb_compete_cost, \
             stock_compete_cost_eff, energy_compete_cost_eff, \
-            carb_compete_cost_eff = ({} for n in range(29))
+            carb_compete_cost_eff, mkt_scale_frac_fin = (
+                {} for n in range(35))
 
         # Initialize the portion of microsegment already captured by the
-        # efficient measure as 0, the general portion captured by all efficient
-        # measures that apply to the current microsegment as zero
-        captured_meas_frac = 0
-        captured_alt_frac = 0
+        # efficient measure as 0, the cumulative portion of the microsegment
+        # already competed by the current year as 0, and a flag for whether
+        # full saturation with competed measures has not been achieved as True
+        meas_cum_frac = 0
+        comp_cum_frac = 0
         turnover_cap_not_reached = True
+
+        # Initialize flag for whether measure is on the market in a given year
+        # as false
+        measure_on_mkt = ""
 
         # Initialize variables that capture the portion of baseline
         # energy, carbon, and energy cost that remains with the baseline fuel
@@ -6014,46 +6198,54 @@ class Measure(object):
         else:
             secnd_mseg_adjkey = None
 
+        # Set time sensitive energy scaling factors for all baseline stock
+        # (does not depend on year)
+        tsv_energy_base = tsv_adj_init["energy"]["baseline"]
+
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
         for yr in self.handyvars.aeo_years:
-            # Force time sensitive scaling to 1 if measure is not on market
-            if int(yr) < self.market_entry_year:
-                tsv_adj = {
-                    "energy": {"baseline": 1, "efficient": 1},
-                    "cost": {"baseline": 1, "efficient": 1},
-                    "carbon": {"baseline": 1, "efficient": 1}}
+            # Reset flag for whether measure is on the market in current year
+            if (int(yr) >= self.market_entry_year and
+                    int(yr) < self.market_exit_year):
+                measure_on_mkt = True
             else:
-                tsv_adj = tsv_adj_init
-            # Set time sensitive energy scaling factors for all baseline stock
-            tsv_energy_base = tsv_adj["energy"]["baseline"]
-            # Set time-sensitive energy scaling factors for all efficient stock
-            tsv_energy_eff = tsv_adj["energy"]["efficient"]
+                measure_on_mkt = ""
 
             # Set time sensitive cost/emissions scaling factors for all
             # baseline stock; handle cases where these factors are/are not
             # broken out by AEO projection year
             try:
                 tsv_ecost_base, tsv_carb_base = [
-                    tsv_adj[x]["baseline"][yr] for x in ["cost", "carbon"]]
+                    tsv_adj_init[x]["baseline"][yr] for
+                    x in ["cost", "carbon"]]
             except TypeError:
                 tsv_ecost_base, tsv_carb_base = [
-                    tsv_adj[x]["baseline"] for x in ["cost", "carbon"]]
-            # Set time sensitive cost/emissions scaling factors for all
-            # efficient stock; handle cases where these factors are/are not
-            # broken out by AEO projection year
-            try:
-                tsv_ecost_eff, tsv_carb_eff = [
-                    tsv_adj[x]["efficient"][yr] for x in ["cost", "carbon"]]
-            except TypeError:
-                tsv_ecost_eff, tsv_carb_eff = [
-                    tsv_adj[x]["efficient"] for x in ["cost", "carbon"]]
+                    tsv_adj_init[x]["baseline"] for
+                    x in ["cost", "carbon"]]
 
-            # For secondary microsegments only, update: a) sub-market scaling
+            # If measure is not on the market, force efficient TSV scaling
+            # factors to baseline profiles
+            if measure_on_mkt:
+                tsv_energy_eff = tsv_adj_init["energy"]["efficient"]
+                # Set time sensitive cost/emissions scaling factors for all
+                # efficient stock; handle cases where these factors are/are not
+                # broken out by AEO projection year
+                try:
+                    tsv_ecost_eff, tsv_carb_eff = [
+                        tsv_adj_init[x]["efficient"][yr] for
+                        x in ["cost", "carbon"]]
+                except TypeError:
+                    tsv_ecost_eff, tsv_carb_eff = [
+                        tsv_adj_init[x]["efficient"] for x
+                        in ["cost", "carbon"]]
+            else:
+                tsv_energy_eff, tsv_ecost_eff, tsv_carb_eff = [
+                    tsv_energy_base, tsv_ecost_base, tsv_carb_base]
+
+            # For secondary microsegments only, update sub-market scaling
             # fraction, based on any sub-market scaling in the associated
-            # primary microsegment, and b) the portion of associated primary
-            # microsegment stock that has been captured by the measure in
-            # previous years
+            # primary microsegment
             if mskeys[0] == "secondary":
                 # Adjust sub-market scaling fraction
                 if secnd_adj_sbmkt["original energy (total)"][
@@ -6063,55 +6255,12 @@ class Measure(object):
                         secnd_mseg_adjkey][yr] / \
                         secnd_adj_sbmkt["original energy (total)"][
                         secnd_mseg_adjkey][yr]
-                # Adjust previously captured efficient fraction
-                if secnd_adj_stk["original energy (total)"][
-                        secnd_mseg_adjkey][yr] != 0:
-                    captured_meas_frac = secnd_adj_stk[
-                        "adjusted energy (previously captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original energy (total)"][secnd_mseg_adjkey][yr]
-                else:
-                    captured_meas_frac = 0
 
-            # Stock, energy, and carbon adjustments
-            stock_total[yr] = stock_total_init[yr] * mkt_scale_frac
+            # Total stock, energy, and carbon markets after accounting for any
+            # sub-market scaling
+            stock_total_sbmkt[yr] = stock_total_init[yr] * mkt_scale_frac
             energy_total_sbmkt[yr] = energy_total_init[yr] * mkt_scale_frac
-            energy_total[yr] = energy_total_sbmkt[yr] * tsv_energy_base
             carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
-            carb_total[yr] = carb_total_sbmkt[yr] * tsv_carb_base
-
-            # Re-apportion total baseline microsegment energy across all 8760
-            # hours of the year, if necessary (supports sector-level savings
-            # shapes)
-
-            # Only update sector-level shapes for certain years of focus;
-            # ensure that load shape information is available for the
-            # update and if not, yield an error message
-            if opts.sect_shapes is True and yr in \
-                self.handyvars.aeo_years_summary and \
-                    tsv_shapes is not None:
-                self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
-                    self.sector_shapes[adopt_scheme][mskeys[1]][yr][
-                        "baseline"][x] + tsv_shapes["baseline"][x] *
-                    energy_total_sbmkt[yr] for x in range(8760)]
-            elif opts.sect_shapes is True and tsv_shapes is None and (
-                    mskeys[0] == "primary" and (
-                        (mskeys[3] == "electricity") or
-                        (self.fuel_switch_to == "electricity"))):
-                raise ValueError(
-                    "Missing hourly fraction of annual load data for "
-                    "baseline energy use segment: " + str(mskeys) + ". ")
-
-            # For a primary microsegment and adjusted adoption potential case,
-            # determine the portion of competed stock that remains with the
-            # baseline technology or changes to the efficient alternative
-            # technology; for all other scenarios, set both fractions to 1
-            if adopt_scheme == "Adjusted adoption potential" and \
-               mskeys[0] == "primary":
-                # PLACEHOLDER
-                diffuse_meas_frac = 999
-            else:
-                diffuse_meas_frac = 1
 
             # Calculate new, replacement, and retrofit fractions for the
             # baseline and efficient stock as applicable. * Note: these
@@ -6146,12 +6295,13 @@ class Measure(object):
                     # stock between the current and previous year divided
                     # by the current year's stock (assuming it is not zero)
                     if yr != self.handyvars.aeo_years[0] and \
-                            stock_total[yr] != 0:
+                            stock_total_sbmkt[yr] != 0:
                         # Handle case where data for previous year are
                         # unavailable; set newly added fraction to 1
                         try:
-                            new_frac = (stock_total[yr] - stock_total[
-                                str(int(yr) - 1)]) / stock_total[yr]
+                            new_frac = (
+                                stock_total_sbmkt[yr] - stock_total_sbmkt[
+                                    str(int(yr) - 1)]) / stock_total_sbmkt[yr]
                         except KeyError:
                             new_frac = 1
                     # For the first year in the modeling time horizon, the
@@ -6182,18 +6332,18 @@ class Measure(object):
                             # AEO year and non-zero denominator
                             if (str(prev_capt_yr) !=
                                 self.handyvars.aeo_years[0]) and \
-                                    stock_total[yr] != 0:
+                                    stock_total_sbmkt[yr] != 0:
                                 repl_frac = (
-                                    stock_total[str(prev_capt_yr)] -
-                                    stock_total[str(prev_capt_yr - 1)]
-                                    ) / stock_total[yr]
+                                    stock_total_sbmkt[str(prev_capt_yr)] -
+                                    stock_total_sbmkt[str(prev_capt_yr - 1)]
+                                    ) / stock_total_sbmkt[yr]
                                 retro_frac = 0
                             # Previously captured year is first
                             # AEO year and non-zero denominator
-                            elif stock_total[yr] != 0:
+                            elif stock_total_sbmkt[yr] != 0:
                                 repl_frac = (
-                                    stock_total[str(prev_capt_yr)] /
-                                    stock_total[yr])
+                                    stock_total_sbmkt[str(prev_capt_yr)] /
+                                    stock_total_sbmkt[yr])
                                 retro_frac = 0
                             else:
                                 repl_frac, retro_frac = (
@@ -6230,111 +6380,334 @@ class Measure(object):
                 new_frac, repl_frac, retro_frac = (0 for n in range(3))
 
             # Determine the fraction of total stock, energy, and carbon
-            # in a given year that the measure will compete for given the
-            # microsegment type and technology adoption scenario
+            # in a given year post-sub-mkt scaling that the measure will
+            # compete for given the microsegment type and adoption scenario
 
             # Secondary microsegment (competed fraction tied to the associated
             # primary microsegment)
-            if int(yr) >= self.market_entry_year and \
-                    int(yr) < self.market_exit_year:
-                if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
-                    and secnd_adj_stk["original energy (total)"][
-                        secnd_mseg_adjkey][yr] != 0:
-                    comp_frac = secnd_adj_stk[
-                        "adjusted energy (competed)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                        "original energy (total)"][secnd_mseg_adjkey][yr]
-                # Primary microsegment in the first year of a technical
-                # potential scenario (all stock competed)
-                elif mskeys[0] == "primary" and \
-                        adopt_scheme == "Technical potential":
-                    comp_frac = 1
-                # Primary microsegment not in the first year where current
-                # microsegment applies to new structure type
-                elif mskeys[0] == "primary":
-                    # Total competed stock fraction is sum of new, replacement,
-                    # and retrofit turnover fractions calculated above
-                    comp_frac = new_frac + repl_frac + retro_frac
+            if mskeys[0] == "secondary" and secnd_mseg_adjkey is not None \
+                and secnd_adj_stk["original energy (total)"][
+                    secnd_mseg_adjkey][yr] != 0:
+                comp_frac_sbmkt = secnd_adj_stk[
+                    "adjusted energy (competed)"][
+                    secnd_mseg_adjkey][yr] / secnd_adj_sbmkt[
+                    "adjusted energy (sub-market)"][secnd_mseg_adjkey][yr]
+            # Primary microsegment in the first year of a technical
+            # potential scenario (all stock competed)
+            elif mskeys[0] == "primary" and \
+                    adopt_scheme == "Technical potential":
+                comp_frac_sbmkt = 1
+            # Primary microsegment not in the first year where current
+            # microsegment applies to new structure type
+            elif mskeys[0] == "primary":
+                # Total competed stock fraction is sum of new, replacement,
+                # and retrofit turnover fractions calculated above
+                comp_frac_sbmkt = new_frac + repl_frac + retro_frac
+            else:
+                comp_frac_sbmkt = 0
+
+            # Ensure that competed fraction never exceeds 1; handle cases
+            # with/without lifetime distribution
+            try:
+                if comp_frac_sbmkt > 1:
+                    comp_frac_sbmkt = 1
+            # Handle case with retro. rate distributions
+            except ValueError:
+                if any(comp_frac_sbmkt > 1):
+                    comp_frac_sbmkt[numpy.where(comp_frac_sbmkt > 1)] = 1
+
+            # Diffusion of electric HPs according to pre-determined rates
+            if hp_rate and mskeys[0] == "primary":
+                # Find the annual fraction of the total stock that is converted
+                # to a heat pump; set to 100% for technical potential,
+                # otherwise set to the new/replacement stock (and, if user
+                # desires, retrofit) times externally determined rate
+
+                # In a technical potential case, all stock converts to HPs
+                if adopt_scheme == "Technical potential":
+                    # Frac. total stock that converted to HP in year
+                    annual_hp_convert_frac = 1
+                    # Frac. total stock that remains with base fuel in year
+                    annual_hp_remain_frac = 0
+                # Otherwise, stock is converted according to external rate
                 else:
-                    comp_frac = 0
+                    # Determine what portion of the retrofit rate in each
+                    # year converts to HPs based on user cmd line inputs
+                    if opts.exog_hp_rates == '1':  # All retrofits to HPs
+                        # Converted retrofits
+                        retro_convert = retro_frac
+                        # Remaining retrofits
+                        retro_remain = 0
+                    elif opts.exog_hp_rates == '2':  # Frac. retrofits to HPs
+                        # Converted retrofits
+                        retro_convert = retro_frac * hp_rate[yr]
+                        # Remaining retrofits
+                        retro_remain = retro_frac * (1 - hp_rate[yr])
+                    # Frac. total stock that converted to HP in year
+                    annual_hp_convert_frac = (new_frac + repl_frac) * \
+                        hp_rate[yr] + retro_convert
+                    # Frac. total stock that remains with base fuel in year
+                    annual_hp_remain_frac = (new_frac + repl_frac) * (
+                        1 - hp_rate[yr]) + retro_remain
 
-                # Ensure that competed fraction never exceeds 1; handle cases
-                # with/without lifetime distribution
-                try:
-                    if comp_frac > 1:
-                        comp_frac = 1
-                # Handle case with retro. rate distributions
-                except ValueError:
-                    if any(comp_frac > 1):
-                        comp_frac[numpy.where(comp_frac > 1)] = 1
-            # For all other cases, set competed fraction to 0
-            else:
-                comp_frac = 0
+                # Find the annual stock that is converted to the HP measure
+                stock_comp_hp_convert[yr] = \
+                    annual_hp_convert_frac * stock_total_sbmkt[yr]
+                # Find the annual stock competed but remains /w base fuel
+                stock_comp_hp_remain[yr] = \
+                    annual_hp_remain_frac * stock_total_sbmkt[yr]
+                # Find the total stock (cumulative) that has been converted
+                # to HPs through the current year
+                if yr == self.handyvars.aeo_years[0]:
+                    stock_total_hp_convert[yr] = stock_comp_hp_convert[yr]
+                # If stock is not already all captured, add competed stock
+                else:
+                    stock_total_hp_convert[yr] = (
+                        stock_total_hp_convert[str(int(yr) - 1)]
+                        + stock_comp_hp_convert[yr])
+                # Ensure converted HP stock never goes above 1
+                if stock_total_hp_convert[yr] > stock_total_sbmkt[yr]:
+                    stock_total_hp_convert[yr] = stock_total_sbmkt[yr]
 
-            # Determine the fraction of total stock, energy, and carbon
-            # in a given year that is competed and captured by the measure
+                # Find the fraction of the total stock that has been converted
+                # to HPs through the current year
+                if stock_total_sbmkt[yr] != 0:
+                    stock_total_hp_convert_frac = \
+                        stock_total_hp_convert[yr] / stock_total_sbmkt[yr]
+                else:
+                    stock_total_hp_convert_frac = 0
 
-            # Secondary microsegment (competed and captured fraction tied
-            # to the associated primary microsegment)
-            if mskeys[0] == "secondary" and secnd_adj_stk[
-                    "original energy (total)"][secnd_mseg_adjkey][yr] != 0:
-                comp_capt_meas_frac = secnd_adj_stk[
-                    "adjusted energy (competed and captured)"][
-                    secnd_mseg_adjkey][yr] / secnd_adj_stk[
-                    "original energy (total)"][secnd_mseg_adjkey][yr]
-            # Primary microsegment and year when measure is on the market
-            else:
-                # Given competed stock, assign the full retrofit portion
-                # of that stock to the measure, while leaving the regular
-                # replacement portion subject to any diffusion rates
-                comp_capt_meas_frac = \
-                    (comp_frac - retro_frac) * diffuse_meas_frac + \
-                    retro_frac
+                # Finalize the fraction of the total stock (cumulative) that
+                # has either been converted to or away from the current mseg
+                # through the current year, as well as the fraction of the
+                # converted stock that was competed in the current year
 
-            # Initialize competed stock
-            stock_compete[yr] = stock_total[yr] * comp_frac
+                # Case where the measure's microsegment is being added to
+                # by the HP conversion (e.g., electric ASHP or HPWH measure)
+                if (self.fuel_switch_to == "electricity" or
+                        "electricity" in mskeys):
+                    # Cumulative fraction converted to HPs
+                    diffuse_frac = stock_total_hp_convert_frac
+                    # Fraction of total converted HPs competed in current
+                    # year
 
-            # Develop fractions to ensure that previously competed/captured
-            # existing stock is adjusted for attenuation in existing stock
-            # between years and to ensure that adding competed/captured stock
-            # to previously competed/captured stock never exceeds the total
-            # stock value in the given year
-            if "existing" in mskeys and yr != self.handyvars.aeo_years[0] and \
-                    (stock_total[str(int(yr) - 1)]) != 0:
-                # Adj. fraction to account for attenuation in existing stock
-                stock_adj_frac = \
-                    stock_total[yr] / stock_total[str(int(yr) - 1)]
-                # Indicator for competed/captured stock going above total
-                if adopt_scheme != "Technical potential":
-                    if type(stock_total_alt[str(int(yr) - 1)]) != \
-                            numpy.ndarray:
-                        stock_above_tot = (
-                            stock_total_alt[str(int(yr) - 1)]) * \
-                            stock_adj_frac + stock_compete[yr] > \
-                            stock_total[yr]
+                    # If full cumulative conversion was not yet achieved, set
+                    # to the fraction of total converted stock that was
+                    # converted in the current year
+                    if diffuse_frac != 1:
+                        if stock_total_hp_convert[yr] != 0:
+                            comp_frac_diffuse = stock_comp_hp_convert[yr] / \
+                                stock_total_hp_convert[yr]
+                        else:
+                            comp_frac_diffuse = 0
+                    # If full cumulative conversion was achieved
                     else:
-                        stock_above_tot = all(
-                            stock_total_alt[str(int(yr) - 1)] *
-                            stock_adj_frac + stock_compete[yr] >
-                            stock_total[yr])
+                        # Achieved in the current year; set to the fraction of
+                        # total converted stock that was converted in the
+                        # current year
+                        if (stock_total_hp_convert[str(int(yr) - 1)] !=
+                                stock_total_sbmkt[yr]):
+                            comp_frac_diffuse = (
+                                stock_total_hp_convert[yr] -
+                                stock_total_hp_convert[str(int(yr) - 1)]) / \
+                                stock_total_hp_convert[yr]
+                        # Achieved in a previous year; set to zero
+                        else:
+                            comp_frac_diffuse = 0
+                # Case where the measure's microsegment is being eroded
+                # by the pre-determined conversion to HPs (e.g. gas efficiency)
+                else:
+                    # Cumulative fraction remaining after conversion to HPs
+                    diffuse_frac = (1 - stock_total_hp_convert_frac)
+                    # Fraction of total mseg remaining /w base fuel competed in
+                    # current year
+
+                    # If full cumulative conversion was not yet achieved, set
+                    # to the fraction of total remaining stock that was
+                    # retained in the current year
+                    if diffuse_frac != 0:
+                        if (stock_total_sbmkt[yr] -
+                                stock_total_hp_convert[yr]) != 0:
+                            comp_frac_diffuse = stock_comp_hp_remain[yr] / (
+                                stock_total_sbmkt[yr] -
+                                stock_total_hp_convert[yr])
+                        else:
+                            comp_frac_diffuse = 0
+                    # If full cumulative conversion was achieved, set to zero
+                    else:
+                        comp_frac_diffuse = 0
+            # All other measure diffusion cases
+            else:
+                # Currently no diffusion scaling
+                diffuse_frac = 1
+                # Competed fraction is that calculated above for the mseg
+                # after applying submkt scaling
+                comp_frac_diffuse = comp_frac_sbmkt
+
+            # If the measure is on the market, the competed fraction that
+            # is captured by the measure is the same as the competed fraction
+            # above (all competed stock goes to measure); otherwise, this
+            # fraction is set to zero to preclude measure impacts on baseline
+            if measure_on_mkt:
+                comp_frac_diffuse_meas = comp_frac_diffuse
+            else:
+                comp_frac_diffuse_meas = 0
+
+            # Final total stock, energy, and carbon markets after accounting
+            # for any diffusion/conversion dynamics that restrict a measure's
+            # access to it's full baseline market (after sub-mkt scaling), as
+            # well as any adjustments to account for time-sensitive effects
+            stock_total[yr] = stock_total_sbmkt[yr] * diffuse_frac
+            energy_total[yr] = \
+                energy_total_sbmkt[yr] * diffuse_frac * tsv_energy_base
+            carb_total[yr] = \
+                carb_total_sbmkt[yr] * diffuse_frac * tsv_carb_base
+
+            # Finalize the sub-market scaling fraction as the initial sub-
+            # market scaling fraction from the measure definition times
+            # the diffusion fraction by year
+            mkt_scale_frac_fin[yr] = mkt_scale_frac * diffuse_frac
+
+            # Re-apportion total baseline microsegment energy across all 8760
+            # hours of the year, if necessary (supports sector-level savings
+            # shapes)
+
+            # Only update sector-level shapes for certain years of focus;
+            # ensure that load shape information is available for the
+            # update and if not, yield an error message
+            if opts.sect_shapes is True and yr in \
+                self.handyvars.aeo_years_summary and \
+                    tsv_shapes is not None:
+                self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
+                    self.sector_shapes[adopt_scheme][mskeys[1]][yr][
+                        "baseline"][x] + tsv_shapes["baseline"][x] *
+                    energy_total[yr] for x in range(8760)]
+            elif opts.sect_shapes is True and tsv_shapes is None and (
+                    mskeys[0] == "primary" and (
+                        (mskeys[3] == "electricity") or
+                        (self.fuel_switch_to == "electricity"))):
+                raise ValueError(
+                    "Missing hourly fraction of annual load data for "
+                    "baseline energy use segment: " + str(mskeys) + ". ")
+
+            # Initialize competed stock; to be finalized below depending on
+            # possibly adjustments to post-submkt-scaling competition fraction
+            stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
+
+            # Develop fractions to ensure that that adding competed/captured
+            # stock to previously competed/captured stock never exceeds the
+            # total stock value in the given year (after sub-mkt scaling)
+            if mskeys[0] == "primary" and turnover_cap_not_reached and \
+                    "existing" in mskeys and yr != self.handyvars.aeo_years[0]:
+                # Set indicator for competed stock going above total
+                if adopt_scheme != "Technical potential":
+                    if type(stock_comp_cum_sbmkt[str(int(yr) - 1)]) != \
+                            numpy.ndarray:
+                        stock_above_tot = \
+                            stock_comp_cum_sbmkt[str(int(yr) - 1)] \
+                            + stock_compete_sbmkt[yr] > stock_total_sbmkt[yr]
+                    else:
+                        stock_above_tot = any(
+                            stock_comp_cum_sbmkt[str(int(yr) - 1)]
+                            + stock_compete_sbmkt[yr] > stock_total_sbmkt[yr])
                 else:
                     stock_above_tot = False
 
-                # Adj. fraction to ensure addition of competed/captured stock
-                # never exceeds stock totals
-                if turnover_cap_not_reached and stock_above_tot:
+                # Adj. competition fractions to ensure addition of
+                # competed/captured stock never exceeds stock totals
+                if stock_above_tot:
                     # Adjustment removes any portion of the competed stock
                     # that would put the total competed over the total stock
                     # in the given year
-                    comp_adj_frac = (stock_compete[yr] - ((
-                        (stock_total_alt[str(int(yr) - 1)]) * stock_adj_frac +
-                        stock_compete[yr]) - stock_total[yr])) / \
-                        stock_compete[yr]
-                    # Adjust competed/captured fracs by fraction
-                    comp_frac *= comp_adj_frac
-                    comp_capt_meas_frac *= comp_adj_frac
+                    comp_adj_frac = (stock_compete_sbmkt[yr] - ((
+                        stock_comp_cum_sbmkt[str(int(yr) - 1)]
+                        + stock_compete_sbmkt[yr]) -
+                        stock_total_sbmkt[yr])) / stock_compete_sbmkt[yr]
+                    # Scale down competition fractions to reflect adjustment
+                    comp_frac_sbmkt, comp_frac_diffuse, \
+                        comp_frac_diffuse_meas = [x * comp_adj_frac for x in [
+                            comp_frac_sbmkt, comp_frac_diffuse,
+                            comp_frac_diffuse_meas]]
             else:
-                stock_adj_frac = 1
+                comp_adj_frac = 1
+
+            # Competed stock, energy, and carbon markets after accounting for
+            # any sub-market scaling
+            stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
+            energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * comp_frac_sbmkt
+            carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * comp_frac_sbmkt
+
+            # Final competed stock, energy, and carbon markets after accounting
+            # for any diffusion/conversion dynamics that restrict a measure's
+            # access to it's full baseline market (after sub-mkt scaling), as
+            # well as any adjustments to account for time-sensitive effects
+            stock_compete[yr] = \
+                stock_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse
+            energy_compete[yr] = \
+                energy_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
+                tsv_energy_base
+            carb_compete[yr] = \
+                carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
+                tsv_carb_base
+
+            # Final competed stock captured by the measure
+            stock_compete_meas[yr] = \
+                stock_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse_meas
+
+            # For primary microsegments only, update portion of stock captured
+            # by efficient measure in previous years
+            if mskeys[0] == "primary" and yr != self.handyvars.aeo_years[0]:
+                # Set previous year key
+                prev_yr = str(int(yr) - 1)
+
+                # Handle case where captured efficient stock total
+                # is a point value
+                try:
+                    if (stock_total[yr] - stock_compete[yr]) != 0:
+                        meas_cum_frac = \
+                            stock_total_meas[prev_yr] / (
+                                stock_total[yr] - stock_compete[yr])
+                    if (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]) != 0:
+                        comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
+                            (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr])
+                # Handle case where captured efficient stock total
+                # is a numpy array
+                except ValueError:
+                    if all((stock_total[yr] - stock_compete[yr]) != 0):
+                        meas_cum_frac = (
+                            stock_total_meas[prev_yr] /
+                            (stock_total[yr] - stock_compete[yr]))
+                    if all((stock_total_sbmkt[yr] -
+                            stock_compete_sbmkt[yr]) != 0):
+                        comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
+                            stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]))
+
+                # Ensure neither fraction goes above 1
+
+                # Cumulative measure-captured fraction
+                if type(meas_cum_frac) != numpy.ndarray and meas_cum_frac > 1:
+                    meas_cum_frac = 1
+                elif type(meas_cum_frac) == numpy.ndarray and \
+                        any(meas_cum_frac > 1):
+                    meas_cum_frac[numpy.where(meas_cum_frac > 1)] = 1
+                # Cumulative competed-captured fraction
+                if type(comp_cum_frac) != numpy.ndarray and comp_cum_frac > 1:
+                    comp_cum_frac = 1
+                elif type(comp_cum_frac) == numpy.ndarray and \
+                        any(comp_cum_frac > 1):
+                    comp_cum_frac[numpy.where(comp_cum_frac > 1)] = 1
+
+                # For non-technical potential scenarios for existing stock,
+                # determine whether a cap on existing stock turnover has been
+                # reached (TP has measure eligible for all stock
+                # each year, and new stock is always growing so the turnover
+                # cap is not applicable)
+                if "existing" in mskeys and \
+                        adopt_scheme != "Technical potential":
+                    if type(comp_cum_frac) != numpy.ndarray:
+                        turnover_cap_not_reached = comp_cum_frac < 1
+                    else:
+                        turnover_cap_not_reached = all(comp_cum_frac < 1)
 
             # In the case of a primary microsegment with secondary effects,
             # update the information needed to scale down the secondary
@@ -6349,29 +6722,33 @@ class Measure(object):
                 # Total stock
                 secnd_adj_stk[
                     "original energy (total)"][secnd_mseg_adjkey][yr] += \
-                    energy_total_sbmkt[yr]
+                    energy_total_init[yr]
                 # Previously captured stock
                 secnd_adj_stk["adjusted energy (previously captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    captured_meas_frac * energy_total_sbmkt[yr]
+                    energy_total_sbmkt[yr] * meas_cum_frac
                 # Competed stock
                 secnd_adj_stk["adjusted energy (competed)"][
-                    secnd_mseg_adjkey][yr] += comp_frac * \
-                    energy_total_sbmkt[yr]
+                    secnd_mseg_adjkey][yr] += \
+                    energy_total_sbmkt[yr] * comp_frac_sbmkt
                 # Competed and captured stock
                 secnd_adj_stk["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
-                    comp_capt_meas_frac * energy_total_sbmkt[yr]
+                    energy_total_sbmkt[yr] * comp_frac_sbmkt
 
-            # Update competed stock, energy, and carbon
-            stock_compete[yr] = stock_total[yr] * comp_frac
-            energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * comp_frac
-            energy_compete[yr] = energy_total[yr] * comp_frac
-            carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * comp_frac
-            carb_compete[yr] = carb_total[yr] * comp_frac
-
-            # Determine the competed stock that is captured by the measure
-            stock_compete_meas[yr] = stock_total[yr] * comp_capt_meas_frac
+            # For secondary microsegments only, update the portion of
+            # associated primary microsegment stock that has been captured by
+            # the measure in previous years
+            if mskeys[0] == "secondary":
+                # Adjust previously captured efficient fraction
+                if secnd_adj_stk["original energy (total)"][
+                        secnd_mseg_adjkey][yr] != 0:
+                    meas_cum_frac = secnd_adj_stk[
+                        "adjusted energy (previously captured)"][
+                        secnd_mseg_adjkey][yr] / secnd_adj_stk[
+                        "original energy (total)"][secnd_mseg_adjkey][yr]
+                else:
+                    meas_cum_frac = 0
 
             # Determine the amount of existing stock that has already
             # been captured by the measure up until the current year;
@@ -6382,24 +6759,17 @@ class Measure(object):
             # First year in the modeling time horizon
             if yr == self.handyvars.aeo_years[0]:
                 stock_total_meas[yr] = stock_compete_meas[yr]
-                stock_total_alt[yr] = stock_compete[yr]
+                stock_comp_cum_sbmkt[yr] = stock_compete_sbmkt[yr]
             # Subsequent year in modeling time horizon
             else:
                 # Technical potential case where the measure is on the
                 # market: the stock captured by the measure should equal the
                 # total stock (measure captures all stock)
-                if adopt_scheme == "Technical potential" and (
-                    int(yr) >= self.market_entry_year) and (
-                        int(yr) < self.market_exit_year):
-                    stock_total_meas[yr], stock_total_alt[yr] = (
-                        stock_total[yr] for n in range(2))
-                # All other cases
-                else:
-                    # For microsegments applying to existing stock, calculate
-                    # a fraction for mapping the portion of captured stock as
-                    # of the previous year to the stock total for the current
-                    # year, such that the captured portion remains consistent
-
+                if adopt_scheme == "Technical potential" and measure_on_mkt:
+                    stock_total_meas[yr] = stock_total[yr]
+                    stock_comp_cum_sbmkt[yr] = stock_total_sbmkt[yr]
+                # Non-technical potential case
+                elif adopt_scheme != "Technical potential":
                     # Handle case where data for previous year are
                     # unavailable; set total captured stock to current year's
                     # competed/captured stock
@@ -6408,21 +6778,36 @@ class Measure(object):
                         # measure specifically and an efficient alternative (
                         # reflects all previously captured stock +
                         # captured competed stock from the current year).
-                        stock_total_meas[yr] = (stock_total_meas[
-                            str(int(yr) - 1)]) * stock_adj_frac + \
-                            stock_compete_meas[yr]
-                        stock_total_alt[yr] = (stock_total_alt[
-                            str(int(yr) - 1)]) * stock_adj_frac + \
-                            stock_compete[yr]
+                        stock_total_meas[yr] = stock_total_meas[
+                            str(int(yr) - 1)] + stock_compete_meas[yr]
+                        stock_comp_cum_sbmkt[yr] = stock_comp_cum_sbmkt[
+                            str(int(yr) - 1)] + stock_compete_sbmkt[yr]
                     except KeyError:
                         stock_total_meas[yr] = stock_compete_meas[yr]
-                        stock_total_alt[yr] = stock_compete[yr]
+                        stock_comp_cum_sbmkt[yr] = stock_compete_sbmkt[yr]
+                # All other cases, including technical potential case where
+                # measure is not on the market (stock goes immediately to zero)
+                else:
+                    stock_total_meas[yr] = 0
+                    stock_comp_cum_sbmkt[yr] = 0
+
+            # Ensure stock captured by measure never exceeds total stock
+
+            # Handle case where stock captured by measure is an array
+            if type(stock_total_meas[yr]) == numpy.ndarray and \
+                    any(stock_total_meas[yr] > stock_total[yr]) is True:
+                stock_total_meas[yr][numpy.where(
+                    stock_total_meas[yr] > stock_total[yr])] = stock_total[yr]
+            # Handle case where stock captured by measure is point val
+            elif type(stock_total_meas[yr]) != numpy.ndarray and \
+                    stock_total_meas[yr] > stock_total[yr]:
+                stock_total_meas[yr] = stock_total[yr]
 
             # Update the relative performance and time-sensitive efficiency
-            # scaling factors of the current year's captured stock. Set to the
-            # relative performance/scaling factors of the current year only
-            # for all years through market entry; after market entry, these
-            # values are weighted combinations of the relative performance/
+            # scaling factors of the current year's measure-captured stock. Set
+            # to the relative performance/scaling factors of the current year
+            # only for all years through market entry; after market entry,
+            # these values are weighted combinations of the relative perf./
             # scaling factor values for captured stock in both the current year
             # and all previous years since market entry
             if int(yr) <= self.market_entry_year:
@@ -6445,31 +6830,29 @@ class Measure(object):
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
             # energy/carbon remaining after measure implementation plus
-            # non-competed energy/carbon. * Note: Efficient energy and
-            # carbon is dependent upon whether the measure is on the market
-            # for the given year (if not, use baseline energy and carbon)
+            # non-competed energy/carbon.
 
             # Set common variables for the efficient energy calculations
 
             # Competed energy captured by measure
-            energy_tot_comp_meas = energy_total_sbmkt[yr] * \
-                comp_capt_meas_frac * rel_perf_capt * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                tsv_energy_eff
-            # Competed energy remaining with baseline
-            energy_tot_comp_base = energy_total_sbmkt[yr] * (
-                    comp_frac - comp_capt_meas_frac) * \
-                rel_perf_uncapt * tsv_energy_base
+            energy_tot_comp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
+                tsv_energy_eff * comp_frac_diffuse_meas * \
+                rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+            # Competed energy not captured by measure
+            energy_tot_comp_base = energy_total_sbmkt[yr] * diffuse_frac * \
+                tsv_energy_base * (
+                    comp_frac_diffuse - comp_frac_diffuse_meas) * \
+                rel_perf_uncapt
             # Uncompeted energy captured by measure
-            energy_tot_uncomp_meas = (
-                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                captured_meas_frac * rel_perf_capt * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                tsv_energy_eff
-            # Uncompeted energy remaining with baseline
-            energy_tot_uncomp_base = (
-                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                (1 - captured_meas_frac) * rel_perf_uncapt * tsv_energy_base
+            energy_tot_uncomp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
+                tsv_energy_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
+                rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+            # Uncompeted energy not captured by measure
+            energy_tot_uncomp_base = energy_total_sbmkt[yr] * diffuse_frac * \
+                tsv_energy_base * (1 - comp_frac_diffuse) * (
+                    1 - meas_cum_frac) * rel_perf_uncapt
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_tot_comp_meas + \
@@ -6521,37 +6904,34 @@ class Measure(object):
             # Set common variables for the carbon calculations
 
             # Competed carbon captured by measure
-            carb_tot_comp_meas = carb_total_sbmkt[yr] * \
-                comp_capt_meas_frac * rel_perf_capt * \
+            carb_tot_comp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
+                tsv_carb_eff * comp_frac_diffuse_meas * rel_perf_capt * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                intensity_carb_ratio * tsv_carb_eff
-            # Competed carbon remaining with baseline
-            carb_tot_comp_base = carb_total_sbmkt[yr] * (
-                    comp_frac - comp_capt_meas_frac) * \
-                rel_perf_uncapt * tsv_carb_base
+                intensity_carb_ratio
+            # Competed carbon not captured by measure
+            carb_tot_comp_base = carb_total_sbmkt[yr] * diffuse_frac * \
+                tsv_carb_base * (
+                    comp_frac_diffuse - comp_frac_diffuse_meas) * \
+                rel_perf_uncapt
             # Uncompeted carbon captured by measure
-            carb_tot_uncomp_meas = (
-                carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * \
-                captured_meas_frac * rel_perf_capt * \
-                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                intensity_carb_ratio * tsv_carb_eff
-            # Uncompeted carbon remaining with baseline
-            carb_tot_uncomp_base = (
-                carb_total_sbmkt[yr] - carb_compete_sbmkt[yr]) * (
-                1 - captured_meas_frac) * rel_perf_uncapt * tsv_carb_base
+            carb_tot_uncomp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
+                tsv_carb_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
+                rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                intensity_carb_ratio
+            # Uncompeted carbon not captured by measure
+            carb_tot_uncomp_base = carb_total_sbmkt[yr] * diffuse_frac * \
+                tsv_carb_base * (1 - comp_frac_diffuse) * (
+                    1 - meas_cum_frac) * rel_perf_uncapt
 
             # Competed-efficient carbon
-            carb_compete_eff[yr] = carb_tot_comp_meas + \
-                carb_tot_comp_base
+            carb_compete_eff[yr] = carb_tot_comp_meas + carb_tot_comp_base
             # Total-efficient energy
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 carb_tot_uncomp_meas + carb_tot_uncomp_base
 
             # Update total and competed stock, energy, and carbon
-            # costs. * Note: total-efficient and competed-efficient stock
-            # cost for the measure are dependent upon whether that measure is
-            # on the market for the given year (if not, use baseline technology
-            # cost)
+            # costs
 
             # Baseline cost of the competed stock
             stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
@@ -6576,34 +6956,37 @@ class Measure(object):
                 stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas[yr]
 
             # Competed baseline energy cost
-            energy_compete_cost[yr] = energy_compete_sbmkt[yr] * \
-                cost_energy_base[yr] * tsv_ecost_base
+            energy_compete_cost[yr] = energy_total_sbmkt[yr] * \
+                diffuse_frac * comp_frac_diffuse * cost_energy_base[yr] * \
+                tsv_ecost_base
             # Total baseline energy cost
             energy_total_cost[yr] = energy_total_sbmkt[yr] * \
-                cost_energy_base[yr] * tsv_ecost_base
+                diffuse_frac * cost_energy_base[yr] * tsv_ecost_base
 
             # Set common variables for the energy cost calculations
 
             # Competed energy cost captured by measure
             energy_cost_tot_comp_meas = energy_total_sbmkt[yr] * \
-                comp_capt_meas_frac * rel_perf_capt * (
+                diffuse_frac * tsv_ecost_eff * comp_frac_diffuse_meas * \
+                rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                cost_energy_meas[yr] * tsv_ecost_eff
+                cost_energy_meas[yr]
             # Competed energy cost remaining with baseline
-            energy_cost_tot_comp_base = energy_total_sbmkt[yr] * (
-                    comp_frac - comp_capt_meas_frac) * \
-                rel_perf_uncapt * cost_energy_base[yr] * tsv_ecost_base
+            energy_cost_tot_comp_base = energy_total_sbmkt[yr] * \
+                diffuse_frac * tsv_ecost_base * (
+                    comp_frac_diffuse - comp_frac_diffuse_meas) * \
+                rel_perf_uncapt * cost_energy_base[yr]
             # Total energy cost captured by measure
-            energy_cost_tot_uncomp_meas = (
-                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                captured_meas_frac * rel_perf_capt * (
+            energy_cost_tot_uncomp_meas = energy_total_sbmkt[yr] * \
+                diffuse_frac * tsv_ecost_eff * (
+                    1 - comp_frac_diffuse) * meas_cum_frac * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                cost_energy_meas[yr] * tsv_ecost_eff
+                cost_energy_meas[yr]
             # Total energy cost remaining with baseline
-            energy_cost_tot_uncomp_base = (
-                energy_total_sbmkt[yr] - energy_compete_sbmkt[yr]) * \
-                (1 - captured_meas_frac) * rel_perf_uncapt * \
-                cost_energy_base[yr] * tsv_ecost_base
+            energy_cost_tot_uncomp_base = energy_total_sbmkt[yr] * \
+                diffuse_frac * tsv_ecost_base * (
+                    1 - comp_frac_diffuse) * (1 - meas_cum_frac) * \
+                rel_perf_uncapt * cost_energy_base[yr]
 
             # Competed-efficient energy cost
             energy_compete_cost_eff[yr] = energy_cost_tot_comp_meas + \
@@ -6636,53 +7019,6 @@ class Measure(object):
                 fs_energy_cost_eff_remain[yr] = \
                     energy_cost_tot_comp_base + energy_cost_tot_uncomp_base
 
-            # For primary microsegments only, update portion of stock captured
-            # by efficient measure in previous years to reflect gains from the
-            # current modeling year. If this portion is already 1 or the total
-            # stock for the year is 0, do not update the captured portion from
-            # the previous year
-            if mskeys[0] == "primary":
-                # Handle case where captured efficient stock total/fraction
-                # is a point value
-                try:
-                    if stock_total[yr] != 0:
-                        if captured_meas_frac != 1:
-                            captured_meas_frac = \
-                                stock_total_meas[yr] / stock_total[yr]
-                        if captured_alt_frac != 1:
-                            captured_alt_frac = \
-                                stock_total_alt[yr] / stock_total[yr]
-                # Handle case where captured efficient stock total/fraction
-                # is a numpy array
-                except ValueError:
-                    try:
-                        for i in range(0, self.handyvars.nsamples):
-                            if stock_total[yr] != 0:
-                                if captured_meas_frac[i] != 1:
-                                    captured_meas_frac[i] = (
-                                        stock_total_meas[yr][i] /
-                                        stock_total[yr])
-                                if captured_alt_frac[i] != 1:
-                                    captured_alt_frac[i] = (
-                                        stock_total_alt[yr][i] /
-                                        stock_total[yr])
-                    except TypeError:
-                        # Handle case where captured efficient stock is forced
-                        # to total stock point value (Technical potential)
-                        if stock_total_meas[yr] == stock_total[yr]:
-                            captured_meas_frac = 1
-                        if stock_total_alt[yr] == stock_total[yr]:
-                            captured_alt_frac = 1
-
-                # For non-technical potential scenarios, determine whether
-                # a cap on existing stock turnover has been reached (TP
-                # scenario has measure eligible for all stock each year)
-                if adopt_scheme != "Technical potential":
-                    if type(captured_alt_frac) != numpy.ndarray:
-                        turnover_cap_not_reached = captured_alt_frac < 1
-                    else:
-                        turnover_cap_not_reached = all(captured_alt_frac < 1)
-
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total,
                 stock_total_meas, energy_total_eff, carb_total_eff,
@@ -6694,7 +7030,7 @@ class Measure(object):
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff,
                 fs_energy_eff_remain, fs_carb_eff_remain,
-                fs_energy_cost_eff_remain]
+                fs_energy_cost_eff_remain, mkt_scale_frac_fin]
 
     def check_mkt_inputs(self):
         """Check for valid applicable baseline market inputs for a measure.
@@ -7799,6 +8135,8 @@ class MeasurePackage(Measure):
             to equipment improvements.
         contrib_ECMs_env (list): Subset of packaged measures that applies
             to envelope improvements.
+        pkg_env_costs (boolean): Flag for whether or not to include contrib.
+            envelope measure costs in the package (if applicable).
         name (string): Package name.
         benefits (dict): Percent improvements in energy savings and/or cost
             reductions from packaging measures.
@@ -7881,16 +8219,19 @@ class MeasurePackage(Measure):
                 "that are outside of this scope")
         self.contrib_ECMs_env = [m for m in self.contrib_ECMs if
                                  m.technology_type["primary"][0] == "demand"]
+        # If there are envelope measures in the package, register settings
+        # around whether to include the costs of those measures in pkg. costs
+        if len(self.contrib_ECMs_env) != 0:
+            self.pkg_env_costs = opts.pkg_env_costs
+        else:
+            self.pkg_env_costs = False
         # Check to ensure that measure name is proper length for plotting
         if len(self.name) > 40:
             raise ValueError(
                 "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
-        self.energy_outputs = {
-            "site_energy": False, "captured_energy_ss": False,
-            "alt_regions": False, "tsv_metrics": False, "health_costs": False,
-            "split_fuel": False}
+        self.energy_outputs = self.contrib_ECMs[0].energy_outputs
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -8159,7 +8500,7 @@ class MeasurePackage(Measure):
                     if len(m[adopt_scheme][
                         "eff_fuel_splits"].keys()) != 0 and \
                             cm in m[adopt_scheme]["eff_fuel_splits"].keys():
-                        fs_eff_splt = m.eff_fuelswitch_splits[cm]
+                        fs_eff_splt = m[adopt_scheme]["eff_fuel_splits"][cm]
                     else:
                         fs_eff_splt = None
                     # Convert mseg string to list for further calcs.
@@ -8565,12 +8906,67 @@ class MeasurePackage(Measure):
             # such that when recombined into the package, the maximum
             # sub-market scaling fraction across overlapping measures in
             # the current microsegment is yielded
-            max_submkt_scale = max([msegs_meas["sub-market scaling"], max([
-                x.markets[adopt_scheme]["mseg_adjust"][
+
+            # Case where all contributing measures have point values for
+            # sub-market scaling fractions (not broken out by year)
+            if not isinstance(msegs_meas["sub-market scaling"], dict) and all([
+                not isinstance(x.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"][cm_key][
-                    "sub-market scaling"] for x in overlap_meas])])
-            msegs_meas["sub-market scaling"] = \
-                max_submkt_scale / (len(overlap_meas) + 1)
+                        "sub-market scaling"], dict) for x in overlap_meas]):
+                # Maximum of current measure's sub-market scaling fraction
+                # and sub-market fractions of all other contrib. measures
+                max_submkt_scale = max(
+                    [msegs_meas["sub-market scaling"], max([
+                        x.markets[adopt_scheme]["mseg_adjust"][
+                            "contributing mseg keys and values"][cm_key][
+                            "sub-market scaling"] for x in overlap_meas])]) / \
+                    (len(overlap_meas) + 1)
+            # Case where at least one contributing measure has sub-market
+            # scaling fractions broken out by year
+            else:
+                # If current measure's sub-market scaling fraction is not
+                # broken out by year, extend it across years
+                if not isinstance(msegs_meas["sub-market scaling"], dict):
+                    current_meas_sbmkt = {
+                        yr: msegs_meas["sub-market scaling"] for yr in
+                        self.handyvars.aeo_years}
+                # Otherwise, set as is
+                else:
+                    current_meas_sbmkt = msegs_meas["sub-market scaling"]
+
+                # Initialize list of dicts broken out by years for the sub-
+                # market scaling fractions of overlapping measures
+                overlap_submkt_dicts = []
+                # Loop through all overlapping measures
+                for x in overlap_meas:
+                    # Shorthand for sub-market scaling information
+                    overlap_submkt_init = x.markets[adopt_scheme][
+                        "mseg_adjust"]["contributing mseg keys and values"][
+                        cm_key]["sub-market scaling"]
+                    # If overlapping measure's sub-market scaling fraction is
+                    # not broken out by year, extend it across years
+                    if not isinstance(overlap_submkt_init, dict):
+                        overlap_submkt_dicts.append({
+                            yr: overlap_submkt_init for yr in
+                            self.handyvars.aeo_years})
+                    # Otherwise, set as is
+                    else:
+                        overlap_submkt_dicts.append(overlap_submkt_init)
+
+                # Find the maximum sub-market scaling fraction in each year
+                # and set such that package sub-market scaling fraction equals
+                # this fraction when contributing markets are recombined across
+                # measures after adjustment
+                max_submkt_scale = {
+                    yr: None for yr in self.handyvars.aeo_years}
+                for yr in max_submkt_scale.keys():
+                    max_submkt_scale[yr] = max([current_meas_sbmkt[yr], max(
+                        [x[yr] for x in overlap_submkt_dicts])]) / \
+                        (len(overlap_meas) + 1)
+
+            # Set final sub-market scaling fraction as maximum across all
+            # contributing measures
+            msegs_meas["sub-market scaling"] = max_submkt_scale
 
         return msegs_meas, mseg_out_break_adj
 
@@ -8719,14 +9115,16 @@ class MeasurePackage(Measure):
                 if comp_stk_eff[yr] != 0
                 else ((comp_stk_cost_eff[str(int(yr) - 1)] /
                        comp_stk_eff[str(int(yr) - 1)])
-                      if yr != self.handyvars.aeo_years[0]
+                      if (yr != self.handyvars.aeo_years[0] and
+                          comp_stk_eff[str(int(yr) - 1)] != 0)
                       else 0) for yr in self.handyvars.aeo_years}
             env_cost_base_comp_unit = {
                 yr: (comp_stk_cost_base[yr] / comp_stk_base[yr])
                 if comp_stk_base[yr] != 0
                 else ((comp_stk_cost_base[str(int(yr) - 1)] /
                        comp_stk_base[str(int(yr) - 1)])
-                      if yr != self.handyvars.aeo_years[0]
+                      if (yr != self.handyvars.aeo_years[0] and
+                          comp_stk_base[str(int(yr) - 1)] != 0)
                       else 0) for yr in self.handyvars.aeo_years}
             # Adjust total efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["total"]["efficient"] = {
@@ -9545,7 +9943,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start, **m) for m in measures]
+        opts.split_fuel, opts.floor_start, opts.exog_hp_rates, **m) for
+        m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -9611,7 +10010,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
 
         # Establish a list of names for measures that contribute to the
         # package
-        package_measures = p["contrib_ECMs"]
+        package_measures = p["contributing_ECMs"]
         # Determine the subset of all previously initialized measure
         # objects that contribute to the current package
         measure_list_package = [
@@ -9631,7 +10030,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     base_dir, handyvars, handyfiles, opts.site_energy,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
-                    **meas_summary_data[0])
+                    opts.exog_hp_rates, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -9850,9 +10249,9 @@ def main(base_dir):
         # vs. AIA (3))
         while input_var not in ['1', '2', '3']:
             input_var = input(
-                "Enter 1 to use an EIA NEMS Electricity Market Module (EMM) "
-                "geographical breakdown,\n 2 to use a state geographical "
-                "breakdown,\n or 3 to use an AIA climate zone"
+                "\nEnter 1 to use an EIA NEMS Electricity Market Module (EMM) "
+                "geographical breakdown,\n2 to use a state geographical "
+                "breakdown,\nor 3 to use an AIA climate zone"
                 " geographical breakdown: ")
             if input_var not in ['1', '2', '3']:
                 print('Please try again. Enter either 1, 2, or 3. '
@@ -9883,6 +10282,29 @@ def main(base_dir):
             "WARNING: Analysis regions were set to EMM to allow " +
             warn_text + ": ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
+
+    # If exogenous HP rates are specified, gather further information about
+    # how these rates should be applied to retrofit decisions
+    if opts.exog_hp_rates is True:
+        input_var = 0
+        while input_var not in ['1', '2']:
+            input_var = input(
+                "\nEnter 1 to assume that all retrofits convert to heat "
+                "pumps \nor 2 to assume that retrofits are subject to the "
+                "same external heat pump conversion rates assumed for new/"
+                "replacement decisions: ")
+            if input_var not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        opts.exog_hp_rates = input_var
+        # Ensure that if HP conversion data are to be applied, EMM regional
+        # breakouts are set (HP conversion data use this resolution)
+        if regions not in ["EMM", "State"]:
+            opts.alt_regions, regions = [True, "EMM"]
+            warnings.warn(
+                "WARNING: Analysis regions were set to EMM to allow HP "
+                "conversion rates: ensure that ECM data reflect these EMM "
+                "regions or states (and not the default AIA regions)")
 
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
@@ -9967,7 +10389,7 @@ def main(base_dir):
         tsv_metrics = [
             output_type, hours, season, calc_type, sys_shape, day_type]
     else:
-        tsv_metrics = None
+        tsv_metrics = False
 
     # Ensure that if public cost health data are to be applied, EMM regional
     # breakouts are set (health data use this resolution)
@@ -9995,7 +10417,7 @@ def main(base_dir):
     # Instantiate useful variables object
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start)
+        opts.split_fuel, opts.floor_start, opts.exog_hp_rates)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -10051,15 +10473,15 @@ def main(base_dir):
                 # c) measure JSON time stamp indicates it has been modified
                 # since the last run of 'ecm_prep.py' or d) the user added/
                 # removed the "site_energy," "captured_energy", "alt_regions",
-                # "tsv_metrics", "health_costs", or "split_fuel" cmd line
-                # arguments and the measure def. was not already prepared using
-                # these settings or e) the user added the "sect_shapes" cmd
-                # line argument and the measure does not already have
-                # sector-level load shape data or f) the user specified the
-                # "sect_shapes" cmd line argument with a package present, and
-                # the measure contributes to the package (measure information
-                # needed to generate sector shapes for the package was not
-                # previously written out and must be regenerated)
+                # "tsv_metrics", "health_costs", "split_fuel," "floor_start,"
+                # or "exog_hp_rates" cmd line arguments and the measure def.
+                # was not already prepared using these settings or e) the user
+                # added the "sect_shapes" cmd line argument and the measure
+                # does not already have sector-level load shape data or f) the
+                # user specified the "sect_shapes" cmd line argument with a
+                # package present, and the measure contributes to the package
+                # (measure information needed to generate sector shapes for the
+                # package was not previously written and must be regenerated)
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
                    all([meas_dict["name"] not in y for y in listdir(
@@ -10093,6 +10515,17 @@ def main(base_dir):
                     all([y["energy_outputs"]["split_fuel"] is False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
+                   (opts is not None and opts.floor_start is not False and
+                    all([y["energy_outputs"]["floor_start"] is False or
+                         y["energy_outputs"]["floor_start"] != opts.floor_start
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.exog_hp_rates is not False and
+                    all([y["energy_outputs"]["exog_hp_rates"] is False or
+                         y["energy_outputs"][
+                            "exog_hp_rates"] != opts.exog_hp_rates
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
                     all([y["energy_outputs"]["site_energy"] is True for
                          y in meas_summary if y["name"] ==
@@ -10115,6 +10548,14 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.split_fuel is False and
                     all([y["energy_outputs"]["split_fuel"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.floor_start is False and
+                    all([y["energy_outputs"]["floor_start"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.exog_hp_rates is False and
+                    all([y["energy_outputs"]["exog_hp_rates"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -10192,27 +10633,33 @@ def main(base_dir):
         # Add a package dict to the list requiring further prepartion if:
         # a) any of the package's contributing measures have been updated,
         # b) the package is new, c) package does not already have competition
-        # data prepared for it; or d) package "contrib_ECMs" and/or
-        # "benefits" parameters have been edited from a previous version
-        if any([x["name"] in m["contrib_ECMs"] for
+        # data prepared for it, d) package "contrib_ECMs" and/or
+        # "benefits" parameters have been edited from a previous version, or
+        # e) package was prepared with different settings around including
+        # envelope costs (if applicable) than in the current run
+        if any([x["name"] in m["contributing_ECMs"] for
                 x in meas_toprep_indiv]) or len(m_exist) == 0 or \
             all([m["name"] not in y for y in listdir(path.join(
                 *handyfiles.ecm_compete_data))]) or (len(m_exist) == 1 and (
-                    sorted(m["contrib_ECMs"]) !=
+                    sorted(m["contributing_ECMs"]) !=
                     sorted(m_exist[0]["contrib_ECMs"]) or (
                         m["benefits"]["energy savings increase"] !=
                         m_exist[0]["benefits"]["energy savings increase"]) or (
                         m["benefits"]["cost reduction"] !=
-                        m_exist[0]["benefits"]["cost reduction"]))):
+                        m_exist[0]["benefits"]["cost reduction"])) or (
+                    (opts is not None and opts.pkg_env_costs is True and
+                     m_exist[0]["pkg_env_costs"] is False) or
+                    (opts is None or opts.pkg_env_costs is False and
+                     m_exist[0]["pkg_env_costs"] is not False))):
             meas_toprep_package.append(m)
-            contrib_meas_pkg.extend(m["contrib_ECMs"])
+            contrib_meas_pkg.extend(m["contributing_ECMs"])
         # Raise an error if the current package matches the name of
         # multiple previously prepared packages
         elif len(m_exist) > 1:
             raise ValueError(
                 "Multiple existing ECM names match '" + m["name"] + "'")
 
-    print("Importing supporting data...", end="", flush=True)
+    print("\nImporting supporting data...", end="", flush=True)
     # If one or more measure definition is new or has been edited, proceed
     # further with 'ecm_prep.py' routine; otherwise end the routine
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
@@ -10265,7 +10712,7 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        if (regions == 'EMM' and ((tsv_metrics is not None or any([
+        if (regions == 'EMM' and ((tsv_metrics is not False or any([
                 ("tsv_features" in m.keys() and m["tsv_features"] is not None)
                 for m in meas_toprep_indiv])) or
                 opts is not None and opts.sect_shapes is True)):
@@ -10474,6 +10921,10 @@ if __name__ == "__main__":
     parser.add_argument("--pkg_env_costs", action="store_true",
                         help=("Account for envelope costs in HVAC/envelope "
                               "packages (and their subsequent competition)"))
+    # Optional flag to handle fuel switching conversions via exogenous rates
+    parser.add_argument("--exog_hp_rates", action="store_true",
+                        help=("Accomodates exogenous forcing of fuel "
+                              "switching conversion rates"))
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
