@@ -464,92 +464,70 @@ class Engine(object):
                 for yr in self.handyvars.aeo_years:
 
                     # Baseline capital cost
-                    stock_base_cost_comp = \
-                        markets_uc["cost"]["stock"]["competed"]["baseline"][yr]
+                    stock_base_cost_tot = \
+                        markets_uc["cost"]["stock"]["total"]["baseline"][yr]
                     # Measure capital cost
-                    stock_meas_cost_comp = markets_uc["cost"]["stock"][
-                        "competed"]["efficient"][yr]
+                    stock_meas_cost_tot = markets_uc["cost"]["stock"][
+                        "total"]["efficient"][yr]
                     # Energy savings
-                    esave_comp = \
-                        markets_uc["energy"]["competed"]["baseline"][yr] - \
-                        markets_uc["energy"]["competed"]["efficient"][yr]
+                    esave_tot = \
+                        markets_uc["energy"]["total"]["baseline"][yr] - \
+                        markets_uc["energy"]["total"]["efficient"][yr]
                     # Carbon savings
-                    csave_comp = \
-                        markets_uc["carbon"]["competed"]["baseline"][yr] - \
-                        markets_uc["carbon"]["competed"]["efficient"][yr]
+                    csave_tot = \
+                        markets_uc["carbon"]["total"]["baseline"][yr] - \
+                        markets_uc["carbon"]["total"]["efficient"][yr]
                     # Energy cost savings
-                    ecostsave_comp = markets_uc["cost"]["energy"]["competed"][
-                            "baseline"][yr] - markets_uc["cost"]["energy"][
-                            "competed"]["efficient"][yr]
+                    ecostsave_tot = markets_uc["cost"]["energy"]["total"][
+                        "baseline"][yr] - markets_uc["cost"]["energy"][
+                        "total"]["efficient"][yr]
                     # Carbon cost savings
-                    ccostsave_comp = markets_uc["cost"]["carbon"]["competed"][
+                    ccostsave_tot = markets_uc["cost"]["carbon"]["total"][
                         "baseline"][yr] - markets_uc["cost"]["carbon"][
-                        "competed"]["efficient"][yr]
+                        "total"]["efficient"][yr]
                     # Number of applicable baseline stock units
-                    nunits_comp = \
-                        markets_uc["stock"]["competed"]["all"][yr]
+                    nunits_tot = \
+                        markets_uc["stock"]["total"]["all"][yr]
                     # Number of applicable stock units capt. by measure
-                    nunits_meas_comp = \
-                        markets_uc["stock"]["competed"]["measure"][yr]
+                    nunits_meas_tot = \
+                        markets_uc["stock"]["total"]["measure"][yr]
 
                     # Calculate per unit baseline capital cost and incremental
                     # measure capital cost (used in financial metrics
                     # calculations below); set these values to zero for
                     # years in which total number of base/meas units is zero
-                    if nunits_comp != 0 and (
-                        type(nunits_meas_comp) != numpy.ndarray and
-                        nunits_meas_comp >= 1 or
-                            type(nunits_meas_comp) == numpy.ndarray and all(
-                                nunits_meas_comp) >= 1):
+                    if nunits_tot != 0 and (
+                        type(nunits_meas_tot) != numpy.ndarray and
+                        nunits_meas_tot >= 1 or
+                            type(nunits_meas_tot) == numpy.ndarray and all(
+                                nunits_meas_tot) >= 1):
                         # Per unit baseline capital cost
                         scostbase_unit[yr] = \
-                            stock_base_cost_comp / nunits_comp
-                        # Per unit measure incremental capital cost
-                        scostmeas_delt_unit[yr] = \
-                            (stock_base_cost_comp - stock_meas_cost_comp) / \
-                            nunits_meas_comp
+                            stock_base_cost_tot / nunits_tot
                         # Per unit measure total capital cost
                         scostmeas_unit[yr] = \
-                            scostbase_unit[yr] - scostmeas_delt_unit[yr]
+                            stock_meas_cost_tot / nunits_meas_tot
+                        # Per unit measure incremental capital cost
+                        scostmeas_delt_unit[yr] = (
+                            scostbase_unit[yr] - scostmeas_unit[yr])
                         # Per unit measure energy savings
-                        esave_unit[yr] = \
-                            esave_comp / nunits_meas_comp
+                        esave_unit[yr] = esave_tot / nunits_meas_tot
                         # Per unit measure carbon savings
-                        csave_unit[yr] = \
-                            csave_comp / nunits_meas_comp
+                        csave_unit[yr] = csave_tot / nunits_meas_tot
                         # Per unit measure energy cost savings
-                        ecostsave_unit[yr] = \
-                            ecostsave_comp / nunits_meas_comp
+                        ecostsave_unit[yr] = ecostsave_tot / nunits_meas_tot
                         # Per unit measure carbon cost savings
-                        ccostsave_unit[yr] = \
-                            ccostsave_comp / nunits_meas_comp
+                        ccostsave_unit[yr] = ccostsave_tot / nunits_meas_tot
                         # Per unit measure energy costs
                         ecost_meas_unit[yr] = (
-                            markets_uc["cost"]["energy"]["competed"][
-                                "baseline"][yr] / nunits_comp) - \
+                            markets_uc["cost"]["energy"]["total"][
+                                "baseline"][yr] / nunits_tot) - \
                             ecostsave_unit[yr]
                         # Per unit measure carbon costs
                         ccost_meas_unit[yr] = (
-                            markets_uc["cost"]["carbon"]["competed"][
-                                "baseline"][yr] / nunits_comp) - \
+                            markets_uc["cost"]["carbon"]["total"][
+                                "baseline"][yr] / nunits_tot) - \
                             ccostsave_unit[yr]
-                    # If no competition data are available for the measure in
-                    # the given year, use data from the previous year
-                    elif yr != self.handyvars.aeo_years[0]:
-                        # Set the one year lag key
-                        lag_yr = str(int(yr) - 1)
-                        # Set values for the current year to those of lagged yr
-                        scostbase_unit[yr], scostmeas_delt_unit[yr], \
-                            scostmeas_unit[yr], esave_unit[yr], \
-                            csave_unit[yr], ecostsave_unit[yr], \
-                            ccostsave_unit[yr], ecost_meas_unit[yr], \
-                            ccost_meas_unit[yr] = scostbase_unit[lag_yr], \
-                            scostmeas_delt_unit[lag_yr], \
-                            scostmeas_unit[lag_yr], esave_unit[lag_yr], \
-                            csave_unit[lag_yr], ecostsave_unit[lag_yr], \
-                            ccostsave_unit[lag_yr], ecost_meas_unit[lag_yr], \
-                            ccost_meas_unit[lag_yr]
-
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
                     life_base = markets_uc["lifetime"]["baseline"][yr]
@@ -571,11 +549,11 @@ class Engine(object):
                     # If the total baseline stock is zero or no measure units
                     # have been captured for a given year, set finance metrics
                     # to 999
-                    if nunits_comp == 0 or (
-                        type(nunits_meas_comp) != numpy.ndarray and
-                        nunits_meas_comp < 1 or
-                            type(nunits_meas_comp) == numpy.ndarray and all(
-                                nunits_meas_comp) < 1):
+                    if nunits_tot == 0 or (
+                        type(nunits_meas_tot) != numpy.ndarray and
+                        nunits_meas_tot < 1 or
+                            type(nunits_meas_tot) == numpy.ndarray and all(
+                                nunits_meas_tot) < 1):
                         if yr == self.handyvars.aeo_years[0]:
                             stock_unit_cost_res[yr], \
                                 energy_unit_cost_res[yr], \
@@ -1276,8 +1254,14 @@ class Engine(object):
                 # competing measures if none of those measures is on
                 # the market either, or else has a market share of zero
                 if yr in m.yrs_on_mkt:
-                    mkt_fracs[ind][yr] = \
-                        mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                    if ((type(mkt_fracs_tot[yr]) != numpy.ndarray and
+                         mkt_fracs_tot[yr] != 0) or (
+                        type(mkt_fracs_tot[yr]) == numpy.ndarray and all(
+                            mkt_fracs_tot[yr] != 0))):
+                        mkt_fracs[ind][yr] = \
+                            mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                    else:
+                        mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 elif yr not in years_on_mkt_all:
                     mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 else:
@@ -1402,11 +1386,16 @@ class Engine(object):
                         # RETROFITS ****
                         if future_eff_turnover_yr < len(years_on_mkt_all):
                             if "new" in mseg_key:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]][i] = \
-                                    new_stock_eff[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_eff_turnover_yr]]
+                                if new_stock_tot[self.handyvars.aeo_years[
+                                        future_eff_turnover_yr]] != 0:
+                                    eff_turnover_rt[years_on_mkt_all[
+                                        future_eff_turnover_yr]][i] = \
+                                        new_stock_eff[yr] / new_stock_tot[
+                                        self.handyvars.aeo_years[
+                                            future_eff_turnover_yr]]
+                                else:
+                                    eff_turnover_rt[years_on_mkt_all[
+                                        future_eff_turnover_yr]][i] = 0
                             else:
                                 eff_turnover_rt[years_on_mkt_all[
                                     future_eff_turnover_yr]][i] = \
@@ -1425,11 +1414,16 @@ class Engine(object):
                     # year *** DO NOT ASSUME EARLY RETROFITS ****
                     if future_eff_turnover_yr < len(years_on_mkt_all):
                         if "new" in mseg_key:
-                            eff_turnover_rt[years_on_mkt_all[
-                                future_eff_turnover_yr]] = \
-                                new_stock_eff[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_eff_turnover_yr]]
+                            if new_stock_tot[self.handyvars.aeo_years[
+                                    future_eff_turnover_yr]] != 0:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]] = \
+                                    new_stock_eff[yr] / new_stock_tot[
+                                        self.handyvars.aeo_years[
+                                            future_eff_turnover_yr]]
+                            else:
+                                eff_turnover_rt[years_on_mkt_all[
+                                    future_eff_turnover_yr]] = 0
                         else:
                             eff_turnover_rt[years_on_mkt_all[
                                 future_eff_turnover_yr]] = (1 / eff_life[yr])
@@ -2084,11 +2078,21 @@ class Engine(object):
             reflect sub-market scaling in one or more competing ECMs.
         """
         # Set the fraction of the competed market that each ECM does not apply
-        # to (to be apportioned across the other competing ECMs)
+        # to (to be apportioned across the other competing ECMs);
+        # this fraction is broken out by year, and draws from sub-market
+        # scaling information for competing measures that may or may not
+        # also already be broken out by year
         noapply_sbmkt_fracs = [
-            1 - m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+            {yr: 1 - m.markets[adopt_scheme]["competed"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key][
-                "sub-market scaling"] for m in measures_adj]
+                "sub-market scaling"] for yr in self.handyvars.aeo_years}
+            if not isinstance(m.markets[adopt_scheme]["competed"][
+                "mseg_adjust"]["contributing mseg keys and values"][mseg_key][
+                "sub-market scaling"], dict)
+            else {yr: 1 - m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                "contributing mseg keys and values"][mseg_key][
+                "sub-market scaling"][yr] for yr in self.handyvars.aeo_years}
+            for m in measures_adj]
         # Set the total number of ECMs being competed
         len_compete = len(noapply_sbmkt_fracs)
 
@@ -2101,7 +2105,7 @@ class Engine(object):
             # For each competed ECM, set the total unaffected market segment
             # across all years in the analysis
             noapply_sbsbmkt_distrib_fracs_yr = [{
-                yr: noapply_sbmkt_fracs[ind] * mkt_fracs[ind][yr] for
+                yr: noapply_sbmkt_fracs[ind][yr] * mkt_fracs[ind][yr] for
                 yr in self.handyvars.aeo_years} for
                      ind in range(len(measures_adj))]
 
@@ -2123,7 +2127,7 @@ class Engine(object):
                     # to receive the current ECM's inapplicable segment
                     # portion. NOTE: it is assumed that competing ECMs that
                     # also do not apply to the entire segment are ineligible
-                    distrib_inds = [1 if noapply_sbmkt_fracs[mc] == 0
+                    distrib_inds = [1 if noapply_sbmkt_fracs[mc][yr] == 0
                                     else 0 for mc in range(0, len_compete)]
 
                     # Case where one or more competing ECMs applies to the full
