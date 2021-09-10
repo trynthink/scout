@@ -50,6 +50,8 @@ class UsefulInputFiles(object):
             analysis engine.
         ecm_compete_data (tuple): Folder with contributing microsegment data
             needed to run measure competition in the analysis engine.
+        ecm_eff_fs_splt_data (tuple): Folder with data needed to determine the
+            fuel splits of efficient case results for fuel switching measures.
         run_setup (str): Names of active measures that should be run in
             the analysis engine.
         cpi_data (tuple): Historical Consumer Price Index data.
@@ -118,6 +120,7 @@ class UsefulInputFiles(object):
         self.ecm_packages = ("ecm_definitions", "package_ecms.json")
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
+        self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.run_setup = "run_setup.json"
         self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
         # Use the user-specified captured energy method flag to determine
@@ -1559,8 +1562,8 @@ class Measure(object):
             analysis engine due to insufficient market source data.
         energy_outputs (dict): Records several user command line input
             selections that affect measure energy outputs.
-        eff_fuelswitch_splits (dict): Data needed to calculate efficient-case
-            fuel splits for any pkg. incl. the measure if measure fuel switches
+        eff_fs_splt (dict): Data needed to determine the fuel splits of
+            efficient case results for fuel switching measures.
         handyvars (object): Global variables useful across class methods.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
         technology_type (string): Flag for supply- or demand-side technology.
@@ -1623,7 +1626,7 @@ class Measure(object):
             self.energy_outputs["floor_start"] = floor_start
         if exog_hp_rates is not False:
             self.energy_outputs["exog_hp_rates"] = exog_hp_rates
-        self.eff_fuelswitch_splits = {}
+        self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
@@ -4332,18 +4335,16 @@ class Measure(object):
                                            add_fs_carb_eff_remain]
                             # Record the efficient energy that has not yet fuel
                             # switched and total efficient energy for the
-                            # current mseg for later use in developing fuel
-                            # splits for packaged measures and/or packaged
-                            # measure sector shapes
-                            if self.name in contrib_meas_pkg:
-                                self.eff_fuelswitch_splits[
-                                    str(contrib_mseg_key)] = {
-                                        "energy": [add_fs_energy_eff_remain,
-                                                   add_energy_total_eff],
-                                        "cost": [add_fs_energy_cost_eff_remain,
-                                                 add_energy_cost_eff],
-                                        "carbon": [add_fs_carb_eff_remain,
-                                                   add_carb_total_eff]}
+                            # current mseg for later use in packaging and/or
+                            # competing measures
+                            self.eff_fs_splt[adopt_scheme][
+                                str(contrib_mseg_key)] = {
+                                    "energy": [add_fs_energy_eff_remain,
+                                               add_energy_total_eff],
+                                    "cost": [add_fs_energy_cost_eff_remain,
+                                             add_energy_cost_eff],
+                                    "carbon": [add_fs_carb_eff_remain,
+                                               add_carb_total_eff]}
                         # Handle case where output breakout includes fuel type
                         # breakout or not
                         if out_fuel_save:
@@ -4544,12 +4545,16 @@ class Measure(object):
                                                  eff_data[ind][yr]) for
                                             yr in self.handyvars.aeo_years}
 
-                    # Yield error if current contributing microsegment cannot
+                    # Yield warning if current contributing microsegment cannot
                     # be mapped to an output breakout category
                     except KeyError:
-                        print("Baseline market key chain: '" + str(mskeys) +
-                              "' for ECM '" + self.name + "' does not map to "
-                              "output breakout categories")
+                        verboseprint(
+                            opts.verbose,
+                            "Baseline market key chain: '" +
+                            str(mskeys) +
+                            "' for ECM '" + self.name + "' does not map to "
+                            "output breakout categories, thus will not "
+                            "be reflected in output breakout data")
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
@@ -7009,10 +7014,17 @@ class Measure(object):
             carb_total_eff_cost[yr] = \
                 carb_total_eff[yr] * self.handyvars.ccosts[yr]
 
-            # For fuel switching measures only, record the portion of total
+            # For fuel switching measures where exogenous HP conversion
+            # rates have NOT been specified only, record the portion of total
             # baseline energy, carbon, and energy cost that remains with the
-            # baseline fuel in the given year
-            if self.fuel_switch_to is not None:
+            # baseline fuel in the given year; for fuel switching measures
+            # with exogenous HP conversion rates specified, no baseline
+            # energy/carbon/cost will remain with the baseline fuel b/c of the
+            # way the markets are specified (the baseline for such measures is
+            # constrained to only the energy/carbon/cost that switches over
+            # in each year); for non-fuel switching measures, this variable is
+            # not used further in the routine
+            if self.fuel_switch_to is not None and not hp_rate:
                 fs_energy_eff_remain[yr] = \
                     energy_tot_comp_base + energy_tot_uncomp_base
                 fs_carb_eff_remain[yr] = \
@@ -8169,6 +8181,8 @@ class MeasurePackage(Measure):
                microsegment (required later for measure competition).
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (e.g., climate zone, building type, end use, etc.)
+        eff_fs_splt (dict): Data needed to determine the fuel splits of
+            efficient case results for fuel switching measures.
         htcl_overlaps (dict): Dict to store data on heating/cooling overlaps
             across contributing equipment vs. envelope ECMs that apply to the
             same region, building type/vintage, fuel type, and end use.
@@ -8204,7 +8218,8 @@ class MeasurePackage(Measure):
         # Raise error if package is not merging measures of the type expected
         # to be supported by packaged – integration of HVAC equipment and
         # envelope and/or controls, or integration of lighting equipment and
-        # controls
+        # controls; also raise error if package is merging equipment measures
+        # with inconsistent fuel switching settings
         elif not (all([all([x in ["heating", "secondary heating",
                                   "cooling"] for x in m.end_use["primary"]])
                        for m in self.contrib_ECMs_eqp]) or (
@@ -8218,6 +8233,14 @@ class MeasurePackage(Measure):
                 "equipment and envelope and/or between HVAC and/or lighting "
                 "equipment and controls; remove all contributing measures "
                 "that are outside of this scope")
+        elif not all([m.fuel_switch_to ==
+                      self.contrib_ECMs_eqp[0].fuel_switch_to
+                      for m in self.contrib_ECMs_eqp[1:]]):
+            raise ValueError(
+                "ECM package " + self.name + " merges measures with different "
+                "'fuel_switch_to' attribute values; ensure the value for this "
+                "attribute is set consistently across all packaged measures")
+
         self.contrib_ECMs_env = [m for m in self.contrib_ECMs if
                                  m.technology_type["primary"][0] == "demand"]
         # If there are envelope measures in the package, register settings
@@ -8232,7 +8255,11 @@ class MeasurePackage(Measure):
                 "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
-        self.energy_outputs = self.contrib_ECMs[0].energy_outputs
+        # Set energy outputs and fuel switching properties to that of the
+        # first equipment measure; consistency in these properties across
+        # measures in the package was checked for above
+        self.energy_outputs = self.contrib_ECMs_eqp[0].energy_outputs
+        self.fuel_switch_to = self.contrib_ECMs_eqp[0].fuel_switch_to
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -8266,6 +8293,8 @@ class MeasurePackage(Measure):
         self.end_use, self.technology_type = (
             {"primary": [], "secondary": None} for n in range(2))
         self.markets = {}
+        self.eff_fs_splt = {
+            a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = None
         self.htcl_overlaps = {adopt: {"keys": [], "data": {}} for
                               adopt in handyvars.adopt_schemes}
@@ -8416,9 +8445,17 @@ class MeasurePackage(Measure):
                         for cm in msegs_meas_init[k].keys():
                             # If applicable, develop shorthand for data needed
                             # to split efficient-case energy by fuel type
-                            if len(m.eff_fuelswitch_splits.keys()) != 0 and \
-                                    cm in m.eff_fuelswitch_splits.keys():
-                                fs_eff_splt = m.eff_fuelswitch_splits[cm]
+                            if len(m.eff_fs_splt[adopt_scheme].keys()) != 0 \
+                                and cm in m.eff_fs_splt[
+                                    adopt_scheme].keys():
+                                fs_eff_splt = m.eff_fs_splt[adopt_scheme][cm]
+                                # Add fuel split information to that for the
+                                # overall package if not already reflected
+                                # in this package attribute
+                                if cm not in self.eff_fs_splt[
+                                        adopt_scheme].keys():
+                                    self.eff_fs_splt[adopt_scheme][cm] = \
+                                        copy.deepcopy(fs_eff_splt)
                             else:
                                 fs_eff_splt = None
                             # Convert mseg string to list for further calcs.
@@ -8468,7 +8505,7 @@ class MeasurePackage(Measure):
                     "sect_shp_e_init": sect_shp_e_init,
                     "sect_shp_e_fin": sect_shp_e_fin,
                     "fuel_switch_to": m.fuel_switch_to,
-                    "eff_fuel_splits": m.eff_fuelswitch_splits,
+                    "eff_fuel_splits": m.eff_fs_splt[adopt_scheme],
                     "regions": m.climate_zone}
 
         # Loop through all previously adjusted/recorded microsegment and
@@ -10123,18 +10160,22 @@ def split_clean_data(meas_prepped_objs):
             be split in to separate dicts or removed.
 
     Returns:
-        Two lists of dicts, one containing competition data for
-        each updated measure, and one containing high level summary
-        data for each updated measure.
+        Three lists of dicts, one containing competition data for
+        each updated measure, one containing high level summary
+        data for each updated measure, and a final one containing efficient
+        fuel split data, as applicable to fuel switching measures when the
+        user has required fuel splits.
     """
     # Initialize lists of measure competition/summary data
     meas_prepped_compete = []
     meas_prepped_summary = []
+    meas_eff_fs_splt = []
     # Loop through all Measure objects and reorganize/remove the
     # needed data.
     for m in meas_prepped_objs:
-        # Initialize a reorganized measure competition data dict
-        comp_data_dict = {}
+        # Initialize a reorganized measure competition data dict and efficient
+        # fuel split data dict
+        comp_data_dict, fs_splits_dict = ({} for n in range(2))
         # Retrieve measure contributing microsegment data that
         # is relevant to markets competition in the analysis
         # engine, then remove these data from measure object
@@ -10150,9 +10191,21 @@ def split_clean_data(meas_prepped_objs):
             comp_data_dict[adopt_scheme] = \
                 m.markets[adopt_scheme]["mseg_adjust"]
             del m.markets[adopt_scheme]["mseg_adjust"]
+            # If applicable, add efficient fuel split data to fuel split data
+            # dict
+            if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
+                fs_splits_dict[adopt_scheme] = \
+                    m.eff_fs_splt[adopt_scheme]
+            else:
+                fs_splits_dict[adopt_scheme] = None
+        # Delete info. about efficient fuel splits for fuel switch measures
+        del m.eff_fs_splt
+
         # Append updated competition data from measure to
         # list of competition data across all measures
         meas_prepped_compete.append(comp_data_dict)
+        # Append fuel switching split information, if applicable
+        meas_eff_fs_splt.append(fs_splits_dict)
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
@@ -10160,7 +10213,6 @@ def split_clean_data(meas_prepped_objs):
         # (not relevant) for individual measures
         if not isinstance(m, MeasurePackage):
             del m.tsv_features
-            del m.eff_fuelswitch_splits
         # For measure packages, replace 'contrib_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -10174,7 +10226,7 @@ def split_clean_data(meas_prepped_objs):
         # summary data across all measures
         meas_prepped_summary.append(m.__dict__)
 
-    return meas_prepped_compete, meas_prepped_summary
+    return meas_prepped_compete, meas_prepped_summary, meas_eff_fs_splt
 
 
 def custom_formatwarning(msg, *a):
@@ -10797,8 +10849,8 @@ def main(base_dir):
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition
         # in the analysis engine
-        meas_prepped_compete, meas_prepped_summary = split_clean_data(
-            meas_prepped_objs)
+        meas_prepped_compete, meas_prepped_summary, meas_eff_fs_splt = \
+            split_clean_data(meas_prepped_objs)
 
         # Add all prepared high-level measure information to existing
         # high-level data and to list of active measures for analysis
@@ -10837,19 +10889,27 @@ def main(base_dir):
         # Notify user that all measure preparations are completed
         print('Writing output data...')
 
-        # Write prepared measure competition data to zipped JSONs; do not
-        # write competition data for a case when sector shapes are being
+        # Write prepared measure competition data and (if applicable) efficient
+        # fuel switching splits by microsegment to zipped JSONs; do not
+        # write these data for a case when sector shapes are being
         # generated, in which it is assumed subsequent measure competition
         # calculations will not be performed
         if opts is None or opts.sect_shapes is not True:
             for ind, m in enumerate(meas_prepped_objs):
-                # Assemble folder path for measure competition data
-                meas_folder_name = path.join(*handyfiles.ecm_compete_data)
                 # Assemble file name for measure competition data
                 meas_file_name = m.name + ".pkl.gz"
-                with gzip.open(path.join(base_dir, meas_folder_name,
+                # Assemble folder path for measure competition data
+                comp_folder_name = path.join(*handyfiles.ecm_compete_data)
+                with gzip.open(path.join(base_dir, comp_folder_name,
                                          meas_file_name), 'w') as zp:
                     pickle.dump(meas_prepped_compete[ind], zp, -1)
+                if meas_eff_fs_splt[ind] is not None:
+                    # Assemble folder path for measure efficient fs split data
+                    fs_splt_folder_name = path.join(
+                        *handyfiles.ecm_eff_fs_splt_data)
+                    with gzip.open(path.join(base_dir, fs_splt_folder_name,
+                                             meas_file_name), 'w') as zp:
+                        pickle.dump(meas_eff_fs_splt[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
@@ -10868,7 +10928,8 @@ def main(base_dir):
                 "discount_rate": handyvars.discount_rate,
                 "out_break_czones": handyvars.out_break_czones,
                 "out_break_bldg_types": handyvars.out_break_bldgtypes,
-                "out_break_enduses": handyvars.out_break_enduses
+                "out_break_enduses": handyvars.out_break_enduses,
+                "out_break_fuels": handyvars.out_break_fuels
             }
             json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
     else:
