@@ -1,0 +1,110 @@
+{
+  "adopt_schemes": [
+    "Technical potential",
+    "Max adoption potential"
+  ],
+  "retro_rate": {
+    "2009": 0.01,
+    "2010": 0.01
+  },
+  "aeo_years": [
+    "2009",
+    "2010"
+  ],
+  "discount_rate": 0.07,
+  "out_break_czones": {
+    "AIA CZ1": "AIA_CZ1",
+    "AIA CZ2": "AIA_CZ2",
+    "AIA CZ3": "AIA_CZ3",
+    "AIA CZ4": "AIA_CZ4",
+    "AIA CZ5": "AIA_CZ5"
+  },
+  "out_break_bldg_types": {
+    "Residential (New)": [
+      "new",
+      "single family home",
+      "multi family home",
+      "mobile home"
+    ],
+    "Residential (Existing)": [
+      "existing",
+      "single family home",
+      "multi family home",
+      "mobile home"
+    ],
+    "Commercial (New)": [
+      "new",
+      "assembly",
+      "education",
+      "food sales",
+      "food service",
+      "health care",
+      "mercantile/service",
+      "lodging",
+      "large office",
+      "small office",
+      "warehouse",
+      "other"
+    ],
+    "Commercial (Existing)": [
+      "existing",
+      "assembly",
+      "education",
+      "food sales",
+      "food service",
+      "health care",
+      "mercantile/service",
+      "lodging",
+      "large office",
+      "small office",
+      "warehouse",
+      "other"
+    ]
+  },
+  "out_break_enduses": {
+    "Heating (Equip.)": [
+      "heating",
+      "secondary heating"
+    ],
+    "Cooling (Equip.)": [
+      "cooling"
+    ],
+    "Heating (Env.)": [
+      "heating",
+      "secondary heating"
+    ],
+    "Cooling (Env.)": [
+      "cooling"
+    ],
+    "Ventilation": [
+      "ventilation"
+    ],
+    "Lighting": [
+      "lighting"
+    ],
+    "Water Heating": [
+      "water heating"
+    ],
+    "Refrigeration": [
+      "refrigeration",
+      "other"
+    ],
+    "Cooking": [
+      "cooking"
+    ],
+    "Computers and Electronics": [
+      "PCs",
+      "non-PC office equipment",
+      "TVs",
+      "computers"
+    ],
+    "Other": [
+      "drying",
+      "ceiling fan",
+      "fans and pumps",
+      "MELs",
+      "other"
+    ]
+  },
+  "out_break_fuels": {}
+}
