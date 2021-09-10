@@ -331,10 +331,10 @@ class TestMeasureInit(unittest.TestCase):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -364,10 +364,10 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
@@ -465,19 +465,13 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
-        # Reset aeo_years
-        cls.handyvars.aeo_years = ["2009", "2010"]
-        # Set standard adoption schemes
-        cls.handyvars.adopt_schemes = [
-            "Technical potential", "Max adoption potential"]
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Technical potential'
-        cls.ok_rate = 0.07
         cls.ok_master_mseg_point = {
             "stock": {
                 "total": {
@@ -1440,10 +1434,10 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1503,10 +1497,10 @@ class PaybackTest(unittest.TestCase):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1589,22 +1583,11 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
-        cls.handyvars.aeo_years = ["2009", "2010"]
-        # Force climate zone breakouts to AIA
-        cls.handyvars.out_break_czones = {
-            "AIA CZ1": "AIA_CZ1",
-            "AIA CZ2": "AIA_CZ2",
-            "AIA CZ3": "AIA_CZ3",
-            "AIA CZ4": "AIA_CZ4",
-            "AIA CZ5": "AIA_CZ5",
-        }
-        # Set standard adoption schemes
-        cls.handyvars.adopt_schemes = [
-            "Technical potential", "Max adoption potential"]
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Max adoption potential"
         cls.adjust_key1 = str(
@@ -16119,24 +16102,12 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
-        # Reset AEO years
-        cls.handyvars.aeo_years = ["2009", "2010"]
-        # Force climate zone breakouts to AIA
-        cls.handyvars.out_break_czones = {
-            "AIA CZ1": "AIA_CZ1",
-            "AIA CZ2": "AIA_CZ2",
-            "AIA CZ3": "AIA_CZ3",
-            "AIA CZ4": "AIA_CZ4",
-            "AIA CZ5": "AIA_CZ5",
-        }
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
-        # Set standard adoption schemes
-        cls.handyvars.adopt_schemes = [
-            "Technical potential", "Max adoption potential"]
         cls.test_adopt_scheme = "Max adoption potential"
         cls.overlap_key = str(
             ('primary', 'AIA_CZ1', 'assembly', 'electricity',
@@ -26601,10 +26572,10 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26659,11 +26630,10 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
-        cls.handyvars = run.UsefulVars(base_dir, run.UsefulInputFiles(
-            energy_out=[
-                "fossil_equivalent", "NA", "NA", "NA", "NA"],
-            regions="AIA"))
-        cls.handyvars.aeo_years = ["2009", "2010"]
+        handyfiles = run.UsefulInputFiles(energy_out=[
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+        handyfiles.glob_vars = "glob_run_vars_test.json"
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]

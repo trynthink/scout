@@ -24,6 +24,8 @@ class UsefulInputFiles(object):
         meas_summary_data (tuple): High-level measure summary data.
         meas_compete_data (tuple): Contributing microsegment data needed
             for measure competition.
+        meas_eff_fs_splt_data (tuple): Folder with data needed to determine the
+            fuel splits of efficient case results for fuel switching measures.
         active_measures (str): Measures that are active for the analysis.
         meas_engine_out (tuple): Measure output summaries.
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
@@ -36,6 +38,7 @@ class UsefulInputFiles(object):
         self.meas_summary_data = \
             ("supporting_data", "ecm_prep.json")
         self.meas_compete_data = ("supporting_data", "ecm_competition_data")
+        self.meas_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
@@ -135,6 +138,7 @@ class UsefulVars(object):
         self.out_break_czones = gvars["out_break_czones"]
         self.out_break_bldgtypes = gvars["out_break_bldg_types"]
         self.out_break_enduses = gvars["out_break_enduses"]
+        self.out_break_fuels = gvars["out_break_fuels"]
         # Set commercial time prefs and region in/out name pairs as unique
         # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
@@ -188,6 +192,8 @@ class Measure(object):
             from an input dictionary.
         update_results (dict): Flags markets, savings, and financial metric
             outputs that have yet to be finalized by the analysis engine.
+        eff_fs_splt (tuple): Data needed to determine the fuel splits of
+            efficient case results for fuel switching measures.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
@@ -206,6 +212,7 @@ class Measure(object):
             setattr(self, key, value)
         self.savings, self.financial_metrics = ({} for n in range(2))
         self.update_results = {"savings": {}, "financial metrics": True}
+        self.eff_fs_splt = {}
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
         self.convert_to_numpy(self.markets)
@@ -1343,10 +1350,7 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, mast_brk_base_energy, mast_brk_base_cost, \
-                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
-                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
-                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
@@ -1534,11 +1538,7 @@ class Engine(object):
                 # market share and stock turnover rates
                 self.compete_adj(
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
-                    mast_brk_base_energy, mast_brk_base_cost,
-                    mast_brk_base_carb, mast_brk_eff_energy,
-                    mast_brk_eff_cost, mast_brk_eff_carb,
-                    mast_brk_save_energy, mast_brk_save_cost,
-                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff,
+                    adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
@@ -1867,10 +1867,7 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, mast_brk_base_energy, mast_brk_base_cost, \
-                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
-                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
-                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
@@ -2046,11 +2043,7 @@ class Engine(object):
                 # market share and stock turnover rates
                 self.compete_adj(
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
-                    mast_brk_base_energy, mast_brk_base_cost,
-                    mast_brk_base_carb, mast_brk_eff_energy,
-                    mast_brk_eff_cost, mast_brk_eff_carb,
-                    mast_brk_save_energy, mast_brk_save_cost,
-                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff,
+                    adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
 
@@ -2211,10 +2204,7 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
-            mast, mast_brk_base_energy, mast_brk_base_cost, \
-                mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
-                mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
-                mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
@@ -2271,53 +2261,95 @@ class Engine(object):
 
                 # Adjust baseline energy/cost/carbon, efficient energy/
                 # cost/carbon, and energy/cost/carbon savings totals
-                # grouped by climate zone, building type, and end use by
-                # the appropriate fraction
+                # grouped by climate zone, building type, end use, and (
+                # if applicable) fuel type by the appropriate fraction;
+                # adjust based on segment of current microsegment that was
+                # removed from competition
+                for var in ["energy", "cost", "carbon"]:
+                    # Update baseline and efficient results
+                    for var_sub in ["baseline", "efficient"]:
+                        # Handle extra key on the adjusted microsegment data
+                        # for the cost variables ("energy")
+                        if var == "cost":
+                            adj_out_break["base fuel"][var][var_sub][yr] = \
+                                adj_out_break[
+                                    "base fuel"][var][var_sub][yr] - (
+                                adj[var]["energy"]["total"][var_sub][yr]) * (
+                                1 - adj_frac_tot) * (adj_out_break[
+                                    "efficient fuel splits"][var][yr])
+                        else:
+                            adj_out_break["base fuel"][var][var_sub][yr] = \
+                                adj_out_break[
+                                    "base fuel"][var][var_sub][yr] - (
+                                adj[var]["total"][var_sub][yr]) * (
+                                    1 - adj_frac_tot) * (adj_out_break[
+                                        "efficient fuel splits"][var][yr])
+                    # Update savings results
+                    # Handle extra key on the adjusted microsegment data
+                    # for the cost variables ("energy")
+                    if var == "cost":
+                        adj_out_break["base fuel"][var]["savings"][yr] = \
+                            adj_out_break["base fuel"][var]["savings"][yr] - ((
+                                adj[var]["energy"]["total"]["baseline"][yr] -
+                                adj[var]["energy"]["total"]["efficient"][yr]
+                                ) * (1 - adj_frac_tot) * (adj_out_break[
+                                    "efficient fuel splits"][var][yr]))
+                    else:
+                        adj_out_break["base fuel"][var]["savings"][yr] = \
+                            adj_out_break["base fuel"][var]["savings"][yr] - ((
+                                adj[var]["total"]["baseline"][yr] -
+                                adj[var]["total"]["efficient"][yr]) * (
+                                1 - adj_frac_tot) * (adj_out_break[
+                                    "efficient fuel splits"][var][yr]))
 
-                # Energy
-                # Baseline
-                mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
-                    adj["energy"]["total"]["baseline"][yr]) * (
-                    1 - adj_frac_tot)
-                # Efficient
-                mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
-                    adj["energy"]["total"]["efficient"][yr]) * (
-                    1 - adj_frac_tot)
-                # Savings
-                mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - ((
-                    adj["energy"]["total"]["baseline"][yr] -
-                    adj["energy"]["total"]["efficient"][yr]) * (
-                    1 - adj_frac_tot))
-
-                # Cost
-                # Baseline
-                mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
-                    adj["cost"]["energy"]["total"]["baseline"][yr]) * (
-                        1 - adj_frac_tot)
-                # Efficient
-                mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
-                    adj["cost"]["energy"]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_tot)
-                # Savings
-                mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - ((
-                    adj["cost"]["energy"]["total"]["baseline"][yr] -
-                    adj["cost"]["energy"]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_tot))
-
-                # Carbon
-                # Baseline
-                mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
-                    adj["carbon"]["total"]["baseline"][yr]) * (
-                    1 - adj_frac_tot)
-                # Efficient
-                mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
-                    adj["carbon"]["total"]["efficient"][yr]) * (
-                    1 - adj_frac_tot)
-                # Savings
-                mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - ((
-                    adj["carbon"]["total"]["baseline"][yr] -
-                    adj["carbon"]["total"]["efficient"][yr]) * (
-                    1 - adj_frac_tot))
+                    # If the measure involves fuel switching and the user
+                    # has broken out results by fuel type, make adjustments
+                    # to the efficient, and savings results for the
+                    # switched to fuel
+                    if adj_out_break["switched fuel"][var][
+                            "efficient"] is not None:
+                        # Handle extra key on the adjusted microsegment
+                        # data for the cost variables ("energy")
+                        if var == "cost":
+                            # Update efficient result
+                            adj_out_break["switched fuel"][var][
+                                "efficient"][yr] = \
+                                adj_out_break["switched fuel"][var][
+                                    "efficient"][yr] - (
+                                adj[var]["energy"]["total"][
+                                    "efficient"][yr]) * (
+                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                    "efficient fuel splits"][var][yr])
+                            # Update savings result; note that savings
+                            # for a switched to fuel will be negative and
+                            # thus the adjustment to microsegment data
+                            # post-competition should be added to the
+                            # original savings breakout results
+                            adj_out_break["switched fuel"][var][
+                                "savings"][yr] = \
+                                adj_out_break["switched fuel"][var][
+                                    "savings"][yr] + (
+                                adj[var]["energy"]["total"][
+                                    "efficient"][yr]) * (
+                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                    "efficient fuel splits"][var][yr])
+                        else:
+                            # Update efficient result
+                            adj_out_break["switched fuel"][var][
+                                "efficient"][yr] = \
+                                adj_out_break["switched fuel"][var][
+                                    "efficient"][yr] - (
+                                adj[var]["total"]["efficient"][yr]) * (
+                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                    "efficient fuel splits"][var][yr])
+                            # Update savings result
+                            adj_out_break["switched fuel"][var][
+                                "savings"][yr] = \
+                                adj_out_break["switched fuel"][var][
+                                    "savings"][yr] + (
+                                adj[var]["total"]["efficient"][yr]) * (
+                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                    "efficient fuel splits"][var][yr])
 
                 # Adjust total and competed baseline and efficient
                 # data by the appropriate secondary adjustment factor
@@ -2507,11 +2539,7 @@ class Engine(object):
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
-                mast, mast_brk_base_energy, mast_brk_base_cost, \
-                    mast_brk_base_carb, mast_brk_eff_energy, \
-                    mast_brk_eff_cost, mast_brk_eff_carb, \
-                    mast_brk_save_energy, mast_brk_save_cost, \
-                    mast_brk_save_carb, adj, mast_list_base, mast_list_eff, \
+                mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                     adj_list_eff, adj_list_base = self.compete_adj_dicts(
                         m, mseg, adopt_scheme)
                 # Adjust contributing and master energy/carbon/cost
@@ -2626,56 +2654,110 @@ class Engine(object):
 
                     # Adjust baseline energy/cost/carbon, efficient energy/
                     # cost/carbon, and energy/cost/carbon savings totals
-                    # grouped by climate zone, building type, and end use by
-                    # the appropriate fraction
+                    # grouped by climate zone, building type, end use, and (
+                    # if applicable) fuel type by the appropriate fraction;
+                    # adjust based on segment of current microsegment that was
+                    # removed from competition
+                    for var in ["energy", "cost", "carbon"]:
+                        # Update baseline and efficient results
+                        for var_sub in ["baseline", "efficient"]:
+                            # Set appropriate post-competition adjustment frac.
+                            if var_sub == "baseline":
+                                adj_frac_tot = adj_frac_base
+                            else:
+                                adj_frac_tot = adj_frac_eff
 
-                    # Energy
-                    # Baseline - use baseline adjustment fraction
-                    mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
-                        adj["energy"]["total"]["baseline"][yr]) * (
-                        1 - adj_frac_base)
-                    # Efficient - use efficient adjustment fraction
-                    mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
-                        adj["energy"]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_eff)
-                    # Savings - use both baseline/efficient fractions
-                    mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - (
-                        adj["energy"]["total"]["baseline"][yr] * (
-                            1 - adj_frac_base) -
-                        adj["energy"]["total"]["efficient"][yr] * (
-                            1 - adj_frac_eff))
+                            # Handle extra key on the adjusted microsegment
+                            # data for the cost variables ("energy")
+                            if var == "cost":
+                                adj_out_break[
+                                    "base fuel"][var][var_sub][yr] = \
+                                    adj_out_break[
+                                        "base fuel"][var][var_sub][yr] - (
+                                    adj[var]["energy"][
+                                        "total"][var_sub][yr]) * (
+                                        1 - adj_frac_tot) * (adj_out_break[
+                                            "efficient fuel splits"][var][yr])
+                            else:
+                                adj_out_break[
+                                    "base fuel"][var][var_sub][yr] = \
+                                    adj_out_break[
+                                        "base fuel"][var][var_sub][yr] - (
+                                    adj[var]["total"][var_sub][yr]) * (
+                                        1 - adj_frac_tot) * (adj_out_break[
+                                            "efficient fuel splits"][var][yr])
+                        # Update savings results
+                        # Handle extra key on the adjusted microsegment data
+                        # for the cost variables ("energy")
+                        if var == "cost":
+                            adj_out_break["base fuel"][var]["savings"][yr] = \
+                                adj_out_break["base fuel"][var][
+                                    "savings"][yr] - (
+                                    ((adj[var]["energy"]["total"][
+                                        "baseline"][yr] * (
+                                        1 - adj_frac_base)) -
+                                     (adj[var]["energy"]["total"][
+                                        "efficient"][yr]) * (
+                                        1 - adj_frac_eff)) * adj_out_break[
+                                            "efficient fuel splits"][var][yr])
+                        else:
+                            adj_out_break["base fuel"][var]["savings"][yr] = \
+                                adj_out_break["base fuel"][var][
+                                    "savings"][yr] - (
+                                    ((adj[var]["total"]["baseline"][yr] * (
+                                        1 - adj_frac_base)) -
+                                     (adj[var]["total"]["efficient"][yr]) * (
+                                        1 - adj_frac_eff)) * adj_out_break[
+                                            "efficient fuel splits"][var][yr])
 
-                    # Cost
-                    # Baseline - use baseline adjustment fraction
-                    mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
-                        adj["cost"]["energy"]["total"]["baseline"][yr]) * (
-                        1 - adj_frac_base)
-                    # Efficient - use efficient adjustment fraction
-                    mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
-                        adj["cost"]["energy"]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_eff)
-                    # Savings - use both baseline/efficient fractions
-                    mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - (
-                        adj["cost"]["energy"]["total"]["baseline"][yr] * (
-                            1 - adj_frac_base) -
-                        adj["cost"]["energy"]["total"]["efficient"][yr] * (
-                            1 - adj_frac_eff))
-
-                    # Carbon
-                    # Baseline - use baseline adjustment fraction
-                    mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
-                        adj["carbon"]["total"]["baseline"][yr]) * (
-                        1 - adj_frac_base)
-                    # Efficient - use efficient adjustment fraction
-                    mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
-                        adj["carbon"]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_eff)
-                    # Savings - use both baseline/efficient fractions
-                    mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - (
-                        adj["carbon"]["total"]["baseline"][yr] * (
-                            1 - adj_frac_base) -
-                        adj["carbon"]["total"]["efficient"][yr] * (
-                            1 - adj_frac_eff))
+                        # If the measure involves fuel switching and the user
+                        # has broken out results by fuel type, make adjustments
+                        # to the efficient, and savings results for the
+                        # switched to fuel
+                        if adj_out_break["switched fuel"]["energy"][
+                                "baseline"] is not None:
+                            # Handle extra key on the adjusted microsegment
+                            # data for the cost variables ("energy")
+                            if var == "cost":
+                                # Update efficient result
+                                adj_out_break["switched fuel"][var][
+                                    "efficient"][yr] = \
+                                    adj_out_break["switched fuel"][var][
+                                        "efficient"][yr] - (
+                                    adj[var]["energy"]["total"][
+                                        "efficient"][yr]) * (
+                                    1 - adj_frac_eff) * (1 - adj_out_break[
+                                        "efficient fuel splits"][var][yr])
+                                # Update savings result; note that savings
+                                # for a switched to fuel will be negative and
+                                # thus the adjustment to microsegment data
+                                # post-competition should be added to the
+                                # original savings breakout results
+                                adj_out_break["switched fuel"][var][
+                                    "savings"][yr] = \
+                                    adj_out_break["switched fuel"][var][
+                                        "savings"][yr] + (
+                                    adj[var]["energy"]["total"][
+                                        "efficient"][yr]) * (
+                                    1 - adj_frac_eff) * (1 - adj_out_break[
+                                        "efficient fuel splits"][var][yr])
+                            else:
+                                # Update efficient result
+                                adj_out_break["switched fuel"][var][
+                                    "efficient"][yr] = \
+                                    adj_out_break["switched fuel"][var][
+                                        "efficient"][yr] - (
+                                    adj[var]["total"]["efficient"][yr]) * (
+                                    1 - adj_frac_eff) * (1 - adj_out_break[
+                                        "efficient fuel splits"][var][yr])
+                                # Update savings result
+                                adj_out_break["switched fuel"][var][
+                                    "savings"][yr] = \
+                                    adj_out_break["switched fuel"][var][
+                                        "savings"][yr] + (
+                                    adj[var]["total"]["efficient"][yr]) * (
+                                    1 - adj_frac_eff) * (1 - adj_out_break[
+                                        "efficient fuel splits"][var][yr])
 
     def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
         """Set the initial measure market data needed to adjust for overlaps.
@@ -2746,6 +2828,27 @@ class Engine(object):
             elif "lighting gain" in key_list:
                 out_eu = "Lighting"
 
+        # If applicable, establish fuel type breakout
+        if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
+            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
+                "Cooling (Env.)", "Water Heating", "Cooking"]:
+            # Establish the baseline fuel type (electric/non-electric)
+            for f in self.handyvars.out_break_fuels.items():
+                if key_list[3] in f[1]:
+                    out_fuel_save = f[0]
+            # If a fuel switching measure, establish the fuel type being
+            # switched to (electric/non-electric)
+            if m.fuel_switch_to == "electricity" and \
+                    out_fuel_save != "Electric":
+                out_fuel_gain = "Electric"
+            elif m.fuel_switch_to not in [None, "electricity"] and \
+                    out_fuel_save == "Electric":
+                out_fuel_gain = "Non-Electric"
+            else:
+                out_fuel_gain = ""
+        else:
+            out_fuel_save, out_fuel_gain = ("" for n in range(2))
+
         # Organize relevant starting master microsegment values into a list
         mast = m.markets[adopt_scheme]["competed"]["master_mseg"]
         # Set total-baseline and competed-baseline overall
@@ -2777,53 +2880,81 @@ class Engine(object):
             mast["energy"]["competed"]["efficient"],
             mast["carbon"]["competed"]["efficient"]]
 
-        # Set shorthand variables for baseline energy/cost/carbon, efficient
+        # Initialize shorthand dict for baseline energy/cost/carbon, efficient
         # energy/cost/carbon, and energy/cost/carbon savings breakout
         # information for the current measure that falls under the climate
-        # zone, building type, and end use categories of the currently
-        # competed microsegment
+        # zone, building type, end use, and (if applicable) fuel type
+        # categories of the currently competed microsegment
+        adj_out_break = {
+            "base fuel": {
+                "energy": {
+                    "baseline": None, "efficient": None, "savings": None},
+                "cost": {
+                    "baseline": None, "efficient": None, "savings": None},
+                "carbon": {
+                    "baseline": None, "efficient": None, "savings": None}},
+            "switched fuel": {
+                "energy": {
+                    "baseline": None, "efficient": None, "savings": None},
+                "cost": {
+                    "baseline": None, "efficient": None, "savings": None},
+                "carbon": {
+                    "baseline": None, "efficient": None, "savings": None}},
+            "efficient fuel splits": {
+                "energy": None, "carbon": None, "cost": None
+            }
+        }
 
-        # Baseline
-        # Energy
-        mast_brk_base_energy = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
-                "baseline"][out_cz][out_bldg][out_eu]
-        # Cost
-        mast_brk_base_cost = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
-                "baseline"][out_cz][out_bldg][out_eu]
-        # Carbon
-        mast_brk_base_carb = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
-                "baseline"][out_cz][out_bldg][out_eu]
+        # Add data from the current microsegment as appropriate to the
+        # categories in the output breakout dict initialized above
 
-        # Efficient
-        # Energy
-        mast_brk_eff_energy = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
-                "efficient"][out_cz][out_bldg][out_eu]
-        # Cost
-        mast_brk_eff_cost = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
-                "efficient"][out_cz][out_bldg][out_eu]
-        # Carbon
-        mast_brk_eff_carb = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
-                "efficient"][out_cz][out_bldg][out_eu]
-
-        # Savings
-        # Energy
-        mast_brk_save_energy = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
-                "savings"][out_cz][out_bldg][out_eu]
-        # Cost
-        mast_brk_save_cost = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["cost"][
-                "savings"][out_cz][out_bldg][out_eu]
-        # Carbon
-        mast_brk_save_carb = \
-            m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"][
-                "savings"][out_cz][out_bldg][out_eu]
+        # Case where output breakouts are split by fuel
+        if out_fuel_save:
+            for var in ["energy", "cost", "carbon"]:
+                for var_sub in ["baseline", "efficient", "savings"]:
+                    adj_out_break["base fuel"][var][var_sub] = \
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                            var][var_sub][out_cz][out_bldg][out_eu][
+                            out_fuel_save]
+            # Case with fuel switching
+            if out_fuel_gain:
+                for var in ["energy", "cost", "carbon"]:
+                    for var_sub in ["baseline", "efficient", "savings"]:
+                        adj_out_break["switched fuel"][var][var_sub] = \
+                            m.markets[adopt_scheme]["competed"][
+                                "mseg_out_break"][var][var_sub][out_cz][
+                                out_bldg][out_eu][out_fuel_gain]
+                    # Set previously stored fuel splits for efficient case
+                    # results (e.g., the efficient case may reflect some
+                    # energy/carb/cost that remains with the baseline fuel
+                    # type and thus is not applicable to the adjustment of the
+                    # fuel being switched to)
+                    fs_eff_splt = m.eff_fs_splt[adopt_scheme][mseg_key]
+                    # Pull the fraction of efficient-case energy/cost/carbon
+                    # that remains w/ the original fuel in each year for the
+                    # contributing measure/mseg
+                    adj_out_break["efficient fuel splits"][var] = {
+                        yr: (fs_eff_splt[var][0][yr] /
+                             fs_eff_splt[var][1][yr]) if
+                        fs_eff_splt[var][1][yr] != 0 else 1
+                        for yr in self.handyvars.aeo_years}
+            else:
+                # All efficient energy remains with original base fuel type
+                # if there is no fuel switching
+                for var in ["energy", "cost", "carbon"]:
+                    adj_out_break["efficient fuel splits"][var] = {
+                        yr: 1 for yr in self.handyvars.aeo_years}
+        # Case where output breakouts are not split by fuel
+        else:
+            for var in ["energy", "cost", "carbon"]:
+                for var_sub in ["baseline", "efficient", "savings"]:
+                    adj_out_break["base fuel"][var][var_sub] = \
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                            var][var_sub][out_cz][out_bldg][out_eu]
+                # No adjustment to efficient results required to account for
+                # fuel splits
+                adj_out_break["efficient fuel splits"][var] = {
+                    yr: 1 for yr in self.handyvars.aeo_years}
 
         # Set up lists that will be used to determine the energy, carbon,
         # and cost totals associated with the contributing microsegment that
@@ -2859,19 +2990,13 @@ class Engine(object):
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
 
-        return mast, mast_brk_base_energy, mast_brk_base_cost, \
-            mast_brk_base_carb, mast_brk_eff_energy, mast_brk_eff_cost, \
-            mast_brk_eff_carb, mast_brk_save_energy, mast_brk_save_cost, \
-            mast_brk_save_carb, adj, \
-            mast_list_base, mast_list_eff, adj_list_eff, adj_list_base
+        return mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
+            adj_list_eff, adj_list_base
 
     def compete_adj(
             self, adj_fracs, added_sbmkt_fracs, mast,
-            mast_brk_base_energy, mast_brk_base_cost, mast_brk_base_carb,
-            mast_brk_eff_energy, mast_brk_eff_cost, mast_brk_eff_carb,
-            mast_brk_save_energy, mast_brk_save_cost, mast_brk_save_carb,
-            adj, mast_list_base, mast_list_eff, adj_list_eff, adj_list_base,
-            yr, mseg_key, measure, adopt_scheme, mkt_entry_yrs,
+            adj_out_break, adj, mast_list_base, mast_list_eff, adj_list_eff,
+            adj_list_base, yr, mseg_key, measure, adopt_scheme, mkt_entry_yrs,
             base_turnover_rt, eff_turnover_rt):
         """Scale down measure totals to reflect competition.
 
@@ -3012,48 +3137,96 @@ class Engine(object):
                         adj["energy"]["competed"]["efficient"][yr] *
                         adj_frac_comp)
 
-        # Adjust baseline energy, efficient energy, and energy savings totals
-        # grouped by climate zone, building type, and end use by the
-        # appropriate fraction
+        # Adjust baseline energy/cost/carbon, efficient energy/cost/carbon, and
+        # energy/cost/carbon savings totals grouped by climate zone, building
+        # type, end use, and (if applicable) fuel type by the appropriate
+        # fraction; adjust based on segment of current microsegment that was
+        # removed from competition
+        for var in ["energy", "cost", "carbon"]:
+            # Update baseline and efficient results
+            for var_sub in ["baseline", "efficient"]:
+                # Select correct fuel split data
+                if var_sub != "baseline":
+                    fs_eff_splt_var = adj_out_break[
+                        "efficient fuel splits"][var][yr]
+                else:
+                    fs_eff_splt_var = 1
 
-        # Energy
-        # Baseline
-        mast_brk_base_energy[yr] = mast_brk_base_energy[yr] - (
-            adj["energy"]["total"]["baseline"][yr]) * (1 - adj_frac_tot)
-        # Efficient
-        mast_brk_eff_energy[yr] = mast_brk_eff_energy[yr] - (
-            adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot)
-        # Savings
-        mast_brk_save_energy[yr] = mast_brk_save_energy[yr] - ((
-            adj["energy"]["total"]["baseline"][yr] -
-            adj["energy"]["total"]["efficient"][yr]) * (1 - adj_frac_tot))
+                # Handle extra key on the adjusted microsegment data for the
+                # cost variables ("energy")
+                if var == "cost":
+                    adj_out_break["base fuel"][var][var_sub][yr] = \
+                        adj_out_break["base fuel"][var][var_sub][yr] - (
+                        adj[var]["energy"]["total"][var_sub][yr]) * (
+                        1 - adj_frac_tot) * fs_eff_splt_var
+                else:
+                    adj_out_break["base fuel"][var][var_sub][yr] = \
+                        adj_out_break["base fuel"][var][var_sub][yr] - (
+                        adj[var]["total"][var_sub][yr]) * (
+                            1 - adj_frac_tot) * fs_eff_splt_var
 
-        # Cost
-        # Baseline
-        mast_brk_base_cost[yr] = mast_brk_base_cost[yr] - (
-            adj["cost"]["energy"]["total"]["baseline"][yr]) * (
-                1 - adj_frac_tot)
-        # Efficient
-        mast_brk_eff_cost[yr] = mast_brk_eff_cost[yr] - (
-            adj["cost"]["energy"]["total"]["efficient"][yr]) * (
-                1 - adj_frac_tot)
-        # Savings
-        mast_brk_save_cost[yr] = mast_brk_save_cost[yr] - ((
-            adj["cost"]["energy"]["total"]["baseline"][yr] -
-            adj["cost"]["energy"]["total"]["efficient"][yr]) * (
-                1 - adj_frac_tot))
+            # Update savings results
+            # Handle extra key on the adjusted microsegment data for the cost
+            # variables ("energy")
+            if var == "cost":
+                adj_out_break["base fuel"][var]["savings"][yr] = \
+                    adj_out_break["base fuel"][var]["savings"][yr] - ((
+                        adj[var]["energy"]["total"]["baseline"][yr] -
+                        adj[var]["energy"]["total"]["efficient"][yr] *
+                        adj_out_break[
+                            "efficient fuel splits"][var][yr]) * (
+                        1 - adj_frac_tot))
+            else:
+                adj_out_break["base fuel"][var]["savings"][yr] = \
+                    adj_out_break["base fuel"][var]["savings"][yr] - ((
+                        adj[var]["total"]["baseline"][yr] -
+                        adj[var]["total"]["efficient"][yr] *
+                        adj_out_break[
+                            "efficient fuel splits"][var][yr]) * (
+                        1 - adj_frac_tot))
 
-        # Carbon
-        # Baseline
-        mast_brk_base_carb[yr] = mast_brk_base_carb[yr] - (
-            adj["carbon"]["total"]["baseline"][yr]) * (1 - adj_frac_tot)
-        # Efficient
-        mast_brk_eff_carb[yr] = mast_brk_eff_carb[yr] - (
-            adj["carbon"]["total"]["efficient"][yr]) * (1 - adj_frac_tot)
-        # Savings
-        mast_brk_save_carb[yr] = mast_brk_save_carb[yr] - ((
-            adj["carbon"]["total"]["baseline"][yr] -
-            adj["carbon"]["total"]["efficient"][yr]) * (1 - adj_frac_tot))
+            # If the measure involves fuel switching and the user has broken
+            # out results by fuel type, make adjustments to the efficient, and
+            # savings results for the switched to fuel
+            if adj_out_break["switched fuel"][var]["efficient"] is not None:
+                # Handle extra key on the adjusted microsegment data for
+                # the cost variables ("energy")
+                if var == "cost":
+                    # Update efficient result
+                    adj_out_break["switched fuel"][var]["efficient"][yr] = \
+                        adj_out_break["switched fuel"][var][
+                            "efficient"][yr] - (
+                        adj[var]["energy"]["total"][
+                            "efficient"][yr]) * (
+                        1 - adj_frac_tot) * (1 - adj_out_break[
+                            "efficient fuel splits"][var][yr])
+                    # Update savings result; note that savings
+                    # for a switched to fuel will be negative and
+                    # thus the adjustment to microsegment data
+                    # post-competition should be added to the
+                    # original savings breakout results
+                    adj_out_break["switched fuel"][var]["savings"][yr] = \
+                        adj_out_break["switched fuel"][var][
+                            "savings"][yr] + (
+                        adj[var]["energy"]["total"][
+                            "efficient"][yr]) * (
+                        1 - adj_frac_tot) * (1 - adj_out_break[
+                            "efficient fuel splits"][var][yr])
+                else:
+                    # Update efficient result
+                    adj_out_break["switched fuel"][var]["efficient"][yr] = \
+                        adj_out_break["switched fuel"][var][
+                            "efficient"][yr] - (
+                        adj[var]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_tot) * (1 - adj_out_break[
+                            "efficient fuel splits"][var][yr])
+                    # Update savings result
+                    adj_out_break["switched fuel"][var]["savings"][yr] = \
+                        adj_out_break["switched fuel"][var][
+                            "savings"][yr] + (
+                        adj[var]["total"]["efficient"][yr]) * (
+                        1 - adj_frac_tot) * (1 - adj_out_break[
+                            "efficient fuel splits"][var][yr])
 
         # Adjust the total and competed stock captured by the measure by
         # the appropriate measure market share, both overall and for the
@@ -3541,8 +3714,8 @@ class Engine(object):
                 of multiplying them (the default option).
 
         Returns:
-            Measure results partitioned by climate, building sector, and
-            end use.
+            Measure results partitioned by climate, building sector,
+            end use, and possibly fuel type (electric/non-electric).
         """
         for (k, i) in sorted(adjust_dict.items()):
             if isinstance(i, dict):
@@ -3628,84 +3801,19 @@ def main(base_dir):
             m["name"] in active_meas_all and m["remove"] is False]
 
     # Check to ensure that all active/valid measure definitions used consistent
-    # energy units (site vs. source), site-source conversion factors, regional
-    # breakouts, and time sensitive valuation metric settings when being
-    # prepared in ecm_prep.py
+    # energy output settings
     try:
-        if not (all([m.energy_outputs["site_energy"] is True for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["site_energy"] is False for
-                     m in measures_objlist])):
+        if not all([all([
+            m.energy_outputs[x] == measures_objlist[0].energy_outputs[x] for
+            x in measures_objlist[0].energy_outputs.keys()]
+                for m in measures_objlist[1:])]):
             raise ValueError(
-                "Inconsistent energy output units (site vs. source) used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
-        if not (all([m.energy_outputs["captured_energy_ss"] is True for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["captured_energy_ss"] is False for
-                     m in measures_objlist])):
-            raise ValueError(
-                "Inconsistent site-source conversion methods used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
-        if not (all([(m.energy_outputs["alt_regions"] is not False and
-                      m.energy_outputs["alt_regions"] ==
-                      measures_objlist[0].energy_outputs["alt_regions"]) for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["alt_regions"] is False for
-                     m in measures_objlist])):
-            raise ValueError(
-                "Inconsistent regional breakouts used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
-        if not (all([(m.energy_outputs["tsv_metrics"] is not False and
-                      m.energy_outputs["tsv_metrics"] ==
-                      measures_objlist[0].energy_outputs["tsv_metrics"]) for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["tsv_metrics"] is False for
-                     m in measures_objlist])):
-            raise ValueError(
-                "Inconsistent time sensitive valuation metrics used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
-        if not (all([(m.energy_outputs["health_costs"] is not False and
-                      m.energy_outputs["health_costs"] ==
-                      measures_objlist[0].energy_outputs["health_costs"]) for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["health_costs"] is False for
-                     m in measures_objlist])):
-            raise ValueError(
-                "Inconsistent public health energy cost adders used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
-        if not (all([(m.energy_outputs["split_fuel"] is not False and
-                      m.energy_outputs["split_fuel"] ==
-                      measures_objlist[0].energy_outputs["split_fuel"]) for
-                     m in measures_objlist]) or
-                all([m.energy_outputs["split_fuel"] is False for
-                     m in measures_objlist])):
-            raise ValueError(
-                "Inconsistent output fuel splits used "
-                "across active ECM set. To address this issue, "
-                "ensure that all active ECMs in ./run_setup.json were "
-                "prepared using the same command line options, or"
-                "delete the file ./supporting_data/ecm_prep.json "
-                "and rerun ecm_prep.py with desired command line options.")
+                "Attempting to compete measures with different energy output "
+                "settings. To address this issue, ensure that all active ECMs "
+                "in ./run_setup.json were prepared using the same command "
+                "line options, or delete the file "
+                "./supporting_data/ecm_prep.json and rerun ecm_prep.py with "
+                "desired command line options.")
     except AttributeError:
         raise ValueError(
             "One or more active ECMs lacks information needed to determine "
@@ -3785,22 +3893,32 @@ def main(base_dir):
         print('Importing ECM competition data...', end="", flush=True)
 
     for m in measures_objlist:
-        # Assemble folder path for measure competition data
-        meas_folder_name = path.join(*handyfiles.meas_compete_data)
         # Assemble file name for measure competition data
         meas_file_name = m.name + ".pkl.gz"
+        # Assemble folder path for measure competition data
+        comp_folder_name = path.join(*handyfiles.meas_compete_data)
         with gzip.open(path.join(
-                base_dir, meas_folder_name, meas_file_name), 'r') as zp:
+                base_dir, comp_folder_name, meas_file_name), 'r') as zp:
             try:
                 meas_comp_data = pickle.load(zp)
             except Exception as e:
                 raise Exception(
                     "Error reading in competition data of " +
                     "ECM '" + m.name + "': " + str(e)) from None
-
+        # Assemble folder path for measure efficient fuel split data
+        fs_splt_folder_name = path.join(*handyfiles.meas_eff_fs_splt_data)
+        with gzip.open(path.join(
+                base_dir, fs_splt_folder_name, meas_file_name), 'r') as zp:
+            try:
+                meas_eff_fs_data = pickle.load(zp)
+            except Exception:
+                meas_eff_fs_data = None
         for adopt_scheme in handyvars.adopt_schemes:
+            # Reset measure competition data attribute to imported values
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
+            # Reset measure fuel split attribute to imported values
+            m.eff_fs_splt = meas_eff_fs_data
         # Print data import message for each ECM if in verbose mode
         verboseprint("Imported ECM '" + m.name + "' competition data")
 
