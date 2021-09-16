@@ -67,7 +67,7 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
     """
 
-    def __init__(self, capt_energy, regions, site_energy):
+    def __init__(self, capt_energy, regions, site_energy, grid_decarb):
         if regions == 'AIA':
             # UNCOMMENT WITH ISSUE 188
             # self.msegs_in = ("supporting_data", "stock_energy_tech_data",
@@ -92,8 +92,16 @@ class UsefulInputFiles(object):
                                    "geo_map", "AIA_EMM_ColSums.txt")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_EMM_ColSums.txt")
-            self.ss_data_altreg = ("supporting_data", "convert_data",
-                                   "emm_region_emissions_prices-updated.json")
+            # Toggle EMM emissions and price data based on whether or not
+            # a high grid decarbonization scenario is used
+            if grid_decarb is True:
+                self.ss_data_altreg = (
+                    "supporting_data", "convert_data",
+                    "emm_region_emissions_prices-decarb.json")
+            else:
+                self.ss_data_altreg = (
+                    "supporting_data", "convert_data",
+                    "emm_region_emissions_prices-updated.json")
         elif regions == 'State':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_state.gz")
@@ -103,8 +111,15 @@ class UsefulInputFiles(object):
                                    "geo_map", "AIA_State_ColSums.txt")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_State_ColSums.txt")
-            self.ss_data_altreg = ("supporting_data", "convert_data",
-                                   "state_emissions_prices-updated.json")
+            # Ensure that state-level regions are not being used alongside
+            # a high grid decarbonization scenario (incompatible currently)
+            if grid_decarb is True:
+                raise ValueError("Unsupported regional breakout for "
+                                 "use with alternate grid decarbonization "
+                                 "scenario (" + regions + ")")
+            else:
+                self.ss_data_altreg = ("supporting_data", "convert_data",
+                                       "state_emissions_prices-updated.json")
         else:
             raise ValueError("Unsupported regional breakout (" + regions + ")")
 
@@ -123,20 +138,30 @@ class UsefulInputFiles(object):
         self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.run_setup = "run_setup.json"
         self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
-        # Use the user-specified captured energy method flag to determine
+        # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
-        if capt_energy is True:
+        if grid_decarb is True:
             self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-ce.json")
+                            "site_source_co2_conversions-decarb.json")
+            self.tsv_cost_data = ("supporting_data", "tsv_data",
+                                  "tsv_cost-decarb.json")
+            self.tsv_carbon_data = ("supporting_data", "tsv_data",
+                                    "tsv_carbon-decarb.json")
         else:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions.json")
+            # Use the user-specified captured energy method flag to determine
+            # which site-source conversions file to select
+            if capt_energy is True:
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions-ce.json")
+            else:
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions.json")
+            self.tsv_cost_data = (
+                "supporting_data", "tsv_data", "tsv_cost.json")
+            self.tsv_carbon_data = (
+                "supporting_data", "tsv_data", "tsv_carbon.json")
         self.tsv_load_data = (
             "supporting_data", "tsv_data", "tsv_load.json")
-        self.tsv_cost_data = (
-            "supporting_data", "tsv_data", "tsv_cost.json")
-        self.tsv_carbon_data = (
-            "supporting_data", "tsv_data", "tsv_carbon.json")
         self.tsv_shape_data = (
             "ecm_definitions", "energyplus_data", "savings_shapes")
         self.tsv_metrics_data_tot_ref = (
@@ -1580,9 +1605,9 @@ class Measure(object):
     """
 
     def __init__(
-            self, base_dir, handyvars, handyfiles, site_energy, capt_energy,
-            regions, tsv_metrics, health_costs, split_fuel, floor_start,
-            exog_hp_rates, **kwargs):
+            self, base_dir, handyvars, handyfiles, site_energy,
+            capt_energy, regions, tsv_metrics, health_costs, split_fuel,
+            floor_start, exog_hp_rates, grid_decarb, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1594,8 +1619,9 @@ class Measure(object):
         self.remove = False
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
-            "site_energy": False, "captured_energy_ss": False,
-            "alt_regions": False, "tsv_metrics": False, "health_costs": False,
+            "site_energy": False, "grid_decarb": False,
+            "captured_energy_ss": False, "alt_regions": False,
+            "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
@@ -1626,6 +1652,8 @@ class Measure(object):
             self.energy_outputs["floor_start"] = floor_start
         if exog_hp_rates is not False:
             self.energy_outputs["exog_hp_rates"] = exog_hp_rates
+        if grid_decarb is True:
+            self.energy_outputs["grid_decarb"] = True
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -1701,6 +1729,7 @@ class Measure(object):
             # and that the measure only applies to electricity (and no fuel
             # switching is selected)
             if regions != "EMM":
+                print(self.name, regions)
                 raise ValueError(
                     "Measure '" + self.name + "' has time sensitive "
                     "assessment features (see 'tsv_features' attribute) but "
@@ -9994,7 +10023,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start, opts.exog_hp_rates, **m) for
+        opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
+        opts.grid_decarb, **m) for
         m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10081,7 +10111,8 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     base_dir, handyvars, handyfiles, opts.site_energy,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
-                    opts.exog_hp_rates, **meas_summary_data[0])
+                    opts.exog_hp_rates, opts.grid_decarb,
+                    **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -10351,7 +10382,7 @@ def main(base_dir):
 
     # If exogenous HP rates are specified, gather further information about
     # how these rates should be applied to retrofit decisions
-    if opts.exog_hp_rates is True:
+    if opts and opts.exog_hp_rates is True:
         input_var = 0
         while input_var not in ['1', '2']:
             input_var = input(
@@ -10371,6 +10402,27 @@ def main(base_dir):
                 "WARNING: Analysis regions were set to EMM to allow HP "
                 "conversion rates: ensure that ECM data reflect these EMM "
                 "regions or states (and not the default AIA regions)")
+
+    # If alternate grid decarbonization specified, ensure State regional
+    # breakouts and/or captured energy method are not used
+    if opts and opts.grid_decarb is True:
+        # Ensure that if alternate grid decarbonization scenario to be used,
+        # EMM regional breakouts are set (grid decarb data use this resolution)
+        if regions in ["State"]:
+            opts.alt_regions, regions = [True, "EMM"]
+            warnings.warn(
+                "WARNING: Analysis regions were set to EMM to ensure "
+                "ECM data reflect EMM regions to match alternative grid "
+                "decarbonization scenario geographical breakdown")
+        # Ensure that if alternate grid decarbonization scenario to be used,
+        # EMM regional breakouts are set (grid decarb data use this resolution)
+        if opts.capt_energy is True:
+            opts.capt_energy = False
+            warnings.warn(
+                "WARNING: Site-source conversion method was set to use the "
+                "fossil fuel equivalency method because captured energy "
+                "site-source conversion factors not compatible with alternate "
+                "grid decarbonization scenario")
 
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
@@ -10471,7 +10523,7 @@ def main(base_dir):
     # warnings.formatwarning = custom_formatwarning
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles(
-        opts.captured_energy, regions, opts.site_energy)
+        opts.captured_energy, regions, opts.site_energy, opts.grid_decarb)
 
     # UNCOMMENT WITH ISSUE 188
     # # Ensure that all AEO-based JSON data are drawn from the same AEO version
@@ -11000,6 +11052,9 @@ if __name__ == "__main__":
     parser.add_argument("--exog_hp_rates", action="store_true",
                         help=("Accomodates exogenous forcing of fuel "
                               "switching conversion rates"))
+    # Optional flag to use alternate grid decarbonization case
+    parser.add_argument("--grid_decarb", action="store_true",
+                        help="Flag alternate grid decarbonization scenario")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
