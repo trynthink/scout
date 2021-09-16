@@ -60,8 +60,7 @@ class UsefulVars(object):
         self.emm_state_map = ('supporting_data/convert_data/geo_map/' +
                               'EMM_State_ColSums.txt')
         self.state_baseline_data = ('supporting_data/convert_data/' +
-                                    'EIA_State_Price_Emissions_\
-                                    Baselines_2019.csv')
+                                    'EIA_State_Price_Emissions_Baselines_2019.csv')  # noqa: E501
         self.state_conv_file_out = ('supporting_data/convert_data/' +
                                     'state_emissions_prices-updated.json')
         self.metadata = ('metadata.json')
@@ -87,11 +86,11 @@ class ValidQueries(object):
             writing the updated json file.
     """
     def __init__(self):
-        self.years = ['2018', '2019', '2020']
-        self.emm_years = ['2020']
-        self.cases = ['REF2018', 'REF2019', 'REF2020', 'CO2FEE25', 'LOWOGS',
-                      'LORENCST']
-        self.emm_cases = ['REF2020', 'LOWOGS', 'LORENCST']
+        self.years = ['2018', '2019', '2020', '2021']
+        self.emm_years = ['2020', '2021']
+        self.cases = ['REF2018', 'REF2019', 'REF2020', 'REF2021', 'CO2FEE25',
+                      'LOWOGS', 'LORENCST']
+        self.emm_cases = ['REF2020', 'REF2021', 'LOWOGS', 'LORENCST']
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
