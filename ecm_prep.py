@@ -3086,7 +3086,11 @@ class Measure(object):
                                 "electricity" not in mskeys):
                     contrib_mseg_key = list(contrib_mseg_key)
                     # Tech info. is second to last mseg list element
-                    contrib_mseg_key[-2] += "-FS"
+                    try:
+                        contrib_mseg_key[-2] += "-FS"
+                    # Handle Nonetype on technology
+                    except TypeError:
+                        contrib_mseg_key[-2] = "-FS"
                     contrib_mseg_key = tuple(contrib_mseg_key)
 
                 # If sub-market scaling fraction is non-numeric (indicating
@@ -9256,6 +9260,15 @@ class MeasurePackage(Measure):
                         save_overlp_htcl[yr] = 0
                     # Set relative performance for the overlapping measure(s)
                     rp_overlp_htcl[yr] = 1 - save_overlp_htcl[yr]
+
+                    # Ensure that envelope savings are never negative and that
+                    # they never exceed 100%
+                    if overlp_data["affected savings"][yr] < 0 or \
+                            rp_overlp_htcl[yr] > 1:
+                        rp_overlp_htcl[yr] = 1
+                    elif overlp_data["affected savings"][yr] > 0 and \
+                            rp_overlp_htcl[yr] < 0:
+                        rp_overlp_htcl[yr] = 0
 
             # Overlapping envelope measures only affect the efficient case
             # energy/carbon results for an HVAC equipment measure; set base
