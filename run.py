@@ -3282,18 +3282,26 @@ class Engine(object):
                 adj["carbon"]["competed"][x][yr] = [
                     (x[yr] * adj_frac_comp) for x in adjlist[5:]]
 
-    def finalize_outputs(self, adopt_scheme):
+    def finalize_outputs(self, adopt_scheme, trim_out, trim_yrs):
         """Prepare selected measure outputs to write to a summary JSON file.
 
         Args:
             adopt_scheme (string): Consumer adoption scenario to summarize
                 outputs for.
+            trim_out (boolean): Flag for trimmed down results file.
+            trim_yrs (list): Optional list of years to focus results on.
         """
         # Initialize markets and savings totals across all ECMs
         summary_vals_all_ecms = [{
             yr: 0 for yr in self.handyvars.aeo_years} for n in range(12)]
         # Set up subscript translator for carbon variable strings
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+        # If user has specified a reduced results file size, check for whether
+        # years of focus should be used
+        if trim_yrs is not False:
+            focus_yrs = [str(x) for x in trim_yrs]
+        else:
+            focus_yrs = self.handyvars.aeo_years
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
             # Set competed measure markets and savings and financial metrics
@@ -3326,12 +3334,16 @@ class Engine(object):
                 metrics_finance["payback (w/ energy and carbon costs)"]]
             # Order the year entries in the above markets, savings,
             # and portfolio metrics outputs
-            summary_vals = [OrderedDict(
+            summary_vals_init = [OrderedDict(
                 sorted(x.items())) for x in summary_vals]
+            # Apply focus year range, if applicable
+            summary_vals = [{
+                yr: summary_vals_init[v][yr] for yr in focus_yrs}
+                for v in range(len(summary_vals))]
             # Add ECM markets and savings totals to totals across all ECMs
             summary_vals_all_ecms = [{
                 yr: summary_vals_all_ecms[v][yr] + summary_vals[v][yr] for
-                yr in self.handyvars.aeo_years} for v in range(0, 12)]
+                yr in focus_yrs} for v in range(0, 12)]
 
             # Find mean and 5th/95th percentile values of each output
             # (note: if output is point value, all three of these values
@@ -3369,30 +3381,44 @@ class Engine(object):
             # Record updated markets and savings in Engine 'output'
             # attribute; initialize markets/savings breakouts by category as
             # total markets/savings (e.g., not broken out in any way). These
-            # initial values will be adjusted by breakout fractions below
-            self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                adopt_scheme], self.output_ecms[m.name][
-                    "Markets and Savings (by Category)"][
-                    adopt_scheme] = (OrderedDict([
-                        ("Baseline Energy Use (MMBtu)", energy_base_avg),
-                        ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                        ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                            carb_base_avg),
-                        ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                            carb_eff_avg),
-                        ("Baseline Energy Cost (USD)", energy_cost_base_avg),
-                        ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
-                        ("Baseline CO2 Cost (USD)".translate(sub),
-                            carb_cost_base_avg),
-                        ("Efficient CO2 Cost (USD)".translate(sub),
-                            carb_cost_eff_avg),
-                        ("Energy Savings (MMBtu)", energy_save_avg),
-                        ("Energy Cost Savings (USD)", energy_costsave_avg),
-                        ("Avoided CO2 Emissions (MMTons)".
-                            translate(sub), carb_save_avg),
-                        ("CO2 Cost Savings (USD)".
-                            translate(sub), carb_costsave_avg)]) for
-                        n in range(2))
+            # initial values will be adjusted by breakout fractions below.
+            # If user desires pared down outputs, only report savings values.
+            if trim_out is False:
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme], self.output_ecms[m.name][
+                        "Markets and Savings (by Category)"][
+                        adopt_scheme] = (OrderedDict([
+                            ("Baseline Energy Use (MMBtu)", energy_base_avg),
+                            ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                            ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                                carb_base_avg),
+                            ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                                carb_eff_avg),
+                            ("Baseline Energy Cost (USD)",
+                             energy_cost_base_avg),
+                            ("Efficient Energy Cost (USD)",
+                             energy_cost_eff_avg),
+                            ("Baseline CO2 Cost (USD)".translate(sub),
+                                carb_cost_base_avg),
+                            ("Efficient CO2 Cost (USD)".translate(sub),
+                                carb_cost_eff_avg),
+                            ("Energy Savings (MMBtu)", energy_save_avg),
+                            ("Energy Cost Savings (USD)", energy_costsave_avg),
+                            ("Avoided CO2 Emissions (MMTons)".
+                                translate(sub), carb_save_avg),
+                            ("CO2 Cost Savings (USD)".
+                                translate(sub), carb_costsave_avg)]) for
+                            n in range(2))
+            else:
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme], self.output_ecms[m.name][
+                        "Markets and Savings (by Category)"][
+                        adopt_scheme] = (OrderedDict([
+                            ("Energy Savings (MMBtu)", energy_save_avg),
+                            ("Avoided CO2 Emissions (MMTons)".
+                                translate(sub), carb_save_avg),
+                            ("Energy Cost Savings (USD)", energy_costsave_avg)
+                            ]) for n in range(2))
 
             # Normalize the baseline energy/carbon/cost, efficient energy/
             # carbon/cost, and energy/carbon/cost savings for the measure that
@@ -3406,62 +3432,68 @@ class Engine(object):
             # Calculate baseline energy fractions by output breakout category
             frac_base_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy"]["baseline"], energy_base_avg, divide=True)
+                    "energy"]["baseline"], energy_base_avg, focus_yrs,
+                divide=True)
             # Calculate efficient energy fractions by output breakout category
             frac_eff_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy"]["efficient"], energy_eff_avg, divide=True)
+                    "energy"]["efficient"], energy_eff_avg, focus_yrs,
+                divide=True)
             # Determine total energy savings to use as normalization factor
             norm_save_energy = {
                 yr: (energy_base_avg[yr] - energy_eff_avg[yr]) for
-                yr in self.handyvars.aeo_years}
+                yr in focus_yrs}
             # Calculate energy savings fractions by output breakout category
             frac_save_energy = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"][
                     "mseg_out_break"]["energy"]["savings"],
-                norm_save_energy, divide=True)
+                norm_save_energy, focus_yrs, divide=True)
 
             # Cost
             # Calculate baseline energy cost fractions by output breakout
             # category
             frac_base_cost = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "cost"]["baseline"], energy_cost_base_avg, divide=True)
+                    "cost"]["baseline"], energy_cost_base_avg,
+                focus_yrs, divide=True)
             # Calculate efficient energy cost fractions by output breakout
             # category
             frac_eff_cost = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "cost"]["efficient"], energy_cost_eff_avg, divide=True)
+                    "cost"]["efficient"], energy_cost_eff_avg,
+                focus_yrs, divide=True)
             # Determine total energy cost savings to use as normalization
             # factor
             norm_save_cost = {
                 yr: (energy_cost_base_avg[yr] - energy_cost_eff_avg[yr]) for
-                yr in self.handyvars.aeo_years}
+                yr in focus_yrs}
             # Calculate energy cost savings fractions by output breakout
             # category
             frac_save_cost = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"][
                     "mseg_out_break"]["cost"]["savings"],
-                norm_save_cost, divide=True)
+                norm_save_cost, focus_yrs, divide=True)
 
             # Carbon
             # Calculate baseline carbon fractions by output breakout category
             frac_base_carb = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "carbon"]["baseline"], carb_base_avg, divide=True)
+                    "carbon"]["baseline"], carb_base_avg, focus_yrs,
+                divide=True)
             # Calculate efficient carbon fractions by output breakout category
             frac_eff_carb = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "carbon"]["efficient"], carb_eff_avg, divide=True)
+                    "carbon"]["efficient"], carb_eff_avg, focus_yrs,
+                divide=True)
             # Determine total carbon savings to use as normalization factor
             norm_save_carb = {
                 yr: (carb_base_avg[yr] - carb_eff_avg[yr]) for
-                yr in self.handyvars.aeo_years}
+                yr in focus_yrs}
             # Calculate carbon savings fractions by output breakout category
             frac_save_carb = self.out_break_walk(
                 m.markets[adopt_scheme]["competed"][
                     "mseg_out_break"]["carbon"]["savings"],
-                norm_save_carb, divide=True)
+                norm_save_carb, focus_yrs, divide=True)
 
             # Create shorthand variable for results by breakout category
             mkt_save_brk = self.output_ecms[m.name][
@@ -3476,95 +3508,101 @@ class Engine(object):
                     if "Energy Use" in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_base_energy), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                     # Energy cost results
                     elif "Energy Cost" in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_base_cost), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                     # Carbon results
                     else:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_base_carb), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                 # Apply efficient partitioning fractions to efficient values
                 elif "Efficient" in k:
                     # Energy results
                     if "Energy Use" in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_energy), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                     # Energy cost results
                     elif "Energy Cost" in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_cost), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                     # Carbon results
                     else:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_carb), mkt_save_brk[k],
-                            divide=False)
+                            focus_yrs, divide=False)
                 # Apply savings partitioning fractions to savings values
                 else:
                     # Energy results
                     if ("Energy" in k and "Cost" not in k):
                         mkt_save_brk[k] = self.out_break_walk(
                            copy.deepcopy(frac_save_energy), mkt_save_brk[k],
-                           divide=False)
+                           focus_yrs, divide=False)
                     # Energy cost results
                     elif "Energy Cost" in k:
                         mkt_save_brk[k] = self.out_break_walk(
                            copy.deepcopy(frac_save_cost), mkt_save_brk[k],
-                           divide=False)
+                           focus_yrs, divide=False)
                     # Carbon results
                     else:
                         mkt_save_brk[k] = self.out_break_walk(
                            copy.deepcopy(frac_save_carb), mkt_save_brk[k],
-                           divide=False)
+                           focus_yrs, divide=False)
 
-            # Record low and high estimates on markets, if available
-
-            # Set shorter name for markets and savings output dict
-            mkt_sv = self.output_ecms[m.name][
-                "Markets and Savings (Overall)"][adopt_scheme]
-            # Record low and high baseline market values
-            if energy_base_avg != energy_base_low:
-                # for x in [output_dict_overall, output_dict_bycat]:
-                mkt_sv["Baseline Energy Use (low) (MMBtu)"] = energy_base_low
-                mkt_sv["Baseline Energy Use (high) (MMBtu)"] = energy_base_high
-                mkt_sv["Baseline CO2 Emissions (low) (MMTons)".
-                       translate(sub)] = carb_base_low
-                mkt_sv["Baseline CO2 Emissions (high) (MMTons)".
-                       translate(sub)] = carb_base_high
-                mkt_sv["Baseline Energy Cost (low) (USD)"] = \
-                    energy_cost_base_low
-                mkt_sv["Baseline Energy Cost (high) (USD)"] = \
-                    energy_cost_base_high
-                mkt_sv["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
-                    carb_cost_base_low
-                mkt_sv["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
-                    carb_cost_base_high
-            # Record low and high efficient market values
-            if energy_eff_avg != energy_eff_low:
-                # for x in [output_dict_overall, output_dict_bycat]:
-                mkt_sv["Efficient Energy Use (low) (MMBtu)"] = energy_eff_low
-                mkt_sv["Efficient Energy Use (high) (MMBtu)"] = energy_eff_high
-                mkt_sv["Efficient CO2 Emissions (low) (MMTons)".
-                       translate(sub)] = carb_eff_low
-                mkt_sv["Efficient CO2 Emissions (high) (MMTons)".
-                       translate(sub)] = carb_eff_high
-                mkt_sv["Efficient Energy Cost (low) (USD)"] = \
-                    energy_cost_eff_low
-                mkt_sv["Efficient Energy Cost (high) (USD)"] = \
-                    energy_cost_eff_high
-                mkt_sv["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
-                    carb_cost_eff_low
-                mkt_sv["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
-                    carb_cost_eff_high
+            # Record low and high estimates on markets, if available and
+            # user has not specified trimmed output
+            if trim_out is not False:
+                # Set shorter name for markets and savings output dict
+                mkt_sv = self.output_ecms[m.name][
+                    "Markets and Savings (Overall)"][adopt_scheme]
+                # Record low and high baseline market values
+                if energy_base_avg != energy_base_low:
+                    # for x in [output_dict_overall, output_dict_bycat]:
+                    mkt_sv["Baseline Energy Use (low) (MMBtu)"] = \
+                        energy_base_low
+                    mkt_sv["Baseline Energy Use (high) (MMBtu)"] = \
+                        energy_base_high
+                    mkt_sv["Baseline CO2 Emissions (low) (MMTons)".
+                           translate(sub)] = carb_base_low
+                    mkt_sv["Baseline CO2 Emissions (high) (MMTons)".
+                           translate(sub)] = carb_base_high
+                    mkt_sv["Baseline Energy Cost (low) (USD)"] = \
+                        energy_cost_base_low
+                    mkt_sv["Baseline Energy Cost (high) (USD)"] = \
+                        energy_cost_base_high
+                    mkt_sv["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
+                        carb_cost_base_low
+                    mkt_sv["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
+                        carb_cost_base_high
+                # Record low and high efficient market values
+                if energy_eff_avg != energy_eff_low:
+                    # for x in [output_dict_overall, output_dict_bycat]:
+                    mkt_sv["Efficient Energy Use (low) (MMBtu)"] = \
+                        energy_eff_low
+                    mkt_sv["Efficient Energy Use (high) (MMBtu)"] = \
+                        energy_eff_high
+                    mkt_sv["Efficient CO2 Emissions (low) (MMTons)".
+                           translate(sub)] = carb_eff_low
+                    mkt_sv["Efficient CO2 Emissions (high) (MMTons)".
+                           translate(sub)] = carb_eff_high
+                    mkt_sv["Efficient Energy Cost (low) (USD)"] = \
+                        energy_cost_eff_low
+                    mkt_sv["Efficient Energy Cost (high) (USD)"] = \
+                        energy_cost_eff_high
+                    mkt_sv["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
+                        carb_cost_eff_low
+                    mkt_sv[
+                        "Efficient CO2 Cost (high) (USD)".translate(sub)] = \
+                        carb_cost_eff_high
 
             # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
-            if cce_avg != cce_low:
+            if trim_out is not False and cce_avg != cce_low:
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
                         ("Cost of Conserved Energy ($/MMBtu saved)",
                             cce_avg),
@@ -3607,7 +3645,7 @@ class Engine(object):
                     ((mkts["stock"]["total"]["measure"][yr] / m.markets[
                       adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
                       "total"]["all"][yr]) * 100), 1) for
-                    yr in self.handyvars.aeo_years}
+                    yr in focus_yrs}
                 # Calculate average and low/high penetration fractions
                 mkt_fracs_avg = {
                     k: numpy.mean(v) for k, v in mkt_fracs.items()}
@@ -3678,13 +3716,15 @@ class Engine(object):
                 ("Efficient CO2 Cost (USD)".translate(sub),
                  carb_cost_eff_all_avg)])
 
-        # Set shorter name for markets and savings output dict across all ECMs
-        mkt_sv_all = self.output_all["All ECMs"][
-            "Markets and Savings (Overall)"][adopt_scheme]
-
         # Record low/high estimates on efficient markets across all ECMs, if
-        # available
-        if energy_eff_all_avg != energy_eff_all_low:
+        # available and user has not specified trimmed output
+        if trim_out is not False and energy_eff_all_avg != energy_eff_all_low:
+
+            # Set shorter name for markets and savings output dict across all
+            # ECMs
+            mkt_sv_all = self.output_all["All ECMs"][
+                "Markets and Savings (Overall)"][adopt_scheme]
+
             mkt_sv_all["Efficient Energy Use (low) (MMBtu)"] = \
                 energy_eff_all_low
             mkt_sv_all["Efficient Energy Use (high) (MMBtu)"] = \
@@ -3702,7 +3742,7 @@ class Engine(object):
             mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
                 carb_cost_eff_all_high
 
-    def out_break_walk(self, adjust_dict, adjust_vals, divide):
+    def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide):
         """Partition measure results by climate, building sector, and end use.
 
         Args:
@@ -3710,6 +3750,7 @@ class Engine(object):
                 for climate zone, building sector, and end use.
             adjust_vals (dict): Unpartitioned energy, carbon, and cost
                 markets/savings.
+            focus_yrs (list): Optional years of focus within overall yr. range
             divide (boolean): Optional flag to divide terminal values instead
                 of multiplying them (the default option).
 
@@ -3718,9 +3759,11 @@ class Engine(object):
             end use, and possibly fuel type (electric/non-electric).
         """
         for (k, i) in sorted(adjust_dict.items()):
-            if isinstance(i, dict):
-                self.out_break_walk(i, adjust_vals, divide)
-            else:
+            if isinstance(i, dict) and len(i.keys()) > 0:
+                self.out_break_walk(i, adjust_vals, focus_yrs, divide)
+            elif isinstance(i, dict):
+                del adjust_dict[k]
+            elif k in focus_yrs:
                 # Apply appropriate climate zone/building type/end use
                 # partitioning fraction to the overall market/savings
                 # value
@@ -3731,6 +3774,8 @@ class Engine(object):
                         adjust_dict[k] = adjust_dict[k] / adjust_vals[k]
                     else:
                         adjust_dict[k] = 0
+            else:
+                del adjust_dict[k]
         return adjust_dict
 
 
@@ -3754,6 +3799,33 @@ def main(base_dir):
     handyfiles = UsefulInputFiles(energy_out=energy_out, regions="AIA")
     # Instantiate useful variables object
     handyvars = UsefulVars(base_dir, handyfiles)
+
+    # If a user desires trimmed down results, collect information about whether
+    # they want to restrict to certain years of focus
+    if options.trim_results is True:
+        # Flag trimmed results format
+        trim_out = True
+        trim_yrs = []
+        while trim_yrs is not False and ((len(trim_yrs) == 0) or any([
+            x < int(handyvars.aeo_years[0]) or x > int(handyvars.aeo_years[-1])
+                for x in trim_yrs])):
+            # Initialize focus year range input
+            trim_yrs_init = input(
+                "Enter years of focus for the outputs, with a space in "
+                "between each (or hit return to use all years): ")
+            # Finalize focus year range input; if not provided, assume False
+            if trim_yrs_init:
+                trim_yrs = list(map(int, trim_yrs_init.split()))
+                if any([x < int(handyvars.aeo_years[0]) or
+                        x > int(handyvars.aeo_years[-1]) for x in trim_yrs]):
+                    print('Please try again. Enter focus years between '
+                          + handyvars.aeo_years[0] + ' and ' +
+                          handyvars.aeo_years[-1])
+            else:
+                trim_yrs = False
+
+    else:
+        trim_out, trim_yrs = (False for n in range(2))
 
     # Import measure files
     with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
@@ -3966,7 +4038,7 @@ def main(base_dir):
         a_run.calc_savings_metrics(adopt_scheme, "competed")
         print("Calculations complete")
         # Write selected outputs to a summary JSON file for post-processing
-        a_run.finalize_outputs(adopt_scheme)
+        a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
 
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
@@ -3989,94 +4061,97 @@ def main(base_dir):
     # *** NOTE: Allow plots in all cases for now, possibly restrict for
     # EMM-based measures in the future as above ***
 
-    # Notify user that the output data are being plotted
-    print('Plotting output data...', end="", flush=True)
+    # Do not plot for the case where a user has trimmed down the results
+    # (not all data required for the plots will be available)
+    if options.trim_results is False:
+        # Notify user that the output data are being plotted
+        print('Plotting output data...', end="", flush=True)
 
-    # Ensure presence of R/Perl in Windows user PATH environment variable
-    if sys.platform.startswith('win'):
-        if "R-" not in environ["PATH"]:
-            # Find the path to the user's Rscript.exe file
-            lookfor, r_path = ("R-", None)
-            for root, directory, files in walk(path.join("C:", sep)):
-                if lookfor in root and "Rscript.exe" in files:
-                    r_path = root
-                    break
-            # If Rscript.exe was not found, yield warning; else add to PATH
-            if r_path is None:
-                warnings.warn("R executable not found for plotting")
-            else:
-                environ["PATH"] += pathsep + r_path
-        if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
-            # Find the path to the user's perl.exe file
-            lookfor, perl_path = (["Perl", "perl"], None)
-            for root, directory, files in walk(path.join("C:", sep)):
-                if any([x in root for x in lookfor]) and \
-                        "perl.exe" in files:
-                    perl_path = root
-                    break
-            # If perl.exe was not found, yield warning; else add to PATH
-            if perl_path is None:
-                warnings.warn(
-                    "Perl executable not found for plot XLSX writing")
-            else:
-                environ["PATH"] += pathsep + perl_path
-    # If user's operating system can't be determined, yield warning message
-    elif sys.platform == "unknown":
-        warnings.warn("Could not determine OS for plotting routine")
+        # Ensure presence of R/Perl in Windows user PATH environment variable
+        if sys.platform.startswith('win'):
+            if "R-" not in environ["PATH"]:
+                # Find the path to the user's Rscript.exe file
+                lookfor, r_path = ("R-", None)
+                for root, directory, files in walk(path.join("C:", sep)):
+                    if lookfor in root and "Rscript.exe" in files:
+                        r_path = root
+                        break
+                # If Rscript.exe was not found, yield warning; else add to PATH
+                if r_path is None:
+                    warnings.warn("R executable not found for plotting")
+                else:
+                    environ["PATH"] += pathsep + r_path
+            if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
+                # Find the path to the user's perl.exe file
+                lookfor, perl_path = (["Perl", "perl"], None)
+                for root, directory, files in walk(path.join("C:", sep)):
+                    if any([x in root for x in lookfor]) and \
+                            "perl.exe" in files:
+                        perl_path = root
+                        break
+                # If perl.exe was not found, yield warning; else add to PATH
+                if perl_path is None:
+                    warnings.warn(
+                        "Perl executable not found for plot XLSX writing")
+                else:
+                    environ["PATH"] += pathsep + perl_path
+        # If user's operating system can't be determined, yield warning message
+        elif sys.platform == "unknown":
+            warnings.warn("Could not determine OS for plotting routine")
 
-    # Run R code
+        # Run R code
 
-    # Set variable used to hide subprocess output
-    FNULL = open(devnull, 'w')
+        # Set variable used to hide subprocess output
+        FNULL = open(devnull, 'w')
 
-    try:
-        # Define shell command for R plotting function
-        shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
-        # Execute R code
-        subprocess.run(shell_command, shell=True, check=True,
-                       stdout=FNULL, stderr=FNULL)
-        # Notify user of plotting outcome if no error is thrown
-        print("Plotting complete")
-    except AttributeError:
-        # If run module in subprocess throws AttributeError, try
-        # subprocess.call() (used in Python versions before 3.5)
         try:
+            # Define shell command for R plotting function
+            shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
             # Execute R code
-            subprocess.check_call(shell_command, shell=True,
-                                  stdout=FNULL, stderr=FNULL)
+            subprocess.run(shell_command, shell=True, check=True,
+                           stdout=FNULL, stderr=FNULL)
             # Notify user of plotting outcome if no error is thrown
             print("Plotting complete")
-        except subprocess.CalledProcessError:
+        except AttributeError:
+            # If run module in subprocess throws AttributeError, try
+            # subprocess.call() (used in Python versions before 3.5)
             try:
-                # Define shell command for R plotting function - handle 3.5
-                # bug in escaping spaces/apostrophes by adding --vanilla
-                # command (recommended here: https://stackoverflow.com/
-                # questions/50028090/is-this-a-bug-in-r-3-5)
+                # Execute R code
+                subprocess.check_call(shell_command, shell=True,
+                                      stdout=FNULL, stderr=FNULL)
+                # Notify user of plotting outcome if no error is thrown
+                print("Plotting complete")
+            except subprocess.CalledProcessError:
+                try:
+                    # Define shell command for R plotting function - handle 3.5
+                    # bug in escaping spaces/apostrophes by adding --vanilla
+                    # command (recommended here: https://stackoverflow.com/
+                    # questions/50028090/is-this-a-bug-in-r-3-5)
+                    shell_command = 'Rscript --vanilla ' + \
+                        '"' + path.join(base_dir, 'plots_shell.R') + '"'
+                    # Execute R code
+                    subprocess.check_call(shell_command, shell=True)
+                    # Notify user of plotting outcome if no error is thrown
+                    print("Plotting complete")
+                except subprocess.CalledProcessError as err:
+                    print("Plotting failed to complete: ", err)
+        except subprocess.CalledProcessError:
+            # Else if run module in subprocess throws any other type of error,
+            # try handling a bug in R 3.5 where spaces/apostrophes in a
+            # directory name are not escaped
+            try:
+                # Define shell command for R plotting function - handle 3.5 bug
+                # in escaping spaces/apostrophes by adding --vanilla command
+                # (recommended here: https://stackoverflow.com/questions/
+                # 50028090/is-this-a-bug-in-r-3-5)
                 shell_command = 'Rscript --vanilla ' + \
                     '"' + path.join(base_dir, 'plots_shell.R') + '"'
                 # Execute R code
-                subprocess.check_call(shell_command, shell=True)
+                subprocess.run(shell_command, shell=True, check=True)
                 # Notify user of plotting outcome if no error is thrown
                 print("Plotting complete")
             except subprocess.CalledProcessError as err:
                 print("Plotting failed to complete: ", err)
-    except subprocess.CalledProcessError:
-        # Else if run module in subprocess throws any other type of error,
-        # try handling a bug in R 3.5 where spaces/apostrophes in a
-        # directory name are not escaped
-        try:
-            # Define shell command for R plotting function - handle 3.5 bug
-            # in escaping spaces/apostrophes by adding --vanilla command
-            # (recommended here: https://stackoverflow.com/questions/
-            # 50028090/is-this-a-bug-in-r-3-5)
-            shell_command = 'Rscript --vanilla ' + \
-                '"' + path.join(base_dir, 'plots_shell.R') + '"'
-            # Execute R code
-            subprocess.run(shell_command, shell=True, check=True)
-            # Notify user of plotting outcome if no error is thrown
-            print("Plotting complete")
-        except subprocess.CalledProcessError as err:
-            print("Plotting failed to complete: ", err)
 
 
 if __name__ == '__main__':
@@ -4090,6 +4165,9 @@ if __name__ == '__main__':
     # Optional flag to calculate site (rather than source) energy outputs
     parser.add_argument("--mkt_fracs", action="store_true",
                         help="Flag market penetration outputs")
+    # Optional flag to trim down results output size
+    parser.add_argument("--trim_results", action="store_true",
+                        help="Reduce results file size")
     options = parser.parse_args()
     # Set function that only prints message when in verbose mode
     verboseprint = print if options.verbose else lambda *a, **k: None

@@ -368,6 +368,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
         handyfiles.glob_vars = "glob_run_vars_test.json"
         handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
@@ -408,7 +409,8 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
     def test_ok(self):
         """Test for correct function output given valid inputs."""
         dict1 = self.a_run.out_break_walk(
-            self.ok_partitions, self.ok_total, divide=False)
+            self.ok_partitions, self.ok_total, self.focus_yrs_test,
+            divide=False)
         dict2 = self.ok_out
         self.dict_check(dict1, dict2)
 
