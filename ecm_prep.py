@@ -56,10 +56,22 @@ class UsefulInputFiles(object):
             the analysis engine.
         cpi_data (tuple): Historical Consumer Price Index data.
         ss_data (tuple): Site-source, emissions, and price data, national.
+        ss_data_nonfs (tuple): Site-source, emissions, and price data,
+            national, to assign in certain cases to non-fuel switching
+            microsegments under high grid decarb case.
         ss_data_altreg (tuple): Emissions/price data, EMM- or state-resolved.
+        ss_data_altreg_nonfs (tuple): Base-case emissions/price data, EMM– or
+            state-resolved, to assign in certain cases to non-fuel switching
+            microsegments under high grid decarb case.
         tsv_load_data (tuple): Time sensitive energy demand data.
         tsv_cost_data (tuple): Time sensitive electricity price data.
         tsv_carbon_data (tuple): Time sensitive average CO2 emissions data.
+        tsv_cost_data_nonfs (tuple): Time sensitive electricity price data to
+            assign in certain cases to non-fuel switching microsegments under
+            high grid decarb case.
+        tsv_carbon_data_nonfs (tuple): Time sensitive average CO2 emissions
+            data to assign in certain cases to non-fuel switching microsegments
+            under high grid decarb case.
         tsv_shape_data (tuple): Custom hourly savings shape data.
         tsv_metrics_data_tot (tuple): Total system load data by EMM region.
         tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
@@ -94,14 +106,25 @@ class UsefulInputFiles(object):
                                  "IECC_EMM_ColSums.txt")
             # Toggle EMM emissions and price data based on whether or not
             # a high grid decarbonization scenario is used
-            if grid_decarb is True:
+            if grid_decarb is not False:
                 self.ss_data_altreg = (
                     "supporting_data", "convert_data",
                     "emm_region_emissions_prices-decarb.json")
+                # Case where the user assesses emissions/cost reductions for
+                # non-fuel switching measures before grid decarbonization
+                if grid_decarb == "1":
+                    self.ss_data_altreg_nonfs = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-updated.json")
+                # Case where the user assesses emissions/cost reductions for
+                # non-fuel switching measures after grid decarbonization
+                else:
+                    self.ss_data_altreg_nonfs = None
             else:
                 self.ss_data_altreg = (
                     "supporting_data", "convert_data",
                     "emm_region_emissions_prices-updated.json")
+                self.ss_data_altreg_nonfs = None
         elif regions == 'State':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_state.gz")
@@ -113,13 +136,14 @@ class UsefulInputFiles(object):
                                  "IECC_State_ColSums.txt")
             # Ensure that state-level regions are not being used alongside
             # a high grid decarbonization scenario (incompatible currently)
-            if grid_decarb is True:
+            if grid_decarb is not False:
                 raise ValueError("Unsupported regional breakout for "
                                  "use with alternate grid decarbonization "
                                  "scenario (" + regions + ")")
             else:
                 self.ss_data_altreg = ("supporting_data", "convert_data",
                                        "state_emissions_prices-updated.json")
+                self.ss_data_altreg_nonfs = None
         else:
             raise ValueError("Unsupported regional breakout (" + regions + ")")
 
@@ -140,13 +164,27 @@ class UsefulInputFiles(object):
         self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
         # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
-        if grid_decarb is True:
+        if grid_decarb is not False:
             self.ss_data = ("supporting_data", "convert_data",
                             "site_source_co2_conversions-decarb.json")
             self.tsv_cost_data = ("supporting_data", "tsv_data",
                                   "tsv_cost-decarb.json")
             self.tsv_carbon_data = ("supporting_data", "tsv_data",
                                     "tsv_carbon-decarb.json")
+            # Case where the user assesses emissions/cost reductions for
+            # non-fuel switching measures before grid decarbonization
+            if grid_decarb == "1":
+                self.ss_data_nonfs = ("supporting_data", "convert_data",
+                                      "site_source_co2_conversions.json")
+                self.tsv_cost_data_nonfs = (
+                    "supporting_data", "tsv_data", "tsv_cost.json")
+                self.tsv_carbon_data_nonfs = (
+                    "supporting_data", "tsv_data", "tsv_carbon.json")
+            # Case where the user assesses emissions/cost reductions for
+            # non-fuel switching measures after grid decarbonization
+            else:
+                self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
+                    self.tsv_carbon_data_nonfs = (None for n in range(3))
         else:
             # Use the user-specified captured energy method flag to determine
             # which site-source conversions file to select
@@ -160,6 +198,8 @@ class UsefulInputFiles(object):
                 "supporting_data", "tsv_data", "tsv_cost.json")
             self.tsv_carbon_data = (
                 "supporting_data", "tsv_data", "tsv_carbon.json")
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
+                self.tsv_carbon_data_nonfs = (None for n in range(3))
         self.tsv_load_data = (
             "supporting_data", "tsv_data", "tsv_load.json")
         self.tsv_shape_data = (
@@ -275,8 +315,15 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
-                 health_costs, split_fuel, floor_start, exog_hp_rates):
-        self.adopt_schemes = ['Technical potential', 'Max adoption potential']
+                 health_costs, split_fuel, floor_start, exog_hp_rates,
+                 adopt_scn_usr):
+        # Choose default adoption scenarios if user doesn't specify otherwise
+        if adopt_scn_usr is False:
+            self.adopt_schemes = [
+                'Technical potential', 'Max adoption potential']
+        # Otherwise set adoption scenario to user-specified choice
+        else:
+            self.adopt_schemes = adopt_scn_usr
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = regions
@@ -331,6 +378,21 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.ss_data + "': " + str(e)) from None
+        # Set base-case emissions/cost data to use in assessing reductions for
+        # non-fuel switching microsegments under a high grid decarbonization
+        # case, if desired by the user
+        if handyfiles.ss_data_nonfs is not None:
+            # Read in national-level site-source, emissions, and costs data
+            with open(path.join(
+                    base_dir, *handyfiles.ss_data_nonfs), 'r') as ss:
+                try:
+                    cost_ss_carb_nonfs = json.load(ss)
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.ss_data + "': " + str(e)) from None
+        else:
+            cost_ss_carb_nonfs = None
         # Set national site to source conversion factors
         self.ss_conv = {
             "electricity": cost_ss_carb[
@@ -351,6 +413,24 @@ class UsefulVars(object):
                     raise ValueError(
                         "Error reading in '" +
                         handyfiles.ss_data_altreg + "': " + str(e)) from None
+            # Set base-case emissions/cost data to use in assessing reductions
+            # for non-fuel switching microsegments under a high grid
+            # decarbonization case, if desired by the user
+            if handyfiles.ss_data_altreg_nonfs is not None:
+                # Read in EMM- or state-specific emissions factors and price
+                # data
+                with open(path.join(
+                        base_dir,
+                        *handyfiles.ss_data_altreg_nonfs), 'r') as ss:
+                    try:
+                        cost_ss_carb_altreg_nonfs = json.load(ss)
+                    except ValueError:
+                        raise ValueError(
+                            "Error reading in '" +
+                            path.join(base_dir,
+                                      *handyfiles.ss_data_altreg_nonfs) + "'")
+            else:
+                cost_ss_carb_altreg_nonfs = None
             # Initialize CO2 intensities based on electricity intensities by
             # EMM region or state; convert CO2 intensities from Mt/TWh site to
             # MMTon/MMBTu site to match expected multiplication by site energy
@@ -369,6 +449,27 @@ class UsefulVars(object):
                 yr in self.aeo_years} for reg in cost_ss_carb_altreg[
                     "End-use electricity price"]["data"][bldg].keys()}} for
                 bldg in ["residential", "commercial"]}
+            # Finalize base-case emissions/cost data to use in assessing
+            # reductions for non-fuel switching microsegments under a high grid
+            # decarbonization case, if desired by the user
+            if cost_ss_carb_altreg_nonfs is not None:
+                self.carb_int_nonfs = {bldg: {"electricity": {reg: {
+                    yr: round((cost_ss_carb_altreg_nonfs[
+                        "CO2 intensity of electricity"][
+                        "data"][reg][yr] / 3412141.6331), 10) for
+                    yr in self.aeo_years} for reg in cost_ss_carb_altreg_nonfs[
+                        "CO2 intensity of electricity"]["data"].keys()}} for
+                    bldg in ["residential", "commercial"]}
+                self.ecosts_nonfs = {bldg: {"electricity": {reg: {
+                    yr: round((cost_ss_carb_altreg_nonfs[
+                        "End-use electricity price"][
+                        "data"][bldg][reg][yr] / 0.003412), 6) for
+                    yr in self.aeo_years} for reg in cost_ss_carb_altreg_nonfs[
+                        "End-use electricity price"]["data"][bldg].keys()}} for
+                    bldg in ["residential", "commercial"]}
+            else:
+                self.carb_int_nonfs, self.ecosts_nonfs = (
+                    None for n in range(2))
         else:
             # Initialize CO2 intensities based on national CO2 intensities
             # for electricity; convert CO2 intensities from Mt/quad source to
@@ -384,6 +485,23 @@ class UsefulVars(object):
                 "electricity"]["price"]["data"][bldg][yr] for
                 yr in self.aeo_years}} for bldg in [
                 "residential", "commercial"]}
+            # Finalize base-case emissions/cost data to use in assessing
+            # reductions for non-fuel switching microsegments under a high grid
+            # decarbonization case, if desired by the user
+            if cost_ss_carb_nonfs is not None:
+                self.carb_int_nonfs = {
+                    bldg: {"electricity": {yr: cost_ss_carb_nonfs[
+                        "electricity"]["CO2 intensity"]["data"][bldg][yr] /
+                        1000000000 for yr in self.aeo_years}} for bldg in [
+                        "residential", "commercial"]}
+                self.ecosts_nonfs = {
+                    bldg: {"electricity": {yr: cost_ss_carb_nonfs[
+                        "electricity"]["price"]["data"][bldg][yr] for
+                        yr in self.aeo_years}} for bldg in [
+                        "residential", "commercial"]}
+            else:
+                self.carb_int_nonfs, self.ecosts_nonfs = (
+                    None for n in range(2))
         # Pull non-electric CO2 intensities and energy prices and update
         # the CO2 intensity and energy cost dicts initialized above
         # accordingly; convert CO2 intensities from Mt/quad source to
@@ -406,6 +524,14 @@ class UsefulVars(object):
         for bldg in ["residential", "commercial"]:
             self.carb_int[bldg].update(carb_int_nonelec[bldg])
             self.ecosts[bldg].update(ecosts_nonelec[bldg])
+            # Update base-case base-case emissions/cost data to use in
+            # assessing reductions for non-fuel switching microsegments
+            # under a high grid decarbonization case to reflect non-electric
+            # emissions intensities/energy costs
+            if self.carb_int_nonfs is not None:
+                self.carb_int_nonfs[bldg].update(carb_int_nonelec[bldg])
+            if self.ecosts_nonfs is not None:
+                self.ecosts_nonfs[bldg].update(ecosts_nonelec[bldg])
         # Set carbon costs
         ccosts_init = cost_ss_carb["CO2 price"]["data"]
         # Multiply carbon costs by 1000000 to reflect
@@ -1607,7 +1733,8 @@ class Measure(object):
     def __init__(
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
-            floor_start, exog_hp_rates, grid_decarb, **kwargs):
+            floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
+            **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1622,7 +1749,8 @@ class Measure(object):
             "site_energy": False, "grid_decarb": False,
             "captured_energy_ss": False, "alt_regions": False,
             "tsv_metrics": False, "health_costs": False,
-            "split_fuel": False, "floor_start": False, "exog_hp_rates": False}
+            "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
+            "adopt_scn_restrict": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
@@ -1652,8 +1780,10 @@ class Measure(object):
             self.energy_outputs["floor_start"] = floor_start
         if exog_hp_rates is not False:
             self.energy_outputs["exog_hp_rates"] = exog_hp_rates
-        if grid_decarb is True:
-            self.energy_outputs["grid_decarb"] = True
+        if grid_decarb is not False:
+            self.energy_outputs["grid_decarb"] = grid_decarb
+        if adopt_scn_usr is not False:
+            self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -1729,7 +1859,6 @@ class Measure(object):
             # and that the measure only applies to electricity (and no fuel
             # switching is selected)
             if regions != "EMM":
-                print(self.name, regions)
                 raise ValueError(
                     "Measure '" + self.name + "' has time sensitive "
                     "assessment features (see 'tsv_features' attribute) but "
@@ -2060,8 +2189,8 @@ class Measure(object):
                 "Scout building type(s) " + str(self.bldg_type) +
                 "in ECM '" + self.name + "'")
 
-    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data, opts,
-                  contrib_meas_pkg):
+    def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data_init, opts,
+                  contrib_meas_pkg, tsv_data_nonfs):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -2069,10 +2198,13 @@ class Measure(object):
             msegs_cpl (dict): Baseline technology cost, performance, and
                 lifetime.
             convert_data (dict): Measure -> baseline cost unit conversions.
-            tsv_data (dict): Data for time sensitive valuation of efficiency.
+            tsv_data_init (dict): Data for time sensitive valuation of
+                efficiency.
             opts (object): Stores user-specified execution options.
             contrib_meas_pkg (list): List of measure names that contribute
                 to active packages in the preparation run.
+            tsv_data_nonfs (dict): If applicable, base-case TSV data to apply
+                to non-fuel switching measures under a high decarb. scenario.
 
         Returns:
             Updated measure stock, energy/carbon, and cost market microsegment
@@ -2325,6 +2457,24 @@ class Measure(object):
                     mkt_scale_frac_source = \
                         self.market_scaling_fractions_source
 
+            # Set the appropriate carbon intensity, and energy cost data dicts
+            # to use for the current microsegment; when assuming a high grid
+            # decarbonization case, the user can choose to assess emissions
+            # and cost reductions in non-fuel switching microsegments using
+            # base-case emissions intensities and energy costs (e.g., before
+            # additional grid decarbonization)
+            if opts.grid_decarb is not False and all([x is not None for x in [
+                    self.handyvars.carb_int_nonfs,
+                    self.handyvars.ecosts_nonfs]]) and (
+                self.fuel_switch_to is None or (
+                    self.fuel_switch_to == "electricity" and
+                    "electricity" in mskeys)):
+                carb_int_dat = self.handyvars.carb_int_nonfs
+                cost_dat = self.handyvars.ecosts_nonfs
+            else:
+                carb_int_dat = self.handyvars.carb_int
+                cost_dat = self.handyvars.ecosts
+
             # Set baseline and measure site-source conversion factors,
             # accounting for any fuel switching from baseline to measure tech.
             if self.fuel_switch_to is None:
@@ -2361,7 +2511,7 @@ class Measure(object):
                     # the user's site energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
-                            yr: self.handyvars.carb_int[bldg_sect][mskeys[3]][
+                            yr: carb_int_dat[bldg_sect][mskeys[3]][
                                 mskeys[1]][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
                     # Intensities are specified nationally based on source
@@ -2369,7 +2519,7 @@ class Measure(object):
                     # to match the user's site energy setting
                     except KeyError:
                         intensity_carb_base, intensity_carb_meas = [{
-                            yr: self.handyvars.carb_int[bldg_sect][
+                            yr: carb_int_dat[bldg_sect][
                                 mskeys[3]][yr] *
                             self.handyvars.ss_conv[mskeys[3]][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
@@ -2380,7 +2530,7 @@ class Measure(object):
                     # match the user's source energy setting
                     try:
                         intensity_carb_base, intensity_carb_meas = [{
-                            yr: self.handyvars.carb_int[bldg_sect][mskeys[3]][
+                            yr: carb_int_dat[bldg_sect][mskeys[3]][
                                 mskeys[1]][yr] /
                             self.handyvars.ss_conv[mskeys[3]][yr] for
                             yr in self.handyvars.aeo_years} for n in range(2)]
@@ -2389,7 +2539,7 @@ class Measure(object):
                     # user's source energy setting
                     except KeyError:
                         intensity_carb_base, intensity_carb_meas = (
-                            self.handyvars.carb_int[bldg_sect][
+                            carb_int_dat[bldg_sect][
                                 mskeys[3]] for n in range(2))
             else:
                 # Interpretation of the calculations below is the same as for
@@ -2402,21 +2552,21 @@ class Measure(object):
                     # Intensities broken out by EMM region or state
                     try:
                         # Base fuel intensity broken by region
-                        intensity_carb_base = self.handyvars.carb_int[
+                        intensity_carb_base = carb_int_dat[
                             bldg_sect][mskeys[3]][mskeys[1]]
                     except KeyError:
                         # Base fuel intensity not broken by region
-                        intensity_carb_base = {yr: self.handyvars.carb_int[
+                        intensity_carb_base = {yr: carb_int_dat[
                             bldg_sect][mskeys[3]][yr] *
                             self.handyvars.ss_conv[mskeys[3]][yr]
                             for yr in self.handyvars.aeo_years}
                     try:
                         # Measure fuel intensity broken by region
-                        intensity_carb_meas = self.handyvars.carb_int[
+                        intensity_carb_meas = carb_int_dat[
                             bldg_sect][self.fuel_switch_to][mskeys[1]]
                     except KeyError:
                         # Measure fuel intensity not broken by region
-                        intensity_carb_meas = {yr: self.handyvars.carb_int[
+                        intensity_carb_meas = {yr: carb_int_dat[
                             bldg_sect][self.fuel_switch_to][yr] *
                             self.handyvars.ss_conv[self.fuel_switch_to][yr]
                             for yr in self.handyvars.aeo_years}
@@ -2424,23 +2574,23 @@ class Measure(object):
                 else:
                     try:
                         # Base fuel intensity broken by region
-                        intensity_carb_base = {yr: self.handyvars.carb_int[
+                        intensity_carb_base = {yr: carb_int_dat[
                             bldg_sect][mskeys[3]][mskeys[1]][yr] /
                             self.handyvars.ss_conv[mskeys[3]][yr]
                             for yr in self.handyvars.aeo_years}
                     except KeyError:
                         # Base fuel intensity not broken by region
-                        intensity_carb_base = self.handyvars.carb_int[
+                        intensity_carb_base = carb_int_dat[
                             bldg_sect][mskeys[3]]
                     try:
                         # Measure fuel intensity broken by region
-                        intensity_carb_meas = {yr: self.handyvars.carb_int[
+                        intensity_carb_meas = {yr: carb_int_dat[
                             bldg_sect][self.fuel_switch_to][mskeys[1]][yr] /
                             self.handyvars.ss_conv[self.fuel_switch_to][yr]
                             for yr in self.handyvars.aeo_years}
                     except KeyError:
                         # Measure fuel intensity not broken by region
-                        intensity_carb_meas = self.handyvars.carb_int[
+                        intensity_carb_meas = carb_int_dat[
                             bldg_sect][self.fuel_switch_to]
 
             # Set baseline and measure fuel costs, accounting for any
@@ -2453,12 +2603,12 @@ class Measure(object):
                     # Costs broken out by EMM region or state
                     try:
                         cost_energy_base, cost_energy_meas = (
-                            self.handyvars.ecosts[bldg_sect][mskeys[3]][
+                            cost_dat[bldg_sect][mskeys[3]][
                                 mskeys[1]] for n in range(2))
                     # National fuel costs
                     except KeyError:
                         cost_energy_base, cost_energy_meas = [{
-                            yr: self.handyvars.ecosts[bldg_sect][
+                            yr: cost_dat[bldg_sect][
                                 mskeys[3]][yr] * self.handyvars.ss_conv[
                                 mskeys[3]][yr] for yr in
                             self.handyvars.aeo_years} for n in range(2)]
@@ -2467,7 +2617,7 @@ class Measure(object):
                     # Costs broken out by EMM region or state
                     try:
                         cost_energy_base, cost_energy_meas = [{
-                            yr: self.handyvars.ecosts[
+                            yr: cost_dat[
                                 bldg_sect][mskeys[3]][mskeys[1]][yr] /
                             self.handyvars.ss_conv[mskeys[3]][yr] for
                             yr in self.handyvars.aeo_years} for
@@ -2475,30 +2625,30 @@ class Measure(object):
                     # National fuel costs
                     except KeyError:
                         cost_energy_base, cost_energy_meas = (
-                            self.handyvars.ecosts[bldg_sect][mskeys[3]] for
+                            cost_dat[bldg_sect][mskeys[3]] for
                             n in range(2))
             else:
                 # Case where use has flagged site energy outputs
                 if opts is not None and opts.site_energy is True:
                     try:
                         # Base fuel cost broken out by region
-                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
+                        cost_energy_base = cost_dat[bldg_sect][
                             mskeys[3]][mskeys[1]]
                     except KeyError:
                         # Base fuel cost not broken out by region
                         cost_energy_base = {
-                            yr: self.handyvars.ecosts[bldg_sect][
+                            yr: cost_dat[bldg_sect][
                                 mskeys[3]][yr] * self.handyvars.ss_conv[
                                 mskeys[3]][yr] for yr in
                             self.handyvars.aeo_years}
                     try:
                         # Measure fuel cost broken out by region
-                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
+                        cost_energy_meas = cost_dat[bldg_sect][
                             self.fuel_switch_to][mskeys[1]]
                     except KeyError:
                         # Measure fuel cost not broken out by region
                         cost_energy_meas = {
-                            yr: self.handyvars.ecosts[bldg_sect][
+                            yr: cost_dat[bldg_sect][
                                 self.fuel_switch_to][yr] *
                             self.handyvars.ss_conv[self.fuel_switch_to][yr] for
                             yr in self.handyvars.aeo_years}
@@ -2507,24 +2657,24 @@ class Measure(object):
                     try:
                         # Base fuel cost broken out by region
                         cost_energy_base = {
-                            yr: self.handyvars.ecosts[bldg_sect][mskeys[3]][
+                            yr: cost_dat[bldg_sect][mskeys[3]][
                                 mskeys[1]][yr] / self.handyvars.ss_conv[
                                 mskeys[3]][yr] for yr in
                             self.handyvars.aeo_years}
                     except KeyError:
                         # Base fuel cost not broken out by region
-                        cost_energy_base = self.handyvars.ecosts[bldg_sect][
+                        cost_energy_base = cost_dat[bldg_sect][
                             mskeys[3]]
                     try:
                         # Measure fuel cost broken out by region
                         cost_energy_meas = {
-                            yr: self.handyvars.ecosts[bldg_sect][
+                            yr: cost_dat[bldg_sect][
                                 self.fuel_switch_to][mskeys[1]][yr] /
                             self.handyvars.ss_conv[self.fuel_switch_to][yr] for
                             yr in self.handyvars.aeo_years}
                     except KeyError:
                         # Measure fuel cost not broken out by region
-                        cost_energy_meas = self.handyvars.ecosts[bldg_sect][
+                        cost_energy_meas = cost_dat[bldg_sect][
                             self.fuel_switch_to]
 
             # For electricity microsegments in measure scenarios that
@@ -4126,6 +4276,22 @@ class Measure(object):
                         mskeys[0] == "primary" and (
                             (mskeys[3] == "electricity") or
                             (self.fuel_switch_to == "electricity"))):
+                    # Set the appropriate TSV data to use for the current
+                    # microsegment; when assuming a high grid decarbonization
+                    # case, the user can choose to assess time sensitive
+                    # emissions and cost factors in non-fuel switching
+                    # microsegments using base-case data (e.g., before
+                    # additional grid decarbonization)
+                    if opts.grid_decarb is not False and \
+                        tsv_data_nonfs is not None and (
+                            self.fuel_switch_to is None or (
+                            self.fuel_switch_to == "electricity" and
+                            "electricity" in mskeys)):
+                        tsv_data = tsv_data_nonfs
+                    else:
+                        tsv_data = tsv_data_init
+
+                    # Pull TSV scaling fractions and shapes
                     tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
                         tsv_data, mskeys, bldg_sect, convert_data, opts)
                 else:
@@ -6912,7 +7078,7 @@ class Measure(object):
                 # efficient-case sector shape; otherwise, represent both
                 # measure-captured and remaining baseline loads for
                 # electricity microsegments
-                if self.fuel_switch_to is not None and \
+                if self.fuel_switch_to == "electricity" and \
                         "electricity" not in mskeys:
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "efficient"] = [self.sector_shapes[adopt_scheme][
@@ -9986,7 +10152,7 @@ class MeasurePackage(Measure):
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                      handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
-                     regions, tsv_metrics, contrib_meas_pkg):
+                     regions, tsv_metrics, contrib_meas_pkg, tsv_data_nonfs):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -10010,6 +10176,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         regions (string): Regional breakouts to use.
         tsv_metrics (boolean or list): TSV metrics settings.
         contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+        tsv_data_nonfs (dict): If applicable, base-case TSV data to apply to
+            non-fuel switching measures under a high decarb. scenario.
 
     Returns:
         A list of dicts, each including a set of measure attributes that has
@@ -10024,7 +10192,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.grid_decarb, **m) for
+        opts.grid_decarb, opts.adopt_scn_restrict, **m) for
         m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10057,7 +10225,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
     # Finalize 'markets' attribute for all Measure objects
     [m.fill_mkts(
-        msegs, msegs_cpl, convert_data, tsv_data, opts, contrib_meas_pkg)
+        msegs, msegs_cpl, convert_data, tsv_data, opts, contrib_meas_pkg,
+        tsv_data_nonfs)
      for m in meas_update_objs]
 
     return meas_update_objs
@@ -10112,6 +10281,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
                     opts.exog_hp_rates, opts.grid_decarb,
+                    opts.adopt_scn_restrict,
                     **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
@@ -10337,10 +10507,31 @@ def main(base_dir):
     Args:
         base_dir (string): Root Scout directory.
     """
+    # If a user wants to restrict to one adoption scenario, prompt the user to
+    # select that scenario
+    if opts and opts.adopt_scn_restrict is not False:
+        input_var = 0
+        # Determine the restricted adoption scheme to use (max adoption (1) vs.
+        # technical potential (2))
+        while input_var not in ['1', '2']:
+            input_var = input(
+                "\nEnter 1 to restrict to a Max Adoption Potential adoption "
+                "scenario only,\nor 2 to restrict to a Technical Potential "
+                "adoption scenario only: ")
+            if input_var not in ['1', '2', '3']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        if input_var == '1':
+            adopt_scn_user = ["Max adoption potential"]
+        elif input_var == '2':
+            adopt_scn_user = ["Technical potential"]
+    else:
+        adopt_scn_user = False
+
     # If a user has specified the use of an alternate regional breakout
     # than the AIA climate zones, prompt the user to directly select that
-    # alternate regional breakout. Currently the only alternate is NEMS EMM.
-    if opts.alt_regions is True:
+    # alternate regional breakout (NEMS EMM or State)
+    if opts and opts.alt_regions is True:
         input_var = 0
         # Determine the regional breakdown to use (NEMS EMM (1) vs. State (2)
         # vs. AIA (3))
@@ -10403,9 +10594,22 @@ def main(base_dir):
                 "conversion rates: ensure that ECM data reflect these EMM "
                 "regions or states (and not the default AIA regions)")
 
-    # If alternate grid decarbonization specified, ensure State regional
-    # breakouts and/or captured energy method are not used
+    # If alternate grid decarbonization specified, gather further info. about
+    # how electricity emissions and cost factors should be handled, and ensure
+    # State regional breakouts and/or captured energy method are not used
     if opts and opts.grid_decarb is True:
+        input_var = 0
+        while input_var not in ['1', '2']:
+            input_var = input(
+                "\nEnter 1 to assess avoided emissions and costs "
+                "from non-fuel switching measures BEFORE additional grid "
+                "decarbonization \nor 2 to assess avoided emissions and "
+                "costs from non-fuel switching measures AFTER "
+                "additional grid decarbonization: ")
+            if input_var not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        opts.grid_decarb = input_var
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
         if regions in ["State"]:
@@ -10416,8 +10620,8 @@ def main(base_dir):
                 "decarbonization scenario geographical breakdown")
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
-        if opts.capt_energy is True:
-            opts.capt_energy = False
+        if opts.captured_energy is True:
+            opts.captured_energy = False
             warnings.warn(
                 "WARNING: Site-source conversion method was set to use the "
                 "fossil fuel equivalency method because captured energy "
@@ -10535,7 +10739,8 @@ def main(base_dir):
     # Instantiate useful variables object
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start, opts.exog_hp_rates)
+        opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
+        adopt_scn_user)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -10644,6 +10849,16 @@ def main(base_dir):
                             "exog_hp_rates"] != opts.exog_hp_rates
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
+                   (opts is not None and opts.grid_decarb is not False and
+                    all([y["energy_outputs"]["grid_decarb"] is False or
+                         y["energy_outputs"]["grid_decarb"] != opts.grid_decarb
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.adopt_scn_restrict is not False
+                    and all([y["energy_outputs"]["adopt_scn_restrict"] is False
+                             or y["energy_outputs"]["adopt_scn_restrict"] !=
+                             opts.adopt_scn_restrict for y in meas_summary if
+                             y["name"] == meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
                     all([y["energy_outputs"]["site_energy"] is True for
                          y in meas_summary if y["name"] ==
@@ -10674,6 +10889,14 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.exog_hp_rates is False and
                     all([y["energy_outputs"]["exog_hp_rates"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.grid_decarb is False and
+                    all([y["energy_outputs"]["grid_decarb"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.adopt_scn_restrict is False and
+                    all([y["energy_outputs"]["adopt_scn_restrict"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -10857,11 +11080,39 @@ def main(base_dir):
                 with gzip.GzipFile(tsv_c_zip, 'r') as zip_ref_c:
                     tsv_cost_data = \
                         json.loads(zip_ref_c.read().decode('utf-8'))
+                # Case where the user assesses time sensitive cost
+                # factors for before grid decarbonization for non-fuel
+                # switching measures
+                if handyfiles.tsv_cost_data_nonfs is not None:
+                    tsv_c_nonfs = path.join(
+                        base_dir, *handyfiles.tsv_cost_data_nonfs)
+                    tsv_c_nonfs_zip = path.splitext(tsv_c_nonfs)[0] + '.gz'
+                    with gzip.GzipFile(tsv_c_nonfs_zip, 'r') as \
+                            zip_ref_nonfs_c:
+                        tsv_cost_nonfs_data = \
+                            json.loads(zip_ref_nonfs_c.read().decode('utf-8'))
+                else:
+                    tsv_cost_nonfs_data = None
+
                 tsv_cb = path.join(base_dir, *handyfiles.tsv_carbon_data)
                 tsv_cb_zip = path.splitext(tsv_cb)[0] + '.gz'
                 with gzip.GzipFile(tsv_cb_zip, 'r') as zip_ref_cb:
                     tsv_carbon_data = \
                         json.loads(zip_ref_cb.read().decode('utf-8'))
+                # Case where the user assesses time sensitive emissions
+                # factors for before grid decarbonization for non-fuel
+                # switching measures
+                if handyfiles.tsv_carbon_data_nonfs is not None:
+                    tsv_cb_nonfs = path.join(
+                        base_dir, *handyfiles.tsv_carbon_data_nonfs)
+                    tsv_cb_nonfs_zip = path.splitext(tsv_cb_nonfs)[0] + '.gz'
+                    with gzip.GzipFile(tsv_cb_nonfs_zip, 'r') as \
+                            zip_ref_nonfs_cb:
+                        tsv_carbon_nonfs_data = \
+                            json.loads(zip_ref_nonfs_cb.read().decode('utf-8'))
+                else:
+                    tsv_carbon_nonfs_data = None
+
                 # Map years available in 8760 TSV cost/carbon data to AEO yrs.
                 tsv_cost_yrmap = tsv_cost_carb_yrmap(
                     tsv_cost_data["electricity price shapes"],
@@ -10876,8 +11127,21 @@ def main(base_dir):
                     "price_yr_map": tsv_cost_yrmap,
                     "emissions": tsv_carbon_data,
                     "emissions_yr_map": tsv_carbon_yrmap}
+                # Case where the user assesses time sensitive emissions/cost
+                # factors for before grid decarbonization for non-fuel
+                # switching measures
+                if all([x is not None for x in [
+                        tsv_cost_nonfs_data, tsv_carbon_nonfs_data]]):
+                    tsv_data_nonfs = {
+                        "load": tsv_load_data, "price": tsv_cost_nonfs_data,
+                        "price_yr_map": tsv_cost_yrmap,
+                        "emissions": tsv_carbon_nonfs_data,
+                        "emissions_yr_map": tsv_carbon_yrmap}
+                else:
+                    tsv_data_nonfs = None
+
         else:
-            tsv_data = None
+            tsv_data, tsv_data_nonfs = (None for n in range(2))
 
         # Import analysis engine setup file to write prepared ECM names
         # to (if file does not exist, provide empty active/inactive ECM
@@ -10901,7 +11165,7 @@ def main(base_dir):
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
             handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts, regions,
-            tsv_metrics, contrib_meas_pkg)
+            tsv_metrics, contrib_meas_pkg, tsv_data_nonfs)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
@@ -11055,6 +11319,9 @@ if __name__ == "__main__":
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",
                         help="Flag alternate grid decarbonization scenario")
+    # Optional flag to restrict adoption schemes
+    parser.add_argument("--adopt_scn_restrict", action="store_true",
+                        help="Restrict to a single adoption scenario")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
