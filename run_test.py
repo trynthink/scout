@@ -332,7 +332,8 @@ class TestMeasureInit(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = CommonTestMeasures().sample_measure
@@ -365,7 +366,8 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.focus_yrs_test = handyvars.aeo_years
@@ -468,7 +470,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1437,7 +1440,8 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure4
@@ -1500,7 +1504,8 @@ class PaybackTest(unittest.TestCase):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure
@@ -1586,7 +1591,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Reset meta retro rate
@@ -16105,7 +16111,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Reset meta retro rate
@@ -26575,7 +26582,8 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = {
@@ -26633,7 +26641,8 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
-            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA")
+            "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
+            grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Set standard adoption schemes

@@ -32,7 +32,7 @@ class UsefulInputFiles(object):
             building type, and structure type.
     """
 
-    def __init__(self, energy_out, regions):
+    def __init__(self, energy_out, regions, grid_decarb):
         self.glob_vars = "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
         self.meas_summary_data = \
@@ -52,9 +52,16 @@ class UsefulInputFiles(object):
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-site.json")
             elif energy_out[0] == "fossil_equivalent":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals.json")
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if grid_decarb is True:
+                    self.htcl_totals = (
+                        "supporting_data", "stock_energy_tech_data",
+                        "htcl_totals_decarb.json")
+                else:
+                    self.htcl_totals = (
+                        "supporting_data", "stock_energy_tech_data",
+                        "htcl_totals.json")
             elif energy_out[0] == "captured":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -70,9 +77,16 @@ class UsefulInputFiles(object):
                     "supporting_data", "stock_energy_tech_data",
                     "htcl_totals-site_emm.json")
             elif energy_out[0] == "fossil_equivalent":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals_emm.json")
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if grid_decarb is True:
+                    self.htcl_totals = (
+                        "supporting_data", "stock_energy_tech_data",
+                        "htcl_totals_emm_decarb.json")
+                else:
+                    self.htcl_totals = (
+                        "supporting_data", "stock_energy_tech_data",
+                        "htcl_totals_emm.json")
             elif energy_out[0] == "captured":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
@@ -3795,8 +3809,9 @@ def main(base_dir):
     energy_out = ["fossil_equivalent", "NA", "NA", "NA", "NA"]
     # Instantiate useful input files object (fossil fuel equivalency method
     # used by default to calculate site-source conversions, with no TSV metrics
-    # and AIA regions)
-    handyfiles = UsefulInputFiles(energy_out=energy_out, regions="AIA")
+    # and AIA regions and a baseline grid scenario)
+    handyfiles = UsefulInputFiles(
+        energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
     handyvars = UsefulVars(base_dir, handyfiles)
 
@@ -3946,11 +3961,22 @@ def main(base_dir):
     else:  # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
 
+    # Set a flag for the assumption of a high grid decarbonization case on
+    # the supply-side, which is relevant to site-source conversion factors
+    # and the selection of heating/cooling totals for use in adjusting
+    # envelope/HVAC overlaps
+    if measures_objlist[0].energy_outputs["grid_decarb"] is not False:
+        grid_decarb = True
+    else:
+        grid_decarb = False
+
     # Re-instantiate useful input files object when site energy is output
     # instead of the default source energy or regional breakdown other than
-    # default AIA climate zone breakdown is chosen
-    if energy_out[0] != "fossil_equivalent" or regions != "AIA":
-        handyfiles = UsefulInputFiles(energy_out, regions)
+    # default AIA climate zone breakdown is chosen or a high grid decarb.
+    # scheme is assumed
+    if energy_out[0] != "fossil_equivalent" or regions != "AIA" or \
+            grid_decarb is True:
+        handyfiles = UsefulInputFiles(energy_out, regions, grid_decarb)
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
