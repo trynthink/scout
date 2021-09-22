@@ -1,0 +1,53 @@
+name: tests
+on: [push]
+jobs:
+
+  code-quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get contents from tip of branch on push
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+      - name: Install Node dependencies
+        run: npm install
+      - name: Check for valid JSON
+        run: grunt jsonreview -v
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Check Python code quality
+        run: flake8 --exclude docs/conf.py --max-line-length=100
+
+  python-tests:
+    runs-on: ubuntu-latest
+
+    # Specify python versions to run
+    strategy:
+      matrix:
+        python: [3.6, 3.7, 3.8, 3.9]
+
+    steps:
+      - name: Get contents from tip of branch on push
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy>=1.16 scipy requests numpy-financial
+      - name: Run tests
+        run: python -m unittest discover -p '*_test.py'
+
+
+

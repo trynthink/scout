@@ -1,7 +1,7 @@
 {
-  "name": "scout-travis",
+  "name": "scout-jsonreview",
   "license": "SEE LICENSE IN ./LICENSE.md",
-  "description": "Grunt configuration to use with Travis-CI for JSON validation",
+  "description": "Grunt configuration to use with GitHub Actions for JSON validation",
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-jsonlint": "^1.1.0",
