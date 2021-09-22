@@ -19,5 +19,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jsonlint');
 
   // Define commands to run when the `grunt travis` command is run
-  grunt.registerTask('travis', ['jsonlint'])
+  grunt.registerTask('jsonreview', ['jsonlint'])
 };

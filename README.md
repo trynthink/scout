@@ -1,4 +1,4 @@
-scout [![Travis-CI Build Status](https://travis-ci.org/trynthink/scout.svg?branch=master)](https://travis-ci.org/trynthink/scout)
+scout [![Scout test status](https://github.com/trynthink/scout/actions/workflows/tests.yml/badge.svg)](https://github.com/trynthink/scout/actions/workflows/tests.yml)
 ======
 
 *The contents of this repository are all in-progress and should not be expected to be free of errors or to perform any specific functions. Use only with care and caution.*
