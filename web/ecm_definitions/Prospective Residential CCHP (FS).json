@@ -5,10 +5,11 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": "all",
-  "market_entry_year": 2020,
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)"],
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -72,19 +73,19 @@
   "market_scaling_fractions": {
     "electricity":{
       "heating": 0,
-      "cooling": 0.542},
+      "cooling": 0.595},
     "natural gas": 1,
     "distillate": 1,
     "other fuel": 1},
   "market_scaling_fractions_source": {
-    "heating": "Applies to all residential gas heating; no electric heating is switched by this ECM",
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
     "cooling": {
-      "title": "RECS 2015 - Tables HC6.1 and HC7.1",
+      "title": "RECS 2015 Microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015",
-      "fraction_derivation": "Cooling multiple of 54.2% was determined as a proportion of total cooled homes where heating is done using natural gas from RECS 2015 microdata. Total cooled homes in the sample was found to be 103,100,000, and then filtered for square footage where natural gas is used for heating 55,900,000."
+      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
+      "fraction_derivation": "Cooling multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
     }
   },
   "_description": "Air source heat pump for application in residential buildings in colder climates",
@@ -95,10 +96,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-15"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-09 21:45 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 24 2021 23:08:45 MDT"
+  }]
 }

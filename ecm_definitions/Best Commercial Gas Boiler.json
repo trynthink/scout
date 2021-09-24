@@ -6,9 +6,9 @@
   "end_use": "heating",
   "fuel_type": "natural gas",
   "technology": "gas_boiler",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest efficiency commercial gas boiler in 2017",
+    "notes": "Highest efficiency commercial gas boiler in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -65,7 +65,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 17 09:52:36 EDT 2018"},
+    "timestamp": "Mon Sep 17 2018 09:52:36 EDT"},
   "_updated_by": {
     "name": null,
     "organization": null,

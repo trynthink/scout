@@ -6,9 +6,9 @@
   "end_use": "water heating",
   "fuel_type": "distillate",
   "technology": null,
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -59,19 +59,19 @@
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
+    "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 13:39:55 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 13:39:55 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 23 21:37:55 MST 2020"
+    "timestamp": "Thu Jan 23 2020 21:37:55 MST"
   }
 }

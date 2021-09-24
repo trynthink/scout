@@ -3,15 +3,14 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": [
-      "heating", "cooling"],
+  "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": [
-    "rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler", "gas_furnace",
-    "oil_boiler", "oil_furnace"],
-  "market_entry_year": 2018,
+    "rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "gas_boiler",
+    "gas_furnace", "oil_boiler", "oil_furnace"],
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
       "author": null,
@@ -73,19 +72,18 @@
   "market_scaling_fractions": {
     "electricity":{
       "heating": 0,
-      "cooling": 0.557},
+      "cooling": 0.798},
     "natural gas": 1,
-    "distillate": 1, 
-    "other fuel": 1},
+    "distillate": 1},
   "market_scaling_fractions_source": {
-    "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
+    "heating": "Applies to all commercial buildings with non-electric heating; commercial buildings with electric heating are excluded",
     "cooling": {
-      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "title": "2012 CBECs microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Cooling multiple of 55.7% was determined as a proportion of commercial building square footage where heating is done using natural gas from CBECS 2012 microdata. Total commercial square footage with electric cooling in the sample was 73614 million ft^2; of those buildings, natural gas heating is used in 40980 million ft^2."
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/xls/2012_public_use_data_aug2016.csv",
+      "fraction_derivation": "Cooling multiple of 79.8% was determined as a proportion of commercial building square footage with cooling energy where heating is done using non-electric fuel from CBECS 2012 microdata. Total commercial square footage with cooling energy in the sample was 831 million ft^2; of those buildings, natural gas heating is used in 664 million ft^2."
     }
   },
   "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard in 2017",
@@ -100,12 +98,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:51:37 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 21 14:57:37 MST 2020"
+    "timestamp": "Tue Jan 21 2020 14:57:37 MST"
   }
 }

@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "ground",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "2018 International Energy Conservation Code",
       "author": null,
@@ -72,21 +72,21 @@
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "1/4/2018"
+    "timestamp": "Thu Jan 4 2018 00:00:00 EST"
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 15:18:01 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 15:18:01 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 24 12:56:01 MST 2020"
+    "timestamp": "Fri Jan 24 2020 12:56:01 MST"
   }
 }
 

@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling", "water heating"],
   "fuel_type": "natural gas",
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -69,27 +69,8 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": {
-    "electricity": {
-      "heating": 0,
-      "cooling": 0.557,
-      "water heating": 0
-    },
-    "natural gas": 1,
-    "distillate": 1
-  },
-  "market_scaling_fractions_source": {
-    "heating": "Applies to all commercial natural gas heating/water heating; no commercial buildings with electric heating or water heating are switched",
-    "cooling": {
-      "title": "CBECS 2012 - Table B30: Cooling energy sources, number of buildings and floorspace, 2012",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2012,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015",
-      "fraction_derivation": "Cooling multiple of 55.7% was determined as the proportion of total commercial square footage with cooling where heating uses natural gas from CBECS 2012 microdata. Total square footage with electric cooling in the sample was 73,614 million ft^2, total square footage with cooling where natural gas is the primary space-heating energy source was 40,980 million ft^2"
-    },
-    "water heating": "NA"
-  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
   "_description": "Multi-function natural gas-fired heat pump affecting commercial heating, cooling, and water heating end uses",
   "_notes": null,
   "_added_by": {

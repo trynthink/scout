@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Most efficient attic insulation measure in 2018",
+    "notes": "Most efficient attic insulation measure in 2018, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,
@@ -73,7 +73,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 18 10:05:42 EDT 2018"
+    "timestamp": "Tue Sep 18 2018 10:05:42 EDT"
   },
   "_updated_by": {
     "name": null,

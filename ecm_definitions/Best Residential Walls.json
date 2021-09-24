@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "wall",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "",
+    "notes": "Updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,
@@ -91,7 +91,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 12:55:22 EDT 2018"
+    "timestamp": "Fri Sep 14 2018 12:55:22 EDT"
   },
   "_updated_by": {
     "name": null,

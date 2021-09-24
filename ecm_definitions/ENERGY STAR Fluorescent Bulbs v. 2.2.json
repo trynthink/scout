@@ -10,9 +10,9 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Program Requirements for Lamps (Light Bulbs): Section 9. Photometric Performance, Table 9.1 Luminous Efficacy: All Lamps",
       "author": null,
@@ -69,19 +69,19 @@
   "_notes": "Assumes standard bulb is for 60 W replacement, and between 10-15 W",
   "_added_by": {
     "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
+    "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-10-31 15:57:34 EST"
+    "timestamp": "Mon Oct 31 2016 15:57:34 EST"
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:01:53 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:01:53 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 16 15:37:53 MST 2020"}
+    "timestamp": "Thu Jan 16 2020 15:37:53 MST"}
 }

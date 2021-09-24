@@ -6,13 +6,13 @@
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": "electric WH",
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which the standard went into effect",
+    "notes": "Year in which the specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
        "title": "ENERGY STAR Product Specification for Residential Water Heaters",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "pages": 8,
        "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_4.pdf"}},
@@ -24,8 +24,8 @@
     "notes": "See Table 5 UEF for electric backup",
     "source_data": [{
        "title": "ENERGY STAR Product Specification for Residential Water Heaters",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "pages": 5,
        "URL": "https://www.energystar.gov/sites/default/files/Water%20Heaters%20Final%20Version%203.2_Program%20Requirements_4.pdf"}]},
@@ -59,19 +59,19 @@
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
+    "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 13:24:29 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 13:24:29 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 21 15:33:29 MST 2020"
+    "timestamp": "Tue Jan 21 2020 15:33:29 MST"
   }
 }

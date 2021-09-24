@@ -8,9 +8,9 @@
   "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral",
                  "100W Equivalent LED A Lamp", "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38",
                  "LED PAR38"],
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
+    "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
@@ -88,11 +88,11 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Sep 26 10:21:59 EDT 2018"},
+    "timestamp": "Wed Sep 26 2018 10:21:59 EDT"},
   "_updated_by": {
     "name": "Ardelia Clarke" ,
     "organization": "National Renewable Energy Laboratory" ,
     "email": "ardelia.clarke@nrel.gov" ,
-    "timestamp": "Mon Feb 10 13:22:59 MST 2020"
+    "timestamp": "Mon Feb 10 2020 13:22:59 MST"
   }
 }

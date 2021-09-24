@@ -7,9 +7,9 @@
     "heating", "cooling", "ventilation", "lighting"],
   "fuel_type": "all",
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Based on BTO target for long-term market introduction (>10 years)",
+    "notes": "Based on BTO target for long-term market introduction (>10 years), updated to current year to avoid retroactive savings effects.",
     "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,

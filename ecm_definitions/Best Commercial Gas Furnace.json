@@ -6,9 +6,9 @@
   "end_use": "heating",
   "fuel_type": "natural gas",
   "technology": "gas_furnace",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest efficiency commercial gas furnace in 2017",
+    "notes": "Highest efficiency commercial gas furnace in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

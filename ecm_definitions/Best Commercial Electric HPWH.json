@@ -6,9 +6,9 @@
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Best commercial electric heat pump water heater in 2017.",
+    "notes": "Best commercial electric heat pump water heater in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -65,7 +65,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 17 10:00:42 EDT 2018"},
+    "timestamp": "Mon Sep 17 2018 10:00:42 EDT"},
   "_updated_by": {
     "name": null,
     "organization": null,

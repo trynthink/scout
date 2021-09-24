@@ -1,14 +1,14 @@
 {
-  "name": "ENERGY STAR Electric HPWH (Com.) v. 2.0",
+  "name": "ENERGY STAR Electric HPWH v. 2.0 (Com.)",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": ["elec_water_heater", "HP water heater", "elec_booster_water_heater", "Solar water heater"],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "ENERGY STAR-qualified commercial electric heat pump water heater",
+    "notes": "ENERGY STAR-qualified commercial electric heat pump water heater, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Commercial Water Heaters, Version 2.0",
       "author": null,
@@ -59,17 +59,17 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "ENERGY STAR compliant commercial heat pump water heater in 2017 (specification forthcoming)",
+  "_description": "ENERGY STAR compliant commercial heat pump water heater in 2018",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Sep 26 09:00:37 EDT 2018"},
+    "timestamp": "Wed Sep 26 2018 09:00:37 EDT"},
   "_updated_by": {
     "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy National",
+    "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 16 15:22:47 MST 2020"
+    "timestamp": "Thu Jan 16 2020 15:22:47 MST"
   }
 }

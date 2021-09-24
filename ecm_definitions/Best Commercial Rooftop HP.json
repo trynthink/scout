@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency commercial rooftop HP in 2017",
+    "notes": "High efficiency commercial rooftop HP in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -20,7 +20,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.86,
+  "energy_efficiency": 3.84,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "High efficiency commercial rooftop HP EER in 2017, COP = EER * 0.293",
@@ -76,12 +76,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 11:38:03 EDT 2018"
+    "timestamp": "Fri Sep 14 2018 11:38:03 EDT"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue Feb 23 2021 5:24:00 PDT"
   }
 }

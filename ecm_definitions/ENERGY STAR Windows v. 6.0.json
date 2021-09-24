@@ -13,9 +13,9 @@
       "windows conduction",
       "windows solar"
     ],
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 6.0",
       "author": null,
@@ -106,12 +106,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 09:21:41 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 09:21:41 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Wed Jan 22 11:28:41 MST 2020"
+    "timestamp": "Wed Jan 22 2020 11:28:41 MST"
     }  
 }

@@ -8,10 +8,10 @@
       "heating"
     ],
   "fuel_type": "electricity",
-  "technology": "ASHP",
-  "market_entry_year": 2017,
+  "technology": ["ASHP", "central AC", "resistance heat"],
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency air source heat pump in 2017",
+    "notes": "High efficiency air source heat pump in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -68,19 +68,33 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": "NA",
+  "market_scaling_fractions": {
+    "ASHP": 1,
+    "central AC": 1,
+    "resistance heat": 0.553},
+  "market_scaling_fractions_source": {
+    "ASHP": "Applies to all homes with ASHPs",
+    "central AC": "Applies to all homes with central ACs, as they have existing ductwork and electrical service that can be used by the ASHP",
+    "resistance heat": {
+      "title": "RECS 2015 - Table HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Applies to homes with electric resistance heating that have existing ductwork, assuming all systems with electric heat except 'Heat pump' are resistance heat; 40.9 million - 11.8 million heat pumps = total electric resistance units; 16.1 million central furnace (ducted) systems"
+    }
+  },
   "_description": "Highest efficiency residential air source HP in 2017",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 14:59:07 EDT 2018"},
+    "timestamp": "Fri Sep 14 2018 14:59:07 EDT"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 24 2021 16:30:17 MDT"
   }
 }
