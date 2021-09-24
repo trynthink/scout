@@ -1,14 +1,14 @@
 { 
-  "name": "ENERGY STAR Clothes Washer v. 8",
+  "name": "ENERGY STAR Clothes Washer v. 8.0",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "other",
   "fuel_type": "electricity",
   "technology": "clothes washing",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "Effective year of ENERGY STAR specification, updated to current year to avoid retroactive savings effects.",
     "source_data": {
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Washers",
        "author": null,
@@ -63,22 +63,23 @@
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
   "_description": "ENERGY STAR clothes washer in 2018",
-  "_notes": " ", 
+  "_notes": "", 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Nov. 22 2016"},
+    "timestamp": "Tue Nov 22 2016 00:00:00 EST"
+  },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 08:55:30 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 08:55:30 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 14 14:28:30 MST 2020"
+    "timestamp": "Tue Jan 14 2021 14:28:30 MST"
   }
 }

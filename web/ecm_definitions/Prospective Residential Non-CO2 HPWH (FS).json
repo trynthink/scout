@@ -6,9 +6,9 @@
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -97,6 +97,6 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Nov 16 10:13:32 EST 2018"
+    "timestamp": "Fri Nov 16 2018 10:13:32 EST"
   }]
 }

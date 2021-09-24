@@ -5,10 +5,10 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["ASHP", "GSHP"],
-  "market_entry_year": 2020,
+  "technology": ["ASHP", "GSHP", "central AC", "resistance heat"],
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -20,10 +20,13 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 6.86,
+  "energy_efficiency": {
+    "cooling": 6.86,
+    "heating": 3.43
+  },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Convert from primary COP of 2.28 (from Table 3 in BTO MYPP) to COP, multiply by 3.01",
+    "notes": "Convert from primary COP of 2.28 (from Table 3 in BTO MYPP) to COP, multiply by 3.01; heating COP approximated as half of the cooling COP",
     "source_data":{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -69,8 +72,24 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "ASHP": 1,
+    "GSHP": 1,
+    "central AC": 1,
+    "resistance heat": 0.553},
+  "market_scaling_fractions_source": {
+    "ASHP": "Applies to all homes with ASHPs",
+    "GSHP": "Applies to all homes with GSHPs",
+    "central AC": "Applies to all homes with central ACs, as they have existing ductwork and electrical service that can be used by the ASHP",
+    "resistance heat": {
+      "title": "RECS 2015 - Table HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Applies to homes with electric resistance heating that have existing ductwork, assuming all systems with electric heat except 'Heat pump' are resistance heat; 40.9 million - 11.8 million heat pumps = total electric resistance units; 16.1 million central furnace (ducted) systems"
+    }
+  },
   "_description": "Prospective non-vapor compression HVAC system, assumed to have both heating and cooling capabilities; cost and performance targets from BTO Multi-year Program Plan are not building type-specific",
   "_notes": null,
   "_added_by": {
@@ -79,10 +98,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-15"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-17 20:00 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 24 2021 23:34:04 MDT"
+  }]
 }

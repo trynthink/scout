@@ -13,9 +13,9 @@
       "windows conduction",
       "windows solar"
     ],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest R value, lowest SHGC in the NREL database",
+    "notes": "Highest R value, lowest SHGC in the NREL database, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,
@@ -94,7 +94,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 12:39:31 EDT 2018"
+    "timestamp": "Fri Sep 14 2021 12:39:31 EDT"
   },
   "_updated_by": {
     "name": null,

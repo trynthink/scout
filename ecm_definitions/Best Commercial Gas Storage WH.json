@@ -6,10 +6,16 @@
   "end_use": "water heating",
   "fuel_type": "natural gas",
   "technology": ["gas_water_heater", "gas_instantaneous_WH", "gas_booster_WH"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": null,
-    "source_data": null
+    "notes": "High efficiency gas-fired storage water heater in 2017, updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 120,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -59,7 +65,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 17 09:42:19 EDT 2018"},
+    "timestamp": "Mon Sep 17 2018 09:42:19 EDT"},
   "_updated_by": {
     "name": null,
     "organization": null,

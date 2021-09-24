@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "ASHRAE 90.1-2019 whole envelope air leakage requirement",
+    "notes": "ASHRAE 90.1-2019 whole envelope air leakage requirement, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ASHRAE Standard 90.1-2019",
       "author": null,
@@ -68,12 +68,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Nov 16 10:33:49 EST 2018"
+    "timestamp": "Fri Nov 16 2018 10:33:49 EST"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Mon Feb 10 12:21:49 MST 2020"
+    "timestamp": "Mon Feb 10 2020 12:21:49 MST"
   }
 }

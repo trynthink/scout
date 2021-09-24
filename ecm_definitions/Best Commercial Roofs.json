@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "AEDG small/medium commercial roof insulation; year in which the latest version of the Advanced Energy Design Guide was published",
+    "notes": "AEDG small/medium commercial roof insulation; year in which the latest version of the Advanced Energy Design Guide was published, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "50 Percent Advanced Energy Design Guide",
       "author": null,
@@ -74,7 +74,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 21 16:33:51 EDT 2018"
+    "timestamp": "Fri Sep 21 2018 16:33:51 EDT"
   },
   "_updated_by": {
     "name": null,

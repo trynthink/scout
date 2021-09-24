@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
   "technology": ["comm_GSHP-heat", "rooftop_ASHP-heat", "comm_GSHP-cool", "rooftop_ASHP-cool"],
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

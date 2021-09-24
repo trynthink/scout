@@ -6,9 +6,9 @@
   "end_use": "heating",
   "fuel_type": "distillate",
   "technology": "furnace (distillate)",
-  "market_entry_year": 2013,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which the standard went into effect",
+    "notes": "Year in which the specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Furnaces",
        "author": "Energy Star",
@@ -61,19 +61,19 @@
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
+    "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:35:49 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:35:49 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 17 11:44:49 MST 2020"
+    "timestamp": "Fri Jan 17 2020 11:44:49 MST"
   }
 }

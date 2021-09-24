@@ -6,9 +6,9 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": "all",
-  "market_entry_year": 2015,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Best commercial LED lighting performance levels in 2015",
+    "notes": "Best commercial LED lighting performance levels in 2015, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,

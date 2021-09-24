@@ -6,13 +6,13 @@
   "end_use": "heating",
   "fuel_type": "distillate",
   "technology": "boiler (distillate)",
-  "market_entry_year": 2014,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Year in which specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
        "title": "ENERGY STAR Program Requirements Product Specification for Boilers",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2014,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"}},
@@ -24,8 +24,8 @@
     "notes": "ESTAR efficiency level in 2017",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Boilers",
-       "author": "Energy Star",
-       "organization": "US EPA",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2014,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/specs//private/Boilers%20Program%20Requirements%20Version%203%200.pdf"}]},
@@ -61,19 +61,19 @@
   "_notes": null, 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Nov. 23 2016"},
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:32:56 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:32:56 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 17 11:38:56 MST 2020"
+    "timestamp": "Fri Jan 17 2020 11:38:56 MST"
   }
 }

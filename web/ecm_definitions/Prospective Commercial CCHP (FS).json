@@ -8,9 +8,9 @@
   "technology": [
     "rooftop_ASHP-heat", "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_furnace", "oil_furnace",
     "rooftop_ASHP-cool", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool", "res_type_central_AC"],
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -77,18 +77,18 @@
   "market_scaling_fractions": {
     "electricity":{
       "heating": 0,
-      "cooling": 0.557},
+      "cooling": 0.798},
     "natural gas": 1,
     "distillate": 1},
   "market_scaling_fractions_source": {
-    "heating": "Applies to all commercial buildings with natural gas-fueled heating; commercial buildings with electric heating are excluded",
+    "heating": "Applies to all commercial buildings with non-electric heating; commercial buildings with electric heating are excluded",
     "cooling": {
-      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "title": "2012 CBECs microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Cooling multiple of 55.7% was determined as a proportion of commercial building square footage where heating is done using natural gas from CBECS 2012 microdata. Total commercial square footage with electric cooling in the sample was 73614 million ft^2; of those buildings, natural gas heating is used in 40980 million ft^2."
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/xls/2012_public_use_data_aug2016.csv",
+      "fraction_derivation": "Cooling multiple of 79.8% was determined as a proportion of commercial building square footage with cooling energy where heating is done using non-electric fuel from CBECS 2012 microdata. Total commercial square footage with cooling energy in the sample was 831 million ft^2; of those buildings, natural gas heating is used in 664 million ft^2."
     }
   },
   "_description": "Air source heat pump target for application in colder climates and smaller commercial buildings (baselines might be derived from units for residential building); no fuel switching",

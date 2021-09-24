@@ -1,43 +1,37 @@
 {
-  "name": "ENERGY STAR Air Source HP v. 5.0",
+  "name": "ENERGY STAR Central AC v. 6.0",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": [
-      "cooling",
-      "heating"
-    ],
+  "end_use": "cooling",
   "fuel_type": "electricity",
-  "technology": "ASHP",
-  "market_entry_year": 2015,
+  "technology": "central AC",
+  "market_entry_year": 2023,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR specification went into effect",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.0",
       "author": null,
       "organization": "U.S. Environmental Protection Agency",
-      "year": 2015,
+      "year": 2021,
       "pages": 4,
-      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.0%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20and%20Partner%20Commitments.pdf"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-      "cooling": 4.40,
-      "heating": 2.49
-    },
+  "energy_efficiency": 4.69,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Split system (see table 1); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+    "notes": "Split system (see table 1: Energy-Efficiency Criteria for Certified Residential Central Air Conditioners), using SEER despite ENERGY STAR switching to SEER2 in 2023; conversion from original standard: COP = SEER / 3.412 (see EIA source).",
     "source_data": [
       {
-        "title": "ENERGY STAR Program Requirements Product Specification for Air Source Heat Pump and Central Air Conditioner Equipment Version 5.0",
+        "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.0",
         "author": null,
         "organization": "U.S. Environmental Protection Agency",
-        "year": 2015,
-        "pages": 2,
-        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20CAC-ASHP%20V5.0_1.pdf"
+        "year": 2021,
+        "pages": 3,
+        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.0%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20and%20Partner%20Commitments.pdf"
       },
       {
         "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
@@ -45,11 +39,11 @@
         "organization": "U.S. Energy Information Administration",
         "year": 2014,
         "pages": 17,
-        "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"
+        "URL": "https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m067(2014).pdf"
       }
     ]
   },
-  "installed_cost": 4950,
+  "installed_cost": 4000,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Total ENERGY STAR installed cost in 2017",
@@ -58,43 +52,38 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": 26,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "product_lifetime": 15.5,
+  "product_lifetime": 14,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average ENERGY STAR lifetime in 2017",
+    "notes": "Average ENERGY STAR lifetime in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": 26,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Standard size residential central air conditioners that meet the ENERGY STAR performance standard in 2023",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-17 15:19:55 EST"
+    "timestamp": "2016-11-17 15:13:08 EST"
   },
-  "_updated_by": {
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Laboratory",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:50:26 EDT 2018"
-},
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 21 16:05:26 MST 2020"
+    "timestamp": "Thu May 20 2021 3:12:26 MST"
   }
 }
+

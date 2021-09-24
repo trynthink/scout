@@ -6,9 +6,9 @@
   "end_use": "heating",
   "fuel_type": "natural gas",
   "technology": "furnace (NG)",
-  "market_entry_year": 2013,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard went into effect",
+    "notes": "Year in which ENERGY STAR standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Program Requirements Product Specification for Furnaces Version 4.1",
       "author": null,
@@ -79,18 +79,18 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-17 14:59:20 EST"
+    "timestamp": "Thu Nov 17 2016 14:59:20 EST"
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:13:52 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:13:52 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 16 16:13:52 MST 2020"
+    "timestamp": "Thu Jan 16 2020 16:13:52 MST"
   }
 }

@@ -6,13 +6,13 @@
   "end_use": "drying",
   "fuel_type": "natural gas",
   "technology": "all",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": " ",
+    "notes": "Effective year of ENERGY STAR specification, updated to current year to avoid retroactive savings effects.",
     "source_data": [{
        "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": "US EPA",
-       "organization": "US EPA",
+       "author": null,
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2017,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
@@ -24,8 +24,8 @@
     "notes": "CEF in lbs/kWh",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements Product Specification for Clothes Dryers",
-       "author": "US EPA",
-       "organization": "US EPA",
+       "author": null,
+       "organization": "U.S. Environmental Protection Agency",
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
@@ -61,19 +61,19 @@
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "BTO",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"},
+    "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:12:01 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 10:12:01 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Thu Jan 16 16:05:01 MST 2020"
+    "timestamp": "Thu Jan 16 2020 16:05:01 MST"
   }
 }

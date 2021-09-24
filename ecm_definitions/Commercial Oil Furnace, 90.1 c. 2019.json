@@ -6,9 +6,9 @@
   "end_use": "heating",
   "fuel_type": "distillate",
   "technology": "oil_furnace",
-  "market_entry_year": 2019,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which standard went into effect",
+    "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": null
   },
   "market_exit_year": null,
@@ -58,19 +58,19 @@
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
-    "organization": "DOE",
+    "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
-    "timestamp": "Dec. 19, 2017"
+    "timestamp": "Tue Dec 19 2017 00:00:00 EST"
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:36:27 EDT 2018"
+    "timestamp": "Mon Sep 24 2018 16:36:27 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Wed Jan 22 16:10:27 MST 2020"}
+    "timestamp": "Wed Jan 22 2020 16:10:27 MST"}
 }

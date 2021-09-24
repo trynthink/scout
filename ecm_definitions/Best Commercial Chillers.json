@@ -6,9 +6,9 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller"],
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Highest efficiency chiller units in 2017",
+    "notes": "Highest efficiency chiller units in 2017, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -22,9 +22,9 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "reciprocating_chiller": 4.5,
-      "centrifugal_chiller": 11.7,
-      "scroll_chiller": 4.9,
-      "screw_chiller": 6.2},
+      "centrifugal_chiller": 12.1,
+      "scroll_chiller": 5,
+      "screw_chiller": 6.6},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "High efficiency IPLV COP in 2017",
@@ -80,12 +80,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 21 17:04:45 EDT 2018"
+    "timestamp": "Fri Sep 21 2018 17:04:45 EDT"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue Feb 23 2021 17:30:00 PDT"
   }
 }

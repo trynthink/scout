@@ -6,9 +6,9 @@
   "end_use": ["heating", "cooling", "water heating"],
   "fuel_type": "natural gas",
   "technology": "all",
-  "market_entry_year": 2020,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -69,26 +69,8 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": {
-    "electricity": {
-      "heating": 0,
-      "cooling": 0.542,
-      "water heating": 0},
-    "natural gas": 1,
-    "distillate": 1, 
-    "other fuel": 1},
-  "market_scaling_fractions_source": {
-    "heating": "Applies to all residential gas heating/water heating; no electric heating or water heating is switched",
-    "cooling": {
-      "title": "RECS 2015 - Tables HC6.1 and HC7.1",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015",
-      "fraction_derivation": "Cooling multiple of 54.2% was determined as a proportion of total cooled homes where heating is done using natural gas from RECS 2015 microdata. Total cooled homes in the sample was found to be 103,100,000, and then filtered for homes where natural gas is used for heating 55,900,000."
-    },
-    "water heating": "NA"
-  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
   "_description": "Multi-function fuel-fired heat pump affecting residential heating, cooling, and water heating end uses",
   "_notes": null,
   "_added_by": {

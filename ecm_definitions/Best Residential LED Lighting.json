@@ -6,9 +6,9 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": ["general service (CFL)", "general service (incandescent)", "general service (LED)"],
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Most efficient general service LED bulb on the market in 2018",
+    "notes": "Most efficient general service LED bulb on the market in 2018, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "ENERGY STAR Certified Light Bulbs",
       "author": null,
@@ -80,7 +80,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 13:56:45 EDT 2018"},
+    "timestamp": "Fri Sep 14 2018 13:56:45 EDT"},
   "_updated_by": {
     "name": null,
     "organization": null,

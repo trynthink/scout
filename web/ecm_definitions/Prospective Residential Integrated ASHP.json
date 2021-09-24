@@ -5,10 +5,10 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling", "water heating"],
   "fuel_type": "electricity",
-  "technology": ["ASHP", "GSHP", null],
-  "market_entry_year": 2020,
+  "technology": ["ASHP", "GSHP", "central AC", "resistance heat", null],
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
@@ -69,8 +69,23 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "heating": 0.682,
+    "cooling": 1,
+    "water heating": 1
+  },
+  "market_scaling_fractions_source": {
+    "heating": {
+      "title": "RECS 2015 - Table HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Among homes with electric heating, applies to those homes that have existing ductwork, i.e., heat pumps and central furnaces (and assuming all electric heating systems except 'Heat pump' are included in the 'resistance heat' technology); 40.9 million housing units with electric heat, all heat pumps and central furnace ducted systems (11.8 million and 16.1 million, respectively)"
+    },
+    "cooling": "Applies to all homes with cooling (using the indicated technologies—excludes room ACs)",
+    "water heating": "Applies to all homes with electric water heating"
+  },
   "_description": "Prospective integrated (or multifunction) air-source heat pump",
   "_notes": null,
   "_added_by": {
@@ -79,10 +94,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "2017-02-14"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-17 20:00 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Tue May 25 2021 22:32:14 MDT"
+  }]
 }

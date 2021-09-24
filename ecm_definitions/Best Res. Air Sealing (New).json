@@ -10,9 +10,9 @@
     ],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2017,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Lowest ACH air leakage measure in the NREL database",
+    "notes": "Lowest ACH air leakage measure in the NREL database, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "National Residential Efficiency Measures Database",
       "author": null,
@@ -73,7 +73,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Nov 16 10:26:10 EST 2018"
+    "timestamp": "Fri Nov 16 2018 10:26:10 EST"
   },
   "_updated_by": {
     "name": null,

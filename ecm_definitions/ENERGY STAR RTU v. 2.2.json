@@ -6,9 +6,9 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": "rooftop_AC",
-  "market_entry_year": 2018,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year in which ENERGY STAR standard will go into effect (see note under table)",
+    "notes": "Year in which ENERGY STAR specification will go into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -82,12 +82,12 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 13:16:38 EDT 2018"
+    "timestamp": "Tue Sep 25 2018 13:16:38 EDT"
   },
   "_updated_by": {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 17 12:01:38 MST 2020"
+    "timestamp": "Fri Jan 17 2020 12:01:38 MST"
   }
 }
