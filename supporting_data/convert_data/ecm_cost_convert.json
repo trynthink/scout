@@ -64,6 +64,13 @@
 				"conversion factor": {
 					"description": "Typical occupant density per square foot floor area",
 					"value": {
+						"residential": {
+							"single family home": {
+								"Single-Family": 0.001036},
+							"mobile home": {
+								"Single-Family": 0.002194},
+							"multi family home": {
+								"Multifamily": 0.002925}},
 						"commercial": {
 							"assembly": {
 								"Hospital": 0.005},
@@ -93,6 +100,7 @@
 							"other": 0.005}},
 					"units": "occupants/ft^2 floor",
 					"source": {
+						"residential": "U.S. Census, Households and Families 2010, p.1; EIA, Residential Energy Consumption Survey (RECS) 2015, Table HC 1.10, 'Total square footage of U.S. homes, 2015'",
 						"commercial": "Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Table 4"},
 					"notes": "Commercial occupant density estimates for 'assembly', 'lodging', 'large office', the 'SmallOffice' component of 'small office', 'health care', and 'other' building types correspond to the occupant density estimate for 'Office' in Table 4 of Deru source; 'education' corresponds to 'Classrooms' in Table 4; 'food sales' corresponds to 'Supermarket' in Table 4; 'food service' corresponds to 'Restaurant dining rooms' in Table 4; 'mercantile/service' corresponds to 'Sales' in Table 4; 'warehouse' corresponds to 'Warehouse' in Table 4; the 'Outpatient' component of 'small office' corresponds to 'Outpatient spaces' in Table 4"}}},
 		"heating and cooling": {
