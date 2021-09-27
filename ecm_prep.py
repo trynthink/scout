@@ -681,10 +681,17 @@ class UsefulVars(object):
             # Read in mapping for alternate performance/cost unit breakouts
             # AIA -> EMM or State mapping
             try:
+                # Hard code number of valid states at 51 (includes DC) to avoid
+                # potential issues later when indexing numpy columns by state
+                if regions == "State":
+                    len_reg = 51
+                else:
+                    len_reg = len(valid_regions)
+                # Read in the data
                 aia_altreg_map = numpy.genfromtxt(
                     path.join(base_dir, *handyfiles.aia_altreg_map),
                     names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                        ['<U25'] * 1 + ['<f8'] * len_reg))
             except ValueError as e:
                 raise ValueError(
                     "Error reading in '" +
@@ -6188,7 +6195,14 @@ class Measure(object):
             cost_meas_units_fin = cost_base_yr + cost_base_noyr
 
         # Case where cost conversion has succeeded
-        if cost_meas_units_fin == cost_base_units:
+        # *** NOTE: for backwards compatibility, continue to support case where
+        # residential ECM units in $/occupant or $/node were converted via this
+        # function to units of $/ft^2 floor; assume these units will be
+        # converted to $/unit subsequently (see note beginning "Handle special
+        # case where residential cost units in $/ft^2...") ***
+        if cost_meas_units_fin == cost_base_units or (
+                (bldg_sect == "residential" and "$/ft^2 floor" in
+                 cost_meas_units_fin and "$/unit" in cost_base_units)):
             # If in verbose mode, notify user of cost conversion details
             if verbose:
                 # Set base user message
@@ -10410,8 +10424,6 @@ def split_clean_data(meas_prepped_objs):
             if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
                 fs_splits_dict[adopt_scheme] = \
                     m.eff_fs_splt[adopt_scheme]
-            else:
-                fs_splits_dict[adopt_scheme] = None
         # Delete info. about efficient fuel splits for fuel switch measures
         del m.eff_fs_splt
 
@@ -11232,7 +11244,7 @@ def main(base_dir):
                 with gzip.open(path.join(base_dir, comp_folder_name,
                                          meas_file_name), 'w') as zp:
                     pickle.dump(meas_prepped_compete[ind], zp, -1)
-                if meas_eff_fs_splt[ind] is not None:
+                if len(meas_eff_fs_splt[ind].keys()) != 0:
                     # Assemble folder path for measure efficient fs split data
                     fs_splt_folder_name = path.join(
                         *handyfiles.ecm_eff_fs_splt_data)

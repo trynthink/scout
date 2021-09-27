@@ -4005,12 +4005,12 @@ def main(base_dir):
                     "ECM '" + m.name + "': " + str(e)) from None
         # Assemble folder path for measure efficient fuel split data
         fs_splt_folder_name = path.join(*handyfiles.meas_eff_fs_splt_data)
-        with gzip.open(path.join(
-                base_dir, fs_splt_folder_name, meas_file_name), 'r') as zp:
-            try:
+        try:
+            with gzip.open(path.join(
+                    base_dir, fs_splt_folder_name, meas_file_name), 'r') as zp:
                 meas_eff_fs_data = pickle.load(zp)
-            except Exception:
-                meas_eff_fs_data = None
+        except FileNotFoundError:
+            meas_eff_fs_data = None
         for adopt_scheme in handyvars.adopt_schemes:
             # Reset measure competition data attribute to imported values
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
