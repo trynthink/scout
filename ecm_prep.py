@@ -811,7 +811,7 @@ class UsefulVars(object):
                             'other': ["other appliances"]},
                         "other fuel": {
                             'heating': [
-                                'resistance', 'furnace (kerosene)',
+                                'furnace (kerosene)',
                                 'stove (wood)', 'furnace (LPG)'],
                             'secondary heating': [
                                 'secondary heater (wood)',
