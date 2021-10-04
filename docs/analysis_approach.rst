@@ -3,16 +3,16 @@
 Analysis Approach
 =================
 
-A full analysis in Scout has three primary steps, shown with some additional detail in :numref:`scout-overview`.
+A full analysis in Scout has three primary steps, which are detailed further in the sections below. 
 
 1. Develop an initial ECM definition.
 2. Finalize ECM definition by retrieving additional performance and market data.
 3. Simulate ECM impact across multiple adoption scenarios, with and without ECM competition.
 
-.. _scout-overview:
-.. figure:: images/Scout_OverviewSteps_r1.jpg
+.. .. _scout-overview:
+.. .. figure:: images/Scout_OverviewSteps_r1.jpg
 
-   Scout ECM analyses require establishing an initial ECM definition; finalizing the ECM definition through integration of additional performance data and retrieval of baseline and efficient energy, carbon, and cost markets; and simulating ECM impacts with and without competition among ECMs considered.
+..    Scout ECM analyses require establishing an initial ECM definition; finalizing the ECM definition through integration of additional performance data and retrieval of baseline and efficient energy, carbon, and cost markets; and simulating ECM impacts with and without competition among ECMs considered.
 
 .. _analysis-step-1:
 
@@ -226,20 +226,15 @@ Calculating uncompeted ECM energy savings and financial metrics
 
 * ECM _`financial metrics` are calculated by normalizing ECM savings impacts to the total number of stock units and comparing unit savings to the ECM's incremental capital cost over the comparable "business-as-usual" technology.
 
-   * Consumer-level metrics are relevant to building owners making ECM adoption decisions. These metrics remain unchanged following ECM competition.
-
-      * Internal Rate of Return (IRR) is the discount rate that balances the net present value of the ECM cost (negative cash flow) against the savings realized by the ECM on a per-unit basis (positive effective cash flow). 
-      * Simple Payback Period divides the per-unit cost of the ECM by its per-unit annual energy savings compared to the "business-as-usual" unit.
-
-   * Uncompeted portfolio-level metrics are relevant to organizations evaluating large portfolios of ECMs. The values for these metrics change as total (portfolio-wide) energy/|CO2|/cost savings impacts are reduced following :ref:`ECM competition <ECM-competition>`. 
-
-      * Cost of Conserved Energy (CCE) divides the per-unit cost of the ECM by its discounted [#]_ per-unit lifetime savings compared to the "business-as-usual" unit. In one variant of the CCE calculation, discounted lifetime cost savings from avoided |CO2| emissions are added to the numerator of the calculation, using `Social Cost of Carbon`_ estimates as a carbon tax.    
-      * Cost of Conserved |CO2| (CCC) follows the same calculation as CCE, but uses avoided |CO2| emissions in the denominator and energy cost savings in the numerator (if applicable).
+   * Internal Rate of Return (IRR) is the discount rate that balances the net present value of the ECM cost (negative cash flow) against the savings realized by the ECM on a per-unit basis (positive effective cash flow). 
+   * Simple Payback Period divides the per-unit cost of the ECM by its per-unit annual energy savings compared to the "business-as-usual" unit.
+   * Cost of Conserved Energy (CCE) divides the per-unit cost of the ECM by its discounted [#]_ per-unit lifetime savings compared to the "business-as-usual" unit. In one variant of the CCE calculation, discounted lifetime cost savings from avoided |CO2| emissions are added to the numerator of the calculation, using `Social Cost of Carbon`_ estimates as a carbon tax.    
+   * Cost of Conserved |CO2| (CCC) follows the same calculation as CCE, but uses avoided |CO2| emissions in the denominator and energy cost savings in the numerator (if applicable).
 
 .. _ECM-competition:
 
-Competing ECMs and updating savings and financial metrics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Competing ECMs and updating savings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ECMs with overlaps in their applicable baseline markets compete for the overlapping portions of these markets on the basis of their cost effectiveness from a consumer perspective. In general, ECMs with lower incremental capital costs and higher operational cost savings across their lifetimes capture larger portions of the overlapping baseline markets.
 * For example, R-5, R-7, or R-10 window ECMs could each replace the same "business-as-usual" window technology. The initial savings impacts calculated for each of these ECMs will be based on the entire applicable baseline market. Those savings impacts must be scaled by the share of the baseline window market each ECM is modeled as capturing to avoid double counting of savings. Assuming the R-7 window is most cost effective and R-10 is least cost effective, the market shares might be R-5, 35%; R-7, 45%; and R-10, 20%.
@@ -247,7 +242,6 @@ Competing ECMs and updating savings and financial metrics
 * In general, ECM competition calculations in Scout weigh an ECM's annualized capital and operating costs against the capital and operating costs for competing ECMs to determine each ECM's competed market share. However, the specific calculation steps differ somewhat between the residential and commercial building sectors.
 * Once ECM market shares are determined, uncompeted ECM savings impact estimates are multiplied by these market shares to arrive at competed ECM energy savings, avoided |CO2| emissions, and operating cost savings impacts. 
 * For heating and cooling ECMs, a post-competition calculation is needed to ensure that total supply-side heating/cooling energy use (e.g., as consumed by a heat pump, or furnace) equals total demand-side heating/cooling energy use (e.g., that attributable to heat transfer through the envelope and other thermal load components). 
-* Competed ECM savings impacts are used to calculate competed portfolio-level financial metrics (CCE, CCC). This calculation proceeds exactly as described earlier for uncompeted portfolio-level metrics, but with total savings impacts numbers adjusted to reflect ECM competition outcomes.
 
 .. IN BULLET 4, ADD LINK TO COMPETITION CALCULATION DETAILS FOR RESIDENTIAL AND COMMERCIAL
 
@@ -256,8 +250,8 @@ ECM-specific results from the analysis of the portfolio of ECMs
 
 * Filter variables summarize an ECM's applicable climate zone(s), building class(es), and end use(s). 
 * Baseline and efficient results summarize an ECM's total baseline and efficient energy use, |CO2|, emissions and operating costs, as well as the savings realized by comparing the efficient case to the baseline case. Baseline and efficient results  are reported as totals for the ECM and also broken down by building sector (residential/commercial), climate zone, and end use [#]_.
-* Financial metrics summarize an ECM's consumer and portfolio-level `financial metrics`_.
-* Average and 5th/95th percentile values are reported for all efficient markets, savings, and financial metrics outputs to accommodate ECM input uncertainty analysis.
+* Financial metrics summarize an ECM's `financial metrics`_.
+* If applicable, average and 5th/95th percentile values are reported for all efficient markets, savings, and financial metrics outputs to accommodate ECM input uncertainty analysis.
 
 .. _ASHRAE 90.1-2004: https://www.ashrae.org/resources--publications/bookstore/standard-90-1-document-history
 .. _ASHRAE 90.1-2010: https://www.ashrae.org/resources--publications/bookstore/standard-90-1-document-history

@@ -84,6 +84,7 @@ If the ECM describes a technology currently under development, the name should c
        "key_text": "value",
        ...}
 
+.. _base_mkt:
 
 Applicable baseline market
 **************************
@@ -711,7 +712,7 @@ The energy efficiency, installed cost, and lifetime values in an ECM definition 
    +----------------------------+-------------------------------+----------------------------+------------------------------+
    | Baseline Market Key        |       Energy Efficiency       |       Installed Cost       |       Product Lifetime       |
    +============================+===============================+============================+==============================+
-   | :ref:`json-climate_zone`   |               X               |                            |                              |
+   | :ref:`json-climate_zone`   |               X               |              X             |                              |
    +----------------------------+-------------------------------+----------------------------+------------------------------+
    | :ref:`json-bldg_type`      |               X               |              X             |               X              |
    +----------------------------+-------------------------------+----------------------------+------------------------------+
@@ -732,8 +733,13 @@ A detailed input specification for any of the fields should consist of a dict wi
       "AIA_CZ5": 1.28},
     ...}
 
+.. tip::
+
+   Detailed input specifications for ECM energy efficiency and installed cost may follow a different regional breakout than what is reflected in the ECM's :ref:`climate zone <json-climate_zone>` attribute so long as the breakouts conform to one of either the `AIA`_ or `IECC climate regions`_. If IECC climate zones are used for the breakouts, breakout keys should use the following format: ``IECC_CZ1``, ``IECC_CZ2``, ... ``IECC_CZ8``.    
+
+
 .. note::
-   If a detailed input specification is used, all of the applicable baseline market keys *must* be given and have a corresponding value. For example, an ECM that applies to three building types and has a detailed input specification for installed cost must have a cost value for all three building types. (Exceptions may apply if the partial shortcuts "all residential" and "all commercial" are used -- see the :ref:`baseline market shorthand values <shorthand-detailed-input-specification>` documentation.)
+   If a detailed input specification is used, all of the applicable baseline market keys *must* be given and have a corresponding value. For example, an ECM that applies to three building types and has a detailed input specification for installed cost must have a cost value for all three building types. (Exceptions may apply if alternate regional breakouts of performance or cost are used, as described in the previous tip, or if the partial shortcuts "all residential" and "all commercial" are used -- see the :ref:`baseline market shorthand values <shorthand-detailed-input-specification>` documentation.)
 
 ECMs that describe technologies that perform functions across multiple end uses will necessarily require an energy efficiency definition that is specified by fuel type. Air-source heat pumps, which provide both heating and cooling, are an example of such a technology. ::
 
@@ -1089,13 +1095,20 @@ Creating and editing package ECMs
 
 Package ECMs are not actually unique ECMs, rather, they are combinations of existing (single technology) ECMs specified by the user. Existing ECMs can be included in multiple different packages; there is no limit to the number of packages to which a single ECM may be added. There is also no limit on the number of ECMs included in a package.
 
-A package ECM might make sense, for example, in a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall efficiency than if the ECMs were implemented separately. More specifically, a package ECM could be created from an air barrier ECM and an insulation ECM to represent performing an air barrier *and* insulation retrofit at `tenant fit-out`_ in a commercial building, which could reduce the labor cost and thus the combined total installed cost by installing both systems at the same time. If one or more building type-appropriate HVAC equipment ECMs are added to the air barrier and insulation package ECM, downsizing of the HVAC equipment could further reduce the combined total installed cost. The definition for each package includes fields to specify any improvements in cost and/or efficiency, if they apply. (Package ECMs could also include reductions in efficiency and/or increases in installed cost, but it is expected that those packages would not be of interest.)
+Currently, the ECM packaging capability is oriented around combinations of HVAC equipment, windows and envelope, and/or controls ECMs, as well as around combinations of lighting equipment and controls ECMs. Users attempting to package unsupported types of ECMs will receive an error message that informs them of the types of ECMs that the packaging capability is meant to support.
+
+.. note::
+   When HVAC equipment and windows and envelope (W/E) ECMs are included together in a package, the W/E costs will be excluded from the overall package costs by default. This is necessary to match the nature of the packaged HVAC + W/E measure's installed costs with that of Scout's underlying technology competition model, which is developed around HVAC equipment costs. Nevertheless, W/E costs can be included for such packages by specifying the ``--pkg_env_costs`` command line option described in :ref:`tuts-2-cmd-opts`.
+
+.. A package ECM might make sense, for example, in a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall efficiency than if the ECMs were implemented separately. More specifically, a package ECM could be created from an air barrier ECM and an insulation ECM to represent performing an air barrier *and* insulation retrofit at `tenant fit-out`_ in a commercial building, which could reduce the labor cost and thus the combined total installed cost by installing both systems at the same time. If one or more building type-appropriate HVAC equipment ECMs are added to the air barrier and insulation package ECM, downsizing of the HVAC equipment could further reduce the combined total installed cost. The definition for each package includes fields to specify any improvements in cost and/or efficiency, if they apply. (Package ECMs could also include reductions in efficiency and/or increases in installed cost, but it is expected that those packages would not be of interest.)
 
 .. _tenant fit-out: https://www.designingbuildings.co.uk/wiki/Fit_out_of_buildings
 
 Package ECMs are specified in the |html-filepath| package_ecms.json |html-fp-end| file, located in the |html-filepath| ./ecm_definitions |html-fp-end| folder. A version of the |html-filepath| package_ecms.json |html-fp-end| file with a single blank ECM package definition is available for :download:`download <examples/blank_package_ecms.json>`. 
 
-In the package ECMs JSON definition file, each ECM package is specified in a separate dict with three keys: "name," "contributing_ECMs," and "benefits." The package "name" should be a unique name (from other packages and other individual ECMs). The "contributing_ECMs" should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the "name" field in each of the ECM's JSON definition files. The "benefits" are specified in a dict with three keys, "energy savings increase," "cost reduction," and "source." The "energy savings increase" and "cost reduction" values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the efficiency or cost improvements are provided in a nested dict structure under the "source" key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
+In the package ECMs JSON definition file, each ECM package is specified in a separate dict with three keys: ``name``, ``contributing_ECMs``, and ``benefits``. The package ``name`` should be a unique name (from other packages and other individual ECMs). The ``contributing_ECMs`` should be a list of the ECM names to include in the package, separated by commas. The individual ECM names should match exactly with the ``name`` field in each of the ECM's JSON definition files. 
+
+Packaging ECMs may result in integrative improvements in energy use and/or reductions in total installed cost that may be considered via the packaged ECM's ``benefits`` attribute. Information under this attribute is specified in a dict with three keys, ``energy savings increase``, ``cost reduction`` and ``source``. The ``energy savings increase`` and ``cost reduction`` values should be fractions between 0 and 1 (in general) representing the percentage savings or cost changes. The energy savings increase can be assigned a value greater than 1, indicating an increase in energy savings of greater than 100%, but robust justification of such a significant improvement should be provided in the source information. If no benefits are relevant for one or both keys, the values can be given as ``null`` or ``0``. The source information for the efficiency or cost improvements are provided in a nested dict structure under the ``source`` key. The source information should have the same structure as in individual ECM definitions. This structure for a single package ECM that incorporates three ECMs and yields a cost reduction of 15% over the total for those three ECMs is then: ::
 
    {"name": "First package name", 
     "contributing_ECMs": ["ECM 1 name", "ECM 2 name", "ECM 3 name"],
@@ -1199,38 +1212,61 @@ The additional ECM preparation options are described further here.
 Alternate regions
 *****************
 
-``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions. When this option is specified, the user will be prompted to select the desired alternate regional breakout upon running |html-filepath| ecm_prep.py\ |html-fp-end|. 
+``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions (see :ref:`ecm-baseline_climate-zone`). When this option is specified, the user will be prompted to select the desired alternate regional breakout upon running |html-filepath| ecm_prep.py\ |html-fp-end|. 
 
 .. note::
-   Currently, the only supported alternative regional breakout is the U.S. Electricity Information Administration (EIA) 2019 Electricity Market Module (EMM) regions (see the :ref:`ecm-baseline_climate-zone-alt` section for details regarding EMM region names.)
+   Currently, two alternative regional breakouts are supported: the U.S. Electricity Information Administration (EIA) Electricity Market Module (EMM) regions, and the contiguous U.S. states. See the :ref:`ecm-baseline_climate-zone-alt` section for additional details.
 
 Site energy
 ***********
 
 ``--site_energy`` prepares ECM markets and impacts in terms of site energy use, rather than in terms of primary (or source) energy use as in the default ECM preparation.
 
-Captured energy
-***************
+Restricted adoption scenarios
+******************************
+``--adopt_scn_restrict`` limits ECM preparation and analysis to one of the two default adoption scenarios (see :ref:`overview-adoption`). When this option is selected, the user will be prompted to select which of the two adoption scenarios to execute.
 
-``--captured_energy`` prepares ECM markets and impacts with site-source energy conversion factors calculated using the `captured energy method`_, rather than with the fossil fuel equivalence method as in the default ECM preparation.
+High electric grid decarbonization
+**********************************
+
+``--grid_decarb`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a net zero emissions by 2035 pathway for the electric grid, rather than the default AEO Reference Case grid evolution. When this option is selected, the user will be prompted to select whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the reference case. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the reference case. 
+
+.. note::
+   Annual emissions intensities for the high grid decarbonization scenario are drawn from runs of The Brattle Group's `GridSIM modeling tool`_ and are found in |html-filepath| ./supporting_data/convert_data |html-fp-end|. Annual electricity price data (also found in |html-filepath| ./supporting_data/convert_data |html-fp-end|) and hourly electricity emissions and price data for the high grid decarbonization case (found in |html-filepath| ./supporting_data/tsv_data  |html-fp-end|) are drawn from different sources --- the `EIA Annual Energy Outlook Low Renewable Cost Side Case`_ for the annual electricity price data, and the `NREL Cambium Low Renewable Energy Cost Scenario`_ for the hourly data.
+
+.. note::
+   Currently the ``--grid_decarb`` option is not supported for state regions; if state regions are selected alongside the ``--grid_decarb`` option, the code will automatically switch the run to EMM regions while warning the user.  
+
+Exogenous fuel switching rates
+******************************
+
+``--exog_hp_rates`` imposes externally determined rates of fuel switching from fossil-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./supporting_data/convert_datahp_convert_rates |html-fp-end|. When this option is selected, the user will be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology.
+
+.. note::
+   In the absence of the ``--exog_hp_rates`` option, rates of fuel switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
+
+.. note::
+   Currently the ``--exog_hp_rates`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rates`` option, the code will automatically switch the run to EMM regions while warning the user.  
+
 
 Persistent relative performance
 *******************************
 
-``--rp_persist`` calculates the market entry energy performance of each ECM being prepared relative to its comparable baseline technology, and maintains this relative energy performance across the full modeling time horizon. For example, if ECMs are 10% more efficient than comparable baseline technologies at market entry, they will still be 10% more efficient than comparable baseline technologies by the end of the modeling time horizon.
+``--rp_persist`` calculates the market entry energy performance and installed cost of each ECM being prepared relative to its comparable baseline technology, and maintains this relative energy performance and cost across the full modeling time horizon. For example, if ECMs are 10% more efficient and 10% higher cost than comparable baseline technologies at market entry, they will still be 10% more efficient and higher cost than comparable baseline technologies by the end of the modeling time horizon.
 
-Public health benefits
-**********************
+Fuel splits
+***********
 
-``--health_costs`` adds low and high estimates of the public health cost benefits of avoided fossil electricity generation from the deployment of each ECM being prepared. The low and high public health cost benefits estimates are drawn from the "Uniform EE - low estimate, 7% discount" and "Uniform EE - high estimate, 3% discount" cases in the `U.S. Environmental Protection Agency (EPA) report`_ "Public Health Benefits per kWh of Energy Efficiency and Renewable Energy in the United States: a Technical Report". [#]_ [#]_
+``--split_fuel`` prepares fuel type breakouts for measure results that are reported to the file |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end| under the ``mseg_out_break`` dict key and carried through to the measure results file |html-filepath| ./results/ecm_results.json |html-fp-end| that is generated by |html-filepath| run.py\ |html-fp-end|. Fuel type breakouts will be reported under ``Electric`` and ``Non-Electric`` dict keys; the splits are nested under higher-level breakouts of the results by region, building type/vintage, and end use. Fuel splits are only reported out for the heating, water heating, and cooking end uses.
 
-.. note::
-   Public health cost adders are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--health_costs`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
+Global minimum market entry year
+********************************
 
-.. note::
-   When ECMs are prepared with the public health cost adder, three versions of the ECM will be produced: 1) the ECM prepared according to defaults, *without* health cost adders, 2) a version of the the ECM with a low public health cost adder ``<ECM Name> - PHC-EE (low)``, and 3) a version of the ECM with a high public health cost adder ``<ECM Name - PHC-EE (high)``. Since the EPA `report`_ estimates public health benefits based on the current fossil fuel generation mix, **users are advised against retaining any results for ECMs prepared with public health cost adders beyond the year 2025**.
+``--floor_start`` imposes a global minimum market entry year across all measures considered in the analysis. When this option is specified, no measure in the analysis enters the market before the global minimum year (e.g., the global minimum year overrides the market entry year information in measures' :ref:`json-market_entry_year` attribute if this year is earlier than the global minimum year).
 
-   Public health cost adders only apply to the ``electricity`` :ref:`json-fuel_type`. If ECMs that do not apply to the ``electricity`` :ref:`json-fuel_type` or switch to ``electricity`` (via :ref:`json-fuel_switch_to`) are present alongside the ``--health_costs`` option, only the default version of such ECMs will be prepared and the user will be warned accordingly.  
+.. tip::
+   The lowest-performing measures in a Scout analysis act as a performance "floor" for the building technology options that are market-available in a given year and thus operate akin to a minimum performance standard. The ``--floor_start`` option may be useful in exploring the effects of implementing a minimum performance standard at the level of the lowest performing measures in the Scout analysis by different years in the modeling time horizon. 
+
 
 Time sensitive valuation metrics
 ********************************
@@ -1260,6 +1296,35 @@ Sector-level hourly energy loads
 .. note::
    Sector-level 8760 load data for an ECM are written to the "sector_shapes" key within the given ECM's dictionary of summary data in |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end|. The 8760 load data are nested in another dictionary under the "sector_shapes" key according to the following key hierarchy: adoption scenario ("Technical potential" or "Max adoption potential") -> EMM region (see :ref:`ecm-baseline_climate-zone-alt` for names) -> summary projection year ("2020", "2030", "2040" or "2050") -> efficiency scenario ("baseline" or "efficient"). The terminal values at the end of each key chain will be a list with 8760 values. 
 
+Public health benefits
+**********************
+
+``--health_costs`` adds low and high estimates of the public health cost benefits of avoided fossil electricity generation from the deployment of each ECM being prepared. The low and high public health cost benefits estimates are drawn from the "Uniform EE - low estimate, 7% discount" and "Uniform EE - high estimate, 3% discount" cases in the `U.S. Environmental Protection Agency (EPA) report`_ "Public Health Benefits per kWh of Energy Efficiency and Renewable Energy in the United States: a Technical Report". [#]_ [#]_
+
+.. note::
+   Public health cost adders are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--health_costs`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
+
+.. note::
+   When ECMs are prepared with the public health cost adder, three versions of the ECM will be produced: 1) the ECM prepared according to defaults, *without* health cost adders, 2) a version of the the ECM with a low public health cost adder ``<ECM Name> - PHC-EE (low)``, and 3) a version of the ECM with a high public health cost adder ``<ECM Name - PHC-EE (high)``. Since the EPA `report`_ estimates public health benefits based on the current fossil fuel generation mix, **users are advised against retaining any results for ECMs prepared with public health cost adders beyond the year 2025**.
+
+   Public health cost adders only apply to the ``electricity`` :ref:`json-fuel_type`. If ECMs that do not apply to the ``electricity`` :ref:`json-fuel_type` or switch to ``electricity`` (via :ref:`json-fuel_switch_to`) are present alongside the ``--health_costs`` option, only the default version of such ECMs will be prepared and the user will be warned accordingly. 
+
+Suppress secondary lighting calculations
+****************************************
+``--no_scnd_lgt`` suppresses the calculation of the secondary impacts from lighting measures on heating and cooling in commercial buildings, as described in the :ref:`base_mkt` section.
+
+Reflect envelope costs in ECM packages
+**************************************
+``--pkg_env_costs`` reflects the installed cost of windows and envelope (W/E) technologies that are included in HVAC + W/E ECM packages (see :ref:`package-ecms`) in the overall installed costs for the package.
+
+.. note::
+   By default, W/E costs are excluded from the overall costs of an HVAC + W/E package to harmonize the handling of costs in such packages with the approach of Scout's technology choice models, which are drawn from EIA National Energy Modeling System (NEMS) data on HVAC equipment costs and sales only. 
+
+Captured energy
+***************
+
+``--captured_energy`` prepares ECM markets and impacts with site-source energy conversion factors calculated using the `captured energy method`_, rather than with the fossil fuel equivalence method as in the default ECM preparation. 
+
 Verbose mode
 ************
 
@@ -1281,7 +1346,10 @@ The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded fro
 If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 4 <tuts-analysis>`, as all ECMs are included by default.
 
 .. tip::
-   As new ECMs are added and pre-processed (by running |html-filepath| ecm_prep.py\ |html-fp-end|), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by |html-filepath| ecm_prep.py\ |html-fp-end|. 
+   As new ECMs are added and pre-processed (by running |html-filepath| ecm_prep.py\ |html-fp-end|), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by |html-filepath| ecm_prep.py\ |html-fp-end|.
+
+.. note::
+   When an ECM package is included in the analysis (see :ref:`package-ecms`), only the package ECM's name will be added to the "active" list; by default, the names of ECMs that contribute to the package will be added to the "inactive" list to prevent the competition of these contributing ECMs with the package ECM. 
 
 
 .. _ecm-list-setup-automatic:
@@ -1382,10 +1450,19 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
 
 While executing, |html-filepath| run.py |html-fp-end| will print updates to the command window indicating the current activity -- loading data, performing calculations for a particular adoption scenario with or without competition, executing ECM competition, writing results to an output file, and plotting results. This text is principally to assure users that the analysis is proceeding apace. Upon completion, the total runtime will be printed to the command window, followed by an open prompt awaiting another command. The complete competed and uncompeted ECM data are stored in the |html-filepath| ecm_results.json |html-fp-end| file located in the |html-filepath| ./results |html-fp-end| folder.
 
+.. note::
+   On-site electricity generation (from solar PV, fuel cells, and small wind turbines) is now separately reported in |html-filepath| ecm_results.json |html-fp-end| under the ``On-site Generation`` key. These data encompass on-site electricity generation energy, emissions, and cost projections to 2050 based on the EIA Annual Energy Outlook Reference Case. The reported on-site generation data are limited to the regions and building types covered by the active ECM set in the analysis, and results are reported both overall (under the ``Overall`` key) and broken out by region and building type (under the ``By Category`` key). 
+
+.. tip::
+   The on-site generation results are reported as negative values to facilitate their subtraction from the baseline- and efficient-case measure energy, emissions, and cost results reported in the rest of the |html-filepath| ecm_results.json |html-fp-end| file. To correctly offset these data from the measure results: 1) add the total ``On-site Generation`` value for a given year to the total baseline-case energy, emissions, or cost value across all measures for the same year to get an adjusted baseline-case value; 2) find the ratio of the adjusted to unadjusted baseline-case values, and; 3) apply the ratio from #2 to the total efficient-case energy, emissions, or cost value across all measures for the same year to get an adjusted efficient-case value.    
+
 Uncompeted and competed ECM results are automatically converted into graphical form by |html-filepath| run.py |html-fp-end| using R. Output plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
 
 .. note::
    The first time you execute |html-filepath| run.py\ |html-fp-end|, any missing R packages needed to generate the plots will be installed. This installation process may take some time, but is only required once.  
+
+.. note::
+   On-site generation results are currently not reflected in the graphical results summaries and XLSX write-out.
 
 Additional run options
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1402,14 +1479,15 @@ Users may include additional options alongside the |html-filepath| run.py |html-
 
 The additional run options are described further here.
 
+Condensed results data
+**********************
+
+``--trim_results`` limits the results reported in |html-filepath| ./results/ecm_results.json\ |html-fp-end| to the avoided energy (``Energy Savings (MMBtu)``), avoided emissions (``Avoided CO₂ Emissions (MMTons)``), and avoided energy cost (``Energy Cost Savings (USD)``) metrics. When this option is selected, the user will also be prompted to optionally select a subset of the full modeling year range to use in reporting results. 
+
 Market penetration fractions
 ****************************
 
-``--mkt_fracs`` reports annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. 
-
-.. tip::
-
-   ECM market penetration data are summarized in the file |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the field "Stock Penetration (%)".
+``--mkt_fracs`` reports annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. ECM market penetration data are summarized in |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the ``Stock Penetration (%)`` key.
 
 Verbose mode
 ************
@@ -1566,3 +1644,8 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. .. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
 
 .. _this plot: https://drive.google.com/file/d/1SlXuazUj0-3S8ax7c-Lpe6niv6n87KSl/view?usp=sharing
+.. _GridSIM modeling tool: https://www.brattle.com/energy-strategy-and-planning/
+.. _EIA Annual Energy Outlook Low Renewable Cost Side Case: https://www.eia.gov/outlooks/aeo/tables_side.php 
+.. _NREL Cambium Low Renewable Energy Cost Scenario: https://cambium.nrel.gov/?project=579698fe-5a38-4d7c-8611-d0c5969b2e54&mode=view&layout=Default%20Layout
+.. _IECC climate regions: https://codes.iccsafe.org/content/IECC2021P1/chapter-3-ce-general-requirements
+.. _AIA: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg
