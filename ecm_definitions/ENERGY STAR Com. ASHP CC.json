@@ -1,0 +1,101 @@
+{
+  "name": "ENERGY STAR Com. ASHP CC",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": ["rooftop_AC", "res_type_central_AC",
+                 "rooftop_ASHP-cool", "rooftop_ASHP-heat", "elec_boiler"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.46,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "ENERGY STAR efficiency, see table 2; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating",
+    "source_data": [{
+      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2018,
+      "pages": 3,
+      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
+    {
+      "title": "COPs, EERs, and SEERs",
+      "author": null,
+      "organization": "power knot",
+      "year": null,
+      "pages": null,
+      "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+    }]},
+  "installed_cost": 86.11,
+  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "Median ENERGY STAR installed cost in 2017 divided by typical capacity (90 kBtu/h cooling)",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average ENERGY STAR lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "rooftop_AC": 0.32, 
+    "res_type_central_AC": 0.32,
+    "wall-window_room_AC": 0.32,
+    "rooftop_ASHP-cool": 1,
+    "rooftop_ASHP-heat": 1,
+    "elec_boiler": 1
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf); cooling via HPs is associated with electric heating, thus the fraction for HP cooling is 1."
+  },
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-11-16 20:57:11 EST"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:15:37 MST 2020"
+  }
+}

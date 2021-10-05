@@ -1,0 +1,86 @@
+{
+  "name": "ENERGY STAR Com. LED Lighting",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["100W Equivalent CFL Bare Spiral",
+                 "100W Equivalent LED A Lamp",
+                 "LED PAR38"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Available ENERGY STAR commercial LED lighting performance levels in 2015",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [45, 83],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "100W Equivalent CFL Bare Spiral": 65,
+    "100W Equivalent LED A Lamp": 71,
+    "LED PAR38": 53},
+  "energy_efficiency_units": "lm/W",
+  "energy_efficiency_source": {
+    "notes": "Available ENERGY STAR efficiency levels in the EIA data",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [45, 83],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "installed_cost": {
+    "100W Equivalent CFL Bare Spiral": 109.73,
+    "100W Equivalent LED A Lamp": 27.75, 
+    "LED PAR38": 40.46},
+  "cost_units": "2017$/1000 lm",
+  "installed_cost_source": {
+    "notes": "Available ENERGY STAR commercial LED lighting installed cost levels in 2015 for appropriate type of luminaire; CFL costs are unavailable for ENERGY STAR and typical costs are assumed",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [45, 83],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "product_lifetime": {
+    "100W Equivalent CFL Bare Spiral": 6.46,
+    "100W Equivalent LED A Lamp": 6.46,
+    "LED PAR38": 6.47},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Available ENERGY STAR commercial LED lighting lifetime levels in 2015 for appropriate type of luminaire (in terms of lamp efficacy)",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [45, 83],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Available ENERGY STAR commercial LED lighting Version 2.1 performance levels",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Sep 26 10:21:59 EDT 2018"},
+  "_updated_by": {
+    "name": "Ardelia Clarke" ,
+    "organization": "National Renewable Energy Laboratory" ,
+    "email": "ardelia.clarke@nrel.gov" ,
+    "timestamp": "Mon Feb 10 13:22:59 MST 2020"
+  }
+}
