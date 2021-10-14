@@ -15,7 +15,7 @@ from functools import reduce  # forward compatibility for Python 3
 import operator
 from argparse import ArgumentParser
 from ast import literal_eval
-from datetime import datetime
+# from datetime import datetime
 
 
 class MyEncoder(json.JSONEncoder):
@@ -316,7 +316,7 @@ class UsefulVars(object):
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
                  health_costs, split_fuel, floor_start, exog_hp_rates,
-                 adopt_scn_usr):
+                 adopt_scn_usr, zero_ret):
         # Choose default adoption scenarios if user doesn't specify otherwise
         if adopt_scn_usr is False:
             self.adopt_schemes = [
@@ -338,17 +338,23 @@ class UsefulVars(object):
         # # Set minimum AEO modeling year
         # aeo_min = aeo_yrs["min year"]
         # Set minimum year to current year
-        aeo_min = datetime.today().year
+        # aeo_min = datetime.today().year
+        aeo_min = 2022
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
         self.aeo_years_summary = ["2030", "2050"]
-        self.retro_rate = {
-            yr: 0.001 + (0.009/4) * (int(yr) - 2021) if int(yr) < 2025 else (
-                0.01 + (0.01/9) * (int(yr) - 2025) if int(yr) < 2035 else
-                0.02) for yr in self.aeo_years}
+        # Set early retrofit rate; force to zero if desired by user
+        if zero_ret is not False:
+            self.retro_rate = {yr: 0 for yr in self.aeo_years}
+        else:
+            self.retro_rate = {
+                yr: 0.001 + (0.009/((2025 - aeo_min - 1))) * (
+                    int(yr) - aeo_min) if int(yr) < 2025 else (
+                    0.01 + (0.01/(2035 - 2025 - 1)) * (int(yr) - 2025) if
+                    int(yr) < 2035 else 0.02) for yr in self.aeo_years}
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -1741,7 +1747,7 @@ class Measure(object):
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
             floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            **kwargs):
+            zero_ret, add_typ_eff, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1757,7 +1763,8 @@ class Measure(object):
             "captured_energy_ss": False, "alt_regions": False,
             "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
-            "adopt_scn_restrict": False}
+            "adopt_scn_restrict": False, "zero_ret": False,
+            "add_typ_eff": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
@@ -1791,6 +1798,10 @@ class Measure(object):
             self.energy_outputs["grid_decarb"] = grid_decarb
         if adopt_scn_usr is not False:
             self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
+        if zero_ret is not False:
+            self.energy_outputs["zero_ret"] = zero_ret
+        if add_typ_eff is not False:
+            self.energy_outputs["add_typ_eff"] = add_typ_eff
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -1843,17 +1854,25 @@ class Measure(object):
         if self.market_entry_year is None or (int(
                 self.market_entry_year) < int(self.handyvars.aeo_years[0])):
             self.market_entry_year = int(self.handyvars.aeo_years[0])
-        # If a global delay to market entry of the measure set has been
-        # imposed by the user and the measure's market entry year is earlier
-        # than the delayed start year, set to delayed start year
-        if floor_start is not None and (
-                self.market_entry_year < floor_start):
+        # If a global year by which an elevated performance floor is
+        # implemented has been imposed by the user and no measures with
+        # typical/BAU efficiency are represented on the market, assume that
+        # all measures begin showing market impacts in that year
+        if floor_start is not None and add_typ_eff is False and \
+                self.market_entry_year < floor_start:
             self.market_entry_year = floor_start
         # Reset measure market exit year if None or later than max. year
         if self.market_exit_year is None or (int(
                 self.market_exit_year) > (int(
                     self.handyvars.aeo_years[-1]) + 1)):
             self.market_exit_year = int(self.handyvars.aeo_years[-1]) + 1
+        # If a global year by which an elevated performance floor is
+        # implemented has been imposed by the user and the measure represents
+        # a typical/BAU efficiency level, remove the measure from the market
+        # once the elevated floor goes into effect
+        if floor_start is not None and (
+                add_typ_eff is not False and "Ref. Case" in self.name):
+            self.market_exit_year = floor_start
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
         # Test for whether a user has set time sensitive valuation features
@@ -3839,16 +3858,35 @@ class Measure(object):
                 else:
                     sf_to_house_key = None
 
-                # Determine relative measure performance after checking for
-                # consistent baseline/measure performance and cost units;
-                # make an exception for cases where performance is specified
-                # in 'relative savings' units (no explicit check
-                # of baseline units needed in this case)
-                if (perf_units == 'relative savings (constant)' or
-                   (isinstance(perf_units, list) and perf_units[0] ==
+                # For cases where a typical/BAU efficiency
+                # measure is being assessed, set the measure performance,
+                # cost, and lifetime characteristics to the baseline values
+                # (note, this excludes typical/BAU fuel switching measures,
+                # which are defined and assessed like normal measures)
+                if opts.add_typ_eff is True and "Ref. Case" in self.name and \
+                        self.fuel_switch_to is None:
+                    # Reset measure performance and cost to track baseline
+                    perf_meas, cost_meas = [
+                        {yr: val[yr] for yr in self.handyvars.aeo_years}
+                        for val in [perf_base, cost_base]]
+                    # Set measure lifetime to track baseline (to remain
+                    # consistent with measure lifetime formatting as a
+                    # point value, pull data for the first year in the
+                    # modeling time horizon under the assumption that
+                    # baseline lifetime projections don't change over time)
+                    life_meas = life_base[self.handyvars.aeo_years[0]]
+                    # Set relative performance to track baseline
+                    rel_perf = {yr: 1 for yr in self.handyvars.aeo_years}
+                # For all other measures, determine relative performance after
+                # checking for consistent baseline/measure performance and cost
+                # units; make an exception for cases where performance is
+                # specified in 'relative savings' units (no explicit check of
+                # baseline units needed in this case)
+                elif (perf_units == 'relative savings (constant)' or (
+                    isinstance(perf_units, list) and perf_units[0] ==
                     'relative savings (dynamic)') or
                     perf_base_units == perf_units) and (
-                        mskeys[0] == "secondary" or
+                    mskeys[0] == "secondary" or
                         cost_base_units == cost_units):
 
                     # Relative performance calculation depends on whether the
@@ -3999,8 +4037,14 @@ class Measure(object):
                     # improvement over the comparable baseline technology
                     # across its lifetime). In this case, set the measure's
                     # relative performance value for all years to that
-                    # calculated for its market entry year
-                    if opts.rp_persist is True:
+                    # calculated for its market entry year. NOTE: do not
+                    # perform calculations on typical/BAU efficiency measures,
+                    # as their performance and cost already tracks baseline
+                    if opts.rp_persist is True and (
+                            opts.add_typ_eff is not True or
+                            (opts.add_typ_eff is True and (
+                                "Ref. Case" not in self.name or
+                                self.fuel_switch_to is not None))):
                         # Preclude consistent performance improvements for
                         # prospective measures, which tend to already be at
                         # performance limits
@@ -10223,8 +10267,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.grid_decarb, opts.adopt_scn_restrict, **m) for
-        m in measures]
+        opts.grid_decarb, opts.adopt_scn_restrict, opts.zero_ret,
+        opts.add_typ_eff, **m) for m in measures]
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -10312,7 +10356,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
                     opts.exog_hp_rates, opts.grid_decarb,
-                    opts.adopt_scn_restrict,
+                    opts.adopt_scn_restrict, opts.zero_ret, opts.add_typ_eff,
                     **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
@@ -10769,7 +10813,7 @@ def main(base_dir):
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        adopt_scn_user)
+        adopt_scn_user, opts.zero_ret)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -10883,11 +10927,20 @@ def main(base_dir):
                          y["energy_outputs"]["grid_decarb"] != opts.grid_decarb
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
-                   (opts is not None and opts.adopt_scn_restrict is not False
-                    and all([y["energy_outputs"]["adopt_scn_restrict"] is False
-                             or y["energy_outputs"]["adopt_scn_restrict"] !=
-                             opts.adopt_scn_restrict for y in meas_summary if
-                             y["name"] == meas_dict["name"]])) or \
+                   (opts is not None and
+                    opts.adopt_scn_restrict is not False and all([
+                        y["energy_outputs"]["adopt_scn_restrict"] is False or
+                        y["energy_outputs"]["adopt_scn_restrict"] !=
+                        opts.adopt_scn_restrict for y in meas_summary if
+                        y["name"] == meas_dict["name"]])) or \
+                   (opts is not None and opts.zero_ret is True and
+                    all([y["energy_outputs"]["zero_ret"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.add_typ_eff is True and
+                    all([y["energy_outputs"]["add_typ_eff"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
                     all([y["energy_outputs"]["site_energy"] is True for
                          y in meas_summary if y["name"] ==
@@ -10926,6 +10979,14 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.adopt_scn_restrict is False and
                     all([y["energy_outputs"]["adopt_scn_restrict"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.zero_ret is False and
+                    all([y["energy_outputs"]["zero_ret"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.add_typ_eff is False and
+                    all([y["energy_outputs"]["add_typ_eff"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -10976,6 +11037,46 @@ def main(base_dir):
                                 # Append the copied measure to list of measure
                                 # definitions to update
                                 meas_toprep_indiv.append(new_meas)
+                    # Add copies of ESTAR, IECC, or 90.1 measures that
+                    # downgrade to typical/BAU efficiency levels; exclude typ.
+                    # /BAU fuel switching measures, which must be explicitly
+                    # defined by the user and are handled like normal measures;
+                    # also exclude typical windows/envelope measures, as these
+                    # are already baked into the energy use totals for typical
+                    # HVAC equipment measures
+                    if opts is not None and opts.add_typ_eff is True and \
+                        any([x in meas_dict["name"] for x in [
+                            "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and \
+                        meas_dict["fuel_switch_to"] is None and (
+                            not ((isinstance(meas_dict["technology"], list)
+                                  and all([x in handyvars.demand_tech for
+                                           x in meas_dict["technology"]])) or
+                                 meas_dict["technology"] in
+                                 handyvars.demand_tech)):
+                        # Find substring in existing measure name to replace
+                        if "ENERGY STAR" in meas_dict["name"]:
+                            name_substr = "ENERGY STAR"
+                        elif "ESTAR" in meas_dict["name"]:
+                            name_substr = "ESTAR"
+                        elif "IECC c. 2021" in meas_dict["name"]:
+                            name_substr = "IECC c. 2021"
+                        elif "90.1 c. 2019" in meas_dict["name"]:
+                            name_substr = "90.1 c. 2019"
+                        else:
+                            name_substr = ""
+                        # Determine unique measure copy name
+                        if name_substr:
+                            new_name = meas_dict["name"].replace(
+                                name_substr, "Ref. Case")
+                        else:
+                            new_name = meas_dict["name"] + " Ref. Case"
+                        # Copy the measure
+                        new_meas = copy.deepcopy(meas_dict)
+                        # Set the copied measure name to the name above
+                        new_meas["name"] = new_name
+                        # Append the copied measure to list of measure
+                        # definitions to update
+                        meas_toprep_indiv.append(new_meas)
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -11351,6 +11452,16 @@ if __name__ == "__main__":
     # Optional flag to restrict adoption schemes
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
+    # Optional flag to force early retrofit rate to zero
+    parser.add_argument("--zero_ret", action="store_true",
+                        help="Assume zero early replacements per year")
+    # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
+    # or 90.1 measures (to account for competitive effects)
+    parser.add_argument("--add_typ_eff", action="store_true",
+                        help=("Add typical technology analogues for equipment "
+                              "efficiency measures at the most current ENERGY "
+                              "STAR, IECC, and 90.1 performance levels"))
+
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
