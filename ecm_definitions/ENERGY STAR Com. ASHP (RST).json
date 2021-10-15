@@ -1,13 +1,14 @@
 {
-  "name": "ENERGY STAR Com. ASHP (FS) CC",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
-                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "name": "ENERGY STAR Com. ASHP (RST)",
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, non-cold-climate, replace resistance",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
-  "fuel_type": "all",
-  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
-                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
+  "fuel_type": "electricity",
+  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "electric_res-heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
@@ -61,10 +62,13 @@
     }
   },
   "measure_type": "full service",
-  "fuel_switch_to": "electricity",
+  "fuel_switch_to": null,
   "market_scaling_fractions": {
-    "cooling": 0.68,
-    "heating": 0.73
+    "rooftop_AC": 0.32, 
+    "res_type_central_AC": 0.32,
+    "wall-window_room_AC": 0.32,
+    "electric_res-heat": 1,
+    "elec_boiler": 1
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
@@ -72,9 +76,8 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
-  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -82,16 +85,20 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-16 20:57:11 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
-  },
-  "_updated_by": {
+  },{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 21 14:57:37 MST 2020"
-  }
+    "timestamp": "Fri Jan 17 12:15:37 MST 2020"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  }]
 }

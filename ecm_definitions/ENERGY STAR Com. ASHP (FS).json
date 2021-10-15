@@ -35,10 +35,10 @@
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
     }]},
-  "installed_cost": 86.11,
+  "installed_cost": 105,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Median ENERGY STAR installed cost in 2017 divided by typical capacity (90 kBtu/h cooling)",
+    "notes": "Typical installed cost in 2020 divided by typical capacity (90 kBtu/h cooling)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -51,7 +51,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average ENERGY STAR lifetime in 2017",
+    "notes": "Average ENERGY STAR lifetime in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

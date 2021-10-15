@@ -1,7 +1,9 @@
 {
-  "name": "ENERGY STAR Com. ASHP (FS) CC",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
-                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "name": "Ref. Case Com. ASHP (FS)",
+  "_description": "Typical size light commercial rooftop HP unit with reference case performance (counterfactual), non-cold-climate",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
@@ -15,17 +17,18 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.46,
+  "energy_efficiency": 3.4,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ENERGY STAR efficiency, see table 2; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating",
+    "notes": "Typical efficiency in 2023 (use 2023 new standard value of 3.4 instead of 2020 value of 3.3)",
     "source_data": [{
-      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
-      "organization": "ENERGY STAR",
+      "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
     {
       "title": "COPs, EERs, and SEERs",
       "author": null,
@@ -37,7 +40,7 @@
   "installed_cost": 105,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2020 divided by typical capacity (90 kBtu/h cooling)",
+    "notes": "Median typical installed cost in 2020 divided by typical capacity (90 kBtu/h cooling)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -50,7 +53,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average ENERGY STAR lifetime in 2020",
+    "notes": "Average typical lifetime in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -74,7 +77,6 @@
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
       "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
-  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
