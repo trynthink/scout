@@ -15,29 +15,22 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.46,
+  "energy_efficiency": 3.4,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ENERGY STAR efficiency, see table 2; assumes 65-135 kBtu/h capacity (typical: 90 kBtu/h) and electric resistance heating",
+    "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
     "source_data": [{
-      "title": "ENERGY STAR Program Requirements Product Specification for Light Commercial HVAC Version 3.1",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
-      "organization": "ENERGY STAR",
+      "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 3,
-      "URL": "https://www.energystar.gov/sites/default/files/Light%20Commercial%20HVAC%20Version%203.1%20Program%20Requirements_1.pdf"},
-    {
-      "title": "COPs, EERs, and SEERs",
-      "author": null,
-      "organization": "power knot",
-      "year": null,
-      "pages": null,
-      "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 105,
+  "installed_cost": 141.2,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2020 divided by typical capacity (90 kBtu/h cooling)",
+    "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -50,7 +43,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average ENERGY STAR lifetime in 2020",
+    "notes": "Typical lifetime in 2030",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -86,5 +79,10 @@
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
   }]
 }

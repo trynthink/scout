@@ -1,3 +1,4 @@
+
 {
   "name": "Ref. Case Res. ASHP (FS) CC",
   "_description": "Standard size residential air source heat pump with reference case performance (counterfactual), cold-climate",
@@ -14,12 +15,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.48,
-      "heating": 2.52
+      "cooling": 4.63,
+      "heating": 2.58
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Typical air source heat pump performance in 2020; conversion from original standard: COP = SEER / 3.412 (see second EIA source).",
+    "notes": "Typical air source heat pump performance in 2030, which reflects introduction of min. efficiency standard in 2023; conversion from original standard: COP = SEER / 3.412 (see second EIA source).",
     "source_data": [
       {
        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -41,25 +42,25 @@
   },
   "installed_cost": {
       "electricity": {
-        "new": 5100,
-        "existing": 6100
+        "new": 5150,
+        "existing": 6150
       },
       "natural gas": {
-        "new": 5100,
-        "existing": 6100
+        "new": 5150,
+        "existing": 6150
       }, 
       "distillate": {
-        "new": 5100,
-        "existing": 7100
+        "new": 5150,
+        "existing": 7150
       },
       "other fuel": {
-        "new": 5100,
-        "existing": 7100
+        "new": 5150,
+        "existing": 7150
       }
   },
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for typical ASHP in 2020, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "notes": "Installed costs for typical ASHP in 2030, which reflects introduction of min. efficiency standard in 2023; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -80,7 +81,7 @@
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average typical lifetime in 2017",
+    "notes": "Median of average typical ASHP lifetime in in 2030, which reflects introduction of min. efficiency standard in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -111,35 +112,10 @@
     }
   },
   "_notes": null,
-  "_added_by": {
+  "_added_by":  {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-17 15:19:55 EST"
-  },
-  "_updated_by": [{
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Laboratory",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Mon Sep 24 16:50:26 EDT 2018"
-  },
-  {
-    "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy Laboratory",
-    "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Tue Jan 21 16:05:26 MST 2020"
-  },
-  {
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Laboratory",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Apr 21 09:39:00 EDT 2021"
-  },
-  {
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Laboratory",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Sep 15 09:43:04 EDT 2021"
-
-  }]
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  }
 }

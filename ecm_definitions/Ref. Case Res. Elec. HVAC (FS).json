@@ -1,73 +1,63 @@
 {
-  "name": "Ref. Case Res. ASHP (FS)",
-  "_description": "Standard size residential air source heat pump with reference case performance (counterfactual), non-cold-climate",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                   "CASO"],
+  "name": "Ref. Case Res. Elec. HVAC (FS)",
+  "_description": "Represents switch to electric residential HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential HVAC technologies currently (or soon to be) on the market, from AEO 2021",
+  "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "cooling"],
+  "end_use": ["cooling", "heating"],
   "fuel_type": "all",
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
   "market_entry_year": 2021,
-  "market_entry_year_source": null,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.63,
-      "heating": 2.58
+      "cooling": 4.55,
+      "heating": 1.88
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Typical air source heat pump performance in 2030, which reflects introduction of min. efficiency standard in 2023; conversion from original standard: COP = SEER / 3.412 (see second EIA source).",
-    "source_data": [
-      {
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": null,
-       "organization": "U.S. Energy Information Administration",
-       "year": 2018,
-       "pages": 29,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,
         "organization": "U.S. Energy Information Administration",
-        "year": 2014,
-        "pages": 17,
-        "URL": "https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m067(2014).pdf"
-      }
-    ]
+        "year": 2018,
+        "pages": [21, 26, 29, 33],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "installed_cost": {
       "electricity": {
-        "new": 5150,
-        "existing": 6150
+        "new": 3719,
+        "existing": 4719
       },
       "natural gas": {
-        "new": 5150,
-        "existing": 6150
+        "new": 3719,
+        "existing": 4719
       }, 
       "distillate": {
-        "new": 5150,
-        "existing": 7150
+        "new": 3719,
+        "existing": 5719
       },
       "other fuel": {
-        "new": 5150,
-        "existing": 7150
+        "new": 3719,
+        "existing": 5719
       }
   },
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for typical ASHP in 2030, which reflects introduction of min. efficiency standard in 2023; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "notes": "Sales-weighted combinations of heating and cooling installed costs for typical 2020 ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request. For existing buildings, added service costs of $1K for switching from natural gas and $2K for distillate/other assigned based on EIA report",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": [21, 26, 29, 33],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
@@ -78,16 +68,16 @@
       "pages": 8,
       "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}
     ]},
-  "product_lifetime": 15.5,
+  "product_lifetime": 19,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average typical ASHP lifetime in in 2030, which reflects introduction of min. efficiency standard in 2023",
+    "notes": "Sales-weighted combinations of heating and cooling lifetime for typical 2020 ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 29,
+      "pages": [21, 26, 29, 33],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
@@ -112,7 +102,7 @@
     }
   },
   "_notes": null,
-  "_added_by":  {
+  "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",

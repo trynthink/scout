@@ -1,8 +1,7 @@
 {
-  "name": "Ref. Case Com. ASHP (FS) CC",
-  "_description": "Typical size light commercial rooftop HP unit with reference case performance (counterfactual), cold-climate",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
-                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "name": "Ref. Case Com. Elec. HVAC (FS)",
+  "_description": "Represents switch to electric commercial HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric commercial HVAC technologies currently (or soon to be) on the market, from AEO 2021",
+  "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
@@ -16,43 +15,47 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.4,
+  "energy_efficiency": {
+      "heating": 2.32,
+      "cooling": 4.13
+  },
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Reflect performance level of 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
-    "source_data": [{
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }]},
-  "installed_cost": 141.2,
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": [96, 112, 116, 118],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+    ]
+    },
+  "installed_cost": 171,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
+    "notes": "Sales-weighted combinations of installed costs for typical rooftop HPs, rooftop AC + resistance, and GSHPs; note costs are all based on capacity of cooling tech. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "pages": [112, 116, 118],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "product_lifetime": 21,
+  "product_lifetime": 18,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical lifetime in 2030",
+    "notes": "Sales-weighted combinations of lifetimes for typical rooftop HPs, rooftop AC + resistance, and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 116,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+      "pages": [112, 116, 118],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
@@ -69,7 +72,7 @@
       "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
   "_notes": null,
-  "_added_by":  {
+  "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
