@@ -105,14 +105,21 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_EMM_ColSums.txt")
             # Toggle EMM emissions and price data based on whether or not
-            # a high grid decarbonization scenario is used
+            # a grid decarbonization scenario is used
             if grid_decarb is not False:
-                self.ss_data_altreg = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-decarb.json")
+                # Set either an extreme or moderate grid decarbonization case,
+                # depending on what the user selected
+                if grid_decarb[0] == "1":
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-decarb.json")
+                else:
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-decarb_lite.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
-                if grid_decarb == "1":
+                if grid_decarb[1] == "1":
                     self.ss_data_altreg_nonfs = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-updated.json")
@@ -173,7 +180,7 @@ class UsefulInputFiles(object):
                                     "tsv_carbon-decarb.json")
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
-            if grid_decarb == "1":
+            if grid_decarb[1] == "1":
                 self.ss_data_nonfs = ("supporting_data", "convert_data",
                                       "site_source_co2_conversions.json")
                 self.tsv_cost_data_nonfs = (
@@ -570,7 +577,7 @@ class UsefulVars(object):
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
         # Load external data on conversion rates for HP measures
-        if exog_hp_rates in ['1', '2']:
+        if exog_hp_rates is not False:
             with open(path.join(
                     base_dir, *handyfiles.hp_convert_rates), 'r') as fs_r:
                 try:
@@ -3226,10 +3233,12 @@ class Measure(object):
                     reg = [r[0] for r in
                            self.handyvars.hp_rates_reg_map.items() if
                            mskeys[1] in r[1]][0]
-                    # Pull in HP conversion rate data for the region and
-                    # building type of the current microsegment
+                    # Pull in HP conversion rate data for the user-selected
+                    # fuel switching scenario and the region and building type
+                    # of the current microsegment
                     hp_rate_dat = self.handyvars.hp_rates[
-                        "data"][reg][bldg_sect]
+                        "data (by scenario)"][opts.exog_hp_rates[0]][reg][
+                        bldg_sect]
                     # Attempt to further restrict HP conversion data by
                     # fuel type, end use, technology, and building vintage;
                     # handle cases where data are applicable to "all"
@@ -6711,12 +6720,12 @@ class Measure(object):
                 else:
                     # Determine what portion of the retrofit rate in each
                     # year converts to HPs based on user cmd line inputs
-                    if opts.exog_hp_rates == '1':  # All retrofits to HPs
+                    if opts.exog_hp_rates[1] == '1':  # All retrofits to HPs
                         # Converted retrofits
                         retro_convert = retro_frac
                         # Remaining retrofits
                         retro_remain = 0
-                    elif opts.exog_hp_rates == '2':  # Frac. retrofits to HPs
+                    elif opts.exog_hp_rates[1] == '2':  # Frac. retro. to HPs
                         # Converted retrofits
                         retro_convert = retro_frac * hp_rate[yr]
                         # Remaining retrofits
@@ -10645,11 +10654,26 @@ def main(base_dir):
             "(and not the default AIA regions)")
 
     # If exogenous HP rates are specified, gather further information about
-    # how these rates should be applied to retrofit decisions
+    # which exogenous HP rate scenario should be used and how these rates
+    # should be applied to retrofit decisions
     if opts and opts.exog_hp_rates is True:
-        input_var = 0
-        while input_var not in ['1', '2']:
-            input_var = input(
+        input_var = [0, 0]
+        # Determine which fuel switching scenario to use
+        while input_var[0] not in ['1', '2', '3', '4']:
+            input_var[0] = input(
+                "\nChoose the Guidehouse E3HP conversion scenario to use \n"
+                "(1 = conservative, 2 = optimistic, 3 = aggressive, 4 = most "
+                "aggressive): ")
+            if input_var[0] not in ['1', '2', '3', '4']:
+                print('Please try again. Enter either 1, 2, 3, or 4. '
+                      'Use ctrl-c to exit.')
+        # Convert the user scenario choice to a scenario name in the input file
+        scn_names = [
+            "conservative", "optimistic", "aggressive", "most aggressive"]
+        input_var[0] = scn_names[int(input_var[0])-1]
+        # Determine assumptions about retrofits and HP switching
+        while input_var[1] not in ['1', '2']:
+            input_var[1] = input(
                 "\nEnter 1 to assume that all retrofits convert to heat "
                 "pumps \nor 2 to assume that retrofits are subject to the "
                 "same external heat pump conversion rates assumed for new/"
@@ -10668,18 +10692,29 @@ def main(base_dir):
                 "regions or states (and not the default AIA regions)")
 
     # If alternate grid decarbonization specified, gather further info. about
-    # how electricity emissions and cost factors should be handled, and ensure
-    # State regional breakouts and/or captured energy method are not used
+    # which grid decarbonization scenario should be used, how electricity
+    # emissions and cost factors should be handled, and ensure State regional
+    # breakouts and/or captured energy method are not used
     if opts and opts.grid_decarb is True:
-        input_var = 0
-        while input_var not in ['1', '2']:
-            input_var = input(
+        input_var = [0, 0]
+        # Find which grid decarbonization scenario should be used
+        while input_var[0] not in ['1', '2']:
+            input_var[0] = input(
+                "\nEnter 1 to assume full grid decarbonization by 2035 \n"
+                "or 2 to assume that the grid decarbonizes to roughly 60% of "
+                "AEO reference case electricity emissions by 2050: ")
+            if input_var[0] not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        # Find how emissions/cost factors should be handled
+        while input_var[1] not in ['1', '2']:
+            input_var[1] = input(
                 "\nEnter 1 to assess avoided emissions and costs "
                 "from non-fuel switching measures BEFORE additional grid "
                 "decarbonization \nor 2 to assess avoided emissions and "
                 "costs from non-fuel switching measures AFTER "
                 "additional grid decarbonization: ")
-            if input_var not in ['1', '2']:
+            if input_var[1] not in ['1', '2']:
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         opts.grid_decarb = input_var

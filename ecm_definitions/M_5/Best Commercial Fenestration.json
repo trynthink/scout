@@ -1,0 +1,100 @@
+{
+  "name": "Best Commercial Fenestration",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": [
+      "windows conduction",
+      "windows solar"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "AEDG small/medium commercial fenestration R and SHGC value recommendations; year in which the latest version of the Advanced Energy Design Guide was published, updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "50 Percent Advanced Energy Design Guide",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2014,
+      "pages": null,
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+        "windows conduction": 2.88,
+        "windows solar": 0.36},
+      "AIA_CZ2": {
+        "windows conduction": 2.85,
+        "windows solar": 0.35},
+      "AIA_CZ3": {
+        "windows conduction": 2.64,
+        "windows solar": 0.26},
+      "AIA_CZ4": {
+        "windows conduction": 2.47,
+        "windows solar": 0.25},
+      "AIA_CZ5": {
+        "windows conduction": 2.25,
+        "windows solar": 0.25}
+      },
+  "energy_efficiency_units": {
+      "windows conduction": "R value",
+      "windows solar": "SHGC"
+    },
+  "energy_efficiency_source": {
+    "notes": "From AEDG design recommendations by climate zone; see calculations in: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=0",
+    "source_data": {
+      "title": "50 Percent Advanced Energy Design Guide",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2014,
+      "pages": null,
+      "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
+    },
+  "installed_cost": 56.20,
+  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost_source": {
+    "notes": "The AEDG commercial window performance recommendation is very similar to the baseline commercial window performance in Scout, thus the same cost is assumed - baseline Scout window is a 3'x4' aluminum window assembly (#B20201066400)",
+    "source_data": {
+      "title": "Scout Baseline Envelope Cost and Performance Data",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2016,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes midpoint of lifetime for aluminum and wood window assemblies",
+    "source_data": {
+      "title": "Study of the Life Expectancy of Home Components",
+      "author": null,
+      "organization": "National Association of Homebuilders",
+      "year": 2007,
+      "pages": 15,
+      "URL": "http://stevesmallman.com/wp-content/uploads/2013/05/NAHB-Lifetimes.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Latest 50% AEDG recommendations for small/medium commercial building window insulation/solar transmittance",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Sep 21 2018 16:33:51 EDT"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

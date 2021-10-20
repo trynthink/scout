@@ -1,0 +1,107 @@
+ { 
+  "name": "ENERGY STAR Electronics",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["TVs", "computers"],
+  "fuel_type": "electricity",
+  "technology": ["TV", "desktop PC", "laptop PC", "monitors", "set top box"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "TV": 78,
+      "desktop PC": 90,
+      "laptop PC": 26,
+      "monitors": 51,
+      "set top box": 74
+  },  
+  "energy_efficiency_units": "kWh/yr",
+  "energy_efficiency_source": { 
+      "notes": "Combination of FEMP and ENERGYSTAR product finder sources; FEMP sources use ENERGY STAR column in performance and model assumptions for table; ENERGY STAR product finder data chosen for least efficient certified product in search",
+      "source_data": [{
+        "title": "Purchasing Energy-Efficient Televisions",
+        "author": null,
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://www.energy.gov/eere/femp/purchasing-energy-efficient-televisions"
+    },
+    {
+        "title": "Purchasing Energy-Efficient Computers",
+        "author": null,
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://www.energy.gov/eere/femp/purchasing-energy-efficient-computers"
+    },
+    {
+        "title": "Purchasing Energy-Efficient Displays and Monitors",
+        "author": null,
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://www.energy.gov/eere/femp/purchasing-energy-efficient-displays-and-monitors"
+    },
+    {
+        "title": "ENERGY STAR Product Finder - Set Top Box",
+        "author": null,
+        "organization": "U.S. Federal Energy Management Program",
+        "year": 2021,
+        "pages": null,
+        "URL": "https://www.energystar.gov/productfinder/product/certified-set-top-box/results?formId=949866-17-448-9-779671&scrollTo=532&search_text=&configuration_filter=&product_clean_filter=Cable&enhanced_functionalities_present_isopen=0&markets_filter=United+States&zip_code_filter=&product_types=Select+a+Product+Category&sort_by=single_room_configuration_test_results_total_energy_consumption_kwh_yr&sort_direction=desc&currentZipCode=20045&page_number=0&lastpage=0"
+    }]
+  },
+  "installed_cost": {
+      "TV": 432,
+      "desktop PC": 529,
+      "laptop PC": 595,
+      "monitors": 159,
+      "set top box": 124.5
+  },
+  "cost_units": "2017$/unit",
+  "installed_cost_source": {
+    "notes": "Assume same 2021 cost as typical products in Scout cost, performance, and lifetime database",
+    "source_data": {
+      "title": "Scout baseline cost, pperformance, and lifetime data",
+      "author": null,
+      "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
+      "year": 2021,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+    }},
+  "product_lifetime": {
+      "TV": 8,
+      "desktop PC": 5,
+      "laptop PC": 6,
+      "monitors": 5,
+      "set top box": 5.7
+  },
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assume same lifetime as typical products in Scout cost, performance, and lifetime database",
+    "source_data": {
+      "title": "Scout baseline cost, pperformance, and lifetime data",
+      "author": null,
+      "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
+      "year": 2021,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+    }},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "ENERGY STAR TVs, PCs, monitors, and set top box",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr 21 09:37:47 EDT 2021"
+  }
+}

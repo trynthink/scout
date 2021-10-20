@@ -1,0 +1,89 @@
+{
+  "name": "Residential Roof, IECC c. 2021",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+  "fuel_type": "all",
+  "technology": "roof",
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "IECC 2021 ceiling insulation requirements",
+    "source_data": {
+      "title": "2021 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2021,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": 60,
+      "AIA_CZ2": 60,
+      "AIA_CZ3": 59.9,
+      "AIA_CZ4": 50.9,
+      "AIA_CZ5": 47.4
+    },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "In 2021 IECC, see table R402.1.3, ceiling (R-value) and use IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",
+    "source_data": {
+      "title": "2021 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2021,
+      "pages": 246,
+      "URL": null}
+    },
+  "installed_cost": 2.14,
+  "cost_units": "2017$/ft^2 roof",
+  "installed_cost_source": {
+    "notes": "Assume baseline roof cost from Scout data",
+    "source_data": {
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed to be the same as Scout's baseline residential roof lifetime",
+    "source_data": {
+      "title": "Scout Baseline Envelope Cost, Performance, and Lifetime Data (cpl_envelope_mels.json)",
+      "author": "Jared Langevin",
+      "organization": "LBNL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "IECC ceiling insulation measure in 2021; assumes existing R-30 fiberglass batt insulation",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 18 2018 10:05:42 EDT"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Mar 9 2021 10:20:07 MST"
+  }
+}
