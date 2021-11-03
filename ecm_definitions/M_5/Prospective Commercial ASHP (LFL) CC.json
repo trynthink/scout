@@ -23,9 +23,10 @@
     "notes": "ET target",
     "source_data": null
   },
-  "installed_cost": 52.56,
+  "installed_cost": 50.075,
+  "cost_units": "$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on cooling",
+    "notes": "average US cost based on scout 5 yr payback; note that cost is based on cooling for non-FS condition in cold climate",
     "source_data": null
   },
   "cost_units": "$/kBtu/h cooling",

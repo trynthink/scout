@@ -10271,6 +10271,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         ValueError: If more than one Measure object matches the name of a
             given input efficiency measure.
     """
+    print('Initializing measures...', end="", flush=True)
     # Initialize Measure() objects based on 'measures_update' list
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts.site_energy,
@@ -10278,6 +10279,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
         opts.grid_decarb, opts.adopt_scn_restrict, opts.zero_ret,
         opts.add_typ_eff, **m) for m in measures]
+    print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -10604,11 +10606,11 @@ def main(base_dir):
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         if input_var == '1':
-            adopt_scn_user = ["Max adoption potential"]
+            opts.adopt_scn_restrict = ["Max adoption potential"]
         elif input_var == '2':
-            adopt_scn_user = ["Technical potential"]
+            opts.adopt_scn_restrict = ["Technical potential"]
     else:
-        adopt_scn_user = False
+        opts.adopt_scn_restrict = False
 
     # If a user has specified the use of an alternate regional breakout
     # than the AIA climate zones, prompt the user to directly select that
@@ -10678,7 +10680,7 @@ def main(base_dir):
                 "pumps \nor 2 to assume that retrofits are subject to the "
                 "same external heat pump conversion rates assumed for new/"
                 "replacement decisions: ")
-            if input_var not in ['1', '2']:
+            if input_var[1] not in ['1', '2']:
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         opts.exog_hp_rates = input_var
@@ -10848,7 +10850,7 @@ def main(base_dir):
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        adopt_scn_user, opts.zero_ret)
+        opts.adopt_scn_restrict, opts.zero_ret)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,

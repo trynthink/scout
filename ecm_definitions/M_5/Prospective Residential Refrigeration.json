@@ -23,13 +23,13 @@
   "energy_efficiency": 0.47,
   "energy_efficiency_units": [
     "relative savings (dynamic)",
-    2030
+    2035
   ],
   "energy_efficiency_source": {
     "notes": "ET targets",
     "source_data": null
   },
-  "installed_cost": 1242.05,
+  "installed_cost": 1236.05,
   "cost_units": "$/unit",
   "installed_cost_source": {
     "notes": "average US cost based on scout 5 yr payback",

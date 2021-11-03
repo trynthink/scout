@@ -16,13 +16,13 @@
   "energy_efficiency": 0.5,
   "energy_efficiency_units": [
     "relative savings (dynamic)",
-    2020
+    2030
   ],
   "energy_efficiency_source": {
     "notes": "null",
     "source_data": null
   },
-  "installed_cost": 781.21,
+  "installed_cost": 776.21,
   "cost_units": "$/unit",
   "installed_cost_source": {
     "notes": "null",

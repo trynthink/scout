@@ -33,10 +33,10 @@
       "pages": null
     }
   },
-  "installed_cost": 2183.27,
+  "installed_cost": 2266.27,
   "cost_units": "$/unit",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback",
+    "notes": "average US cost based on scout 5 yr payback; note that cost is based on FS condition",
     "source_data": null
   },
   "product_lifetime": 20,
