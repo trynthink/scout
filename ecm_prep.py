@@ -3471,6 +3471,12 @@ class Measure(object):
                     if life_meas < 1:
                         life_meas = 1
 
+                # Initialize base cost, performance, and lifetime data as None
+                cost_base, perf_base, life_base,  = (
+                    {yr: None for yr in self.handyvars.aeo_years} for n in
+                    range(3))
+                cost_base_units, perf_base_units = (None for n in range(2))
+
                 # For primary microsegments, set baseline technology cost,
                 # cost units, performance, performance units, and lifetime, if
                 # data are available on these parameters; if data are not
