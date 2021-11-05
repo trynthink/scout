@@ -1,8 +1,6 @@
 { 
   "name": "Ref. Case Other Com. Heating",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                   "CASO"],
+  "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "heating",
