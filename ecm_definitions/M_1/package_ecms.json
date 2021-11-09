@@ -72,8 +72,8 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
+    "Ref. Case Other Res. Heat (FS) (2030)",
     "Prospective Residential ASHP (FS)",
-    "Ref. Case Other Res. Heating (FS)",
     "Prospective Residential Ctls. (ASHP-FS)",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
@@ -83,8 +83,8 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls. CC",
   "contributing_ECMs": [
+    "Ref. Case Other Res. Heat (FS) CC (2030)",
     "Prospective Residential ASHP (FS) CC",
-    "Ref. Case Other Res. Heating (FS) CC",
     "Prospective Res. Ctls. (ASHP-FS) CC",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
@@ -227,7 +227,7 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS)",
-    "Ref. Case Other Com. Heating (FS)",
+    "Ref. Case Other Com. Heat (FS) (2030)",
     "Prospective Commercial Ctls. (ASHP-FS)",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
@@ -238,7 +238,7 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS) CC",
-    "Ref. Case Other Com. Heating (FS) CC",
+    "Ref. Case Other Com. Heat (FS) CC (2030)",
     "Prospective Com. Ctls. (ASHP-FS) CC",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",

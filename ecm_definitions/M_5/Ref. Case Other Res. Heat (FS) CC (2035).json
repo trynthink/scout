@@ -1,0 +1,47 @@
+{ 
+  "name": "Ref. Case Other Res. Heat (FS) CC (2035)",
+  "_description": "Reference case residential heating tech. not covered by other measures to pair with envelope (no savings, no incremental cost); market entry adjusted to support packaging with prospective measures",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "secondary heating"],
+  "fuel_type": ["electricity", "natural gas", "distillate", "other fuel"],
+  "technology": ["NGHP", "furnace (kerosene)", "stove (wood)", "furnace (LPG)", "all secondary heating", "GSHP"],
+  "market_entry_year": 2035,
+  "market_entry_year_source": {
+    "notes": "Market entry adjusted to support packaging with prospective measures.",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "$/unit",
+  "installed_cost_source": null,
+  "product_lifetime": 21.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Based on EIA reference case values for LPG furnace",
+    "source_data": {
+      "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2021,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+    }
+  },
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 14 15:09:37 EDT 2021"
+  }
+}

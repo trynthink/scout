@@ -73,7 +73,7 @@
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Residential ASHP (FS)",
-    "Ref. Case Other Res. Heating (FS)",
+    "Ref. Case Other Res. Heat (FS) (2035)",
     "Prospective Residential Ctls. (ASHP-FS)",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
@@ -84,7 +84,7 @@
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Residential ASHP (FS) CC",
-    "Ref. Case Other Res. Heating (FS) CC",
+    "Ref. Case Other Res. Heat (FS) CC (2035)",
     "Prospective Res. Ctls. (ASHP-FS) CC",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
@@ -227,7 +227,7 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS)",
-    "Ref. Case Other Com. Heating (FS)",
+    "Ref. Case Other Com. Heat (FS) (2035)",
     "Prospective Commercial Ctls. (ASHP-FS)",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
@@ -238,7 +238,7 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS) CC",
-    "Ref. Case Other Com. Heating (FS) CC",
+    "Ref. Case Other Com. Heat (FS) CC (2035)",
     "Prospective Com. Ctls. (ASHP-FS) CC",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
