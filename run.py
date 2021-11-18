@@ -1340,69 +1340,7 @@ class Engine(object):
         # market, and apportion the remaining fraction of this market across
         # the other competing ECMs
         added_sbmkt_fracs = self.find_added_sbmkt_fracs(
-            mkt_fracs, measures_adj, mseg_key, adopt_scheme)
-
-        # For new baseline stock segments, calculate the portion of total stock
-        # that is newly added in each year, as well as the total new stock in
-        # each year that was previously captured by a baseline technology
-        # (e.g., because an efficient technology was not yet on the market) or
-        # by an efficient technology. The sum of these fractions determines
-        # the baseline stock replacement rate calculated below for new stock
-        # segments, and is consistent across all competing measures
-        if "new" in mseg_key:
-            # Initialize the annual fractions of new stock additions and total
-            # new stock previously captured by the baseline/efficient tech.
-            new_stock_add_frac, new_stock_base, new_stock_eff = ({
-                yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
-            # Set variable that represents the total new stock in each year
-            # across all competing measures; use the first measure's data
-            # to set the variable (these data will be the same across all
-            # competing measures, as they apply to the same baseline segment)
-            new_stock_tot = measures_adj[0].markets[adopt_scheme][
-                "competed"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key]["stock"][
-                "total"]["all"]
-
-            # Update the annual fraction of new stock additions and total
-            # new stock previously captured by the base/efficient tech. given
-            # the total new stock data for each year
-            for ind, yr in enumerate(self.handyvars.aeo_years):
-                # In the first year of the time horizon, 100% of new stock has
-                # been added in that year (as 'new' stock accumulates from
-                # this year on)
-                if ind == 0:
-                    # Set new stock addition fraction to 1
-                    new_stock_add_frac[yr] = 1
-                    # If year is before earliest measure market entry year,
-                    # assign the new stock to the baseline
-                    if int(yr) < min(mkt_entry_yrs):
-                        new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
-                        new_stock_eff[yr] = 0
-                    else:
-                        new_stock_base[yr] = 0
-                        new_stock_eff[yr] = copy.deepcopy(new_stock_tot[yr])
-
-                # Otherwise, update both variables in accordance with the total
-                # new stock data for that year (if total new stock is not zero)
-                elif new_stock_tot[yr] != 0:
-                    # The new stock addition fraction divides the difference
-                    # between the current and previous year's total new stock
-                    # and the current year's total new stock
-                    new_stock_add_frac[yr] = (
-                        new_stock_tot[yr] - new_stock_tot[
-                            str(int(yr) - 1)]) / new_stock_tot[yr]
-                    # If year is before earliest measure market entry year,
-                    # assign the new stock to the baseline
-                    if int(yr) < min(mkt_entry_yrs):
-                        new_stock_base[yr] = (
-                            new_stock_tot[yr] - new_stock_tot[
-                                str(int(yr) - 1)])
-                        new_stock_eff[yr] = 0
-                    else:
-                        new_stock_base[yr] = 0
-                        new_stock_eff[yr] = (
-                            new_stock_tot[yr] - new_stock_tot[
-                                str(int(yr) - 1)])
+            mkt_fracs, measures_adj, mseg_key, adopt_scheme, years_on_mkt_all)
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1413,187 +1351,8 @@ class Engine(object):
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base = \
+                adj_list_eff, adj_list_base, adj_stk_trk = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
-
-            # Find an efficient stock turnover rate for each year in the
-            # modeling time horizon
-
-            # Use a common lifetime for efficient replacement; use baseline
-            # lifetime as an estimate that will be consistent across measures;
-            # round baseline lifetime to the nearest integer
-            eff_life = {
-                yr: round(adj["lifetime"]["baseline"][yr]) for
-                yr in self.handyvars.aeo_years}
-
-            # Initialize overall ECM turnover rate; handle case where overall
-            # ECM lifetime is an array
-            eff_turnover_rt = {
-                yr: 0 if type(eff_life[yr]) != numpy.ndarray else
-                numpy.zeros(len(eff_life[yr])) for
-                yr in self.handyvars.aeo_years}
-
-            # Loop through all years in the ECM competition time horizon
-            for ind1, yr in enumerate(years_on_mkt_all):
-                # Handle case where ECM lifetime is an array
-                if type(eff_life[yr]) == numpy.ndarray:
-                    # Loop through all elements in the ECM life array
-                    for i in range(0, len(eff_life[yr])):
-                        # Determine the future year in which the competed ECM
-                        # stock from the current year will turn over,
-                        # calculated as the current year being looped through
-                        # plus the overall ECM lifetime
-                        future_eff_turnover_yr = \
-                            ind1 + int(eff_life[yr][i]) + 1
-                        # If the future year calculated above is within the ECM
-                        # competition time horizon, set ECM stock turnover rate
-                        # for that future year as 1/overall ECM lifetime for
-                        # the current year *** DO NOT ASSUME EARLY
-                        # RETROFITS ****
-                        if future_eff_turnover_yr < len(years_on_mkt_all):
-                            if "new" in mseg_key:
-                                if new_stock_tot[self.handyvars.aeo_years[
-                                        future_eff_turnover_yr]] != 0:
-                                    eff_turnover_rt[years_on_mkt_all[
-                                        future_eff_turnover_yr]][i] = \
-                                        new_stock_eff[yr] / new_stock_tot[
-                                        self.handyvars.aeo_years[
-                                            future_eff_turnover_yr]]
-                                else:
-                                    eff_turnover_rt[years_on_mkt_all[
-                                        future_eff_turnover_yr]][i] = 0
-                            else:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]][i] = \
-                                    (1 / eff_life[yr][i])
-                # Handle case where overall lifetime across all
-                # competing ECMs is a point value
-                else:
-                    # Determine the future year in which the competed ECM stock
-                    # from the current year will turn over, calculated as the
-                    # current year being looped through plus the overall
-                    # ECM lifetime
-                    future_eff_turnover_yr = ind1 + int(eff_life[yr])
-                    # If the future year calculated above is within the ECM
-                    # competition time horizon, set ECM stock turnover rate for
-                    # that future year as 1/ECM lifetime for the current
-                    # year *** DO NOT ASSUME EARLY RETROFITS ****
-                    if future_eff_turnover_yr < len(years_on_mkt_all):
-                        if "new" in mseg_key:
-                            if new_stock_tot[self.handyvars.aeo_years[
-                                    future_eff_turnover_yr]] != 0:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]] = \
-                                    new_stock_eff[yr] / new_stock_tot[
-                                        self.handyvars.aeo_years[
-                                            future_eff_turnover_yr]]
-                            else:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]] = 0
-                        else:
-                            eff_turnover_rt[years_on_mkt_all[
-                                future_eff_turnover_yr]] = (1 / eff_life[yr])
-
-            # Find a baseline stock turnover rate for each year in the modeling
-            # time horizon
-
-            # Initialize the baseline turnover rate as all stock added in each
-            # year for a new stock segment and 1 / baseline lifetime plus
-            # the retrofit rate in each year for existing stock
-            if "new" in mseg_key:
-                base_turnover_rt = {yr: new_stock_add_frac[yr] for
-                                    yr in self.handyvars.aeo_years}
-            else:
-                # Note: do not assign base turnover in cases where no
-                # competing measures were on the market
-                base_turnover_rt = {
-                    yr: ((1 / adj["lifetime"]["baseline"][yr])
-                         + self.handyvars.retro_rate[yr]) if
-                    yr in years_on_mkt_all
-                    else 0 for yr in self.handyvars.aeo_years}
-            # Loop through all years in the modeling time horizon
-            for ind1, yr in enumerate(self.handyvars.aeo_years):
-                # Set baseline lifetime for the contributing microsegment;
-                # round baseline lifetime to the nearest integer
-                base_life = round(adj["lifetime"]["baseline"][yr])
-                # Determine the future year in which the baseline stock
-                # from the current year will turn over, calculated as the
-                # current year being looped through plus the baseline lifetime
-                future_base_turnover_yr = ind1 + int(base_life)
-                # If the future year calculated above is within the modeling
-                # time horizon, set baseline stock turnover rates for
-                # new and existing stock segment cases using the current year's
-                # baseline lifetime
-                if future_base_turnover_yr < len(self.handyvars.aeo_years):
-                    # New stock segment baseline turnover case
-                    if "new" in mseg_key:
-                        # Update baseline stock turnover rate such that it
-                        # represents the sum of newly added stock (as
-                        # initialized above) and new stock that was
-                        # captured by the baseline technology before any of
-                        # the competed measures were on the market
-
-                        # Determine the portion of the total stock in the
-                        # future turnover year represented by the captured
-                        # baseline stock in the current year; if the future
-                        # stock is zero, set fraction to zero accordingly
-                        if new_stock_tot[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] != 0:
-                            add_prev_capt = (
-                                new_stock_base[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_base_turnover_yr]])
-                        else:
-                            add_prev_capt = 0
-                        # Add any previously captured baseline stock that
-                        # is turning over in the future year to the replacement
-                        # rate for that future year
-                        base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += add_prev_capt
-                        # Safeguard ensures new turnover rate never > 1
-                        if base_turnover_rt[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] > 1:
-                            base_turnover_rt[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] = 1
-                    # Existing stock segment baseline turnover case
-                    else:
-                        # Update baseline stock turnover rate to be the
-                        # portion of total existing stock that is up for
-                        # replacement or retrofit
-                        base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] = (1 / base_life) + \
-                            self.handyvars.retro_rate[yr]
-
-            # Ensure that cumulative turnover of existing stock never exceeds 1
-            if adopt_scheme != "Technical potential" and \
-                    "existing" in mseg_key:
-                # Set variables to track cumulative turnover
-                base_turnover_rt_cum, eff_turnover_rt_cum = ({
-                    yr: 0 for yr in self.handyvars.aeo_years} for
-                    n in range(2))
-                # Loop through all years in modeling time horizon
-                for yr in self.handyvars.aeo_years:
-                    # First year in modeling time horizon
-                    if yr == self.handyvars.aeo_years[0]:
-                        # Baseline stock in current year turnover
-                        base_turnover_rt_cum[yr] = base_turnover_rt[yr]
-                        # Previously captured efficient stock turnover
-                        eff_turnover_rt_cum[yr] = eff_turnover_rt[yr]
-                    # Subsequent years in modeling time horizon
-                    else:
-                        # Baseline stock in current year turnover
-                        base_turnover_rt_cum[yr] = base_turnover_rt_cum[
-                            str(int(yr) - 1)] + base_turnover_rt[yr]
-                        # Previously captured efficient stock turnover
-                        eff_turnover_rt_cum[yr] = eff_turnover_rt_cum[
-                            str(int(yr) - 1)] + eff_turnover_rt[yr]
-                    # Cap cumulative baseline and previously captured efficient
-                    # stock turnover at 1 (no further turnover in current year)
-                    if base_turnover_rt_cum[yr] > 1:
-                        base_turnover_rt[yr] = 0
-                    if eff_turnover_rt_cum[yr] > 1:
-                        eff_turnover_rt[yr] = 0
-
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
@@ -1602,7 +1361,7 @@ class Engine(object):
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
                     adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
-                    mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
+                    mkt_entry_yrs, adj_stk_trk)
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
         """Apportion stock/energy/carbon/cost across commercial measures.
@@ -1857,69 +1616,7 @@ class Engine(object):
         # market, and apportion the remaining fraction of this market across
         # the other competing ECMs
         added_sbmkt_fracs = self.find_added_sbmkt_fracs(
-            mkt_fracs, measures_adj, mseg_key, adopt_scheme)
-
-        # For new baseline stock segments, calculate the portion of total stock
-        # that is newly added in each year, as well as the total new stock in
-        # each year that was previously captured by a baseline technology
-        # (e.g., because an efficient technology was not yet on the market) or
-        # by an efficient technology. The sum of these fractions determines
-        # the baseline stock replacement rate calculated below for new stock
-        # segments, and is consistent across all competing measures
-        if "new" in mseg_key:
-            # Initialize the annual fractions of new stock additions and total
-            # new stock previously captured by the baseline/efficient tech.
-            new_stock_add_frac, new_stock_base, new_stock_eff = ({
-                yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
-            # Set variable that represents the total new stock in each year
-            # across all competing measures; use the first measure's data
-            # to set the variable (these data will be the same across all
-            # competing measures, as they apply to the same baseline segment)
-            new_stock_tot = measures_adj[0].markets[adopt_scheme][
-                "competed"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key]["stock"][
-                "total"]["all"]
-
-            # Update the annual fraction of new stock additions and total
-            # new stock previously captured by the base/efficient tech. given
-            # the total new stock data for each year
-            for ind, yr in enumerate(self.handyvars.aeo_years):
-                # In the first year of the time horizon, 100% of new stock has
-                # been added in that year (as 'new' stock accumulates from
-                # this year on)
-                if ind == 0:
-                    # Set new stock addition fraction to 1
-                    new_stock_add_frac[yr] = 1
-                    # If year is before earliest measure market entry year,
-                    # assign the new stock to the baseline
-                    if int(yr) < min(mkt_entry_yrs):
-                        new_stock_base[yr] = copy.deepcopy(new_stock_tot[yr])
-                        new_stock_eff[yr] = 0
-                    else:
-                        new_stock_base[yr] = 0
-                        new_stock_eff[yr] = copy.deepcopy(new_stock_tot[yr])
-
-                # Otherwise, update both variables in accordance with the total
-                # new stock data for that year (if total new stock is not zero)
-                elif new_stock_tot[yr] != 0:
-                    # The new stock addition fraction divides the difference
-                    # between the current and previous year's total new stock
-                    # and the current year's total new stock
-                    new_stock_add_frac[yr] = (
-                        new_stock_tot[yr] - new_stock_tot[
-                            str(int(yr) - 1)]) / new_stock_tot[yr]
-                    # If year is before earliest measure market entry year,
-                    # assign the new stock to the baseline
-                    if int(yr) < min(mkt_entry_yrs):
-                        new_stock_base[yr] = (
-                            new_stock_tot[yr] - new_stock_tot[
-                                str(int(yr) - 1)])
-                        new_stock_eff[yr] = 0
-                    else:
-                        new_stock_base[yr] = 0
-                        new_stock_eff[yr] = (
-                            new_stock_tot[yr] - new_stock_tot[
-                                str(int(yr) - 1)])
+            mkt_fracs, measures_adj, mseg_key, adopt_scheme, years_on_mkt_all)
 
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
@@ -1930,175 +1627,8 @@ class Engine(object):
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base = \
+                adj_list_eff, adj_list_base, adj_stk_trk = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
-
-            # Use a common lifetime for efficient replacement; use baseline
-            # lifetime as an estimate that will be consistent across measures;
-            # round baseline lifetime to the nearest integer
-            eff_life = {
-                yr: round(adj["lifetime"]["baseline"][yr]) for
-                yr in self.handyvars.aeo_years}
-
-            # Initialize overall ECM turnover rate; handle case where overall
-            # ECM lifetime is an array
-            eff_turnover_rt = {
-                yr: 0 if type(eff_life[yr]) != numpy.ndarray else
-                numpy.zeros(len(eff_life[yr])) for
-                yr in self.handyvars.aeo_years}
-
-            # Loop through all years in the ECM competition time horizon
-            for ind1, yr in enumerate(years_on_mkt_all):
-                # Handle case where ECM lifetime is an array
-                if type(eff_life[yr]) == numpy.ndarray:
-                    # Loop through all elements in the ECM life array
-                    for i in range(0, len(eff_life[yr])):
-                        # Determine the future year in which the competed ECM
-                        # stock from the current year will turn over,
-                        # calculated as the current year being looped through
-                        # plus the overall ECM lifetime
-                        future_eff_turnover_yr = \
-                            ind1 + int(eff_life[yr][i]) + 1
-                        # If the future year calculated above is within the ECM
-                        # competition time horizon, set ECM stock turnover rate
-                        # for that future year as 1/overall ECM lifetime for
-                        # the current year *** DO NOT ASSUME EARLY
-                        # RETROFITS ****
-                        if future_eff_turnover_yr < len(years_on_mkt_all):
-                            if "new" in mseg_key:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]][i] = \
-                                    new_stock_eff[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_eff_turnover_yr]]
-                            else:
-                                eff_turnover_rt[years_on_mkt_all[
-                                    future_eff_turnover_yr]][i] = \
-                                    (1 / eff_life[yr][i])
-                # Handle case where overall lifetime across all
-                # competing ECMs is a point value
-                else:
-                    # Determine the future year in which the competed ECM stock
-                    # from the current year will turn over, calculated as the
-                    # current year being looped through plus the overall
-                    # ECM lifetime
-                    future_eff_turnover_yr = ind1 + int(eff_life[yr])
-                    # If the future year calculated above is within the ECM
-                    # competition time horizon, set ECM stock turnover rate for
-                    # that future year as 1/ECM lifetime for the current
-                    # year *** DO NOT ASSUME EARLY RETROFITS ****
-                    if future_eff_turnover_yr < len(years_on_mkt_all):
-                        if "new" in mseg_key:
-                            eff_turnover_rt[years_on_mkt_all[
-                                future_eff_turnover_yr]] = \
-                                new_stock_eff[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_eff_turnover_yr]]
-                        else:
-                            eff_turnover_rt[years_on_mkt_all[
-                                future_eff_turnover_yr]] = \
-                                (1 / eff_life[yr])
-
-            # Find a baseline stock turnover rate for each year in the modeling
-            # time horizon
-
-            # Initialize the baseline turnover rate as all stock added in each
-            # year for a new stock segment and 1 / baseline lifetime plus
-            # the retrofit rate in each year for existing stock
-            if "new" in mseg_key:
-                base_turnover_rt = {yr: new_stock_add_frac[yr] for
-                                    yr in self.handyvars.aeo_years}
-            else:
-                # Note: do not assign base turnover in cases where no
-                # competing measures were on the market
-                base_turnover_rt = {
-                    yr: ((1 / adj["lifetime"]["baseline"][yr])
-                         + self.handyvars.retro_rate[yr])
-                    if yr in years_on_mkt_all
-                    else 0 for yr in self.handyvars.aeo_years}
-            # Loop through all years in the modeling time horizon
-            for ind1, yr in enumerate(self.handyvars.aeo_years):
-                # Set baseline lifetime for the contributing microsegment;
-                # round baseline lifetime to the nearest integer
-                base_life = round(adj["lifetime"]["baseline"][yr])
-                # Determine the future year in which the baseline stock
-                # from the current year will turn over, calculated as the
-                # current year being looped through plus the baseline lifetime
-                future_base_turnover_yr = ind1 + int(base_life)
-                # If the future year calculated above is within the modeling
-                # time horizon, set baseline stock turnover rates for
-                # new and existing stock segment cases using the current year's
-                # baseline lifetime
-                if future_base_turnover_yr < len(self.handyvars.aeo_years):
-                    # New stock segment baseline turnover case
-                    if "new" in mseg_key:
-                        # Update baseline stock turnover rate such that it
-                        # represents the sum of newly added stock (as
-                        # initialized above) and new stock that was
-                        # captured by the baseline technology before any of
-                        # the competed measures were on the market
-
-                        # Determine the portion of the total stock in the
-                        # future turnover year represented by the captured
-                        # baseline stock in the current year; if the future
-                        # stock is zero, set fraction to zero accordingly
-                        if new_stock_tot[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] != 0:
-                            add_prev_capt = (
-                                new_stock_base[yr] / new_stock_tot[
-                                    self.handyvars.aeo_years[
-                                        future_base_turnover_yr]])
-                        else:
-                            add_prev_capt = 0
-                        # Add any previously captured baseline stock that
-                        # is turning over in the future year to the replacement
-                        # rate for that future year
-                        base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] += add_prev_capt
-                        # Safeguard ensures new turnover rate never > 1
-                        if base_turnover_rt[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] > 1:
-                            base_turnover_rt[self.handyvars.aeo_years[
-                                future_base_turnover_yr]] = 1
-                    # Existing stock segment baseline turnover case
-                    else:
-                        # Update baseline stock turnover rate to be the
-                        # portion of total existing stock that is up for
-                        # replacement or retrofit
-                        base_turnover_rt[self.handyvars.aeo_years[
-                            future_base_turnover_yr]] = (1 / base_life) + \
-                            self.handyvars.retro_rate[yr]
-
-            # Ensure that cumulative turnover of existing stock never exceeds 1
-            if adopt_scheme != "Technical potential" and \
-                    "existing" in mseg_key:
-                # Set variables to track cumulative turnover
-                base_turnover_rt_cum, eff_turnover_rt_cum = ({
-                    yr: 0 for yr in self.handyvars.aeo_years} for
-                    n in range(2))
-                # Loop through all years in modeling time horizon
-                for yr in self.handyvars.aeo_years:
-                    # First year in modeling time horizon
-                    if yr == self.handyvars.aeo_years[0]:
-                        # Baseline stock in current year turnover
-                        base_turnover_rt_cum[yr] = base_turnover_rt[yr]
-                        # Previously captured efficient stock turnover
-                        eff_turnover_rt_cum[yr] = eff_turnover_rt[yr]
-                    # Subsequent years in modeling time horizon
-                    else:
-                        # Baseline stock in current year turnover
-                        base_turnover_rt_cum[yr] = base_turnover_rt_cum[
-                            str(int(yr) - 1)] + base_turnover_rt[yr]
-                        # Previously captured efficient stock turnover
-                        eff_turnover_rt_cum[yr] = eff_turnover_rt_cum[
-                            str(int(yr) - 1)] + eff_turnover_rt[yr]
-                    # Cap cumulative baseline and previously captured efficient
-                    # stock turnover at 1 (no further turnover in current year)
-                    if base_turnover_rt_cum[yr] > 1:
-                        base_turnover_rt[yr] = 0
-                    if eff_turnover_rt_cum[yr] > 1:
-                        eff_turnover_rt[yr] = 0
-
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
@@ -2107,10 +1637,11 @@ class Engine(object):
                     mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
                     adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
-                    mkt_entry_yrs, base_turnover_rt, eff_turnover_rt)
+                    mkt_entry_yrs, adj_stk_trk)
 
     def find_added_sbmkt_fracs(
-            self, mkt_fracs, measures_adj, mseg_key, adopt_scheme):
+            self, mkt_fracs, measures_adj, mseg_key, adopt_scheme,
+            years_on_mkt_all):
         """Add to competed ECM market shares to account for sub-market scaling.
 
         Notes:
@@ -2127,6 +1658,8 @@ class Engine(object):
             measures_adj (object): Competing ECM objects.
             mseg_key (string): Competed market microsegment information.
             adopt_scheme (string): Assumed consumer adoption scenario.
+            years_on_mkt_all (list): List of years in which at least one
+                competing measure is on the market.
 
         Returns:
             Market fractions to add to each ECM's competed market share to
@@ -2148,6 +1681,9 @@ class Engine(object):
                 "contributing mseg keys and values"][mseg_key][
                 "sub-market scaling"][yr] for yr in self.handyvars.aeo_years}
             for m in measures_adj]
+        # Set a list used to verify that ECM gaining market share is on the
+        # market in a given year
+        yrs_on_mkt = [m.yrs_on_mkt for m in measures_adj]
         # Set the total number of ECMs being competed
         len_compete = len(noapply_sbmkt_fracs)
 
@@ -2181,8 +1717,13 @@ class Engine(object):
                     # Determine which of the other competing ECMs is eligible
                     # to receive the current ECM's inapplicable segment
                     # portion. NOTE: it is assumed that competing ECMs that
-                    # also do not apply to the entire segment are ineligible
-                    distrib_inds = [1 if noapply_sbmkt_fracs[mc][yr] == 0
+                    # also do not apply to the entire segment are ineligible,
+                    # as are ECMs that are not on the market in a year where
+                    # at least one other competing ECM is on the market
+                    distrib_inds = [1 if (noapply_sbmkt_fracs[mc][yr] == 0 and
+                                          (yr not in years_on_mkt_all or (
+                                           yr in years_on_mkt_all and
+                                           yr in yrs_on_mkt[mc])))
                                     else 0 for mc in range(0, len_compete)]
 
                     # Case where one or more competing ECMs applies to the full
@@ -2240,8 +1781,11 @@ class Engine(object):
                         # For each competing ECM and year, multiply the total
                         # inapplicable segment fraction by the ECM's
                         # re-distribution weights calculated above
-                        added_sbmkt_fracs[mn][yr] += (
-                            seg_redist * (sbmkt_distrib_fracs_yr[mn]))
+                        try:
+                            added_sbmkt_fracs[mn][yr] += (
+                                seg_redist * (sbmkt_distrib_fracs_yr[mn]))
+                        except FloatingPointError:  # Handle small numbers
+                            pass
 
         return added_sbmkt_fracs
 
@@ -2267,7 +1811,7 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base = \
+                adj_list_eff, adj_list_base, adj_stk_trk = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
@@ -2310,7 +1854,7 @@ class Engine(object):
                 # Set total market share adjustment
                 if secnd_adj_mktshr["original energy (total captured)"][
                         secnd_mseg_adjkey][yr] != 0:
-                    adj_frac_tot = secnd_adj_mktshr[
+                    adj_frac_t = secnd_adj_mktshr[
                         "adjusted energy (total captured)"][
                         secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
                         "original energy (total captured)"][
@@ -2319,7 +1863,7 @@ class Engine(object):
                 # originally captured baseline stock is zero for
                 # current year
                 else:
-                    adj_frac_tot = 0
+                    adj_frac_t = 0
 
                 # Adjust baseline energy/cost/carbon, efficient energy/
                 # cost/carbon, and energy/cost/carbon savings totals
@@ -2337,14 +1881,14 @@ class Engine(object):
                                 adj_out_break[
                                     "base fuel"][var][var_sub][yr] - (
                                 adj[var]["energy"]["total"][var_sub][yr]) * (
-                                1 - adj_frac_tot) * (adj_out_break[
+                                1 - adj_frac_t) * (adj_out_break[
                                     "efficient fuel splits"][var][yr])
                         else:
                             adj_out_break["base fuel"][var][var_sub][yr] = \
                                 adj_out_break[
                                     "base fuel"][var][var_sub][yr] - (
                                 adj[var]["total"][var_sub][yr]) * (
-                                    1 - adj_frac_tot) * (adj_out_break[
+                                    1 - adj_frac_t) * (adj_out_break[
                                         "efficient fuel splits"][var][yr])
                     # Update savings results
                     # Handle extra key on the adjusted microsegment data
@@ -2354,14 +1898,14 @@ class Engine(object):
                             adj_out_break["base fuel"][var]["savings"][yr] - ((
                                 adj[var]["energy"]["total"]["baseline"][yr] -
                                 adj[var]["energy"]["total"]["efficient"][yr]
-                                ) * (1 - adj_frac_tot) * (adj_out_break[
+                                ) * (1 - adj_frac_t) * (adj_out_break[
                                     "efficient fuel splits"][var][yr]))
                     else:
                         adj_out_break["base fuel"][var]["savings"][yr] = \
                             adj_out_break["base fuel"][var]["savings"][yr] - ((
                                 adj[var]["total"]["baseline"][yr] -
                                 adj[var]["total"]["efficient"][yr]) * (
-                                1 - adj_frac_tot) * (adj_out_break[
+                                1 - adj_frac_t) * (adj_out_break[
                                     "efficient fuel splits"][var][yr]))
 
                     # If the measure involves fuel switching and the user
@@ -2380,7 +1924,7 @@ class Engine(object):
                                     "efficient"][yr] - (
                                 adj[var]["energy"]["total"][
                                     "efficient"][yr]) * (
-                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                1 - adj_frac_t) * (1 - adj_out_break[
                                     "efficient fuel splits"][var][yr])
                             # Update savings result; note that savings
                             # for a switched to fuel will be negative and
@@ -2393,7 +1937,7 @@ class Engine(object):
                                     "savings"][yr] + (
                                 adj[var]["energy"]["total"][
                                     "efficient"][yr]) * (
-                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                1 - adj_frac_t) * (1 - adj_out_break[
                                     "efficient fuel splits"][var][yr])
                         else:
                             # Update efficient result
@@ -2402,7 +1946,7 @@ class Engine(object):
                                 adj_out_break["switched fuel"][var][
                                     "efficient"][yr] - (
                                 adj[var]["total"]["efficient"][yr]) * (
-                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                1 - adj_frac_t) * (1 - adj_out_break[
                                     "efficient fuel splits"][var][yr])
                             # Update savings result
                             adj_out_break["switched fuel"][var][
@@ -2410,7 +1954,7 @@ class Engine(object):
                                 adj_out_break["switched fuel"][var][
                                     "savings"][yr] + (
                                 adj[var]["total"]["efficient"][yr]) * (
-                                1 - adj_frac_tot) * (1 - adj_out_break[
+                                1 - adj_frac_t) * (1 - adj_out_break[
                                     "efficient fuel splits"][var][yr])
 
                 # Adjust total and competed baseline and efficient
@@ -2430,7 +1974,7 @@ class Engine(object):
                         mast["cost"]["carbon"]["total"][x][yr], \
                         mast["energy"]["total"][x][yr], \
                         mast["carbon"]["total"][x][yr] = [
-                            x[yr] - (y[yr] * (1 - adj_frac_tot)) for x, y in
+                            x[yr] - (y[yr] * (1 - adj_frac_t)) for x, y in
                             zip(mastlist[1:5], adjlist[1:5])]
                     mast["cost"]["energy"]["competed"][x][yr], \
                         mast["cost"]["carbon"]["competed"][x][yr], \
@@ -2442,7 +1986,7 @@ class Engine(object):
                         adj["cost"]["carbon"]["total"][x][yr], \
                         adj["energy"]["total"][x][yr], \
                         adj["carbon"]["total"][x][yr] = [
-                            (x[yr] * adj_frac_tot) for x in adjlist[1:5]]
+                            (x[yr] * adj_frac_t) for x in adjlist[1:5]]
                     adj["cost"]["energy"]["competed"][x][yr], \
                         adj["cost"]["carbon"]["competed"][x][yr], \
                         adj["energy"]["competed"][x][yr], \
@@ -2602,8 +2146,8 @@ class Engine(object):
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
                 mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                    adj_list_eff, adj_list_base = self.compete_adj_dicts(
-                        m, mseg, adopt_scheme)
+                    adj_list_eff, adj_list_base, adj_stk_trk = \
+                    self.compete_adj_dicts(m, mseg, adopt_scheme)
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -2725,9 +2269,9 @@ class Engine(object):
                         for var_sub in ["baseline", "efficient"]:
                             # Set appropriate post-competition adjustment frac.
                             if var_sub == "baseline":
-                                adj_frac_tot = adj_frac_base
+                                adj_frac_t = adj_frac_base
                             else:
-                                adj_frac_tot = adj_frac_eff
+                                adj_frac_t = adj_frac_eff
 
                             # Handle extra key on the adjusted microsegment
                             # data for the cost variables ("energy")
@@ -2738,7 +2282,7 @@ class Engine(object):
                                         "base fuel"][var][var_sub][yr] - (
                                     adj[var]["energy"][
                                         "total"][var_sub][yr]) * (
-                                        1 - adj_frac_tot) * (adj_out_break[
+                                        1 - adj_frac_t) * (adj_out_break[
                                             "efficient fuel splits"][var][yr])
                             else:
                                 adj_out_break[
@@ -2746,7 +2290,7 @@ class Engine(object):
                                     adj_out_break[
                                         "base fuel"][var][var_sub][yr] - (
                                     adj[var]["total"][var_sub][yr]) * (
-                                        1 - adj_frac_tot) * (adj_out_break[
+                                        1 - adj_frac_t) * (adj_out_break[
                                             "efficient fuel splits"][var][yr])
                         # Update savings results
                         # Handle extra key on the adjusted microsegment data
@@ -3023,6 +2567,234 @@ class Engine(object):
         # must be adjusted to reflect measure competition/interaction
         adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
             "contributing mseg keys and values"][mseg_key]
+
+        # Set up separate set of stock data needed to determine stock turnover
+        # adjustments as part of the measure competition calculations
+
+        # Handle case where measure has multiple end uses that include heating
+        # and cooling or cooling and other end uses and the contributing
+        # microsegment to be adjusted applies to cooling (for the first case)
+        # or something other than cooling (for the second). In the first case,
+        # which represents e.g. a HP measure or a controls measure, only
+        # heating stock data will be tracked and turnover adjustments should be
+        # based on heating technologies. In the second case, which represents
+        # e.g., a controls measure where heating is not specified, only cooling
+        # stock data will be tracked and turnover adjustments should be based
+        # on cooling technologies.
+        if len(m.end_use) > 1 and ((
+            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
+            or ("heating" not in m.end_use["primary"] and (
+                "cooling" in m.end_use["primary"] and
+                "cooling" not in mseg_key))):
+            # Decompose contributing microsegment key information into a list,
+            # to be modified per comment above
+            key_list = list(literal_eval(mseg_key))
+            # Determine the building type of the contributing microsegment
+            if any([x in mseg_key for x in [
+                    "single family home", "mobile home",
+                    "multi family home"]]):
+                mseg_bldg_sect = "residential"
+            else:
+                mseg_bldg_sect = "commercial"
+            # Case 1: heating is in the measure end uses, while cooling is in
+            # the current contributing microsegment
+            if "heating" in m.end_use["primary"] and "cooling" in mseg_key:
+                # Reset end use
+                key_list[4] = "heating"
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Cooling tech. is non-HP; find appropriate heating tech.
+                    # to switch to
+                    if any([x in mseg_key for x in ["room AC", "central AC"]]):
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+                        if "resistance heat" in m.technology["primary"]:
+                            # Reset tech.
+                            key_list[-2] = "resistance heat"
+                            # Reset fuel
+                            key_list[3] = "electricity"
+                        else:
+                            tech_search = [x for x in [
+                                "furnace (NG)", "boiler (NG)",
+                                "boiler (distillate)", "furnace (distillate)",
+                                "furnace (LPG)", "furnace (kerosene)",
+                                "stove (wood)"] if x
+                                in m.technology["primary"]]
+                            if len(tech_search) == 0:
+                                raise ValueError(
+                                    "Contributing microsegment " + mseg_key +
+                                    " has unexpected heating technology "
+                                    "information for stock turnover "
+                                    "calculations")
+                            else:
+                                # Reset tech.
+                                key_list[-2] = tech_search[0]
+                                # Reset fuel
+                                if "NG" in tech_search[0]:
+                                    key_list[3] = "natural gas"
+                                elif "distillate" in tech_search[0]:
+                                    key_list[3] = "distillate"
+                                else:
+                                    key_list[3] = "other fuel"
+                    # Cooling tech. is HP; heating tech. is identical and no
+                    # further action is needed
+                    elif any([x in mseg_key for x in [
+                            "ASHP", "GSHP", "NGHP"]]):
+                        pass
+                    # If unexpected cooling tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key + " has"
+                            "unexpected cooling technology information "
+                            "for stock turnover calculations")
+                # Commercial case
+                else:
+                    # Cooling tech. is non-HP; find appropriate heating tech.
+                    # to switch to
+                    if any([x in mseg_key for x in [
+                            "rooftop_AC", "scroll_chiller",
+                            "res_type_central_AC", "reciprocating_chiller",
+                            "centrifugal_chiller", "wall-window_room_AC",
+                            "screw_chiller"]]):
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+                        tech_search = [x for x in [
+                            "elec_boiler", "electric_res-heat", "gas_boiler",
+                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
+                            m.technology["primary"]]
+                        if len(tech_search) == 0:
+                            raise ValueError(
+                                "Contributing microsegment " + mseg_key +
+                                " has unexpected heating technology "
+                                "information for stock turnover calculations")
+                        else:
+                            # Reset tech.
+                            key_list[-2] = tech_search[0]
+                            # Reset fuel
+                            if "elec" in tech_search[0]:
+                                key_list[3] = "electricity"
+                            elif "gas" in tech_search[0]:
+                                key_list[3] = "natural gas"
+                            else:
+                                key_list[3] = "distillate"
+                    # Cooling tech. is HP; select analogous heating HP tech.
+                    # name
+                    elif "comm_GSHP-cool" in mseg_key:
+                        key_list[-2] = "comm_GSHP-heat"
+                    elif "rooftop_ASHP-cool" in mseg_key:
+                        key_list[-2] = "rooftop_ASHP-heat"
+                    elif "gas_eng-driven_RTHP-cool" in mseg_key:
+                        key_list[-2] = "gas_eng-driven_RTHP-heat"
+                    elif "res_type_gasHP-cool" in mseg_key:
+                        key_list[-2] = "res_type_gasHP-heat"
+                    # If unexpected cooling tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key + " has"
+                            "unexpected cooling technology "
+                            "information for stock turnover calculations")
+            # Case 2: heating is not in the measure end uses, cooling is in the
+            # measure end uses, and cooling is not in the current contributing
+            # microsegment
+            elif "heating" not in m.end_use["primary"] and (
+                    "cooling" in m.end_use["primary"] and "cooling" not in
+                    mseg_key):
+                # Reset end use
+                key_list[4] = "cooling"
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                        "central AC", "ASHP", "room AC", "GSHP", "NGHP"] if
+                        x in m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if tech_search[0] == "NGHP":
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+                # Commercial case
+                else:
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                        "rooftop_AC", "rooftop_ASHP-cool",
+                        "reciprocating_chiller", "scroll_chiller",
+                        "centrifugal_chiller", "screw_chiller",
+                        "res_type_central_AC", "comm_GSHP-cool",
+                        "wall-window_room_AC", "gas_eng-driven_RTAC",
+                        "gas_chiller", "res_type_gasHP-cool",
+                        "gas_eng-driven_RTHP-cool"] if x in
+                        m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if "gas" in tech_search[0]:
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+            else:
+                raise ValueError(
+                    "Contributing microsegment " + mseg_key +
+                    " has unexpected information for stock turnover "
+                    "calculations")
+            # After making the adjustments above, convert the modified
+            # contributing microsegment information back into a string
+            # to use in keying in needed stock data
+            mseg_key_stk_trk = str(tuple(key_list))
+            # For fuel switching measures with exogenously-specified switching
+            # rates, the heating technology will be specified in contributing
+            # microsegment data with an "-FS" appended; develop an alternate
+            # stock data key to switch to to handle this case
+            key_list[-2] = key_list[-2] + "-FS"
+            mseg_key_stk_trk_alt = str(tuple(key_list))
+        # Handle all other cases, where stock data will be available for
+        # the contributing microsegment to be adjusted as-is
+        else:
+            # Use contributing microsegment info. as-is to key in stock data
+            mseg_key_stk_trk = mseg_key
+            # Alternate stock data key does not apply in this case
+            mseg_key_stk_trk_alt = None
+
+        # Pull data for stock turnover calculations for the current
+        # contributing microsegment, using the data key information from above
+
+        # Handle case where data are keyed in with additional "-FS" in the
+        # technology information (use alternate stock data key from above)
+        try:
+            adj_stk_trk = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
+        except KeyError:
+            try:
+                adj_stk_trk = m.markets[adopt_scheme]["competed"][
+                    "mseg_adjust"]["contributing mseg keys and values"][
+                    mseg_key_stk_trk_alt]["stock"]
+            except KeyError:
+                raise ValueError(
+                    "Stock turnover data could not be keyed in "
+                    "for contributing microsegment " + mseg_key + " using the "
+                    "keys " + mseg_key_stk_trk + " or " + mseg_key_stk_trk_alt)
+
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
         # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
@@ -3053,13 +2825,13 @@ class Engine(object):
             adj["carbon"]["competed"]["efficient"]]
 
         return mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-            adj_list_eff, adj_list_base
+            adj_list_eff, adj_list_base, adj_stk_trk
 
     def compete_adj(
             self, adj_fracs, added_sbmkt_fracs, mast,
             adj_out_break, adj, mast_list_base, mast_list_eff, adj_list_eff,
             adj_list_base, yr, mseg_key, measure, adopt_scheme, mkt_entry_yrs,
-            base_turnover_rt, eff_turnover_rt):
+            adj_stk_trk):
         """Scale down measure totals to reflect competition.
 
         Notes:
@@ -3095,8 +2867,8 @@ class Engine(object):
             measure (object): Measure needing competition adjustments.
             adopt_scheme (string): Assumed consumer adoption scenario.
             mkt_entry_yrs (list): Mkt. entry years for all competing measures.
-            base_turnover_rt (dict): Baseline stock turnover rate by year.
-            eff_turnover_rt (dict): ECM stock turnover rate by year.
+            adj_stk_trk (dict): Stock data used to calculate baseline turnover
+                rates and stock-weighted market shares in the given year.
         """
         # Set market shares for the competed stock in the current year, and
         # for the weighted combination of the competed stock for the current
@@ -3105,21 +2877,37 @@ class Engine(object):
 
         # Set primary microsegment competed and total weighted market shares
 
-        # Calculate the market share weight based on turnover
-        # in the given year
-        wt_comp_yr = base_turnover_rt[yr] + eff_turnover_rt[yr]
+        # Calculate the competed stock market share weight based on turnover
+        # in the given year; also calculate the total cumulative captured
+        # stock share for the measure up until the current year
 
-        # Competed stock market share (represents adjustment for current
-        # year)
-        adj_frac_comp = wt_comp_yr * (adj_fracs[yr] + added_sbmkt_fracs[yr])
+        # Competed stock market share (adjustment for current year only)
+        adj_c = adj_fracs[yr] + added_sbmkt_fracs[yr]
+
+        # For non-technical potential cases only, add a flag for measures
+        # with market entry years that begin after the minimum market entry
+        # year across competing measures. Such measures' efficient data require
+        # further adjustment to ensure that the relative performance of the
+        # captured stock after applying market shares is consistent with that
+        # of the captured stock before the market share scaling was applied
+        if adopt_scheme != "Technical potential" and int(
+                measure.market_entry_year) > min(mkt_entry_yrs):
+            # Add flag
+            delay_entry_adj = True
+            # Initialize dicts used to make the required adjustment to the
+            # measure's efficient data
+            rp_adj, save_c, tot_c = ({
+                v: 0 for v in ["energy", "carbon", "cost"]} for n in range(3))
+        else:
+            delay_entry_adj = False
+            rp_adj, save_c, tot_c = (None for n in range(3))
 
         # Weight the market share adjustment for the stock captured by the
         # measure in the current year against that of the stock captured
         # by the measure in all previous years, yielding a total weighted
         # market share adjustment
-
         if int(yr) < min(mkt_entry_yrs):
-            adj_frac_tot = adj_fracs[yr] + added_sbmkt_fracs[yr]
+            adj_frac_t = adj_fracs[yr] + added_sbmkt_fracs[yr]
         else:
             # Determine the subset of all years leading up to current year in
             # the modeling time horizon
@@ -3130,33 +2918,136 @@ class Engine(object):
             # Loop through the above set of years, successively updating the
             # weighted market share using a simple moving average
             for ind, wyr in enumerate(weighting_yrs):
+                # For non-technical potential cases, calculate the market
+                # share weight based on competed stock turnover in the given
+                # year, and (if necessary) track the cumulative relative
+                # performance of the stock the measure competes for each year.
+                # For a technical potential case, market share weight is 1
+                # since all stock is competed in each year
+                if adopt_scheme != "Technical potential":
+                    # Stock turnover rate is ratio of competed to total stock
+                    # in given weighting year; handle zero total stock
+                    if adj_stk_trk["total"]["all"][wyr] != 0:
+                        wt_comp_wyr = (adj_stk_trk["competed"]["all"][wyr] /
+                                       adj_stk_trk["total"]["all"][wyr])
+                    else:
+                        wt_comp_wyr = 0
+
+                    # If needed, update efficient data adjustment for measures
+                    # with delayed market entry; adjustment represents the
+                    # relative performance of all stock the measure competes
+                    # for and captures in the time it is on the market
+                    if delay_entry_adj and \
+                            adj_stk_trk["total"]["measure"][wyr] > 0:
+                        # Calculate the relative performance for each output
+                        # metric of interest
+                        for v in ["energy", "carbon", "cost"]:
+                            # Handle unique cost data structure; focus on
+                            # energy costs for this adjustment
+                            if v == "cost":
+                                # Update numerator in relative performance
+                                # calculation (competed-captured savings)
+                                save_c[v] += (adj[v][
+                                    "energy"]["competed"]["baseline"][wyr] -
+                                    adj[v][
+                                    "energy"]["competed"]["efficient"][wyr])
+                                # Update denominator in relative performance
+                                # calculation (baseline competed-captured)
+                                tot_c[v] += (adj[v][
+                                    "energy"]["competed"]["baseline"][wyr])
+                            # Energy/carbon metrics
+                            else:
+                                # Update numerator in relative performance
+                                # calculation (competed-captured savings)
+                                save_c[v] += (
+                                    adj[v]["competed"]["baseline"][wyr] -
+                                    adj[v]["competed"]["efficient"][wyr])
+                                # Update denominator in relative performance
+                                # calculation (baseline competed-captured)
+                                tot_c[v] += (
+                                    adj[v]["competed"]["baseline"][wyr])
+
+                else:
+                    wt_comp_wyr = 1
+
+                # Set the measure's long-run market share for the current
+                # weighting year
+                mms_lr = adj_fracs[wyr] + added_sbmkt_fracs[wyr]
+
                 # First year in competed time horizon or any year in a
                 # technical potential scenario; weighted market share equals
                 # market share for the captured stock in this year only (a
                 # "long run" market share value assuming 100% stock turnover)
                 if ind == 0 or adopt_scheme == "Technical potential":
-                    adj_frac_tot = (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
+                    adj_frac_t = mms_lr
                 # Subsequent year for a max adoption potential scenario;
                 # weighted market share averages market share for captured
                 # stock in current year and all previous years
                 else:
-                    # Calculate the market share weight based on turnover
-                    # in the given year
-                    wt_comp_wyr = base_turnover_rt[wyr] + eff_turnover_rt[wyr]
-
                     # Weighted market share equals the "long run" market share
                     # for the current year weighted by the fraction of the
                     # total market that is competed, plus any market share
                     # captured in previous years
-                    adj_frac_tot = \
-                        (1 - wt_comp_wyr) * adj_frac_tot + \
-                        wt_comp_wyr * (adj_fracs[wyr] + added_sbmkt_fracs[wyr])
+                    adj_frac_t = (1 - wt_comp_wyr) * adj_frac_t + \
+                        wt_comp_wyr * mms_lr
                     # Ensure that total weighted market share is never above 1
-                    if type(adj_frac_tot) != numpy.ndarray and \
-                            adj_frac_tot > 1:
-                        adj_frac_tot = 1
-                    elif type(adj_frac_tot) == numpy.ndarray:
-                        adj_frac_tot[numpy.where(adj_frac_tot > 1)] = 1
+                    if type(adj_frac_t) != numpy.ndarray and adj_frac_t > 1:
+                        adj_frac_t = 1
+                    elif type(adj_frac_t) == numpy.ndarray:
+                        adj_frac_t[numpy.where(adj_frac_t > 1)] = 1
+
+        # Initialize baseline and efficient data market share adjustment
+        # fractions using the overall adjustment fraction calculated above
+        adj_t_b, adj_t_e = ({
+            v: adj_frac_t for v in ["stock", "energy", "carbon", "cost"]}
+            for n in range(2))
+
+        # If necessary, implement adjustment to ensure that relative
+        # performance of measure post-market share adjustment is consistent
+        # with its relative performance pre-market share adjustment
+        if delay_entry_adj:
+            # Make unique calculation for each output metric of interest
+            for var in ["energy", "carbon", "cost"]:
+                # Cumulative competed relative performance equals cumulatively
+                # competed-captured savings for the metric divided by
+                # cumulatively competed-captured baseline; handle zero
+                # denominator
+                if tot_c[var] != 0:
+                    rp_adj[var] = 1 - (save_c[var] / tot_c[var])
+                else:
+                    rp_adj[var] = 1
+
+                # Since the relative performance adjustment is calculated
+                # relative to baseline data, develop a ratio that first
+                # translates efficient to baseline values, before the
+                # relative performance factor is applied
+
+                # Handle cost data structure separately, focus on energy costs
+                if var == "cost":
+                    try:
+                        b_e_ratio = \
+                            adj[var]["energy"]["total"]["baseline"][yr] / \
+                            adj[var]["energy"]["total"]["efficient"][yr]
+                    except (ZeroDivisionError, FloatingPointError):
+                        b_e_ratio = 1
+                # Energy/carbon data
+                else:
+                    try:
+                        b_e_ratio = adj[var]["total"]["baseline"][yr] / \
+                            adj[var]["total"]["efficient"][yr]
+                    except (ZeroDivisionError, FloatingPointError):
+                        b_e_ratio = 1
+
+                # Ensure that calculated ratio is a finite number
+                if (type(b_e_ratio) == numpy.ndarray and not all(
+                    numpy.isfinite(b_e_ratio))) or (
+                    type(b_e_ratio) != numpy.ndarray and not numpy.isfinite(
+                        b_e_ratio)):
+                    b_e_ratio = 1
+
+                # Further scale efficient market share adjustment fraction
+                # on the basis of the factors calculated above
+                adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3191,13 +3082,13 @@ class Engine(object):
                     adj["energy"]["competed"]["efficient"][yr]
                 # Adjusted total captured stock
                 secnd_adj_mktshr["adjusted energy (total captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    (adj["energy"]["total"]["efficient"][yr] * adj_frac_tot)
+                    secnd_mseg_adjkey][yr] += (
+                        adj["energy"]["total"]["efficient"][yr] *
+                        adj_t_e["stock"])
                 # Adjusted competed and captured stock
                 secnd_adj_mktshr["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += (
-                        adj["energy"]["competed"]["efficient"][yr] *
-                        adj_frac_comp)
+                        adj["energy"]["competed"]["efficient"][yr] * adj_c)
 
         # Adjust baseline energy/cost/carbon, efficient energy/cost/carbon, and
         # energy/cost/carbon savings totals grouped by climate zone, building
@@ -3207,6 +3098,12 @@ class Engine(object):
         for var in ["energy", "cost", "carbon"]:
             # Update baseline and efficient results
             for var_sub in ["baseline", "efficient"]:
+                # Adjustment fraction is unique to baseline/efficient results
+                if var_sub == "baseline":
+                    adj_t = adj_t_b[var]
+                else:
+                    adj_t = adj_t_e[var]
+
                 # Select correct fuel split data
                 if var_sub != "baseline":
                     fs_eff_splt_var = adj_out_break[
@@ -3220,12 +3117,12 @@ class Engine(object):
                     adj_out_break["base fuel"][var][var_sub][yr] = \
                         adj_out_break["base fuel"][var][var_sub][yr] - (
                         adj[var]["energy"]["total"][var_sub][yr]) * (
-                        1 - adj_frac_tot) * fs_eff_splt_var
+                        1 - adj_t) * fs_eff_splt_var
                 else:
                     adj_out_break["base fuel"][var][var_sub][yr] = \
                         adj_out_break["base fuel"][var][var_sub][yr] - (
                         adj[var]["total"][var_sub][yr]) * (
-                            1 - adj_frac_tot) * fs_eff_splt_var
+                            1 - adj_t) * fs_eff_splt_var
 
             # Update savings results
             # Handle extra key on the adjusted microsegment data for the cost
@@ -3233,19 +3130,21 @@ class Engine(object):
             if var == "cost":
                 adj_out_break["base fuel"][var]["savings"][yr] = \
                     adj_out_break["base fuel"][var]["savings"][yr] - ((
-                        adj[var]["energy"]["total"]["baseline"][yr] -
-                        adj[var]["energy"]["total"]["efficient"][yr] *
+                        adj[var]["energy"]["total"]["baseline"][yr] * (
+                            1 - adj_t_b[var]) -
+                        adj[var]["energy"]["total"]["efficient"][yr] * (
+                            1 - adj_t_e[var])) *
                         adj_out_break[
-                            "efficient fuel splits"][var][yr]) * (
-                        1 - adj_frac_tot))
+                            "efficient fuel splits"][var][yr])
             else:
                 adj_out_break["base fuel"][var]["savings"][yr] = \
                     adj_out_break["base fuel"][var]["savings"][yr] - ((
-                        adj[var]["total"]["baseline"][yr] -
-                        adj[var]["total"]["efficient"][yr] *
+                        adj[var]["total"]["baseline"][yr] * (
+                            1 - adj_t_b[var]) -
+                        adj[var]["total"]["efficient"][yr] * (
+                            1 - adj_t_e[var])) *
                         adj_out_break[
-                            "efficient fuel splits"][var][yr]) * (
-                        1 - adj_frac_tot))
+                            "efficient fuel splits"][var][yr])
 
             # If the measure involves fuel switching and the user has broken
             # out results by fuel type, make adjustments to the efficient, and
@@ -3260,7 +3159,7 @@ class Engine(object):
                             "efficient"][yr] - (
                         adj[var]["energy"]["total"][
                             "efficient"][yr]) * (
-                        1 - adj_frac_tot) * (1 - adj_out_break[
+                        1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
                     # Update savings result; note that savings
                     # for a switched to fuel will be negative and
@@ -3272,7 +3171,7 @@ class Engine(object):
                             "savings"][yr] + (
                         adj[var]["energy"]["total"][
                             "efficient"][yr]) * (
-                        1 - adj_frac_tot) * (1 - adj_out_break[
+                        1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
                 else:
                     # Update efficient result
@@ -3280,69 +3179,95 @@ class Engine(object):
                         adj_out_break["switched fuel"][var][
                             "efficient"][yr] - (
                         adj[var]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_tot) * (1 - adj_out_break[
+                        1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
                     # Update savings result
                     adj_out_break["switched fuel"][var]["savings"][yr] = \
                         adj_out_break["switched fuel"][var][
                             "savings"][yr] + (
                         adj[var]["total"]["efficient"][yr]) * (
-                        1 - adj_frac_tot) * (1 - adj_out_break[
+                        1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
 
-        # Adjust the total and competed stock captured by the measure by
-        # the appropriate measure market share, both overall and for the
-        # current contributing microsegment
+        # Adjust the total and competed stock/stock cost captured by the
+        # measure by the appropriate measure market share, both overall and
+        # for the current contributing microsegment
+
+        # Overall total measure stock
         mast["stock"]["total"]["measure"][yr] = \
             mast["stock"]["total"]["measure"][yr] - \
-            adj["stock"]["total"]["measure"][yr] * (1 - adj_frac_tot)
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+        # Overall total measure stock cost
+        mast["cost"]["stock"]["total"]["efficient"][yr] = \
+            mast["cost"]["stock"]["total"]["efficient"][yr] - \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * (
+                1 - adj_t_e["stock"])
+        # Overall competed measure stock
         mast["stock"]["competed"]["measure"][yr] = \
             mast["stock"]["competed"]["measure"][yr] - \
-            adj["stock"]["competed"]["measure"][yr] * (1 - adj_frac_comp)
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+        # Overall competed measure stock cost
+        mast["cost"]["stock"]["competed"]["efficient"][yr] = \
+            mast["cost"]["stock"]["competed"]["efficient"][yr] - \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * (1 - adj_c)
+        # Current contributing mseg total measure stock
         adj["stock"]["total"]["measure"][yr] = \
-            adj["stock"]["total"]["measure"][yr] * adj_frac_tot
+            adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+        # Current contributing mseg total measure stock cost
+        adj["cost"]["stock"]["total"]["efficient"][yr] = \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * adj_t_e["stock"]
+        # Current contributing mseg competed measure stock
         adj["stock"]["competed"]["measure"][yr] = \
-            adj["stock"]["competed"]["measure"][yr] * adj_frac_comp
+            adj["stock"]["competed"]["measure"][yr] * adj_c
+        # Current contributing mseg competed measure stock cost
+        adj["cost"]["stock"]["competed"]["efficient"][yr] = \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
 
-        # Adjust total and competed baseline and efficient data by measure
-        # market share
+        # Adjust total and competed baseline and efficient energy, carbon,
+        # and cost data by measure market share
         for x in ["baseline", "efficient"]:
             # Determine appropriate adjustment data to use
             # for baseline or efficient case
             if x == "baseline":
                 mastlist, adjlist = [mast_list_base, adj_list_base]
+                adj_t = adj_t_b
             else:
                 mastlist, adjlist = [mast_list_eff, adj_list_eff]
+                adj_t = adj_t_e
 
             # Adjust the total and competed energy, carbon, and associated cost
             # savings by the appropriate measure market share, both overall
             # and for the current contributing microsegment
-            mast["cost"]["stock"]["total"][x][yr], \
-                mast["cost"]["energy"]["total"][x][yr], \
-                mast["cost"]["carbon"]["total"][x][yr], \
-                mast["energy"]["total"][x][yr], \
+
+            # Adjust total energy/carbon costs using energy cost adj factors
+            mast["cost"]["energy"]["total"][x][yr], \
+                mast["cost"]["carbon"]["total"][x][yr] = [
+                x[yr] - (y[yr] * (1 - adj_t["cost"])) for x, y in
+                zip(mastlist[1:3], adjlist[1:3])]
+            adj["cost"]["energy"]["total"][x][yr], \
+                adj["cost"]["carbon"]["total"][x][yr] = [
+                (x[yr] * adj_t["cost"]) for x in adjlist[1:3]]
+            # Adjust energy/carbon
+            mast["energy"]["total"][x][yr], \
                 mast["carbon"]["total"][x][yr] = [
-                    x[yr] - (y[yr] * (1 - adj_frac_tot)) for x, y in
-                    zip(mastlist[0:5], adjlist[0:5])]
-            mast["cost"]["stock"]["competed"][x][yr], \
-                mast["cost"]["energy"]["competed"][x][yr], \
+                x[yr] - (y[yr] * (1 - adj_t[v])) for x, y, v in
+                zip(mastlist[3:5], adjlist[3:5], ["energy", "carbon"])]
+            adj["energy"]["total"][x][yr], \
+                adj["carbon"]["total"][x][yr] = [
+                (x[yr] * adj_t[v]) for x, v in zip(
+                    adjlist[3:5], ["energy", "carbon"])]
+            # Adjust competed energy/carbon and energy/carbon costs
+            mast["cost"]["energy"]["competed"][x][yr], \
                 mast["cost"]["carbon"]["competed"][x][yr], \
                 mast["energy"]["competed"][x][yr], \
                 mast["carbon"]["competed"][x][yr] = [
-                    x[yr] - (y[yr] * (1 - adj_frac_comp)) for x, y in
-                    zip(mastlist[5:], adjlist[5:])]
-            adj["cost"]["stock"]["total"][x][yr], \
-                adj["cost"]["energy"]["total"][x][yr], \
-                adj["cost"]["carbon"]["total"][x][yr], \
-                adj["energy"]["total"][x][yr], \
-                adj["carbon"]["total"][x][yr] = [
-                    (x[yr] * adj_frac_tot) for x in adjlist[0:5]]
-            adj["cost"]["stock"]["competed"][x][yr], \
-                adj["cost"]["energy"]["competed"][x][yr], \
+                    x[yr] - (y[yr] * (1 - adj_c)) for x, y in
+                    zip(mastlist[6:], adjlist[6:])]
+            adj["cost"]["energy"]["competed"][x][yr], \
                 adj["cost"]["carbon"]["competed"][x][yr], \
                 adj["energy"]["competed"][x][yr], \
                 adj["carbon"]["competed"][x][yr] = [
-                    (x[yr] * adj_frac_comp) for x in adjlist[5:]]
+                    (x[yr] * adj_c) for x in adjlist[6:]]
 
     def finalize_outputs(self, adopt_scheme, trim_out, trim_yrs):
         """Prepare selected measure outputs to write to a summary JSON file.
@@ -3849,6 +3774,8 @@ def main(base_dir):
         savings and financial metrics for each measure, and write a summary
         of key results to an output JSON.
     """
+    # Raise numpy errors as exceptions
+    numpy.seterr('raise')
     # Initialize energy outputs variable (elements: S-S calculation method;
     # daily hour range of focus for TSV metrics (all hours, peak, low demand
     # hours); output type for TSV metrics (energy or power); calculation type

@@ -7964,15 +7964,19 @@ class Measure(object):
                     dict1[k] = dict1[k] / reduce_num
         return dict1
 
-    def adj_pkg_mseg_keyvals(self, cmsegs, base_adj, eff_adj, base_eff_flag):
+    def adj_pkg_mseg_keyvals(self, cmsegs, base_adj, eff_adj, eff_adj_c,
+                             base_eff_flag, comp_flag):
         """ Adjust contributing microsegments in a package to remove overlaps.
 
         Args:
             cmsegs (dict): Contributing microsegment data to adjust.
             base_adj (dict): Adjustment factors for baseline mseg values.
-            eff_adj (dict): Adjustment factors for efficient mseg values.
+            eff_adj (dict): Adjustment factors for total efficient mseg values.
+            eff_adj_c (dict): Adj. factors for competed efficient mseg values.
             base_eff_flag (boolean): Flag to determine whether current
                 adjustment is to a baseline or efficient value.
+            comp_flag (boolean): Flag to determine whether current adjustment
+                is to a total or competed value.
 
         Returns:
             Dict of adjusted contributing microsegments for a measure in a
@@ -7988,8 +7992,15 @@ class Measure(object):
             # not broken out by these keys and will yield a flag of None.
             if k in ["baseline", "efficient"]:
                 base_eff_flag = k
+            # If a "competed" key is encountered, flag the adjustment
+            # appropriately (in some cases competed values are adjusted
+            # differently than total values)
+            if k in "competed":
+                comp_flag = True
             if isinstance(i, dict):
-                self.adj_pkg_mseg_keyvals(i, base_adj, eff_adj, base_eff_flag)
+                self.adj_pkg_mseg_keyvals(
+                    i, base_adj, eff_adj, eff_adj_c,
+                    base_eff_flag, comp_flag)
             else:
                 # Set the appropriate overlap adjustment factor based on
                 # the flag for baseline/efficient adjustments; if this flag
@@ -8004,12 +8015,19 @@ class Measure(object):
                         adj_fact = base_adj
                 elif base_eff_flag == "efficient" and k in \
                         self.handyvars.aeo_years:
+                    # If a competed efficient value adjustment is flagged, use
+                    # the appropriate competed adjustment fraction; otherwise,
+                    # use the total efficient adjustment fraction
+                    if comp_flag:
+                        eff_adj_fact = eff_adj_c
+                    else:
+                        eff_adj_fact = eff_adj
                     # Handle cases where the efficient adjustment is not
                     # broken out by year
                     try:
-                        adj_fact = eff_adj[k]
+                        adj_fact = eff_adj_fact[k]
                     except TypeError:
-                        adj_fact = eff_adj
+                        adj_fact = eff_adj_fact
                 else:
                     try:
                         adj_fact = base_adj[k]
@@ -8577,10 +8595,10 @@ class MeasurePackage(Measure):
         else:
             self.meas_typ = "full service"
         self.climate_zone, self.bldg_type, self.structure_type, \
-            self.fuel_type, self.technology = (
-                [] for n in range(5))
-        self.end_use, self.technology_type = (
-            {"primary": [], "secondary": None} for n in range(2))
+            self.fuel_type = (
+                [] for n in range(4))
+        self.end_use, self.technology, self.technology_type = (
+            {"primary": [], "secondary": None} for n in range(3))
         self.markets = {}
         self.eff_fs_splt = {
             a_s: {} for a_s in handyvars.adopt_schemes}
@@ -8683,8 +8701,9 @@ class MeasurePackage(Measure):
                 list(set(m.end_use["primary"]) -
                      set(self.end_use["primary"])))
             # Add measure technologies
-            self.technology.extend(
-                list(set(m.technology) - set(self.technology)))
+            self.technology["primary"].extend(
+                list(set(m.technology["primary"]) -
+                     set(self.technology["primary"])))
             # Add measure technology types
             self.technology_type["primary"].extend(
                 list(set(m.technology_type["primary"]) -
@@ -9169,7 +9188,7 @@ class MeasurePackage(Measure):
             # operations in the loop
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions
-            base_adj, eff_adj = self.find_base_eff_adj_fracs(
+            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
                 msegs_meas_init, cm_key, adopt_scheme,
                 name_meas, htcl_key_match, overlap_meas)
             # Adjust energy, carbon, and energy/carbon cost data based on
@@ -9181,7 +9200,7 @@ class MeasurePackage(Measure):
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
                     tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
                     tot_save_orig_ecost = self.make_base_eff_adjs(
-                        k, cm_key, msegs_meas, base_adj, eff_adj)
+                        k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
                 # Make adjustments to energy/carbon/cost output breakouts
                 mseg_out_break_adj = self.find_adj_out_break_cats(
                     k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
@@ -9223,7 +9242,8 @@ class MeasurePackage(Measure):
             # Adjust stock and stock cost data based to be consistent with the
             # energy-based baseline adjustment fractions calculated above
             self.adj_pkg_mseg_keyvals(
-                msegs_meas["stock"], base_adj, base_adj, base_eff_flag=None)
+                msegs_meas["stock"], base_adj, base_adj, base_adj,
+                base_eff_flag=None, comp_flag=None)
             # Adjust measure lifetime for contributing microsegment such that
             # when added to package, it averages with the lifetime data for
             # overlapping measures in the package for the current mseg
@@ -9341,7 +9361,7 @@ class MeasurePackage(Measure):
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions; directly
             # overlapping measures are none in this case
-            base_adj, eff_adj = self.find_base_eff_adj_fracs(
+            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
                     msegs_meas_init, cm_key, adopt_scheme, name_meas,
                     htcl_key_match, overlap_meas="")
             # Adjust energy, carbon, and energy/carbon cost data based on
@@ -9353,7 +9373,7 @@ class MeasurePackage(Measure):
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
                     tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
                     tot_save_orig_ecost = self.make_base_eff_adjs(
-                        k, cm_key, msegs_meas, base_adj, eff_adj)
+                        k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
                 # Make adjustments to energy/carbon/cost output breakouts
                 mseg_out_break_adj = self.find_adj_out_break_cats(
                     k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
@@ -9562,25 +9582,27 @@ class MeasurePackage(Measure):
             # The relative performance of the overlapping envelope measures
             # will be used to adjust down efficient case energy/carbon for the
             # HVAC equipment measures
-            eff_adj = {
+            eff_adj, eff_adj_comp = ({
                 yr: rp_overlp_htcl[yr] for yr in self.handyvars.aeo_years}
+                for n in range(2))
         # Case 2: direct overlap between two equipment measures (same mseg)
         elif overlap_meas:
             # Initialize an additional adjustment to account for sub-market
             # scaling fractions across overlapping measure(s)
             sbmkt_wt_meas = {yr: 0 for yr in self.handyvars.aeo_years}
-            # Establish a common baseline microsegment value for calculations
+            # Establish common baseline microsegment values for calculations
             # below; baseline microsegments will not be identical in cases
             # where one or more of the overlapping measures has a sub-market
             # scaling fraction, and the inapplicable portion of the common
             # baseline must be accounted for across measures
-            common_base = {}
+            common_base, common_base_comp = ({} for n in range(2))
             sbmkts_all = {}
             for yr in self.handyvars.aeo_years:
                 # Record the baseline microsegments for all
                 # measures in the given year (e.g., the current measure being
                 # adjusted and those that overlap for the given baseline
                 # microsegment), and store in a list
+                # Total
                 base_mkts_all = [
                     msegs_meas["energy"]["total"]["baseline"][yr]]
                 base_mkts_all.extend([
@@ -9588,9 +9610,20 @@ class MeasurePackage(Measure):
                         "contributing mseg keys and values"][cm_key][
                         "energy"]["total"]["baseline"][yr] for
                     x in overlap_meas])
+                # Competed
+                base_mkts_all_comp = [
+                    msegs_meas["energy"]["competed"]["baseline"][yr]]
+                base_mkts_all_comp.extend([
+                    x.markets[adopt_scheme]["mseg_adjust"][
+                        "contributing mseg keys and values"][cm_key][
+                        "energy"]["competed"]["baseline"][yr] for
+                    x in overlap_meas])
                 # Common baseline is set to the max baseline mseg value across
                 # measures (since differences are driven by down-scaling)
+                # Total
                 common_base[yr] = max(base_mkts_all)
+                # Competed
+                common_base_comp[yr] = max(base_mkts_all_comp)
                 # Record the difference between the baseline mseg value of each
                 # measure and the common baseline value
                 sbmkts_all[yr] = [common_base[yr] - x for x in base_mkts_all]
@@ -9609,6 +9642,16 @@ class MeasurePackage(Measure):
                     "energy"]["total"]["efficient"][yr]) for x in range(
                     len(overlap_meas))] for yr in
                 self.handyvars.aeo_years}
+            # Find competed savings of overlapping measure(s); store in list
+            save_comp_overlp = {yr: [(
+                overlap_meas[x].markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"][cm_key][
+                    "energy"]["competed"]["baseline"][yr] -
+                overlap_meas[x].markets[adopt_scheme]["mseg_adjust"][
+                    "contributing mseg keys and values"][cm_key][
+                    "energy"]["competed"]["efficient"][yr]) for x in range(
+                    len(overlap_meas))] for yr in
+                self.handyvars.aeo_years}
             # Establish the ratio of the measure's savings in the
             # current microsegment to those of the overlapping measure(s)
             save_wt_meas = {yr: (
@@ -9623,14 +9666,6 @@ class MeasurePackage(Measure):
                 yr: [save_overlp[yr][x] / sum(save_overlp[yr]) if
                      sum(save_overlp[yr]) != 0 else 0 for x in range(
                      len(save_overlp[yr]))] for yr in self.handyvars.aeo_years}
-            # Calculate overall relative performance of overlapping measures (
-            # excluding the current measure being adjusted), relative to the
-            # common baseline across all measures being considered
-            rp_overlp = {yr: (1 - (
-                sum([x * y for x, y in zip(
-                    save_wt_overlp[yr], save_overlp[yr])]) / common_base[yr]))
-                if common_base[yr] != 0 else 1
-                for yr in self.handyvars.aeo_years}
             # If applicable, update the sub-market adjustment for each year
             # in the analysis time horizon
             for yr in self.handyvars.aeo_years:
@@ -9700,22 +9735,80 @@ class MeasurePackage(Measure):
                     1 / (len(overlap_meas) + 1) + sbmkt_wt_meas[yr])
                     if sum(save_overlp[yr]) == 0 else sbmkt_wt_meas[yr]) for
                 yr in self.handyvars.aeo_years}
+
+            # Determine relative performance of the current measure in the
+            # cumulatively competed-captured portion of the stock for each year
+            rp_comp_meas = {yr: (1 - (
+                # Measure savings (cumulative)
+                save_meas[yr] / (
+                    # Find ratio of measure savings to cumulatively competed
+                    # energy use in the given year
+                    # Cumulatively competed-captured fraction for measure
+                    (msegs_meas["stock"]["total"]["measure"][yr] /
+                     msegs_meas["stock"]["total"]["all"][yr]) *
+                    # Total baseline energy for measure
+                    msegs_meas["energy"]["total"]["baseline"][yr])))
+                if (msegs_meas["stock"]["total"]["measure"][yr] != 0 and
+                    msegs_meas["stock"]["total"]["all"][yr] != 0 and
+                    msegs_meas["energy"]["total"]["baseline"][yr] != 0) else 1
+                for yr in self.handyvars.aeo_years}
+
+            # Calculate overall relative performance of overlapping measures (
+            # excluding the current measure being adjusted) in the total and
+            # competed efficient stock
+
+            # Total efficient relative performance adjustment; note that this
+            # factor is ultimately applied to the measure's efficient data
+            # after already considering adjustment by the baseline factor
+            # above; thus, it is calculated relative to the efficient data
+            # post-adjustment by that factor
+            rp_overlp = {yr: (1 - (
+                # Total weighted savings from overlapping measures (cumulative)
+                # calculated relative to current measure's baseline
+                (((sum([x * y for x, y in zip(
+                    save_wt_overlp[yr], save_overlp[yr])]) / common_base[yr]) *
+                  msegs_meas["energy"]["total"]["baseline"][yr]) *
+                 # Scale overlapping savings to reflect baseline adjustment
+                 # for the current measure, and again to reflect the
+                 # relative performance of the current measure in the competed
+                 # stock
+                 base_adj[yr] * rp_comp_meas[yr]) /
+                # Find ratio of adjusted overlapping savings to the
+                # current measure's efficient data post-baseline adjustment
+                (msegs_meas["energy"]["total"]["efficient"][yr] *
+                 base_adj[yr])))
+                if (msegs_meas["energy"]["total"]["efficient"][yr] *
+                    base_adj[yr] != 0) else 1
+                for yr in self.handyvars.aeo_years}
+            # Competed efficient relative performance adjustment; this will
+            # adjust the current measure's competed-efficient results by the
+            # relative performance of the overlapping measure(s)
+            rp_overlp_comp = {yr: (1 - (
+                # Total savings from overlapping measures (cumulative)
+                sum([x * y for x, y in zip(
+                    save_wt_overlp[yr], save_comp_overlp[yr])]) /
+                common_base_comp[yr]))
+                if common_base_comp[yr] != 0 else 1
+                for yr in self.handyvars.aeo_years}
+
             # Final efficient adjustment factor adds multiplication of the
             # relative performance of the overlapping measure(s) to the
-            # baseline adjustment calculation
-            eff_adj = {yr: (save_wt_meas[yr] + sbmkt_wt_meas[yr]) *
-                       rp_overlp[yr] if save_wt_meas[yr] != 0 else (
-                        1 / (len(overlap_meas) + 1) + sbmkt_wt_meas[yr]
-                        if sum(save_overlp[yr]) == 0 else sbmkt_wt_meas[yr])
+            # initial adjustment calculation
+            # Implement total efficient adjustment
+            eff_adj = {yr: base_adj[yr] * rp_overlp[yr]
                        for yr in self.handyvars.aeo_years}
+            # Implement competed efficient adjustment
+            eff_adj_comp = {yr: base_adj[yr] * rp_overlp_comp[yr]
+                            for yr in self.handyvars.aeo_years}
         # If neither case 1 or 2 above, set baseline/efficient adjustments to 1
         else:
-            base_adj, eff_adj = (
+            base_adj, eff_adj, eff_adj_comp = (
               {yr: 1 for yr in self.handyvars.aeo_years} for n in range(2))
 
-        return base_adj, eff_adj
+        return base_adj, eff_adj, eff_adj_comp
 
-    def make_base_eff_adjs(self, k, cm_key, msegs_meas, base_adj, eff_adj):
+    def make_base_eff_adjs(
+            self, k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c):
         """Apply overlap adjustments for measure mseg in a package.
 
         Args:
@@ -9725,7 +9818,8 @@ class MeasurePackage(Measure):
             msegs_meas (dict): Data for the contributing microsegment of an
                 individual measure that is being merged into the package.
             base_adj (dict): Overlap adjustments for baseline data.
-            eff_adj (dict): Overlap adjustments for efficient data
+            eff_adj (dict): Overlap adjustments for total efficient data.
+            eff_adj_c (dict): Overlap adjustments for competed efficient data.
 
         Returns:
             Adjusted baseline/efficient energy and carbon data that accounts
@@ -9764,11 +9858,13 @@ class MeasurePackage(Measure):
                 for yr in self.handyvars.aeo_years}
         # Adjust msegs using base/efficient adjustment fractions
         self.adj_pkg_mseg_keyvals(
-            mseg_adj, base_adj, eff_adj, base_eff_flag=None)
+            mseg_adj, base_adj, eff_adj, eff_adj_c, base_eff_flag=None,
+            comp_flag=None)
         # If applicable, adjust energy/carbon cost msegs
         if mseg_cost_adj:
             self.adj_pkg_mseg_keyvals(
-                mseg_cost_adj, base_adj, eff_adj, base_eff_flag=None)
+                mseg_cost_adj, base_adj, eff_adj, eff_adj_c,
+                base_eff_flag=None, comp_flag=None)
 
         return mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
             tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
@@ -10923,8 +11019,9 @@ def main(base_dir):
                 # package was not previously written and must be regenerated)
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
-                   all([meas_dict["name"] not in y for y in listdir(
-                        path.join(*handyfiles.ecm_compete_data))]) or \
+                   all([meas_dict["name"] != path.splitext(
+                        path.splitext(y)[0])[0] for y in listdir(
+                            path.join(*handyfiles.ecm_compete_data))]) or \
                    (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >
                     stat(path.join(
                         "supporting_data", "ecm_prep.json")).st_mtime) or \
@@ -11153,7 +11250,8 @@ def main(base_dir):
         # envelope costs (if applicable) than in the current run
         if any([x["name"] in m["contributing_ECMs"] for
                 x in meas_toprep_indiv]) or len(m_exist) == 0 or \
-            all([m["name"] not in y for y in listdir(path.join(
+            all([m["name"] != path.splitext(path.splitext(y)[0])[0] for
+                y in listdir(path.join(
                 *handyfiles.ecm_compete_data))]) or (len(m_exist) == 1 and (
                     sorted(m["contributing_ECMs"]) !=
                     sorted(m_exist[0]["contrib_ECMs"]) or (
