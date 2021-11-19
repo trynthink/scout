@@ -172,8 +172,14 @@ class UsefulInputFiles(object):
         # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
         if grid_decarb is not False:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-decarb.json")
+            # Set either an extreme or moderate grid decarbonization case,
+            # depending on what the user selected
+            if grid_decarb[0] == "1":
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions-decarb.json")
+            else:
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions-decarb_lite.json")
             self.tsv_cost_data = ("supporting_data", "tsv_data",
                                   "tsv_cost-decarb.json")
             self.tsv_carbon_data = ("supporting_data", "tsv_data",
@@ -585,8 +591,29 @@ class UsefulVars(object):
                 except ValueError:
                     print("Error reading in '" +
                           handyfiles.hp_convert_rates + "'")
+            # Set a priori assumptions about which non-elec-HP heating/cooling
+            # technologies in commercial buildings are part of an RTU config.
+            # vs. not; this is necessary to choose the appropriate exogenous
+            # fuel switching rates for such technologies, if applicable
+
+            # Use RTU HP fuel switching rates for furnace and/or small electric
+            # resistance + AC tech.
+            self.com_RTU_fs_tech = [
+                "gas_furnace", "oil_furnace", "electric_res-heat",
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+            # Use non-RTU HP fuel switching rates for boiler/chiller tech.
+            # and/or gas chillers/HPs
+            self.com_nRTU_fs_tech = [
+                "elec_boiler", "gas_eng-driven_RTHP-heat",
+                "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
+                "scroll_chiller", "reciprocating_chiller",
+                "centrifugal_chiller", "screw_chiller",
+                "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool",
+                "gas_eng-driven_RTHP-cool"]
         else:
-            self.hp_rates = None
+            self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (
+                None for n in range(3))
+
         # Set valid region names and regional output categories
         if regions == "AIA":
             valid_regions = [
@@ -3217,17 +3244,23 @@ class Measure(object):
 
                 # If applicable, determine the rate of conversion from baseline
                 # equipment to heat pumps (including fuel switching cases and
-                # like-for-like replacements of e.g., resistance heating/WH).
-                # Currently, assume only heating/water heating end uses are
-                # covered by these exogenous rates, and ensure that these rates
-                # are only assessed for equipment microsegments (e.g., they do
-                # not apply to envelope component heating energy msegs);
-                # equipment cooling microsegments that are linked with the
-                # heating microsegments are subject to the rates; set to None
-                # otherwise
+                # same fuel replacements of e.g., resistance heating/WH).
+                # Assume only heating, secondary heating, water heating, and
+                # cooking end uses are covered by these exogenous rates, and
+                # ensure that these rates are only assessed for equipment
+                # microsegments (e.g., they do not apply to envelope component
+                # heating energy msegs); equipment cooling microsegments that
+                # are linked with the heating microsegments are subject to the
+                # rates; set to None otherwise
                 if self.handyvars.hp_rates and "demand" not in mskeys and (any(
-                    [x in mskeys for x in ["heating", "water heating"]]) or (
+                    [x in mskeys for x in ["secondary heating", "heating",
+                                           "water heating", "cooking"]]) or (
                         link_htcl_fs_rates and "cooling" in mskeys)):
+                    # Map secondary heating end use to heating HP switch rates
+                    if mskeys[4] == "secondary heating":
+                        hp_eu_key = "heating"
+                    else:
+                        hp_eu_key = mskeys[4]
                     # Map the current mseg region to the regionality of the
                     # HP conversion rate data
                     reg = [r[0] for r in
@@ -3247,57 +3280,142 @@ class Measure(object):
                     # None if no data are available for the current mseg
                     try:
                         hp_rate = hp_rate_dat[
-                            mskeys[3]][mskeys[4]][mskeys[-2]][mskeys[-1]]
+                            mskeys[3]][hp_eu_key][mskeys[-2]][mskeys[-1]]
                     except KeyError:
                         try:
                             hp_rate = hp_rate_dat[
-                                mskeys[3]][mskeys[4]]["all"][mskeys[-1]]
+                                mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
                         except KeyError:
-                            # HP conversion rates for NGHP cooling msegs are
-                            # not directly addressed in the exogenous file
-                            # structure but should be set to the same as
-                            # NGHP heating
-                            if "cooling" in mskeys and "NGHP" in mskeys:
+                            if hp_eu_key == "cooling":
+                                # HP conversion rates for NGHP cooling msegs
+                                # are not directly addressed in the exogenous
+                                # file structure but should be set to the same
+                                # as NGHP heating
+                                if "NGHP" in mskeys:
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            "heating"][mskeys[-2]][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # HP conversion rates for electric cooling
+                                # msegs attached to heating msegs that are fuel
+                                # switching from fossil to electric and subject
+                                # to the HP rates should be subject to the same
+                                # rates; attach cooling scaling to NG rates (
+                                # NG most prevalent fossil-based heating
+                                # technology)
+                                elif self.fuel_switch_to == "electricity":
+                                    # Separately handle different bldg. types
+                                    if bldg_sect == "residential":
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "natural gas"]["heating"][
+                                                "furnace (NG)"][mskeys[-1]]
+                                        except KeyError:
+                                            try:
+                                                hp_rate = hp_rate_dat[
+                                                    "natural gas"]["heating"][
+                                                    "all"][mskeys[-1]]
+                                            except KeyError:
+                                                hp_rate = None
+                                    elif any([mskeys[-2] in x for x in [
+                                        self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                        # Determine whether the current cooling
+                                        # tech. falls into switch from an RTU
+                                        # or other tech.
+                                        if mskeys[-2] in \
+                                                self.handyvars.com_RTU_fs_tech:
+                                            tech_key = "RTUs"
+                                        else:
+                                            tech_key = "all other"
+                                        # Try resultant tech. key
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "natural gas"]["heating"][
+                                                tech_key][mskeys[-1]]
+                                        except KeyError:
+                                            hp_rate = None
+                                    else:
+                                        hp_rate = None
+                                # HP conversion rates for electric cooling
+                                # msegs attached to electric resistance heating
+                                # msegs that are subject to the HP rates should
+                                # be subject to the same rates
+                                elif self.fuel_switch_to is None:
+                                    # Separately handle different bldg. types
+                                    if bldg_sect == "residential":
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "electricity"]["heating"][
+                                                "resistance heat"][mskeys[-1]]
+                                        except KeyError:
+                                            try:
+                                                hp_rate = hp_rate_dat[
+                                                    "electricity"]["heating"][
+                                                    "all"][mskeys[-1]]
+                                            except KeyError:
+                                                hp_rate = None
+                                    elif any([mskeys[-2] in x for x in [
+                                        self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                        # Determine whether the current cooling
+                                        # tech. falls into switch from an RTU
+                                        # or other tech.
+                                        if mskeys[-2] in \
+                                                self.handyvars.com_RTU_fs_tech:
+                                            tech_key = "RTUs"
+                                        else:
+                                            tech_key = "all other"
+                                        # Try resultant tech. key
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "electricity"]["heating"][
+                                                tech_key][mskeys[-1]]
+                                        except KeyError:
+                                            hp_rate = None
+                                    else:
+                                        hp_rate = None
+                            # Handle switch from commercial heating in RTUs vs.
+                            # other technologies
+                            elif hp_eu_key == "heating" and \
+                                bldg_sect == "commercial" and any([
+                                    mskeys[-2] in x for x in [
+                                        self.handyvars.com_RTU_fs_tech,
+                                        self.handyvars.com_nRTU_fs_tech]]):
+                                # Determine whether the current heating tech.
+                                # falls into switch from an RTU or other tech.
+                                if mskeys[-2] in \
+                                        self.handyvars.com_RTU_fs_tech:
+                                    tech_key = "RTUs"
+                                else:
+                                    tech_key = "all other"
+                                # Try resultant tech. key
                                 try:
                                     hp_rate = hp_rate_dat[mskeys[3]][
-                                        "heating"][mskeys[-2]][mskeys[-1]]
+                                        hp_eu_key][tech_key][mskeys[-1]]
                                 except KeyError:
                                     hp_rate = None
-                            # HP conversion rates for electric cooling msegs
-                            # attached to heating msegs that are fuel
-                            # switching from fossil to electric and subject to
-                            # the HP rates should be subject to the same rates;
-                            # attach cooling scaling to NG rates, and use NG
-                            # furnaces if those rates are resolved by
-                            # technology (NG furnaces are most prevalent
-                            # fossil-based heating technology)
-                            elif self.fuel_switch_to == "electricity" and \
-                                    "cooling" in mskeys:
+                            # Residential secondary heating
+                            elif mskeys[4] == "secondary heating" and \
+                                    bldg_sect == "residential":
+                                # For the tech key, use resistance and/or
+                                # furnace tech. depending on the fuel
+                                if mskeys[3] == "electricity":
+                                    tech_key = "resistance heat"
+                                elif mskeys[3] == "distillate":
+                                    tech_key = "furnace (distillate)"
+                                elif mskeys[3] == "natural gas":
+                                    tech_key = "furnace (NG)"
+                                else:
+                                    tech_key = "furnace (LPG)"
+
+                                # Try resultant tech. key
                                 try:
-                                    hp_rate = hp_rate_dat["natural gas"][
-                                        "heating"]["furnace (NG)"][mskeys[-1]]
+                                    hp_rate = hp_rate_dat[mskeys[3]][
+                                        hp_eu_key][tech_key][mskeys[-1]]
                                 except KeyError:
-                                    try:
-                                        hp_rate = hp_rate_dat["natural gas"][
-                                            "heating"]["all"][mskeys[-1]]
-                                    except KeyError:
-                                        hp_rate = None
-                            # HP conversion rates for electric cooling msegs
-                            # attached to electric resistance heating msegs
-                            # that are subject to the HP rates should be
-                            # subject to the same rates
-                            elif self.fuel_switch_to is None and \
-                                    "cooling" in mskeys:
-                                try:
-                                    hp_rate = hp_rate_dat["electricity"][
-                                        "heating"]["resistance heat"][
-                                        mskeys[-1]]
-                                except KeyError:
-                                    try:
-                                        hp_rate = hp_rate_dat["electricity"][
-                                            "heating"]["all"][mskeys[-1]]
-                                    except KeyError:
-                                        hp_rate = None
+                                    hp_rate = None
                             else:
                                 hp_rate = None
                 else:
@@ -10805,8 +10923,8 @@ def main(base_dir):
         while input_var[0] not in ['1', '2']:
             input_var[0] = input(
                 "\nEnter 1 to assume full grid decarbonization by 2035 \n"
-                "or 2 to assume that the grid decarbonizes to roughly 60% of "
-                "AEO reference case electricity emissions by 2050: ")
+                "or 2 to assume that grid emissions are reduced 80% from "
+                "current levels by 2050: ")
             if input_var[0] not in ['1', '2']:
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
