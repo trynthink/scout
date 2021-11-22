@@ -60,7 +60,7 @@ class UsefulInputFiles(object):
             national, to assign in certain cases to non-fuel switching
             microsegments under high grid decarb case.
         ss_data_altreg (tuple): Emissions/price data, EMM- or state-resolved.
-        ss_data_altreg_nonfs (tuple): Base-case emissions/price data, EMM– or
+        ss_data_altreg_nonfs (tuple): Base-case emissions/price data, EMM- or
             state-resolved, to assign in certain cases to non-fuel switching
             microsegments under high grid decarb case.
         tsv_load_data (tuple): Time sensitive energy demand data.
