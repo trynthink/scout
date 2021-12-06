@@ -10836,7 +10836,7 @@ def main(base_dir):
     # than the AIA climate zones, prompt the user to directly select that
     # alternate regional breakout (NEMS EMM or State)
     if opts and opts.alt_regions is True:
-        input_var = 0
+        input_var = str(opts.alt_regions_breakdown)
         # Determine the regional breakdown to use (NEMS EMM (1) vs. State (2)
         # vs. AIA (3))
         while input_var not in ['1', '2', '3']:
@@ -11672,6 +11672,15 @@ if __name__ == "__main__":
     # Optional flag for non-AIA regional breakdown
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
+    parser.add_argument("--alt_regions_breakdown",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --alt_regions is not specificed."
+                        " 0 (default) interactive specification"
+                        " 1 use an EIA NEMS Electricity Market Model (EMM)"
+                        " 2 use a state geograhpical breakdown"
+                        " 3 use an AIA climate zome geograhpical breakdown")
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
