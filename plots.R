@@ -693,7 +693,7 @@ for (a in 1:length(adopt_scenarios)){
 	                    
 	                    # If data values exist, add them to the ECM's energy/carbon/cost
 	                    # savings-by-filter variable vector initialized above
-	                    if (length(r_agg_temp)>1){
+	                    if (length(r_agg_temp)>0){
 	                      # Determine which index to use in adding the retrieved data to
 	                      # the ECM's energy/carbon/cost savings-by-filter variable vector
 	                      if (fv == 1){
@@ -703,10 +703,11 @@ for (a in 1:length(adopt_scenarios)){
 	                      }else{
 	                        index = levthree
 	                      }
-	                      # Add retrieved data to ECM's savings-by-filter variable vector;
+                        # Add retrieved data to ECM's savings-by-filter variable vector;
                         # handle case where end use savings are further split out by
                         # fuel type ('Electric' vs. 'Non-Electric')
-	                      if (length(r_agg_temp) == 2){
+	                      if (("Electric"%in%names(r_agg_temp)) |
+                            ("Non-Electric"%in%names(r_agg_temp))){
                           for (fuel in c("Electric", "Non-Electric")){
                             if (length(r_agg_temp[[fuel]])!=0){
                               add_val[index] = add_val[index] +
@@ -774,22 +775,32 @@ for (a in 1:length(adopt_scenarios)){
 		          	# results_finmets[(m - 1), 6] = czones_out_col[czone_match]
 		          # }
 		          # Determine appropriate ECM point shape for applicable building type
-		          # Set ECM's applicable building type
+		          # Set ECM's applicable building type and vintage class
 		          bldg = results_database_filters$'Applicable Building Classes'
-		          # Match applicable building classes to building type names used in plotting
-		          bldg_match = matrix(NA, length(bclasses_out_finmets))
-		          for (b in 1:length(bclasses_out_finmets)){
-		          	if (length(which(bldg%in%bclasses_out_finmets[[b]][[1]])>0)){
-		          		bldg_match[b] = b
-		          	}
+		          # Match applicable building type and vintage classes to building type names used in plotting
+		          bldg_match = matrix(NA, length(bclasses_out_finmets) * length(bclasses_out_finmets[[1]]))
+		          # Initialize index to use in flagging applicable building type/vintage class
+              b_vi_i = 0
+              # Loop through possible building types
+              for (b in 1:length(bclasses_out_finmets)){
+                # Loop through possible building vintages
+                for (vi in 1:length(bclasses_out_finmets[[1]])){
+		          	  # Advance building type/vintage index
+                  b_vi_i = b_vi_i + 1
+                  # Store building type index if match is found for given building type/vintage
+                  if (length(which(bldg%in%bclasses_out_finmets[[b]][[vi]])>0)){
+		          		  bldg_match[b_vi_i] = b
+		          	  }
+                } 
 		          }
-		          # If more than one building type name was matched, set the point shape to
+
+              # If more than one building type was matched, set the point shape to
 		          # a triangle, representative of 'Multiple' applicable building types;
 		          # otherwise set to the point shape appropriate for the matched building type
-		          if (length(bldg_match[is.finite(bldg_match)])>1){
+		          if (length(unique(bldg_match))>1){
 		          	results_finmets[(m - 1), 7] = 24
 		          }else{
-		          	results_finmets[(m - 1), 7] = bclasses_out_finmets_shp[bldg_match[is.finite(bldg_match)]]
+                results_finmets[(m - 1), 7] = bclasses_out_finmets_shp[bldg_match[is.finite(bldg_match)]]
 		          } 
 				  # Determine appropriate ECM point fill color for applicable end uses
 		          # Set ECM's applicable end uses
