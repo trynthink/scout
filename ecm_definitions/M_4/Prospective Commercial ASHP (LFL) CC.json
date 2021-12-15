@@ -9,7 +9,7 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat"],
-  "market_entry_year": 2030,
+  "market_entry_year": 2035,
   "market_entry_year_source": {
     "notes": "null",
     "source_data": null

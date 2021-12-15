@@ -26,6 +26,7 @@ ecm_results.json
 agg_results.json
 run_setup.json
 ecm_prep.json
+ecm_prep_env_cf.json
 glob_run_vars.json
 
 # Presentation files #

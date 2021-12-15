@@ -8,7 +8,7 @@
   "end_use": "water heating",
   "fuel_type": "electricity",
   "technology": "elec_water_heater",
-  "market_entry_year": 2030,
+  "market_entry_year": 2035,
   "energy_efficiency": 3.9,
   "comment": "using EIA NEMS appendix efficinecy rise from electric resistance to HP high performance",
   "energy_efficiency_units": "BTU out/BTU in",
