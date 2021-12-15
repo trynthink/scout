@@ -329,7 +329,7 @@ class UsefulVars(object):
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
                  health_costs, split_fuel, floor_start, exog_hp_rates,
-                 adopt_scn_usr, zero_ret):
+                 adopt_scn_usr, retro_set):
         # Choose default adoption scenarios if user doesn't specify otherwise
         if adopt_scn_usr is False:
             self.adopt_schemes = [
@@ -359,15 +359,65 @@ class UsefulVars(object):
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
         self.aeo_years_summary = ["2030", "2050"]
-        # Set early retrofit rate; force to zero if desired by user
-        if zero_ret is not False:
+        # Set early retrofit rate assumptions
+
+        # Default case (zero early retrofits) or user has set early retrofits
+        # to zero
+        if retro_set is False or retro_set[0] == "1":
             self.retro_rate = {yr: 0 for yr in self.aeo_years}
+        # User has set early retrofits to non-zero
         else:
-            self.retro_rate = {
-                yr: 0.001 + (0.009/((2025 - aeo_min - 1))) * (
-                    int(yr) - aeo_min) if int(yr) < 2025 else (
-                    0.01 + (0.01/(2035 - 2025 - 1)) * (int(yr) - 2025) if
-                    int(yr) < 2035 else 0.02) for yr in self.aeo_years}
+            # Set default assumptions about starting values for early
+            # retrofits at the technology component-level. Values are based
+            # on survey questions about renovations in CBECS and the American
+            # Housing Survey, which cover lighting, HVAC, and envelope for
+            # commercial and HVAC and envelope for residential, respectively.
+            # Water heating values are assumed to be identical to HVAC
+            # values for the given building type, and residential lighting
+            # values are assumed to be identical to commercial values. Values
+            # for all other components are set to zero.
+            start_vals = {
+                "commercial": {
+                    "lighting": 0.015, "HVAC": 0.009, "roof": 0.006,
+                    "windows": 0.003, "wall": 0.003,
+                    "water heating": 0.009, "other": 0
+                },
+                "residential": {
+                    "lighting": 0.015, "HVAC": 0.005, "roof": 0.0027,
+                    "windows": 0.0023, "wall": 0.0006,
+                    "water heating": 0.005, "other": 0
+                }
+            }
+
+            # Set multipliers that progressively scale up the early retrofit
+            # values over time
+
+            # User desires no change in starting values for early retrofits
+            # across the modeled time horizon; set multipliers to 1 across yrs.
+            if retro_set[0] == "2":
+                multipliers = {yr: 1 for yr in self.aeo_years}
+            # User specified a rate multiplier and year by which it is
+            # achieved; assume linear increase in early retrofit rates from
+            # starting values to the increased values by the indicated year,
+            # and maintain increased value for all years thereafter
+            else:
+                # Pull in user-defined rate multiplier and year by which it
+                # is achieved
+                rate_inc, yr_inc = retro_set[1:3]
+                # Calculate progressively increasing multipliers to the early
+                # retrofit rate based on user settings
+                multipliers = {yr: 1 + ((rate_inc - 1) / (yr_inc - aeo_min)) *
+                               (int(yr) - aeo_min) if int(yr) < yr_inc else
+                               rate_inc for yr in self.aeo_years}
+            # For each year, multiply starting early retrofit rate values by
+            # rate multipliers to obtain final early retrofit rates by year;
+            # nest by building type and technology component, consistent with
+            # the structure of the starting values above
+            self.retro_rate = {bldg: {cmpo: {
+                yr: start_vals[bldg][cmpo] * multipliers[yr]
+                for yr in self.aeo_years} for cmpo in start_vals[bldg].keys()}
+                for bldg in start_vals.keys()}
+
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -1781,7 +1831,7 @@ class Measure(object):
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
             floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            zero_ret, add_typ_eff, **kwargs):
+            retro_set, add_typ_eff, rp_persist, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1797,12 +1847,14 @@ class Measure(object):
             "captured_energy_ss": False, "alt_regions": False,
             "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
-            "adopt_scn_restrict": False, "zero_ret": False,
-            "add_typ_eff": False}
+            "adopt_scn_restrict": False, "retro_set": False,
+            "add_typ_eff": False, "rp_persist": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
             self.energy_outputs["captured_energy_ss"] = True
+        if rp_persist is True:
+            self.energy_outputs["rp_persist"] = True
         if regions != "AIA":
             self.energy_outputs["alt_regions"] = regions
         if tsv_metrics is not False:
@@ -1832,8 +1884,8 @@ class Measure(object):
             self.energy_outputs["grid_decarb"] = grid_decarb
         if adopt_scn_usr is not False:
             self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
-        if zero_ret is not False:
-            self.energy_outputs["zero_ret"] = zero_ret
+        if retro_set is not False:
+            self.energy_outputs["retro_set"] = retro_set
         if add_typ_eff is not False:
             self.energy_outputs["add_typ_eff"] = add_typ_eff
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
@@ -2437,6 +2489,40 @@ class Measure(object):
                 bldg_sect = "residential"
             else:
                 bldg_sect = "commercial"
+
+            # Check whether early retrofit rates are specified at the
+            # component (microsegment) level; if so, restrict early retrofit
+            # information to that of the current microsegment
+            if bldg_sect in self.handyvars.retro_rate.keys():
+                # Lighting, water heating microsegments
+                if mskeys[4] in self.handyvars.retro_rate.keys():
+                    retro_rate_mseg = self.handyvars.retro_rate[
+                        bldg_sect][mskeys[4]]
+                # HVAC or envelope microsegments
+                elif mskeys[4] in ["heating", "cooling"]:
+                    # HVAC equipment microsegment ("supply" tech. type)
+                    if "supply" in mskeys:
+                        retro_rate_mseg = self.handyvars.retro_rate[
+                            bldg_sect]["HVAC"]
+                    # Envelope microsegment ("demand" tech. type)
+                    else:
+                        # All envelope tech. except windows
+                        try:
+                            retro_rate_mseg = self.handyvars.retro_rate[
+                                bldg_sect][mskeys[-1]]
+                        # Windows require special handling b/c windows
+                        # microsegment tech. is broken into conduction/solar
+                        except KeyError:
+                            retro_rate_mseg = self.handyvars.retro_rate[
+                                bldg_sect]["windows"]
+                # All other microsegments – set early retrofit rate to zero
+                else:
+                    retro_rate_mseg = {
+                        yr: 0 for yr in self.handyvars.aeo_}
+            # If early retrofit rates are not specified at the component
+            # (microsegment) level, no further operations are needed
+            else:
+                retro_rate_mseg = self.handyvars.retro_rate
 
             # Adjust the key chain to be used in registering contributing
             # microsegment information for cases where 'windows solar'
@@ -4546,7 +4632,8 @@ class Measure(object):
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
-                            contrib_mseg_key, contrib_meas_pkg, hp_rate)
+                            contrib_mseg_key, contrib_meas_pkg, hp_rate,
+                            retro_rate_mseg)
 
                     # Remove double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
@@ -6445,7 +6532,8 @@ class Measure(object):
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
-            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg, hp_rate):
+            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg, hp_rate,
+            retro_rate_mseg):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -6486,6 +6574,7 @@ class Measure(object):
             contrib_meas_pkg (list): Names of measures that contribute to pkgs.
             hp_rate (dict): Exogenous rate of conversion of the baseline mseg
                 to HPs, if applicable.
+            retro_rate_mseg (dict): Microsegment-specific retrofit rate.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -6776,7 +6865,7 @@ class Measure(object):
                     # yet; allow both regular replacements and retrofits
                     if turnover_cap_not_reached:
                         repl_frac = (1 / life_base[yr])
-                        retro_frac = self.retro_rate[yr]
+                        retro_frac = retro_rate_mseg[yr]
                     # Case where all existing stock has been captured
                     # but stock previously captured after the start of
                     # the modeling horizon is turning over; allow only
@@ -10497,8 +10586,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.grid_decarb, opts.adopt_scn_restrict, opts.zero_ret,
-        opts.add_typ_eff, **m) for m in measures]
+        opts.grid_decarb, opts.adopt_scn_restrict, opts.retro_set,
+        opts.add_typ_eff, opts.rp_persist, **m) for m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10587,8 +10676,8 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
                     opts.exog_hp_rates, opts.grid_decarb,
-                    opts.adopt_scn_restrict, opts.zero_ret, opts.add_typ_eff,
-                    **meas_summary_data[0])
+                    opts.adopt_scn_restrict, opts.retro_set, opts.add_typ_eff,
+                    opts.rp_persist, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -10875,6 +10964,46 @@ def main(base_dir):
             warn_text + ": ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
 
+    # If the user wishes to modify early retrofit settings from the default
+    # (zero), gather further information about which set of assumptions to use
+    if opts and opts.retro_set is True:
+        # Initialize list that stores user early retrofit settings
+        input_var = [None, None, None]
+        # Determine the early retrofit settings to use
+        while input_var[0] not in ['1', '2', '3']:
+            input_var[0] = input(
+                "\nEnter 1 to assume no early retrofits,"
+                "\n2 to assume component-based early retrofit rates that do "
+                "not change over time, or"
+                "\n3 to assume component-based early retrofit rates that "
+                "increase over time: ")
+            if input_var[0] not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
+        # If user desired non-zero early retrofits that progressively increase
+        # over time, gather further information about that assumed increase
+        if input_var[0] == '3':
+            # Initialize year by which a rate multiplier is achieved
+            mult_yr = ""
+            # Gather an assumed retrofit rate multiplier and the year by
+            # which that multiplier is achieved
+            while len(mult_yr) == 0 or " " not in mult_yr:
+                mult_yr = input(
+                    "\nEnter the factor by which early retrofit rates should "
+                    "be multiplied along with the year by which this "
+                    "multiplier is achieved, separated by a space: ")
+                if len(mult_yr) == 0 or " " not in mult_yr:
+                    print('Please try again. Enter two integers separated by '
+                          'a space. Use ctrl-c to exit.')
+                else:
+                    # Convert user input to a list of integers
+                    mult_yr_list = list(map(int, mult_yr.split()))
+                    # Reset 2nd and 3rd element of list initialized above to
+                    # the rate/year information provided by the user
+                    input_var[1] = mult_yr_list[0]
+                    input_var[2] = mult_yr_list[1]
+        opts.retro_set = input_var
+
     # If exogenous HP rates are specified, gather further information about
     # which exogenous HP rate scenario should be used and how these rates
     # should be applied to retrofit decisions
@@ -10893,8 +11022,9 @@ def main(base_dir):
         scn_names = [
             "conservative", "optimistic", "aggressive", "most aggressive"]
         input_var[0] = scn_names[int(input_var[0])-1]
-        # Determine assumptions about retrofits and HP switching
-        if opts.zero_ret is not True:
+        # Determine assumptions about early retrofits and HP switching; only
+        # prompt for this information if early retrofits are non-zero
+        if opts and (opts.retro_set is not False and opts.retro_set[0] != '1'):
             while input_var[1] not in ['1', '2']:
                 input_var[1] = input(
                     "\nEnter 1 to assume that all retrofits convert to heat "
@@ -11073,7 +11203,7 @@ def main(base_dir):
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.adopt_scn_restrict, opts.zero_ret)
+        opts.adopt_scn_restrict, opts.retro_set)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -11154,6 +11284,10 @@ def main(base_dir):
                     all([y["energy_outputs"]["captured_energy_ss"] is False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
+                   (opts is not None and opts.rp_persist is True and
+                    all([y["energy_outputs"]["rp_persist"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
                    (opts is not None and opts.alt_regions is True and
                     all([(y["energy_outputs"]["alt_regions"] is False or
                           y["energy_outputs"]["alt_regions"] != regions)
@@ -11194,10 +11328,11 @@ def main(base_dir):
                         y["energy_outputs"]["adopt_scn_restrict"] !=
                         opts.adopt_scn_restrict for y in meas_summary if
                         y["name"] == meas_dict["name"]])) or \
-                   (opts is not None and opts.zero_ret is True and
-                    all([y["energy_outputs"]["zero_ret"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
+                   (opts is not None and opts.retro_set is not False and all([
+                        y["energy_outputs"]["retro_set"] is False or
+                        y["energy_outputs"]["retro_set"] !=
+                        opts.retro_set for y in meas_summary if
+                        y["name"] == meas_dict["name"]])) or \
                    (opts is not None and opts.add_typ_eff is True and
                     all([y["energy_outputs"]["add_typ_eff"] is False
                          for y in meas_summary if y["name"] ==
@@ -11208,6 +11343,10 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.captured_energy is False and
                     all([y["energy_outputs"]["captured_energy_ss"] is True
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.rp_persist is False and
+                    all([y["energy_outputs"]["rp_persist"] is True
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is None or opts.alt_regions is False and
@@ -11242,8 +11381,8 @@ def main(base_dir):
                     all([y["energy_outputs"]["adopt_scn_restrict"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
-                   (opts is None or opts.zero_ret is False and
-                    all([y["energy_outputs"]["zero_ret"] is not False
+                   (opts is None or opts.retro_set is False and
+                    all([y["energy_outputs"]["retro_set"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is None or opts.add_typ_eff is False and
@@ -11715,8 +11854,8 @@ if __name__ == "__main__":
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
     # Optional flag to force early retrofit rate to zero
-    parser.add_argument("--zero_ret", action="store_true",
-                        help="Assume zero early replacements per year")
+    parser.add_argument("--retro_set", action="store_true",
+                        help="Prompt user for early retrofit rate settings")
     # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
     # or 90.1 measures (to account for competitive effects)
     parser.add_argument("--add_typ_eff", action="store_true",
