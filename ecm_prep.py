@@ -48,6 +48,8 @@ class UsefulInputFiles(object):
         ecm_packages (tuple): Measure package data.
         ecm_prep (tuple): Prepared measure attributes data for use in the
             analysis engine.
+        ecm_prep_env_cf (tuple): Prepared envelope/HVAC package measure
+            attributes data with the effects HVAC removed (isolate envelope).
         ecm_compete_data (tuple): Folder with contributing microsegment data
             needed to run measure competition in the analysis engine.
         ecm_eff_fs_splt_data (tuple): Folder with data needed to determine the
@@ -165,6 +167,7 @@ class UsefulInputFiles(object):
         self.indiv_ecms = "ecm_definitions"
         self.ecm_packages = ("ecm_definitions", "package_ecms.json")
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
+        self.ecm_prep_env_cf = ("supporting_data", "ecm_prep_env_cf.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
         self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.run_setup = "run_setup.json"
@@ -1831,15 +1834,16 @@ class Measure(object):
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
             floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            retro_set, add_typ_eff, rp_persist, **kwargs):
+            retro_set, add_typ_eff, rp_persist, pkg_env_sep, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Check to ensure that measure name is proper length for plotting;
         # for now, exempt measures with public health cost adders
-        if len(self.name) > 45 and "PHC" not in self.name:
-            raise ValueError(
-                "ECM '" + self.name + "' name must be <= 45 characters")
+        # *** COMMENT FOR NOW ***
+        # if len(self.name) > 45 and "PHC" not in self.name:
+        #     raise ValueError(
+        #         "ECM '" + self.name + "' name must be <= 45 characters")
         self.remove = False
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
@@ -1848,7 +1852,8 @@ class Measure(object):
             "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
             "adopt_scn_restrict": False, "retro_set": False,
-            "add_typ_eff": False, "rp_persist": False}
+            "add_typ_eff": False, "rp_persist": False,
+            "pkg_env_sep": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
@@ -1888,6 +1893,8 @@ class Measure(object):
             self.energy_outputs["retro_set"] = retro_set
         if add_typ_eff is not False:
             self.energy_outputs["add_typ_eff"] = add_typ_eff
+        if pkg_env_sep is not False:
+            self.energy_outputs["pkg_env_sep"] = pkg_env_sep
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -2302,7 +2309,7 @@ class Measure(object):
                 "in ECM '" + self.name + "'")
 
     def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data_init, opts,
-                  contrib_meas_pkg, tsv_data_nonfs):
+                  ctrb_ms_pkg_prep, tsv_data_nonfs):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -2313,7 +2320,7 @@ class Measure(object):
             tsv_data_init (dict): Data for time sensitive valuation of
                 efficiency.
             opts (object): Stores user-specified execution options.
-            contrib_meas_pkg (list): List of measure names that contribute
+            ctrb_ms_pkg_prep (list): List of measure names that contribute
                 to active packages in the preparation run.
             tsv_data_nonfs (dict): If applicable, base-case TSV data to apply
                 to non-fuel switching measures under a high decarb. scenario.
@@ -4077,12 +4084,22 @@ class Measure(object):
                 else:
                     sf_to_house_key = None
 
+                # HVAC equipment measure case where measure contributes to
+                # an HVAC/envelope package and is flagged as counterfactual
+                # that is used to isolate the envelope portion of the package
+                # impacts; set the performance and cost impacts of the measure
+                # to zero to facilitate isolation of the envelope impacts
+                if opts.pkg_env_sep is True and "(CF)" in self.name:
+                    rel_perf = {yr: 1 for yr in self.handyvars.aeo_years}
+                    cost_meas = {
+                        yr: cost_base[yr] for yr in self.handyvars.aeo_years}
                 # For cases where a typical/BAU efficiency
                 # measure is being assessed, set the measure performance,
                 # cost, and lifetime characteristics to the baseline values
                 # (note, this excludes typical/BAU fuel switching measures,
                 # which are defined and assessed like normal measures)
-                if opts.add_typ_eff is True and "Ref. Case" in self.name and \
+                elif opts.add_typ_eff is True and \
+                    "Ref. Case" in self.name and \
                         self.fuel_switch_to is None:
                     # Reset measure performance and cost to track baseline
                     perf_meas, cost_meas = [
@@ -4632,7 +4649,7 @@ class Measure(object):
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
-                            contrib_mseg_key, contrib_meas_pkg, hp_rate,
+                            contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
                             retro_rate_mseg)
 
                     # Remove double counted stock and stock cost for equipment
@@ -6532,7 +6549,7 @@ class Measure(object):
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
-            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg, hp_rate,
+            tsv_shapes, opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
             retro_rate_mseg):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
@@ -6571,7 +6588,7 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             contrib_mseg_key (tuple): The same as mskeys, but adjusted to merge
                 windows solar/conduction msegs into "windows" if applicable.
-            contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+            ctrb_ms_pkg_prep (list): Names of measures that contribute to pkgs.
             hp_rate (dict): Exogenous rate of conversion of the baseline mseg
                 to HPs, if applicable.
             retro_rate_mseg (dict): Microsegment-specific retrofit rate.
@@ -8764,9 +8781,10 @@ class MeasurePackage(Measure):
         else:
             self.pkg_env_costs = False
         # Check to ensure that measure name is proper length for plotting
-        if len(self.name) > 40:
-            raise ValueError(
-                "ECM '" + self.name + "' name must be <= 40 characters")
+        # *** COMMENT FOR NOW ***
+        # if len(self.name) > 40:
+        #     raise ValueError(
+        #         "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
         # Set energy outputs and fuel switching properties to that of the
@@ -10545,7 +10563,7 @@ class MeasurePackage(Measure):
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                      handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
-                     regions, tsv_metrics, contrib_meas_pkg, tsv_data_nonfs):
+                     regions, tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -10568,7 +10586,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts (object): Stores user-specified execution options.
         regions (string): Regional breakouts to use.
         tsv_metrics (boolean or list): TSV metrics settings.
-        contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+        ctrb_ms_pkg_prep (list): Names of measures that contribute to pkgs.
         tsv_data_nonfs (dict): If applicable, base-case TSV data to apply to
             non-fuel switching measures under a high decarb. scenario.
 
@@ -10587,7 +10605,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
         opts.grid_decarb, opts.adopt_scn_restrict, opts.retro_set,
-        opts.add_typ_eff, opts.rp_persist, **m) for m in measures]
+        opts.add_typ_eff, opts.rp_persist, opts.pkg_env_sep, **m) for
+        m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10620,7 +10639,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
     # Finalize 'markets' attribute for all Measure objects
     [m.fill_mkts(
-        msegs, msegs_cpl, convert_data, tsv_data, opts, contrib_meas_pkg,
+        msegs, msegs_cpl, convert_data, tsv_data, opts, ctrb_ms_pkg_prep,
         tsv_data_nonfs)
      for m in meas_update_objs]
 
@@ -11243,6 +11262,38 @@ def main(base_dir):
         'package' not in x]
     # Initialize list of individual measures to prepare
     meas_toprep_indiv = []
+
+    # If user desires isolation of envelope impacts within envelope/HVAC
+    # packages, develop a list that indicates which individual ECMs contribute
+    # to which package(s); this info. is needed for making copies of certain
+    # ECMs and ECM packages that serve as counterfactuals for the isolation of
+    # envelope impacts within packages
+    if opts.pkg_env_sep is True:
+        # Initialize list to track ECM packages and contributing ECMs
+        ctrb_ms_pkg_all = []
+        # Initialize list to track ECM packages that should be copied as
+        # counterfactuals for isolating envelope impacts
+        pkg_copy_flag = []
+        # Add package/contributing ECM information to list
+        for p in meas_toprep_package_init:
+            ctrb_ms_pkg_all.append([p["name"], p["contributing_ECMs"]])
+        # Import separate file that will ultimately store all counterfactual
+        # package data for later use
+        try:
+            ecf = open(path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+            try:
+                meas_summary_env_cf = json.load(ecf)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.ecm_prep_env_cf +
+                    "': " + str(e)) from None
+            ecf.close()
+        except FileNotFoundError:
+            meas_summary_env_cf = ''
+    else:
+        ctrb_ms_pkg_all, meas_summary_env_cf, pkg_copy_flag = (
+            '' for n in range(3))
+
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
         with open(path.join(base_dir, handyfiles.indiv_ecms, mi), 'r') as jsf:
@@ -11337,6 +11388,10 @@ def main(base_dir):
                     all([y["energy_outputs"]["add_typ_eff"] is False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
+                   (opts is not None and opts.pkg_env_sep is True and
+                    all([y["energy_outputs"]["pkg_env_sep"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
                     all([y["energy_outputs"]["site_energy"] is True for
                          y in meas_summary if y["name"] ==
@@ -11387,6 +11442,10 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.add_typ_eff is False and
                     all([y["energy_outputs"]["add_typ_eff"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.pkg_env_sep is False and
+                    all([y["energy_outputs"]["pkg_env_sep"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -11477,6 +11536,46 @@ def main(base_dir):
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)
+                    # If desired by user, add copies of HVAC equipment measures
+                    # that are part of packages; these measures will be
+                    # assigned no relative performance improvement and
+                    # added to copies of those HVAC/envelope packages, to serve
+                    # as counter-factuals that allow isolation of envelope
+                    # impacts within each package
+                    if opts is not None and len(ctrb_ms_pkg_all) != 0 and \
+                        opts.pkg_env_sep is True and (
+                        any([meas_dict["name"] in x[1] for
+                             x in ctrb_ms_pkg_all])) and (
+                        (isinstance(meas_dict["end_use"], list) and any([
+                            x in ["heating", "cooling"] for
+                            x in meas_dict["end_use"]])) or
+                            meas_dict["end_use"] in
+                            ["heating", "cooling"]) and (
+                        not ((isinstance(meas_dict["technology"], list)
+                              and all([x in handyvars.demand_tech for
+                                       x in meas_dict["technology"]])) or
+                             meas_dict["technology"] in
+                             handyvars.demand_tech)):
+                        # Determine measure copy name, CF for counterfactual
+                        new_name = meas_dict["name"] + " (CF)"
+                        # Copy the measure
+                        new_meas = copy.deepcopy(meas_dict)
+                        # Set the copied measure name to the name above
+                        new_meas["name"] = new_name
+                        # Append the copied measure to list of measure
+                        # definitions to update
+                        meas_toprep_indiv.append(new_meas)
+                        # Flag the package(s) that the measure that was copied
+                        # contributes to; this package will be copied as well
+                        # to produce the final counterfactual data
+                        pkgs_to_copy = [x[0] for x in ctrb_ms_pkg_all if
+                                        meas_dict["name"] in x[1]]
+                        # Add the package name, and the name of the original
+                        # and counterfactual HVAC equipment measure that
+                        # contributes to the package
+                        for p in pkgs_to_copy:
+                            pkg_copy_flag.append([
+                                p, meas_dict["name"], new_name])
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -11490,7 +11589,7 @@ def main(base_dir):
     # Initialize list of measure package dicts to prepare
     meas_toprep_package = []
     # Initialize a list to track which individual ECMs contribute to packages
-    contrib_meas_pkg = []
+    ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [
         mpkg for mpkg in meas_summary if "contrib_ECMs" in mpkg.keys()]
@@ -11524,7 +11623,32 @@ def main(base_dir):
                     (opts is None or opts.pkg_env_costs is False and
                      m_exist[0]["pkg_env_costs"] is not False))):
             meas_toprep_package.append(m)
-            contrib_meas_pkg.extend(m["contributing_ECMs"])
+            ctrb_ms_pkg_prep.extend(m["contributing_ECMs"])
+            # If package is flagged as needing a copy to serve as a
+            # counterfactual for isolating envelope impacts, make the copy
+            pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]][0]
+            if len(pkg_item) > 0:
+                # Determine unique package copy name, CF for counterfactual
+                new_pkg_name = pkg_item[0] + " (CF)"
+                # Copy the package
+                new_pkg = copy.deepcopy(m)
+                # Set the copied package name to the name above
+                new_pkg["name"] = new_pkg_name
+                # Replace original HVAC equipment ECM names from the package's
+                # list of contributing ECMs with those of the HVAC equipment
+                # ECM copies that have zero performance impacts and serve as
+                # counterfactuals, such that data for these copies will be
+                # pulled into the package assessment
+                for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
+                    if ecm == pkg_item[1]:
+                        new_pkg["contributing_ECMs"][ind] = pkg_item[2]
+                # Append the copied package measure to list of measure
+                # definitions to update, and also update the list of
+                # individual measures that contribute to packages being
+                # prepared
+                meas_toprep_package.append(new_pkg)
+                ctrb_ms_pkg_prep.extend(new_pkg["contributing_ECMs"])
+
         # Raise an error if the current package matches the name of
         # multiple previously prepared packages
         elif len(m_exist) > 1:
@@ -11696,7 +11820,7 @@ def main(base_dir):
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
             handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts, regions,
-            tsv_metrics, contrib_meas_pkg, tsv_data_nonfs)
+            tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
@@ -11715,36 +11839,53 @@ def main(base_dir):
         # Add all prepared high-level measure information to existing
         # high-level data and to list of active measures for analysis
         for m in meas_prepped_summary:
-            # Measure has been prepared from existing case (replace
-            # high-level data for measure)
-            if m["name"] in [x["name"] for x in meas_summary]:
-                [x.update(m) for x in meas_summary if x["name"] == m["name"]]
-            # Measure is new (add high-level data for measure)
-            else:
-                meas_summary.append(m)
-            # Add measures to active list; exclude individual measures that are
-            # part of a package from the active list, under the assumption that
-            # competition of these measures is handled via the package measure;
-            # in a scenario where public health costs are assumed, add only the
-            # "high" health costs versions of prepared measures to active list
-            if (m["name"] in contrib_meas_pkg) or (
-                (opts is not None and opts.health_costs is True) and (
-                    "PHC-EE (high)" not in m["name"])):
-                # Measure not already in inactive measures list (add to list)
-                if m["name"] not in run_setup["inactive"]:
-                    run_setup["inactive"].append(m["name"])
-                # Measure in active measures list (remove name from list)
-                if m["name"] in run_setup["active"]:
-                    run_setup["active"] = [x for x in run_setup[
-                        "active"] if x != m["name"]]
-            else:
-                # Measure not already in active measures list (add to list)
-                if m["name"] not in run_setup["active"]:
-                    run_setup["active"].append(m["name"])
-                # Measure in inactive measures list (remove name from list)
-                if m["name"] in run_setup["inactive"]:
-                    run_setup["inactive"] = [x for x in run_setup[
-                        "inactive"] if x != m["name"]]
+            # Measure does not serve as counterfactual for isolating
+            # envelope impacts within packages
+            if "(CF)" not in m["name"]:
+                # Measure has been prepared from existing case (replace
+                # high-level data for measure)
+                if m["name"] in [x["name"] for x in meas_summary]:
+                    [x.update(m) for x in meas_summary if
+                     x["name"] == m["name"]]
+                # Measure is new (add high-level data for measure)
+                else:
+                    meas_summary.append(m)
+                # Add measures to active list; exclude individual measures that
+                # are part of a package from the active list, under the
+                # assumption that competition of these measures is handled via
+                # the package measure; in a scenario where public health costs
+                # are assumed, add only the "high" health costs versions of
+                # prepared measures to active list
+                if (m["name"] in ctrb_ms_pkg_prep) or (
+                    (opts is not None and opts.health_costs is True) and (
+                        "PHC-EE (high)" not in m["name"])):
+                    # Measure not already in inactive meas. list (add to list)
+                    if m["name"] not in run_setup["inactive"]:
+                        run_setup["inactive"].append(m["name"])
+                    # Measure in active measures list (remove name from list)
+                    if m["name"] in run_setup["active"]:
+                        run_setup["active"] = [x for x in run_setup[
+                            "active"] if x != m["name"]]
+                else:
+                    # Measure not already in active measures list (add to list)
+                    if m["name"] not in run_setup["active"]:
+                        run_setup["active"].append(m["name"])
+                    # Measure in inactive measures list (remove name from list)
+                    if m["name"] in run_setup["inactive"]:
+                        run_setup["inactive"] = [x for x in run_setup[
+                            "inactive"] if x != m["name"]]
+            # Measure serves as counterfactual for isolating envelope impacts
+            # within packages; append data to separate list, which will
+            # be written to a separate ecm_prep file
+            elif meas_summary_env_cf is not None:
+                # Measure has been prepared from existing case (replace
+                # high-level data for measure)
+                if m["name"] in [x["name"] for x in meas_summary_env_cf]:
+                    [x.update(m) for x in meas_summary_env_cf if
+                     x["name"] == m["name"]]
+                # Measure is new (add high-level data for measure)
+                else:
+                    meas_summary_env_cf.append(m)
 
         # Notify user that all measure preparations are completed
         print('Writing output data...')
@@ -11773,6 +11914,14 @@ def main(base_dir):
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+
+        # Write prepared high-level counterfactual measure attributes data to
+        # JSON (e.g., a separate file with data that will be used to isolate
+        # the effects of envelope within envelope/HVAC packages)
+        if meas_summary_env_cf is not None:
+            with open(path.join(
+                    base_dir, *handyfiles.ecm_prep_env_cf), "w") as jso:
+                json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
 
         # Write any newly prepared measure names to the list of active
         # measures to be run in the analysis engine
@@ -11862,7 +12011,12 @@ if __name__ == "__main__":
                         help=("Add typical technology analogues for equipment "
                               "efficiency measures at the most current ENERGY "
                               "STAR, IECC, and 90.1 performance levels"))
-
+    # Optional flag that will develop copies HVAC/envelope packages that remove
+    # the relative impacts of the HVAC portion to isolate the impacts of the
+    # envelope portion
+    parser.add_argument("--pkg_env_sep", action="store_true",
+                        help=("Isolate the impacts of envelope in "
+                              "envelope + HVAC packages"))
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
