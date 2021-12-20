@@ -10,7 +10,7 @@
   "end_use": "cooling",
   "fuel_type": "electricity",
   "technology": "rooftop_AC",
-  "market_entry_year": 2030,
+  "market_entry_year": 2035,
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {

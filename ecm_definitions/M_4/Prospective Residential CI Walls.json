@@ -6,7 +6,7 @@
   "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "wall",
-  "market_entry_year": 2030,
+  "market_entry_year": 2035,
   "market_entry_year_source": {
     "notes": "Target technology market entry year",
     "source_data": null

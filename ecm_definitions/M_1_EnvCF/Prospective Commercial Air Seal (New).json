@@ -1,0 +1,52 @@
+{
+  "name": "Prospective Commercial Air Seal (New)",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "new",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "infiltration",
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Target technology market entry year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.2,
+  "energy_efficiency_units": "CFM/ft^2 @ 0.3 in. w.c.",
+  "energy_efficiency_source": {
+    "notes": "Target performance set based on expert knowledge and diminishing returns at higher performance levels",
+    "source_data": null
+  },
+  "installed_cost": 0.37,
+  "cost_units": "2016$/ft^2 wall",
+  "installed_cost_source": {
+    "notes": "Target cost set based on 5 year payback period objective",
+    "source_data": null
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Air sealing remediation technology that can improve the airtightness of the envelopes of new commercial buildings to the specified performance level",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-10-04 02:15 UTC"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

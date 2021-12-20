@@ -1,0 +1,42 @@
+{
+  "name": "Prospective Commercial HPWH (FS)",
+  "_description": "target ecm",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate"],
+  "technology": "all",
+  "market_entry_year": 2030,
+  "energy_efficiency": 3.9,
+  "comment": "using EIA NEMS appendix efficinecy rise from electric resistance to HP high performance",
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "ET target",
+    "source_data": null
+  },
+  "installed_cost": 30,
+  "cost_units": "$/kBtu/h water heating",
+  "installed_cost_source": {
+    "notes": "average US cost based on scout 5 yr payback; note that cost is based on FS condition",
+    "source_data": null
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-a.pdf",
+    "source_data": null
+  },
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "timestamp": "2021-03-23 13:00:00 UTC"
+  },
+  "_updated_by": null
+}

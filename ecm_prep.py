@@ -48,6 +48,8 @@ class UsefulInputFiles(object):
         ecm_packages (tuple): Measure package data.
         ecm_prep (tuple): Prepared measure attributes data for use in the
             analysis engine.
+        ecm_prep_env_cf (tuple): Prepared envelope/HVAC package measure
+            attributes data with the effects HVAC removed (isolate envelope).
         ecm_compete_data (tuple): Folder with contributing microsegment data
             needed to run measure competition in the analysis engine.
         ecm_eff_fs_splt_data (tuple): Folder with data needed to determine the
@@ -165,6 +167,7 @@ class UsefulInputFiles(object):
         self.indiv_ecms = "ecm_definitions"
         self.ecm_packages = ("ecm_definitions", "package_ecms.json")
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
+        self.ecm_prep_env_cf = ("supporting_data", "ecm_prep_env_cf.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
         self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.run_setup = "run_setup.json"
@@ -329,7 +332,7 @@ class UsefulVars(object):
 
     def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
                  health_costs, split_fuel, floor_start, exog_hp_rates,
-                 adopt_scn_usr, zero_ret):
+                 adopt_scn_usr, retro_set):
         # Choose default adoption scenarios if user doesn't specify otherwise
         if adopt_scn_usr is False:
             self.adopt_schemes = [
@@ -359,15 +362,65 @@ class UsefulVars(object):
         self.aeo_years = [
             str(i) for i in range(aeo_min, aeo_max + 1)]
         self.aeo_years_summary = ["2030", "2050"]
-        # Set early retrofit rate; force to zero if desired by user
-        if zero_ret is not False:
+        # Set early retrofit rate assumptions
+
+        # Default case (zero early retrofits) or user has set early retrofits
+        # to zero
+        if retro_set is False or retro_set[0] == "1":
             self.retro_rate = {yr: 0 for yr in self.aeo_years}
+        # User has set early retrofits to non-zero
         else:
-            self.retro_rate = {
-                yr: 0.001 + (0.009/((2025 - aeo_min - 1))) * (
-                    int(yr) - aeo_min) if int(yr) < 2025 else (
-                    0.01 + (0.01/(2035 - 2025 - 1)) * (int(yr) - 2025) if
-                    int(yr) < 2035 else 0.02) for yr in self.aeo_years}
+            # Set default assumptions about starting values for early
+            # retrofits at the technology component-level. Values are based
+            # on survey questions about renovations in CBECS and the American
+            # Housing Survey, which cover lighting, HVAC, and envelope for
+            # commercial and HVAC and envelope for residential, respectively.
+            # Water heating values are assumed to be identical to HVAC
+            # values for the given building type, and residential lighting
+            # values are assumed to be identical to commercial values. Values
+            # for all other components are set to zero.
+            start_vals = {
+                "commercial": {
+                    "lighting": 0.015, "HVAC": 0.009, "roof": 0.006,
+                    "windows": 0.003, "wall": 0.003,
+                    "water heating": 0.009, "other": 0
+                },
+                "residential": {
+                    "lighting": 0.015, "HVAC": 0.005, "roof": 0.0027,
+                    "windows": 0.0023, "wall": 0.0006,
+                    "water heating": 0.005, "other": 0
+                }
+            }
+
+            # Set multipliers that progressively scale up the early retrofit
+            # values over time
+
+            # User desires no change in starting values for early retrofits
+            # across the modeled time horizon; set multipliers to 1 across yrs.
+            if retro_set[0] == "2":
+                multipliers = {yr: 1 for yr in self.aeo_years}
+            # User specified a rate multiplier and year by which it is
+            # achieved; assume linear increase in early retrofit rates from
+            # starting values to the increased values by the indicated year,
+            # and maintain increased value for all years thereafter
+            else:
+                # Pull in user-defined rate multiplier and year by which it
+                # is achieved
+                rate_inc, yr_inc = retro_set[1:3]
+                # Calculate progressively increasing multipliers to the early
+                # retrofit rate based on user settings
+                multipliers = {yr: 1 + ((rate_inc - 1) / (yr_inc - aeo_min)) *
+                               (int(yr) - aeo_min) if int(yr) < yr_inc else
+                               rate_inc for yr in self.aeo_years}
+            # For each year, multiply starting early retrofit rate values by
+            # rate multipliers to obtain final early retrofit rates by year;
+            # nest by building type and technology component, consistent with
+            # the structure of the starting values above
+            self.retro_rate = {bldg: {cmpo: {
+                yr: start_vals[bldg][cmpo] * multipliers[yr]
+                for yr in self.aeo_years} for cmpo in start_vals[bldg].keys()}
+                for bldg in start_vals.keys()}
+
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
@@ -1781,15 +1834,16 @@ class Measure(object):
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
             floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            zero_ret, add_typ_eff, **kwargs):
+            retro_set, add_typ_eff, rp_persist, pkg_env_sep, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Check to ensure that measure name is proper length for plotting;
         # for now, exempt measures with public health cost adders
-        if len(self.name) > 45 and "PHC" not in self.name:
-            raise ValueError(
-                "ECM '" + self.name + "' name must be <= 45 characters")
+        # *** COMMENT FOR NOW ***
+        # if len(self.name) > 45 and "PHC" not in self.name:
+        #     raise ValueError(
+        #         "ECM '" + self.name + "' name must be <= 45 characters")
         self.remove = False
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
@@ -1797,12 +1851,15 @@ class Measure(object):
             "captured_energy_ss": False, "alt_regions": False,
             "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
-            "adopt_scn_restrict": False, "zero_ret": False,
-            "add_typ_eff": False}
+            "adopt_scn_restrict": False, "retro_set": False,
+            "add_typ_eff": False, "rp_persist": False,
+            "pkg_env_sep": False}
         if site_energy is True:
             self.energy_outputs["site_energy"] = True
         if capt_energy is True:
             self.energy_outputs["captured_energy_ss"] = True
+        if rp_persist is True:
+            self.energy_outputs["rp_persist"] = True
         if regions != "AIA":
             self.energy_outputs["alt_regions"] = regions
         if tsv_metrics is not False:
@@ -1832,10 +1889,12 @@ class Measure(object):
             self.energy_outputs["grid_decarb"] = grid_decarb
         if adopt_scn_usr is not False:
             self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
-        if zero_ret is not False:
-            self.energy_outputs["zero_ret"] = zero_ret
+        if retro_set is not False:
+            self.energy_outputs["retro_set"] = retro_set
         if add_typ_eff is not False:
             self.energy_outputs["add_typ_eff"] = add_typ_eff
+        if pkg_env_sep is not False:
+            self.energy_outputs["pkg_env_sep"] = pkg_env_sep
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -2250,7 +2309,7 @@ class Measure(object):
                 "in ECM '" + self.name + "'")
 
     def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data_init, opts,
-                  contrib_meas_pkg, tsv_data_nonfs):
+                  ctrb_ms_pkg_prep, tsv_data_nonfs):
         """Fill in a measure's market microsegments using EIA baseline data.
 
         Args:
@@ -2261,7 +2320,7 @@ class Measure(object):
             tsv_data_init (dict): Data for time sensitive valuation of
                 efficiency.
             opts (object): Stores user-specified execution options.
-            contrib_meas_pkg (list): List of measure names that contribute
+            ctrb_ms_pkg_prep (list): List of measure names that contribute
                 to active packages in the preparation run.
             tsv_data_nonfs (dict): If applicable, base-case TSV data to apply
                 to non-fuel switching measures under a high decarb. scenario.
@@ -2437,6 +2496,40 @@ class Measure(object):
                 bldg_sect = "residential"
             else:
                 bldg_sect = "commercial"
+
+            # Check whether early retrofit rates are specified at the
+            # component (microsegment) level; if so, restrict early retrofit
+            # information to that of the current microsegment
+            if bldg_sect in self.handyvars.retro_rate.keys():
+                # Lighting, water heating microsegments
+                if mskeys[4] in self.handyvars.retro_rate.keys():
+                    retro_rate_mseg = self.handyvars.retro_rate[
+                        bldg_sect][mskeys[4]]
+                # HVAC or envelope microsegments
+                elif mskeys[4] in ["heating", "cooling"]:
+                    # HVAC equipment microsegment ("supply" tech. type)
+                    if "supply" in mskeys:
+                        retro_rate_mseg = self.handyvars.retro_rate[
+                            bldg_sect]["HVAC"]
+                    # Envelope microsegment ("demand" tech. type)
+                    else:
+                        # All envelope tech. except windows
+                        try:
+                            retro_rate_mseg = self.handyvars.retro_rate[
+                                bldg_sect][mskeys[-1]]
+                        # Windows require special handling b/c windows
+                        # microsegment tech. is broken into conduction/solar
+                        except KeyError:
+                            retro_rate_mseg = self.handyvars.retro_rate[
+                                bldg_sect]["windows"]
+                # All other microsegments – set early retrofit rate to zero
+                else:
+                    retro_rate_mseg = {
+                        yr: 0 for yr in self.handyvars.aeo_}
+            # If early retrofit rates are not specified at the component
+            # (microsegment) level, no further operations are needed
+            else:
+                retro_rate_mseg = self.handyvars.retro_rate
 
             # Adjust the key chain to be used in registering contributing
             # microsegment information for cases where 'windows solar'
@@ -3991,12 +4084,22 @@ class Measure(object):
                 else:
                     sf_to_house_key = None
 
+                # HVAC equipment measure case where measure contributes to
+                # an HVAC/envelope package and is flagged as counterfactual
+                # that is used to isolate the envelope portion of the package
+                # impacts; set the performance and cost impacts of the measure
+                # to zero to facilitate isolation of the envelope impacts
+                if opts.pkg_env_sep is True and "(CF)" in self.name:
+                    rel_perf = {yr: 1 for yr in self.handyvars.aeo_years}
+                    cost_meas = {
+                        yr: cost_base[yr] for yr in self.handyvars.aeo_years}
                 # For cases where a typical/BAU efficiency
                 # measure is being assessed, set the measure performance,
                 # cost, and lifetime characteristics to the baseline values
                 # (note, this excludes typical/BAU fuel switching measures,
                 # which are defined and assessed like normal measures)
-                if opts.add_typ_eff is True and "Ref. Case" in self.name and \
+                elif opts.add_typ_eff is True and \
+                    "Ref. Case" in self.name and \
                         self.fuel_switch_to is None:
                     # Reset measure performance and cost to track baseline
                     perf_meas, cost_meas = [
@@ -4546,7 +4649,8 @@ class Measure(object):
                             site_source_conv_meas, intensity_carb_base,
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
-                            contrib_mseg_key, contrib_meas_pkg, hp_rate)
+                            contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
+                            retro_rate_mseg)
 
                     # Remove double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
@@ -6445,7 +6549,8 @@ class Measure(object):
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
-            tsv_shapes, opts, contrib_mseg_key, contrib_meas_pkg, hp_rate):
+            tsv_shapes, opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
+            retro_rate_mseg):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -6483,9 +6588,10 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             contrib_mseg_key (tuple): The same as mskeys, but adjusted to merge
                 windows solar/conduction msegs into "windows" if applicable.
-            contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+            ctrb_ms_pkg_prep (list): Names of measures that contribute to pkgs.
             hp_rate (dict): Exogenous rate of conversion of the baseline mseg
                 to HPs, if applicable.
+            retro_rate_mseg (dict): Microsegment-specific retrofit rate.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -6776,7 +6882,7 @@ class Measure(object):
                     # yet; allow both regular replacements and retrofits
                     if turnover_cap_not_reached:
                         repl_frac = (1 / life_base[yr])
-                        retro_frac = self.retro_rate[yr]
+                        retro_frac = retro_rate_mseg[yr]
                     # Case where all existing stock has been captured
                     # but stock previously captured after the start of
                     # the modeling horizon is turning over; allow only
@@ -8675,9 +8781,10 @@ class MeasurePackage(Measure):
         else:
             self.pkg_env_costs = False
         # Check to ensure that measure name is proper length for plotting
-        if len(self.name) > 40:
-            raise ValueError(
-                "ECM '" + self.name + "' name must be <= 40 characters")
+        # *** COMMENT FOR NOW ***
+        # if len(self.name) > 40:
+        #     raise ValueError(
+        #         "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
         # Set energy outputs and fuel switching properties to that of the
@@ -10456,7 +10563,7 @@ class MeasurePackage(Measure):
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                      handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
-                     regions, tsv_metrics, contrib_meas_pkg, tsv_data_nonfs):
+                     regions, tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -10479,7 +10586,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts (object): Stores user-specified execution options.
         regions (string): Regional breakouts to use.
         tsv_metrics (boolean or list): TSV metrics settings.
-        contrib_meas_pkg (list): Names of measures that contribute to pkgs.
+        ctrb_ms_pkg_prep (list): Names of measures that contribute to pkgs.
         tsv_data_nonfs (dict): If applicable, base-case TSV data to apply to
             non-fuel switching measures under a high decarb. scenario.
 
@@ -10497,8 +10604,9 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         base_dir, handyvars, handyfiles, opts.site_energy,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.grid_decarb, opts.adopt_scn_restrict, opts.zero_ret,
-        opts.add_typ_eff, **m) for m in measures]
+        opts.grid_decarb, opts.adopt_scn_restrict, opts.retro_set,
+        opts.add_typ_eff, opts.rp_persist, opts.pkg_env_sep, **m) for
+        m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10531,7 +10639,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
     # Finalize 'markets' attribute for all Measure objects
     [m.fill_mkts(
-        msegs, msegs_cpl, convert_data, tsv_data, opts, contrib_meas_pkg,
+        msegs, msegs_cpl, convert_data, tsv_data, opts, ctrb_ms_pkg_prep,
         tsv_data_nonfs)
      for m in meas_update_objs]
 
@@ -10587,8 +10695,8 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     opts.captured_energy, regions, tsv_metrics,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
                     opts.exog_hp_rates, opts.grid_decarb,
-                    opts.adopt_scn_restrict, opts.zero_ret, opts.add_typ_eff,
-                    **meas_summary_data[0])
+                    opts.adopt_scn_restrict, opts.retro_set, opts.add_typ_eff,
+                    opts.rp_persist, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -10875,6 +10983,46 @@ def main(base_dir):
             warn_text + ": ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
 
+    # If the user wishes to modify early retrofit settings from the default
+    # (zero), gather further information about which set of assumptions to use
+    if opts and opts.retro_set is True:
+        # Initialize list that stores user early retrofit settings
+        input_var = [None, None, None]
+        # Determine the early retrofit settings to use
+        while input_var[0] not in ['1', '2', '3']:
+            input_var[0] = input(
+                "\nEnter 1 to assume no early retrofits,"
+                "\n2 to assume component-based early retrofit rates that do "
+                "not change over time, or"
+                "\n3 to assume component-based early retrofit rates that "
+                "increase over time: ")
+            if input_var[0] not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
+        # If user desired non-zero early retrofits that progressively increase
+        # over time, gather further information about that assumed increase
+        if input_var[0] == '3':
+            # Initialize year by which a rate multiplier is achieved
+            mult_yr = ""
+            # Gather an assumed retrofit rate multiplier and the year by
+            # which that multiplier is achieved
+            while len(mult_yr) == 0 or " " not in mult_yr:
+                mult_yr = input(
+                    "\nEnter the factor by which early retrofit rates should "
+                    "be multiplied along with the year by which this "
+                    "multiplier is achieved, separated by a space: ")
+                if len(mult_yr) == 0 or " " not in mult_yr:
+                    print('Please try again. Enter two integers separated by '
+                          'a space. Use ctrl-c to exit.')
+                else:
+                    # Convert user input to a list of integers
+                    mult_yr_list = list(map(int, mult_yr.split()))
+                    # Reset 2nd and 3rd element of list initialized above to
+                    # the rate/year information provided by the user
+                    input_var[1] = mult_yr_list[0]
+                    input_var[2] = mult_yr_list[1]
+        opts.retro_set = input_var
+
     # If exogenous HP rates are specified, gather further information about
     # which exogenous HP rate scenario should be used and how these rates
     # should be applied to retrofit decisions
@@ -10893,8 +11041,9 @@ def main(base_dir):
         scn_names = [
             "conservative", "optimistic", "aggressive", "most aggressive"]
         input_var[0] = scn_names[int(input_var[0])-1]
-        # Determine assumptions about retrofits and HP switching
-        if opts.zero_ret is not True:
+        # Determine assumptions about early retrofits and HP switching; only
+        # prompt for this information if early retrofits are non-zero
+        if opts and (opts.retro_set is not False and opts.retro_set[0] != '1'):
             while input_var[1] not in ['1', '2']:
                 input_var[1] = input(
                     "\nEnter 1 to assume that all retrofits convert to heat "
@@ -11073,7 +11222,7 @@ def main(base_dir):
     handyvars = UsefulVars(
         base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.adopt_scn_restrict, opts.zero_ret)
+        opts.adopt_scn_restrict, opts.retro_set)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -11113,6 +11262,38 @@ def main(base_dir):
         'package' not in x]
     # Initialize list of individual measures to prepare
     meas_toprep_indiv = []
+
+    # If user desires isolation of envelope impacts within envelope/HVAC
+    # packages, develop a list that indicates which individual ECMs contribute
+    # to which package(s); this info. is needed for making copies of certain
+    # ECMs and ECM packages that serve as counterfactuals for the isolation of
+    # envelope impacts within packages
+    if opts.pkg_env_sep is True:
+        # Initialize list to track ECM packages and contributing ECMs
+        ctrb_ms_pkg_all = []
+        # Initialize list to track ECM packages that should be copied as
+        # counterfactuals for isolating envelope impacts
+        pkg_copy_flag = []
+        # Add package/contributing ECM information to list
+        for p in meas_toprep_package_init:
+            ctrb_ms_pkg_all.append([p["name"], p["contributing_ECMs"]])
+        # Import separate file that will ultimately store all counterfactual
+        # package data for later use
+        try:
+            ecf = open(path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+            try:
+                meas_summary_env_cf = json.load(ecf)
+            except ValueError as e:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.ecm_prep_env_cf +
+                    "': " + str(e)) from None
+            ecf.close()
+        except FileNotFoundError:
+            meas_summary_env_cf = ''
+    else:
+        ctrb_ms_pkg_all, meas_summary_env_cf, pkg_copy_flag = (
+            '' for n in range(3))
+
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
         with open(path.join(base_dir, handyfiles.indiv_ecms, mi), 'r') as jsf:
@@ -11152,6 +11333,10 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is not None and opts.captured_energy is True and
                     all([y["energy_outputs"]["captured_energy_ss"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.rp_persist is True and
+                    all([y["energy_outputs"]["rp_persist"] is False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.alt_regions is True and
@@ -11194,12 +11379,17 @@ def main(base_dir):
                         y["energy_outputs"]["adopt_scn_restrict"] !=
                         opts.adopt_scn_restrict for y in meas_summary if
                         y["name"] == meas_dict["name"]])) or \
-                   (opts is not None and opts.zero_ret is True and
-                    all([y["energy_outputs"]["zero_ret"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
+                   (opts is not None and opts.retro_set is not False and all([
+                        y["energy_outputs"]["retro_set"] is False or
+                        y["energy_outputs"]["retro_set"] !=
+                        opts.retro_set for y in meas_summary if
+                        y["name"] == meas_dict["name"]])) or \
                    (opts is not None and opts.add_typ_eff is True and
                     all([y["energy_outputs"]["add_typ_eff"] is False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is not None and opts.pkg_env_sep is True and
+                    all([y["energy_outputs"]["pkg_env_sep"] is False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is None or opts.site_energy is False and
@@ -11208,6 +11398,10 @@ def main(base_dir):
                          meas_dict["name"]])) or \
                    (opts is None or opts.captured_energy is False and
                     all([y["energy_outputs"]["captured_energy_ss"] is True
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.rp_persist is False and
+                    all([y["energy_outputs"]["rp_persist"] is True
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is None or opts.alt_regions is False and
@@ -11242,12 +11436,16 @@ def main(base_dir):
                     all([y["energy_outputs"]["adopt_scn_restrict"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
-                   (opts is None or opts.zero_ret is False and
-                    all([y["energy_outputs"]["zero_ret"] is not False
+                   (opts is None or opts.retro_set is False and
+                    all([y["energy_outputs"]["retro_set"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is None or opts.add_typ_eff is False and
                     all([y["energy_outputs"]["add_typ_eff"] is not False
+                         for y in meas_summary if y["name"] ==
+                         meas_dict["name"]])) or \
+                   (opts is None or opts.pkg_env_sep is False and
+                    all([y["energy_outputs"]["pkg_env_sep"] is not False
                          for y in meas_summary if y["name"] ==
                          meas_dict["name"]])) or \
                    (opts is not None and opts.sect_shapes is True and any([
@@ -11338,6 +11536,46 @@ def main(base_dir):
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)
+                    # If desired by user, add copies of HVAC equipment measures
+                    # that are part of packages; these measures will be
+                    # assigned no relative performance improvement and
+                    # added to copies of those HVAC/envelope packages, to serve
+                    # as counter-factuals that allow isolation of envelope
+                    # impacts within each package
+                    if opts is not None and len(ctrb_ms_pkg_all) != 0 and \
+                        opts.pkg_env_sep is True and (
+                        any([meas_dict["name"] in x[1] for
+                             x in ctrb_ms_pkg_all])) and (
+                        (isinstance(meas_dict["end_use"], list) and any([
+                            x in ["heating", "cooling"] for
+                            x in meas_dict["end_use"]])) or
+                            meas_dict["end_use"] in
+                            ["heating", "cooling"]) and (
+                        not ((isinstance(meas_dict["technology"], list)
+                              and all([x in handyvars.demand_tech for
+                                       x in meas_dict["technology"]])) or
+                             meas_dict["technology"] in
+                             handyvars.demand_tech)):
+                        # Determine measure copy name, CF for counterfactual
+                        new_name = meas_dict["name"] + " (CF)"
+                        # Copy the measure
+                        new_meas = copy.deepcopy(meas_dict)
+                        # Set the copied measure name to the name above
+                        new_meas["name"] = new_name
+                        # Append the copied measure to list of measure
+                        # definitions to update
+                        meas_toprep_indiv.append(new_meas)
+                        # Flag the package(s) that the measure that was copied
+                        # contributes to; this package will be copied as well
+                        # to produce the final counterfactual data
+                        pkgs_to_copy = [x[0] for x in ctrb_ms_pkg_all if
+                                        meas_dict["name"] in x[1]]
+                        # Add the package name, and the name of the original
+                        # and counterfactual HVAC equipment measure that
+                        # contributes to the package
+                        for p in pkgs_to_copy:
+                            pkg_copy_flag.append([
+                                p, meas_dict["name"], new_name])
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -11351,7 +11589,7 @@ def main(base_dir):
     # Initialize list of measure package dicts to prepare
     meas_toprep_package = []
     # Initialize a list to track which individual ECMs contribute to packages
-    contrib_meas_pkg = []
+    ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [
         mpkg for mpkg in meas_summary if "contrib_ECMs" in mpkg.keys()]
@@ -11385,7 +11623,32 @@ def main(base_dir):
                     (opts is None or opts.pkg_env_costs is False and
                      m_exist[0]["pkg_env_costs"] is not False))):
             meas_toprep_package.append(m)
-            contrib_meas_pkg.extend(m["contributing_ECMs"])
+            ctrb_ms_pkg_prep.extend(m["contributing_ECMs"])
+            # If package is flagged as needing a copy to serve as a
+            # counterfactual for isolating envelope impacts, make the copy
+            pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]][0]
+            if len(pkg_item) > 0:
+                # Determine unique package copy name, CF for counterfactual
+                new_pkg_name = pkg_item[0] + " (CF)"
+                # Copy the package
+                new_pkg = copy.deepcopy(m)
+                # Set the copied package name to the name above
+                new_pkg["name"] = new_pkg_name
+                # Replace original HVAC equipment ECM names from the package's
+                # list of contributing ECMs with those of the HVAC equipment
+                # ECM copies that have zero performance impacts and serve as
+                # counterfactuals, such that data for these copies will be
+                # pulled into the package assessment
+                for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
+                    if ecm == pkg_item[1]:
+                        new_pkg["contributing_ECMs"][ind] = pkg_item[2]
+                # Append the copied package measure to list of measure
+                # definitions to update, and also update the list of
+                # individual measures that contribute to packages being
+                # prepared
+                meas_toprep_package.append(new_pkg)
+                ctrb_ms_pkg_prep.extend(new_pkg["contributing_ECMs"])
+
         # Raise an error if the current package matches the name of
         # multiple previously prepared packages
         elif len(m_exist) > 1:
@@ -11557,7 +11820,7 @@ def main(base_dir):
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
             handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts, regions,
-            tsv_metrics, contrib_meas_pkg, tsv_data_nonfs)
+            tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
@@ -11576,36 +11839,53 @@ def main(base_dir):
         # Add all prepared high-level measure information to existing
         # high-level data and to list of active measures for analysis
         for m in meas_prepped_summary:
-            # Measure has been prepared from existing case (replace
-            # high-level data for measure)
-            if m["name"] in [x["name"] for x in meas_summary]:
-                [x.update(m) for x in meas_summary if x["name"] == m["name"]]
-            # Measure is new (add high-level data for measure)
-            else:
-                meas_summary.append(m)
-            # Add measures to active list; exclude individual measures that are
-            # part of a package from the active list, under the assumption that
-            # competition of these measures is handled via the package measure;
-            # in a scenario where public health costs are assumed, add only the
-            # "high" health costs versions of prepared measures to active list
-            if (m["name"] in contrib_meas_pkg) or (
-                (opts is not None and opts.health_costs is True) and (
-                    "PHC-EE (high)" not in m["name"])):
-                # Measure not already in inactive measures list (add to list)
-                if m["name"] not in run_setup["inactive"]:
-                    run_setup["inactive"].append(m["name"])
-                # Measure in active measures list (remove name from list)
-                if m["name"] in run_setup["active"]:
-                    run_setup["active"] = [x for x in run_setup[
-                        "active"] if x != m["name"]]
-            else:
-                # Measure not already in active measures list (add to list)
-                if m["name"] not in run_setup["active"]:
-                    run_setup["active"].append(m["name"])
-                # Measure in inactive measures list (remove name from list)
-                if m["name"] in run_setup["inactive"]:
-                    run_setup["inactive"] = [x for x in run_setup[
-                        "inactive"] if x != m["name"]]
+            # Measure does not serve as counterfactual for isolating
+            # envelope impacts within packages
+            if "(CF)" not in m["name"]:
+                # Measure has been prepared from existing case (replace
+                # high-level data for measure)
+                if m["name"] in [x["name"] for x in meas_summary]:
+                    [x.update(m) for x in meas_summary if
+                     x["name"] == m["name"]]
+                # Measure is new (add high-level data for measure)
+                else:
+                    meas_summary.append(m)
+                # Add measures to active list; exclude individual measures that
+                # are part of a package from the active list, under the
+                # assumption that competition of these measures is handled via
+                # the package measure; in a scenario where public health costs
+                # are assumed, add only the "high" health costs versions of
+                # prepared measures to active list
+                if (m["name"] in ctrb_ms_pkg_prep) or (
+                    (opts is not None and opts.health_costs is True) and (
+                        "PHC-EE (high)" not in m["name"])):
+                    # Measure not already in inactive meas. list (add to list)
+                    if m["name"] not in run_setup["inactive"]:
+                        run_setup["inactive"].append(m["name"])
+                    # Measure in active measures list (remove name from list)
+                    if m["name"] in run_setup["active"]:
+                        run_setup["active"] = [x for x in run_setup[
+                            "active"] if x != m["name"]]
+                else:
+                    # Measure not already in active measures list (add to list)
+                    if m["name"] not in run_setup["active"]:
+                        run_setup["active"].append(m["name"])
+                    # Measure in inactive measures list (remove name from list)
+                    if m["name"] in run_setup["inactive"]:
+                        run_setup["inactive"] = [x for x in run_setup[
+                            "inactive"] if x != m["name"]]
+            # Measure serves as counterfactual for isolating envelope impacts
+            # within packages; append data to separate list, which will
+            # be written to a separate ecm_prep file
+            elif meas_summary_env_cf is not None:
+                # Measure has been prepared from existing case (replace
+                # high-level data for measure)
+                if m["name"] in [x["name"] for x in meas_summary_env_cf]:
+                    [x.update(m) for x in meas_summary_env_cf if
+                     x["name"] == m["name"]]
+                # Measure is new (add high-level data for measure)
+                else:
+                    meas_summary_env_cf.append(m)
 
         # Notify user that all measure preparations are completed
         print('Writing output data...')
@@ -11634,6 +11914,14 @@ def main(base_dir):
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+
+        # Write prepared high-level counterfactual measure attributes data to
+        # JSON (e.g., a separate file with data that will be used to isolate
+        # the effects of envelope within envelope/HVAC packages)
+        if meas_summary_env_cf is not None:
+            with open(path.join(
+                    base_dir, *handyfiles.ecm_prep_env_cf), "w") as jso:
+                json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
 
         # Write any newly prepared measure names to the list of active
         # measures to be run in the analysis engine
@@ -11724,15 +12012,20 @@ if __name__ == "__main__":
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
     # Optional flag to force early retrofit rate to zero
-    parser.add_argument("--zero_ret", action="store_true",
-                        help="Assume zero early replacements per year")
+    parser.add_argument("--retro_set", action="store_true",
+                        help="Prompt user for early retrofit rate settings")
     # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
     # or 90.1 measures (to account for competitive effects)
     parser.add_argument("--add_typ_eff", action="store_true",
                         help=("Add typical technology analogues for equipment "
                               "efficiency measures at the most current ENERGY "
                               "STAR, IECC, and 90.1 performance levels"))
-
+    # Optional flag that will develop copies HVAC/envelope packages that remove
+    # the relative impacts of the HVAC portion to isolate the impacts of the
+    # envelope portion
+    parser.add_argument("--pkg_env_sep", action="store_true",
+                        help=("Isolate the impacts of envelope in "
+                              "envelope + HVAC packages"))
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
