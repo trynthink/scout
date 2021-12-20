@@ -10922,7 +10922,7 @@ def main(base_dir):
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
     if opts and opts.adopt_scn_restrict is not False:
-        input_var = 0
+        input_var = str(opts.adopt_scn_restrict_scheme)
         # Determine the restricted adoption scheme to use (max adoption (1) vs.
         # technical potential (2))
         while input_var not in ['1', '2']:
@@ -10930,7 +10930,7 @@ def main(base_dir):
                 "\nEnter 1 to restrict to a Max Adoption Potential adoption "
                 "scenario only,\nor 2 to restrict to a Technical Potential "
                 "adoption scenario only: ")
-            if input_var not in ['1', '2', '3']:
+            if input_var not in ['1', '2']:
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         if input_var == '1':
@@ -12011,6 +12011,14 @@ if __name__ == "__main__":
     # Optional flag to restrict adoption schemes
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
+    parser.add_argument("--adopt_scn_restrict_scheme",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --adopt_scn_restrict is not specified."
+                        "0: (defualt) interactive specification"
+                        "1: Max adoption Potential"
+                        "2: Technical Potential")
     # Optional flag to force early retrofit rate to zero
     parser.add_argument("--retro_set", action="store_true",
                         help="Prompt user for early retrofit rate settings")
