@@ -2556,7 +2556,7 @@ class Measure(object):
                 # All other microsegments – set early retrofit rate to zero
                 else:
                     retro_rate_mseg = {
-                        yr: 0 for yr in self.handyvars.aeo_}
+                        yr: 0 for yr in self.handyvars.aeo_years}
             # If early retrofit rates are not specified at the component
             # (microsegment) level, no further operations are needed
             else:
@@ -10240,7 +10240,7 @@ class MeasurePackage(Measure):
             # the original fuel in each year for the contributing measure/mseg
             fs_eff_splt_var = {
                 yr: (fs_eff_splt[k][0][yr] / fs_eff_splt[k][1][yr]) if
-                (fs_eff_splt and fs_eff_splt[k][1][yr] != 0) else 1
+                fs_eff_splt[k][1][yr] != 0 else 1
                 for yr in self.handyvars.aeo_years}
             # Energy/carbon; original fuel
             mseg_out_break_adj[k]["baseline"][
@@ -10295,7 +10295,7 @@ class MeasurePackage(Measure):
                 fs_eff_splt_cost = {
                     yr: (fs_eff_splt["cost"][0][yr] /
                          fs_eff_splt["cost"][1][yr]) if
-                    (fs_eff_splt and fs_eff_splt["cost"][1][yr] != 0) else 1
+                    fs_eff_splt["cost"][1][yr] != 0 else 1
                     for yr in self.handyvars.aeo_years}
 
                 # Energy cost; original fuel
@@ -11322,10 +11322,10 @@ def main(base_dir):
                     "': " + str(e)) from None
             ecf.close()
         except FileNotFoundError:
-            meas_summary_env_cf = ''
+            meas_summary_env_cf = []
     else:
         ctrb_ms_pkg_all, meas_summary_env_cf, pkg_copy_flag = (
-            '' for n in range(3))
+            None for n in range(3))
 
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
@@ -11575,9 +11575,9 @@ def main(base_dir):
                     # added to copies of those HVAC/envelope packages, to serve
                     # as counter-factuals that allow isolation of envelope
                     # impacts within each package
-                    if opts is not None and len(ctrb_ms_pkg_all) != 0 and \
-                        opts.pkg_env_sep is True and (
-                        any([meas_dict["name"] in x[1] for
+                    if opts is not None and opts.pkg_env_sep is True and len(
+                        ctrb_ms_pkg_all) != 0 and (any(
+                            [meas_dict["name"] in x[1] for
                              x in ctrb_ms_pkg_all])) and (
                         (isinstance(meas_dict["end_use"], list) and any([
                             x in ["heating", "cooling"] for
@@ -11659,7 +11659,10 @@ def main(base_dir):
             ctrb_ms_pkg_prep.extend(m["contributing_ECMs"])
             # If package is flagged as needing a copy to serve as a
             # counterfactual for isolating envelope impacts, make the copy
-            pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]][0]
+            if pkg_copy_flag:
+                pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]][0]
+            else:
+                pkg_item = []
             if len(pkg_item) > 0:
                 # Determine unique package copy name, CF for counterfactual
                 new_pkg_name = pkg_item[0] + " (CF)"
@@ -11910,7 +11913,7 @@ def main(base_dir):
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
-            elif meas_summary_env_cf is not None:
+            elif opts is not None and opts.pkg_env_sep is True:
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary_env_cf]:
@@ -11951,7 +11954,8 @@ def main(base_dir):
         # Write prepared high-level counterfactual measure attributes data to
         # JSON (e.g., a separate file with data that will be used to isolate
         # the effects of envelope within envelope/HVAC packages)
-        if meas_summary_env_cf is not None:
+        if opts is not None and opts.pkg_env_sep is True and \
+                meas_summary_env_cf is not None:
             with open(path.join(
                     base_dir, *handyfiles.ecm_prep_env_cf), "w") as jso:
                 json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
