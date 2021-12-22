@@ -81,7 +81,8 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
     """
 
-    def __init__(self, capt_energy, regions, site_energy, grid_decarb):
+    def __init__(self, capt_energy, regions, site_energy,
+                 grid_decarb, gs_ref_carb):
         if regions == 'AIA':
             # UNCOMMENT WITH ISSUE 188
             # self.msegs_in = ("supporting_data", "stock_energy_tech_data",
@@ -122,17 +123,31 @@ class UsefulInputFiles(object):
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
                 if grid_decarb[1] == "1":
-                    self.ss_data_altreg_nonfs = (
-                        "supporting_data", "convert_data",
-                        "emm_region_emissions_prices-updated.json")
+                    # Case where GridSIM Reference Case is used to set
+                    # baseline emissions factors (vs. AEO)
+                    if gs_ref_carb is True:
+                        self.ss_data_altreg_nonfs = (
+                            "supporting_data", "convert_data",
+                            "emm_region_emissions_prices-gsref.json")
+                    else:
+                        self.ss_data_altreg_nonfs = (
+                            "supporting_data", "convert_data",
+                            "emm_region_emissions_prices-updated.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures after grid decarbonization
                 else:
                     self.ss_data_altreg_nonfs = None
             else:
-                self.ss_data_altreg = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-updated.json")
+                # Case where GridSIM Reference Case is used to set
+                # baseline emissions factors (vs. AEO)
+                if gs_ref_carb is True:
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-gsref.json")
+                else:
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-updated.json")
                 self.ss_data_altreg_nonfs = None
         elif regions == 'State':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
@@ -190,8 +205,15 @@ class UsefulInputFiles(object):
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
             if grid_decarb[1] == "1":
-                self.ss_data_nonfs = ("supporting_data", "convert_data",
-                                      "site_source_co2_conversions.json")
+                # Case where GridSIM Reference Case is used to set
+                # baseline emissions factors (vs. AEO)
+                if gs_ref_carb is True:
+                    self.ss_data_nonfs = (
+                        "supporting_data", "convert_data",
+                        "site_source_co2_conversions-gsref.json")
+                else:
+                    self.ss_data_nonfs = ("supporting_data", "convert_data",
+                                          "site_source_co2_conversions.json")
                 self.tsv_cost_data_nonfs = (
                     "supporting_data", "tsv_data", "tsv_cost.json")
                 self.tsv_carbon_data_nonfs = (
@@ -208,8 +230,14 @@ class UsefulInputFiles(object):
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-ce.json")
             else:
-                self.ss_data = ("supporting_data", "convert_data",
-                                "site_source_co2_conversions.json")
+                # Case where GridSIM Reference Case is used to set
+                # baseline emissions factors (vs. AEO)
+                if gs_ref_carb is True:
+                    self.ss_data = ("supporting_data", "convert_data",
+                                    "site_source_co2_conversions-gsref.json")
+                else:
+                    self.ss_data = ("supporting_data", "convert_data",
+                                    "site_source_co2_conversions.json")
             self.tsv_cost_data = (
                 "supporting_data", "tsv_data", "tsv_cost.json")
             self.tsv_carbon_data = (
@@ -1834,7 +1862,8 @@ class Measure(object):
             self, base_dir, handyvars, handyfiles, site_energy,
             capt_energy, regions, tsv_metrics, health_costs, split_fuel,
             floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            retro_set, add_typ_eff, rp_persist, pkg_env_sep, **kwargs):
+            retro_set, add_typ_eff, rp_persist, pkg_env_sep,
+            gs_ref_carb, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1847,7 +1876,7 @@ class Measure(object):
         self.remove = False
         # Flag custom energy output settings (user-defined)
         self.energy_outputs = {
-            "site_energy": False, "grid_decarb": False,
+            "site_energy": False, "grid_decarb": False, "gs_ref_carb": False,
             "captured_energy_ss": False, "alt_regions": False,
             "tsv_metrics": False, "health_costs": False,
             "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
@@ -1887,6 +1916,8 @@ class Measure(object):
             self.energy_outputs["exog_hp_rates"] = exog_hp_rates
         if grid_decarb is not False:
             self.energy_outputs["grid_decarb"] = grid_decarb
+        if gs_ref_carb is not False:
+            self.energy_outputs["gs_ref_carb"] = gs_ref_carb
         if adopt_scn_usr is not False:
             self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
         if retro_set is not False:
@@ -10209,7 +10240,7 @@ class MeasurePackage(Measure):
             # the original fuel in each year for the contributing measure/mseg
             fs_eff_splt_var = {
                 yr: (fs_eff_splt[k][0][yr] / fs_eff_splt[k][1][yr]) if
-                fs_eff_splt[k][1][yr] != 0 else 1
+                (fs_eff_splt and fs_eff_splt[k][1][yr] != 0) else 1
                 for yr in self.handyvars.aeo_years}
             # Energy/carbon; original fuel
             mseg_out_break_adj[k]["baseline"][
@@ -10264,7 +10295,7 @@ class MeasurePackage(Measure):
                 fs_eff_splt_cost = {
                     yr: (fs_eff_splt["cost"][0][yr] /
                          fs_eff_splt["cost"][1][yr]) if
-                    fs_eff_splt["cost"][1][yr] != 0 else 1
+                    (fs_eff_splt and fs_eff_splt["cost"][1][yr] != 0) else 1
                     for yr in self.handyvars.aeo_years}
 
                 # Energy cost; original fuel
@@ -10605,8 +10636,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         opts.captured_energy, regions, tsv_metrics, opts.health_costs,
         opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
         opts.grid_decarb, opts.adopt_scn_restrict, opts.retro_set,
-        opts.add_typ_eff, opts.rp_persist, opts.pkg_env_sep, **m) for
-        m in measures]
+        opts.add_typ_eff, opts.rp_persist, opts.pkg_env_sep,
+        opts.gs_ref_carb, **m) for m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10696,7 +10727,8 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                     opts.health_costs, opts.split_fuel, opts.floor_start,
                     opts.exog_hp_rates, opts.grid_decarb,
                     opts.adopt_scn_restrict, opts.retro_set, opts.add_typ_eff,
-                    opts.rp_persist, **meas_summary_data[0])
+                    opts.rp_persist, opts.pkg_env_sep,
+                    opts.gs_ref_carb, **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -11209,7 +11241,8 @@ def main(base_dir):
     # warnings.formatwarning = custom_formatwarning
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles(
-        opts.captured_energy, regions, opts.site_energy, opts.grid_decarb)
+        opts.captured_energy, regions, opts.site_energy,
+        opts.grid_decarb, opts.gs_ref_carb)
 
     # UNCOMMENT WITH ISSUE 188
     # # Ensure that all AEO-based JSON data are drawn from the same AEO version
@@ -11996,6 +12029,11 @@ if __name__ == "__main__":
     parser.add_argument("--exog_hp_rates", action="store_true",
                         help=("Accomodates exogenous forcing of fuel "
                               "switching conversion rates"))
+    # Optional flag that will set baseline electricity emissions intensities to
+    # be consistent with the GridSIM Reference Case (rather than AEO)
+    parser.add_argument("--gs_ref_carb", action="store_true",
+                        help=("Use GridSIM Reference Case electricity "
+                              "emissions intensities"))
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",
                         help="Flag alternate grid decarbonization scenario")
