@@ -11102,7 +11102,8 @@ def main(base_dir):
     # emissions and cost factors should be handled, and ensure State regional
     # breakouts and/or captured energy method are not used
     if opts and opts.grid_decarb is True:
-        input_var = [0, 0]
+        input_var = [str(opts.grid_decarb_percent),
+                str(opts.grid_decarb_assess_avoided_emissions)]
         # Find which grid decarbonization scenario should be used
         while input_var[0] not in ['1', '2']:
             input_var[0] = input(
@@ -12050,6 +12051,22 @@ if __name__ == "__main__":
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",
                         help="Flag alternate grid decarbonization scenario")
+    parser.add_argument("--grid_decarb_percent",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --grid_decarb is not specified."
+                        "0: (default) interactive specification"
+                        "1: assume full grid decarbonization by 2035"
+                        "2: assume grid emissions reduced 80% by 2050")
+    parser.add_argument("--grid_decarb_assess_avoided_emissions",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --grid_decarb is not specified."
+                        "0: (default) interactive specification"
+                        "1: to assess avoided emissions and costs from non-fuel switching measures BEFORE additional grid decarbonization"
+                        "2: to assess avoided emissions and costs from non-fuel switching measures AFTER additional grid decarbonization")
     # Optional flag to restrict adoption schemes
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
