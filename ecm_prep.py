@@ -10954,7 +10954,7 @@ def main(base_dir):
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
     if opts and opts.adopt_scn_restrict is not False:
-        input_var = 0
+        input_var = str(opts.adopt_scn_restrict_scheme)
         # Determine the restricted adoption scheme to use (max adoption (1) vs.
         # technical potential (2))
         while input_var not in ['1', '2']:
@@ -10962,7 +10962,7 @@ def main(base_dir):
                 "\nEnter 1 to restrict to a Max Adoption Potential adoption "
                 "scenario only,\nor 2 to restrict to a Technical Potential "
                 "adoption scenario only: ")
-            if input_var not in ['1', '2', '3']:
+            if input_var not in ['1', '2']:
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         if input_var == '1':
@@ -10976,7 +10976,7 @@ def main(base_dir):
     # than the AIA climate zones, prompt the user to directly select that
     # alternate regional breakout (NEMS EMM or State)
     if opts and opts.alt_regions is True:
-        input_var = 0
+        input_var = str(opts.alt_regions_breakdown)
         # Determine the regional breakdown to use (NEMS EMM (1) vs. State (2)
         # vs. AIA (3))
         while input_var not in ['1', '2', '3']:
@@ -11019,7 +11019,7 @@ def main(base_dir):
     # (zero), gather further information about which set of assumptions to use
     if opts and opts.retro_set is True:
         # Initialize list that stores user early retrofit settings
-        input_var = [None, None, None]
+        input_var = [str(opts.retro_set_early_settings), None, None]
         # Determine the early retrofit settings to use
         while input_var[0] not in ['1', '2', '3']:
             input_var[0] = input(
@@ -11035,31 +11035,31 @@ def main(base_dir):
         # over time, gather further information about that assumed increase
         if input_var[0] == '3':
             # Initialize year by which a rate multiplier is achieved
-            mult_yr = ""
+            rs_mult = int(str(opts.retro_set_mult))
+            rs_yr   = int(str(opts.retro_set_yr))
+
             # Gather an assumed retrofit rate multiplier and the year by
             # which that multiplier is achieved
-            while len(mult_yr) == 0 or " " not in mult_yr:
-                mult_yr = input(
-                    "\nEnter the factor by which early retrofit rates should "
-                    "be multiplied along with the year by which this "
-                    "multiplier is achieved, separated by a space: ")
-                if len(mult_yr) == 0 or " " not in mult_yr:
-                    print('Please try again. Enter two integers separated by '
-                          'a space. Use ctrl-c to exit.')
-                else:
-                    # Convert user input to a list of integers
-                    mult_yr_list = list(map(int, mult_yr.split()))
-                    # Reset 2nd and 3rd element of list initialized above to
-                    # the rate/year information provided by the user
-                    input_var[1] = mult_yr_list[0]
-                    input_var[2] = mult_yr_list[1]
+            while rs_mult == 0:
+                rs_mult = input(
+                    "Enter the (integer) factor by which early retrofit rates "
+                    "should be multiplied: ")
+            while rs_yr <= 2000:
+                rs_yr = input(
+                        "Enter the year by which the multiplier is achieved: ")
+
+            # Reset 2nd and 3rd element of list initialized above to
+            # the rate/year information provided by the user
+            input_var[1] = rs_mult
+            input_var[2] = rm_yr
         opts.retro_set = input_var
 
     # If exogenous HP rates are specified, gather further information about
     # which exogenous HP rate scenario should be used and how these rates
     # should be applied to retrofit decisions
     if opts and opts.exog_hp_rates is True:
-        input_var = [0, 0]
+        input_var = [str(opts.exog_hp_rates_E3HP),
+                str(opts.exog_hp_rates_retrofits)]
         # Determine which fuel switching scenario to use
         while input_var[0] not in ['1', '2', '3', '4']:
             input_var[0] = input(
@@ -11102,7 +11102,8 @@ def main(base_dir):
     # emissions and cost factors should be handled, and ensure State regional
     # breakouts and/or captured energy method are not used
     if opts and opts.grid_decarb is True:
-        input_var = [0, 0]
+        input_var = [str(opts.grid_decarb_percent),
+                str(opts.grid_decarb_assess_avoided_emissions)]
         # Find which grid decarbonization scenario should be used
         while input_var[0] not in ['1', '2']:
             input_var[0] = input(
@@ -11147,77 +11148,107 @@ def main(base_dir):
     # to reach the desired metric type
     if opts and opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
-        output_type = input(
-            "Enter the type of time-sensitive metric desired "
-            "(1 = change in energy (e.g., multiple hour GWh), "
-            "2 = change in power (e.g., single hour GW)): ")
+        output_type = str(opts.tsv_metrics_output_type)
+        while output_type not in ['1', '2']:
+            output_type = input(
+                "Enter the type of time-sensitive metric desired "
+                "(1 = change in energy (e.g., multiple hour GWh), "
+                "2 = change in power (e.g., single hour GW)): ")
+            if output_type not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                      'Use ctrl-c to exit.')
 
         # Determine the hourly range to restrict results to (24h, peak, take)
-        hours = input(
-            "Enter the daily hour range to restrict to (1 = all hours, "
-            "2 = peak demand period hours, 3 = low demand period hours): ")
+        hours = str(opts.tsv_metrics_hours)
+        while hours not in ['1', '2', '3']:
+            hours = input(
+                "Enter the daily hour range to restrict to (1 = all hours, "
+                "2 = peak demand period hours, 3 = low demand period hours): ")
+            if hours not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
 
         # If peak/take hours are chosen, determine whether total or net
         # system shapes should be used to determine the hour ranges
         if hours == '2' or hours == '3':
-            sys_shape = input(
-                "Enter the basis for determining peak or low demand hour "
-                "ranges: 1 = total system load (reference case), 2 = total "
-                "system load (high renewables case), 3 = total system load "
-                "net renewables (reference case), 4 = total system load "
-                "net renewables (high renewables case): "
-                )
+            sys_shape = str(opts.tsv_metrics_sys_shape)
+            while sys_shape not in ['1', '2', '3', '4']:
+                sys_shape = input(
+                    "Enter the basis for determining peak or low demand hour "
+                    "ranges: 1 = total system load (reference case), 2 = total "
+                    "system load (high renewables case), 3 = total system load "
+                    "net renewables (reference case), 4 = total system load "
+                    "net renewables (high renewables case): "
+                    )
+                if sys_shape not in ['1', '2', '3', '4']:
+                    print('Please try again. Enter 1, 2, 3, or 4. '
+                          'Use ctrl-c to exit.')
         else:
             sys_shape = '0'
 
         # Determine the season to restrict results to (summer, winter,
         # intermediate)
-        season = input(
-            "Enter the desired season of focus (1 = summer, "
-            "2 = winter, 3 = intermediate): ")
+        season = str(opts.tsv_metrics_season)
+        while season not in ['1', '2', '3']:
+            season = input(
+                "Enter the desired season of focus (1 = summer, "
+                "2 = winter, 3 = intermediate): ")
+            if season not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                        'Use ctrl-c to exit.')
 
         # Determine desired calculations (dependent on output type) for given
         # flexibility mode, output type, and temporal boundaries
 
         # Energy output case (multiple hours)
-        if output_type == '1':
-            # Sum/average energy change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across all "
-                    "hours, 2 = daily average): ")
-            # Sum/average energy change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across peak "
-                    "hours, 2 = daily peak period average): ")
-            # Sum/average energy change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across low demand "
-                    "hours, 2 = daily low demand period average): ")
-        # Power output case (single hour)
-        else:
-            # Max/average power change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day maximum, "
-                    "2 = daily hourly average): ")
-            # Max/average power change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, peak period "
-                    "maximum, 2 = daily peak period hourly average): ")
-            # Max/average power change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, low demand period "
-                    "maximum, 2 = daily low demand period hourly average): ")
+        calc_type = str(opts.tsv_metrics_calc_type)
+        while calc_type not in ['1', '2']:
+            if output_type == '1':
+                # Sum/average energy change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across all "
+                        "hours, 2 = daily average): ")
+                # Sum/average energy change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across peak "
+                        "hours, 2 = daily peak period average): ")
+                # Sum/average energy change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across low demand "
+                        "hours, 2 = daily low demand period average): ")
+            # Power output case (single hour)
+            else:
+                # Max/average power change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day maximum, "
+                        "2 = daily hourly average): ")
+                # Max/average power change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, peak period "
+                        "maximum, 2 = daily peak period hourly average): ")
+                # Max/average power change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, low demand period "
+                        "maximum, 2 = daily low demand period hourly average): ")
+            if calc_type not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                        'Use ctrl-c to exit.')
         # Determine the day type to average over (if needed)
         if output_type == '1' or calc_type == '2':
-            day_type = input(
-                "Enter day type to calculate across (1 = all days, "
-                "2 = weekdays, 3 = weekends): ")
+            day_type = str(opts.tsv_metrics_day_type)
+            while day_type not in ['1', '2']:
+                day_type = input(
+                    "Enter day type to calculate across (1 = all days, "
+                    "2 = weekdays, 3 = weekends): ")
+                if day_type not in ['1', '2']:
+                    print('Please try again. Enter 1 or 2. '
+                            'Use ctrl-c to exit.')
         else:
             day_type = "0"
 
@@ -11997,9 +12028,100 @@ if __name__ == "__main__":
     # Optional flag for non-AIA regional breakdown
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
+    parser.add_argument("--alt_regions_breakdown",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --alt_regions is not specificed."
+                        " 0 (default) interactive specification"
+                        " 1 use an EIA NEMS Electricity Market Model (EMM)"
+                        " 2 use a state geograhpical breakdown"
+                        " 3 use an AIA climate zome geograhpical breakdown")
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
+    parser.add_argument("--tsv_metrics_output_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Type of time-sensitive metric desire"
+                        "0: (default) interactive sepcification"
+                        "1: change in energy (e.g., multiple hour GWh),"
+                        "2: change in power (e.g., single hour GW)): ")
+    parser.add_argument("--tsv_metrics_hours",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Daily hour range to restrict to"
+                        "0: (default) interactive sepcification"
+                        "1: all hours"
+                        "2: peak demand period hours"
+                        "3: low demand period hours")
+    parser.add_argument("--tsv_metrics_sys_shape",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Ignored unless tsv_metrics_hours in ['2', '3']"
+                        "Basis for determining peak/low demand hour ranges:"
+                        "0: (default)"
+                        "1: total system load (reference)"
+                        "2: totalsystem load (high renewables)"
+                        "3: total system load net renewables (reference)"
+                        "4: total system load net renewables (high renewables)")
+    parser.add_argument("--tsv_metrics_season",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Desired season of focus"
+                        "0: (default) for interactive specification"
+                        "1: summer"
+                        "2: winter"
+                        "3: intermediate")
+    parser.add_argument("--tsv_metrics_calc_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Desired calculations (dependent on output type) for"
+                        "given flexibility mode, output type, and temporal"
+                        "boundaries"
+                        "0: (default) for interactive specification"
+                        "If tsv_metrics_output_type == 1:"
+                        "  If tsv_metrics_hours == 1:"
+                        "    1: sum across all hours"
+                        "    2: dayily average"
+                        "  If tsv_metrics_hours == 2:"
+                        "    1: sum across peak hours"
+                        "    2: daily peak average"
+                        "  If tsv_metrics_hours == 3:"
+                        "    1: sum across low demand hours"
+                        "    2: daily low demand period average"
+                        "else:"
+                        "  if tsv_metrics_hours == 1:"
+                        "    1: peak day maximum"
+                        "    2: daily hourly average"
+                        "  if tsv_metrics_hours == 2:"
+                        "    1: peak day, peak period maximum"
+                        "    2: daily peak period hourly average"
+                        "  if tsv_metrics_hours == 3:"
+                        "    1: peak day, low demand period maximum"
+                        "    2: daily low demand period hourly average")
+    parser.add_argument("--tsv_metrics_day_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Day type to calculat accross"
+                        "0: (default)"
+                        "If tsv_metrics_output_type == 1 or calc_type == 2"
+                        "  1: all days"
+                        "  2: weekdays"
+                        "  3: weekends")
+
     # Optional flag for generating sector-level load shapes
     parser.add_argument("--sect_shapes", action="store_true",
                         help="Flag sector-level load shapes")
@@ -12033,6 +12155,28 @@ if __name__ == "__main__":
     parser.add_argument("--exog_hp_rates", action="store_true",
                         help=("Accomodates exogenous forcing of fuel "
                               "switching conversion rates"))
+    parser.add_argument("--exog_hp_rates_E3HP",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Specify the Guidehouse E3HP conversion"
+                        "Ignored if --exog_hp_rates is not specified."
+                        "0: (default) interactive specification"
+                        "1: conservative"
+                        "2: optimistic"
+                        "3: aggressive"
+                        "4: most aggressive")
+    parser.add_argument("--exog_hp_rates_retrofits",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --exog_hp_rates is not specified."
+                        "Asumme that all retrofis ..."
+                        "0: (default) interactive specification"
+                        "1: convert to heat pumps"
+                        "2: are subject to the same external heat pump"
+                        "   conversion rates assumed for new or"
+                        "   replacement decisions.")
     # Optional flag that will set baseline electricity emissions intensities to
     # be consistent with the GridSIM Reference Case (rather than AEO)
     parser.add_argument("--gs_ref_carb", action="store_true",
@@ -12041,12 +12185,61 @@ if __name__ == "__main__":
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",
                         help="Flag alternate grid decarbonization scenario")
+    parser.add_argument("--grid_decarb_percent",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --grid_decarb is not specified."
+                        "0: (default) interactive specification"
+                        "1: assume full grid decarbonization by 2035"
+                        "2: assume grid emissions reduced 80% by 2050")
+    parser.add_argument("--grid_decarb_assess_avoided_emissions",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --grid_decarb is not specified."
+                        "0: (default) interactive specification"
+                        "1: to assess avoided emissions and costs from non-fuel switching measures BEFORE additional grid decarbonization"
+                        "2: to assess avoided emissions and costs from non-fuel switching measures AFTER additional grid decarbonization")
     # Optional flag to restrict adoption schemes
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
+    parser.add_argument("--adopt_scn_restrict_scheme",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --adopt_scn_restrict is not specified."
+                        "0: (defualt) interactive specification"
+                        "1: Max adoption Potential"
+                        "2: Technical Potential")
     # Optional flag to force early retrofit rate to zero
     parser.add_argument("--retro_set", action="store_true",
                         help="Prompt user for early retrofit rate settings")
+    parser.add_argument("--retro_set_early_settings",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "0: (default) interactive specification"
+                        "1: no early retrofits"
+                        "2: component-based early retrofits; static over time"
+                        "3: component-based early retrofits; increase over time"
+                        )
+    parser.add_argument("--retro_set_mult",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "Ignored if --retro_set_early_settings != 3"
+                        "The (integer) factor by whcih early retrofits rates"
+                        "should be multiplied")
+    parser.add_argument("--retro_set_yr",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "Ignored if --retro_set_early_settings != 3"
+                        "Year by which the multiplier is achieved")
     # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
     # or 90.1 measures (to account for competitive effects)
     parser.add_argument("--add_typ_eff", action="store_true",
