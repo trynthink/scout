@@ -11059,7 +11059,8 @@ def main(base_dir):
     # which exogenous HP rate scenario should be used and how these rates
     # should be applied to retrofit decisions
     if opts and opts.exog_hp_rates is True:
-        input_var = [0, 0]
+        input_var = [str(opts.exog_hp_rates_E3HP),
+                str(opts.exog_hp_rates_retrofits)]
         # Determine which fuel switching scenario to use
         while input_var[0] not in ['1', '2', '3', '4']:
             input_var[0] = input(
@@ -12043,6 +12044,28 @@ if __name__ == "__main__":
     parser.add_argument("--exog_hp_rates", action="store_true",
                         help=("Accomodates exogenous forcing of fuel "
                               "switching conversion rates"))
+    parser.add_argument("--exog_hp_rates_E3HP",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Specify the Guidehouse E3HP conversion"
+                        "Ignored if --exog_hp_rates is not specified."
+                        "0: (default) interactive specification"
+                        "1: conservative"
+                        "2: optimistic"
+                        "3: aggressive"
+                        "4: most aggressive")
+    parser.add_argument("--exog_hp_rates_retrofits",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --exog_hp_rates is not specified."
+                        "Asumme that all retrofis ..."
+                        "0: (default) interactive specification"
+                        "1: convert to heat pumps"
+                        "2: are subject to the same external heat pump"
+                        "   conversion rates assumed for new or"
+                        "   replacement decisions.")
     # Optional flag that will set baseline electricity emissions intensities to
     # be consistent with the GridSIM Reference Case (rather than AEO)
     parser.add_argument("--gs_ref_carb", action="store_true",
