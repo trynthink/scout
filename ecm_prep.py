@@ -11035,25 +11035,23 @@ def main(base_dir):
         # over time, gather further information about that assumed increase
         if input_var[0] == '3':
             # Initialize year by which a rate multiplier is achieved
-            # TODO: break this into two vars not one string.
-            mult_yr = ""
+            rs_mult = int(str(opts.retro_set_mult))
+            rs_yr   = int(str(opts.retro_set_yr))
+
             # Gather an assumed retrofit rate multiplier and the year by
             # which that multiplier is achieved
-            while len(mult_yr) == 0 or " " not in mult_yr:
-                mult_yr = input(
-                    "\nEnter the factor by which early retrofit rates should "
-                    "be multiplied along with the year by which this "
-                    "multiplier is achieved, separated by a space: ")
-                if len(mult_yr) == 0 or " " not in mult_yr:
-                    print('Please try again. Enter two integers separated by '
-                          'a space. Use ctrl-c to exit.')
-                else:
-                    # Convert user input to a list of integers
-                    mult_yr_list = list(map(int, mult_yr.split()))
-                    # Reset 2nd and 3rd element of list initialized above to
-                    # the rate/year information provided by the user
-                    input_var[1] = mult_yr_list[0]
-                    input_var[2] = mult_yr_list[1]
+            while rs_mult == 0:
+                rs_mult = input(
+                    "Enter the (integer) factor by which early retrofit rates "
+                    "should be multiplied: ")
+            while rs_yr <= 2000:
+                rs_yr = input(
+                        "Enter the year by which the multiplier is achieved: ")
+
+            # Reset 2nd and 3rd element of list initialized above to
+            # the rate/year information provided by the user
+            input_var[1] = rs_mult
+            input_var[2] = rm_yr
         opts.retro_set = input_var
 
     # If exogenous HP rates are specified, gather further information about
@@ -12227,14 +12225,21 @@ if __name__ == "__main__":
                         "2: component-based early retrofits; static over time"
                         "3: component-based early retrofits; increase over time"
                         )
-    parser.add_argument("--retro_set_mult_yr",
+    parser.add_argument("--retro_set_mult",
                         type = int,
                         default = 0,
                         help =
                         "Ignored if --retro_set is not specified."
                         "Ignored if --retro_set_early_settings != 3"
-                        "NOT YET IMPLIMENTED"
-                        )
+                        "The (integer) factor by whcih early retrofits rates"
+                        "should be multiplied")
+    parser.add_argument("--retro_set_yr",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "Ignored if --retro_set_early_settings != 3"
+                        "Year by which the multiplier is achieved")
     # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
     # or 90.1 measures (to account for competitive effects)
     parser.add_argument("--add_typ_eff", action="store_true",
