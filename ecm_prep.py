@@ -11149,77 +11149,107 @@ def main(base_dir):
     # to reach the desired metric type
     if opts and opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
-        output_type = input(
-            "Enter the type of time-sensitive metric desired "
-            "(1 = change in energy (e.g., multiple hour GWh), "
-            "2 = change in power (e.g., single hour GW)): ")
+        output_type = str(opts.tsv_metrics_output_type)
+        while output_type not in ['1', '2']:
+            output_type = input(
+                "Enter the type of time-sensitive metric desired "
+                "(1 = change in energy (e.g., multiple hour GWh), "
+                "2 = change in power (e.g., single hour GW)): ")
+            if output_type not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                      'Use ctrl-c to exit.')
 
         # Determine the hourly range to restrict results to (24h, peak, take)
-        hours = input(
-            "Enter the daily hour range to restrict to (1 = all hours, "
-            "2 = peak demand period hours, 3 = low demand period hours): ")
+        hours = str(opts.tsv_metrics_hours)
+        while hours not in ['1', '2', '3']:
+            hours = input(
+                "Enter the daily hour range to restrict to (1 = all hours, "
+                "2 = peak demand period hours, 3 = low demand period hours): ")
+            if hours not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
 
         # If peak/take hours are chosen, determine whether total or net
         # system shapes should be used to determine the hour ranges
         if hours == '2' or hours == '3':
-            sys_shape = input(
-                "Enter the basis for determining peak or low demand hour "
-                "ranges: 1 = total system load (reference case), 2 = total "
-                "system load (high renewables case), 3 = total system load "
-                "net renewables (reference case), 4 = total system load "
-                "net renewables (high renewables case): "
-                )
+            sys_shape = str(opts.tsv_metrics_sys_shape)
+            while sys_shape not in ['1', '2', '3', '4']:
+                sys_shape = input(
+                    "Enter the basis for determining peak or low demand hour "
+                    "ranges: 1 = total system load (reference case), 2 = total "
+                    "system load (high renewables case), 3 = total system load "
+                    "net renewables (reference case), 4 = total system load "
+                    "net renewables (high renewables case): "
+                    )
+                if sys_shape not in ['1', '2', '3', '4']:
+                    print('Please try again. Enter 1, 2, 3, or 4. '
+                          'Use ctrl-c to exit.')
         else:
             sys_shape = '0'
 
         # Determine the season to restrict results to (summer, winter,
         # intermediate)
-        season = input(
-            "Enter the desired season of focus (1 = summer, "
-            "2 = winter, 3 = intermediate): ")
+        season = str(opts.tsv_metrics_season)
+        while season not in ['1', '2', '3']:
+            season = input(
+                "Enter the desired season of focus (1 = summer, "
+                "2 = winter, 3 = intermediate): ")
+            if season not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                        'Use ctrl-c to exit.')
 
         # Determine desired calculations (dependent on output type) for given
         # flexibility mode, output type, and temporal boundaries
 
         # Energy output case (multiple hours)
-        if output_type == '1':
-            # Sum/average energy change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across all "
-                    "hours, 2 = daily average): ")
-            # Sum/average energy change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across peak "
-                    "hours, 2 = daily peak period average): ")
-            # Sum/average energy change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across low demand "
-                    "hours, 2 = daily low demand period average): ")
-        # Power output case (single hour)
-        else:
-            # Max/average power change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day maximum, "
-                    "2 = daily hourly average): ")
-            # Max/average power change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, peak period "
-                    "maximum, 2 = daily peak period hourly average): ")
-            # Max/average power change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, low demand period "
-                    "maximum, 2 = daily low demand period hourly average): ")
+        calc_type = str(opts.tsv_metrics_calc_type)
+        while calc_type not in ['1', '2']:
+            if output_type == '1':
+                # Sum/average energy change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across all "
+                        "hours, 2 = daily average): ")
+                # Sum/average energy change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across peak "
+                        "hours, 2 = daily peak period average): ")
+                # Sum/average energy change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across low demand "
+                        "hours, 2 = daily low demand period average): ")
+            # Power output case (single hour)
+            else:
+                # Max/average power change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day maximum, "
+                        "2 = daily hourly average): ")
+                # Max/average power change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, peak period "
+                        "maximum, 2 = daily peak period hourly average): ")
+                # Max/average power change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, low demand period "
+                        "maximum, 2 = daily low demand period hourly average): ")
+            if calc_type not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                        'Use ctrl-c to exit.')
         # Determine the day type to average over (if needed)
         if output_type == '1' or calc_type == '2':
-            day_type = input(
-                "Enter day type to calculate across (1 = all days, "
-                "2 = weekdays, 3 = weekends): ")
+            day_type = str(opts.tsv_metrics_day_type)
+            while day_type not in ['1', '2']:
+                day_type = input(
+                    "Enter day type to calculate across (1 = all days, "
+                    "2 = weekdays, 3 = weekends): ")
+                if day_type not in ['1', '2']:
+                    print('Please try again. Enter 1 or 2. '
+                            'Use ctrl-c to exit.')
         else:
             day_type = "0"
 
@@ -12011,6 +12041,88 @@ if __name__ == "__main__":
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
+    parser.add_argument("--tsv_metrics_output_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Type of time-sensitive metric desire"
+                        "0: (default) interactive sepcification"
+                        "1: change in energy (e.g., multiple hour GWh),"
+                        "2: change in power (e.g., single hour GW)): ")
+    parser.add_argument("--tsv_metrics_hours",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Daily hour range to restrict to"
+                        "0: (default) interactive sepcification"
+                        "1: all hours"
+                        "2: peak demand period hours"
+                        "3: low demand period hours")
+    parser.add_argument("--tsv_metrics_sys_shape",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Ignored unless tsv_metrics_hours in ['2', '3']"
+                        "Basis for determining peak/low demand hour ranges:"
+                        "0: (default)"
+                        "1: total system load (reference)"
+                        "2: totalsystem load (high renewables)"
+                        "3: total system load net renewables (reference)"
+                        "4: total system load net renewables (high renewables)")
+    parser.add_argument("--tsv_metrics_season",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Desired season of focus"
+                        "0: (default) for interactive specification"
+                        "1: summer"
+                        "2: winter"
+                        "3: intermediate")
+    parser.add_argument("--tsv_metrics_calc_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Desired calculations (dependent on output type) for"
+                        "given flexibility mode, output type, and temporal"
+                        "boundaries"
+                        "0: (default) for interactive specification"
+                        "If tsv_metrics_output_type == 1:"
+                        "  If tsv_metrics_hours == 1:"
+                        "    1: sum across all hours"
+                        "    2: dayily average"
+                        "  If tsv_metrics_hours == 2:"
+                        "    1: sum across peak hours"
+                        "    2: daily peak average"
+                        "  If tsv_metrics_hours == 3:"
+                        "    1: sum across low demand hours"
+                        "    2: daily low demand period average"
+                        "else:"
+                        "  if tsv_metrics_hours == 1:"
+                        "    1: peak day maximum"
+                        "    2: daily hourly average"
+                        "  if tsv_metrics_hours == 2:"
+                        "    1: peak day, peak period maximum"
+                        "    2: daily peak period hourly average"
+                        "  if tsv_metrics_hours == 3:"
+                        "    1: peak day, low demand period maximum"
+                        "    2: daily low demand period hourly average")
+    parser.add_argument("--tsv_metrics_day_type",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --tsv_metrics is not specificed."
+                        "Day type to calculat accross"
+                        "0: (default)"
+                        "If tsv_metrics_output_type == 1 or calc_type == 2"
+                        "  1: all days"
+                        "  2: weekdays"
+                        "  3: weekends")
+
     # Optional flag for generating sector-level load shapes
     parser.add_argument("--sect_shapes", action="store_true",
                         help="Flag sector-level load shapes")
