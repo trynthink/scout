@@ -11019,7 +11019,7 @@ def main(base_dir):
     # (zero), gather further information about which set of assumptions to use
     if opts and opts.retro_set is True:
         # Initialize list that stores user early retrofit settings
-        input_var = [None, None, None]
+        input_var = [str(opts.retro_set_early_settings), None, None]
         # Determine the early retrofit settings to use
         while input_var[0] not in ['1', '2', '3']:
             input_var[0] = input(
@@ -11035,6 +11035,7 @@ def main(base_dir):
         # over time, gather further information about that assumed increase
         if input_var[0] == '3':
             # Initialize year by which a rate multiplier is achieved
+            # TODO: break this into two vars not one string.
             mult_yr = ""
             # Gather an assumed retrofit rate multiplier and the year by
             # which that multiplier is achieved
@@ -12216,6 +12217,24 @@ if __name__ == "__main__":
     # Optional flag to force early retrofit rate to zero
     parser.add_argument("--retro_set", action="store_true",
                         help="Prompt user for early retrofit rate settings")
+    parser.add_argument("--retro_set_early_settings",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "0: (default) interactive specification"
+                        "1: no early retrofits"
+                        "2: component-based early retrofits; static over time"
+                        "3: component-based early retrofits; increase over time"
+                        )
+    parser.add_argument("--retro_set_mult_yr",
+                        type = int,
+                        default = 0,
+                        help =
+                        "Ignored if --retro_set is not specified."
+                        "Ignored if --retro_set_early_settings != 3"
+                        "NOT YET IMPLIMENTED"
+                        )
     # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
     # or 90.1 measures (to account for competitive effects)
     parser.add_argument("--add_typ_eff", action="store_true",
