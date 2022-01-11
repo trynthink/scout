@@ -693,7 +693,7 @@ for (a in 1:length(adopt_scenarios)){
 	                    
 	                    # If data values exist, add them to the ECM's energy/carbon/cost
 	                    # savings-by-filter variable vector initialized above
-	                    if (length(r_agg_temp)>1){
+	                    if (length(r_agg_temp)!=0){
 	                      # Determine which index to use in adding the retrieved data to
 	                      # the ECM's energy/carbon/cost savings-by-filter variable vector
 	                      if (fv == 1){
@@ -706,15 +706,15 @@ for (a in 1:length(adopt_scenarios)){
 	                      # Add retrieved data to ECM's savings-by-filter variable vector;
                         # handle case where end use savings are further split out by
                         # fuel type ('Electric' vs. 'Non-Electric')
-	                      if (length(r_agg_temp) == 2){
+	                      if (years[yr]%in%names(r_agg_temp)){
+                          add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
+                        }else{
                           for (fuel in c("Electric", "Non-Electric")){
                             if (length(r_agg_temp[[fuel]])!=0){
                               add_val[index] = add_val[index] +
                                 r_agg_temp[[fuel]][years[yr]][[1]]
                             }
                           }
-                        }else{
-                          add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
                         }
 	                    }
 	                  }                  
@@ -1324,7 +1324,7 @@ for (a in 1:length(adopt_scenarios)){
 	    	# Add a line to distinguish the cost effectiveness threshold
 	    	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
 	     	# Add individual ECM points to the cost effectiveness plot
-	     	points(results_x, results_y, col="gray70", pch=results_pch,
+        points(results_x, results_y, col="gray70", pch=results_pch,
 	     	       bg=results_bg, lwd=0.75, cex = 1.2)
       	# Add x axis tick marks and axis labels
       	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)

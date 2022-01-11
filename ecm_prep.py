@@ -49,7 +49,10 @@ class UsefulInputFiles(object):
         ecm_prep (tuple): Prepared measure attributes data for use in the
             analysis engine.
         ecm_prep_env_cf (tuple): Prepared envelope/HVAC package measure
-            attributes data with the effects HVAC removed (isolate envelope).
+            attributes data with effects of HVAC removed (isolate envelope).
+        ecm_prep_shapes (tuple): Prepared measure sector shapes data.
+        ecm_prep_env_cf_shapes (tuple): Prepared envelope/HVAC package measure
+            sector shapes data with effects of HVAC removed (isolate envelope).
         ecm_compete_data (tuple): Folder with contributing microsegment data
             needed to run measure competition in the analysis engine.
         ecm_eff_fs_splt_data (tuple): Folder with data needed to determine the
@@ -183,6 +186,10 @@ class UsefulInputFiles(object):
         self.ecm_packages = ("ecm_definitions", "package_ecms.json")
         self.ecm_prep = ("supporting_data", "ecm_prep.json")
         self.ecm_prep_env_cf = ("supporting_data", "ecm_prep_env_cf.json")
+        self.ecm_prep_shapes = (
+            "supporting_data", "ecm_prep_shapes.json")
+        self.ecm_prep_env_cf_shapes = (
+            "supporting_data", "ecm_prep_env_cf_shapes.json")
         self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
         self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
         self.run_setup = "run_setup.json"
@@ -345,7 +352,7 @@ class UsefulVars(object):
             shape data.
         health_scn_names (list): List of public health data scenario names.
         health_scn_data (numpy.ndarray): Public health cost data.
-        heat_ls_tech_scrn (tuple): Heat gains to screen out of time-
+        env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
             sensitive valuation for heating (no load shapes for these gains).
     """
 
@@ -1431,7 +1438,7 @@ class UsefulVars(object):
                            "2017cents_kWh_7pct_low",
                            "2017cents_kWh_7pct_high"),
                     delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
-        self.heat_ls_tech_scrn = (
+        self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
 
@@ -2404,8 +2411,17 @@ class Measure(object):
 
         # Fill in sector baseline/efficient 8760 shapes attribute across all
         # applicable regions for the measure with a list of 8760 zeros (if
-        # necessary)
-        if opts.sect_shapes is True:
+        # necessary). Exclude envelope measures that are part of packages w/
+        # HVAC equipment; these measures simply scale HVAC equipment shapes
+        # based on annual results, and thus do not require shapes of their own.
+        # Also exclude any measures that track the reference case and do not
+        # fuel switch; these measures have zero effects on baseline loads and
+        # will therefore not generate sector-level savings shapes.
+        if opts.sect_shapes is True and (
+                self.technology_type["primary"] != "demand" or
+                self.name not in ctrb_ms_pkg_prep) and (
+                "Ref. Case" not in self.name or
+                self.fuel_switch_to is not None):
             # Find applicable region list (ensure it is in list format)s
             if type(self.climate_zone) is str:
                 grid_regions = copy.deepcopy([self.climate_zone])
@@ -2416,6 +2432,9 @@ class Measure(object):
                     "baseline": [0 for x in range(8760)],
                     "efficient": [0 for x in range(8760)]} for yr in
                     self.handyvars.aeo_years_summary} for reg in grid_regions}
+            calc_sect_shapes = True
+        else:
+            calc_sect_shapes = ""
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -3294,11 +3313,17 @@ class Measure(object):
                 continue
             # Continue loop if time-sensitive valuation is required and the
             # current microsegment technology does not have the necessary
-            # load shape information (pertinent to internal heat gains)
-            elif (((self.energy_outputs["tsv_metrics"] is not False or
-                   opts.sect_shapes is True) or self.tsv_features is not None)
-                  and (mskeys[4] in ["heating", "secondary heating"] and
-                       mskeys[-2] in self.handyvars.heat_ls_tech_scrn)):
+            # load shape information (pertinent to internal heat gains for
+            # envelope heating microsegments, when such measures are being
+            # assessed in isolation and not as part of a package (in package
+            # case no envelope load shape information is generated/needed))
+            elif ("demand" in mskeys and
+                  self.name not in ctrb_ms_pkg_prep) and ((
+                    (self.energy_outputs["tsv_metrics"] is not False or
+                     opts.sect_shapes is True) or
+                    self.tsv_features is not None) and (
+                     mskeys[4] in ["heating", "secondary heating"] and
+                     mskeys[-2] in self.handyvars.env_heat_ls_scrn)):
                 continue
             # Continue loop if key chain yields "stock"/"energy" keys but
             # the stock or energy data are missing
@@ -4608,7 +4633,7 @@ class Measure(object):
                 # desired (per self.handyvars.aeo_years_summary attribute).
                 if (self.energy_outputs["tsv_metrics"] is not False or
                     self.tsv_features is not None or (
-                    opts.sect_shapes is True and
+                    calc_sect_shapes is True and
                     yr in self.handyvars.aeo_years_summary)) and (
                         mskeys[0] == "primary" and (
                             (mskeys[3] == "electricity") or
@@ -4650,7 +4675,7 @@ class Measure(object):
                         "electricity" not in mskeys:
                     # Set baseline load shapes to zero in cases where these
                     # fractions have been calculated
-                    if opts.sect_shapes is True and tsv_shapes is not None:
+                    if calc_sect_shapes is True and tsv_shapes is not None:
                         tsv_shapes["baseline"] = [0 for x in range(8760)]
                     # Set baseline TSV scaling fractions to 1
                     for x in ["energy", "cost", "carbon"]:
@@ -4683,7 +4708,7 @@ class Measure(object):
                             intensity_carb_meas, energy_total_scnd,
                             tsv_scale_fracs, tsv_shapes, opts,
                             contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
-                            retro_rate_mseg)
+                            retro_rate_mseg, calc_sect_shapes)
 
                     # Remove double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
@@ -6611,7 +6636,7 @@ class Measure(object):
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
             tsv_shapes, opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
-            retro_rate_mseg):
+            retro_rate_mseg, calc_sect_shapes):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -6653,6 +6678,7 @@ class Measure(object):
             hp_rate (dict): Exogenous rate of conversion of the baseline mseg
                 to HPs, if applicable.
             retro_rate_mseg (dict): Microsegment-specific retrofit rate.
+            calc_sect_shapes (boolean): Flag for sector-shape calculations.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -7173,14 +7199,14 @@ class Measure(object):
             # Only update sector-level shapes for certain years of focus;
             # ensure that load shape information is available for the
             # update and if not, yield an error message
-            if opts.sect_shapes is True and yr in \
+            if calc_sect_shapes and yr in \
                 self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
                     energy_total[yr] for x in range(8760)]
-            elif opts.sect_shapes is True and tsv_shapes is None and (
+            elif calc_sect_shapes and tsv_shapes is None and (
                     mskeys[0] == "primary" and (
                         (mskeys[3] == "electricity") or
                         (self.fuel_switch_to == "electricity"))):
@@ -7471,7 +7497,7 @@ class Measure(object):
             # Re-apportion total efficient microsegment energy across all 8760
             # hours of the year, if necessary (supports sector-level savings
             # shapes)
-            if opts.sect_shapes is True and \
+            if calc_sect_shapes and \
                 yr in self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 # For fuel switching measures where a fossil baseline segment
@@ -9301,7 +9327,7 @@ class MeasurePackage(Measure):
               # Pull in fuel split as needed
               if (fs_eff_splt_energy and s == "efficient" and
                   "electricity" not in cm
-                  and fs_eff_splt_energy["energy"][1][yr] != 0)
+                  and fs_eff_splt_energy[1][yr] != 0)
               else add_energy[s][yr])
              # Only add energy data to sector shapes if data concerns
              # electricity mseg or fuel switching from fossil is occurring and
@@ -10925,22 +10951,24 @@ def split_clean_data(meas_prepped_objs):
             be split in to separate dicts or removed.
 
     Returns:
-        Three lists of dicts, one containing competition data for
+        Three to four lists of dicts, one containing competition data for
         each updated measure, one containing high level summary
-        data for each updated measure, and a final one containing efficient
-        fuel split data, as applicable to fuel switching measures when the
-        user has required fuel splits.
+        data for each updated measure, another containing sector shape
+        data for each measure (if applicable), and a final one containing
+        efficient fuel split data, as applicable to fuel switching measures
+        when the user has required fuel splits.
     """
     # Initialize lists of measure competition/summary data
     meas_prepped_compete = []
     meas_prepped_summary = []
+    meas_prepped_shapes = []
     meas_eff_fs_splt = []
     # Loop through all Measure objects and reorganize/remove the
     # needed data.
     for m in meas_prepped_objs:
         # Initialize a reorganized measure competition data dict and efficient
         # fuel split data dict
-        comp_data_dict, fs_splits_dict = ({} for n in range(2))
+        comp_data_dict, fs_splits_dict, shapes_dict = ({} for n in range(3))
         # Retrieve measure contributing microsegment data that
         # is relevant to markets competition in the analysis
         # engine, then remove these data from measure object
@@ -10961,14 +10989,24 @@ def split_clean_data(meas_prepped_objs):
             if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
                 fs_splits_dict[adopt_scheme] = \
                     m.eff_fs_splt[adopt_scheme]
+            # If applicable, add sector shape data
+            if m.sector_shapes is not None and len(
+                    m.sector_shapes[adopt_scheme].keys()) != 0:
+                shapes_dict["name"] = m.name
+                shapes_dict[adopt_scheme] = \
+                    m.sector_shapes[adopt_scheme]
         # Delete info. about efficient fuel splits for fuel switch measures
         del m.eff_fs_splt
+        # Delete info. about sector shapes
+        del m.sector_shapes
 
         # Append updated competition data from measure to
         # list of competition data across all measures
         meas_prepped_compete.append(comp_data_dict)
         # Append fuel switching split information, if applicable
         meas_eff_fs_splt.append(fs_splits_dict)
+        # Append sector shape information, if applicable
+        meas_prepped_shapes.append(shapes_dict)
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
@@ -10989,7 +11027,8 @@ def split_clean_data(meas_prepped_objs):
         # summary data across all measures
         meas_prepped_summary.append(m.__dict__)
 
-    return meas_prepped_compete, meas_prepped_summary, meas_eff_fs_splt
+    return meas_prepped_compete, meas_prepped_summary, meas_prepped_shapes, \
+        meas_eff_fs_splt
 
 
 def custom_formatwarning(msg, *a):
@@ -11387,6 +11426,22 @@ def main(base_dir):
                 "Error reading in ECM package '" + handyfiles.ecm_packages +
                 "': " + str(e)) from None
 
+    # If applicable, import file to write prepared measure sector shapes to
+    # (if file does not exist, provide empty list as substitute, since file
+    # will be created later when writing ECM data)
+    if opts.sect_shapes is True:
+        try:
+            es_ss = open(path.join(
+                base_dir, *handyfiles.ecm_prep_shapes), 'r')
+            try:
+                meas_shapes = json.load(es_ss)
+            except ValueError:
+                raise ValueError("Error reading in '" +
+                                 handyfiles.ecm_prep_shapes + "'")
+            es_ss.close()
+        except FileNotFoundError:
+            meas_shapes = []
+
     # Determine which individual and package measure definitions
     # require further preparation for use in the analysis engine
 
@@ -11428,6 +11483,22 @@ def main(base_dir):
             ecf.close()
         except FileNotFoundError:
             meas_summary_env_cf = []
+        # If applicable, import separate file that will store counterfactual
+        # package sector shape data
+        # Import separate file that will ultimately store all counterfactual
+        # package data for later use
+        try:
+            ecf_ss = open(
+                path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+            try:
+                meas_shapes_env_cf = json.load(ecf_ss)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.ecm_prep_env_cf_shapes +
+                    "'") from None
+            ecf_ss.close()
+        except FileNotFoundError:
+            meas_shapes_env_cf = []
     else:
         ctrb_ms_pkg_all, meas_summary_env_cf, pkg_copy_flag = (
             None for n in range(3))
@@ -11765,12 +11836,12 @@ def main(base_dir):
             # If package is flagged as needing a copy to serve as a
             # counterfactual for isolating envelope impacts, make the copy
             if pkg_copy_flag:
-                pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]][0]
+                pkg_item = [x for x in pkg_copy_flag if x[0] == m["name"]]
             else:
                 pkg_item = []
             if len(pkg_item) > 0:
                 # Determine unique package copy name, CF for counterfactual
-                new_pkg_name = pkg_item[0] + " (CF)"
+                new_pkg_name = pkg_item[0][0] + " (CF)"
                 # Copy the package
                 new_pkg = copy.deepcopy(m)
                 # Set the copied package name to the name above
@@ -11781,8 +11852,9 @@ def main(base_dir):
                 # counterfactuals, such that data for these copies will be
                 # pulled into the package assessment
                 for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
-                    if ecm == pkg_item[1]:
-                        new_pkg["contributing_ECMs"][ind] = pkg_item[2]
+                    pkg_item_ecm = [i for i in pkg_item if ecm in i]
+                    if len(pkg_item_ecm) > 0:
+                        new_pkg["contributing_ECMs"][ind] = pkg_item_ecm[0][2]
                 # Append the copied package measure to list of measure
                 # definitions to update, and also update the list of
                 # individual measures that contribute to packages being
@@ -11975,12 +12047,12 @@ def main(base_dir):
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition
         # in the analysis engine
-        meas_prepped_compete, meas_prepped_summary, meas_eff_fs_splt = \
-            split_clean_data(meas_prepped_objs)
+        meas_prepped_compete, meas_prepped_summary, meas_prepped_shapes, \
+            meas_eff_fs_splt = split_clean_data(meas_prepped_objs)
 
         # Add all prepared high-level measure information to existing
         # high-level data and to list of active measures for analysis
-        for m in meas_prepped_summary:
+        for m_i, m in enumerate(meas_prepped_summary):
             # Measure does not serve as counterfactual for isolating
             # envelope impacts within packages
             if "(CF)" not in m["name"]:
@@ -11992,6 +12064,21 @@ def main(base_dir):
                 # Measure is new (add high-level data for measure)
                 else:
                     meas_summary.append(m)
+                # Repeat for sector shapes, if applicable; exclude sector
+                # shapes for individual measures that are part of packages
+                if opts.sect_shapes is True and \
+                        m["name"] not in ctrb_ms_pkg_prep:
+                    # Shorthand for measure sector shapes data object
+                    m_ss = meas_prepped_shapes[m_i]
+                    if len(m_ss.keys()) != 0:
+                        # Measure has been prepared from existing case (replace
+                        # high-level data for measure)
+                        if m_ss["name"] in [x["name"] for x in meas_shapes]:
+                            [x.update(m_ss) for x in meas_shapes if
+                             x["name"] == m_ss["name"]]
+                        # Measure is new (add high-level data for measure)
+                        else:
+                            meas_shapes.append(m_ss)
                 # Add measures to active list; exclude individual measures that
                 # are part of a package from the active list, under the
                 # assumption that competition of these measures is handled via
@@ -12028,6 +12115,14 @@ def main(base_dir):
                 # Measure is new (add high-level data for measure)
                 else:
                     meas_summary_env_cf.append(m)
+                    # Repeat for sector shapes, if applicable; exclude sector
+                    # shapes for individual measures that are part of packages
+                    if opts.sect_shapes is True and m[
+                            "name"] not in ctrb_ms_pkg_prep:
+                        # Shorthand for measure sector shapes data object
+                        m_ss = meas_prepped_shapes[m_i]
+                        if len(m_ss.keys()) != 0:
+                            meas_shapes_env_cf.append(m_ss)
 
         # Notify user that all measure preparations are completed
         print('Writing output data...')
@@ -12056,6 +12151,11 @@ def main(base_dir):
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+        # If applicable, write sector shape data to JSON
+        if opts.sect_shapes is True:
+            with open(path.join(
+                    base_dir, *handyfiles.ecm_prep_shapes), "w") as jso:
+                json.dump(meas_shapes, jso, indent=2, cls=MyEncoder)
 
         # Write prepared high-level counterfactual measure attributes data to
         # JSON (e.g., a separate file with data that will be used to isolate
@@ -12065,6 +12165,12 @@ def main(base_dir):
             with open(path.join(
                     base_dir, *handyfiles.ecm_prep_env_cf), "w") as jso:
                 json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
+            # If applicable, write out envelope counterfactual sector shapes
+            if opts.sect_shapes is True:
+                with open(path.join(
+                        base_dir,
+                        *handyfiles.ecm_prep_env_cf_shapes), "w") as jso:
+                    json.dump(meas_shapes_env_cf, jso, indent=2, cls=MyEncoder)
 
         # Write any newly prepared measure names to the list of active
         # measures to be run in the analysis engine

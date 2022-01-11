@@ -27,6 +27,8 @@ agg_results.json
 run_setup.json
 ecm_prep.json
 ecm_prep_env_cf.json
+ecm_prep_shapes.json
+ecm_prep_env_cf_shapes.json
 glob_run_vars.json
 
 # Presentation files #
