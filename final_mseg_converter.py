@@ -1452,8 +1452,9 @@ def main():
             zip_out_cpl = handyvars.json_out.split('.')[0] + '.gz'
             with gzip.GzipFile(zip_out_cpl, 'w') as fout_cpl:
                 fout_cpl.write(json.dumps(result).encode('utf-8'))
-        # Compress stock/energy state file
-        if handyvars.json_out == 'mseg_res_com_state.json':
+        # Compress stock/energy EMM and state files
+        if handyvars.json_out in [
+                'mseg_res_com_state.json', 'mseg_res_com_emm.json']:
             zip_out_se = handyvars.json_out.split('.')[0] + '.gz'
             with gzip.GzipFile(zip_out_se, 'w') as fout_se:
                 fout_se.write(json.dumps(result).encode('utf-8'))

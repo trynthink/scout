@@ -98,7 +98,7 @@ class UsefulInputFiles(object):
                                  "IECC_AIA_ColSums.txt")
         elif regions == 'EMM':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.json")
+                             "mseg_res_com_emm.gz")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
                                  "cpl_res_com_emm.gz")
             self.ash_emm_map = ("supporting_data", "convert_data", "geo_map",
@@ -306,14 +306,14 @@ class UsefulVars(object):
             climate zone, building sector, and end use.
         cconv_topkeys_map (dict): Maps measure cost units to top-level keys in
             an input cost conversion data dict.
-        cconv_whlbldgkeys_map (dict): Maps measure cost units to whole
-            building-level cost conversion dict keys.
         tech_units_rmv (list): Flags baseline performance units that cannot
             currently be handled, thus the associated segment must be removed.
         tech_units_map (dict): Maps baseline performance units to measure units
             in cases where the conversion is expected (e.g., EER to COP).
         sf_to_house (dict): Stores information for mapping stock units in
             sf to number of households, as applicable.
+        res_lts_per_home (list): RECS 2015 Table HC5.1 number of lights per
+            household, by building type, used to get from $/home to $/bulb
         cconv_htclkeys_map (dict): Maps measure cost units to cost conversion
             dict keys for the heating and cooling end uses.
         cconv_tech_htclsupply_map (dict): Maps measure cost units to cost
@@ -322,14 +322,9 @@ class UsefulVars(object):
             conversion dict keys for demand-side heating/cooling
             technologies and controls technologies requiring multiple
             conversion steps (e.g., $/ft^2 glazing -> $/ft^2 wall ->
-            $/ft^2 floor; $/node -> $/ft^2 floor -> $/unit).
+            $/ft^2 floor).
         cconv_bybldg_units (list): Flags cost unit conversions that must
             be re-initiated for each new microsegment building type.
-        cconv_bytech_units_res (list): Flags cost unit conversions that must
-            be re-initiated for each new microsegment technology type (
-            applies only to the residential sector, where conversions from
-            $/ft^2 floor to $/unit depend on number of units per household,
-            which varies according to technology type).
         deflt_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
@@ -1112,27 +1107,15 @@ class UsefulVars(object):
         self.cconv_bybldg_units = [
             "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
             "$/ft^2 footprint", "$/ft^2 floor", "$/occupant", "$/node"]
-        self.cconv_bytech_units_res = ["$/ft^2 floor", "$/occupant", "$/node"]
-        self.cconv_topkeys_map = {
-            "whole building": ["$/ft^2 floor", "$/node", "$/occupant"],
-            "heating and cooling": [
-                "$/kBtu/h heating", "$/kBtu/h cooling", "$/ft^2 glazing",
-                "$/ft^2 roof", "$/ft^2 wall", "$/ft^2 footprint"],
-            "ventilation": ["$/1000 CFM"],
-            "lighting": ["$/1000 lm"],
-            "water heating": ["$/kBtu/h water heating"],
-            "refrigeration": ["$/kBtu/h refrigeration"],
-            "cooking": ["$/kBtu/h cooking"],
-            "PCs": ["$/computer"]}
         self.cconv_htclkeys_map = {
             "supply": [
-                "$/kBtu/h heating", "$/kBtu/h cooling"],
+                "$/ft^2 floor", "$/ft^2 floor"],
             "demand": [
                 "$/ft^2 glazing", "$/ft^2 roof",
                 "$/ft^2 wall", "$/ft^2 footprint"]}
         self.cconv_tech_htclsupply_map = {
-            "heating equipment": ["$/kBtu/h heating"],
-            "cooling equipment": ["$/kBtu/h cooling"]}
+            "heating equipment": ["$/ft^2 floor"],
+            "cooling equipment": ["$/ft^2 floor"]}
         self.cconv_tech_mltstage_map = {
             "windows": {
                 "key": ["$/ft^2 glazing"],
@@ -1146,9 +1129,6 @@ class UsefulVars(object):
             "footprint": {
                 "key": ["$/ft^2 footprint"],
                 "conversion stages": ["footprint"]}}
-        self.cconv_whlbldgkeys_map = {
-            "wireless sensor network": ["$/node"],
-            "occupant-centered sensing and controls": ["$/occupant"]}
         self.tech_units_rmv = ["HHV"]
         # Note: EF handling for ECMs written before scout v0.5 (AEO 2019)
         self.tech_units_map = {
@@ -1157,6 +1137,11 @@ class UsefulVars(object):
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
             "SEF": {"UEF": 1}}
         self.sf_to_house = {}
+        self.res_lts_per_home = {
+            "single family home": 36,
+            "multi family home": 15,
+            "mobile home": 19
+        }
         # Assume that missing technology choice parameters come from the
         # appliances/MELs areas; default is thus the EIA choice parameters
         # for refrigerator technologies
@@ -2605,12 +2590,8 @@ class Measure(object):
             else:
                 # Set ECM cost attribute to value previously calculated for
                 # current microsegment building type, provided microsegment
-                # does not require re-initiating cost conversions for each
-                # new technology type (applicable to residential sector)
+                # does not require re-initiating cost conversions
                 if mskeys[2] in bldgs_costconverted.keys() and (
-                    bldg_sect != "residential" or all([
-                        x not in self.cost_units for x in
-                        self.handyvars.cconv_bytech_units_res])) and (
                         not isinstance(self.installed_cost, dict)):
                     cost_meas, cost_units = [x for x in bldgs_costconverted[
                         mskeys[2]]]
@@ -2618,10 +2599,7 @@ class Measure(object):
                 # type or technology type if required for the given cost units
                 elif ind == 0 or any([
                     x in self.cost_units for x in
-                    self.handyvars.cconv_bybldg_units]) or (
-                    bldg_sect == "residential" and any([
-                        y in self.cost_units for y in
-                        self.handyvars.cconv_bytech_units_res])):
+                        self.handyvars.cconv_bybldg_units]):
                     cost_meas, cost_units = [
                         self.installed_cost, self.cost_units]
                 elif isinstance(self.installed_cost, dict) or \
@@ -3726,44 +3704,86 @@ class Measure(object):
                 # and later remove any associated secondary microsegments
                 if mskeys[0] == "primary":
                     try:
-                        # Check for cases where baseline data are available but
-                        # set to zero, "NA", or 999 values (excepting cases
-                        # where baseline cost is expected to be zero). In such
-                        # cases, raise a ValueError
-                        if any([((("lighting" in mskeys and (isinstance(
-                            x[1], float) and round(x[1]) in [0, 999])) or
-                            x[1] in [0, "NA", 999]) and mskeys[-2] not in
-                            self.handyvars.zero_cost_tech) for x in base_cpl[
-                                "installed cost"]["typical"].items()]) or any([
-                                (("lighting" in mskeys and (isinstance(
-                                    y[1], float) and round(y[1]) in [0, 999]))
-                                 or y[1] in [0, "NA", 999]) for y in base_cpl[
-                                "performance"]["typical"].items()]):
-                            raise ValueError
-                        # Handle lifetime separately, as in some cases it may
-                        # be broken out by year, and in others it is a single
-                        # point value, when available
-                        if (((type(base_cpl["lifetime"]["average"]) in [
-                            float, int]) and base_cpl[
-                            "lifetime"]["average"] == 0) or (
-                            (type(base_cpl["lifetime"]["average"]) is dict) and
-                            any([z[1] in [0, "NA"] for z in base_cpl[
-                                "lifetime"]["average"].items()]))):
-                            raise ValueError
-
                         # Set baseline performance; try for case where baseline
                         # performance is broken out by new and existing
                         # vintage; given an exception, expect a single set of
                         # values across both vintages
                         try:
-                            perf_base = base_cpl[
-                                "performance"]["typical"][mskeys[-1]]
+                            perf_base = base_cpl["performance"]["typical"][
+                                mskeys[-1]]
                         except KeyError:
-                            perf_base = base_cpl[
-                                "performance"]["typical"]
-
+                            perf_base = base_cpl["performance"]["typical"]
                         # Set baseline performance units
                         perf_base_units = base_cpl["performance"]["units"]
+
+                        # Set baseline cost and cost units
+                        cost_base, cost_base_units = \
+                            [base_cpl["installed cost"]["typical"],
+                             base_cpl["installed cost"]["units"]]
+
+                        # Set baseline lifetime
+                        life_base = base_cpl["lifetime"]["average"]
+                        # Extend baseline lifetime to dict broken out by
+                        # year if necessary
+                        if type(base_cpl["lifetime"]["average"]) in [
+                                float, int]:
+                            life_base = {yr: life_base for
+                                         yr in self.handyvars.aeo_years}
+
+                        # Check for cases where baseline data are available but
+                        # set to zero, "NA", or 999 values (excepting cases
+                        # where baseline cost is expected to be zero). In such
+                        # cases, raise a ValueError after checking to ensure
+                        # that all baseline data are invalid
+
+                        # Installed cost
+                        if any([((("lighting" in mskeys and (isinstance(
+                            x[1], float) and round(x[1]) in [0, 999])) or
+                            x[1] in [0, "NA", 999]) and mskeys[-2] not in
+                            self.handyvars.zero_cost_tech) for x in
+                                cost_base.items()]):
+                            # If some years have valid cost data, take the max
+                            # from those years and extend across the full 
+                            # time horizon (cases like commercial lighting
+                            # sometimes have typical CPL data that declines to
+                            # zero with declining stock)
+                            mx_cb = round(max([
+                                x[1] for x in cost_base.items() if
+                                x[1] != "NA"]))
+                            if mx_cb not in [0, 999]:
+                                cost_base = {yr: mx_cb for yr
+                                             in self.handyvars.aeo_years}
+                            else:
+                                raise ValueError
+                        # Performance
+                        if any([(("lighting" in mskeys and (isinstance(
+                            y[1], float) and round(y[1]) in [0, 999])) or
+                            y[1] in [0, "NA", 999]) for y in
+                                perf_base.items()]):
+                            # If some years have valid performance data, take
+                            # the max from those years and extend across the
+                            # full time horizon
+                            mx_pb = round(max([
+                                x[1] for x in perf_base.items() if
+                                x[1] != "NA"]))
+                            if mx_pb not in [0, 999]:
+                                perf_base = {yr: mx_pb for yr
+                                             in self.handyvars.aeo_years}
+                            else:
+                                raise ValueError
+                        # Lifetime
+                        if any([z[1] in [0, "NA"] for z in life_base.items()]):
+                            # If some years have valid lifetime data, take
+                            # the max from those years and extend across the
+                            # full time horizon
+                            mx_lf = round(max([
+                                x[1] for x in life_base.items() if
+                                x[1] != "NA"]))
+                            if mx_lf not in [0, 999]:
+                                life_base = {yr: mx_lf for yr
+                                             in self.handyvars.aeo_years}
+                            else:
+                                raise ValueError
 
                         # Handle case where measure units do not equal
                         # baseline units and baseline units cannot be
@@ -3791,7 +3811,7 @@ class Measure(object):
                             continue
                         # Handle case where measure units do not equal baseline
                         # units but baseline units can be converted to measure
-                        # units
+                        # units (for example, AFUE to COP)
                         elif (not (
                             perf_units == 'relative savings (constant)' or
                               (isinstance(perf_units, list) and
@@ -3840,11 +3860,8 @@ class Measure(object):
                                 mskeys[-2] is not None and "HP" in mskeys[-2]):
                             # Multiply heat pump baseline cost units by 2
                             # to account for EIA heat pump cost handling
-                            cost_base, cost_base_units = \
-                                [{yr: base_cpl[
-                                    "installed cost"]["typical"][yr] * 2
-                                    for yr in self.handyvars.aeo_years},
-                                 base_cpl["installed cost"]["units"]]
+                            cost_base = {yr: cost_base[yr] * 2 for yr in
+                                         self.handyvars.aeo_years}
                             # Warn the user about the modification to EIA's
                             # baseline cost data (and stock data, which is
                             # also multiplied by 2 below) for this segment
@@ -3861,37 +3878,14 @@ class Measure(object):
                                     "end uses (both are divided by 2 when "
                                     "separately considered across heating and "
                                     "cooling in the raw EIA data)")
-                        # For all other baseline technologies, pull baseline
-                        # costs and cost units in as is from the baseline data
-                        else:
-                            # Set baseline cost units
-                            cost_base, cost_base_units = \
-                                [base_cpl["installed cost"]["typical"],
-                                 base_cpl["installed cost"]["units"]]
-
-                        # Set baseline lifetime; handle some cases where base
-                        # lifetime is not broken out across all years; extend
-                        # across year range in these cases
-                        if type(base_cpl["lifetime"]["average"]) in [
-                                float, int]:
-                            life_base = {
-                                yr: base_cpl["lifetime"]["average"] for
-                                yr in self.handyvars.aeo_years}
-                        elif type(base_cpl["lifetime"]["average"]) is dict:
-                            life_base = base_cpl["lifetime"]["average"]
-                        else:
-                            raise ValueError(
-                                "Lifetime data for microsegment " +
-                                mskeys + " must be a dict or point value")
                         # Adjust residential baseline lighting lifetimes to
                         # reflect the fact that input data assume 24 h/day of
                         # lighting use, rather than 3 h/day as assumed for
                         # measure lifetime definitions
                         if bldg_sect == "residential" and \
                                 mskeys[4] == "lighting":
-                            life_base = {
-                                yr: life_base[yr] * (24 / 3) for
-                                yr in self.handyvars.aeo_years}
+                            life_base = {yr: life_base[yr] * (24 / 3) for
+                                         yr in self.handyvars.aeo_years}
                         # Add to count of primary microsegment key chains with
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
@@ -3924,10 +3918,18 @@ class Measure(object):
                             # for the building sector of interest
                             cost_base = {yr: 0 for
                                          yr in self.handyvars.aeo_years}
-                            if bldg_sect == "commercial" or sqft_subst == 1:
+                            if sqft_subst == 1:
                                 cost_base_units = "$/ft^2 floor"
-                            else:
+                            elif bldg_sect == "residential":
                                 cost_base_units = "$/unit"
+                            elif bldg_sect == "commercial":
+                                # Units per end use service demand
+                                if mskeys[4] == "lighting":
+                                    cost_base_units = '$/1000 lm'
+                                elif mskeys[4] == "ventilation":
+                                    cost_base_units = '$/1000 CFM'
+                                else:
+                                    cost_base_units = '$/kBtu/h ' + mskeys[4]
                             # Attempt to retrieve baseline lifetime data, if
                             # that fails set baseline lifetime to 10 years
                             try:
@@ -3958,18 +3960,14 @@ class Measure(object):
                                     "; if lifetime data are missing, " +
                                     "lifetime is set to 10 years")
 
-                        # Additionally, include an exception for commercial
-                        # lighting cases, where some segments of commercial
-                        # lighting energy use at or near zero contribution lack
-                        # cost, performance, and lifetime data but do not
-                        # have enough influence on results to warrant
-                        # additional adjustments to associated secondary
-                        # microsegments. In such cases, set the baseline cost
-                        # and performance to the measure cost and performance;
-                        # if lifetime data are not available, set the baseline
-                        # lifetime to 10 years.
-                        elif "lighting" in mskeys and \
-                                bldg_sect == "commercial":
+                        # Additionally, include an exception for lighting
+                        # cases, where some segments of lighting energy use
+                        # at or near zero contribution lack any cost,
+                        # performance, and lifetime data. In such cases, set
+                        # the baseline cost and performance to the measure cost
+                        # and performance; if lifetime data are not available,
+                        # set the baseline lifetime to 10 years.
+                        elif "lighting" in mskeys:
                             # Set baseline performance/units to measure
                             # performance/units
                             perf_base = {yr: perf_meas for
@@ -4007,7 +4005,7 @@ class Measure(object):
                                     "cost/performance/lifetime data " +
                                     "for technology '" + str(mskeys[-2]) +
                                     "'; technology applies to special " +
-                                    "commercial lighting case and will " +
+                                    "lighting case and will " +
                                     "remain in analysis at same cost/" +
                                     "performance as ECM; if lifetime data " +
                                     "are missing, lifetime is set to 10 years")
@@ -4039,29 +4037,36 @@ class Measure(object):
                     cost_base_units, perf_base_units = [cost_units, perf_units]
 
                 # Convert user-defined measure cost units to align with
-                # baseline cost units, given input cost conversion data;
-                # screen out special case where residential non-envelope cost
-                # units are given in $/ft^2 floor and must be converted to
-                # $/unit (handled separately below)
-                if mskeys[0] == "primary" and (
-                        "$/ft^2 floor" not in cost_units or
-                        "$/ft^2 floor" in cost_units and sqft_subst == 1) and \
-                        cost_base_units != cost_units:
-                    # Case where measure cost has not yet been recast across
-                    # AEO years
-                    if not isinstance(cost_meas, dict):
-                        cost_meas, cost_units = self.convert_costs(
-                            convert_data, bldg_sect, mskeys, cost_meas,
-                            cost_units, cost_base_units, opts.verbose)
-                    # Case where measure cost has been recast across AEO years
+                # baseline cost units, given input cost conversion data
+                if mskeys[0] == "primary" and cost_base_units != cost_units:
+                    # Handle special case of commercial heat pumps, where costs
+                    # may be specified in $/kBtu/h heating or cooling but the
+                    # measure will apply to both heating and cooling
+                    # microsegments; in this case, set the measure cost units
+                    # to the baseline cost units without further translation of
+                    # cost values, under the assumption that costs are
+                    # identical per unit heating vs. per unit cooling
+                    if any([x in cost_units for x in [
+                           '$/kBtu/h heating', '$/kBtu/h cooling']]):
+                        cost_units = cost_base_units
                     else:
-                        # Loop through all AEO years by which measure cost
-                        # data are broken out and make the conversion
-                        for yr in self.handyvars.aeo_years:
-                            cost_meas[yr], cost_units = self.convert_costs(
-                                convert_data, bldg_sect, mskeys, cost_meas[yr],
+                        # Case where measure cost has not yet been recast
+                        # across AEO years
+                        if not isinstance(cost_meas, dict):
+                            cost_meas, cost_units = self.convert_costs(
+                                convert_data, bldg_sect, mskeys, cost_meas,
                                 cost_units, cost_base_units, opts.verbose)
-                    cost_converts += 1
+                        # Case where measure cost has been recast across AEO
+                        # years
+                        else:
+                            # Loop through all AEO years by which measure cost
+                            # data are broken out and make the conversion
+                            for yr in self.handyvars.aeo_years:
+                                cost_meas[yr], cost_units = self.convert_costs(
+                                    convert_data, bldg_sect, mskeys,
+                                    cost_meas[yr], cost_units, cost_base_units,
+                                    opts.verbose)
+                        cost_converts += 1
                     # Add microsegment building type to cost conversion
                     # tracking list for cases where cost conversion need
                     # occur only once per building type
@@ -4073,7 +4078,7 @@ class Measure(object):
                 if bldg_sect == "residential" and (sqft_subst == 1 or (
                         sqft_subst != 1 and "$/ft^2 floor" in cost_units)):
                     # Key for pulling sf to household (assumed synonymous with
-                    # "unit" for these cases) conversion data
+                    # "unit" for envelope cases) conversion data
                     sf_to_house_key = str((mskeys[1], mskeys[2]))
                     # Check if data were already pulled for current
                     # combination of climate/building type; if not,
@@ -4090,8 +4095,8 @@ class Measure(object):
                                 1000000) for yr in self.handyvars.aeo_years}
 
                     # Convert measure costs to $/home (assumed synonymous with
-                    # $/unit); handle cases where measure cost is separated
-                    # out by year or not
+                    # $/unit for envelope cases); handle cases where measure
+                    # cost is separated out by year or not
                     try:
                         cost_meas = {
                             yr: cost_meas[yr] / self.handyvars.sf_to_house[
@@ -4102,15 +4107,25 @@ class Measure(object):
                             yr: cost_meas / self.handyvars.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
+                    # Handle special case of a residential lighting controls
+                    # measure where the user has specified the measure costs
+                    # in $/ft^2 floor and these costs must be converted to
+                    # $/unit; at this point, costs are in $/household and
+                    # must be converted to $/unit via units/household RECS data
+                    if sqft_subst != 1 and "lighting" in mskeys:
+                        cost_meas = {yr: cost_meas[yr] /
+                                     self.handyvars.res_lts_per_home[mskeys[2]]
+                                     for yr in self.handyvars.aeo_years}
                     # Convert residential envelope baseline costs, which will
-                    # be in $/ft^2 floor, to $/home ($/unit)
+                    # be in $/ft^2 floor, to $/home (again, household is
+                    # assumed synonymous with "unit" here for envelope
+                    # measures)
                     if sqft_subst == 1:
                         cost_base = {
                             yr: cost_base[yr] / self.handyvars.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
-                    # Set measure and baseline cost units to $/unit (again,
-                    # household is assumed synonymous with "unit" here)
+                    # Set measure and baseline cost units to $/unit 
                     cost_units, cost_base_units = ("$/unit" for n in range(2))
                 else:
                     sf_to_house_key = None
@@ -6356,42 +6371,39 @@ class Measure(object):
         cost_meas_noyr, cost_base_noyr = \
             cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)
 
+        # Set flag for special case where residential non-envelope cost #
+        # units are given in $/ft^2 floor and must be converted to $/unit;
+        # this case only requires a cost year conversion (conversion between
+        # $/ft^@ floor and $/unit handled separately from this function)
+        res_sf_unit = (
+            bldg_sect == "residential" and "$/ft^2 floor" in
+            cost_meas_noyr and "$/unit" in cost_base_noyr)
+
         # If the cost units of the measure are inconsistent with the baseline
         # cost units (with the cost year removed), map measure cost units to
         # baseline cost units
-        if cost_meas_noyr != cost_base_noyr:
-            # Retrieve whole building or end use-specific cost unit conversion
+        if cost_meas_noyr != cost_base_noyr and res_sf_unit is False:
+            # Retrieve end use-specific cost unit conversion
             # data. Conversion data should be formatted in a list to simplify
             # its handling in subsequent operations
 
             # Find top-level key for retrieving data from cost translation
             # dictionary
-            top_keys = self.handyvars.cconv_topkeys_map
+            top_keys = convert_data['cost unit conversions'].keys()
             try:
-                top_key = next(x for x in top_keys.keys() if
-                               cost_meas_noyr in top_keys[x])
-            except StopIteration as e:
+                # Handle special case of secondary heating, which should be
+                # mapped to heating end use cost translation data
+                if mskeys[4] == "secondary heating":
+                    top_key = [x for x in top_keys if "heating" in x][0]
+                # Otherwise, use microsegment end use to pull top-level key
+                else:
+                    top_key = [x for x in top_keys if mskeys[4] in x][0]
+            except (StopIteration, IndexError):
                 raise KeyError("No conversion data for ECM '" +
                                self.name + "' cost units '" +
-                               cost_meas_units + "'") from e
+                               cost_meas_units + "'")
 
-            if top_key == "whole building":
-                # Retrieve whole building-level cost conversion data
-                whlbldg_keys = self.handyvars.cconv_whlbldgkeys_map
-                try:
-                    whlbldg_key = next(
-                        x for x in whlbldg_keys.keys() if
-                        cost_meas_noyr in whlbldg_keys[x])
-                except StopIteration as e:
-                    raise KeyError("No conversion data for ECM '" +
-                                   self.name + "' cost units '" +
-                                   cost_meas_units + "'") from e
-                # Retrieve node to square footage or occupant to square
-                # footage conversion data
-                convert_units_data = [
-                    convert_data['cost unit conversions'][top_key][
-                        whlbldg_key]]
-            elif top_key == "heating and cooling":
+            if top_key == "heating and cooling":
                 # Retrieve heating/cooling cost conversion data
                 htcl_keys = self.handyvars.cconv_htclkeys_map
                 try:
@@ -6433,7 +6445,7 @@ class Measure(object):
                         demand_keys[demand_key]["conversion stages"]]
             else:
                 # Retrieve conversion data for costs outside of the
-                # whole building or heating/cooling cases
+                # heating/cooling cases
                 convert_units_data = [
                     convert_data['cost unit conversions'][top_key]]
 
@@ -6447,6 +6459,13 @@ class Measure(object):
             # non-Scout building types to the single Scout building type of
             # the current microsegment
             for cval in convert_units_data:
+                if cost_meas_noyr not in cval["revised units"]:
+                    new_units = 'revised units'
+                    invert_cval = False
+                else:
+                    new_units = 'original units'
+                    invert_cval = True
+
                 # Case where conversion data is split by building sector
                 if isinstance(cval['conversion factor']['value'], dict):
                     # Restrict to building sector of current microsegment
@@ -6460,7 +6479,16 @@ class Measure(object):
                         # from multiple EnergyPlus building types to the
                         # single Scout building type of the current
                         # microsegment
-                        cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
+
+                        # Invert conversion in case where measure cost
+                        # units are found under the "revised units" key (
+                        # e.g., if the conversion should be reversed)
+                        if invert_cval is False:
+                            cval_bldgtyp = cval_bldgtyp[mskeys[2]].values()
+                        else:
+                            cval_bldgtyp = [
+                                1 / x for x
+                                in cval_bldgtyp[mskeys[2]].values()]
                         bldgtyp_wts = convert_data[
                             'building type conversions'][
                             'conversion data']['value'][bldg_sect][
@@ -6470,14 +6498,31 @@ class Measure(object):
                     # Case where conversion data is further nested by
                     # Scout building type
                     elif isinstance(cval_bldgtyp, dict):
-                        convert_units *= cval_bldgtyp[mskeys[2]]
+                        # Invert conversion in case where measure cost
+                        # units are found under the "revised units" key (
+                        # e.g., if the conversion should be reversed)
+                        if invert_cval is False:
+                            cval_bldgtyp = cval_bldgtyp[mskeys[2]]
+                        else:
+                            cval_bldgtyp = 1 / cval_bldgtyp[mskeys[2]]
+                        convert_units *= cval_bldgtyp
                     # Case where conversion data is not nested further
                     else:
+                        # Invert conversion in case where measure cost
+                        # units are found under the "revised units" key (
+                        # e.g., if the conversion should be reversed)
+                        if invert_cval is True:
+                            cval_bldgtyp = 1 / cval_bldgtyp
                         convert_units *= cval_bldgtyp
                 else:
-                    convert_units *= cval['conversion factor']['value']
+                    if invert_cval is False:
+                        convert_units *= cval['conversion factor']['value']
+                    else:
+                        convert_units *= (
+                            1 / cval['conversion factor']['value'])
         else:
             convert_units = 1
+            new_units = None
 
         # Map the year of measure cost units to the year of baseline cost units
 
@@ -6512,26 +6557,19 @@ class Measure(object):
 
         # Cost year/unit adjustment involving multiple conversion stages
         # (use the revised measure units for the final conversion stage)
-        if convert_units != 1 and isinstance(convert_units_data, list):
+        if new_units and isinstance(convert_units_data, list):
             cost_meas_units_fin = cost_base_yr + \
-                convert_units_data[-1]['revised units']
+                convert_units_data[-1][new_units]
         # Cost year/unit adjustments involving a single stage of conversion
-        elif convert_units != 1:
+        elif new_units:
             cost_meas_units_fin = cost_base_yr + \
-                convert_units_data['revised units']
+                convert_units_data[new_units]
         # Cost year adjustment only
         else:
-            cost_meas_units_fin = cost_base_yr + cost_base_noyr
+            cost_meas_units_fin = cost_base_yr + cost_meas_noyr
 
         # Case where cost conversion has succeeded
-        # *** NOTE: for backwards compatibility, continue to support case where
-        # residential ECM units in $/occupant or $/node were converted via this
-        # function to units of $/ft^2 floor; assume these units will be
-        # converted to $/unit subsequently (see note beginning "Handle special
-        # case where residential cost units in $/ft^2...") ***
-        if cost_meas_units_fin == cost_base_units or (
-                (bldg_sect == "residential" and "$/ft^2 floor" in
-                 cost_meas_units_fin and "$/unit" in cost_base_units)):
+        if cost_meas_units_fin == cost_base_units or res_sf_unit is True:
             # If in verbose mode, notify user of cost conversion details
             if verbose:
                 # Set base user message
@@ -6549,18 +6587,10 @@ class Measure(object):
                         " " + cost_meas_units_fin
                 # Add building type information to base message in cases where
                 # cost conversion depends on building type (e.g., for envelope
-                # components) or technology type (e.g., for residential
-                # controls ECMs)
-                if (bldg_sect != "residential" or cost_meas_noyr not in
-                    self.handyvars.cconv_bytech_units_res) and \
-                    (cost_meas_noyr in self.handyvars.cconv_bybldg_units or
-                     isinstance(self.installed_cost, dict)):
+                # components)
+                if (cost_meas_noyr in self.handyvars.cconv_bybldg_units or
+                        isinstance(self.installed_cost, dict)):
                     user_message += " for '" + mskeys[2] + "'"
-                elif (cost_meas_noyr in
-                      self.handyvars.cconv_bytech_units_res and
-                        bldg_sect == "residential"):
-                    user_message += " for '" + mskeys[2] + \
-                        "' and technology '" + str(mskeys[-2]) + "'"
 
                 # Print user message
                 print(user_message)
@@ -6847,9 +6877,16 @@ class Measure(object):
                         # Handle case where data for previous year are
                         # unavailable; set newly added fraction to 1
                         try:
-                            new_frac = (
-                                stock_total_sbmkt[yr] - stock_total_sbmkt[
-                                    str(int(yr) - 1)]) / stock_total_sbmkt[yr]
+                            # Handle case where new stock is attentuating
+                            # rather than growing; set new added fraction to 0
+                            if stock_total_sbmkt[yr] >= stock_total_sbmkt[
+                                    str(int(yr) - 1)]:
+                                new_frac = (
+                                    stock_total_sbmkt[yr] - stock_total_sbmkt[
+                                        str(int(yr) - 1)]) / \
+                                    stock_total_sbmkt[yr]
+                            else:
+                                new_frac = 0
                         except KeyError:
                             new_frac = 1
                     # For the first year in the modeling time horizon, the
@@ -6881,10 +6918,21 @@ class Measure(object):
                             if (str(prev_capt_yr) !=
                                 self.handyvars.aeo_years[0]) and \
                                     stock_total_sbmkt[yr] != 0:
-                                repl_frac = (
-                                    stock_total_sbmkt[str(prev_capt_yr)] -
-                                    stock_total_sbmkt[str(prev_capt_yr - 1)]
-                                    ) / stock_total_sbmkt[yr]
+                                # Handle case where stock was attentuating
+                                # rather than growing in year where new stock
+                                # was captured
+                                if stock_total_sbmkt[str(prev_capt_yr)] >= \
+                                    stock_total_sbmkt[
+                                        str(prev_capt_yr - 1)]:
+                                    repl_frac = (
+                                        stock_total_sbmkt[str(prev_capt_yr)] -
+                                        stock_total_sbmkt[
+                                            str(prev_capt_yr - 1)]
+                                        ) / stock_total_sbmkt[yr]
+                                else:
+                                    repl_frac = (
+                                        stock_total_sbmkt[str(prev_capt_yr)] /
+                                        stock_total_sbmkt[yr])
                                 retro_frac = 0
                             # Previously captured year is first
                             # AEO year and non-zero denominator
@@ -7164,8 +7212,10 @@ class Measure(object):
                     stock_above_tot = False
 
                 # Adj. competition fractions to ensure addition of
-                # competed/captured stock never exceeds stock totals
-                if stock_above_tot:
+                # competed/captured stock never exceeds stock totals;
+                # if total stock in the current year is zero, set competition
+                # fractions to zero
+                if stock_above_tot and stock_total_sbmkt[yr] != 0:
                     # Adjustment removes any portion of the competed stock
                     # that would put the total competed over the total stock
                     # in the given year
@@ -7178,6 +7228,9 @@ class Measure(object):
                         comp_frac_diffuse_meas = [x * comp_adj_frac for x in [
                             comp_frac_sbmkt, comp_frac_diffuse,
                             comp_frac_diffuse_meas]]
+                elif stock_above_tot:
+                    comp_frac_sbmkt, comp_frac_diffuse, \
+                        comp_frac_diffuse_meas = (0 for n in range(3))
             else:
                 comp_adj_frac = 1
 
@@ -7365,8 +7418,12 @@ class Measure(object):
                 rel_perf_capt = rel_perf[yr]
             else:
                 # Set a turnover weight to use in balancing current year's rel.
-                # perf. with that of all previous years since market entry
-                turnover_wt = new_frac + repl_frac + retro_frac
+                # perf. with that of all previous years since market entry;
+                # weight is equal to the total competed fraction in the given
+                # year after accounting for diffusion fractions (if any) and
+                # stock turnover effects (new, replacement, and retrofit
+                # turnover that are captured by the measure)
+                turnover_wt = diffuse_frac * comp_frac_diffuse_meas
                 # Ensure the turnover weight never exceeds 1
                 if (type(turnover_wt) != numpy.ndarray) and turnover_wt > 1:
                     turnover_wt = 1
@@ -8712,6 +8769,8 @@ class MeasurePackage(Measure):
             to envelope improvements.
         pkg_env_costs (boolean): Flag for whether or not to include contrib.
             envelope measure costs in the package (if applicable).
+        pkg_env_cost_convert_data (dict): Data needed to convert envelope
+            cost data to match HVAC equipment cost units in commercial cases.
         name (string): Package name.
         benefits (dict): Percent improvements in energy savings and/or cost
             reductions from packaging measures.
@@ -8754,7 +8813,7 @@ class MeasurePackage(Measure):
     """
 
     def __init__(self, measure_list_package, p, bens, handyvars, handyfiles,
-                 opts):
+                 opts, convert_data):
         self.name = p
         self.handyvars = handyvars
         self.contrib_ECMs = copy.deepcopy(measure_list_package)
@@ -8811,6 +8870,7 @@ class MeasurePackage(Measure):
             self.pkg_env_costs = opts.pkg_env_costs
         else:
             self.pkg_env_costs = False
+        self.pkg_env_cost_convert_data = convert_data
         # Check to ensure that measure name is proper length for plotting
         # *** COMMENT FOR NOW ***
         # if len(self.name) > 40:
@@ -9729,28 +9789,72 @@ class MeasurePackage(Measure):
                       if (yr != self.handyvars.aeo_years[0] and
                           comp_stk_base[str(int(yr) - 1)] != 0)
                       else 0) for yr in self.handyvars.aeo_years}
+
+            # Determine whether current mseg pertains to residential or
+            # commercial buildings
+            if any([x in htcl_key_match for x in [
+                    "single family home", "mobile home",
+                    "multi family home"]]):
+                bldg_sect = "residential"
+            else:
+                bldg_sect = "commercial"
+            # For commercial microsegments, envelope costs will be in units
+            # of $/ft^2 floor; pull factor to convert these costs to the
+            # units of $/kBtu/h heating or cooling service that the HVAC
+            # equipment measures will be using. Note that the factors read
+            # in here are set up to convert from $/kBtu/h heating or cooling
+            # to $/ft^2 floor, and must be inverted to get intended conversion
+            if bldg_sect == "commercial":
+                if "heating" in htcl_key_match:
+                    convert_env_to_hvac_cost_units = (
+                        1 / self.pkg_env_cost_convert_data[
+                            "cost unit conversions"]["heating and cooling"][
+                            "supply"]["heating equipment"][
+                            "conversion factor"]["value"])
+
+                elif "cooling" in htcl_key_match:
+                    convert_env_to_hvac_cost_units = (
+                        1 / self.pkg_env_cost_convert_data[
+                            "cost unit conversions"]["heating and cooling"][
+                            "supply"]["cooling equipment"][
+                            "conversion factor"]["value"])
+                else:
+                    raise ValueError(
+                        "Non-heating or cooling end use encountered when "
+                        "translating envelope measure cost data unit to "
+                        "match those of packaged HVAC equipment measures")
+            # For residential microsegments, envelope costs will already
+            # have been converted to $/home, which is considered 1:1 with
+            # the HVAC equipment measure units ($/unit equipment)
+            else:
+                convert_env_to_hvac_cost_units = 1
+
             # Adjust total efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["total"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
                      "efficient"][yr] + env_cost_eff_tot_unit[yr] *
+                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust total baseline stock cost to account for envelope
             msegs_meas["cost"]["stock"]["total"]["baseline"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
                      "baseline"][yr] + env_cost_base_tot_unit[yr] *
+                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["total"]["all"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust competed efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["competed"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
                     "efficient"][yr] + env_cost_eff_comp_unit[yr] *
+                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust competed baseline stock cost to account for envelope
             msegs_meas["cost"]["stock"]["competed"]["baseline"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
                      "baseline"][yr] + env_cost_base_comp_unit[yr] *
+                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["competed"]["all"][yr] for
                 yr in self.handyvars.aeo_years}
 
@@ -10679,7 +10783,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
 def prepare_packages(packages, meas_update_objs, meas_summary,
                      handyvars, handyfiles, base_dir, opts,
-                     regions, tsv_metrics):
+                     regions, tsv_metrics, convert_data):
     """Combine multiple measures into a single packaged measure.
 
     Args:
@@ -10692,6 +10796,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
         opts (object): Stores user-specified execution options.
         regions (string): Regional breakouts to use.
         tsv_metrics (boolean or list): TSV metrics settings.
+        convert_data (dict): Measure cost unit conversion data.
 
     Returns:
         A dict with packaged measure attributes that can be added to the
@@ -10789,7 +10894,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # subset above
             packaged_measure = MeasurePackage(
                 measure_list_package, p["name"], p["benefits"],
-                handyvars, handyfiles, opts)
+                handyvars, handyfiles, opts, convert_data)
             # Record heating/cooling equipment and envelope overlaps in
             # package after confirming that envelope measures are present
             if len(packaged_measure.contrib_ECMs_env) > 0:
@@ -11697,7 +11802,7 @@ def main(base_dir):
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
 
         # Import baseline microsegments
-        if regions == 'State':  # Extract compressed state stock/energy data
+        if regions in ['EMM', 'State']:  # Extract compressed EMM/state files
             bjszip = path.join(base_dir, *handyfiles.msegs_in)
             # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
@@ -11711,7 +11816,7 @@ def main(base_dir):
                         "Error reading in '" +
                         handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        if regions in ['EMM', 'State']:  # Extract compressed CPL EMM file
+        if regions in ['EMM', 'State']:  # Extract compressed EMM/state files
             bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
             # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
@@ -11862,7 +11967,8 @@ def main(base_dir):
         if meas_toprep_package:
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
-                handyvars, handyfiles, base_dir, opts, regions, tsv_metrics)
+                handyvars, handyfiles, base_dir, opts, regions, tsv_metrics,
+                convert_data)
 
         print("All ECM updates complete; finalizing data...",
               end="", flush=True)

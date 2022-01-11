@@ -352,7 +352,8 @@ def sd_mseg_percent(sd_array, sel, yrs):
 
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
-    tval = np.zeros((len(trunc_technames), len(yrs)))
+    tval, tval_pct = (
+        np.zeros((len(trunc_technames), len(yrs))) for n in range(2))
 
     # Combine the data recorded for each unique technology
     for idx, name in enumerate(technames):
@@ -371,13 +372,13 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # If at least one entry in tval is non-zero (tval.any() == True),
     # suppress any divide by zero warnings and calculate the percentage
     # contribution of each technology by year (since tval is initially
-    # a measure of absolute energy use)
+    # a measure of absolute energy service)
     if tval.any():
         with np.errstate(divide='ignore', invalid='ignore'):
-            tval = tval / np.sum(tval, axis=0)
-            tval = np.nan_to_num(tval)  # Replace nan from 0/0 with 0
+            tval_pct = tval / np.sum(tval, axis=0)
+            tval_pct = np.nan_to_num(tval_pct)  # Replace nan from 0/0 with 0
 
-    return (tval, trunc_technames)
+    return (tval, tval_pct, trunc_technames)
 
 
 def catg_data_selector(db_array, sel, section_label, yrs):
@@ -572,7 +573,8 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
 
         # Get percentage contributions for each equipment type that
         # appears in the service demand data
-        [tech_pct, tech_names] = sd_mseg_percent(sd_array, idx_series, yrs)
+        [tech_sd, tech_pct, tech_names] = sd_mseg_percent(
+            sd_array, idx_series, yrs)
 
         # Declare empty list to store dicts generated for each technology
         tech_dict_list = []
@@ -582,12 +584,15 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         # total consumption for that end use and fuel type reported in
         # the 'Amount' column in subset, and in the same step, convert
         # the years and calculated technology-specific energy use data
-        # into a dict
-        for technology in tech_pct:
+        # into a dict; also report out absolute service demand values
+        # for each technology under the 'stock' key
+        for t_i in range(len(tech_pct)):
             tech_dict_list.append(
                 {'energy': dict(zip(subset['Year'],
-                                    technology * subset['Amount'] * to_mmbtu)),
-                 'stock': 'NA'})
+                                    tech_pct[t_i] *
+                                    subset['Amount'] * to_mmbtu)),
+                 'stock': dict(zip(subset['Year'],
+                                   tech_sd[t_i]))})
 
         # The final dict should be {technology: {year: data, ...}, ...}
         final_dict = dict(zip(tech_names, tech_dict_list))

@@ -75,7 +75,7 @@ class UsefulInputFiles(object):
                     "energy) are currently supported)")
         elif regions == "EMM":
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.json")
+                             "mseg_res_com_emm.gz")
             if energy_out[0] == "site":
                 self.htcl_totals = (
                     "supporting_data", "stock_energy_tech_data",
