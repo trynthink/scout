@@ -714,9 +714,9 @@ for (a in 1:length(adopt_scenarios)){
                                 r_agg_temp[[fuel]][years[yr]][[1]]
                             }
                           }
-                        }else{
+                        }else(
                           add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
-                        }
+                        )
 	                    }
 	                  }                  
 	                }  
@@ -1335,7 +1335,7 @@ for (a in 1:length(adopt_scenarios)){
 	    	# Add a line to distinguish the cost effectiveness threshold
 	    	abline(h=plot_ablines_finmets[fmp], lwd=2, lty=3, col="gray50")
 	     	# Add individual ECM points to the cost effectiveness plot
-	     	points(results_x, results_y, col="gray70", pch=results_pch,
+        points(results_x, results_y, col="gray70", pch=results_pch,
 	     	       bg=results_bg, lwd=0.75, cex = 1.2)
       	# Add x axis tick marks and axis labels
       	axis(side=1, at=xlim, labels=xlim, cex.axis=1.25)
