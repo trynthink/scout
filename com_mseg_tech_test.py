@@ -4015,6 +4015,7 @@ class ChoiceModelParametersExtractionTest(CommonUnitTest):
             self.dict_check(cmt.tpp_handler(self.prem_data, sel, self.tmp_yrs),
                             self.result_prem[idx])
 
+
 # Offer external code execution (include all lines below this point in all
 # test files)
 def main():

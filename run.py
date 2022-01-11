@@ -1873,6 +1873,13 @@ class Engine(object):
                 for var in ["energy", "cost", "carbon"]:
                     # Update baseline and efficient results
                     for var_sub in ["baseline", "efficient"]:
+                        # Select correct fuel split data
+                        if var_sub != "baseline":
+                            fs_eff_splt_var = adj_out_break[
+                                "efficient fuel splits"][var][yr]
+                        else:
+                            fs_eff_splt_var = 1
+
                         # Handle extra key on the adjusted microsegment data
                         # for the cost variables ("energy")
                         if var == "cost":
@@ -1880,15 +1887,13 @@ class Engine(object):
                                 adj_out_break[
                                     "base fuel"][var][var_sub][yr] - (
                                 adj[var]["energy"]["total"][var_sub][yr]) * (
-                                1 - adj_frac_t) * (adj_out_break[
-                                    "efficient fuel splits"][var][yr])
+                                1 - adj_frac_t) * fs_eff_splt_var
                         else:
                             adj_out_break["base fuel"][var][var_sub][yr] = \
                                 adj_out_break[
                                     "base fuel"][var][var_sub][yr] - (
                                 adj[var]["total"][var_sub][yr]) * (
-                                    1 - adj_frac_t) * (adj_out_break[
-                                        "efficient fuel splits"][var][yr])
+                                    1 - adj_frac_t) * fs_eff_splt_var
                     # Update savings results
                     # Handle extra key on the adjusted microsegment data
                     # for the cost variables ("energy")
@@ -1897,15 +1902,15 @@ class Engine(object):
                             adj_out_break["base fuel"][var]["savings"][yr] - ((
                                 adj[var]["energy"]["total"]["baseline"][yr] -
                                 adj[var]["energy"]["total"]["efficient"][yr]
-                                ) * (1 - adj_frac_t) * (adj_out_break[
-                                    "efficient fuel splits"][var][yr]))
+                                ) * (1 - adj_frac_t) * adj_out_break[
+                                    "efficient fuel splits"][var][yr])
                     else:
                         adj_out_break["base fuel"][var]["savings"][yr] = \
                             adj_out_break["base fuel"][var]["savings"][yr] - ((
                                 adj[var]["total"]["baseline"][yr] -
                                 adj[var]["total"]["efficient"][yr]) * (
-                                1 - adj_frac_t) * (adj_out_break[
-                                    "efficient fuel splits"][var][yr]))
+                                1 - adj_frac_t) * adj_out_break[
+                                    "efficient fuel splits"][var][yr])
 
                     # If the measure involves fuel switching and the user
                     # has broken out results by fuel type, make adjustments
@@ -2272,6 +2277,13 @@ class Engine(object):
                             else:
                                 adj_frac_t = adj_frac_eff
 
+                            # Select correct fuel split data
+                            if var_sub != "baseline":
+                                fs_eff_splt_var = adj_out_break[
+                                    "efficient fuel splits"][var][yr]
+                            else:
+                                fs_eff_splt_var = 1
+
                             # Handle extra key on the adjusted microsegment
                             # data for the cost variables ("energy")
                             if var == "cost":
@@ -2281,16 +2293,14 @@ class Engine(object):
                                         "base fuel"][var][var_sub][yr] - (
                                     adj[var]["energy"][
                                         "total"][var_sub][yr]) * (
-                                        1 - adj_frac_t) * (adj_out_break[
-                                            "efficient fuel splits"][var][yr])
+                                        1 - adj_frac_t) * fs_eff_splt_var
                             else:
                                 adj_out_break[
                                     "base fuel"][var][var_sub][yr] = \
                                     adj_out_break[
                                         "base fuel"][var][var_sub][yr] - (
                                     adj[var]["total"][var_sub][yr]) * (
-                                        1 - adj_frac_t) * (adj_out_break[
-                                            "efficient fuel splits"][var][yr])
+                                        1 - adj_frac_t) * fs_eff_splt_var
                         # Update savings results
                         # Handle extra key on the adjusted microsegment data
                         # for the cost variables ("energy")
@@ -2303,8 +2313,8 @@ class Engine(object):
                                         1 - adj_frac_base)) -
                                      (adj[var]["energy"]["total"][
                                         "efficient"][yr]) * (
-                                        1 - adj_frac_eff)) * adj_out_break[
-                                            "efficient fuel splits"][var][yr])
+                                        1 - adj_frac_eff) * adj_out_break[
+                                            "efficient fuel splits"][var][yr]))
                         else:
                             adj_out_break["base fuel"][var]["savings"][yr] = \
                                 adj_out_break["base fuel"][var][
@@ -2312,8 +2322,8 @@ class Engine(object):
                                     ((adj[var]["total"]["baseline"][yr] * (
                                         1 - adj_frac_base)) -
                                      (adj[var]["total"]["efficient"][yr]) * (
-                                        1 - adj_frac_eff)) * adj_out_break[
-                                            "efficient fuel splits"][var][yr])
+                                        1 - adj_frac_eff) * adj_out_break[
+                                            "efficient fuel splits"][var][yr]))
 
                         # If the measure involves fuel switching and the user
                         # has broken out results by fuel type, make adjustments
@@ -2570,17 +2580,17 @@ class Engine(object):
         # Set up separate set of stock data needed to determine stock turnover
         # adjustments as part of the measure competition calculations
 
-        # Handle case where measure has multiple end uses that include heating
-        # and cooling or cooling and other end uses and the contributing
-        # microsegment to be adjusted applies to cooling (for the first case)
-        # or something other than cooling (for the second). In the first case,
-        # which represents e.g. a HP measure or a controls measure, only
-        # heating stock data will be tracked and turnover adjustments should be
-        # based on heating technologies. In the second case, which represents
-        # e.g., a controls measure where heating is not specified, only cooling
-        # stock data will be tracked and turnover adjustments should be based
-        # on cooling technologies.
-        if len(m.end_use) > 1 and ((
+        # Handle case where an equipment measure has multiple end uses that
+        # include heating and cooling or cooling and other end uses and the
+        # contributing microsegment to be adjusted applies to cooling (for the
+        # first case) or something other than cooling (for the second). In the
+        # first case, which represents e.g. a HP measure or a controls measure,
+        # only heating stock data will be tracked and turnover adjustments
+        # should be based on heating technologies. In the second case, which
+        # represents e.g., a controls measure where heating is not specified,
+        # only cooling stock data will be tracked and turnover adjustments
+        # should be based on cooling technologies.
+        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
             "heating" in m.end_use["primary"] and "heating" not in mseg_key)
             or ("heating" not in m.end_use["primary"] and (
                 "cooling" in m.end_use["primary"] and
@@ -2644,7 +2654,7 @@ class Engine(object):
                     # If unexpected cooling tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key + " has"
+                            "Contributing microsegment " + mseg_key + " has "
                             "unexpected cooling technology information "
                             "for stock turnover calculations")
                 # Commercial case
@@ -2691,7 +2701,7 @@ class Engine(object):
                     # If unexpected cooling tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key + " has"
+                            "Contributing microsegment " + mseg_key + " has "
                             "unexpected cooling technology "
                             "information for stock turnover calculations")
             # Case 2: heating is not in the measure end uses, cooling is in the
@@ -3132,18 +3142,16 @@ class Engine(object):
                         adj[var]["energy"]["total"]["baseline"][yr] * (
                             1 - adj_t_b[var]) -
                         adj[var]["energy"]["total"]["efficient"][yr] * (
-                            1 - adj_t_e[var])) *
-                        adj_out_break[
-                            "efficient fuel splits"][var][yr])
+                            1 - adj_t_e[var]) * adj_out_break[
+                            "efficient fuel splits"][var][yr]))
             else:
                 adj_out_break["base fuel"][var]["savings"][yr] = \
                     adj_out_break["base fuel"][var]["savings"][yr] - ((
                         adj[var]["total"]["baseline"][yr] * (
                             1 - adj_t_b[var]) -
                         adj[var]["total"]["efficient"][yr] * (
-                            1 - adj_t_e[var])) *
-                        adj_out_break[
-                            "efficient fuel splits"][var][yr])
+                            1 - adj_t_e[var]) * adj_out_break[
+                            "efficient fuel splits"][var][yr]))
 
             # If the measure involves fuel switching and the user has broken
             # out results by fuel type, make adjustments to the efficient, and
@@ -4044,7 +4052,7 @@ def main(base_dir):
           flush=True)
 
     # Import baseline microsegments
-    if regions == 'State':  # Extract compressed state stock/energy data
+    if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
         bjszip = path.join(base_dir, *handyfiles.msegs_in)
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
             msegs = json.loads(zip_ref.read().decode('utf-8'))

@@ -3743,7 +3743,7 @@ class Measure(object):
                             self.handyvars.zero_cost_tech) for x in
                                 cost_base.items()]):
                             # If some years have valid cost data, take the max
-                            # from those years and extend across the full 
+                            # from those years and extend across the full
                             # time horizon (cases like commercial lighting
                             # sometimes have typical CPL data that declines to
                             # zero with declining stock)
@@ -4125,7 +4125,7 @@ class Measure(object):
                             yr: cost_base[yr] / self.handyvars.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
-                    # Set measure and baseline cost units to $/unit 
+                    # Set measure and baseline cost units to $/unit
                     cost_units, cost_base_units = ("$/unit" for n in range(2))
                 else:
                     sf_to_house_key = None
