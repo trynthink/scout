@@ -11481,6 +11481,16 @@ def main(base_dir):
                     "Error reading in '" + handyfiles.ecm_prep_env_cf +
                     "': " + str(e)) from None
             ecf.close()
+            # In some cases, individual ECMs may be defined and written to
+            # the counterfactual package data; these ECMs should be added
+            # to the list of previously prepared individual ECMs so that
+            # they are not prepared again if their JSON definitions haven't
+            # been updated
+            meas_summary_env_cf_indiv = [
+                m for m in meas_summary_env_cf if
+                "contributing_ECMs" not in m.keys()]
+            if len(meas_summary_env_cf_indiv) != 0:
+                meas_summary = meas_summary + meas_summary_env_cf_indiv
         except FileNotFoundError:
             meas_summary_env_cf = []
         # If applicable, import separate file that will store counterfactual
@@ -11530,9 +11540,10 @@ def main(base_dir):
                 # package was not previously written and must be regenerated)
                 if all([meas_dict["name"] != y["name"] for
                        y in meas_summary]) or \
-                   all([meas_dict["name"] != path.splitext(
+                   ("(CF)" not in meas_dict["name"] and
+                    all([meas_dict["name"] != path.splitext(
                         path.splitext(y)[0])[0] for y in listdir(
-                            path.join(*handyfiles.ecm_compete_data))]) or \
+                            path.join(*handyfiles.ecm_compete_data))])) or \
                    (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >
                     stat(path.join(
                         "supporting_data", "ecm_prep.json")).st_mtime) or \
@@ -12133,7 +12144,8 @@ def main(base_dir):
         # generated, in which it is assumed subsequent measure competition
         # calculations will not be performed
         if opts is None or opts.sect_shapes is not True:
-            for ind, m in enumerate(meas_prepped_objs):
+            for ind, m in enumerate([
+                    x for x in meas_prepped_objs if "(CF)" not in x.name]):
                 # Assemble file name for measure competition data
                 meas_file_name = m.name + ".pkl.gz"
                 # Assemble folder path for measure competition data
