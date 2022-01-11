@@ -815,43 +815,53 @@ class CommonUnitTest(unittest.TestCase):
         {'rooftop_ASHP-cool':
             {'energy':
                 {'2019': 119263.8, '2020': 121382.04, '2021': 122987.84},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0.088, '2020': 0.089, '2021': 0.09}},
          'comm_GSHP-cool':
             {'energy':
                 {'2019': 18973.79, '2020': 17729.96, '2021': 16398.38},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0.014, '2020': 0.013, '2021': 0.013}},
          'res_type_central_AC':
             {'energy':
                 {'2019': 2291762.41, '2020': 2259888, '2021': 2220613.78},
-             'stock': 'NA'}},
+             'stock':
+                {'2019': 1.691, '2020': 1.657, '2021': 1.625}}},
         {'gas_instantaneous_WH':
             {'energy':
                 {'2019': 0, '2020': 0, '2021': 0},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0, '2020': 0, '2021': 0}},
          'gas_water_heater':
             {'energy':
                 {'2019': 9430000, '2020': 9373000, '2021': 9311000},
-             'stock': 'NA'}},
+             'stock':
+                {'2019': 3.845, '2020': 3.889, '2021': 3.927}}},
         {'2L F54T5HO LB':
             {'energy':
                 {'2019': 0.0, '2020': 0.0, '2021': 0.0},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0, '2020': 0, '2021': 0}},
          '90W Halogen PAR-38':
             {'energy':
                 {'2019': 188196.749, '2020': 177240.371, '2021': 167691.597},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0.124, '2020': 0.111, '2021': 0.1}},
          'F28T8 HE w/ OS &amp; SR':
             {'energy':
                 {'2019': 3366293.456, '2020': 3386728.109, '2021': 3405816.43},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 2.218, '2020': 2.121, '2021': 2.031}},
          'MH 175_LB':
             {'energy':
                 {'2019': 27318.883, '2020': 25548.161, '2021': 23476.82},
-             'stock': 'NA'},
+             'stock':
+                {'2019': 0.018, '2020': 0.016, '2021': 0.014}},
          'T8 2e),':
             {'energy':
                 {'2019': 59190.913, '2020': 57483.358, '2021': 57015.145},
-             'stock': 'NA'}},
+             'stock':
+                {'2019': 0.039, '2020': 0.036, '2021': 0.034}}},
         {'energy': {'2019': 11983000, '2020': 12165000, '2021': 12377000},
          'stock': 'NA'},
         {'energy': {'2019': 24763000, '2020': 24724000, '2021': 24733000},
@@ -890,13 +900,13 @@ class PercentageCalculationTest(CommonUnitTest):
     # function and save outputs for testing
     @classmethod
     def setUpClass(self):  # so that set up is run once for the entire class
-        (self.a, self.b) = cm.sd_mseg_percent(
+        (self.a_abs, self.a_pct, self.b) = cm.sd_mseg_percent(
             self.sample_sd_array, self.selections[0], self.years)
-        (self.c, self.d) = cm.sd_mseg_percent(
+        (self.c_abs, self.c_pct, self.d) = cm.sd_mseg_percent(
             self.sample_sd_array, self.selections[1], self.years)
-        (self.e, self.f) = cm.sd_mseg_percent(
+        (self.e_abs, self.e_pct, self.f) = cm.sd_mseg_percent(
             self.sample_sd_array, self.selections[2], self.years)
-        (self.g, self.h) = cm.sd_mseg_percent(
+        (self.g_abs, self.g_pct, self.h) = cm.sd_mseg_percent(
             self.sample_sd_array, self.selections[3], self.years)
 
     # Test technology type name capture/identification
@@ -910,11 +920,14 @@ class PercentageCalculationTest(CommonUnitTest):
     # potential floating point precision problems)
     def test_service_demand_percentage_conversion(self):
         self.assertTrue(
-            (np.round(self.a - self.sd_percentages[0], decimals=5) == 0).all())
+            (np.round(
+                self.a_pct - self.sd_percentages[0], decimals=5) == 0).all())
         self.assertTrue(
-            (np.round(self.c - self.sd_percentages[1], decimals=5) == 0).all())
+            (np.round(
+                self.c_pct - self.sd_percentages[1], decimals=5) == 0).all())
         self.assertTrue(
-            (np.round(self.e - self.sd_percentages[2], decimals=5) == 0).all())
+            (np.round(
+                self.e_pct - self.sd_percentages[2], decimals=5) == 0).all())
 
 
 class CommercialDataSelectionTest(CommonUnitTest):
