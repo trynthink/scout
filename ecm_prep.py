@@ -314,10 +314,6 @@ class UsefulVars(object):
             sf to number of households, as applicable.
         res_lts_per_home (list): RECS 2015 Table HC5.1 number of lights per
             household, by building type, used to get from $/home to $/bulb
-        cconv_htclkeys_map (dict): Maps measure cost units to cost conversion
-            dict keys for the heating and cooling end uses.
-        cconv_tech_htclsupply_map (dict): Maps measure cost units to cost
-            conversion dict keys for supply-side heating/cooling technologies.
         cconv_tech_mltstage_map (dict): Maps measure cost units to cost
             conversion dict keys for demand-side heating/cooling
             technologies and controls technologies requiring multiple
@@ -1107,15 +1103,6 @@ class UsefulVars(object):
         self.cconv_bybldg_units = [
             "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
             "$/ft^2 footprint", "$/ft^2 floor", "$/occupant", "$/node"]
-        self.cconv_htclkeys_map = {
-            "supply": [
-                "$/ft^2 floor", "$/ft^2 floor"],
-            "demand": [
-                "$/ft^2 glazing", "$/ft^2 roof",
-                "$/ft^2 wall", "$/ft^2 footprint"]}
-        self.cconv_tech_htclsupply_map = {
-            "heating equipment": ["$/ft^2 floor"],
-            "cooling equipment": ["$/ft^2 floor"]}
         self.cconv_tech_mltstage_map = {
             "windows": {
                 "key": ["$/ft^2 glazing"],
@@ -6398,33 +6385,46 @@ class Measure(object):
                 # Otherwise, use microsegment end use to pull top-level key
                 else:
                     top_key = [x for x in top_keys if mskeys[4] in x][0]
-            except (StopIteration, IndexError):
+            except IndexError:
                 raise KeyError("No conversion data for ECM '" +
                                self.name + "' cost units '" +
                                cost_meas_units + "'")
 
+            # Handle special case where top-level key equals heating/cooling
             if top_key == "heating and cooling":
-                # Retrieve heating/cooling cost conversion data
-                htcl_keys = self.handyvars.cconv_htclkeys_map
-                try:
-                    htcl_key = next(
-                        x for x in htcl_keys.keys() if
-                        cost_meas_noyr in htcl_keys[x])
-                except StopIteration as e:
-                    raise KeyError("No conversion data for ECM '" +
-                                   self.name + "' cost units" +
-                                   cost_meas_units + "'") from e
+                # Determine whether HVAC equipment (supply) or envelope
+                # (demand) microsegment is being addressed
+                if "demand" in mskeys:
+                    htcl_key = "demand"
+                else:
+                    htcl_key = "supply"
+                # Pull out appropriate HVAC equipment or envelope cost
+                # conversion data
                 if htcl_key == "supply":
                     # Retrieve supply-side heating/cooling conversion data
-                    supply_keys = self.handyvars.cconv_tech_htclsupply_map
+                    supply_dat = convert_data[
+                        'cost unit conversions'][top_key][htcl_key]
+                    # Handle special case of secondary heating, which
+                    # should be mapped to heating end use cost data
                     try:
-                        supply_key = next(
-                            x for x in supply_keys.keys() if
-                            cost_meas_noyr in supply_keys[x])
-                    except StopIteration as e:
+                        if mskeys[4] == "secondary heating":
+                            supply_key = [
+                                x for x in supply_dat.keys() if "heating" in x
+                                and cost_meas_noyr in [
+                                    supply_dat[x]["revised units"],
+                                    supply_dat[x]["original units"]]][0]
+                        # Otherwise, use microsegment end use to pull key
+                        else:
+                            supply_key = [
+                                x for x in supply_dat.keys() if mskeys[4] in x
+                                and cost_meas_noyr in [
+                                    supply_dat[x]["revised units"],
+                                    supply_dat[x]["original units"]]][0]
+                    except IndexError:
                         raise KeyError("No conversion data for ECM '" +
                                        self.name + "' cost units" +
-                                       cost_meas_units + "'") from e
+                                       cost_meas_units + "'")
+                    # Finalize data
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][supply_key]]
@@ -6435,10 +6435,10 @@ class Measure(object):
                         demand_key = next(
                             x for x in demand_keys.keys() if
                             cost_meas_noyr in demand_keys[x]['key'])
-                    except StopIteration as e:
+                    except StopIteration:
                         raise KeyError("No conversion data for ECM '" +
                                        self.name + "' cost units" +
-                                       cost_meas_units + "'") from e
+                                       cost_meas_units + "'")
                     convert_units_data = [
                         convert_data['cost unit conversions'][top_key][
                             htcl_key][x] for x in
