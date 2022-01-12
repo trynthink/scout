@@ -12144,8 +12144,7 @@ def main(base_dir):
         # generated, in which it is assumed subsequent measure competition
         # calculations will not be performed
         if opts is None or opts.sect_shapes is not True:
-            for ind, m in enumerate([
-                    x for x in meas_prepped_objs if "(CF)" not in x.name]):
+            for ind, m in enumerate(meas_prepped_objs):
                 # Assemble file name for measure competition data
                 meas_file_name = m.name + ".pkl.gz"
                 # Assemble folder path for measure competition data
