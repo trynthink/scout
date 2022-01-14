@@ -84,9 +84,8 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
     """
 
-    def __init__(self, capt_energy, regions, site_energy,
-                 grid_decarb, gs_ref_carb):
-        if regions == 'AIA':
+    def __init__(self, opts):
+        if opts.alt_regions in [False, 'AIA']:
             # UNCOMMENT WITH ISSUE 188
             # self.msegs_in = ("supporting_data", "stock_energy_tech_data",
             #                  "mseg_res_com_cz_2017.json")
@@ -99,7 +98,7 @@ class UsefulInputFiles(object):
                                  "cpl_res_com_cz.json")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_AIA_ColSums.txt")
-        elif regions == 'EMM':
+        elif opts.alt_regions == 'EMM':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_emm.gz")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
@@ -112,10 +111,10 @@ class UsefulInputFiles(object):
                                  "IECC_EMM_ColSums.txt")
             # Toggle EMM emissions and price data based on whether or not
             # a grid decarbonization scenario is used
-            if grid_decarb is not False:
+            if opts.grid_decarb is not False:
                 # Set either an extreme or moderate grid decarbonization case,
                 # depending on what the user selected
-                if grid_decarb[0] == "1":
+                if opts.grid_decarb[0] == "1":
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-decarb.json")
@@ -125,10 +124,10 @@ class UsefulInputFiles(object):
                         "emm_region_emissions_prices-decarb_lite.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
-                if grid_decarb[1] == "1":
+                if opts.grid_decarb[1] == "1":
                     # Case where GridSIM Reference Case is used to set
                     # baseline emissions factors (vs. AEO)
-                    if gs_ref_carb is True:
+                    if opts.gs_ref_carb is True:
                         self.ss_data_altreg_nonfs = (
                             "supporting_data", "convert_data",
                             "emm_region_emissions_prices-gsref.json")
@@ -143,7 +142,7 @@ class UsefulInputFiles(object):
             else:
                 # Case where GridSIM Reference Case is used to set
                 # baseline emissions factors (vs. AEO)
-                if gs_ref_carb is True:
+                if opts.gs_ref_carb is True:
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-gsref.json")
@@ -152,7 +151,7 @@ class UsefulInputFiles(object):
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-updated.json")
                 self.ss_data_altreg_nonfs = None
-        elif regions == 'State':
+        elif opts.alt_regions == 'State':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_state.gz")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
@@ -163,16 +162,17 @@ class UsefulInputFiles(object):
                                  "IECC_State_ColSums.txt")
             # Ensure that state-level regions are not being used alongside
             # a high grid decarbonization scenario (incompatible currently)
-            if grid_decarb is not False:
+            if opts.grid_decarb is not False:
                 raise ValueError("Unsupported regional breakout for "
                                  "use with alternate grid decarbonization "
-                                 "scenario (" + regions + ")")
+                                 "scenario (" + opts.alt_regions + ")")
             else:
                 self.ss_data_altreg = ("supporting_data", "convert_data",
                                        "state_emissions_prices-updated.json")
                 self.ss_data_altreg_nonfs = None
         else:
-            raise ValueError("Unsupported regional breakout (" + regions + ")")
+            raise ValueError(
+                "Unsupported regional breakout (" + opts.alt_regions + ")")
 
         self.metadata = "metadata.json"
         self.glob_vars = "glob_run_vars.json"
@@ -196,10 +196,10 @@ class UsefulInputFiles(object):
         self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
         # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
-        if grid_decarb is not False:
+        if opts.grid_decarb is not False:
             # Set either an extreme or moderate grid decarbonization case,
             # depending on what the user selected
-            if grid_decarb[0] == "1":
+            if opts.grid_decarb[0] == "1":
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-decarb.json")
             else:
@@ -211,10 +211,10 @@ class UsefulInputFiles(object):
                                     "tsv_carbon-decarb.json")
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
-            if grid_decarb[1] == "1":
+            if opts.grid_decarb[1] == "1":
                 # Case where GridSIM Reference Case is used to set
                 # baseline emissions factors (vs. AEO)
-                if gs_ref_carb is True:
+                if opts.gs_ref_carb is True:
                     self.ss_data_nonfs = (
                         "supporting_data", "convert_data",
                         "site_source_co2_conversions-gsref.json")
@@ -233,13 +233,13 @@ class UsefulInputFiles(object):
         else:
             # Use the user-specified captured energy method flag to determine
             # which site-source conversions file to select
-            if capt_energy is True:
+            if opts.captured_energy is True:
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-ce.json")
             else:
                 # Case where GridSIM Reference Case is used to set
                 # baseline emissions factors (vs. AEO)
-                if gs_ref_carb is True:
+                if opts.gs_ref_carb is True:
                     self.ss_data = ("supporting_data", "convert_data",
                                     "site_source_co2_conversions-gsref.json")
                 else:
@@ -356,19 +356,17 @@ class UsefulVars(object):
             sensitive valuation for heating (no load shapes for these gains).
     """
 
-    def __init__(self, base_dir, handyfiles, regions, tsv_metrics,
-                 health_costs, split_fuel, floor_start, exog_hp_rates,
-                 adopt_scn_usr, retro_set):
+    def __init__(self, base_dir, handyfiles, opts):
         # Choose default adoption scenarios if user doesn't specify otherwise
-        if adopt_scn_usr is False:
+        if opts.adopt_scn_restrict is False:
             self.adopt_schemes = [
                 'Technical potential', 'Max adoption potential']
         # Otherwise set adoption scenario to user-specified choice
         else:
-            self.adopt_schemes = adopt_scn_usr
+            self.adopt_schemes = opts.adopt_scn_restrict
         self.discount_rate = 0.07
         self.nsamples = 100
-        self.regions = regions
+        self.regions = opts.alt_regions
         # Load metadata including AEO year range
         with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
             try:
@@ -392,7 +390,7 @@ class UsefulVars(object):
 
         # Default case (zero early retrofits) or user has set early retrofits
         # to zero
-        if retro_set is False or retro_set[0] == "1":
+        if opts.retro_set is False or opts.retro_set[0] == "1":
             self.retro_rate = {yr: 0 for yr in self.aeo_years}
         # User has set early retrofits to non-zero
         else:
@@ -423,7 +421,7 @@ class UsefulVars(object):
 
             # User desires no change in starting values for early retrofits
             # across the modeled time horizon; set multipliers to 1 across yrs.
-            if retro_set[0] == "2":
+            if opts.retro_set[0] == "2":
                 multipliers = {yr: 1 for yr in self.aeo_years}
             # User specified a rate multiplier and year by which it is
             # achieved; assume linear increase in early retrofit rates from
@@ -432,7 +430,7 @@ class UsefulVars(object):
             else:
                 # Pull in user-defined rate multiplier and year by which it
                 # is achieved
-                rate_inc, yr_inc = retro_set[1:3]
+                rate_inc, yr_inc = opts.retro_set[1:3]
                 # Calculate progressively increasing multipliers to the early
                 # retrofit rate based on user settings
                 multipliers = {yr: 1 + ((rate_inc - 1) / (yr_inc - aeo_min)) *
@@ -662,7 +660,7 @@ class UsefulVars(object):
                     key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
                     for key in self.aeo_years}}}
         # Load external data on conversion rates for HP measures
-        if exog_hp_rates is not False:
+        if opts.exog_hp_rates is not False:
             with open(path.join(
                     base_dir, *handyfiles.hp_convert_rates), 'r') as fs_r:
                 try:
@@ -694,7 +692,7 @@ class UsefulVars(object):
                 None for n in range(3))
 
         # Set valid region names and regional output categories
-        if regions == "AIA":
+        if opts.alt_regions in [False, "AIA"]:
             valid_regions = [
              "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"]
             regions_out = [
@@ -719,8 +717,8 @@ class UsefulVars(object):
                     "IECC_CZ" + str(n + 1) for n in range(8)])}
             # HP conversion rates unsupported for AIA regional breakouts
             self.hp_rates_reg_map = None
-        elif regions in ["EMM", "State"]:
-            if regions == "EMM":
+        elif opts.alt_regions in ["EMM", "State"]:
+            if opts.alt_regions == "EMM":
                 valid_regions = [
                     'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
                     'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
@@ -802,7 +800,7 @@ class UsefulVars(object):
             try:
                 # Hard code number of valid states at 51 (includes DC) to avoid
                 # potential issues later when indexing numpy columns by state
-                if regions == "State":
+                if opts.alt_regions == "State":
                     len_reg = 51
                 else:
                     len_reg = len(valid_regions)
@@ -811,10 +809,10 @@ class UsefulVars(object):
                     path.join(base_dir, *handyfiles.aia_altreg_map),
                     names=True, delimiter='\t', dtype=(
                         ['<U25'] * 1 + ['<f8'] * len_reg))
-            except ValueError as e:
+            except ValueError:
                 raise ValueError(
                     "Error reading in '" +
-                    handyfiles.aia_altreg_map + "': " + str(e)) from None
+                    str(handyfiles.aia_altreg_map) + "'")
             # IECC -> EMM or State mapping
             try:
                 iecc_altreg_map = numpy.genfromtxt(
@@ -1075,7 +1073,7 @@ class UsefulVars(object):
                 "drying", "ceiling fan", "fans and pumps",
                 "MELs", "other"])])
         # Configure output breakouts for fuel type if user has set this option
-        if split_fuel is True:
+        if opts.split_fuel is True:
             self.out_break_fuels = OrderedDict([
                 ('Electric', ["electricity"]),
                 ('Non-Electric', ["natural gas", "distillate", "other fuel"])])
@@ -1146,7 +1144,7 @@ class UsefulVars(object):
 
         # Use EMM region setting as a proxy for desired time-sensitive
         # valuation (TSV) and associated need to initialize handy TSV variables
-        if regions == "EMM":
+        if opts.alt_regions == "EMM":
             self.tsv_climate_regions = [
                 "2A", "2B", "3A", "3B", "3C", "4A", "4B",
                 "4C", "5A", "5B", "5C", "6A", "6B", "7"]
@@ -1208,7 +1206,7 @@ class UsefulVars(object):
                 "7": {
                     "set 1": [3, (3, 19)],
                     "set 2": [24, (7, 24, 25)]}}
-            if tsv_metrics is not False:
+            if opts.tsv_metrics is not False:
                 # Develop weekend day flags
                 wknd_day_flags = [0 for n in range(365)]
                 current_wkdy = 1
@@ -1270,11 +1268,11 @@ class UsefulVars(object):
                 # Choose the appropriate data to use in determining peak/take
                 # windows (total vs. net system load under reference vs. "Low
                 # Renewable Cost" supply-side AEO case)
-                if tsv_metrics[-2] == "1":
+                if opts.tsv_metrics[-2] == "1":
                     metrics_data = handyfiles.tsv_metrics_data_tot_ref
-                elif tsv_metrics[-2] == "2":
+                elif opts.tsv_metrics[-2] == "2":
                     metrics_data = handyfiles.tsv_metrics_data_tot_hr
-                elif tsv_metrics[-2] == "3":
+                elif opts.tsv_metrics[-2] == "3":
                     metrics_data = handyfiles.tsv_metrics_data_net_ref
                 else:
                     metrics_data = handyfiles.tsv_metrics_data_net_hr
@@ -1422,7 +1420,7 @@ class UsefulVars(object):
 
         # Condition health data scenario initialization on whether user
         # has requested that public health costs be accounted for
-        if health_costs is True:
+        if opts.health_costs is True:
             # For each health data scenario, set the intended measure name
             # appendage (tuple element 1), type of efficiency to attach health
             # benefits to (element 2), and column in the data file from which
@@ -1818,8 +1816,8 @@ class Measure(object):
             from an input dictionary.
         remove (boolean): Determines whether measure should be removed from
             analysis engine due to insufficient market source data.
-        energy_outputs (dict): Records several user command line input
-            selections that affect measure energy outputs.
+        usr_opts (dict): Records several user command line input
+            selections that affect measure outputs.
         eff_fs_splt (dict): Data needed to determine the fuel splits of
             efficient case results for fuel switching measures.
         handyvars (object): Global variables useful across class methods.
@@ -1838,11 +1836,7 @@ class Measure(object):
     """
 
     def __init__(
-            self, base_dir, handyvars, handyfiles, site_energy,
-            capt_energy, regions, tsv_metrics, health_costs, split_fuel,
-            floor_start, exog_hp_rates, grid_decarb, adopt_scn_usr,
-            retro_set, add_typ_eff, rp_persist, pkg_env_sep,
-            gs_ref_carb, **kwargs):
+            self, base_dir, handyvars, handyfiles, opts_dict, **kwargs):
         # Read Measure object attributes from measures input JSON.
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -1853,58 +1847,27 @@ class Measure(object):
         #     raise ValueError(
         #         "ECM '" + self.name + "' name must be <= 45 characters")
         self.remove = False
-        # Flag custom energy output settings (user-defined)
-        self.energy_outputs = {
-            "site_energy": False, "grid_decarb": False, "gs_ref_carb": False,
-            "captured_energy_ss": False, "alt_regions": False,
-            "tsv_metrics": False, "health_costs": False,
-            "split_fuel": False, "floor_start": False, "exog_hp_rates": False,
-            "adopt_scn_restrict": False, "retro_set": False,
-            "add_typ_eff": False, "rp_persist": False,
-            "pkg_env_sep": False}
-        if site_energy is True:
-            self.energy_outputs["site_energy"] = True
-        if capt_energy is True:
-            self.energy_outputs["captured_energy_ss"] = True
-        if rp_persist is True:
-            self.energy_outputs["rp_persist"] = True
-        if regions != "AIA":
-            self.energy_outputs["alt_regions"] = regions
-        if tsv_metrics is not False:
-            if (self.fuel_type not in ["electricity", ["electricity"]]) and \
-                    self.fuel_switch_to != "electricity":
-                raise ValueError(
-                    "Non-electric fuel found for measure '" + self.name +
-                    " alongside '--tsv_metrics' option. Such metrics cannot "
-                    "be calculated for non-electric baseline segments of "
-                    "energy use. To address this issue, restrict the "
-                    "measure's fuel type to electricity.")
-            self.energy_outputs["tsv_metrics"] = tsv_metrics
-        if health_costs is not None:
+        # Set user options to the command line settings
+        self.usr_opts = opts_dict
+        # Check to ensure that proper settings are used for tsv metrics calcs
+        if self.usr_opts["tsv_metrics"] is not False and (
+            self.fuel_type not in ["electricity", ["electricity"]]) and \
+                self.fuel_switch_to != "electricity":
+            raise ValueError(
+                "Non-electric fuel found for measure '" + self.name +
+                " alongside '--tsv_metrics' option. Such metrics cannot "
+                "be calculated for non-electric baseline segments of "
+                "energy use. To address this issue, restrict the "
+                "measure's fuel type to electricity.")
+        # Reset health costs option to be more informative for the specific
+        # measure, if available
+        if self.usr_opts["health_costs"] is True:
             # Look for pre-determined health cost scenario names in the
             # UsefulVars class, "health_scn_names" attribute
             if "PHC-EE (low)" in self.name:
-                self.energy_outputs["health_costs"] = "Uniform EE-low"
+                self.usr_opts["health_costs"] = "Uniform EE-low"
             elif "PHC-EE (high)" in self.name:
-                self.energy_outputs["health_costs"] = "Uniform EE-high"
-        if split_fuel is True:
-            self.energy_outputs["split_fuel"] = True
-        if floor_start is not False:
-            self.energy_outputs["floor_start"] = floor_start
-        if exog_hp_rates is not False:
-            self.energy_outputs["exog_hp_rates"] = exog_hp_rates
-        if grid_decarb is not False:
-            self.energy_outputs["grid_decarb"] = grid_decarb
-        if gs_ref_carb is not False:
-            self.energy_outputs["gs_ref_carb"] = gs_ref_carb
-        if adopt_scn_usr is not False:
-            self.energy_outputs["adopt_scn_restrict"] = adopt_scn_usr
-        if retro_set is not False:
-            self.energy_outputs["retro_set"] = retro_set
-        if add_typ_eff is not False:
-            self.energy_outputs["add_typ_eff"] = add_typ_eff
-        if pkg_env_sep is not False:
-            self.energy_outputs["pkg_env_sep"] = pkg_env_sep
+                self.usr_opts["health_costs"] = "Uniform EE-high"
         self.eff_fs_splt = {a_s: {} for a_s in handyvars.adopt_schemes}
         self.sector_shapes = {a_s: {} for a_s in handyvars.adopt_schemes}
         # Deep copy handy vars to avoid any dependence of changes to these vars
@@ -1961,9 +1924,10 @@ class Measure(object):
         # implemented has been imposed by the user and no measures with
         # typical/BAU efficiency are represented on the market, assume that
         # all measures begin showing market impacts in that year
-        if floor_start is not None and add_typ_eff is False and \
-                self.market_entry_year < floor_start:
-            self.market_entry_year = floor_start
+        if self.usr_opts["floor_start"] is not None and \
+            self.usr_opts["add_typ_eff"] is False and \
+                self.market_entry_year < self.usr_opts["floor_start"]:
+            self.market_entry_year = self.usr_opts["floor_start"]
         # Reset measure market exit year if None or later than max. year
         if self.market_exit_year is None or (int(
                 self.market_exit_year) > (int(
@@ -1973,9 +1937,10 @@ class Measure(object):
         # implemented has been imposed by the user and the measure represents
         # a typical/BAU efficiency level, remove the measure from the market
         # once the elevated floor goes into effect
-        if floor_start is not None and (
-                add_typ_eff is not False and "Ref. Case" in self.name):
-            self.market_exit_year = floor_start
+        if self.usr_opts["floor_start"] is not None and (
+                self.usr_opts["add_typ_eff"] is not False and
+                "Ref. Case" in self.name):
+            self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
         # Test for whether a user has set time sensitive valuation features
@@ -1987,7 +1952,7 @@ class Measure(object):
             # If TSV features are present, ensure that EMM regions are selected
             # and that the measure only applies to electricity (and no fuel
             # switching is selected)
-            if regions != "EMM":
+            if self.usr_opts["alt_regions"] != "EMM":
                 raise ValueError(
                     "Measure '" + self.name + "' has time sensitive "
                     "assessment features (see 'tsv_features' attribute) but "
@@ -2173,7 +2138,8 @@ class Measure(object):
             'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
             'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
             'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-        if ((self.tsv_features is not None or tsv_metrics is not False) and ((
+        if ((self.tsv_features is not None or
+             self.usr_opts["tsv_metrics"] is not False) and ((
                 type(self.climate_zone) == list and any([
                     x not in valid_tsv_regions for x in self.climate_zone])) or
             (type(self.climate_zone) != list and self.climate_zone != "all"
@@ -2865,10 +2831,9 @@ class Measure(object):
             # For electricity microsegments in measure scenarios that
             # require the addition of public health cost data, retrieve
             # the appropriate cost data for the given EMM region and add
-            if opts is not None and opts.health_costs is True and (
-                    "PHC" in self.name and (
-                        "electricity" in mskeys or
-                        self.fuel_switch_to == "electricity")):
+            if opts.health_costs is not False and ("PHC" in self.name and (
+                    "electricity" in mskeys or
+                    self.fuel_switch_to == "electricity")):
                 # Set row/column key information for the public health
                 # cost scenario suggested by the measure name
                 row_key = [x[1] for x in self.handyvars.health_scn_names if
@@ -3319,7 +3284,7 @@ class Measure(object):
             # case no envelope load shape information is generated/needed))
             elif ("demand" in mskeys and
                   self.name not in ctrb_ms_pkg_prep) and ((
-                    (self.energy_outputs["tsv_metrics"] is not False or
+                    (opts.tsv_metrics is not False or
                      opts.sect_shapes is True) or
                     self.tsv_features is not None) and (
                      mskeys[4] in ["heating", "secondary heating"] and
@@ -4631,10 +4596,10 @@ class Measure(object):
                 # shapes below if the user has specified the '--sect_shapes'
                 # option and simulation is in a year where such shapes are
                 # desired (per self.handyvars.aeo_years_summary attribute).
-                if (self.energy_outputs["tsv_metrics"] is not False or
+                if (opts.tsv_metrics is not False or
                     self.tsv_features is not None or (
-                    calc_sect_shapes is True and
-                    yr in self.handyvars.aeo_years_summary)) and (
+                        calc_sect_shapes is True and
+                        yr in self.handyvars.aeo_years_summary)) and (
                         mskeys[0] == "primary" and (
                             (mskeys[3] == "electricity") or
                             (self.fuel_switch_to == "electricity"))):
@@ -5471,8 +5436,7 @@ class Measure(object):
             # either measure TSV features are present or the user desires
             # TSV metrics outputs; assume these shapes are not necessary if
             # the user only desires sector-level load shapes
-            if ((opts and opts.sect_shapes is True) and
-                self.energy_outputs["tsv_metrics"] is False and
+            if (opts.sect_shapes is True and opts.tsv_metrics is False and
                     self.tsv_features is None):
                 cost_fact_hourly, carbon_fact_hourly, cost_yr_map, \
                     carb_yr_map = (None for n in range(4))
@@ -5581,14 +5545,11 @@ class Measure(object):
         if opts.sect_shapes is True:
             energy_base_shape, energy_eff_shape = ([
                 0 for x in range(8760)] for n in range(2))
-        # Create shorthand for measure's time sensitive metrics settings
-        tsv_metrics = self.energy_outputs["tsv_metrics"]
-
         # Initialize carbon/cost scaling factor variables, but only if
         # either measure TSV features are present or the user desires
         # TSV metrics outputs; assume these shapes are not necessary if
         # the user only desires sector-level load shapes
-        if tsv_metrics is not False or self.tsv_features is not None:
+        if opts.tsv_metrics is not False or self.tsv_features is not None:
             # Initial format of cost/carbon scaling factor data (broken out by
             # years available in the 8760 TSV cost/carbon input data)
             cost_scale_base, cost_scale_eff = (
@@ -6063,43 +6024,43 @@ class Measure(object):
 
                 # Further adjust baseline and efficient load shapes
                 # to account for time sensitive valuation (TSV) output metrics
-                if tsv_metrics is not False:
+                if opts.tsv_metrics is not False:
 
                     # Set legible name for each TSV metrics input
 
                     # Output type (energy/power)
-                    if tsv_metrics[0] == "1":
+                    if opts.tsv_metrics[0] == "1":
                         output = "energy"
                     else:
                         output = "power"
                     # Applicable hours of focus (all/peak/take)
-                    if tsv_metrics[1] == "1":
+                    if opts.tsv_metrics[1] == "1":
                         hours = "all"
-                    elif tsv_metrics[1] == "2":
+                    elif opts.tsv_metrics[1] == "2":
                         hours = "peak"
                     else:
                         hours = "take"
                     # Applicable season of focus (summer/winter/intermediate)
-                    if tsv_metrics[2] == '1':
+                    if opts.tsv_metrics[2] == '1':
                         season = "summer"
-                    elif tsv_metrics[2] == '2':
+                    elif opts.tsv_metrics[2] == '2':
                         season = "winter"
-                    elif tsv_metrics[2] == '3':
+                    elif opts.tsv_metrics[2] == '3':
                         season = "intermediate"
                     # Type of calculation (sum/max/avg depending on output)
-                    if output == "energy" and tsv_metrics[3] == "1":
+                    if output == "energy" and opts.tsv_metrics[3] == "1":
                         calc = "sum"
-                    elif output == "power" and tsv_metrics[3] == "1":
+                    elif output == "power" and opts.tsv_metrics[3] == "1":
                         calc = "max"
                     else:
                         calc = "avg"
                     # Days to perform operations over (applicable to sum
                     # and averaging calculations)
-                    if tsv_metrics[-1] == "1":
+                    if opts.tsv_metrics[-1] == "1":
                         days = "all"
-                    elif tsv_metrics[-1] == "2":
+                    elif opts.tsv_metrics[-1] == "2":
                         days = "weekdays"
-                    elif tsv_metrics[-1] == "3":
+                    elif opts.tsv_metrics[-1] == "3":
                         days = "weekends"
                     else:
                         days = None
@@ -6236,7 +6197,7 @@ class Measure(object):
         # either measure TSV features are present or the user desires
         # TSV metrics outputs; assume these shapes are not necessary if
         # the user only desires sector-level load shapes
-        if tsv_metrics is not False or self.tsv_features is not None:
+        if opts.tsv_metrics is not False or self.tsv_features is not None:
 
             # Calculate baseline/efficient cost rescaling factors as the sums
             # of the hourly baseline/efficient load shape multiplied by the
@@ -8788,10 +8749,10 @@ class MeasurePackage(Measure):
 
     Attributes:
         handyvars (object): Global variables useful across class methods.
-        contrib_ECMs (list): List of measures to package.
-        contrib_ECMs_eqp (list): Subset of packaged measures that applies
+        contributing_ECMs (list): List of measures to package.
+        contributing_ECMs_eqp (list): Subset of packaged measures that applies
             to equipment improvements.
-        contrib_ECMs_env (list): Subset of packaged measures that applies
+        contributing_ECMs_env (list): Subset of packaged measures that applies
             to envelope improvements.
         pkg_env_costs (boolean): Flag for whether or not to include contrib.
             envelope measure costs in the package (if applicable).
@@ -8802,11 +8763,8 @@ class MeasurePackage(Measure):
             reductions from packaging measures.
         remove (boolean): Determines whether package should be removed from
             analysis engine due to insufficient market source data.
-        energy_outputs (dict): Indicates whether site energy or captured
-            energy site-source conversions were used in measure preparation;
-            whether alternate regions were used; whether tsv metrics were
-            used; whether public health cost adders were used; and whether
-            fuel splits were used.
+        usr_opts (dict): Records several user command line input
+            selections that affect measure outputs.
         market_entry_year (int): Earliest year of market entry across all
             measures in the package.
         market_exit_year (int): Latest year of market exit across all
@@ -8842,22 +8800,23 @@ class MeasurePackage(Measure):
                  opts, convert_data):
         self.name = p
         self.handyvars = handyvars
-        self.contrib_ECMs = copy.deepcopy(measure_list_package)
+        self.contributing_ECMs = copy.deepcopy(measure_list_package)
         # Check to ensure energy output settings for all measures that
         # contribute to the package are identical
-        if not all([all([m.energy_outputs[x] ==
-                         self.contrib_ECMs[0].energy_outputs[x] for
-                         x in self.contrib_ECMs[0].energy_outputs.keys()]
-                        for m in self.contrib_ECMs[1:])]):
+        if not all([all([m.usr_opts[x] ==
+                         self.contributing_ECMs[0].usr_opts[x] for
+                         x in self.contributing_ECMs[0].usr_opts.keys()]
+                        for m in self.contributing_ECMs[1:])]):
             raise ValueError(
                 "Package '" + self.name + "' attempts to merge measures with "
                 "different energy output settings; re-prepare package's "
                 "contributing ECMs to ensure these settings are identical")
-        self.contrib_ECMs_eqp = [m for m in self.contrib_ECMs if
-                                 m.technology_type["primary"][0] == "supply"]
+        self.contributing_ECMs_eqp = [
+            m for m in self.contributing_ECMs if
+            m.technology_type["primary"][0] == "supply"]
         # Raise error if package does not contain any equipment ECMs;
         # packages are oriented around these ECMs
-        if len(self.contrib_ECMs_eqp) == 0:
+        if len(self.contributing_ECMs_eqp) == 0:
             raise ValueError(
                 "ECM package " + self.name + " has no contributing ECMs; "
                 "envelope components should be packaged within a single ECM "
@@ -8869,11 +8828,11 @@ class MeasurePackage(Measure):
         # with inconsistent fuel switching settings
         elif not (all([all([x in ["heating", "secondary heating",
                                   "cooling"] for x in m.end_use["primary"]])
-                       for m in self.contrib_ECMs_eqp]) or (
+                       for m in self.contributing_ECMs_eqp]) or (
                   all([m.end_use["primary"] == "lighting" for
-                       m in self.contrib_ECMs_eqp]) and
+                       m in self.contributing_ECMs_eqp]) and
                   any([m.measure_type == "add-on" for
-                       m in self.contrib_ECMs_eqp]))):
+                       m in self.contributing_ECMs_eqp]))):
             raise ValueError(
                 "ECM package " + self.name + " contains unsupported measures. "
                 "Packages are meant to account for interactions between HVAC "
@@ -8881,18 +8840,19 @@ class MeasurePackage(Measure):
                 "equipment and controls; remove all contributing measures "
                 "that are outside of this scope")
         elif not all([m.fuel_switch_to ==
-                      self.contrib_ECMs_eqp[0].fuel_switch_to
-                      for m in self.contrib_ECMs_eqp[1:]]):
+                      self.contributing_ECMs_eqp[0].fuel_switch_to
+                      for m in self.contributing_ECMs_eqp[1:]]):
             raise ValueError(
                 "ECM package " + self.name + " merges measures with different "
                 "'fuel_switch_to' attribute values; ensure the value for this "
                 "attribute is set consistently across all packaged measures")
 
-        self.contrib_ECMs_env = [m for m in self.contrib_ECMs if
-                                 m.technology_type["primary"][0] == "demand"]
+        self.contributing_ECMs_env = [
+            m for m in self.contributing_ECMs if
+            m.technology_type["primary"][0] == "demand"]
         # If there are envelope measures in the package, register settings
         # around whether to include the costs of those measures in pkg. costs
-        if len(self.contrib_ECMs_env) != 0:
+        if len(self.contributing_ECMs_env) != 0:
             self.pkg_env_costs = opts.pkg_env_costs
         else:
             self.pkg_env_costs = False
@@ -8907,32 +8867,32 @@ class MeasurePackage(Measure):
         # Set energy outputs and fuel switching properties to that of the
         # first equipment measure; consistency in these properties across
         # measures in the package was checked for above
-        self.energy_outputs = self.contrib_ECMs_eqp[0].energy_outputs
-        self.fuel_switch_to = self.contrib_ECMs_eqp[0].fuel_switch_to
+        self.usr_opts = self.contributing_ECMs_eqp[0].usr_opts
+        self.fuel_switch_to = self.contributing_ECMs_eqp[0].fuel_switch_to
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
-               self.contrib_ECMs_eqp]):
+               self.contributing_ECMs_eqp]):
             self.market_entry_year = int(handyvars.aeo_years[0])
         else:
             self.market_entry_year = min([
-                x.market_entry_year for x in self.contrib_ECMs_eqp])
+                x.market_entry_year for x in self.contributing_ECMs_eqp])
         # Set market exit year is latest of all the packaged eqp. measures
         if any([x.market_exit_year is None or (int(
                 x.market_exit_year) > (int(x.handyvars.aeo_years[0]) + 1)) for
-                x in self.contrib_ECMs_eqp]):
+                x in self.contributing_ECMs_eqp]):
             self.market_exit_year = int(handyvars.aeo_years[-1]) + 1
         else:
             self.market_exit_year = max([
-                x.market_entry_year for x in self.contrib_ECMs_eqp])
+                x.market_entry_year for x in self.contributing_ECMs_eqp])
         self.yrs_on_mkt = [
             str(i) for i in range(
                 self.market_entry_year, self.market_exit_year)]
         if all([m.measure_type == "full service" for m in
-                self.contrib_ECMs_eqp]):
+                self.contributing_ECMs_eqp]):
             self.meas_typ = "full service"
         elif all([m.measure_type == "add-on" for m in
-                  self.contrib_ECMs_eqp]):
+                  self.contributing_ECMs_eqp]):
             self.meas_typ = "add-on"
         else:
             self.meas_typ = "full service"
@@ -9021,11 +8981,11 @@ class MeasurePackage(Measure):
         """
         # Initialize a list of dicts for storing measure microsegment data as
         # it is looped through and updated
-        mseg_dat_rec = [{} for n in range(len(self.contrib_ECMs_eqp))]
+        mseg_dat_rec = [{} for n in range(len(self.contributing_ECMs_eqp))]
         # Loop through each measure and either adjust and record its attributes
         # for further processing or directly add its attributes to the merged
         # package measure definition
-        for ind, m in enumerate(self.contrib_ECMs_eqp):
+        for ind, m in enumerate(self.contributing_ECMs_eqp):
             # Add measure climate zones
             self.climate_zone.extend(
                 list(set(m.climate_zone) - set(self.climate_zone)))
@@ -9351,10 +9311,10 @@ class MeasurePackage(Measure):
         # If there are both heating/cooling equipment and envelope measures,
         # in the package, continue further to check for overlaps
         if all([len(x) != 0 for x in [
-                self.contrib_ECMs_eqp, self.contrib_ECMs_env]]):
+                self.contributing_ECMs_eqp, self.contributing_ECMs_env]]):
             # Loop through the heating/cooling equipment measures, check for
             # overlaps with envelope measures, and record the overlaps
-            for ind, m in enumerate(self.contrib_ECMs_eqp):
+            for ind, m in enumerate(self.contributing_ECMs_eqp):
                 # Record unique data for each adoption scheme
                 for adopt_scheme in self.handyvars.adopt_schemes:
                     # Use shorthand for measure contributing microsegment data
@@ -9382,7 +9342,7 @@ class MeasurePackage(Measure):
                         # end use for the current contributing mseg for the
                         # equipment ECM
                         dmd_match_ECMs = [
-                            x for x in self.contrib_ECMs_env if
+                            x for x in self.contributing_ECMs_env if
                             any([all([k in z for k in cm_key_match]) for z in
                                 x.markets[adopt_scheme]["mseg_adjust"][
                                 "contributing mseg keys and values"].keys()])]
@@ -9430,7 +9390,7 @@ class MeasurePackage(Measure):
                             # If the user opts to include envelope costs in
                             # the total costs of the HVAC/envelope package,
                             # record those overlapping costs
-                            if opts and opts.pkg_env_costs is True:
+                            if opts.pkg_env_costs is True:
                                 dmd_stk_cost = [[
                                     dmd_match_ECMs[m].markets[adopt_scheme][
                                         "mseg_adjust"][
@@ -9518,7 +9478,7 @@ class MeasurePackage(Measure):
         # exact match of the current contributing microsegment key information
         # for the individual measure; exclude the measure itself from this list
         overlap_meas = [
-            x for x in self.contrib_ECMs_eqp if cm_key in x.markets[
+            x for x in self.contributing_ECMs_eqp if cm_key in x.markets[
                 adopt_scheme]["mseg_adjust"][
                 "contributing mseg keys and values"].keys() and
             x.name != name_meas]
@@ -9723,7 +9683,7 @@ class MeasurePackage(Measure):
                     tot_base_orig_ecost, tot_eff_orig_ecost,
                     tot_save_orig_ecost, key_list, fuel_switch_to, fs_eff_splt)
             # If desired by the user, incorporate envelope stock costs
-            if opts and opts.pkg_env_costs is True:
+            if opts.pkg_env_costs is True:
                 mseg_cost_adj = self.add_env_costs_to_pkg(
                     msegs_meas, adopt_scheme, htcl_key_match)
 
@@ -10724,7 +10684,7 @@ class MeasurePackage(Measure):
 
 def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                      handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
-                     regions, tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs):
+                     ctrb_ms_pkg_prep, tsv_data_nonfs):
     """Finalize measure markets for subsequent use in the analysis engine.
 
     Note:
@@ -10745,8 +10705,6 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         tsv_data (dict): Data needed for time sensitive efficiency valuation.
         base_dir (string): Base directory.
         opts (object): Stores user-specified execution options.
-        regions (string): Regional breakouts to use.
-        tsv_metrics (boolean or list): TSV metrics settings.
         ctrb_ms_pkg_prep (list): Names of measures that contribute to pkgs.
         tsv_data_nonfs (dict): If applicable, base-case TSV data to apply to
             non-fuel switching measures under a high decarb. scenario.
@@ -10760,14 +10718,11 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             given input efficiency measure.
     """
     print('Initializing measures...', end="", flush=True)
+    # Translate user options to a dictionary for further use in Measures
+    opts_dict = vars(opts)
     # Initialize Measure() objects based on 'measures_update' list
     meas_update_objs = [Measure(
-        base_dir, handyvars, handyfiles, opts.site_energy,
-        opts.captured_energy, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.grid_decarb, opts.adopt_scn_restrict, opts.retro_set,
-        opts.add_typ_eff, opts.rp_persist, opts.pkg_env_sep,
-        opts.gs_ref_carb, **m) for m in measures]
+        base_dir, handyvars, handyfiles, opts_dict, **m) for m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
@@ -10808,8 +10763,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
 
 
 def prepare_packages(packages, meas_update_objs, meas_summary,
-                     handyvars, handyfiles, base_dir, opts,
-                     regions, tsv_metrics, convert_data):
+                     handyvars, handyfiles, base_dir, opts, convert_data):
     """Combine multiple measures into a single packaged measure.
 
     Args:
@@ -10820,8 +10774,6 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
         handyfiles (object): Input files of use across Measure methods.
         base_dir (string): Base directory.
         opts (object): Stores user-specified execution options.
-        regions (string): Regional breakouts to use.
-        tsv_metrics (boolean or list): TSV metrics settings.
         convert_data (dict): Measure cost unit conversion data.
 
     Returns:
@@ -10851,15 +10803,13 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # Load and set high level summary data for the missing measure
             meas_summary_data = [x for x in meas_summary if x["name"] == m]
             if len(meas_summary_data) == 1:
+                # Translate user options to a dictionary for further use in
+                # Measures
+                opts_dict = vars(opts)
                 # Initialize the missing measure as an object
                 meas_obj = Measure(
-                    base_dir, handyvars, handyfiles, opts.site_energy,
-                    opts.captured_energy, regions, tsv_metrics,
-                    opts.health_costs, opts.split_fuel, opts.floor_start,
-                    opts.exog_hp_rates, opts.grid_decarb,
-                    opts.adopt_scn_restrict, opts.retro_set, opts.add_typ_eff,
-                    opts.rp_persist, opts.pkg_env_sep,
-                    opts.gs_ref_carb, **meas_summary_data[0])
+                    base_dir, handyvars, handyfiles, opts_dict,
+                    **meas_summary_data[0])
                 # Reset measure technology type and total energy (used to
                 # normalize output breakout fractions) to their values in the
                 # high level summary data (reformatted during initialization)
@@ -10923,7 +10873,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 handyvars, handyfiles, opts, convert_data)
             # Record heating/cooling equipment and envelope overlaps in
             # package after confirming that envelope measures are present
-            if len(packaged_measure.contrib_ECMs_env) > 0:
+            if len(packaged_measure.contributing_ECMs_env) > 0:
                 packaged_measure.htcl_adj_rec(opts)
             # Merge measures in the package object
             packaged_measure.merge_measures(opts)
@@ -11014,15 +10964,15 @@ def split_clean_data(meas_prepped_objs):
         # (not relevant) for individual measures
         if not isinstance(m, MeasurePackage):
             del m.tsv_features
-        # For measure packages, replace 'contrib_ECMs'
+        # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
         if isinstance(m, MeasurePackage):
-            m.contrib_ECMs = [
-                x.name for x in m.contrib_ECMs]
+            m.contributing_ECMs = [
+                x.name for x in m.contributing_ECMs]
             del m.htcl_overlaps
-            del m.contrib_ECMs_eqp
-            del m.contrib_ECMs_env
+            del m.contributing_ECMs_eqp
+            del m.contributing_ECMs_env
         # Append updated measure __dict__ attribute to list of
         # summary data across all measures
         meas_prepped_summary.append(m.__dict__)
@@ -11097,7 +11047,7 @@ def main(base_dir):
     """
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
-    if opts and opts.adopt_scn_restrict is not False:
+    if opts.adopt_scn_restrict is not False:
         input_var = 0
         # Determine the restricted adoption scheme to use (max adoption (1) vs.
         # technical potential (2))
@@ -11119,7 +11069,7 @@ def main(base_dir):
     # If a user has specified the use of an alternate regional breakout
     # than the AIA climate zones, prompt the user to directly select that
     # alternate regional breakout (NEMS EMM or State)
-    if opts and opts.alt_regions is True:
+    if opts.alt_regions is True:
         input_var = 0
         # Determine the regional breakdown to use (NEMS EMM (1) vs. State (2)
         # vs. AIA (3))
@@ -11133,24 +11083,22 @@ def main(base_dir):
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
         if input_var == '1':
-            regions = "EMM"
+            opts.alt_regions = "EMM"
         elif input_var == '2':
-            regions = "State"
+            opts.alt_regions = "State"
         else:
-            regions = "AIA"
-    else:
-        regions = "AIA"
+            opts.alt_regions = "AIA"
 
     # Screen for cases where user desires time-sensitive valuation metrics
     # or hourly sector-level load shapes but EMM regions are not used (such
     # options require baseline data to be resolved by EMM region)
-    if regions != "EMM" and any([
-            x is True for x in [opts.tsv_metrics, opts.sect_shapes]]):
-        opts.alt_regions, regions = [True, "EMM"]
+    if (opts.alt_regions != "EMM") and any([
+            x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
+        opts.alt_regions = "EMM"
         # Craft custom warning message based on the option provided
-        if all([x is True for x in [opts.tsv_metrics, opts.sect_shapes]]):
+        if all([x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
             warn_text = "tsv metrics and sector-level 8760 savings shapes"
-        elif opts.tsv_metrics is True:
+        elif opts.tsv_metrics is not False:
             warn_text = "tsv metrics"
         else:
             warn_text = "sector-level 8760 load shapes"
@@ -11161,7 +11109,7 @@ def main(base_dir):
 
     # If the user wishes to modify early retrofit settings from the default
     # (zero), gather further information about which set of assumptions to use
-    if opts and opts.retro_set is True:
+    if opts.retro_set is True:
         # Initialize list that stores user early retrofit settings
         input_var = [None, None, None]
         # Determine the early retrofit settings to use
@@ -11202,7 +11150,7 @@ def main(base_dir):
     # If exogenous HP rates are specified, gather further information about
     # which exogenous HP rate scenario should be used and how these rates
     # should be applied to retrofit decisions
-    if opts and opts.exog_hp_rates is True:
+    if opts.exog_hp_rates is True:
         input_var = [0, 0]
         # Determine which fuel switching scenario to use
         while input_var[0] not in ['1', '2', '3', '4']:
@@ -11219,7 +11167,7 @@ def main(base_dir):
         input_var[0] = scn_names[int(input_var[0])-1]
         # Determine assumptions about early retrofits and HP switching; only
         # prompt for this information if early retrofits are non-zero
-        if opts and (opts.retro_set is not False and opts.retro_set[0] != '1'):
+        if (opts.retro_set is not False and opts.retro_set[0] != '1'):
             while input_var[1] not in ['1', '2']:
                 input_var[1] = input(
                     "\nEnter 1 to assume that all retrofits convert to heat "
@@ -11234,8 +11182,8 @@ def main(base_dir):
         opts.exog_hp_rates = input_var
         # Ensure that if HP conversion data are to be applied, EMM regional
         # breakouts are set (HP conversion data use this resolution)
-        if regions not in ["EMM", "State"]:
-            opts.alt_regions, regions = [True, "EMM"]
+        if (opts.alt_regions not in ["EMM", "State"]):
+            opts.alt_regions = "EMM"
             warnings.warn(
                 "WARNING: Analysis regions were set to EMM to allow HP "
                 "conversion rates: ensure that ECM data reflect these EMM "
@@ -11245,7 +11193,7 @@ def main(base_dir):
     # which grid decarbonization scenario should be used, how electricity
     # emissions and cost factors should be handled, and ensure State regional
     # breakouts and/or captured energy method are not used
-    if opts and opts.grid_decarb is True:
+    if opts.grid_decarb is True:
         input_var = [0, 0]
         # Find which grid decarbonization scenario should be used
         while input_var[0] not in ['1', '2']:
@@ -11270,8 +11218,8 @@ def main(base_dir):
         opts.grid_decarb = input_var
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
-        if regions in ["State"]:
-            opts.alt_regions, regions = [True, "EMM"]
+        if (opts.alt_regions in ["State"]):
+            opts.alt_regions = "EMM"
             warnings.warn(
                 "WARNING: Analysis regions were set to EMM to ensure "
                 "ECM data reflect EMM regions to match alternative grid "
@@ -11289,7 +11237,7 @@ def main(base_dir):
     # If a user wishes to change the outputs to metrics relevant for
     # time-sensitive efficiency valuation, prompt them for information needed
     # to reach the desired metric type
-    if opts and opts.tsv_metrics is True:
+    if opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
         output_type = input(
             "Enter the type of time-sensitive metric desired "
@@ -11366,15 +11314,15 @@ def main(base_dir):
             day_type = "0"
 
         # Summarize user TSV metric settings in a single dict for further use
-        tsv_metrics = [
+        opts.tsv_metrics = [
             output_type, hours, season, calc_type, sys_shape, day_type]
     else:
-        tsv_metrics = False
+        opts.tsv_metrics = False
 
     # Ensure that if public cost health data are to be applied, EMM regional
     # breakouts are set (health data use this resolution)
-    if opts and opts.health_costs is True and regions != "EMM":
-        opts.alt_regions, regions = [True, "EMM"]
+    if opts.health_costs is True and opts.alt_regions != "EMM":
+        opts.alt_regions = "EMM"
         warnings.warn(
             "WARNING: Analysis regions were set to EMM to allow public health "
             "cost adders: ensure that ECM data reflect these EMM regions "
@@ -11384,9 +11332,7 @@ def main(base_dir):
     # message itself) *** Note: sometimes yields error; investigate ***
     # warnings.formatwarning = custom_formatwarning
     # Instantiate useful input files object
-    handyfiles = UsefulInputFiles(
-        opts.captured_energy, regions, opts.site_energy,
-        opts.grid_decarb, opts.gs_ref_carb)
+    handyfiles = UsefulInputFiles(opts)
 
     # UNCOMMENT WITH ISSUE 188
     # # Ensure that all AEO-based JSON data are drawn from the same AEO version
@@ -11396,10 +11342,7 @@ def main(base_dir):
     #     raise ValueError("Inconsistent AEO version used across input files")
 
     # Instantiate useful variables object
-    handyvars = UsefulVars(
-        base_dir, handyfiles, regions, tsv_metrics, opts.health_costs,
-        opts.split_fuel, opts.floor_start, opts.exog_hp_rates,
-        opts.adopt_scn_restrict, opts.retro_set)
+    handyvars = UsefulVars(base_dir, handyfiles, opts)
 
     # Import file to write prepared measure attributes data to for
     # subsequent use in the analysis engine (if file does not exist,
@@ -11414,8 +11357,11 @@ def main(base_dir):
                 "Error reading in '" + handyfiles.ecm_prep +
                 "': " + str(e)) from None
         es.close()
+        # Flag if the ecm_prep file already exists
+        ecm_prep_exists = True
     except FileNotFoundError:
         meas_summary = []
+        ecm_prep_exists = ""
 
     # Import packages JSON
     with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
@@ -11453,15 +11399,20 @@ def main(base_dir):
     meas_toprep_indiv_names = [
         x for x in listdir(handyfiles.indiv_ecms) if x.endswith(".json") and
         'package' not in x]
-    # Initialize list of individual measures to prepare
+    # Initialize list of all individual measures that require updates
     meas_toprep_indiv = []
+    # Initialize list of individual measures that require an update due to
+    # a change in their individual definition (and not a change in the
+    # definition or other contributing measures of a package they are a
+    # part of, if applicable)
+    meas_toprep_indiv_nopkg = []
 
     # If user desires isolation of envelope impacts within envelope/HVAC
     # packages, develop a list that indicates which individual ECMs contribute
     # to which package(s); this info. is needed for making copies of certain
     # ECMs and ECM packages that serve as counterfactuals for the isolation of
     # envelope impacts within packages
-    if opts.pkg_env_sep is True:
+    if opts.health_costs is True or opts.pkg_env_sep is True:
         # Initialize list to track ECM packages and contributing ECMs
         ctrb_ms_pkg_all = []
         # Initialize list to track ECM packages that should be copied as
@@ -11470,48 +11421,52 @@ def main(base_dir):
         # Add package/contributing ECM information to list
         for p in meas_toprep_package_init:
             ctrb_ms_pkg_all.append([p["name"], p["contributing_ECMs"]])
-        # Import separate file that will ultimately store all counterfactual
-        # package data for later use
-        try:
-            ecf = open(path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+        if opts.pkg_env_sep is True:
+            # Import separate file that will ultimately store all
+            # counterfactual package data for later use
             try:
-                meas_summary_env_cf = json.load(ecf)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.ecm_prep_env_cf +
-                    "': " + str(e)) from None
-            ecf.close()
-            # In some cases, individual ECMs may be defined and written to
-            # the counterfactual package data; these ECMs should be added
-            # to the list of previously prepared individual ECMs so that
-            # they are not prepared again if their JSON definitions haven't
-            # been updated
-            meas_summary_env_cf_indiv = [
-                m for m in meas_summary_env_cf if
-                "contributing_ECMs" not in m.keys()]
-            if len(meas_summary_env_cf_indiv) != 0:
-                meas_summary = meas_summary + meas_summary_env_cf_indiv
-        except FileNotFoundError:
-            meas_summary_env_cf = []
-        # If applicable, import separate file that will store counterfactual
-        # package sector shape data
-        # Import separate file that will ultimately store all counterfactual
-        # package data for later use
-        try:
-            ecf_ss = open(
-                path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+                ecf = open(
+                    path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+                try:
+                    meas_summary_env_cf = json.load(ecf)
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" + handyfiles.ecm_prep_env_cf +
+                        "': " + str(e)) from None
+                ecf.close()
+                # In some cases, individual ECMs may be defined and written to
+                # the counterfactual package data; these ECMs should be added
+                # to the list of previously prepared individual ECMs so that
+                # they are not prepared again if their definitions haven't
+                # been updated
+                meas_summary_env_cf_indiv = [
+                    m for m in meas_summary_env_cf if
+                    "contributing_ECMs" not in m.keys()]
+                if len(meas_summary_env_cf_indiv) != 0:
+                    meas_summary = meas_summary + meas_summary_env_cf_indiv
+            except FileNotFoundError:
+                meas_summary_env_cf = []
+            # If applicable, import separate file that will store
+            # counterfactual package sector shape data
             try:
-                meas_shapes_env_cf = json.load(ecf_ss)
-            except ValueError:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.ecm_prep_env_cf_shapes +
-                    "'") from None
-            ecf_ss.close()
-        except FileNotFoundError:
-            meas_shapes_env_cf = []
+                ecf_ss = open(
+                    path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+                try:
+                    meas_shapes_env_cf = json.load(ecf_ss)
+                except ValueError:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.ecm_prep_env_cf_shapes +
+                        "'") from None
+                ecf_ss.close()
+            except FileNotFoundError:
+                meas_shapes_env_cf = []
+        else:
+            meas_summary_env_cf, meas_shapes_env_cf = (
+                None for n in range(2))
     else:
-        ctrb_ms_pkg_all, meas_summary_env_cf, pkg_copy_flag = (
-            None for n in range(3))
+        ctrb_ms_pkg_all, pkg_copy_flag, meas_summary_env_cf, \
+            meas_shapes_env_cf = (None for n in range(4))
 
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
@@ -11519,164 +11474,55 @@ def main(base_dir):
             try:
                 # Load each JSON into a dict
                 meas_dict = json.load(jsf)
-                # Determine whether dict should be added to list of measure
-                # definitions to update. Add a measure dict to the list
-                # requiring further prepartion if: a) measure name is not
-                # already included in database of prepared measure attributes
-                # ('ecm_prep.json'); b) measure does not already have
-                # competition data prepared for it (in
-                # '/supporting_data/ecm_competition_data' folder), or
-                # c) measure JSON time stamp indicates it has been modified
-                # since the last run of 'ecm_prep.py' or d) the user added/
-                # removed the "site_energy," "captured_energy", "alt_regions",
-                # "tsv_metrics", "health_costs", "split_fuel," "floor_start,"
-                # or "exog_hp_rates" cmd line arguments and the measure def.
-                # was not already prepared using these settings or e) the user
-                # added the "sect_shapes" cmd line argument and the measure
-                # does not already have sector-level load shape data or f) the
-                # user specified the "sect_shapes" cmd line argument with a
-                # package present, and the measure contributes to the package
-                # (measure information needed to generate sector shapes for the
-                # package was not previously written and must be regenerated)
-                if all([meas_dict["name"] != y["name"] for
-                       y in meas_summary]) or \
-                   ("(CF)" not in meas_dict["name"] and
-                    all([meas_dict["name"] != path.splitext(
-                        path.splitext(y)[0])[0] for y in listdir(
-                            path.join(*handyfiles.ecm_compete_data))])) or \
-                   (stat(path.join(handyfiles.indiv_ecms, mi)).st_mtime >
-                    stat(path.join(
-                        "supporting_data", "ecm_prep.json")).st_mtime) or \
-                   (opts is not None and opts.site_energy is True and
-                    all([y["energy_outputs"]["site_energy"] is False for
-                         y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.captured_energy is True and
-                    all([y["energy_outputs"]["captured_energy_ss"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.rp_persist is True and
-                    all([y["energy_outputs"]["rp_persist"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.alt_regions is True and
-                    all([(y["energy_outputs"]["alt_regions"] is False or
-                          y["energy_outputs"]["alt_regions"] != regions)
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.tsv_metrics is True and
-                    all([y["energy_outputs"]["tsv_metrics"] is False or
-                         y["energy_outputs"]["tsv_metrics"] != tsv_metrics
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.health_costs is True and
-                    all([y["energy_outputs"]["health_costs"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.split_fuel is True and
-                    all([y["energy_outputs"]["split_fuel"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.floor_start is not False and
-                    all([y["energy_outputs"]["floor_start"] is False or
-                         y["energy_outputs"]["floor_start"] != opts.floor_start
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.exog_hp_rates is not False and
-                    all([y["energy_outputs"]["exog_hp_rates"] is False or
-                         y["energy_outputs"][
-                            "exog_hp_rates"] != opts.exog_hp_rates
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.grid_decarb is not False and
-                    all([y["energy_outputs"]["grid_decarb"] is False or
-                         y["energy_outputs"]["grid_decarb"] != opts.grid_decarb
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and
-                    opts.adopt_scn_restrict is not False and all([
-                        y["energy_outputs"]["adopt_scn_restrict"] is False or
-                        y["energy_outputs"]["adopt_scn_restrict"] !=
-                        opts.adopt_scn_restrict for y in meas_summary if
-                        y["name"] == meas_dict["name"]])) or \
-                   (opts is not None and opts.retro_set is not False and all([
-                        y["energy_outputs"]["retro_set"] is False or
-                        y["energy_outputs"]["retro_set"] !=
-                        opts.retro_set for y in meas_summary if
-                        y["name"] == meas_dict["name"]])) or \
-                   (opts is not None and opts.add_typ_eff is True and
-                    all([y["energy_outputs"]["add_typ_eff"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.pkg_env_sep is True and
-                    all([y["energy_outputs"]["pkg_env_sep"] is False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.site_energy is False and
-                    all([y["energy_outputs"]["site_energy"] is True for
-                         y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.captured_energy is False and
-                    all([y["energy_outputs"]["captured_energy_ss"] is True
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.rp_persist is False and
-                    all([y["energy_outputs"]["rp_persist"] is True
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.alt_regions is False and
-                    all([y["energy_outputs"]["alt_regions"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.tsv_metrics is False and
-                    all([y["energy_outputs"]["tsv_metrics"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.health_costs is False and
-                    all([y["energy_outputs"]["health_costs"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.split_fuel is False and
-                    all([y["energy_outputs"]["split_fuel"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.floor_start is False and
-                    all([y["energy_outputs"]["floor_start"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.exog_hp_rates is False and
-                    all([y["energy_outputs"]["exog_hp_rates"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.grid_decarb is False and
-                    all([y["energy_outputs"]["grid_decarb"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.adopt_scn_restrict is False and
-                    all([y["energy_outputs"]["adopt_scn_restrict"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.retro_set is False and
-                    all([y["energy_outputs"]["retro_set"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.add_typ_eff is False and
-                    all([y["energy_outputs"]["add_typ_eff"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is None or opts.pkg_env_sep is False and
-                    all([y["energy_outputs"]["pkg_env_sep"] is not False
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])) or \
-                   (opts is not None and opts.sect_shapes is True and any([
-                    all([x not in y["sector_shapes"].keys() or
-                         len(y["sector_shapes"][x]) == 0
-                         for y in meas_summary if y["name"] ==
-                         meas_dict["name"]])
-                    for x in handyvars.adopt_schemes])) or \
-                   (opts is not None and opts.sect_shapes is True and
-                    any([meas_dict["name"] in pkg["contrib_ECMs"]
-                         for pkg in meas_toprep_package_init])):
+                # Shorthand for previously prepared measured data that match
+                # current measure
+                match_in_prep_file = [y for y in meas_summary if (
+                    "contributing_ECMs" not in y.keys() and
+                    y["name"] == meas_dict["name"]) or (
+                    "contributing_ECMs" in y.keys() and
+                    meas_dict["name"] in y["contributing_ECMs"])]
+                # Determine whether dict should be added to list of individual
+                # measure definitions to update. Add a measure dict to the list
+                # requiring further preparation if: a) measure is in package
+                # (may be removed from update later) b) measure JSON time stamp
+                # indicates it has been modified since the last run of
+                # 'ecm_prep.py' c) measure name is not already included in
+                # database of prepared measure attributes ('ecm_prep.json'); d)
+                # measure does not already have competition data prepared for
+                # it (in '/supporting_data/ecm_competition_data' folder), or
+                # or e) command line arguments applied to the measure are not
+                # consistent with those reported out the last time the measure
+                # was prepared (based on 'usr_opts' attribute), excepting
+                # the 'verbose' option, which has no bearing on results
+                update_indiv_ecm = ((ecm_prep_exists and stat(
+                    path.join(handyfiles.indiv_ecms, mi)).st_mtime > stat(
+                    path.join(
+                        "supporting_data", "ecm_prep.json")).st_mtime) or
+                   (len(match_in_prep_file) == 0 or (
+                        "(CF)" not in meas_dict["name"] and all([all([
+                            x["name"] != path.splitext(
+                                path.splitext(y)[0])[0] for y in listdir(
+                                path.join(*handyfiles.ecm_compete_data))]) for
+                            x in match_in_prep_file])) or
+                    (opts is None and not all([all([
+                        m["usr_opts"][k] is False
+                        for k in m["usr_opts"].keys()]) for
+                        m in match_in_prep_file])) or
+                    (not all([all([m["usr_opts"][x] ==
+                              vars(opts)[x] for x in [
+                                k for k in vars(opts).keys() if
+                                k != "verbose"]]) for m in
+                              match_in_prep_file]))))
+                # Add measure to tracking of individual measures needing update
+                # independent of required updates to packages they are a
+                # part of (if applicable)
+                if update_indiv_ecm:
+                    meas_toprep_indiv_nopkg.append(meas_dict["name"])
+                # Register name of package measure is a part of, if applicable
+                meas_in_pkgs = any([
+                    meas_dict["name"] in pkg["contributing_ECMs"] for pkg in
+                    meas_toprep_package_init])
+                if update_indiv_ecm or meas_in_pkgs:
                     # Append measure dict to list of measure definitions
                     # to update if it meets the above criteria
                     meas_toprep_indiv.append(meas_dict)
@@ -11684,7 +11530,7 @@ def main(base_dir):
                     # of public health cost data additions, assuming the
                     # measure is not already a previously prepared copy
                     # that reflects these additions (judging by name)
-                    if opts is not None and opts.health_costs is True and \
+                    if opts.health_costs is True and \
                             "PHC" not in meas_dict["name"]:
                         # Check to ensure that the measure applies to the
                         # electric fuel type (or switches to it); if not, do
@@ -11716,6 +11562,29 @@ def main(base_dir):
                                 # Append the copied measure to list of measure
                                 # definitions to update
                                 meas_toprep_indiv.append(new_meas)
+                                # Add measure to tracking of individual
+                                # measures needing update independent of
+                                # required updates to packages they are a
+                                # part of (if applicable)
+                                if update_indiv_ecm:
+                                    meas_toprep_indiv_nopkg.append(
+                                        new_meas["name"])
+                                # Flag the package(s) that the measure that was
+                                # copied contributes to; this package will be
+                                # copied as well
+                                pkgs_to_copy = [
+                                    x[0] for x in ctrb_ms_pkg_all if
+                                    meas_dict["name"] in x[1]]
+                                # Add the package name, the package copy name,
+                                # the name of the original measure that
+                                # contributes to the package, and the measure
+                                # copy name
+                                for p in pkgs_to_copy:
+                                    # Set pkg copy name
+                                    new_pkg_name = p + "-" + scn[0]
+                                    pkg_copy_flag.append([
+                                        p, new_pkg_name,
+                                        meas_dict["name"], new_name])
                     # Add copies of ESTAR, IECC, or 90.1 measures that
                     # downgrade to typical/BAU efficiency levels; exclude typ.
                     # /BAU fuel switching measures, which must be explicitly
@@ -11756,6 +11625,12 @@ def main(base_dir):
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)
+                        # Add measure to tracking of individual
+                        # measures needing update independent of
+                        # required updates to packages they are a
+                        # part of (if applicable)
+                        if update_indiv_ecm:
+                            meas_toprep_indiv_nopkg.append(new_meas["name"])
                     # If desired by user, add copies of HVAC equipment measures
                     # that are part of packages; these measures will be
                     # assigned no relative performance improvement and
@@ -11785,17 +11660,25 @@ def main(base_dir):
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)
+                        # Add measure to tracking of individual
+                        # measures needing update independent of
+                        # required updates to packages they are a
+                        # part of (if applicable)
+                        if update_indiv_ecm:
+                            meas_toprep_indiv_nopkg.append(new_meas["name"])
                         # Flag the package(s) that the measure that was copied
                         # contributes to; this package will be copied as well
                         # to produce the final counterfactual data
                         pkgs_to_copy = [x[0] for x in ctrb_ms_pkg_all if
                                         meas_dict["name"] in x[1]]
-                        # Add the package name, and the name of the original
-                        # and counterfactual HVAC equipment measure that
-                        # contributes to the package
+                        # Add the package name, the package copy name,
+                        # the name of the original measure that contributes
+                        # to the package, and the measure copy name
                         for p in pkgs_to_copy:
+                            # Set pkg copy name
+                            new_pkg_name = p + " (CF)"
                             pkg_copy_flag.append([
-                                p, meas_dict["name"], new_name])
+                                p, new_pkg_name, meas_dict["name"], new_name])
             except ValueError as e:
                 raise ValueError(
                     "Error reading in ECM '" + mi + "': " +
@@ -11812,7 +11695,7 @@ def main(base_dir):
     ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [
-        mpkg for mpkg in meas_summary if "contrib_ECMs" in mpkg.keys()]
+        mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
     # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
     for m in meas_toprep_package_init:
@@ -11820,20 +11703,21 @@ def main(base_dir):
         # with the same name as the current package measure
         m_exist = [
             me for me in meas_prepped_pkgs if me["name"] == m["name"]]
-        # Add a package dict to the list requiring further prepartion if:
+        # Add a package dict to the list requiring further preparation if:
         # a) any of the package's contributing measures have been updated,
         # b) the package is new, c) package does not already have competition
-        # data prepared for it, d) package "contrib_ECMs" and/or
+        # data prepared for it, d) package "contributing_ECMs" and/or
         # "benefits" parameters have been edited from a previous version, or
         # e) package was prepared with different settings around including
         # envelope costs (if applicable) than in the current run
-        if any([x["name"] in m["contributing_ECMs"] for
-                x in meas_toprep_indiv]) or len(m_exist) == 0 or \
+        if any([meas_name in m["contributing_ECMs"] for
+                meas_name in meas_toprep_indiv_nopkg]) or \
+            len(m_exist) == 0 or \
             all([m["name"] != path.splitext(path.splitext(y)[0])[0] for
                 y in listdir(path.join(
                 *handyfiles.ecm_compete_data))]) or (len(m_exist) == 1 and (
                     sorted(m["contributing_ECMs"]) !=
-                    sorted(m_exist[0]["contrib_ECMs"]) or (
+                    sorted(m_exist[0]["contributing_ECMs"]) or (
                         m["benefits"]["energy savings increase"] !=
                         m_exist[0]["benefits"]["energy savings increase"]) or (
                         m["benefits"]["cost reduction"] !=
@@ -11843,6 +11727,7 @@ def main(base_dir):
                     (opts is None or opts.pkg_env_costs is False and
                      m_exist[0]["pkg_env_costs"] is not False))):
             meas_toprep_package.append(m)
+            # Add contributing ECMs to those needing updates
             ctrb_ms_pkg_prep.extend(m["contributing_ECMs"])
             # If package is flagged as needing a copy to serve as a
             # counterfactual for isolating envelope impacts, make the copy
@@ -11851,21 +11736,22 @@ def main(base_dir):
             else:
                 pkg_item = []
             if len(pkg_item) > 0:
-                # Determine unique package copy name, CF for counterfactual
-                new_pkg_name = pkg_item[0][0] + " (CF)"
+                # Determine unique package copy name
+                new_pkg_name = pkg_item[0][1]
                 # Copy the package
                 new_pkg = copy.deepcopy(m)
                 # Set the copied package name to the name above
                 new_pkg["name"] = new_pkg_name
-                # Replace original HVAC equipment ECM names from the package's
-                # list of contributing ECMs with those of the HVAC equipment
-                # ECM copies that have zero performance impacts and serve as
-                # counterfactuals, such that data for these copies will be
-                # pulled into the package assessment
-                for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
-                    pkg_item_ecm = [i for i in pkg_item if ecm in i]
-                    if len(pkg_item_ecm) > 0:
-                        new_pkg["contributing_ECMs"][ind] = pkg_item_ecm[0][2]
+                # Parse new package data to find information about revised
+                # names in contributing ECM set
+                for p in pkg_item:
+                    # Replace original ECM names from the package's
+                    # list of contributing ECMs with those of the ECM copies
+                    # such that data for these copies will be pulled into the
+                    # package assessment
+                    for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
+                        if ecm in p:
+                            new_pkg["contributing_ECMs"][ind] = p[3]
                 # Append the copied package measure to list of measure
                 # definitions to update, and also update the list of
                 # individual measures that contribute to packages being
@@ -11879,13 +11765,18 @@ def main(base_dir):
             raise ValueError(
                 "Multiple existing ECM names match '" + m["name"] + "'")
 
+    # Remove measures previously added to the list solely b/c of their
+    # membership in a package that do not belong to a package needing updates
+    meas_toprep_indiv = [m for m in meas_toprep_indiv if any([
+        m["name"] in x for x in [meas_toprep_indiv_nopkg, ctrb_ms_pkg_prep]])]
+
     print("\nImporting supporting data...", end="", flush=True)
     # If one or more measure definition is new or has been edited, proceed
     # further with 'ecm_prep.py' routine; otherwise end the routine
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
 
         # Import baseline microsegments
-        if regions in ['EMM', 'State']:  # Extract compressed EMM/state files
+        if opts.alt_regions in ['EMM', 'State']:  # Extract EMM/state files
             bjszip = path.join(base_dir, *handyfiles.msegs_in)
             # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
@@ -11899,7 +11790,7 @@ def main(base_dir):
                         "Error reading in '" +
                         handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        if regions in ['EMM', 'State']:  # Extract compressed EMM/state files
+        if opts.alt_regions in ['EMM', 'State']:  # Extract EMM/state files
             bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
             # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
@@ -11932,7 +11823,8 @@ def main(base_dir):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
-        if (regions == 'EMM' and ((tsv_metrics is not False or any([
+        if (opts.alt_regions == 'EMM' and ((
+                opts.tsv_metrics is not False or any([
                 ("tsv_features" in m.keys() and m["tsv_features"] is not None)
                 for m in meas_toprep_indiv])) or
                 opts is not None and opts.sect_shapes is True)):
@@ -11945,8 +11837,8 @@ def main(base_dir):
             # When sector shapes are specified and no other time sensitive
             # valuation or features are present, assume that hourly price
             # and emissions data will not be needed
-            if ((opts and opts.sect_shapes is True)
-                and tsv_metrics is None and all([(
+            if ((opts.sect_shapes is True)
+                and opts.tsv_metrics is False and all([(
                     "tsv_features" not in m.keys() or
                     m["tsv_features"] is None) for m in meas_toprep_indiv])):
                 tsv_data = {
@@ -12043,15 +11935,14 @@ def main(base_dir):
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
             meas_toprep_indiv, convert_data, msegs, msegs_cpl, handyvars,
-            handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts, regions,
-            tsv_metrics, ctrb_ms_pkg_prep, tsv_data_nonfs)
+            handyfiles, cbecs_sf_byvint, tsv_data, base_dir, opts,
+            ctrb_ms_pkg_prep, tsv_data_nonfs)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
-                handyvars, handyfiles, base_dir, opts, regions, tsv_metrics,
-                convert_data)
+                handyvars, handyfiles, base_dir, opts, convert_data)
 
         print("All ECM updates complete; finalizing data...",
               end="", flush=True)
@@ -12062,11 +11953,14 @@ def main(base_dir):
             meas_eff_fs_splt = split_clean_data(meas_prepped_objs)
 
         # Add all prepared high-level measure information to existing
-        # high-level data and to list of active measures for analysis
-        for m_i, m in enumerate(meas_prepped_summary):
+        # high-level data and to list of active measures for analysis;
+        # ensure that high-level data for measures that contribute to
+        # packages are not written out
+        for m_i, m in enumerate([x for x in meas_prepped_summary if
+                                 x["name"] not in ctrb_ms_pkg_prep]):
             # Measure does not serve as counterfactual for isolating
             # envelope impacts within packages
-            if "(CF)" not in m["name"]:
+            if "(CF)" not in m["name"] and m["name"] not in ctrb_ms_pkg_prep:
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary]:
@@ -12077,8 +11971,7 @@ def main(base_dir):
                     meas_summary.append(m)
                 # Repeat for sector shapes, if applicable; exclude sector
                 # shapes for individual measures that are part of packages
-                if opts.sect_shapes is True and \
-                        m["name"] not in ctrb_ms_pkg_prep:
+                if opts.sect_shapes is True:
                     # Shorthand for measure sector shapes data object
                     m_ss = meas_prepped_shapes[m_i]
                     if len(m_ss.keys()) != 0:
@@ -12096,17 +11989,9 @@ def main(base_dir):
                 # the package measure; in a scenario where public health costs
                 # are assumed, add only the "high" health costs versions of
                 # prepared measures to active list
-                if (m["name"] in ctrb_ms_pkg_prep) or (
-                    (opts is not None and opts.health_costs is True) and (
-                        "PHC-EE (high)" not in m["name"])):
-                    # Measure not already in inactive meas. list (add to list)
-                    if m["name"] not in run_setup["inactive"]:
-                        run_setup["inactive"].append(m["name"])
-                    # Measure in active measures list (remove name from list)
-                    if m["name"] in run_setup["active"]:
-                        run_setup["active"] = [x for x in run_setup[
-                            "active"] if x != m["name"]]
-                else:
+                if (m["name"] not in ctrb_ms_pkg_prep) and (
+                    opts.health_costs is False or
+                        "PHC-EE (high)" in m["name"]):
                     # Measure not already in active measures list (add to list)
                     if m["name"] not in run_setup["active"]:
                         run_setup["active"].append(m["name"])
@@ -12117,7 +12002,8 @@ def main(base_dir):
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
-            elif opts is not None and opts.pkg_env_sep is True:
+            elif opts.pkg_env_sep is True and \
+                    m["name"] not in ctrb_ms_pkg_prep:
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary_env_cf]:
@@ -12128,8 +12014,7 @@ def main(base_dir):
                     meas_summary_env_cf.append(m)
                     # Repeat for sector shapes, if applicable; exclude sector
                     # shapes for individual measures that are part of packages
-                    if opts.sect_shapes is True and m[
-                            "name"] not in ctrb_ms_pkg_prep:
+                    if opts.sect_shapes is True:
                         # Shorthand for measure sector shapes data object
                         m_ss = meas_prepped_shapes[m_i]
                         if len(m_ss.keys()) != 0:
@@ -12143,22 +12028,26 @@ def main(base_dir):
         # write these data for a case when sector shapes are being
         # generated, in which it is assumed subsequent measure competition
         # calculations will not be performed
-        if opts is None or opts.sect_shapes is not True:
+        if opts.sect_shapes is False:
             for ind, m in enumerate(meas_prepped_objs):
-                # Assemble file name for measure competition data
-                meas_file_name = m.name + ".pkl.gz"
-                # Assemble folder path for measure competition data
-                comp_folder_name = path.join(*handyfiles.ecm_compete_data)
-                with gzip.open(path.join(base_dir, comp_folder_name,
-                                         meas_file_name), 'w') as zp:
-                    pickle.dump(meas_prepped_compete[ind], zp, -1)
-                if len(meas_eff_fs_splt[ind].keys()) != 0:
-                    # Assemble folder path for measure efficient fs split data
-                    fs_splt_folder_name = path.join(
-                        *handyfiles.ecm_eff_fs_splt_data)
-                    with gzip.open(path.join(base_dir, fs_splt_folder_name,
+                # Ensure that competed data is not written out for
+                # counterfactual measures or measures that contribute to
+                # packages, since neither will be processed via analysis engine
+                if "(CF)" not in m.name and m.name not in ctrb_ms_pkg_prep:
+                    # Assemble file name for measure competition data
+                    meas_file_name = m.name + ".pkl.gz"
+                    # Assemble folder path for measure competition data
+                    comp_folder_name = path.join(*handyfiles.ecm_compete_data)
+                    with gzip.open(path.join(base_dir, comp_folder_name,
                                              meas_file_name), 'w') as zp:
-                        pickle.dump(meas_eff_fs_splt[ind], zp, -1)
+                        pickle.dump(meas_prepped_compete[ind], zp, -1)
+                    if len(meas_eff_fs_splt[ind].keys()) != 0:
+                        # Assemble path for measure efficient fs split data
+                        fs_splt_folder_name = path.join(
+                            *handyfiles.ecm_eff_fs_splt_data)
+                        with gzip.open(path.join(base_dir, fs_splt_folder_name,
+                                                 meas_file_name), 'w') as zp:
+                            pickle.dump(meas_eff_fs_splt[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
