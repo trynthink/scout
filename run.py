@@ -70,7 +70,7 @@ class UsefulInputFiles(object):
                     "htcl_totals-ce.json")
             else:
                 raise ValueError(
-                    "Unsupported energy output type (site, source "
+                    "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "EMM":
@@ -97,7 +97,7 @@ class UsefulInputFiles(object):
                     "htcl_totals-ce_emm.json")
             else:
                 raise ValueError(
-                    "Unsupported energy output type (site, source "
+                    "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "State":
@@ -117,7 +117,7 @@ class UsefulInputFiles(object):
                     "htcl_totals-ce_state.json")
             else:
                 raise ValueError(
-                    "Unsupported energy output type (site, source "
+                    "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         else:
@@ -3784,7 +3784,7 @@ def main(base_dir):
     """
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
-    # Initialize energy outputs variable (elements: S-S calculation method;
+    # Initialize user options variable (elements: S-S calculation method;
     # daily hour range of focus for TSV metrics (all hours, peak, low demand
     # hours); output type for TSV metrics (energy or power); calculation type
     # for TSV metrics (sum, max, avg); season of focus for TSV metrics (summer,
@@ -3870,14 +3870,14 @@ def main(base_dir):
             m["name"] in active_meas_all and m["remove"] is False]
 
     # Check to ensure that all active/valid measure definitions used consistent
-    # energy output settings
+    # user option settings
     try:
         if not all([all([
-            m.energy_outputs[x] == measures_objlist[0].energy_outputs[x] for
-            x in measures_objlist[0].energy_outputs.keys()]
+            m.usr_opts[x] == measures_objlist[0].usr_opts[x] for
+            x in measures_objlist[0].usr_opts.keys()]
                 for m in measures_objlist[1:])]):
             raise ValueError(
-                "Attempting to compete measures with different energy output "
+                "Attempting to compete measures with different user option "
                 "settings. To address this issue, ensure that all active ECMs "
                 "in ./run_setup.json were prepared using the same command "
                 "line options, or delete the file "
@@ -3891,43 +3891,43 @@ def main(base_dir):
             "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
             "with desired command line options.")
 
-    # Set a flag for the type of energy output desired (site, source-fossil
+    # Set a flag for the type of user option desired (site, source-fossil
     # fuel equivalent, source-captured energy)
-    if measures_objlist[0].energy_outputs["site_energy"] is True:
-        # Set energy output to site energy
+    if measures_objlist[0].usr_opts["site_energy"] is True:
+        # Set user option to site energy
         energy_out[0] = "site"
-    elif measures_objlist[0].energy_outputs["captured_energy_ss"] is True:
-        # Set energy output to source energy using captured energy S-S
+    elif measures_objlist[0].usr_opts["captured_energy_ss"] is True:
+        # Set user option to source energy using captured energy S-S
         energy_out[0] = "captured"
     else:
-        # Otherwise, set energy output to source energy, fossil equivalent S-S
+        # Otherwise, set user option to source energy, fossil equivalent S-S
         energy_out[0] = "fossil_equivalent"
     # Set a flag for TSV metrics
-    if measures_objlist[0].energy_outputs["tsv_metrics"] is not False:
+    if measures_objlist[0].usr_opts["tsv_metrics"] is not False:
         # TSV metrics - Hour range
-        if measures_objlist[0].energy_outputs["tsv_metrics"][1] == "1":
+        if measures_objlist[0].usr_opts["tsv_metrics"][1] == "1":
             energy_out[1] = "All"
-        elif measures_objlist[0].energy_outputs["tsv_metrics"][1] == "2":
+        elif measures_objlist[0].usr_opts["tsv_metrics"][1] == "2":
             energy_out[1] = "Pk."
         else:
             energy_out[1] = "Low"
         # TSV metrics  - Output type
-        if measures_objlist[0].energy_outputs["tsv_metrics"][0] == "1":
+        if measures_objlist[0].usr_opts["tsv_metrics"][0] == "1":
             energy_out[2] = "Prd."
         else:
             energy_out[2] = "Hr."
         # TSV metrics - Calc type
-        if measures_objlist[0].energy_outputs["tsv_metrics"][3] == "1" and \
-                measures_objlist[0].energy_outputs["tsv_metrics"][0] == "1":
+        if measures_objlist[0].usr_opts["tsv_metrics"][3] == "1" and \
+                measures_objlist[0].usr_opts["tsv_metrics"][0] == "1":
             energy_out[3] = "Sum."
-        elif measures_objlist[0].energy_outputs["tsv_metrics"][3] == "1":
+        elif measures_objlist[0].usr_opts["tsv_metrics"][3] == "1":
             energy_out[3] = "Max."
         else:
             energy_out[3] = "Avg."
         # TSV metrics - Season (S - Summer, W - Winter, I - Intermediate)
-        if measures_objlist[0].energy_outputs["tsv_metrics"][2] == "1":
+        if measures_objlist[0].usr_opts["tsv_metrics"][2] == "1":
             energy_out[4] = "(S)"
-        elif measures_objlist[0].energy_outputs["tsv_metrics"][2] == "2":
+        elif measures_objlist[0].usr_opts["tsv_metrics"][2] == "2":
             energy_out[4] = "(W)"
         else:
             energy_out[4] = "(I)"
@@ -3936,9 +3936,9 @@ def main(base_dir):
 
     # Set a flag for geographical breakout (currently possible to breakout
     # by AIA climate zone, NEMS EMM region, or state).
-    if measures_objlist[0].energy_outputs["alt_regions"] == "EMM":
+    if measures_objlist[0].usr_opts["alt_regions"] == "EMM":
         regions = "EMM"
-    elif measures_objlist[0].energy_outputs["alt_regions"] == "State":
+    elif measures_objlist[0].usr_opts["alt_regions"] == "State":
         regions = "State"
     else:  # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
@@ -3947,7 +3947,7 @@ def main(base_dir):
     # the supply-side, which is relevant to site-source conversion factors
     # and the selection of heating/cooling totals for use in adjusting
     # envelope/HVAC overlaps
-    if measures_objlist[0].energy_outputs["grid_decarb"] is not False:
+    if measures_objlist[0].usr_opts["grid_decarb"] is not False:
         grid_decarb = True
     else:
         grid_decarb = False
@@ -4122,8 +4122,8 @@ def main(base_dir):
         for bt in btgrp:
             z = msegs[cz][bt]['electricity']['onsite generation']['energy']
             # Get onsite generation and adjust by appropriate factor
-            # unless site energy outputs are expected
-            if not measures_objlist[0].energy_outputs["site_energy"]:
+            # unless site user options are expected
+            if not measures_objlist[0].usr_opts["site_energy"]:
                 z = {k: z.get(k, 0)*ss_conv.get(k, 0)
                      for k in handyvars.aeo_years}
             # Get building sector from building type
@@ -4141,7 +4141,7 @@ def main(base_dir):
                 costtmp = {k: elec_cost[bt_bin][cz].get(k, 0)/3.41214e-3
                            for k in elec_cost[bt_bin][cz].keys()}
             else:
-                if not measures_objlist[0].energy_outputs["site_energy"]:
+                if not measures_objlist[0].usr_opts["site_energy"]:
                     # Convert Mt/quads to Mt/MMBtu
                     carbtmp = {k: elec_carb[bt_bin].get(k, 0)/1e9
                                for k in elec_carb[bt_bin].keys()}
@@ -4300,7 +4300,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", dest="verbose",
                         help="print all warnings to stdout")
-    # Optional flag to calculate site (rather than source) energy outputs
+    # Optional flag to calculate site (rather than source) user options
     parser.add_argument("--mkt_fracs", action="store_true",
                         help="Flag market penetration outputs")
     # Optional flag to trim down results output size
