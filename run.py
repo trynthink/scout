@@ -355,13 +355,14 @@ class Engine(object):
             equivalent site-source) or source (captured energy site-source).
     """
 
-    def __init__(self, handyvars, measure_objects, energy_out):
+    def __init__(self, handyvars, measure_objects, energy_out, brkout):
         self.handyvars = handyvars
         self.measures = measure_objects
         self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
         self.output_all["All ECMs"] = OrderedDict([
             ("Markets and Savings (Overall)", OrderedDict())])
         self.output_all["Energy Output Type"] = energy_out
+        self.output_all["Output Resolution"] = brkout
         for adopt_scheme in self.handyvars.adopt_schemes:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme] = OrderedDict()
@@ -3276,7 +3277,7 @@ class Engine(object):
                 adj["carbon"]["competed"][x][yr] = [
                     (x[yr] * adj_c) for x in adjlist[6:]]
 
-    def finalize_outputs(self, adopt_scheme, trim_out, trim_yrs):
+    def finalize_outputs(self, adopt_scheme, trim_out, trim_yrs, report_stk):
         """Prepare selected measure outputs to write to a summary JSON file.
 
         Args:
@@ -3284,6 +3285,7 @@ class Engine(object):
                 outputs for.
             trim_out (boolean): Flag for trimmed down results file.
             trim_yrs (list): Optional list of years to focus results on.
+            report_stk (boolean): Flag for stock data reporting.
         """
         # Initialize markets and savings totals across all ECMs
         summary_vals_all_ecms = [{
@@ -3631,7 +3633,7 @@ class Engine(object):
 
             # If a user desires measure market penetration percentages as an
             # output, calculate and report these fractions
-            if options.mkt_fracs is True:
+            if opts.mkt_fracs is True:
                 # Calculate market penetration percentages for the current
                 # measure and scenario; divide post-competition measure stock
                 # by the total stock that the measure could possibly affect
@@ -3658,6 +3660,78 @@ class Engine(object):
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme]["Stock Penetration (high) (%)"] = \
                         mkt_fracs_high
+            # If a user desires stock data as an output, calculate and report
+            # these data for the baseline and measure cases
+            if opts.report_stk is True:
+                # Determine correct units to use for stock reporting
+
+                # Envelope tech.; use units of ft^2 floor
+                if "demand" in m.technology_type["primary"]:
+                    stk_units = "(ft^2 floor affected)"
+                # Non-envelope residential tech.; use equipment units
+                elif any([x in m.bldg_type for x in [
+                    "single family home", "multi family home",
+                        "mobile home"]]):
+                    stk_units = "(units equipment)"
+                # Non-envelope commercial tech.; units vary by end use
+                else:
+                    # If measure affects heating, units are always in terms
+                    # of heating service
+                    if "heating" in m.end_use["primary"]:
+                        stk_units = "(kBtu/h heating served)"
+                    # If measure affects cooling but does not affect heating,
+                    # units are always in terms of cooling service
+                    elif "cooling" in m.end_use["primary"]:
+                        stk_units = "(kBtu/h cooling served)"
+                    elif "lighting" in m.end_use["primary"]:
+                        stk_units = "(1000 lm served)"
+                    elif "ventilation" in m.end_use["primary"]:
+                        stk_units = "(1000 CFM served)"
+                    elif any([x in m.end_use["primary"] for x in [
+                            "water heating", "refrigeration", "cooking"]]):
+                        # Find end use name
+                        eu = [x for x in [
+                            "water heating", "refrigeration", "cooking"]
+                            if x in m.end_use["primary"]][0]
+                        stk_units = "(kBtu/h " + eu + " served)"
+                    # Computers and other equipment in units of ft^2 floor
+                    else:
+                        stk_units = "(ft^2 floor affected)"
+                # Set baseline and measure stock keys, including units
+                base_stk_key, meas_stk_key = [
+                    x + stk_units for x in [
+                    "Baseline Stock ", "Measure Stock "]]
+
+                # Report baseline stock figures (all baseline stock that the
+                # measure could affect/capture)
+                stk_base = {
+                    yr: m.markets[adopt_scheme][
+                        "uncompeted"]["master_mseg"]["stock"][
+                        "total"]["all"][yr] for yr in focus_yrs}
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][base_stk_key] = stk_base
+                # Report measure stock figures
+                stk_meas = {yr: mkts["stock"]["total"][
+                            "measure"][yr] for yr in focus_yrs}
+                # Calculate average and low/high measure stock figures
+                stk_meas_avg = {
+                    k: numpy.mean(v) for k, v in stk_meas.items()}
+                stk_meas_low = {
+                    k: numpy.percentile(v, 5) for k, v in stk_meas.items()}
+                stk_meas_high = {
+                    k: numpy.percentile(v, 95) for k, v in stk_meas.items()}
+                # Set the average measure stock output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][meas_stk_key] = stk_meas_avg
+                # Set low/high measure stock outputs (as applicable)
+                if stk_meas_avg != stk_meas_low:
+                    meas_stk_key_low = meas_stk_key + " (low)"
+                    meas_stk_key_high = meas_stk_key + " (high)"
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][meas_stk_key_low] = stk_meas_low
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][meas_stk_key_high] = stk_meas_high
+
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
@@ -3783,7 +3857,7 @@ def main(base_dir):
     """
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
-    # Initialize user options variable (elements: S-S calculation method;
+    # Initialize user opts variable (elements: S-S calculation method;
     # daily hour range of focus for TSV metrics (all hours, peak, low demand
     # hours); output type for TSV metrics (energy or power); calculation type
     # for TSV metrics (sum, max, avg); season of focus for TSV metrics (summer,
@@ -3799,7 +3873,7 @@ def main(base_dir):
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
-    if options.trim_results is True:
+    if opts.trim_results is True:
         # Flag trimmed results format
         trim_out = True
         trim_yrs = []
@@ -3890,6 +3964,16 @@ def main(base_dir):
             "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
             "with desired command line options.")
 
+    # Set a flag for detailed building types
+    if measures_objlist[0].usr_opts["detail_brkout"] == '1':
+        brkout = "detail"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '2':
+        brkout = "detail_reg"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '3':
+        brkout = "detail_bldg"
+    else:
+        brkout = "basic"
+
     # Set a flag for the type of user option desired (site, source-fossil
     # fuel equivalent, source-captured energy)
     if measures_objlist[0].usr_opts["site_energy"] is True:
@@ -3966,7 +4050,7 @@ def main(base_dir):
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
     # this message on the same line of the console upon data load completion)
-    if options.verbose:
+    if opts.verbose:
         print('Importing ECM competition data...')
     else:
         print('Importing ECM competition data...', end="", flush=True)
@@ -4014,13 +4098,13 @@ def main(base_dir):
 
     # Print message to console; if in verbose mode, print to new line,
     # otherwise append to existing message on the console
-    if options.verbose:
+    if opts.verbose:
         print('ECM competition data load complete')
     else:
         print('Data load complete')
 
     # Instantiate an Engine object using active measures list
-    a_run = Engine(handyvars, measures_objlist, energy_out)
+    a_run = Engine(handyvars, measures_objlist, energy_out, brkout)
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
@@ -4045,7 +4129,8 @@ def main(base_dir):
         a_run.calc_savings_metrics(adopt_scheme, "competed")
         print("Calculations complete")
         # Write selected outputs to a summary JSON file for post-processing
-        a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
+        a_run.finalize_outputs(
+            adopt_scheme, trim_out, trim_yrs, opts.report_stk)
 
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
@@ -4121,7 +4206,7 @@ def main(base_dir):
         for bt in btgrp:
             z = msegs[cz][bt]['electricity']['onsite generation']['energy']
             # Get onsite generation and adjust by appropriate factor
-            # unless site user options are expected
+            # unless site user opts are expected
             if not measures_objlist[0].usr_opts["site_energy"]:
                 z = {k: z.get(k, 0)*ss_conv.get(k, 0)
                      for k in handyvars.aeo_years}
@@ -4200,7 +4285,7 @@ def main(base_dir):
 
     # Do not plot for the case where a user has trimmed down the results
     # (not all data required for the plots will be available)
-    if options.trim_results is False:
+    if opts.trim_results is False:
         # Notify user that the output data are being plotted
         print('Plotting output data...', end="", flush=True)
 
@@ -4299,15 +4384,18 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", dest="verbose",
                         help="print all warnings to stdout")
-    # Optional flag to calculate site (rather than source) user options
+    # Optional flag to calculate site (rather than source) user opts
     parser.add_argument("--mkt_fracs", action="store_true",
                         help="Flag market penetration outputs")
     # Optional flag to trim down results output size
     parser.add_argument("--trim_results", action="store_true",
                         help="Reduce results file size")
-    options = parser.parse_args()
+    # Optional flag to trim down results output size
+    parser.add_argument("--report_stk", action="store_true",
+                        help="Report baseline/measure stock data")
+    opts = parser.parse_args()
     # Set function that only prints message when in verbose mode
-    verboseprint = print if options.verbose else lambda *a, **k: None
+    verboseprint = print if opts.verbose else lambda *a, **k: None
     main(base_dir)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)

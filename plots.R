@@ -62,9 +62,12 @@ adopt_scenarios <- glob_dat$'adopt_schemes'
 comp_schemes <- c('uncompeted', 'competed')
 # Set full list of ECM names from results file
 meas_names <- names(compete_results)
-# Set list of ECM names excluding 'All ECMs' (representing results summed across all ECMs)
-# and the high-level information about site-source energy calculations (stored in 'Energy Output Type' key)
-meas_names_no_all <- meas_names[(meas_names!= "All ECMs" & meas_names!= "Energy Output Type" & meas_names!="On-site Generation")]
+# Set list of ECM names excluding 'All ECMs' (representing results summed across all ECMs),
+# the high-level information about site-source energy calculations (stored in 'Energy Output Type' key),
+# and information about output breakout granularity (stored in 'Output Resolution')
+meas_names_no_all <- meas_names[
+  (meas_names!= "All ECMs" & meas_names!= "Energy Output Type" &
+   meas_names!= "Output Resolution" & meas_names!="On-site Generation")]
 # Order the list of ECM names excluding 'All ECMs'
 meas_names_no_all <- meas_names_no_all[order(meas_names_no_all)]
 # Combine the 'All ECMs' name with the ordered list of the individual ECM names
@@ -105,21 +108,29 @@ years<-years[order(years)]
 
 # Set various region names lists
 aia_reg_names <- c("AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5")
-emm_reg_names <- c(
+emm_reg_names_detail <- c(
   'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
   'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
   'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
   'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN')
-state_names <- c(
+emm_reg_names <- c(
+  'Northwest', 'Great Basin', 'California', 'Rocky Mountains',
+  'Upper Midwest', 'Lower Midwest', 'Lakes/Mid-Atl.', 'Texas',
+  'Southwest', 'Southeast', 'Northeast')
+state_names_detail <- c(
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
   'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
   'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
   'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
   'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
   'WY')
-
+state_names <- c(
+  'New England', 'Mid Atlantic', 'East North Central',
+  'West North Central', 'South Atlantic', 'East South Central',
+  'West South Central', 'Mountain', 'Pacific')
 # Pull czones from first available ECM
-czones_test = toString(compete_results[[meas_names[2]]]$'Filter Variables'$'Applicable Regions')
+czones_test = toString(
+  compete_results[[meas_names[2]]]$'Filter Variables'$'Applicable Regions')
 # Check for AIA regional breakouts; if not there, check for EMM regional breakouts;
 # if not there, assume state breakouts
 if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
@@ -130,10 +141,21 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
   czones_out_lgnd<-czones_out
   # Set alternate region flags
   emm_flag = FALSE
+  emm_det_flag = FALSE
   state_flag = FALSE
-}else if (any(grepl(paste(emm_reg_names, collapse="|"), czones_test) == TRUE)){
+  state_det_flag = FALSE
+}else if (
+  any(grepl(paste(c(emm_reg_names, emm_reg_names_detail),
+                  collapse="|"), czones_test) == TRUE)){
   # Set region legend names
-  czones_out<-emm_reg_names
+  if ((compete_results_agg$`Output Resolution` == "detail") |
+      (compete_results_agg$`Output Resolution` == "detail_reg")){
+    czones_out<-emm_reg_names_detail
+    emm_det_flag = TRUE
+  }else{
+    czones_out<-emm_reg_names
+    emm_det_flag = FALSE
+  }
   # Set region legend colors; in the EMM case, extend the color list to
   # accomodate the larger number of region categories
   czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))
@@ -141,28 +163,50 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
   # Set alternate region flags
   emm_flag = TRUE
   state_flag = FALSE
+  state_det_flag = FALSE
 }else{
-  # Set region legend names
-  czones_out<-state_names
+  if ((compete_results_agg$`Output Resolution` == "detail") |
+      (compete_results_agg$`Output Resolution` == "detail_reg")){
+    czones_out<-state_names_detail
+    state_det_flag = TRUE
+  }else{
+    czones_out<-state_names
+    state_det_flag = FALSE
+  }
   # Set region legend colors; in the state case, extend the color list to
   # accomodate the larger number of region categories
   czones_out_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(czones_out))
   czones_out_lgnd<-czones_out
   # Set alternate region flags
   emm_flag = FALSE
+  emm_det_flag = FALSE
   state_flag = TRUE 
 }
 
 
 # Set list of possible building classes and associated colors for aggregate savings plot
-bclasses_out_agg<-c('Residential (New)', 'Residential (Existing)',
-                'Commercial (New)', 'Commercial (Existing)')
-bclasses_out_agg_col<-brewer.pal(length(bclasses_out_agg), "Dark2")
+if (compete_results_agg$`Output Resolution` == "detail" |
+    compete_results_agg$`Output Resolution` == "detail_bldg"){
+  bclasses_out_agg<-c('Single Family Homes', 'Multi Family Homes',
+                      'Hospitals', 'Large Offices', 'Small/Medium Offices',
+                      'Retail', 'Hospitality', 'Education', 'Assembly/Other',
+                      'Warehouses')
+  bclasses_out_finmets<-c(
+    list(c('Single Family Homes', 'Multi Family Homes')),
+      list(c('Hospitals', 'Large Offices', 'Small/Medium Offices',
+             'Retail', 'Hospitality', 'Education', 'Assembly/Other',
+             'Warehouses')))
+}else{
+  bclasses_out_agg<-c('Residential (New)', 'Residential (Existing)',
+                      'Commercial (New)', 'Commercial (Existing)')
+  bclasses_out_finmets<-c(
+    list(c('Residential (New)', 'Residential (Existing)')),
+      list(c('Commercial (New)', 'Commercial (Existing)')))
+}
+bclasses_out_agg_col<-colorRampPalette(brewer.pal(8, "Dark2"))(length(bclasses_out_agg))
+
 # Set list of possible building classes and associated shapes/legend entries for
 # cost effectiveness plot
-bclasses_out_finmets<-c(
-	list(c('Residential (New)', 'Residential (Existing)')),
-    list(c('Commercial (New)', 'Commercial (Existing)')))
 bclasses_out_finmets_shp<-c(21, 22)
 bclasses_out_finmets_lgnd<-c('Residential', 'Commercial')
 # Set list of possible end uses and associated colors/legend entries for
@@ -451,9 +495,8 @@ for (a in 1:length(adopt_scenarios)){
     # Initialize end use names, annual by-end use aggregated savings data and line colors
     results_agg[3,1:3] <- c(list(euses_out_agg),
                             list(rep(list(matrix(0, length(years))), length(euses_out_agg))),
-                            list(euses_out_agg_col))
-                            
-                            
+                            list(euses_out_agg_col))                    
+
     # Initialize a matrix for storing individual ECM financial metrics/savings and filter
     # variable data
     results_finmets <- matrix(list(), length(meas_names_no_all), (length(fin_metrics) + 4))
@@ -514,7 +557,7 @@ for (a in 1:length(adopt_scenarios)){
         row_ind_start = (m-1)*4 + 1 + (1 + length(czones_out) + 4 + 11)
       }
       xlsx_data[row_ind_start:(row_ind_start + 3), 1] = meas_names[m]
-      
+
       # Set applicable climate zones, end uses, and building classes for ECM
       # and add to Excel worksheet data frame
       czones = toString(compete_results[[meas_names[m]]]$'Filter Variables'$'Applicable Regions')
@@ -538,7 +581,7 @@ for (a in 1:length(adopt_scenarios)){
           uc_name_ind = uc
         }
       }
-      
+
       # Set the appropriate database of ECM financial metrics data (used across both competition schemes)
       results_database_finmets = compete_results[[meas_names[m]]]$'Financial Metrics'
 
@@ -726,7 +769,7 @@ for (a in 1:length(adopt_scenarios)){
 	                results_agg[fv, 2][[1]][[fvo]][yr] = results_agg[fv, 2][[1]][[fvo]][yr] + add_val[fvo]
 	              }
 	            }
-		        
+
 		        # If cycling through the year in which snapshots of ECM cost effectiveness are taken,
 		        # retrieve the ECM's competed financial metrics, savings, and filter variable data needed
 		        # to develop those snapshots for the cost effectiveness plots
@@ -783,7 +826,7 @@ for (a in 1:length(adopt_scenarios)){
 		          		bldg_match[b] = b
 		          	}
 		          }
-		          # If more than one building type name was matched, set the point shape to
+              # If more than one building type name was matched, set the point shape to
 		          # a triangle, representative of 'Multiple' applicable building types;
 		          # otherwise set to the point shape appropriate for the matched building type
 		          if (length(bldg_match[is.finite(bldg_match)])>1){
@@ -811,7 +854,7 @@ for (a in 1:length(adopt_scenarios)){
 		          }
 		       }
           	}
-          }	
+          }
         }
 
         # Set the column start and stop indexes to use in updating the matrix of ECM
@@ -917,7 +960,7 @@ for (a in 1:length(adopt_scenarios)){
       # Annotate the plot with snapshot year total savings figure
 	    # Find x and y values for annotation
 	    for (s in 1:length(snap_yr_set)){
-		    # Set the x value for annotation point
+        # Set the x value for annotation point
         xval_snap = as.numeric(snap_yr_set[s])
 		    # Set x value for annotation label
         if (as.numeric(snap_yr_set[s])>2045){
@@ -969,8 +1012,8 @@ for (a in 1:length(adopt_scenarios)){
   
     # Plot annual and cumulative energy, carbon, and cost savings across all ECMs,
     # filtered by climate zone, building class, and end use
-	
-	# Generate single PDF device to plot aggregate savings under all three filters
+
+  # Generate single PDF device to plot aggregate savings under all three filters
 	pdf(paste(plot_file_name_agg,"-Aggregate", ".pdf", sep=""),width=8.5,height=11)
     # Set number of rows and columns per page in PDF output
     par(mfrow=c(3,1))
@@ -1124,12 +1167,11 @@ for (a in 1:length(adopt_scenarios)){
         xlsx_data[agg_row_ind, (6 + (length(plot_title_labels_finmets))):ncol(xlsx_data)] = 
         		results_agg[f, 2][[1]][[catnm]]*unit_translate 
         # Increment the XLSX row to write to by one
-        agg_row_ind = agg_row_ind + 1	     	  	  
+        agg_row_ind = agg_row_ind + 1
       }
       # Add y axis labels for total annual savings and savings by filter variable category
       axis(side=2, at=ylim_ann, labels = ylim_ann, cex.axis = 1.25, las=1)
       mtext(plot_axis_labels_agg_ann[v], side=2, line=4, cex=cex_ann_ax) 
-      
       # Add a legend
       
       # Set legend names
@@ -1141,10 +1183,10 @@ for (a in 1:length(adopt_scenarios)){
       	results_agg[f, 3][[1]][order(total_ranks, decreasing=TRUE)])
       # If needed, set parameter to scale down plot legend for EMM regions (relevant
       # only for the first filter variable, region)
-      if ((emm_flag == TRUE) & (f == 1)){
+      if ((emm_flag == TRUE & emm_det_flag == TRUE) & (f == 1)){
         cex_agg_leg = 0.7
         ncol_leg = 1
-      }else if ((state_flag == TRUE) & (f == 1)){
+      }else if ((state_flag == TRUE & state_det_flag == TRUE) & (f == 1)){
         cex_agg_leg = 0.7
         ncol_leg = 2
       }else{
