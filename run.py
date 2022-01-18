@@ -3700,7 +3700,7 @@ class Engine(object):
                 # Set baseline and measure stock keys, including units
                 base_stk_key, meas_stk_key = [
                     x + stk_units for x in [
-                    "Baseline Stock ", "Measure Stock "]]
+                        "Baseline Stock ", "Measure Stock "]]
 
                 # Report baseline stock figures (all baseline stock that the
                 # measure could affect/capture)
@@ -3731,7 +3731,6 @@ class Engine(object):
                         adopt_scheme][meas_stk_key_low] = stk_meas_low
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][meas_stk_key_high] = stk_meas_high
-
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
