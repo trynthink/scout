@@ -1039,24 +1039,78 @@ class UsefulVars(object):
         mktnames_all = ['all ' + x if 'all' not in x else x for
                         x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        self.out_break_czones = OrderedDict(regions_out)
-        self.out_break_bldgtypes = OrderedDict([
-            ('Residential (New)', [
-                'new', 'single family home', 'multi family home',
-                'mobile home']),
-            ('Residential (Existing)', [
-                'existing', 'single family home', 'multi family home',
-                'mobile home'],),
-            ('Commercial (New)', [
-                'new', 'assembly', 'education', 'food sales',
-                'food service', 'health care', 'mercantile/service',
-                'lodging', 'large office', 'small office', 'warehouse',
-                'other']),
-            ('Commercial (Existing)', [
-                'existing', 'assembly', 'education', 'food sales',
-                'food service', 'health care', 'mercantile/service',
-                'lodging', 'large office', 'small office', 'warehouse',
-                'other'])])
+        if opts.detail_brkout in ['1', '2']:
+            self.out_break_czones = OrderedDict(regions_out)
+        else:
+            if opts.alt_regions == "EMM":
+                # Map to modified version of AVERT regions
+                self.out_break_czones = OrderedDict([
+                    ("Northwest", ["NWPP"]),
+                    ("Great Basin", ["BASN"]),
+                    ("California", ["CASO", "CANO"]),
+                    ("Rocky Mountains", ["RMRG"]),
+                    ("Upper Midwest", ["SPPN", "MISW", "MISC"]),
+                    ("Lower Midwest", ["SPPC", "SPPS"]),
+                    ("Lakes/Mid-Atl.", [
+                        "MISE", "PJMW", "PJMC", "PJME"]),
+                    ("Texas", ["TRE"]),
+                    ("Southwest", ["SRSG"]),
+                    ("Southeast", ["PJMD", "SRCA", "SRSE", "FRCC",
+                                   "MISS", "SRCE"]),
+                    ("Northeast", ["NYCW", "NYUP", "ISNE"])])
+            elif opts.alt_regions == "State":
+                # Map to Census subregions
+                self.out_break_czones = OrderedDict([
+                    ("New England", ['CT', 'MA', 'ME', 'NH', 'RI', 'VT']),
+                    ("Mid Atlantic", ['NJ', 'NY', 'PA']),
+                    ("East North Central", ['IL', 'IN', 'MI', 'OH', 'WI']),
+                    ("West North Central", [
+                        'IA', 'KS', 'MN', 'MO', 'ND', 'NE', 'SD']),
+                    ("South Atlantic", [
+                        'DC', 'DE', 'FL', 'GA', 'MD', 'NC', 'SC', 'VA', 'WV']),
+                    ("East South Central", ['AL', 'KY', 'MS', 'TN']),
+                    ("West South Central", ['AR', 'LA', 'OK', 'TX']),
+                    ("Mountain", [
+                        'AZ', 'CO', 'ID', 'MT', 'NM', 'NV', 'UT', 'WY']),
+                    ("Pacific", ['AK', 'CA', 'HI', 'OR', 'WA'])])
+            else:
+                self.out_break_czones = OrderedDict(regions_out)
+
+        if opts.detail_brkout in ['1', '3']:
+            # Map to more granular building type definition
+            self.out_break_bldgtypes = OrderedDict([
+                ('Single Family Homes', [
+                    'new', 'existing', 'single family home', 'mobile home']),
+                ('Multi Family Homes', [
+                    'new', 'existing', 'multi family home']),
+                ('Hospitals', ['new', 'existing', 'health care']),
+                ('Large Offices', ['new', 'existing', 'large office']),
+                ('Small/Medium Offices', ['new', 'existing', 'small office']),
+                ('Retail', ['new', 'existing', 'food sales',
+                            'mercantile/service']),
+                ('Hospitality', [
+                    'new', 'existing', 'lodging', 'food service']),
+                ('Education', ['new', 'existing', 'education']),
+                ('Assembly/Other', ['new', 'existing', 'assembly', 'other']),
+                ('Warehouses', ['new', 'existing', 'warehouse'])])
+        else:
+            self.out_break_bldgtypes = OrderedDict([
+                ('Residential (New)', [
+                    'new', 'single family home', 'multi family home',
+                    'mobile home']),
+                ('Residential (Existing)', [
+                    'existing', 'single family home', 'multi family home',
+                    'mobile home'],),
+                ('Commercial (New)', [
+                    'new', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other']),
+                ('Commercial (Existing)', [
+                    'existing', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other'])])
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
@@ -11047,7 +11101,7 @@ def main(base_dir):
     """
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
-    if opts.adopt_scn_restrict is not False:
+    if opts.adopt_scn_restrict is True:
         input_var = 0
         # Determine the restricted adoption scheme to use (max adoption (1) vs.
         # technical potential (2))
@@ -11063,8 +11117,6 @@ def main(base_dir):
             opts.adopt_scn_restrict = ["Max adoption potential"]
         elif input_var == '2':
             opts.adopt_scn_restrict = ["Technical potential"]
-    else:
-        opts.adopt_scn_restrict = False
 
     # If a user has specified the use of an alternate regional breakout
     # than the AIA climate zones, prompt the user to directly select that
@@ -11318,6 +11370,22 @@ def main(base_dir):
             output_type, hours, season, calc_type, sys_shape, day_type]
     else:
         opts.tsv_metrics = False
+
+    if opts.detail_brkout is True and opts.alt_regions is not False:
+        input_var = 0
+        # Determine the detailed breakout settings to use
+        while input_var not in ['1', '2', '3']:
+            input_var = input(
+                "\nEnter 1 to report detailed breakouts for regions and "
+                "building types,\n2 to report detailed breakouts for regions "
+                "only,\nor 3 to report detailed breakouts for building "
+                "types only: ")
+            if input_var not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
+        opts.detail_brkout = input_var
+    elif opts.detail_brkout is True:
+        opts.detail_brkout = '3'
 
     # Ensure that if public cost health data are to be applied, EMM regional
     # breakouts are set (health data use this resolution)
@@ -11841,10 +11909,10 @@ def main(base_dir):
                 and opts.tsv_metrics is False and all([(
                     "tsv_features" not in m.keys() or
                     m["tsv_features"] is None) for m in meas_toprep_indiv])):
-                tsv_data = {
+                tsv_data, tsv_data_nonfs = ({
                     "load": tsv_load_data, "price": None,
                     "price_yr_map": None, "emissions": None,
-                    "emissions_yr_map": None}
+                    "emissions_yr_map": None} for n in range(2))
             else:
                 tsv_c = path.join(base_dir, *handyfiles.tsv_cost_data)
                 tsv_c_zip = path.splitext(tsv_c)[0] + '.gz'
@@ -12171,6 +12239,10 @@ if __name__ == "__main__":
     parser.add_argument("--pkg_env_sep", action="store_true",
                         help=("Isolate the impacts of envelope in "
                               "envelope + HVAC packages"))
+    # Optional flag to use more detailed building type breakouts
+    parser.add_argument("--detail_brkout", action="store_true",
+                        help=("Use more detailed region/building type "
+                              "breakouts as applicable"))
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
