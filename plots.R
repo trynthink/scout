@@ -822,7 +822,7 @@ for (a in 1:length(adopt_scenarios)){
 		          # Match applicable building classes to building type names used in plotting
 		          bldg_match = matrix(NA, length(bclasses_out_finmets))
 		          for (b in 1:length(bclasses_out_finmets)){
-		          	if (length(which(bldg%in%bclasses_out_finmets[[b]][[1]])>0)){
+		          	if (length(which(bldg%in%bclasses_out_finmets[[b]])>0)){
 		          		bldg_match[b] = b
 		          	}
 		          }
