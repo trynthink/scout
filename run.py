@@ -3978,7 +3978,7 @@ def main(base_dir):
     if measures_objlist[0].usr_opts["site_energy"] is True:
         # Set user option to site energy
         energy_out[0] = "site"
-    elif measures_objlist[0].usr_opts["captured_energy_ss"] is True:
+    elif measures_objlist[0].usr_opts["captured_energy"] is True:
         # Set user option to source energy using captured energy S-S
         energy_out[0] = "captured"
     else:
