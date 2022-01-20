@@ -1087,7 +1087,7 @@ class UsefulVars(object):
                 ('Large Offices', ['new', 'existing', 'large office']),
                 ('Small/Medium Offices', ['new', 'existing', 'small office']),
                 ('Retail', ['new', 'existing', 'food sales',
-                            'mecantile/service']),
+                            'mercantile/service']),
                 ('Hospitality', [
                     'new', 'existing', 'lodging', 'food service']),
                 ('Education', ['new', 'existing', 'education']),
