@@ -11909,10 +11909,10 @@ def main(base_dir):
                 and opts.tsv_metrics is False and all([(
                     "tsv_features" not in m.keys() or
                     m["tsv_features"] is None) for m in meas_toprep_indiv])):
-                tsv_data = {
+                tsv_data, tsv_data_nonfs = ({
                     "load": tsv_load_data, "price": None,
                     "price_yr_map": None, "emissions": None,
-                    "emissions_yr_map": None}
+                    "emissions_yr_map": None} for n in range(2))
             else:
                 tsv_c = path.join(base_dir, *handyfiles.tsv_cost_data)
                 tsv_c_zip = path.splitext(tsv_c)[0] + '.gz'
