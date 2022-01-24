@@ -3703,27 +3703,48 @@ class Engine(object):
                     x + stk_units for x in [
                         "Baseline Stock ", "Measure Stock "]]
 
-                # Report baseline stock figures (all baseline stock that the
-                # measure could affect/capture)
-                stk_base = {
+                # Report baseline stock and stock cost figures (all baseline
+                # stock/stock cost that the measure could affect/capture)
+                stk_base, stk_cost_base = [{
                     yr: m.markets[adopt_scheme][
                         "uncompeted"]["master_mseg"]["stock"][
-                        "total"]["all"][yr] for yr in focus_yrs}
+                        "total"]["all"][yr] for yr in focus_yrs}, {
+                    yr: m.markets[adopt_scheme][
+                        "uncompeted"]["master_mseg"]["cost"]["stock"][
+                        "total"]["baseline"][yr] for yr in focus_yrs}]
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme][base_stk_key] = stk_base
-                # Report measure stock figures
-                stk_meas = {yr: mkts["stock"]["total"][
-                            "measure"][yr] for yr in focus_yrs}
-                # Calculate average and low/high measure stock figures
-                stk_meas_avg = {
-                    k: numpy.mean(v) for k, v in stk_meas.items()}
-                stk_meas_low = {
-                    k: numpy.percentile(v, 5) for k, v in stk_meas.items()}
-                stk_meas_high = {
+                # Report measure stock and stock cost figures
+                stk_meas, stk_cost_meas = [{yr: mkts["stock"]["total"][
+                        "measure"][yr] for yr in focus_yrs},
+                    {yr: mkts["cost"]["stock"]["total"][
+                        "efficient"][yr] for yr in focus_yrs}]
+                # Calculate average and low/high measure stock and stock
+                # cost figures
+                stk_meas_avg, stk_cost_meas_avg = [{
+                    k: numpy.mean(v) for k, v in sv.items()} for sv in [
+                        stk_meas, stk_cost_meas]]
+                stk_meas_low, stk_cost_meas_low = [{
+                    k: numpy.percentile(v, 5) for k, v in sv.items()} for sv
+                    in [stk_meas, stk_cost_meas]]
+                stk_meas_high, stk_cost_meas_high = [{
                     k: numpy.percentile(v, 95) for k, v in stk_meas.items()}
+                    for sv in [stk_meas, stk_cost_meas]]
                 # Set the average measure stock output
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme][meas_stk_key] = stk_meas_avg
+                # Set the average measure stock cost output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme]["Total Measure Stock Cost ($)"] = \
+                    stk_cost_meas_avg
+                # Set the average measure incremental stock cost output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
+                        yr: ((stk_cost_meas_avg[yr] / stk_meas_avg[yr]) -
+                             (stk_cost_base[yr] / stk_base[yr])) *
+                        stk_meas_avg[yr] if all([x != 0 for x in [
+                            stk_meas_avg[yr], stk_base[yr]]]) else
+                        stk_cost_meas_avg[yr] for yr in focus_yrs}
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
                     meas_stk_key_low = meas_stk_key + " (low)"
@@ -3732,6 +3753,34 @@ class Engine(object):
                         adopt_scheme][meas_stk_key_low] = stk_meas_low
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][meas_stk_key_high] = stk_meas_high
+                    # Set the low measure stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                            "Total Measure Stock Cost ($) (low)"] = \
+                        stk_meas_low
+                    # Set the low measure incremental stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                            "Incremental Measure Stock Cost ($) (low)"] = {
+                        yr: ((stk_cost_meas_low[yr] / stk_meas_low[yr]) -
+                             (stk_cost_base[yr] / stk_base[yr])) *
+                        stk_meas_low[yr] if all([x != 0 for x in [
+                            stk_meas_low[yr], stk_base[yr]]]) else
+                        stk_cost_meas_low[yr] for yr in focus_yrs}
+                    # Set the high measure stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                            "Total Measure Stock Cost ($) (high)"] = \
+                        stk_cost_meas_high
+                    # Set the high measure incremental stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                            "Incremental Measure Stock Cost ($) (high)"] = {
+                        yr: ((stk_cost_meas_high[yr] / stk_meas_high[yr]) -
+                             (stk_cost_base[yr] / stk_base[yr])) *
+                        stk_meas_high[yr] if all([x != 0 for x in [
+                            stk_meas_high[yr], stk_base[yr]]]) else
+                        stk_cost_meas_high[yr] for yr in focus_yrs}
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
