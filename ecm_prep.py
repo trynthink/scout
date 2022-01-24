@@ -2429,19 +2429,33 @@ class Measure(object):
         # marked 'all' by users
         self.fill_attr()
 
+        # Flag for whether or not the measure requires calculation of sector-
+        # level electricity savings shapes. Exclude envelope measures that are
+        # part of packages w/HVAC equipment; these measures simply scale HVAC
+        # equipment shapes based on annual results, and thus do not require
+        # shapes of their own. Also exclude any measures that track the
+        # reference case and do not fuel switch; these measures have zero
+        # effects on baseline loads and will therefore not generate
+        # meaningful sector-level savings shapes. Finally, exclude any
+        # measures that do not apply to electric baselines or else fuel
+        # switch (sector shapes are inapplicable)
+        if opts.sect_shapes is True:
+            calc_sect_shapes = (
+                (self.technology_type["primary"] != "demand" or
+                 self.name not in ctrb_ms_pkg_prep) and
+                ("Ref. Case" not in self.name or
+                 self.fuel_switch_to is not None) and
+                ("electricity" in self.fuel_type["primary"] or
+                 self.fuel_switch_to is not None) and (all([
+                    x not in self.name for x in [
+                        "Gas", "Oil", "N-Elec", "Fossil"]])))
+        else:
+            calc_sect_shapes = False
+
         # Fill in sector baseline/efficient 8760 shapes attribute across all
         # applicable regions for the measure with a list of 8760 zeros (if
-        # necessary). Exclude envelope measures that are part of packages w/
-        # HVAC equipment; these measures simply scale HVAC equipment shapes
-        # based on annual results, and thus do not require shapes of their own.
-        # Also exclude any measures that track the reference case and do not
-        # fuel switch; these measures have zero effects on baseline loads and
-        # will therefore not generate sector-level savings shapes.
-        if opts.sect_shapes is True and (
-                self.technology_type["primary"] != "demand" or
-                self.name not in ctrb_ms_pkg_prep) and (
-                "Ref. Case" not in self.name or
-                self.fuel_switch_to is not None):
+        # necessary).
+        if calc_sect_shapes is True:
             # Find applicable region list (ensure it is in list format)s
             if type(self.climate_zone) is str:
                 grid_regions = copy.deepcopy([self.climate_zone])
@@ -2452,9 +2466,6 @@ class Measure(object):
                     "baseline": [0 for x in range(8760)],
                     "efficient": [0 for x in range(8760)]} for yr in
                     self.handyvars.aeo_years_summary} for reg in grid_regions}
-            calc_sect_shapes = True
-        else:
-            calc_sect_shapes = ""
 
         # Find all possible microsegment key chains.  First, determine all
         # "primary" microsegment key chains, where "primary" refers to the
@@ -7214,14 +7225,14 @@ class Measure(object):
             # Only update sector-level shapes for certain years of focus;
             # ensure that load shape information is available for the
             # update and if not, yield an error message
-            if calc_sect_shapes and yr in \
+            if calc_sect_shapes is True and yr in \
                 self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
                     energy_total[yr] for x in range(8760)]
-            elif calc_sect_shapes and tsv_shapes is None and (
+            elif calc_sect_shapes is True and tsv_shapes is None and (
                     mskeys[0] == "primary" and (
                         (mskeys[3] == "electricity") or
                         (self.fuel_switch_to == "electricity"))):
@@ -7512,7 +7523,7 @@ class Measure(object):
             # Re-apportion total efficient microsegment energy across all 8760
             # hours of the year, if necessary (supports sector-level savings
             # shapes)
-            if calc_sect_shapes and \
+            if calc_sect_shapes is True and \
                 yr in self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 # For fuel switching measures where a fossil baseline segment
@@ -8950,11 +8961,11 @@ class MeasurePackage(Measure):
             self.meas_typ = "add-on"
         else:
             self.meas_typ = "full service"
-        self.climate_zone, self.bldg_type, self.structure_type, \
-            self.fuel_type = (
-                [] for n in range(4))
-        self.end_use, self.technology, self.technology_type = (
-            {"primary": [], "secondary": None} for n in range(3))
+        self.climate_zone, self.bldg_type, self.structure_type = (
+                [] for n in range(3))
+        self.fuel_type, self.end_use, self.technology, \
+            self.technology_type = (
+                {"primary": [], "secondary": None} for n in range(4))
         self.markets = {}
         self.eff_fs_splt = {
             a_s: {} for a_s in handyvars.adopt_schemes}
@@ -9050,8 +9061,9 @@ class MeasurePackage(Measure):
             self.structure_type.extend(
                 list(set(m.structure_type) - set(self.structure_type)))
             # Add measure fuel types
-            self.fuel_type.extend(
-                list(set(m.fuel_type) - set(self.fuel_type)))
+            self.fuel_type["primary"].extend(
+                list(set(m.fuel_type["primary"]) -
+                     set(self.fuel_type["primary"])))
             # Add measure end uses
             self.end_use["primary"].extend(
                 list(set(m.end_use["primary"]) -
@@ -9064,10 +9076,28 @@ class MeasurePackage(Measure):
             self.technology_type["primary"].extend(
                 list(set(m.technology_type["primary"]) -
                      set(self.technology_type["primary"])))
+            # Flag for whether or not the package requires calculation of
+            # sector-level electricity savings shapes. Exclude any packages
+            # that track the reference case and do not fuel switch; these
+            # package have zero effects on baseline loads and will therefore
+            # not generate meaningful sector-level savings shapes. Finally,
+            # exclude any package that do not apply to electric baselines or
+            # else fuel switch (sector shapes are inapplicable)
+            if opts.sect_shapes is True:
+                calc_sect_shapes = (
+                    (self.technology_type["primary"] != "demand") and
+                    ("Ref. Case" not in self.name or
+                     self.fuel_switch_to is not None) and
+                    ("electricity" in self.fuel_type["primary"] or
+                     self.fuel_switch_to is not None) and (all([
+                        x not in self.name for x in [
+                            "Gas", "Oil", "N-Elec", "Fossil"]])))
+            else:
+                calc_sect_shapes = False
             # Only initialize sector-level load shape info. for the package
             # if this option is specified by the user; use the package's
             # full set of climate zones initialized above
-            if opts.sect_shapes is True:
+            if calc_sect_shapes is True:
                 self.sector_shapes = {
                     a_s: {reg: {yr: {"baseline": [0 for n in range(8760)],
                                      "efficient": [0 for n in range(8760)]} for
@@ -12024,8 +12054,7 @@ def main(base_dir):
         # high-level data and to list of active measures for analysis;
         # ensure that high-level data for measures that contribute to
         # packages are not written out
-        for m_i, m in enumerate([x for x in meas_prepped_summary if
-                                 x["name"] not in ctrb_ms_pkg_prep]):
+        for m_i, m in enumerate([x for x in meas_prepped_summary]):
             # Measure does not serve as counterfactual for isolating
             # envelope impacts within packages
             if "(CF)" not in m["name"] and m["name"] not in ctrb_ms_pkg_prep:
