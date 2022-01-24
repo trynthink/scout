@@ -12121,30 +12121,26 @@ def main(base_dir):
         print('Writing output data...')
 
         # Write prepared measure competition data and (if applicable) efficient
-        # fuel switching splits by microsegment to zipped JSONs; do not
-        # write these data for a case when sector shapes are being
-        # generated, in which it is assumed subsequent measure competition
-        # calculations will not be performed
-        if opts.sect_shapes is False:
-            for ind, m in enumerate(meas_prepped_objs):
-                # Ensure that competed data is not written out for
-                # counterfactual measures or measures that contribute to
-                # packages, since neither will be processed via analysis engine
-                if "(CF)" not in m.name and m.name not in ctrb_ms_pkg_prep:
-                    # Assemble file name for measure competition data
-                    meas_file_name = m.name + ".pkl.gz"
-                    # Assemble folder path for measure competition data
-                    comp_folder_name = path.join(*handyfiles.ecm_compete_data)
-                    with gzip.open(path.join(base_dir, comp_folder_name,
+        # fuel switching splits by microsegment to zipped JSONs
+        for ind, m in enumerate(meas_prepped_objs):
+            # Ensure that competed data is not written out for
+            # counterfactual measures or measures that contribute to
+            # packages, since neither will be processed via analysis engine
+            if "(CF)" not in m.name and m.name not in ctrb_ms_pkg_prep:
+                # Assemble file name for measure competition data
+                meas_file_name = m.name + ".pkl.gz"
+                # Assemble folder path for measure competition data
+                comp_folder_name = path.join(*handyfiles.ecm_compete_data)
+                with gzip.open(path.join(base_dir, comp_folder_name,
+                                         meas_file_name), 'w') as zp:
+                    pickle.dump(meas_prepped_compete[ind], zp, -1)
+                if len(meas_eff_fs_splt[ind].keys()) != 0:
+                    # Assemble path for measure efficient fs split data
+                    fs_splt_folder_name = path.join(
+                        *handyfiles.ecm_eff_fs_splt_data)
+                    with gzip.open(path.join(base_dir, fs_splt_folder_name,
                                              meas_file_name), 'w') as zp:
-                        pickle.dump(meas_prepped_compete[ind], zp, -1)
-                    if len(meas_eff_fs_splt[ind].keys()) != 0:
-                        # Assemble path for measure efficient fs split data
-                        fs_splt_folder_name = path.join(
-                            *handyfiles.ecm_eff_fs_splt_data)
-                        with gzip.open(path.join(base_dir, fs_splt_folder_name,
-                                                 meas_file_name), 'w') as zp:
-                            pickle.dump(meas_eff_fs_splt[ind], zp, -1)
+                        pickle.dump(meas_eff_fs_splt[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
         with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
