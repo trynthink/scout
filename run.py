@@ -2666,7 +2666,8 @@ class Engine(object):
                             "rooftop_AC", "scroll_chiller",
                             "res_type_central_AC", "reciprocating_chiller",
                             "centrifugal_chiller", "wall-window_room_AC",
-                            "screw_chiller"]]):
+                            "screw_chiller", "gas_chiller",
+                            "gas_eng-driven_RTAC"]]):
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
