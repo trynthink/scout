@@ -38,8 +38,9 @@ The installation instructions for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-wind
 
 * Anaconda
 
-By installing Anaconda_ you can build and activate a conda environment will all
-the needed python and R dependencies using the provided scout-env.txt file.
+By installing Anaconda_ you can build and activate a conda environment will all the needed python dependencies using the provided scout-env.txt file.
+
+R is not part of the conda environment.  There are conflicts in some libraries between which are dependencies for different parts of python and R.  As such, we recommend you insall R on your system.  Note: any dependency on R will be phased out from scout.
 
 .. _Anaconda: https://docs.anaconda.com/
 
