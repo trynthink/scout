@@ -34,6 +34,15 @@ The installation instructions for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-wind
 .. warning::
    Please use due care and take appropriate security precautions to ensure that your system is not compromised when installing the programs and distributions identified below. It is your responsibility to protect the integrity of your system. *Caveat utilitor.*
 
+**Alternative Prerequisites**
+
+* Anaconda
+
+By installing Anaconda_ you can build and activate a conda environment will all
+the needed python and R dependencies using the provided scout-env.txt file.
+
+.. _Anaconda: https://docs.anaconda.com/
+
 
 .. _qs-mac:
 
