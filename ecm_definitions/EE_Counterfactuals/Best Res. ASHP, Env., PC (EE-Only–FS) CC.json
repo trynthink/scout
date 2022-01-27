@@ -1,0 +1,152 @@
+{
+  "name": "Best Res. ASHP, Env., PC (EE-Only–FS) CC",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating", "secondary heating"],
+  "fuel_type": "all",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
+                 "all secondary heating"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P1g_Best_envelope_thermostat_ASHP.csv"
+    }
+  },
+  "energy_efficiency": {
+      "cooling": 4.31,
+      "heating": 1.85,
+      "secondary heating": 0
+    },
+  "energy_efficiency_units": {
+      "cooling": "COP",
+      "heating": "COP",
+      "secondary heating": "relative savings (constant)"
+  },
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted average electric central cooling/heating efficiency in 2021 based on AEO 2020 microtables and EIA equipment efficiencies doc",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix A – Electric Furnaces, CAC, ASHP, GSHP",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [21, 26, 29, 33],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "EIA AEO 2020 Residential Microtables – Sales Tab 'DetailedEquipTable', Year 2021",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2020,
+      "pages": null,
+      "URL": null
+      }]
+  },
+  "installed_cost": {
+      "electricity": {
+        "new": 6357,
+        "existing": 7357
+      },
+      "natural gas": {
+        "new": 6357,
+        "existing": 7357
+      }, 
+      "distillate": {
+        "new": 6357,
+        "existing": 8357
+      },
+      "other fuel": {
+        "new": 6357,
+        "existing": 8357
+      }
+  },
+  "cost_units": "2020$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 17,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+      {
+      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}
+    ]},
+  "product_lifetime": 15.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low & high values for 'Average Life (yrs.)'",
+    "source_data": {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 19,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "electricity":{
+      "cooling": 0.595,
+      "heating": 0,
+      "secondary heating": 0
+    },
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
+    "cooling": {
+      "title": "RECS 2015 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
+    },
+    "secondary heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM"
+  },
+  "_description": "Switch to best available ASHP with smart thermostat controls for preconditioning, cold-climate",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Apr  6 07:08:20 EDT 2021"
+  },
+  "_updated_by": null
+}
