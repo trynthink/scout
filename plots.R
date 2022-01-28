@@ -792,15 +792,15 @@ for (a in 1:length(adopt_scenarios)){
 		          		  bldg_match[b_vi_i] = b
 		          	  }
                 } 
-		          }
+              }
 
               # If more than one building type was matched, set the point shape to
 		          # a triangle, representative of 'Multiple' applicable building types;
 		          # otherwise set to the point shape appropriate for the matched building type
-		          if (length(unique(bldg_match))>1){
-		          	results_finmets[(m - 1), 7] = 24
+		          if (length(unique(bldg_match[!is.na(bldg_match)]))>1){
+		            results_finmets[(m - 1), 7] = 24
 		          }else{
-                results_finmets[(m - 1), 7] = bclasses_out_finmets_shp[bldg_match[is.finite(bldg_match)]]
+                results_finmets[(m - 1), 7] = bclasses_out_finmets_shp[unique(bldg_match[is.finite(bldg_match)])]
 		          } 
 				  # Determine appropriate ECM point fill color for applicable end uses
 		          # Set ECM's applicable end uses
