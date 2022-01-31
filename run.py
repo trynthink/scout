@@ -379,7 +379,6 @@ class Engine(object):
             # Find measure building sector output categories
             for bldg in self.handyvars.out_break_bldgtypes.items():
                 if any([x in bldg[1] for x in m.bldg_type]) and \
-                   any([x in bldg[1] for x in m.structure_type]) and \
                         bldg[0] not in bldgtypes:
                     bldgtypes.append(bldg[0])
             # Find measure end use output categories
@@ -2607,16 +2606,25 @@ class Engine(object):
                 mseg_bldg_sect = "residential"
             else:
                 mseg_bldg_sect = "commercial"
-            # Case 1: heating is in the measure end uses, while cooling is in
-            # the current contributing microsegment
-            if "heating" in m.end_use["primary"] and "cooling" in mseg_key:
+            # Case 1: heating is in the measure end uses, while heating is not
+            # in the current contributing microsegment
+            if "heating" in m.end_use["primary"] and (
+                    "heating" not in mseg_key):
                 # Reset end use
                 key_list[4] = "heating"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the heating
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
                 # Residential case
                 if mseg_bldg_sect == "residential":
-                    # Cooling tech. is non-HP; find appropriate heating tech.
-                    # to switch to
-                    if any([x in mseg_key for x in ["room AC", "central AC"]]):
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
+                    if any([x in mseg_key for x in [
+                            "room AC", "central AC"]]) or \
+                            "cooling" not in mseg_key:
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
@@ -2653,22 +2661,23 @@ class Engine(object):
                     elif any([x in mseg_key for x in [
                             "ASHP", "GSHP", "NGHP"]]):
                         pass
-                    # If unexpected cooling tech. is present, throw error
+                    # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
                             "Contributing microsegment " + mseg_key + " has "
-                            "unexpected cooling technology information "
-                            "for stock turnover calculations")
+                            "unexpected technology information for stock "
+                            "turnover calculations")
                 # Commercial case
                 else:
-                    # Cooling tech. is non-HP; find appropriate heating tech.
-                    # to switch to
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
                     if any([x in mseg_key for x in [
                             "rooftop_AC", "scroll_chiller",
                             "res_type_central_AC", "reciprocating_chiller",
                             "centrifugal_chiller", "wall-window_room_AC",
                             "screw_chiller", "gas_chiller",
-                            "gas_eng-driven_RTAC"]]):
+                            "gas_eng-driven_RTAC"]]) or \
+                            "cooling" not in mseg_key:
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
@@ -2701,12 +2710,12 @@ class Engine(object):
                         key_list[-2] = "gas_eng-driven_RTHP-heat"
                     elif "res_type_gasHP-cool" in mseg_key:
                         key_list[-2] = "res_type_gasHP-heat"
-                    # If unexpected cooling tech. is present, throw error
+                    # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
                             "Contributing microsegment " + mseg_key + " has "
-                            "unexpected cooling technology "
-                            "information for stock turnover calculations")
+                            "unexpected technology information for stock "
+                            "turnover calculations")
             # Case 2: heating is not in the measure end uses, cooling is in the
             # measure end uses, and cooling is not in the current contributing
             # microsegment
@@ -2715,6 +2724,10 @@ class Engine(object):
                     mseg_key):
                 # Reset end use
                 key_list[4] = "cooling"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the cooling
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
                 if "supply" not in key_list:
                     key_list = key_list[:5] + ["supply"] + key_list[5:]
                 # Residential case

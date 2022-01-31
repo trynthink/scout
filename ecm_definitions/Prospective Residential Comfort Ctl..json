@@ -43,17 +43,17 @@
       "pages": [536, 548],
       "URL": "https://www.researchgate.net/publication/269576957_A_knowledge_based_approach_for_selecting_energy-aware_and_comfort-driven_HVAC_temperature_set_points"}
       ]},
-  "installed_cost": 91,
-  "cost_units": "2017$/occupant",
+  "installed_cost": 0.095,
+  "cost_units": "2017$/ft^2 floor",
   "installed_cost_source":{
-    "notes": "BTO Prioritization Tool analysis assuming 35% HVAC savings, 45% lighting energy savings, 80% PCs savings, and 1 year payback threshold",
+    "notes": "Cost analysis for BTO Sensors and Controls proggram; 1 year payback; converted to $/ft^2 floor via `occupant-centered sensing and controls` SFH home factor in Scout directory ./supporting_data/convert_data/ecm_cost_convert.json",
     "source_data": {
-      "title": "A Tool to Prioritize Energy Efficiency Investments",
-      "author": "Farese et al.",
-      "organization": "National Renewable Energy Laboratory",
-      "year": 2012,
+      "title": "Laying Down the Foundation: An R&D Roadmap for Energy Savings through Advancements in Smart Building Technologies",
+      "author": "Sofos et al.",
+      "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
+      "year": 2018,
       "pages": null,
-      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+      "URL": "https://www.researchgate.net/publication/332152674_Laying_Down_the_Foundation_An_RD_Roadmap_for_Energy_Savings_through_Advancements_in_Smart_Building_Technologies"}},
   "product_lifetime": 10,
   "product_lifetime_units": "years",
   "product_lifetime_source": {

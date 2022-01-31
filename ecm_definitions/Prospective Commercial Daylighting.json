@@ -19,10 +19,10 @@
     "notes": "Target performance based on expert judgment regarding the opportunity for potential improvement relative to current state-of-the-art",
     "source_data": null
   },
-  "installed_cost": 13.98,
-  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost": 1.38,
+  "cost_units": "2016$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Target cost based on 5 year payback period objective",
+    "notes": "Target cost based on 5 year payback period objective; convert from original units of $/ft^2 glazing to $/ft^2 floor using large office factors (glazing->wall->floor) in Scout directory ./supporting_data/convert_data/ecm_cost_convert.json",
     "source_data": null
   },
   "product_lifetime": 20,

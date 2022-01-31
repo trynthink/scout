@@ -20,11 +20,14 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 6.02,
+  "energy_efficiency": {
+    "cooling": 6.05,
+    "heating": 3.03
+  },
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "From Table 3, convert from primary COP target of 2.01 to COP by multiplying by 3.01, COP = BTU out/BTU in",
-    "source_data": {
+    "notes": "Convert from primary COP (from Table 3 in BTO MYPP) to COP, multiply by 3.01; heating COP approximated as half of the cooling COP",
+    "source data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
