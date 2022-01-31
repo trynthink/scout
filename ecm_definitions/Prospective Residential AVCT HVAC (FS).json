@@ -22,8 +22,8 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "cooling": 6.02,
-    "heating": 3.01
+    "cooling": 6.05,
+    "heating": 3.03
   },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {

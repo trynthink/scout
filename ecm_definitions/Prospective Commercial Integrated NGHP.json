@@ -33,25 +33,17 @@
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
     }
   },
-  "installed_cost": 60.38,
-  "cost_units": "2017$/kBtu/h heating",
+  "installed_cost": 1.91,
+  "cost_units": "2017$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "$1.1/ft^2 floor cost premium * 1 ft^2 floor/0.020 kBtu/h heating (see Scout 'ecm_cost_convert.json' file) + baseline cost of $5.38/kBtu/h ($2150 for 2020 'typical' commercial gas-fired furnace / 400 kBtu/h typical input capacity, from EIA data)",
+    "notes": "$1.1/ft^2 floor cost premium + baseline cost of $0.8112/ft^2 floor ($40.56/kBtu/h heating ($32450 for 2020 'typical' commercial gas-fired boiler / 800 kBtu/h typical input capacity, from EIA data), multiplied by 0.020 kBtu/h heating/ft^2 floor (see Scout directory, ./supporting_data/convert_data/ecm_cost_convert.json)",
     "source_data": [{
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,
       "organization": "U.S. Department of Energy",
       "year": 2016,
-      "pages": 75,
+      "pages": 98,
       "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf"
-    },
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]
   },
   "product_lifetime": 23,
