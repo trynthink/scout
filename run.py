@@ -379,7 +379,6 @@ class Engine(object):
             # Find measure building sector output categories
             for bldg in self.handyvars.out_break_bldgtypes.items():
                 if any([x in bldg[1] for x in m.bldg_type]) and \
-                   any([x in bldg[1] for x in m.structure_type]) and \
                         bldg[0] not in bldgtypes:
                     bldgtypes.append(bldg[0])
             # Find measure end use output categories
