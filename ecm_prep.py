@@ -2626,30 +2626,22 @@ class Measure(object):
                     None for n in range(2))
             else:
                 # If applicable, set ECM cost attribute to value previously
-                # calculated for current microsegment building type, provided
-                # microsegment does not require re-initiating cost conversions
-                # for each new technology type (applicable to the residential
-                # sector, where one conversion for a given building type to
-                # $/unit will be sufficient across all technologies for that
-                # building type, and to commercial technologies that don't
-                # have baseline costs per unit service demand, where no cost
-                # conversions are required and costs need only be set once)
-                if mskeys[2] in bldgs_costconverted.keys() and \
-                        not isinstance(self.installed_cost, dict) and (
-                            bldg_sect != "commercial" or sqft_subst == 1 or
-                            "$/ft^2 floor" not in self.cost_units):
+                # calculated for current microsegment building type, if
+                # available, provided microsegment does not require
+                # re-initiating cost conversions for each new technology type
+                # (cost data are formatted as a dict, or commercial cost data
+                # are in $/ft^2 floor, which may not be consistent with
+                # baseline cost units per service demand)
+                if mskeys[2] in bldgs_costconverted.keys() and not (
+                    isinstance(self.installed_cost, dict) or
+                    isinstance(self.cost_units, dict)) and (
+                        bldg_sect != "commercial" or "$/ft^2 floor"
+                        not in self.cost_units):
                     cost_meas, cost_units = [x for x in bldgs_costconverted[
                         mskeys[2]]]
                 # Re-initialize ECM cost attribute for each new building
                 # type or technology type if required for the given cost units
-                elif ind == 0 or any([
-                    x in self.cost_units for x in
-                        self.handyvars.cconv_bybldg_units]) or (
-                        bldg_sect == "commercial" and sqft_subst != 1):
-                    cost_meas, cost_units = [
-                        self.installed_cost, self.cost_units]
-                elif isinstance(self.installed_cost, dict) or \
-                        isinstance(self.cost_units, dict):
+                else:
                     cost_meas, cost_units = [
                         self.installed_cost, self.cost_units]
                 # Set lifetime attribute to initial value
