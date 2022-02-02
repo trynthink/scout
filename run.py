@@ -28,7 +28,9 @@ class UsefulInputFiles(object):
         meas_eff_fs_splt_data (tuple): Folder with data needed to determine the
             fuel splits of efficient case results for fuel switching measures.
         active_measures (str): Measures that are active for the analysis.
-        meas_engine_out (tuple): Measure output summaries.
+        meas_engine_out_ecms (tuple): Individual measure output summaries.
+        meas_engine_out_agg (tuple): Portfolio output summaries.
+        comp_fracs_out (tuple): Competition adjustment fractions (if required)
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
     """
@@ -42,6 +44,7 @@ class UsefulInputFiles(object):
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
+        self.comp_fracs_out = ("results", "comp_fracs.json")
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -355,7 +358,8 @@ class Engine(object):
             equivalent site-source) or source (captured energy site-source).
     """
 
-    def __init__(self, handyvars, measure_objects, energy_out, brkout):
+    def __init__(self, handyvars, measure_objects, energy_out, brkout,
+                 report_cfs):
         self.handyvars = handyvars
         self.measures = measure_objects
         self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
@@ -363,10 +367,28 @@ class Engine(object):
             ("Markets and Savings (Overall)", OrderedDict())])
         self.output_all["Energy Output Type"] = energy_out
         self.output_all["Output Resolution"] = brkout
+        # Initialize competition adjustment fraction dict, if required by user
+        if report_cfs is True:
+            self.output_ecms_cfs = {}
+        else:
+            self.output_ecms_cfs = None
         for adopt_scheme in self.handyvars.adopt_schemes:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme] = OrderedDict()
         for m in self.measures:
+            # Fill dict with competition adjustment data if needed
+            if self.output_ecms_cfs is not None:
+                # Organize data by measure name and by variable type – energy,
+                # carbon, energy costs, and stock. Energy, carbon, and energy
+                # costs will be further resolved by result type (baseline,
+                # efficient, and savings) as well as region.
+                self.output_ecms_cfs[m.name] = {
+                    key: {mt: {
+                        reg: 0 for reg in self.handyvars.out_break_czones}
+                        for mt in [
+                        "baseline", "efficient", "savings"]} for key in [
+                        "energy", "carbon", "cost"]}
+                self.output_ecms_cfs[m.name]["stock"] = {"measure": None}
             # Set measure climate zone, building sector, and end use
             # output category names for use in filtering and/or breaking
             # out results
@@ -3292,7 +3314,8 @@ class Engine(object):
                 adj["carbon"]["competed"][x][yr] = [
                     (x[yr] * adj_c) for x in adjlist[6:]]
 
-    def finalize_outputs(self, adopt_scheme, trim_out, trim_yrs, report_stk):
+    def finalize_outputs(
+            self, adopt_scheme, trim_out, trim_yrs, report_stk, report_cfs):
         """Prepare selected measure outputs to write to a summary JSON file.
 
         Args:
@@ -3301,6 +3324,7 @@ class Engine(object):
             trim_out (boolean): Flag for trimmed down results file.
             trim_yrs (list): Optional list of years to focus results on.
             report_stk (boolean): Flag for stock data reporting.
+            report_cfs (boolean): Flag for reporting comp. scaling fractions.
         """
         # Initialize markets and savings totals across all ECMs
         summary_vals_all_ecms = [{
@@ -3430,6 +3454,81 @@ class Engine(object):
                                 translate(sub), carb_save_avg),
                             ("Energy Cost Savings (USD)", energy_costsave_avg)
                             ]) for n in range(2))
+
+            # If competition adjustment fractions must be reported, find/store
+            # those data
+            if report_cfs is True:
+                # Loop through and pull energy/energy cost/carbon factors
+                for k in ["energy", "cost", "carbon"]:
+                    for mt in ["baseline", "efficient", "savings"]:
+                        dat_c, dat_uc = [
+                            m.markets[adopt_scheme][scn][
+                                "mseg_out_break"][k][mt] for scn in [
+                                "competed", "uncompeted"]]
+                        # Loop through all regions, building types, and
+                        # end uses in the output breakout data to calculate
+                        # the competition factors
+                        for reg in self.handyvars.out_break_czones:
+                            # Initialize competed/uncompeted data dicts
+                            tot_uc, tot_c = ({yr: 0 for yr in focus_yrs} for
+                                             n in range(2))
+                            for b in self.handyvars.out_break_bldgtypes:
+                                for eu in self.handyvars.out_break_enduses:
+                                    # Ensure that data exist for the
+                                    # current combination of region,
+                                    # building type and end use
+                                    try:
+                                        dat_c_ms, dat_uc_ms = [
+                                            dat_c[reg][b][eu],
+                                            dat_uc[reg][b][eu]]
+                                    except KeyError:
+                                        continue
+                                    # Loop through focus years and pull
+                                    # data to add to post-competition
+                                    # totals; handle case where data are
+                                    # split by fuel type
+                                    try:
+                                        # Competed totals
+                                        tot_c = {
+                                            yr: tot_c[yr] + dat_c_ms[yr]
+                                            for yr in focus_yrs}
+                                        # Uncompeted totals
+                                        tot_uc = {
+                                            yr: tot_uc[yr] + dat_uc_ms[yr]
+                                            for yr in focus_yrs}
+                                    except KeyError:
+                                        try:
+                                            dat_c_ms_add, dat_uc_ms_add = [{
+                                                yr: sum([d[x][yr] if yr in
+                                                         d[x].keys() else 0 for
+                                                         x in ["Electric",
+                                                               "Non-Electric"]
+                                                         ])
+                                                for yr in focus_yrs} for d in [
+                                                    dat_c_ms, dat_uc_ms]]
+                                            # Competed totals
+                                            tot_c = {
+                                                yr: tot_c[yr] +
+                                                dat_c_ms_add[yr]
+                                                for yr in focus_yrs}
+                                            # Uncompeted totals
+                                            tot_uc = {yr: tot_uc[yr] +
+                                                      dat_uc_ms_add[yr]
+                                                      for yr in focus_yrs}
+                                        except KeyError:
+                                            continue
+                            # Add to total energy/carbon/cost for meas/region
+                            self.output_ecms_cfs[m.name][k][mt][reg] = {
+                                yr: (tot_c[yr] / tot_uc[yr]) if
+                                tot_uc[yr] != 0 else 1 for yr in focus_yrs}
+                # Pull stock scaling fractions
+                stk_c, stk_uc = [
+                    m.markets[adopt_scheme][scn]["master_mseg"]["stock"][
+                        "total"]["measure"] for scn in [
+                        "competed", "uncompeted"]]
+                self.output_ecms_cfs[m.name]["stock"] = {
+                    yr: (stk_c[yr] / stk_uc[yr]) if stk_uc[yr] != 0 else 1
+                    for yr in focus_yrs}
 
             # Normalize the baseline energy/carbon/cost, efficient energy/
             # carbon/cost, and energy/carbon/cost savings for the measure that
@@ -4167,7 +4266,8 @@ def main(base_dir):
         print('Data load complete')
 
     # Instantiate an Engine object using active measures list
-    a_run = Engine(handyvars, measures_objlist, energy_out, brkout)
+    a_run = Engine(handyvars, measures_objlist, energy_out, brkout,
+                   opts.report_cfs)
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
@@ -4191,9 +4291,12 @@ def main(base_dir):
               "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "competed")
         print("Calculations complete")
+        print("Finalizing results...", end="", flush=True)
         # Write selected outputs to a summary JSON file for post-processing
         a_run.finalize_outputs(
-            adopt_scheme, trim_out, trim_yrs, opts.report_stk)
+            adopt_scheme, trim_out, trim_yrs, opts.report_stk,
+            opts.report_cfs)
+        print("Results finalized")
 
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
@@ -4337,6 +4440,11 @@ def main(base_dir):
             base_dir, *handyfiles.meas_engine_out_agg), "w") as jso:
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
+    # Write competition adjustment fractions to a JSON, if applicable
+    if a_run.output_ecms_cfs is not None:
+        with open(path.join(
+                base_dir, *handyfiles.comp_fracs_out), "w") as jso:
+            json.dump(a_run.output_ecms_cfs, jso, indent=2)
 
     # # Plot output data in R when using AIA climate regions OR when using EMM
     # # regions to assess the public health benefits of efficiency
@@ -4456,6 +4564,9 @@ if __name__ == '__main__':
     # Optional flag to trim down results output size
     parser.add_argument("--report_stk", action="store_true",
                         help="Report baseline/measure stock data")
+    # Optional flag to report competition adjustment fractions
+    parser.add_argument("--report_cfs", action="store_true",
+                        help="Report competition adjustment fractions")
     opts = parser.parse_args()
     # Set function that only prints message when in verbose mode
     verboseprint = print if opts.verbose else lambda *a, **k: None
