@@ -19,11 +19,12 @@ rs*.txt
 *_cz.json
 *_emm.json
 
-# Scout-generated JSON databases #
+# Scout-generated JSON databases #s
 ##################################
 
 ecm_results.json
 agg_results.json
+comp_fracs.json
 run_setup.json
 ecm_prep.json
 ecm_prep_env_cf.json
