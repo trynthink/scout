@@ -33,7 +33,7 @@ The `ECM Summaries Page`_ allows you to create your own Scout ECM definitions; b
 Creating a new ECM or ECM package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On the ECM Summaries page, click the "Add New ECM" button towards the top of the page. A web form will pop up that guides you step-by-step through the process of creating a new single ECM or ECM package definition. If you wish to create a single ECM definition, ensure that "Single ECM" is toggled at the top right of the form; if you wish to create an ECM package, toggle the "ECM Package" option at the top right of the form.
+On the ECM Summaries page, click the "Add ECM" dropdown towards the top of the page, and subsequently click "Write New ECM". A web form will pop up that guides you step-by-step through the process of creating a new single ECM or ECM package definition. If you wish to create a single ECM definition, ensure that "Single ECM" is toggled at the top right of the form; if you wish to create an ECM package, toggle the "ECM Package" option at the top right of the form.
 
 All inputs to the Add New ECM form are required unless they are tagged "optional". Refer to red error messages below missing input(s) to ensure that your entries are complete.
 
@@ -150,15 +150,15 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
 
 Once all steps of the Add ECM form have been completed, click the "Generate ECM" button at bottom right to generate a single ECM JSON file and download the JSON to your computer; this JSON can be added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout directory and used in subsequent analyses.
 
-.. tip::
-    Checking the "Send ECM for Review" box to the right of "Generate ECM" will send your ECM definition to BTO for review and possible future inclusion in the default list of ECMs; in this case, you'll see an additional prompt for your name and email address to facilitate follow-on correspondence from BTO (this information is *not* permanently stored).
+.. .. tip::
+..     Checking the "Send ECM for Review" box to the right of "Generate ECM" will send your ECM definition to BTO for review and possible future inclusion in the default list of ECMs; in this case, you'll see an additional prompt for your name and email address to facilitate follow-on correspondence from BTO (this information is *not* permanently stored).
 
 .. _create-pkg-ecm:
 
 ECM package creation
 ********************
 
-For ECM Packages, the Add New ECM form involves one step of data entry.
+For ECM Packages, the Add ECM form involves one step of data entry.
 
 First, choose the single ECM definitions you wish to package from the list of options under "Select ECMs to Package". 
 
@@ -173,14 +173,14 @@ Finally, enter supporting source information for the ECM package and its cost or
 
 Once all the required inputs have been entered, click the "Generate ECM" button at bottom right to download a JSON definition of the ECM package. The ECM package definition will be added to an existing JSON file |html-filepath| package_ecms.json |html-fp-end| that includes a default set of BTO ECM packages, and this file will be downloaded to your computer; again, this JSON can be added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout directory and used in subsequent analyses.
 
-As for the single ECM case, checking the "Send ECM for Review" box to the right of "Generate ECM" will prompt you for your name and email address and send your ECM definition to BTO for review.
+.. As for the single ECM case, checking the "Send ECM for Review" box to the right of "Generate ECM" will prompt you for your name and email address and send your ECM definition to BTO for review.
 
 .. _browse-default-ecms:
 
-Browsing and editing a default set of ECMs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Browsing and editing a set of ECMs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ECM Summaries Page includes a set of default existing ECM definitions that may be useful to your own Scout analyses. The current set of default ECM definitions is comprised of commercially available technologies that meet prominent energy performance standards (e.g., `ENERGY STAR`_, `IECC`_, `ASHRAE 90.1`_). This default ECM set will be updated periodically by BTO as new or edited ECM definitions are developed.
+.. The ECM Summaries Page includes a set of default existing ECM definitions that may be useful to your own Scout analyses. The current set of default ECM definitions is comprised of commercially available technologies that meet prominent energy performance standards (e.g., `ENERGY STAR`_, `IECC`_, `ASHRAE 90.1`_). This default ECM set will be updated periodically by BTO as new or edited ECM definitions are developed.
 
 ECM definitions are presented in a table where each row includes information for a single ECM or ECM package and the columns summarize the following ECM attributes:
 
@@ -197,7 +197,7 @@ Filter and reorganize the ECM set
 
 - **Sort ECMs.** Click the arrow icons next to the "Name," "Lifetime," or "Market Entry Year" column headings to sort ECMs by each attribute in ascending order; click the arrow icons again to sort ECMs by each attribute in descending order.
 
-- **Filter ECMs by end use, climate zone, or building type.** Check the appropriate box(es) under the "End Use," "Climate Zones," and/or "Building Class" headings in the left-hand filter bar; then click the "Apply Filter" button at the bottom of the filter bar.
+- **Filter ECMs by end use, region, or building type.** Check the appropriate box(es) under the "End Use," "Regions," and/or "Building Class" headings in the left-hand filter bar; then click the "Apply Filter" button at the bottom of the filter bar.
 
 - **Filter ECMs by total affected market.** Move each scroll bar dot under the "Total Affected Market" heading in the left-hand filter bar to set thresholds for the total energy use, |CO2| emissions, and/or energy costs affected by each ECM; then click the "Apply Filter" button at the bottom of the filter bar. Alternatively, enter a specific threshold or thresholds into the box to the right of each scroll bar and click "Apply Filter".
 
@@ -238,52 +238,55 @@ To edit the attributes of an ECM on the ECM Summaries Page, click the "Edit" ico
 
 An "Edit ECM" form will pop up with fully populated input fields (see :ref:`create-ecm` for additional guidance on these fields). For edits to single ECMs, click through the navigation bar steps on the left side of the form and make changes to the input fields shown in each step; ECM package edits only have one step. When your edits are complete, click the "Generate ECM" button at the bottom right of the screen to download an edited ECM JSON definition; again, this JSON can be added to the |html-filepath| ./ecm_definitions folder |html-fp-end| in your Scout directory and used in subsequent analyses.
 
-As when creating a new ECM, checking the "Send ECM for Review" box to the right of "Generate ECM" will prompt you for your name and email address and send your ECM definition to BTO for review.
+.. As when creating a new ECM, checking the "Send ECM for Review" box to the right of "Generate ECM" will prompt you for your name and email address and send your ECM definition to BTO for review.
 
 .. _upload-custom-ecm-defs:
 
-Uploading a custom set of ECMs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. Uploading a custom set of ECMs
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To upload your own set of ECMs to the ECM Summaries Page, follow the steps below. **If you've already run a local Scout analysis with your own ECMs, skip to step 3.**
+.. To upload your own set of ECMs to the ECM Summaries Page, follow the steps below. **If you've already run a local Scout analysis with your own ECMs, skip to step 3.**
 
-1. Ensure that all of your ECM JSON definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
+.. 1. Ensure that all of your ECM JSON definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
 
-2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
+.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
 
-  **Windows** ::
+..   **Windows** ::
 
-     py -3 ecm_prep.py
+..      py -3 ecm_prep.py
 
-  **Mac** ::
+..   **Mac** ::
 
-     python3 ecm_prep.py
+..      python3 ecm_prep.py
 
-3. On the `ECM Summaries Page`_ of the web interface, click the drop down arrow next to the "Custom ECMs" label towards the top right of the page; then click "Upload File" at the bottom of the resulting drop down window.
+.. 3. On the `ECM Summaries Page`_ of the web interface, click the drop down arrow next to the "Custom ECMs" label towards the top right of the page; then click "Upload File" at the bottom of the resulting drop down window.
 
-4. When prompted to select a file to upload, navigate to the |html-filepath| ./supporting_data |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_prep.json |html-fp-end| - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
+.. 4. When prompted to select a file to upload, navigate to the |html-filepath| ./supporting_data |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_prep.json |html-fp-end| - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
 
-  .. note:: 
-      Larger files may take several seconds to upload in step 4.
+..   .. note:: 
+..       Larger files may take several seconds to upload in step 4.
 
-Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.   
+.. Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.   
 
 .. _tuts-3-web:
+
+..Results shown on the `Analysis Results Page`_ correspond to the ECM set from the `ECM Summaries Page`_.
+
+.. Visualizing a default set of ECM results
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. Results shown on the `Analysis Results Page`_ correspond to the default ECM set from the `ECM Summaries Page`_. These default ECM results will be updated periodically by BTO as new or edited ECM definitions are developed.
+
+.. The results reflect competition between ECMs that apply to the same baseline market(s); ECM competition ensures that no savings impacts are double counted across an ECM portfolio. ECMs are competed on the basis of their capital and operating costs relative to a comparable baseline or ‘business-as-usual’ technology, as described further in :ref:`overview-competition`.
 
 Tutorial 3: Viewing and understanding outputs
 ---------------------------------------------
 
-The `Analysis Results Page`_ allows you to view interactive results visualizations for existing ECM analyses and upload your own set of results.
 
-Visualizing a default set of ECM results
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Results shown on the Analysis Results Page correspond to the default ECM set from the `ECM Summaries Page`_. These default ECM results will be updated periodically by BTO as new or edited ECM definitions are developed.
-
-The results reflect competition between ECMs that apply to the same baseline market(s); ECM competition ensures that no savings impacts are double counted across an ECM portfolio. ECMs are competed on the basis of their capital and operating costs relative to a comparable baseline or ‘business-as-usual’ technology, as described further in :ref:`overview-competition`.
+The `Analysis Results Page`_ allows you to view interactive results visualizations for ECM analyses.
 
 Energy, |CO2|, cost, and financial metrics tabs
-***********************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Results are organized by one of four outcome variables of interest - "Energy," "|CO2|," "Costs," and "Financial Metrics" - each of which is assigned a tab at the top of the page. Here, "Energy" signifies total primary energy use; "|CO2|" and "Costs" signify the total |CO2| emissions and operating costs associated with the total primary energy use; and "Financial Metrics" cover various consumer and portfolio-level metrics of ECM cost effectiveness.
 
@@ -297,7 +300,7 @@ Summary statistics are tailored to each tab - for example, the statistics on the
 Each of the  "Energy," "|CO2|," and "Costs" tabs features two types of plots - a *radar graph* and a *bar graph*. Switch between these graph types using the "Radar" and "Bar" graph toggle towards the top right of these pages. The "Financial Metrics" tab features a single *scatterplot* type. Each of these visualizations is detailed further below.
 
 Radar graphs
-************
+~~~~~~~~~~~~
 
 The `radar graph`_ on the Analysis Results Page groups total energy, |CO2|, or cost results by end use, climate zone, or building class. The graph has several axes that emanate from a single point of origin; each axis represents a category for one of the three grouping variables. The magnitude of total energy, |CO2|, or cost attributed to each category is represented by the distance of a point on the category’s axis from the axis origin. :numref:`radar-plot-example` shows an example radar graph for a portfolio of prospective and commercially available ECMs.
 
@@ -330,7 +333,7 @@ Change ECM adoption assumptions by adjusting the radio button under the "Adoptio
 
 
 Bar graphs
-**********
+~~~~~~~~~~
 
 The `bar graph`_ on the Analysis Results Page attributes total avoided energy, |CO2|, or cost results to individual ECMs. The plot unfolds from left to right, beginning with a "Baseline" segment of energy use, |CO2|, or cost that is broken into "Avoided" and "Remaining" segments; each of these segments is then further attributed to the individual ECMs. :numref:`bar-plot-example` shows an example bar graph for a portfolio of prospective and commercially available ECMs.
 
@@ -355,7 +358,7 @@ ECM bar segments may also be filtered by end use, climate zone, and building cla
 As for the `ECM Summaries Page`_, previous ECM filter selections are cleared by clicking the "Clear All" text at the bottom of the filter bar; the filter bar may also be hidden by clicking the left-pointing arrow shown at the top right of the bar.
 
 Scatterplots
-************
+~~~~~~~~~~~~
 
 The `scatterplot`_ on the Analysis Results Page indicates the cost effectiveness of individual ECMs under multiple financial metrics - Internal Rate of Return (IRR), Simple Payback, Cost of Conserved Energy, and Cost of Conserved Carbon - each of which may be assigned to the x or y axis of the plot using adjacent dropdown menus. :numref:`scatter_plot-example` shows an example scatterplot for a portfolio of prospective and commercially available ECMs.
 
@@ -376,39 +379,39 @@ ECM points may also be filtered by end use, climate zone, and building class by 
 
 If a probability distribution has been placed on the cost, performance, and/or lifetime input(s) of one or more ECMs, uncertainty in the resultant cost effectiveness of any affected ECMs is expressed as a lightly shaded region around the affected ECM points on the scatterplot. Uncertainty ranges are also reported around the financial metric results in the detail tooltips of affected ECMs.
 
-Uploading a custom set of ECM results
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. Uploading a custom set of ECM results
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The process for uploading a custom set of ECM results to the Analysis Results Page is similar to that used to upload a custom set of ECM definitions to the ECM Summaries Page (see :ref:`upload-custom-ecm-defs`); follow the steps below. **If you've already run a local Scout analysis with your own ECMs, skip to step 4.**
+.. The process for uploading a custom set of ECM results to the Analysis Results Page is similar to that used to upload a custom set of ECM definitions to the ECM Summaries Page (see :ref:`upload-custom-ecm-defs`); follow the steps below. **If you've already run a local Scout analysis with your own ECMs, skip to step 4.**
 
-1. Ensure that all of your ECM definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
+.. 1. Ensure that all of your ECM definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
 
-2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
+.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
 
-  **Windows** ::
+..   **Windows** ::
 
-     py -3 ecm_prep.py
+..      py -3 ecm_prep.py
 
-  **Mac** ::
+..   **Mac** ::
 
-     python3 ecm_prep.py
+..      python3 ecm_prep.py
 
-3. In the Terminal window (Mac) or command prompt (Windows), enter the following command line argument: 
+.. 3. In the Terminal window (Mac) or command prompt (Windows), enter the following command line argument: 
 
-  **Windows** ::
+..   **Windows** ::
 
-     py -3 run.py
+..      py -3 run.py
 
-  **Mac** ::
+..   **Mac** ::
 
-     python3 run.py
+..      python3 run.py
 
-4. On the `Analysis Results Page`_ of the web interface, click the drop down arrow next to the "Custom ECMs" label towards the top right of the page; then click "Upload File" at the bottom of the resulting drop down window.
+.. 4. On the `Analysis Results Page`_ of the web interface, click the drop down arrow next to the "Custom ECMs" label towards the top right of the page; then click "Upload File" at the bottom of the resulting drop down window.
 
-5. When prompted to select a file to upload, navigate to the |html-filepath| ./results |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_results.json |html-fp-end| - this file includes results data generated for your custom set of ECMs in step 3. Once uploaded, the definitions file will appear under the "Active File" label.
+.. 5. When prompted to select a file to upload, navigate to the |html-filepath| ./results |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_results.json |html-fp-end| - this file includes results data generated for your custom set of ECMs in step 3. Once uploaded, the definitions file will appear under the "Active File" label.
 
-  .. note:: 
-      Larger files may take several seconds to upload in step 5.
+..   .. note:: 
+..       Larger files may take several seconds to upload in step 5.
 
 .. _tuts-4-web:
 
