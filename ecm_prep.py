@@ -11331,7 +11331,7 @@ def main(base_dir):
     if opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
         output_type = input(
-            "Enter the type of time-sensitive metric desired "
+            "\nEnter the type of time-sensitive metric desired "
             "(1 = change in energy (e.g., multiple hour GWh), "
             "2 = change in power (e.g., single hour GW)): ")
 
