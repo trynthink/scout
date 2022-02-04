@@ -49,6 +49,8 @@ Alternate regions
 .. note::
    These alternate regions are only permitted when |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` option, as described in :ref:`tuts-2-cmd-opts`. 
 
+.. _emm-reg:
+
 EIA Electricity Market Module (EMM) regions
 *******************************************
 
@@ -59,6 +61,7 @@ PJMD, SRCA, SRSE, SRCE, SPPS, SPPC, SPPN, SRSG, CANO, CASO, NWPP, RMRG, BASN; al
 
    Map of U.S. EIA Electricity Market Module (EMM) regions.
 
+.. _state-reg:
 
 Contiguous U.S. states
 **********************

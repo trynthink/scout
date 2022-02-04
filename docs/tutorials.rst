@@ -3,6 +3,10 @@
 .. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
    :trim:
 
+.. |br| raw:: html
+
+   <br />
+
 .. _tutorials:
 
 Local Execution Tutorials
@@ -513,50 +517,81 @@ In this example, the supporting CSV file path is |html-filepath| ./ecm_definitio
 
 * *Hour of Year*. Hour of the simulated year, spanning 1 to 8760. The simulated year must match the `reference year`_ in terms of starting day of the week (Sunday) and total number of days (365).
 * *Climate Zone*. Applicable `ASHRAE 90.1-2016 climate zone`_ (see Table 2); currently, only the 14 contiguous U.S. climate zones (2A through 7) are supported.
-* *Net Load Version*. For climate zones 3A, 4A, 5A, and 6A, this column indicates which of the two representative `EIA Electricity Market Module (EMM)`_ net utility system load `profiles`_ for those climate zones is used to determine energy flexibility measure characteristics; for all other climate zones and for energy efficiency measures, set to 1. :numref:`tsv-nl-tab` summarizes default periods of net peak and low system demand for each ASHRAE climate zone in the summer (S) and winter (W); the "Version" column of :numref:`tsv-nl-tab` indicates cases where two system load profiles are used to define these peak/low demand periods for a given climate zone.
+* *Net Load Version*. This column indicates the one or two representative `EIA Electricity Market Module (EMM)`_ net utility system load `profiles`_ for the given climate zone that determine energy flexibility measure characteristics (e.g., targeted shed/shift periods) for that climate zone; this distinction is only relevant to flexibility measures. :numref:`tsv-nl-tab` summarizes default periods of net peak and low system demand under the `AEO Low Renewable Cost` side case for each ASHRAE climate zone in the summer (S) and winter (W); the "Version" column of :numref:`tsv-nl-tab` indicates cases where two system load profiles are used to define these peak/low demand periods for a given climate zone.
 
 .. _tsv-nl-tab:
-.. table:: Net peak and low system demand periods by ASHRAE climate zone in summer (S) and winter (W).
+.. table:: Net peak and low system demand periods by ASHRAE climate zone in winter (W) and summer (S), using data from the `AEO Low Renewable Cost` side case for the year 2050.
 
-   +---------+---------+----------+----------+---------+----------+----------+ 
-   | Climate | Version | EMM Reg. | Peak (S) | Peak (W)| Low (S)  | Low (W)  |
-   +=========+=========+==========+==========+=========+==========+==========+ 
-   | 2A      | 1       | FRCC     | 4-8PM    | 5-9PM   | 7-11AM   | 10AM-4PM |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 2B      | 1       | AZNM     | 4-8PM    | 5-9PM   | 12-9AM   | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 3A      | 1       | SRVC     | 6-10PM   | 5-9PM   | 12-10AM  | 12-4AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 3A      | 2       | SPSO     | 5-9PM    | 5-9PM   | 8AM-12PM | 9AM-4PM  |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 3B      | 1       | ERCT     | 5-9PM    | 7-11PM  | 2AM-9AM  | 12AM-7AM |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 3C      | 1       | CAMX     | 6-10PM   | 5-9PM   | 8AM-3PM  | 8AM-4PM  |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 4A      | 1       | NYCW     | 11AM-3PM | 4-8PM   | 12AM-6AM | 12AM-7AM |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 4A      | 2       | SPNO     | 5-9PM    | 5-9PM   | 7AM-12PM | 9AM-4PM  |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 4B      | 1       | AZNM     | 4-8PM    | 5-9PM   | 12-9AM   | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 4C      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 5A      | 1       | NYUP     | 7-11PM   | 5-9PM   | 12-6AM   | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 5A      | 2       | RFCW     | 1-5PM    | 6-10PM  | 12-7AM   | 12-7AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 5B      | 1       | RMPA     | 4-8PM    | 5-9PM   | 12-8AM   | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 5C      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 6A      | 1       | MROW     | 3-7PM    | 6-10PM  | 2-7AM    | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 6A      | 2       | NEWE     | 12-4PM   | 5-9PM   | 12-7AM   | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 6B      | 1       | NWPP     | 4-8PM    | 5-9PM   | 12-6AM   | 12-5AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
-   | 7       | 1       | MROW     | 3-7PM    | 6-10PM  | 2-7AM    | 12-6AM   |
-   +---------+---------+----------+----------+---------+----------+----------+
+   +---------+---------+----------+----------+---------+---------------+----------------+ 
+   | Climate | Version | EMM Reg. | Peak (W) | Peak (S)| Low (W)       | Low (S)        |
+   +=========+=========+==========+==========+=========+===============+================+ 
+   | 2A      | 1       | FRCC     | 4-8PM    | 4-8PM   | 10AM-3PM      | 8AM-1PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 2A      | 2       | MISS     | 5-9PM    | 4-8PM   | 10AM-3PM      | 9AM-2PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 2B      | 1       | SRSG     | 4-8PM    | 3-7PM   | 9AM-3PM       | 3AM-12PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 3A      | 1       | SRSE     | 4-8PM    | 4-8PM   | 10AM-3PM      | 10AM-1PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 3A      | 2       | TRE      | 5-9PM    | 4-8PM   | 10AM-4PM      | 9AM-1PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 3B      | 1       | CASO     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-2PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 3B      | 2       | BASN     | 4-8PM    | 5-9PM   | 10AM-3PM      | 12AM-3PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 3C      | 1       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4A      | 1       | PJME     | 3-7PM    | 4-8PM   | 10AM-3PM      | 2AM-2PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4A      | 2       | SRCE     | 4-8PM    | 4-8PM   | 11AM-2PM      | 10AM-2PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4B      | 1       | SRSG     | 4-8PM    | 3-7PM   | 9AM-3PM       | 3AM-12PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4B      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4C      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
+   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
+   |         |         |          |          |         | 10PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 4C      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 5A      | 1       | PJMW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 12-7AM         |
+   |         |         |          |          |         | 9AM-4PM, |br| |                |
+   |         |         |          |          |         | 10PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 5A      | 2       | MISE     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-3PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 5B      | 1       | RMRG     | 3-7PM    | 3-7PM   | 9AM-3PM       | 12-6AM, |br|   |
+   |         |         |          |          |         |               | 7AM-12PM, |br| |
+   |         |         |          |          |         |               | 11PM-12AM      |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 5B      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 5C      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
+   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
+   |         |         |          |          |         | 10PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 6A      | 1       | MISW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 1-6AM, |br|    |
+   |         |         |          |          |         | 11AM-3PM, |br||                |
+   |         |         |          |          |         | 11PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 6A      | 2       | ISNE     | 3-7PM    | 4-8PM   | 4-5AM, |br|   | 12AM-1PM       |
+   |         |         |          |          |         | 9AM-3PM       |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 6B      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
+   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
+   |         |         |          |          |         | 10PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 6B      | 2       | CASO     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-2PM       |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 7       | 1       | MISW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 1-6AM, |br|    |
+   |         |         |          |          |         | 11AM-3PM, |br||                |
+   |         |         |          |          |         | 11PM-12AM     |                |
+   +---------+---------+----------+----------+---------+---------------+----------------+
+   | 7       | 2       | RMRG     | 3-7PM    | 3-7PM   | 9AM-3PM       | 12-6AM, |br|   |
+   |         |         |          |          |         |               | 7AM-12PM, |br| |
+   |         |         |          |          |         |               | 11PM-12AM      |
+   +---------+---------+----------+----------+---------+---------------+----------------+
 
 
 * *Building Type*. Applicable EnergyPlus building type; currently supported representative building types are:
@@ -629,7 +664,7 @@ A commercial load shedding and shifting ECM is :ref:`available for download <ecm
 .. _EIA Electricity Market Module (EMM): https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m068(2018).pdf
 .. _ResStock: https://resstock.readthedocs.io/en/latest/
 .. _DOE Commercial Prototypes: https://www.energycodes.gov/development/commercial/prototype_models
-.. _profiles: https://drive.google.com/file/d/1SlXuazUj0-3S8ax7c-Lpe6niv6n87KSl/view?usp=sharing
+.. _profiles: https://drive.google.com/file/d/1PNp47uEneuhREx3-AIwPXufXDNpkrZCp/view?usp=sharing
 
 .. _ecm-features-shorthand:
 
@@ -1226,21 +1261,36 @@ Restricted adoption scenarios
 ******************************
 ``--adopt_scn_restrict`` limits ECM preparation and analysis to one of the two default adoption scenarios (see :ref:`overview-adoption`). When this option is selected, the user will be prompted to select which of the two adoption scenarios to execute.
 
+Detailed results breakouts
+**************************
+``--detail_brkout`` reports regional and/or building type breakouts of results at the highest possible resolution. When this option is specified, the user will be prompted to select whether to use the most detailed breakout resolutions for regions, building types, or both regions and building types.
+
+.. note::
+   Default regional breakouts depend on the :ref:`region selection <ecm-baseline_climate-zone>` for the current run. An :ref:`AIA <ecm-baseline_climate-zone>` region selection does not have a more detailed breakout option. An :ref:`EMM <emm-reg>` region selection defaults to reporting breakouts for a higher-level aggregation of those 25 regions into 11 broader regions that are similar to the `2019 EPA AVERT regions`_ but separate the Great Basin from the Northwest region; the detailed breakout option resolves results by all 25 EMM regions. Finally, a :ref:`U.S. state <state-reg>` region selection defaults to reporting breakouts by the 9 `U.S. Census Divisions`_; the detailed breakout option resolves results by all contiguous U.S. states plus the District of Columbia.
+
+   Default building type breakouts are resolved by residential vs. commercial and by vintage (new --- constructed at or after the start of the modeling time horizon --- vs. existing). Detailed building type breakouts further resolve the building types into 2 residential and 8 commercial types, while dropping the split by vintage (single family/mobile homes and multi family homes for residential; hospitals, large offices, small/medium offices, retail, hospitality, education, assembly/other, and warehouses for commercial).
+
 High electric grid decarbonization
 **********************************
 
-``--grid_decarb`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a net zero emissions by 2035 pathway for the electric grid, rather than the default AEO Reference Case grid evolution. When this option is selected, the user will be prompted to select whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the reference case. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the reference case. 
+``--grid_decarb`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a more aggressive decarbonization pathway for the electric grid than is assumed in the default `AEO Reference Case`_. When this option is selected, the user will be prompted to select from two scenarios of additional grid decarbonization: one scenario in which remaining grid emissions are reduced 80% by 2050, or a second scenario in which remaining grid emissions are reduced to zero by 2035. The user will also be prompted to select whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the Reference Case. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the Reference Case. 
 
 .. note::
-   Annual emissions intensities for the high grid decarbonization scenario are drawn from runs of The Brattle Group's `GridSIM modeling tool`_ and are found in |html-filepath| ./supporting_data/convert_data |html-fp-end|. Annual electricity price data (also found in |html-filepath| ./supporting_data/convert_data |html-fp-end|) and hourly electricity emissions and price data for the high grid decarbonization case (found in |html-filepath| ./supporting_data/tsv_data  |html-fp-end|) are drawn from different sources --- the `EIA Annual Energy Outlook Low Renewable Cost Side Case`_ for the annual electricity price data, and the `NREL Cambium Low Renewable Energy Cost Scenario`_ for the hourly data.
+   Annual emissions intensities for the more aggressive grid decarbonization scenarios are drawn from runs of The Brattle Group's `GridSIM modeling tool`_ and are found in |html-filepath| ./supporting_data/convert_data |html-fp-end|. Annual electricity price data (also found in |html-filepath| ./supporting_data/convert_data |html-fp-end|) and hourly electricity emissions and price data for the more aggressive grid decarbonization scenarios (found in |html-filepath| ./supporting_data/tsv_data  |html-fp-end|) are drawn from different sources --- the `EIA Annual Energy Outlook Low Renewable Cost Side Case`_ for the annual electricity price data, and the `NREL Cambium Low Renewable Energy Cost Scenario`_ for the hourly data.
 
 .. note::
-   Currently the ``--grid_decarb`` option is not supported for state regions; if state regions are selected alongside the ``--grid_decarb`` option, the code will automatically switch the run to EMM regions while warning the user.  
+   Currently the ``--grid_decarb`` option is not supported for state regions; if state regions are selected alongside the ``--grid_decarb`` option, the code will automatically switch the run to EMM regions while warning the user. 
+
+Alternate Reference Case grid forecast
+**************************************
+
+``--gs_ref_carb`` uses the Reference Case grid forecast from the The Brattle Group's `GridSIM modeling tool`_ to determine baseline grid emissions intensities, rather than the default `AEO Reference Case`_ forecast of these emissions intensities.
+
 
 Exogenous fuel switching rates
 ******************************
 
-``--exog_hp_rates`` imposes externally determined rates of fuel switching from fossil-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./supporting_data/convert_datahp_convert_rates |html-fp-end|. When this option is selected, the user will be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology.
+``--exog_hp_rates`` imposes externally determined rates of fuel switching from fossil-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./supporting_data/convert_data/hp_convert_rates |html-fp-end|. When this option is selected, users will be prompted to select from one of four scenarios of fuel switching rates; the scenarios were developed by Guidehouse as benchmarks for the U.S Department of Energy's `E3HP Initiative`_. Users will also be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology.
 
 .. note::
    In the absence of the ``--exog_hp_rates`` option, rates of fuel switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
@@ -1259,14 +1309,85 @@ Fuel splits
 
 ``--split_fuel`` prepares fuel type breakouts for measure results that are reported to the file |html-filepath| ./supporting_data/ecm_prep.json |html-fp-end| under the ``mseg_out_break`` dict key and carried through to the measure results file |html-filepath| ./results/ecm_results.json |html-fp-end| that is generated by |html-filepath| run.py\ |html-fp-end|. Fuel type breakouts will be reported under ``Electric`` and ``Non-Electric`` dict keys; the splits are nested under higher-level breakouts of the results by region, building type/vintage, and end use. Fuel splits are only reported out for the heating, water heating, and cooking end uses.
 
-Global minimum market entry year
-********************************
+Add Reference Case measures
+***************************
 
-``--floor_start`` imposes a global minimum market entry year across all measures considered in the analysis. When this option is specified, no measure in the analysis enters the market before the global minimum year (e.g., the global minimum year overrides the market entry year information in measures' :ref:`json-market_entry_year` attribute if this year is earlier than the global minimum year).
+``--add_typ_eff`` automatically prepares `AEO Reference Case`_ analogues to any equipment measures representing ENERGY STAR, IECC, and/or 90.1 performance levels in the Scout analysis (as identified by those measures' :ref:`json-name` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute), and are otherwise identical to the ENERGY STAR, IECC, and/or 90.1 measures in the analysis. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
+
+.. note::
+   All Reference Case analogue measures will include the string "Ref. Case" in their reported name, so that these measures are readily flagged in data post-processing.
+
+.. note::
+   Reference Case analogues will not be prepared for measures that involve fuel switching (as determined via the measures' :ref:`json-fuel_switch_to` attribute), since Reference Case analogues for such measures may not be pulled on the basis of the measures' :ref:`json-technology` attribute. In such cases, Reference Case analogue measures may be manually defined with typical cost, performance, and lifetime characteristics for the relevant technology class from the `EIA Reference Case technology documentation`_. Reference Case analogues are also not automatically prepared for measures that pertain only to windows or envelope components.
+
+
+Raise technology performance floor
+**********************************
+
+``--floor_start [year]`` sets a year by which any measures at the ENERGY STAR, IECC, and/or 90.1 performance levels in the analysis (as identified by those measures' :ref:`json-name` attribute) represent the minimum performance level for market-available technologies. Beginning in that year, any Reference Case technologies in the analysis (specified via the ``--add_typ_eff`` option above) will exit the market and will no longer factor into measure competition. If a user has not represented any Reference Case technologies in the measure set (e.g., they have not specified the ``--add_typ_eff`` option), the year specified alongside ``floor_start`` will override the :ref:`json-market_entry_year` attribute for all measures in the analysis and no measure will enter the market before that year.
+
+.. note::
+   The lowest-performing measures in a Scout analysis act as a performance "floor" for the building technology options that are market-available in a given year and thus operate akin to a minimum energy performance code or standard. The ``--floor_start`` option may be useful in exploring the effects of implementing a global minimum performance level that is consistent with current ENERGY STAR/IECC/90.1 specifications by different years in the modeling time horizon. 
+
+
+Specify early retrofit rates
+****************************
+
+``--retro_set`` assumes that a certain portion of technologies are replaced before the end of their useful life each year at a component-specific rate, on top of the portion that is regularly replaced at end-of-life. When this option is specified, the user will be prompted to select whether the early retrofit rates should remain constant over time or escalated to achieve a certain multiplier by a certain year (e.g., 4X the starting rates by 2035). Component-specific rate assumptions are reported in :numref:`retro-tab`. 
+
+.. _retro-tab:
+.. table:: Assumed values and sources for component-specific early retrofit rates. [#]_
+
+   +---------------+----------------+---------------------------+----------------+
+   | Building Type | Data Source    | Component Retrofitted |br|| Annual Rate (%)|
+   |               |                | (Year Range)              |                |
+   +===============+================+===========================+================+
+   | Commercial    | `CBECS 2012`_  | Lighting (2000-2008)      | 1.5            |
+   +               +                +---------------------------+----------------+
+   |               |                | HVAC (1990-2008)          | 0.9            |
+   +               +                +---------------------------+----------------+
+   |               |                | Roof (1990-2008)          | 0.6            |
+   +               +                +---------------------------+----------------+
+   |               |                | Windows (1990-2008)       | 0.3            |
+   +               +                +---------------------------+----------------+
+   |               |                | Insulation (1990-2008)    | 0.3            |
+   +               +----------------+---------------------------+----------------+
+   |               | Use com. HVAC  | Water Heating             | 0.9            |
+   +               +----------------+---------------------------+----------------+
+   |               | N/A            | All Other                 | 0              |
+   +---------------+----------------+---------------------------+----------------+
+   | Residential   | `AHS 2019`_    | HVAC (1990-2008)          | 0.5            |
+   +               +                +---------------------------+----------------+
+   |               |                | Roof (1990-2008)          | 0.27           |
+   +               +                +---------------------------+----------------+
+   |               |                | Windows (1990-2008)       | 0.23           |
+   +               +                +---------------------------+----------------+
+   |               |                | Insulation (1990-2008)    | 0.06           |
+   +               +----------------+---------------------------+----------------+
+   |               | Use res. HVAC  | Water Heating             | 0.5            |
+   +               +----------------+---------------------------+----------------+
+   |               | Use com. lgt.  | Lighting                  | 1.5            |
+   +               +----------------+---------------------------+----------------+
+   |               | N/A            | All Other                 | 0              |  
+   +---------------+----------------+---------------------------+----------------+
+
+Isolate W/E impacts in ECM packages
+***********************************
+
+``--pkg_env_sep`` automatically generates and reports data for windows and envelope (W/E)-only versions of any :ref:`ECM packages <package-ecms>` in the analysis that couple HVAC equipment improvements with W/E upgrades (HVAC + W/E). Data for these W/E-only counterfactual packages are reported to a separate |html-filepath| ecm_prep |html-fp-end| file, |html-filepath| ./supporting_data/ecm_prep_env_cf.json |html-fp-end|.
+
+.. note::
+   All counterfactual packages in |html-filepath| ecm_prep_env_cf.json |html-fp-end| will share the names of the original packages that they are derived from, but with the string "(CF)" appended.
 
 .. tip::
-   The lowest-performing measures in a Scout analysis act as a performance "floor" for the building technology options that are market-available in a given year and thus operate akin to a minimum performance standard. The ``--floor_start`` option may be useful in exploring the effects of implementing a minimum performance standard at the level of the lowest performing measures in the Scout analysis by different years in the modeling time horizon. 
+   W/E-only counterfactual package data in |html-filepath| ecm_prep_env_cf.json |html-fp-end| may be compared with data for the parallel HVAC + W/E package in |html-filepath| ecm_prep.json |html-fp-end| to isolate the impacts of the W/E portion of the package on overall package results.
 
+Reflect W/E costs in ECM packages
+*********************************
+``--pkg_env_costs`` reflects the installed cost of W/E technologies that are included in HVAC + W/E :ref:`ECM packages <package-ecms>` in the overall installed costs for the package.
+
+.. note::
+   By default, W/E costs are excluded from the overall costs of an HVAC + W/E package to harmonize the handling of costs in such packages with the approach of Scout's technology choice models, which are drawn from EIA National Energy Modeling System (NEMS) data on HVAC equipment costs and sales only. 
 
 Time sensitive valuation metrics
 ********************************
@@ -1275,7 +1396,7 @@ Time sensitive valuation metrics
 
 * *Type of time sensitive metric desired*. The reported metric can represent either change in energy use across multiple hours (e.g., kWh, GWh, TWh) or change in power per hour (e.g., kW, GW, TW).
 * *Daily hour range to restrict to*. The time slice can include all 24 hours of a day or be set to specific a daily period of peak demand on the electric grid (e.g., 4--8 PM) or low demand on the electric grid (e.g., 12--4 AM).
-* *Basis for determining hour range*. Periods of peak and low demand are determined using system-level load profiles for a representative set of `EMM regions`_. These profiles and associated periods may be based on *total* system demand, or total system demand *net* renewable energy generation. [#]_
+* *Basis for determining hour range*. Periods of peak and low demand are determined using system-level load profiles for a representative set of `EMM regions`_. These profiles and associated periods may be based on *total* system demand, or total system demand *net* renewable energy generation. Furthermore, the system profiles may be based on either the `AEO Reference Case`_ or the `AEO Low Renewable Cost`_ (e.g., higher renewable penetration) side case assumptions. [#]_
 * *Season of focus*. The analysis can be limited to one of three seasons: summer (Jun--Sep), winter (Dec--Mar), or intermediate (Oct--Nov, Apr--May).
 * *Calculation type*. The reported metric can represent a sum or average of loads across multiple hours (when reporting a change in energy use); or a maximum or average hourly load (when reporting a change in power).
 * *Day type of focus*. The time slice can include all days of the week or be restricted to only weekdays or weekends.
@@ -1312,13 +1433,6 @@ Public health benefits
 Suppress secondary lighting calculations
 ****************************************
 ``--no_scnd_lgt`` suppresses the calculation of the secondary impacts from lighting measures on heating and cooling in commercial buildings, as described in the :ref:`base_mkt` section.
-
-Reflect envelope costs in ECM packages
-**************************************
-``--pkg_env_costs`` reflects the installed cost of windows and envelope (W/E) technologies that are included in HVAC + W/E ECM packages (see :ref:`package-ecms`) in the overall installed costs for the package.
-
-.. note::
-   By default, W/E costs are excluded from the overall costs of an HVAC + W/E package to harmonize the handling of costs in such packages with the approach of Scout's technology choice models, which are drawn from EIA National Energy Modeling System (NEMS) data on HVAC equipment costs and sales only. 
 
 Captured energy
 ***************
@@ -1434,7 +1548,7 @@ Tutorial 4: Running an analysis
 Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
 
 .. note::
-   ECMs prepared via |html-filepath| ecm_prep.py\ |html-fp-end| with the additional options ``--site_energy``, ``--captured_energy``, ``--alt_regions``, ``--tsv_metrics``, and/or ``--health_costs`` as outlined in :ref:`tuts-2-cmd-opts` may only be simulated in  |html-filepath| run.py |html-fp-end| alongside other ECMs that were prepared with the same options and option settings. If discrepancies are found in ECM preparation settings across ECMs in the active list, |html-filepath| run.py |html-fp-end| execution will be halted and the user will see an error message.    
+   ECMs prepared via |html-filepath| ecm_prep.py\ |html-fp-end| with :ref:`additional options <tuts-2-cmd-opts>` may only be simulated in  |html-filepath| run.py |html-fp-end| alongside other ECMs that were prepared with the same options and option settings. If discrepancies are found in ECM preparation settings across ECMs in the active list, |html-filepath| run.py |html-fp-end| execution will be halted and the user will see an error message.    
 
 To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run |html-filepath| run.py |html-fp-end| as a Python script.
 
@@ -1479,15 +1593,20 @@ Users may include additional options alongside the |html-filepath| run.py |html-
 
 The additional run options are described further here.
 
-Condensed results data
-**********************
+Stock/stock cost totals
+***********************
+``--report_stk`` reports annual totals for the baseline stock that each ECM could possibly replace, as well as the annual number of those baseline stock units that the ECM has captured after accounting for competition with other ECMs in the analysis. This run option also reports the total and incremental capital cost of all stock units captured by the ECM. Applicable baseline and ECM stock totals are reported by year in in |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the ``Baseline Stock ([units])`` and ``Measure Stock ([units])`` keys, respectively, where ``units`` differ by technology type. Total and incremental ECM stock costs are reported by year in |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the ``Total Measure Stock Cost ($)`` and ``Incremental Measure Stock Cost ($)`` keys, respectively.
 
-``--trim_results`` limits the results reported in |html-filepath| ./results/ecm_results.json\ |html-fp-end| to the avoided energy (``Energy Savings (MMBtu)``), avoided emissions (``Avoided CO₂ Emissions (MMTons)``), and avoided energy cost (``Energy Cost Savings (USD)``) metrics. When this option is selected, the user will also be prompted to optionally select a subset of the full modeling year range to use in reporting results. 
 
 Market penetration fractions
 ****************************
 
-``--mkt_fracs`` reports annual market penetration percentages (relative to the total baseline stock an ECM could potentially affect), for both the technical potential and maximum adoption potential scenarios. In the technical potential case, these percentages reflect only the effects of ECM competition, while in the maximum adoption potential case, these percentages reflect the effects of both ECM competition and realistic baseline stock turnover dynamics. ECM market penetration data are summarized in |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the ``Stock Penetration (%)`` key.
+``--mkt_fracs`` reports annual market penetration percentages (relative to the total baseline stock an ECM could possibly replace). ECM market penetration data are reported by year in |html-filepath| ./results/ecm_results.json\ |html-fp-end| under the ``Stock Penetration (%)`` key.
+
+Condensed results data
+**********************
+
+``--trim_results`` limits the results reported in |html-filepath| ./results/ecm_results.json\ |html-fp-end| to the avoided energy (``Energy Savings (MMBtu)``), avoided emissions (``Avoided CO₂ Emissions (MMTons)``), and avoided energy cost (``Energy Cost Savings (USD)``) metrics. When this option is selected, the user will also be prompted to optionally select a subset of the full modeling year range to use in reporting results. 
 
 Verbose mode
 ************
@@ -1635,17 +1754,26 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. [#] The "applicable baseline market" is comprised of the |baseline-market| fields.
 .. [#] Acceptable domains include eia.gov, doe.gov, energy.gov, data.gov, energystar.gov, epa.gov, census.gov, pnnl.gov, lbl.gov, nrel.gov, sciencedirect.com, costar.com, and navigantresearch.com.
 .. [#] The retrofit rate assumption only affects the :ref:`Maximum Adoption Potential <overview-adoption>` scenario results, in which realistic equipment turnover dynamics are considered.
-.. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency. 
+.. [#] The size parameter specifies the number of samples to draw from the specified distribution. The number of samples is preset to be the same for all ECMs to ensure consistency.
+.. [#] To produce the rate estimates in the table, we focus on the proportion of buildings in the data that report retrofitting a given technology before the end of its expected useful lifetime. For example, for commercial HVAC equipment, we find the total number of buildings constructed between 1990 and 2008 that report an HVAC renovation during that period, under the assumption that HVAC equipment typically functions for 20 years and thus would not be regularly replaced until 2010 at the earliest (1990 --- the earliest construction year in the building sample --- plus 20 years). We divide that number by the total number of buildings constructed in that time period, and annualize by dividing the result by 18 years (2008-1990). 
+.. [#] Total and net peak and low demand hour ranges by season, EMM region, and projection year are summarized in the files |html-filepath| ./supporting_data/tsv_data/tsv_hrs_net_ref.csv |html-fp-end|, |html-filepath| ./supporting_data/tsv_data/tsv_hrs_net_hr.csv |html-fp-end|, |html-filepath| ./supporting_data/tsv_data/tsv_hrs_tot_ref.csv |html-fp-end|, and |html-filepath| ./supporting_data/tsv_data/tsv_hrs_tot_hr.csv |html-fp-end|. The default periods assumed when a user adds the ``--tsv_metrics`` option reflect the projection year 2050 and a representative subset of system load shapes from 16 EMM regions: BASN, CANO, CASO, FRCC, ISNE, MISS, MISE, MISW, NWPP, PJME, PJMW, RMRG, SRCE, SRSE, SRSG, TRE. For a graphical example of the *net* system load shapes and peak/low demand period definitions used to support the ``--tsv_metrics`` option, refer to `this plot`_.
 .. [#] With this option, low/high estimates of public health benefits are added directly to electricity costs, yielding greater savings for ECMs that are able to reduce electricity use.
 .. [#] The EPA report also includes low and high estimates of the public health benefits of avoided electricity generation from energy efficiency during the peak hours of 12-6 PM. While these estimates are ultimately very similar to the "Uniform EE" estimates and not included in Scout's health cost adders, they are summarized by region alongside the "Uniform EE" estimates in the file |html-filepath| ./supporting_data/convert_data/epa_costs.csv |html-fp-end|.
-.. [#] Total and net peak and low demand hour ranges by season, EMM region, and projection year are summarized in the files |html-filepath| ./supporting_data/tsv_data/tsv_hrs_net.csv |html-fp-end| and |html-filepath| ./supporting_data/tsv_data/tsv_hrs_tot.csv |html-fp-end|. The default periods assumed when a user adds the ``--tsv_metrics`` option reflect the projection year 2050 and a representative subset of system load shapes from 14 EMM regions: FRCC, AZNM, SRVC, SPSO, ERCOT, CAMX, NYCW, SPNO, NWPP, NYUP, RFCW, RMPA, MROW, NEWE. For a graphical understanding of the representative set of *net* system load shapes and peak/low demand period definitions used to support the ``--tsv_metrics`` option, refer to `this plot`_.
 .. [#] Building class corresponds to the four combinations of :ref:`building type <json-bldg_type>` and :ref:`structure type <json-structure_type>`.
 .. [#] When ECMs are competed against each other, demand-side heating and cooling ECMs that improve the performance of the building envelope reduce the energy required to meet heating and cooling needs (supply-side energy), and that reduction in energy requirements for heating and cooling is reflected in a reduced baseline for supply-side heating and cooling ECMs. At the same time, supply-side heating and cooling ECMs that are more efficient reduce the energy used to provide heating and cooling services, thus reducing the baseline energy for demand-side ECMs. The description of :ref:`ECM competition <ecm-competition>` in Step 3 of the analysis approach section includes further details regarding supply-side and demand-side heating and cooling energy use balancing.
 .. .. [#] If the warning "there is no package called 'foo'," where "foo" is a replaced by an actual package name, appears in the R Console window, try running the script again. If the warning is repeated, the indicated package should be added manually. From the Packages menu, (Windows) select Install package(s)... or (Mac) from the Packages & Data menu, select Package Installer and click the Get List button in the Package Installer window. If prompted, select a repository from which to download packages. On Windows, select the named package (i.e., "foo") from the list of packages that appears. On a Mac, search in the list for the named package (i.e., "foo"), click the "Install Dependencies" checkbox, and click the "Install Selected" button. When installation is complete, close the Package Installer window.
 
-.. _this plot: https://drive.google.com/file/d/1SlXuazUj0-3S8ax7c-Lpe6niv6n87KSl/view?usp=sharing
+.. _this plot: https://drive.google.com/file/d/1PNp47uEneuhREx3-AIwPXufXDNpkrZCp/view?usp=sharing
 .. _GridSIM modeling tool: https://www.brattle.com/energy-strategy-and-planning/
 .. _EIA Annual Energy Outlook Low Renewable Cost Side Case: https://www.eia.gov/outlooks/aeo/tables_side.php 
 .. _NREL Cambium Low Renewable Energy Cost Scenario: https://cambium.nrel.gov/?project=579698fe-5a38-4d7c-8611-d0c5969b2e54&mode=view&layout=Default%20Layout
 .. _IECC climate regions: https://codes.iccsafe.org/content/IECC2021P1/chapter-3-ce-general-requirements
 .. _AIA: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg
+.. _AEO Reference Case: https://www.eia.gov/outlooks/aeo/tables_ref.php
+.. _AEO Low Renewable Cost: https://www.eia.gov/outlooks/aeo/tables_side.php
+.. _EIA Reference Case technology documentation: https://www.eia.gov/analysis/studies/buildings/equipcosts/
+.. _E3HP Initiative: https://www.energy.gov/eere/buildings/energy-emissions-and-equity-e3-initiative
+.. _CBECS 2012: https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b1.php
+.. _AHS 2019: https://www.census.gov/programs-surveys/ahs/data/interactive/ahstablecreator.html?s_areas=00000&s_year=2019&s_tablename=TABLE16&s_bygroup1=4&s_bygroup2=1&s_filtergroup1=1&s_filtergroup2=1
+.. _2019 EPA AVERT regions: https://www.epa.gov/sites/default/files/2019-05/documents/avert_emission_factors_05-30-19_508.pdf
+.. _U.S. Census Divisions: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf
