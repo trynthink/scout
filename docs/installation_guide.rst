@@ -24,9 +24,8 @@ If you're comfortable at the command line, install or set up everything in this 
 
 **Prerequisites**
 
-* R
 * Python 3
-* Python packages: pip [#]_, numpy, numpy_financial
+* Python packages: pip [#]_, matplotlib, numpy, numpy_financial, pandas, xlsxwriter
 * A text editor of your choice
 
 The installation instructions for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` assume that none of these prerequisite programs or distributions are installed on your system. Please follow the instructions as appropriate, given what might already installed on your system and checking for updates if appropriate.
@@ -67,17 +66,17 @@ In a Terminal window, at the command prompt (a line terminated with a $ characte
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Two packages, numpy and numpy_financial, are required for Scout. To install them, at the command prompt in Terminal, type::
+Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Several packages are required for Scout: matplotlib, numpy, numpy_financial, pandas, and xlsxwriter. To install them, at the command prompt in Terminal, type::
 
-   pip3 install numpy numpy_financial
+   pip3 install matplotlib numpy numpy_financial pandas xlsxwriter
 
 If you'd like to confirm that numpy and numpy_financial were installed successfully, you can start Python from the command prompt in Terminal by typing::
 
    python3
 
-and import numpy and numpy_financial (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
+and import one or more of the packages (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
 
-   import numpy, numpy_financial
+   import numpy, matplotlib
 
 If no error or warning messages appear, then the installation was successful and you can exit Python by typing ``quit()``.
 
@@ -95,9 +94,9 @@ For the purposes of this documentation, the following instructions will step thr
 1. Download Sublime Text
 ************************
 
-To set up Sublime Text for working with Scout, `download Sublime Text 3`_, open the downloaded disk image, and drag the application file to the Applications folder using the shortcut provided.
+To set up Sublime Text for working with Scout, `download Sublime Text 4`_, open the downloaded disk image, and drag the application file to the Applications folder using the shortcut provided.
 
-.. _download Sublime Text 3: http://www.sublimetext.com/3
+.. _download Sublime Text 4: http://www.sublimetext.com/download
 
 After installing Sublime Text, there are several additional configuration steps that will help get the editor ready for viewing and editing Python and JSON files.
 
@@ -153,16 +152,6 @@ Quit and reopen Sublime Text to apply all of the settings changes and new packag
 .. Once Atom is installed, you must add the packages that check Python and JSON files for integrity. Open the Settings (Atom > Preferences), which will open a new tab in your Atom window. In the left sidebar in the newly opened Settings tab, click "Install." Type "linter-pycodestyle" into the search field on the Install page and hit return (make sure "Packages" is selected as the search option). Identify the correct package ("linter-pycodestyle") in the list of search results and click the appropriate "Install" button. Once complete, search again for "linter-jsonlint" and complete the installation.
 
 
-4. Install R
-~~~~~~~~~~~~
-
-Download the installer package for the latest version of R (or the version appropriate for the version of the Mac OS on your system) from the `R for Mac OS X page`_ on the CRAN website.
-
-.. _R for Mac OS X page: https://cran.r-project.org/bin/macosx/
-
-Follow the instructions in the installer to complete the installation.
-
-
 .. _qs-windows:
 
 Windows
@@ -185,15 +174,12 @@ Download the executable installer for Windows available on the Python Software F
 
 .. _downloads page: https://www.python.org/downloads/
 
-.. note::
-   Two download buttons might appear near the top of the page. Be sure to choose the appropriate option for Python 3, not Python 2.
-
 2. Install required Python packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 installation is complete, the numpy and numpy_financial packages need to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
+Once Python 3 installation is complete, the required packages need to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
 
-   py -3 -m pip install numpy numpy_financial
+   py -3 -m pip install matplotlib numpy numpy_financial pandas xlsxwriter
 
 .. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
@@ -204,7 +190,7 @@ If you would like to confirm that numpy and numpy_financial were installed succe
 
 and then importing numpy and numpy_financial (within the Python interactive session, indicated by a ``>>>`` prompt)::
 
-   import numpy, numpy_financial
+   import matplotlib, numpy
 
 If no error or warning messages appear, the packages were installed successfully. Exit the interactive session of Python by typing::
 
@@ -220,7 +206,7 @@ While Windows comes with a plain text editor, Notepad, there are `many different
 1. Install Sublime Text
 ***********************
 
-To set up Sublime Text for working with Scout, `download Sublime Text 3`_ and run the installer. The installer will automatically place the application and supporting files in the appropriate locations on your system.
+To set up Sublime Text for working with Scout, `download Sublime Text 4`_ and run the installer. The installer will automatically place the application and supporting files in the appropriate locations on your system.
 
 After installing Sublime Text, there are several additional configuration steps that will help get the editor ready for viewing and editing Python and JSON files.
 
@@ -270,51 +256,6 @@ Finally, the Python-specific settings for Sublime Text need to be updated. Open 
 Save the modified file and close the window, then delete |html-filepath| asdf.py\ |html-fp-end|.
 
 Quit and reopen Sublime Text to apply all of the settings changes and new packages that have been installed.
-
-4. Install R
-~~~~~~~~~~~~
-
-Download R from CRAN_ and run the executable, again following the instructions in the installer. The downloads page includes links to pages with additional details regarding installation and the configuration of R specific to Windows. In particular, the `R FAQ explains`_ whether you should use the 32-bit or 64-bit version of R. After running the R installer, no further configuration of R is required for this initial setup.
-
-.. _CRAN: https://cloud.r-project.org/bin/windows/base/
-.. _R FAQ explains: https://cloud.r-project.org/bin/windows/base/rw-FAQ.html#Should-I-run-32_002dbit-or-64_002dbit-R_003f
-
-5. Install Perl
-~~~~~~~~~~~~~~~
-
-1. Verify status of Perl installation
-*************************************
-
-Before installing Perl, confirm that it is not already installed on your system. `Open a command prompt`_ window and at the prompt, type::
-
-   perl -v
-
-If you get a response that begins with ``'perl' is not recognized``, Perl is not installed on your system and you should continue to the next step. If you get a response that includes a version number for Perl, you have a valid Perl installation on your system and no further configuration of your system is required before moving on to the :ref:`tutorials`.
-
-2. Download and install Perl
-****************************
-
-From the `Strawberry Perl website`_, download the "recommended version" that is appropriate for your system configuration, either 32- or 64-bit. Open the Strawberry Perl installer and follow the instructions to complete the installation of Perl.
-
-.. _Strawberry Perl website: http://strawberryperl.com
-
-No further steps are required to set up Perl. If you would like to verify that the installation was successful, close any currently open command prompt windows, open a new command prompt and type ``perl -v`` again. The response should indicate that a version of Perl is now installed. If not, visit the `Strawberry Perl support page`_ for additional resources.
-
-.. _Strawberry Perl support page: http://strawberryperl.com/support.html
-
-3. (Optional) Verify Perl installation in R
-*******************************************
-
-Perl is required for one of the packages that Scout uses in R. If you would like, you can verify that your Perl installation is recognized in R. To begin, open R (sometimes called R GUI) from the Start Menu. In the R console window that opens, at the prompt (indicated by a ">" character), type::
-
-   install.packages("WriteXLS")
-
-You will be prompted to select a "CRAN mirror," which is the server from which you will download the "WriteXLS" package. Once the installation is complete, at the R prompt, type::
-
-   library("WriteXLS")
-   testPerl()
-
-If your Perl installation is successfully recognized by R, the messages "Perl found." and "All required Perl modules were found." will print to the R console window. 
    
 
 .. rubric:: Footnotes
