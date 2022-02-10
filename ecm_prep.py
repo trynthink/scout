@@ -7260,52 +7260,6 @@ class Measure(object):
                     "Missing hourly fraction of annual load data for "
                     "baseline energy use segment: " + str(mskeys) + ". ")
 
-            # Initialize competed stock; to be finalized below depending on
-            # possibly adjustments to post-submkt-scaling competition fraction
-            stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
-
-            # Develop fractions to ensure that that adding competed/captured
-            # stock to previously competed/captured stock never exceeds the
-            # total stock value in the given year (after sub-mkt scaling)
-            if mskeys[0] == "primary" and turnover_cap_not_reached and \
-                    "existing" in mskeys and yr != self.handyvars.aeo_years[0]:
-                # Set indicator for competed stock going above total
-                if adopt_scheme != "Technical potential":
-                    if type(stock_comp_cum_sbmkt[str(int(yr) - 1)]) != \
-                            numpy.ndarray:
-                        stock_above_tot = \
-                            stock_comp_cum_sbmkt[str(int(yr) - 1)] \
-                            + stock_compete_sbmkt[yr] > stock_total_sbmkt[yr]
-                    else:
-                        stock_above_tot = any(
-                            stock_comp_cum_sbmkt[str(int(yr) - 1)]
-                            + stock_compete_sbmkt[yr] > stock_total_sbmkt[yr])
-                else:
-                    stock_above_tot = False
-
-                # Adj. competition fractions to ensure addition of
-                # competed/captured stock never exceeds stock totals;
-                # if total stock in the current year is zero, set competition
-                # fractions to zero
-                if stock_above_tot and stock_total_sbmkt[yr] != 0:
-                    # Adjustment removes any portion of the competed stock
-                    # that would put the total competed over the total stock
-                    # in the given year
-                    comp_adj_frac = (stock_compete_sbmkt[yr] - ((
-                        stock_comp_cum_sbmkt[str(int(yr) - 1)]
-                        + stock_compete_sbmkt[yr]) -
-                        stock_total_sbmkt[yr])) / stock_compete_sbmkt[yr]
-                    # Scale down competition fractions to reflect adjustment
-                    comp_frac_sbmkt, comp_frac_diffuse, \
-                        comp_frac_diffuse_meas = [x * comp_adj_frac for x in [
-                            comp_frac_sbmkt, comp_frac_diffuse,
-                            comp_frac_diffuse_meas]]
-                elif stock_above_tot:
-                    comp_frac_sbmkt, comp_frac_diffuse, \
-                        comp_frac_diffuse_meas = (0 for n in range(3))
-            else:
-                comp_adj_frac = 1
-
             # Competed stock, energy, and carbon markets after accounting for
             # any sub-market scaling
             stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
