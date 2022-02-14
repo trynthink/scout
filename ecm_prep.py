@@ -7172,9 +7172,10 @@ class Measure(object):
                     elif adopt_scheme != "Technical potential":
                         # Achieved in the current year; set to the fraction of
                         # total converted stock that was converted in the
-                        # current year
-                        if (stock_total_hp_convert[str(int(yr) - 1)] !=
-                                stock_total_sbmkt[yr]):
+                        # current year; if no additional stock was converted
+                        # (current year not great than previou), set to zero
+                        if (stock_total_hp_convert[str(int(yr) - 1)] <
+                                stock_total_hp_convert[yr]):
                             comp_frac_diffuse = (
                                 stock_total_hp_convert[yr] -
                                 stock_total_hp_convert[str(int(yr) - 1)]) / \
@@ -7213,6 +7214,18 @@ class Measure(object):
                 # Competed fraction is that calculated above for the mseg
                 # after applying submkt scaling
                 comp_frac_diffuse = comp_frac_sbmkt
+
+            # Ensure that competed diffusion fraction is always between 0 and 1
+            if type(comp_frac_diffuse) != numpy.ndarray:
+                if comp_frac_diffuse > 1:
+                    comp_frac_diffuse = 1
+                elif comp_frac_diffuse < 0:
+                    comp_frac_diffuse = 0
+            elif type(comp_frac_diffuse) == numpy.ndarray:
+                if any(comp_frac_diffuse > 1):
+                    comp_frac_diffuse[numpy.where(comp_frac_diffuse > 1)] = 1
+                elif any(comp_frac_diffuse < 0):
+                    comp_frac_diffuse[numpy.where(comp_frac_diffuse < 0)] = 0
 
             # If the measure is on the market, the competed fraction that
             # is captured by the measure is the same as the competed fraction
