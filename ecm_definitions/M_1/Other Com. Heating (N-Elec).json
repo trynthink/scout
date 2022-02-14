@@ -1,11 +1,11 @@
 { 
-  "name": "Ref. Case Other Res. Heating (FS)",
+  "name": "Other Com. Heating (N-Elec)",
   "climate_zone": "all",
-  "bldg_type": "all residential",
+  "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": ["heating", "secondary heating"],
-  "fuel_type": ["natural gas", "distillate", "other fuel"],
-  "technology": ["stove (wood)", "all secondary heating"],
+  "end_use": "heating",
+  "fuel_type": ["natural gas"],
+  "technology": ["gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": null,
@@ -16,12 +16,12 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
   "installed_cost": 0,
-  "cost_units": "$/unit",
+  "cost_units": "$/ft^2 floor",
   "installed_cost_source": null,
-  "product_lifetime": 21.5,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Based on EIA reference case values for LPG furnace",
+    "notes": "Based on EIA reference case values",
     "source_data": {
       "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
       "author": null,
@@ -34,8 +34,8 @@
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "fuel_switch_to": "electricity",
-  "_description": "Reference case residential heating tech. not covered by other measures to pair with envelope (no savings, no incremental cost)",
+  "fuel_switch_to": null,
+  "_description": "Reference case commercial heating tech. not covered by other measures to pair with envelope (no savings, no incremental cost)",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

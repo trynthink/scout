@@ -4,8 +4,8 @@
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "heating",
-  "fuel_type": ["natural gas", "electricity"],
-  "technology": ["gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "comm_GSHP-heat"],
+  "fuel_type": ["natural gas"],
+  "technology": ["gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": null,

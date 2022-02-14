@@ -1,7 +1,7 @@
 [{"name": "ENERGY STAR Res. ASHP (FS) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (FS)",
-    "Ref. Case Other Res. Heating (FS)",
+    "Other Res. Heating (FS)",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -12,7 +12,7 @@
  {"name": "ENERGY STAR Res. ASHP (FS) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (FS) CC",
-    "Ref. Case Other Res. Heating (FS) CC",
+    "Other Res. Heating (FS) CC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -23,6 +23,7 @@
  {"name": "ENERGY STAR Res. ASHP (LFL) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (LFL)",
+    "Other Res. Heating",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -33,6 +34,7 @@
  {"name": "ENERGY STAR Res. ASHP (RST) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (RST)",
+    "Other Res. Heating",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -43,6 +45,7 @@
  {"name": "ENERGY STAR Res. ASHP (LFL) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (LFL) CC",
+    "Other Res. Heating CC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -53,6 +56,7 @@
  {"name": "ENERGY STAR Res. ASHP (RST) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (RST) CC",
+    "Other Res. Heating CC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -73,7 +77,7 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS)",
-    "Ref. Case Other Com. Heating (FS)",
+    "Other Com. Heating (FS)",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -84,7 +88,7 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS) CC",
-    "Ref. Case Other Com. Heating (FS) CC",
+    "Other Com. Heating (FS) CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -95,6 +99,7 @@
  {"name": "ENERGY STAR Com. ASHP (LFL) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (LFL)",
+    "Other Com. Heating",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -105,6 +110,7 @@
  {"name": "ENERGY STAR Com. ASHP (RST) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (RST)",
+    "Other Com. Heating",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -115,6 +121,7 @@
  {"name": "ENERGY STAR Com. ASHP (LFL) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (LFL) CC",
+    "Other Com. Heating CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -125,6 +132,7 @@
  {"name": "ENERGY STAR Com. ASHP (RST) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (RST) CC",
+    "Other Com. Heating CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -155,7 +163,7 @@
  {"name": "ESTAR IECC Res. N-Elec. Env.",
   "contributing_ECMs": [
     "Res. Fossil Heating, ESTAR",
-    "Ref. Case Other Res. Heating",
+    "Other Res. Heating (N-Elec)",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 6.0",
@@ -166,7 +174,7 @@
  {"name": "Best Res. N-Elec. Env.",
   "contributing_ECMs": [
     "Res. Fossil Heating, ESTAR",
-    "Ref. Case Other Res. Heating",
+    "Other Res. Heating (N-Elec)",
     "Best Residential Windows",
     "Best Res. Air Sealing (New)",
     "Best Res. Air Sealing (Exist)",
@@ -177,7 +185,7 @@
  {"name": "90.1 Com. N-Elec. Env.",
   "contributing_ECMs": [
     "Com. Fossil Heating, 90.1 c. 2019",
-    "Ref. Case Other Com. Heating",
+    "Other Com. Heating (N-Elec)",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -188,7 +196,7 @@
  {"name": "Best Com. N-Elec. Env.",
   "contributing_ECMs": [
     "Com. Fossil Heating, 90.1 c. 2019",
-    "Ref. Case Other Com. Heating",
+    "Other Com. Heating (N-Elec)",
     "Best Com. Air Sealing (Exist)",
     "Best Com. Air Sealing (New)",
     "Best Commercial Fenestration",
