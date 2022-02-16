@@ -12200,7 +12200,10 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     # Handle option user-specified execution arguments
-    parser = ArgumentParser()
+    parser = ArgumentParser(epilog = "For more detail please read:" +
+    " https://scout-bto.readthedocs.io/en/latest/tutorials.html" +
+    "#tutorial-2-preparing-ecms-for-analysis"
+    )
     # Optional flag to calculate site (rather than source) energy outputs
     parser.add_argument("--site_energy", action="store_true",
                         help="Flag site energy output")
@@ -12226,7 +12229,8 @@ if __name__ == "__main__":
                         help="Print all warnings to stdout")
     # Optional flag to introduce public health cost assessment
     parser.add_argument("--health_costs", action="store_true",
-                        help="Flag addition of public health cost data")
+                        help="Flag addition of public health cost data"
+                             " (Requires EMM region breakdown)")
     # Optional flag to introduce output fuel splits
     parser.add_argument("--split_fuel", action="store_true",
                         help="Split electric vs. non-electric fuel in results")
