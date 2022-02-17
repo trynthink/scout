@@ -77,7 +77,6 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS)",
-    "Other Com. Heating (FS)",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -88,7 +87,6 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS) CC",
-    "Other Com. Heating (FS) CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",

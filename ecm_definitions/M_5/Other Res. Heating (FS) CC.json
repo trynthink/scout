@@ -6,7 +6,7 @@
   "structure_type": "all",
   "end_use": ["heating", "secondary heating"],
   "fuel_type": ["natural gas", "distillate", "other fuel"],
-  "technology": ["NGHP", "furnace (kerosene)", "stove (wood)", "furnace (LPG)", "all secondary heating"],
+  "technology": ["stove (wood)", "all secondary heating"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": null,

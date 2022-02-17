@@ -153,7 +153,6 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS)",
-    "Other Com. Heating (FS)",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -164,7 +163,6 @@
  {"name": "ENERGY STAR Com. ASHP (FS) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (FS) CC",
-    "Other Com. Heating (FS) CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -239,7 +237,6 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS)",
-    "Other Com. Heat (FS) (2030)",
     "Prospective Commercial Ctls. (ASHP-FS)",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
@@ -250,7 +247,6 @@
  {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (FS) CC",
-    "Other Com. Heat (FS) CC (2030)",
     "Prospective Com. Ctls. (ASHP-FS) CC",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",

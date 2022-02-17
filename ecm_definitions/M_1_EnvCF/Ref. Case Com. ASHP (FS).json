@@ -9,7 +9,9 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
   "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
-                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"],
+                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
+                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
+                 "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
