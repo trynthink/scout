@@ -748,11 +748,12 @@ for (a in 1:length(adopt_scenarios)){
 	                      }
 	                      # Add retrieved data to ECM's savings-by-filter variable vector;
                         # handle case where end use savings are further split out by
-                        # fuel type ('Electric' vs. 'Non-Electric')
+                        # fuel type (may be electric/non-electric or more detailed)
 	                      if (years[yr]%in%names(r_agg_temp)){
                           add_val[index] = add_val[index] + r_agg_temp[years[yr]][[1]]
                         }else{
-                          for (fuel in c("Electric", "Non-Electric")){
+                          fts = names(r_agg_temp)
+                          for (fuel in fts){
                             if (length(r_agg_temp[[fuel]])!=0){
                               add_val[index] = add_val[index] +
                                 r_agg_temp[[fuel]][years[yr]][[1]]
