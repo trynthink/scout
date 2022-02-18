@@ -2470,18 +2470,66 @@ class Engine(object):
         if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
                 "Cooling (Env.)", "Water Heating", "Cooking"]:
-            # Establish the baseline fuel type (electric/non-electric)
+            # Flag for detailed fuel type breakout
+            detail = len(self.handyvars.out_break_fuels.keys()) > 2
+            # Establish breakout of fuel type that is being
+            # reduced (e.g., through efficiency or fuel switching
+            # away from the fuel)
             for f in self.handyvars.out_break_fuels.items():
                 if key_list[3] in f[1]:
-                    out_fuel_save = f[0]
-            # If a fuel switching measure, establish the fuel type being
-            # switched to (electric/non-electric)
+                    # Special handling for other fuel tech.,
+                    # under detailed fuel type breakouts; this
+                    # tech. may fit into multiple fuel cats.
+                    if detail and key_list[3] == "other fuel":
+                        # Assign coal/kerosene tech.
+                        if f[0] == "Distillate/Other" and (
+                            key_list[-2] is not None and any([
+                                x in key_list[-2] for x in [
+                                "coal", "kerosene"]])):
+                            out_fuel_save = f[0]
+                        # Assign wood tech.
+                        elif f[0] == "Biomass" and (
+                            key_list[-2] is not None and "wood" in
+                                key_list[-2]):
+                            out_fuel_save = f[0]
+                        # All other tech. goes to propane
+                        elif f[0] == "Propane":
+                            out_fuel_save = f[0]
+                    else:
+                        out_fuel_save = f[0]
+            # Establish breakout of fuel type that is being added
+            # to via fuel switching, if applicable
             if m.fuel_switch_to == "electricity" and \
                     out_fuel_save != "Electric":
                 out_fuel_gain = "Electric"
             elif m.fuel_switch_to not in [None, "electricity"] and \
                     out_fuel_save == "Electric":
-                out_fuel_gain = "Non-Electric"
+                # Check for detailed fuel types
+                if detail:
+                    for f in self.handyvars.out_break_fuels.items():
+                        # Special handling for other fuel tech.,
+                        # under detailed fuel type breakouts; this
+                        # tech. may fit into multiple fuel cats.
+                        if self.fuel_switch_to in f[1] and \
+                                key_list[3] == "other fuel":
+                            # Assign coal/kerosene tech.
+                            if f[0] == "Distillate/Other" and (
+                                key_list[-2] is not None and any([
+                                    x in key_list[-2] for x in [
+                                    "coal", "kerosene"]])):
+                                out_fuel_gain = f[0]
+                            # Assign wood tech.
+                            elif f[0] == "Biomass" and (
+                                key_list[-2] is not None and "wood" in
+                                    key_list[-2]):
+                                out_fuel_gain = f[0]
+                            # All other tech. goes to propane
+                            elif f[0] == "Propane":
+                                out_fuel_gain = f[0]
+                        elif self.fuel_switch_to in f[1]:
+                            out_fuel_gain = f[0]
+                else:
+                    out_fuel_gain = "Non-Electric"
             else:
                 out_fuel_gain = ""
         else:
@@ -4109,8 +4157,8 @@ def main(base_dir):
     try:
         if not all([all([
             m.usr_opts[x] == measures_objlist[0].usr_opts[x] for
-            x in measures_objlist[0].usr_opts.keys()]
-                for m in measures_objlist[1:])]):
+            x in measures_objlist[0].usr_opts.keys()])
+                for m in measures_objlist[1:]]):
             raise ValueError(
                 "Attempting to compete measures with different user option "
                 "settings. To address this issue, ensure that all active ECMs "
@@ -4133,6 +4181,8 @@ def main(base_dir):
         brkout = "detail_reg"
     elif measures_objlist[0].usr_opts["detail_brkout"] == '3':
         brkout = "detail_bldg"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '4':
+        brkout = "detail_fuel"
     else:
         brkout = "basic"
 
