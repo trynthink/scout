@@ -1049,7 +1049,7 @@ class UsefulVars(object):
         mktnames_all = ['all ' + x if 'all' not in x else x for
                         x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        if opts.detail_brkout in ['1', '2']:
+        if opts.detail_brkout in ['1', '2', '5', '6']:
             self.out_break_czones = OrderedDict(regions_out)
         else:
             if opts.alt_regions == "EMM":
@@ -1086,7 +1086,7 @@ class UsefulVars(object):
             else:
                 self.out_break_czones = OrderedDict(regions_out)
 
-        if opts.detail_brkout in ['1', '3']:
+        if opts.detail_brkout in ['1', '3', '5', '7']:
             # Map to more granular building type definition
             self.out_break_bldgtypes = OrderedDict([
                 ('Single Family Homes', [
@@ -1138,9 +1138,19 @@ class UsefulVars(object):
                 "MELs", "other"])])
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
-            self.out_break_fuels = OrderedDict([
-                ('Electric', ["electricity"]),
-                ('Non-Electric', ["natural gas", "distillate", "other fuel"])])
+            if opts.detail_brkout in ['1', '4', '6', '7']:
+                # Map to more granular fuel type breakout
+                self.out_break_fuels = OrderedDict([
+                    ('Electric', ["electricity"]),
+                    ('Natural Gas', ["natural gas"]),
+                    ('Propane', ["other fuel"]),
+                    ('Distillate/Other', ['distillate', 'other fuel']),
+                    ('Biomass', ["other fuel"])])
+            else:
+                self.out_break_fuels = OrderedDict([
+                    ('Electric', ["electricity"]),
+                    ('Non-Electric', [
+                        "natural gas", "distillate", "other fuel"])])
         else:
             self.out_break_fuels = {}
         # Use the above output categories to establish a dictionary with blank
@@ -4904,12 +4914,33 @@ class Measure(object):
                         out_eu in ["Heating (Equip.)", "Cooling (Equip.)",
                                    "Heating (Env.)", "Cooling (Env.)",
                                    "Water Heating", "Cooking"]):
+                        # Flag for detailed fuel type breakout
+                        detail = len(self.handyvars.out_break_fuels.keys()) > 2
                         # Establish breakout of fuel type that is being
                         # reduced (e.g., through efficiency or fuel switching
                         # away from the fuel)
                         for f in self.handyvars.out_break_fuels.items():
                             if mskeys[3] in f[1]:
-                                out_fuel_save = f[0]
+                                # Special handling for other fuel tech.,
+                                # under detailed fuel type breakouts; this
+                                # tech. may fit into multiple fuel categories
+                                if detail and mskeys[3] == "other fuel":
+                                    # Assign coal/kerosene tech.
+                                    if f[0] == "Distillate/Other" and (
+                                        mskeys[-2] is not None and any([
+                                            x in mskeys[-2] for x in [
+                                            "coal", "kerosene"]])):
+                                        out_fuel_save = f[0]
+                                    # Assign wood tech.
+                                    elif f[0] == "Biomass" and (
+                                        mskeys[-2] is not None and "wood" in
+                                            mskeys[-2]):
+                                        out_fuel_save = f[0]
+                                    # All other tech. goes to propane
+                                    elif f[0] == "Propane":
+                                        out_fuel_save = f[0]
+                                else:
+                                    out_fuel_save = f[0]
                         # Establish breakout of fuel type that is being added
                         # to via fuel switching, if applicable
                         if self.fuel_switch_to == "electricity" and \
@@ -4917,7 +4948,33 @@ class Measure(object):
                             out_fuel_gain = "Electric"
                         elif self.fuel_switch_to not in [None, "electricity"] \
                                 and out_fuel_save == "Electric":
-                            out_fuel_gain = "Non-Electric"
+                            # Check for detailed fuel types
+                            if detail:
+                                for f in \
+                                        self.handyvars.out_break_fuels.items():
+                                    # Special handling for other fuel tech.,
+                                    # under detailed fuel type breakouts; this
+                                    # tech. may fit into multiple fuel cats.
+                                    if self.fuel_switch_to in f[1] and \
+                                            mskeys[3] == "other fuel":
+                                        # Assign coal/kerosene tech.
+                                        if f[0] == "Distillate/Other" and (
+                                            mskeys[-2] is not None and any([
+                                                x in mskeys[-2] for x in [
+                                                "coal", "kerosene"]])):
+                                            out_fuel_gain = f[0]
+                                        # Assign wood tech.
+                                        elif f[0] == "Biomass" and (
+                                            mskeys[-2] is not None and "wood"
+                                                in mskeys[-2]):
+                                            out_fuel_gain = f[0]
+                                        # All other tech. goes to propane
+                                        elif f[0] == "Propane":
+                                            out_fuel_gain = f[0]
+                                    elif self.fuel_switch_to in f[1]:
+                                        out_fuel_gain = f[0]
+                            else:
+                                out_fuel_gain = "Non-Electric"
                         else:
                             out_fuel_gain = ""
                     else:
@@ -8900,8 +8957,8 @@ class MeasurePackage(Measure):
         # contribute to the package are identical
         if not all([all([m.usr_opts[x] ==
                          self.contributing_ECMs[0].usr_opts[x] for
-                         x in self.contributing_ECMs[0].usr_opts.keys()]
-                        for m in self.contributing_ECMs[1:])]):
+                         x in self.contributing_ECMs[0].usr_opts.keys()])
+                    for m in self.contributing_ECMs[1:]]):
             raise ValueError(
                 "Package '" + self.name + "' attempts to merge measures with "
                 "different energy output settings; re-prepare package's "
@@ -10408,19 +10465,65 @@ class MeasurePackage(Measure):
         if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
                 "Cooling (Env.)", "Water Heating", "Cooking"]:
+            # Flag for detailed fuel type breakout
+            detail = len(self.handyvars.out_break_fuels.keys()) > 2
             # Establish breakout of fuel type that is being
             # reduced (e.g., through efficiency or fuel switching
             # away from the fuel)
             for f in self.handyvars.out_break_fuels.items():
                 if key_list[3] in f[1]:
-                    out_fuel_save = f[0]
+                    # Special handling for other fuel tech.,
+                    # under detailed fuel type breakouts; this
+                    # tech. may fit into multiple fuel categories
+                    if detail and key_list[3] == "other fuel":
+                        # Assign coal/kerosene tech.
+                        if f[0] == "Distillate/Other" and (
+                            key_list[-2] is not None and any([
+                                x in key_list[-2] for x in [
+                                "coal", "kerosene"]])):
+                            out_fuel_save = f[0]
+                        # Assign wood tech.
+                        elif f[0] == "Biomass" and (
+                            key_list[-2] is not None and "wood" in
+                                key_list[-2]):
+                            out_fuel_save = f[0]
+                        # Assign all other tech. to propane
+                        elif f[0] == "Propane":
+                            out_fuel_save = f[0]
+                    else:
+                        out_fuel_save = f[0]
             # Establish breakout of fuel type that is being added
             # to via fuel switching, if applicable
             if fuel_switch_to == "electricity" and out_fuel_save != "Electric":
                 out_fuel_gain = "Electric"
             elif fuel_switch_to not in [None, "electricity"] and \
                     out_fuel_save == "Electric":
-                out_fuel_gain = "Non-Electric"
+                # Check for detailed fuel types
+                if detail:
+                    for f in self.handyvars.out_break_fuels.items():
+                        # Special handling for other fuel tech.,
+                        # under detailed fuel type breakouts; this
+                        # tech. may fit into multiple fuel cats.
+                        if self.fuel_switch_to in f[1] and \
+                                key_list[3] == "other fuel":
+                            # Assign coal/kerosene tech.
+                            if f[0] == "Distillate/Other" and (
+                                key_list[-2] is not None and any([
+                                    x in key_list[-2] for x in [
+                                    "coal", "kerosene"]])):
+                                out_fuel_gain = f[0]
+                            # Assign wood tech.
+                            elif f[0] == "Biomass" and (
+                                key_list[-2] is not None and "wood" in
+                                    key_list[-2]):
+                                out_fuel_gain = f[0]
+                            # Assign all other tech. to propane
+                            elif f[0] == "Propane":
+                                out_fuel_gain = f[0]
+                        elif self.fuel_switch_to in f[1]:
+                            out_fuel_gain = f[0]
+                else:
+                    out_fuel_gain = "Non-Electric"
             else:
                 out_fuel_gain = ""
         else:
@@ -11434,20 +11537,64 @@ def main(base_dir):
         opts.tsv_metrics = False
 
     if opts.detail_brkout is True and opts.alt_regions is not False:
-        input_var = 0
-        # Determine the detailed breakout settings to use
-        while input_var not in ['1', '2', '3']:
-            input_var = input(
-                "\nEnter 1 to report detailed breakouts for regions and "
-                "building types,\n2 to report detailed breakouts for regions "
-                "only,\nor 3 to report detailed breakouts for building "
-                "types only: ")
-            if input_var not in ['1', '2', '3']:
-                print('Please try again. Enter either 1, 2, or 3. '
-                      'Use ctrl-c to exit.')
+        # Condition detailed breakout options on whether or not user has
+        # chosen fuel splits
+        if opts.split_fuel is True:
+            txt = (
+                "\nEnter 1 to report detailed breakouts for regions, "
+                "building types, and fuel types,\n2 to report detailed "
+                "breakouts for regions only,\n3 to report detailed breakouts "
+                "for building types only,\n4 to report detailed breakouts "
+                "for fuel types only,\n5 to report detailed breakouts "
+                "for regions and building types,\n6 to report detailed "
+                "breakouts for regions and fuel types, or\n7 to report "
+                "detailed breakouts for building types and fuel types: ")
+            input_var = 0
+            # Determine the detailed breakout settings to use
+            while input_var not in ['1', '2', '3', '4', '5', '6', '7']:
+                input_var = input(txt)
+                if input_var not in ['1', '2', '3', '4', '5', '6', '7']:
+                    print('Please try again. Enter an integer between 1 and '
+                          '7. Use ctrl-c to exit.')
+        else:
+            txt = (
+                "\nEnter 1 to report detailed breakouts for regions "
+                "and building types,\n2 to report detailed breakouts for "
+                "regions only, or\n3 to report detailed breakouts "
+                "for building types only: ")
+            input_var = 0
+            # Determine the detailed breakout settings to use
+            while input_var not in ['1', '2', '3']:
+                input_var = input(txt)
+                if input_var not in ['1', '2', '3']:
+                    print('Please try again. Enter either 1, 2, or 3. '
+                          'Use ctrl-c to exit.')
         opts.detail_brkout = input_var
     elif opts.detail_brkout is True:
-        opts.detail_brkout = '3'
+        if opts.split_fuel is True:
+            input_var = 0
+            # Determine the detailed breakout settings to use
+            while input_var not in ['1', '2', '3']:
+                input_var = input(
+                    "\nEnter 1 to report detailed breakouts for building "
+                    "types and fuel types,\n2 to report detailed breakouts "
+                    "for building types only, or\n3 to report detailed "
+                    "breakouts for fuel types only: ")
+                if input_var not in ['1', '2', '3']:
+                    print('Please try again. Enter either 1, 2, or 3. '
+                          'Use ctrl-c to exit.')
+            # Ensure that building and fuel-type only selections map to those
+            # used in the 'alt_regions' case above to simplify later use
+            if input_var == '2':
+                opts.detail_brkout = '3'
+            elif input_var == '3':
+                opts.detail_brkout = '4'
+            else:
+                opts.detail_brkout = input_var
+        else:
+            # If no fuel splits, set detailed breakouts for buildings only
+            # (mapping to selections used in 'alt_regions' case)
+            opts.detail_brkout = '3'
 
     # Ensure that if public cost health data are to be applied, EMM regional
     # breakouts are set (health data use this resolution)
