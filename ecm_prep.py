@@ -1039,7 +1039,7 @@ class UsefulVars(object):
         mktnames_all = ['all ' + x if 'all' not in x else x for
                         x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        if opts.detail_brkout in ['1', '2']:
+        if opts.detail_brkout in ['1', '2', '5', '6']:
             self.out_break_czones = OrderedDict(regions_out)
         else:
             if opts.alt_regions == "EMM":
@@ -1076,7 +1076,7 @@ class UsefulVars(object):
             else:
                 self.out_break_czones = OrderedDict(regions_out)
 
-        if opts.detail_brkout in ['1', '3']:
+        if opts.detail_brkout in ['1', '3', '5', '7']:
             # Map to more granular building type definition
             self.out_break_bldgtypes = OrderedDict([
                 ('Single Family Homes', [
@@ -1128,7 +1128,7 @@ class UsefulVars(object):
                 "MELs", "other"])])
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
-            if opts.detail_brkout in ['1', '4']:
+            if opts.detail_brkout in ['1', '4', '6', '7']:
                 # Map to more granular fuel type breakout
                 self.out_break_fuels = OrderedDict([
                     ('Electric', ["electricity"]),
@@ -11480,15 +11480,18 @@ def main(base_dir):
                 "\nEnter 1 to report detailed breakouts for regions, "
                 "building types, and fuel types,\n2 to report detailed "
                 "breakouts for regions only,\n3 to report detailed breakouts "
-                "for building types only, or\n4 to report detailed breakouts "
-                "for fuel types only: ")
+                "for building types only,\n4 to report detailed breakouts "
+                "for fuel types only,\n5 to report detailed breakouts "
+                "for regions and building types,\n6 to report detailed "
+                "breakouts for regions and fuel types, or\n7 to report "
+                "detailed breakouts for building types and fuel types: ")
             input_var = 0
             # Determine the detailed breakout settings to use
-            while input_var not in ['1', '2', '3', '4']:
+            while input_var not in ['1', '2', '3', '4', '5', '6', '7']:
                 input_var = input(txt)
-                if input_var not in ['1', '2', '3', '4']:
-                    print('Please try again. Enter either 1, 2, 3, or 4. '
-                          'Use ctrl-c to exit.')
+                if input_var not in ['1', '2', '3', '4', '5', '6', '7']:
+                    print('Please try again. Enter an integer between 1 and '
+                          '7. Use ctrl-c to exit.')
         else:
             txt = (
                 "\nEnter 1 to report detailed breakouts for regions "
