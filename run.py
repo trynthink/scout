@@ -4196,6 +4196,12 @@ def main(base_dir):
         brkout = "detail_bldg"
     elif measures_objlist[0].usr_opts["detail_brkout"] == '4':
         brkout = "detail_fuel"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '5':
+        brkout = "detail_reg_bldg"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '6':
+        brkout = "detail_reg_fuel"
+    elif measures_objlist[0].usr_opts["detail_brkout"] == '7':
+        brkout = "detail_bldg_fuel"
     else:
         brkout = "basic"
 

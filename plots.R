@@ -148,8 +148,8 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
   any(grepl(paste(c(emm_reg_names, emm_reg_names_detail),
                   collapse="|"), czones_test) == TRUE)){
   # Set region legend names
-  if ((compete_results_agg$`Output Resolution` == "detail") |
-      (compete_results_agg$`Output Resolution` == "detail_reg")){
+  if (compete_results_agg$`Output Resolution`%in% c(
+      "detail", "detail_reg", "detail_reg_bldg", "detail_reg_fuel")){
     czones_out<-emm_reg_names_detail
     emm_det_flag = TRUE
   }else{
@@ -165,8 +165,8 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
   state_flag = FALSE
   state_det_flag = FALSE
 }else{
-  if ((compete_results_agg$`Output Resolution` == "detail") |
-      (compete_results_agg$`Output Resolution` == "detail_reg")){
+  if (compete_results_agg$`Output Resolution`%in% c(
+      "detail", "detail_reg", "detail_reg_bldg", "detail_reg_fuel")){
     czones_out<-state_names_detail
     state_det_flag = TRUE
   }else{
@@ -185,8 +185,8 @@ if (grepl("AIA", czones_test, fixed=TRUE) == TRUE){
 
 
 # Set list of possible building classes and associated colors for aggregate savings plot
-if (compete_results_agg$`Output Resolution` == "detail" |
-    compete_results_agg$`Output Resolution` == "detail_bldg"){
+if (compete_results_agg$`Output Resolution`%in%c(
+    "detail", "detail_bldg", "detail_reg_bldg", "detail_bldg_fuel")){
   bclasses_out_agg<-c('Single Family Homes', 'Multi Family Homes',
                       'Hospitals', 'Large Offices', 'Small/Medium Offices',
                       'Retail', 'Hospitality', 'Education', 'Assembly/Other',
