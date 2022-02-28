@@ -4251,6 +4251,13 @@ class Measure(object):
                                 # an anchor year specified with the measure
                                 # performance units
                                 if isinstance(perf_units, list):
+                                    # Ensure that anchor year is not set to
+                                    # a year that is before the beginning of
+                                    # the modeling time horizon
+                                    if perf_units[1] < int(
+                                            self.handyvars.aeo_years[0]):
+                                        perf_units[1] = int(
+                                            self.handyvars.aeo_years[0])
                                     try:
                                         if perf_base_units not in \
                                             self.handyvars.\
