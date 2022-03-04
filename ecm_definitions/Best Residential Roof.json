@@ -37,10 +37,10 @@
       "URL": "https://remdb.nrel.gov/measures.php?gId=13&ctId=377"
     }
   },
-  "installed_cost": 6.6,
-  "cost_units": "2017$/ft^2 roof",
+  "installed_cost": 4.46,
+  "cost_units": "2016$/ft^2 roof",
   "installed_cost_source": {
-    "notes": "Based on R-60 Closed Cell Spray Foam replacing a base case of R-30 fiberglass batt insulation, average cost",
+    "notes": "Based on R-60 Closed Cell Spray Foam replacing a base case of R-30 fiberglass batt insulation, average cost ($6.6/ft^2 roof); subtract out baseline cost ($2.14/ft^2 roof) from Scout data",
     "source_data": [{
       "title": "National Residential Efficiency Measures Database",
       "author": null,
@@ -48,6 +48,13 @@
       "year": 2018,
       "pages": null,
       "URL": "https://remdb.nrel.gov/measures.php?gId=13&ctId=377"
+    },{
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }]
   },
   "product_lifetime": 25,

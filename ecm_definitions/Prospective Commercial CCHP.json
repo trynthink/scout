@@ -1,11 +1,11 @@
 {
   "name": "Prospective Commercial CCHP",
-  "climate_zone": ["AIA_CZ1","AIA_CZ2"],
+  "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["comm_GSHP-heat", "rooftop_ASHP-heat", "comm_GSHP-cool", "rooftop_ASHP-cool"],
+  "technology": ["res_type_central_AC", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "electric_res-heat", "elec_boiler"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
@@ -21,12 +21,11 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "AIA_CZ1": 3.22,
-    "AIA_CZ2": 3.22
-  },
+      "cooling": 6.44,
+      "heating": 3.22},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Convert primary COP of 1.07 (Table 3) to 3.61, multiply by 3.01 site-source conversion factor; COP = BTU out/BTU in",
+    "notes": "Convert primary COP of 1.07 (Table 3) to 3.61, multiply by 3.01 site-source conversion factor; COP = BTU out/BTU in; assume target cooling COP (unavailable) is double that of heating",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

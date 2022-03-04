@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["ASHP", "GSHP", "central AC", "resistance heat"],
+  "technology": ["ASHP", "central AC", "resistance heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
@@ -20,10 +20,12 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.22,
+  "energy_efficiency": {
+      "cooling": 6.44,
+      "heating": 3.22},
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Convert primary COP of 1.07 (Table 3) to site COP, multiply by 3.01",
+    "notes": "Convert primary heating COP of 1.07 (Table 3) to site COP, multiply by 3.01; assume target cooling COP (unavailable) is double that of heating",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

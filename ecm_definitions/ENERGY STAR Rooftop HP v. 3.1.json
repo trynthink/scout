@@ -6,7 +6,7 @@
   "end_use": [
       "heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_ASHP-heat", "rooftop_ASHP-cool"],
+  "technology": ["res_type_central_AC", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "electric_res-heat", "elec_boiler"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect, updated to current year to avoid retroactive savings effects.",

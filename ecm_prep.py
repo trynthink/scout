@@ -7600,10 +7600,11 @@ class Measure(object):
             # Update total and competed stock, energy, and carbon
             # costs
 
-            # Baseline cost of the competed stock
-            stock_compete_cost[yr] = stock_compete[yr] * cost_base[yr]
-            # Baseline cost of the total stock
-            stock_total_cost[yr] = stock_total[yr] * cost_base[yr]
+            # Baseline cost of the competed and total stock; anchor this on
+            # the stock captured by the measure to allow direct comparison
+            # with measure stock costs
+            stock_compete_cost[yr] = stock_compete_meas[yr] * cost_base[yr]
+            stock_total_cost[yr] = stock_total_meas[yr] * cost_base[yr]
             # Total and competed-efficient stock cost for add-on and
             # full service measures. * Note: the baseline technology installed
             # cost must be added to the measure installed cost in the case of
@@ -9839,14 +9840,16 @@ class MeasurePackage(Measure):
                             olm_sc[c_mseg]["competed"]["baseline"]])]
             # Set efficient and baseline envelope costs, normalized by the
             # stock (# homes in residential, # sf in commercial), to add to
-            # the unit costs of the HVAC equipment measure
+            # the unit costs of the HVAC equipment measure; note that in both
+            # cases, aggregate costs are anchored on the measure-captured
+            # stock numbers
             env_cost_eff_tot_unit = {
                 yr: (tot_stk_cost_eff[yr] / tot_stk_eff[yr])
                 if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             env_cost_base_tot_unit = {
-                yr: (tot_stk_cost_base[yr] / tot_stk_base[yr])
-                if tot_stk_base[yr] != 0
+                yr: (tot_stk_cost_base[yr] / tot_stk_eff[yr])
+                if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             # Account for the fact that stock turnover dynamics could force
             # competed stock to zero in certain years, even when measure is
@@ -9860,12 +9863,12 @@ class MeasurePackage(Measure):
                           comp_stk_eff[str(int(yr) - 1)] != 0)
                       else 0) for yr in self.handyvars.aeo_years}
             env_cost_base_comp_unit = {
-                yr: (comp_stk_cost_base[yr] / comp_stk_base[yr])
-                if comp_stk_base[yr] != 0
+                yr: (comp_stk_cost_base[yr] / comp_stk_eff[yr])
+                if comp_stk_eff[yr] != 0
                 else ((comp_stk_cost_base[str(int(yr) - 1)] /
-                       comp_stk_base[str(int(yr) - 1)])
+                       comp_stk_eff[str(int(yr) - 1)])
                       if (yr != self.handyvars.aeo_years[0] and
-                          comp_stk_base[str(int(yr) - 1)] != 0)
+                          comp_stk_eff[str(int(yr) - 1)] != 0)
                       else 0) for yr in self.handyvars.aeo_years}
 
             # Determine whether current mseg pertains to residential or
@@ -9919,7 +9922,7 @@ class MeasurePackage(Measure):
                 yr: msegs_meas["cost"]["stock"]["total"][
                      "baseline"][yr] + env_cost_base_tot_unit[yr] *
                 convert_env_to_hvac_cost_units *
-                msegs_meas["stock"]["total"]["all"][yr] for
+                msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust competed efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["competed"]["efficient"] = {
@@ -9933,7 +9936,7 @@ class MeasurePackage(Measure):
                 yr: msegs_meas["cost"]["stock"]["competed"][
                      "baseline"][yr] + env_cost_base_comp_unit[yr] *
                 convert_env_to_hvac_cost_units *
-                msegs_meas["stock"]["competed"]["all"][yr] for
+                msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
 
         return msegs_meas
