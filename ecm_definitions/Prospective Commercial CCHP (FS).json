@@ -23,12 +23,11 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "AIA_CZ1": 3.22,
-    "AIA_CZ2": 3.22
-  },
+      "cooling": 6.44,
+      "heating": 3.22},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Convert primary COP of 1.07 (Table 3) to 3.61, multiply by 3.01 site-source conversion factor; COP = BTU out/BTU in",
+    "notes": "Convert primary COP of 1.07 (Table 3) to 3.61, multiply by 3.01 site-source conversion factor; COP = BTU out/BTU in; assume target cooling COP (unavailable) is double that of heating",
     "source_data": {
       "title": "Building Technologies Office Multi-Year Program Plan",
       "author": null,

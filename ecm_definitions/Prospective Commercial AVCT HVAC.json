@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["comm_GSHP-heat", "rooftop_ASHP-heat", "comm_GSHP-cool", "rooftop_ASHP-cool"],
+  "technology": ["res_type_central_AC", "rooftop_ASHP-heat", "rooftop_ASHP-cool", "electric_res-heat", "elec_boiler"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",

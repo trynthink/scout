@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling", "water heating"],
   "fuel_type": "electricity",
-  "technology": ["ASHP", "GSHP", "central AC", "resistance heat", null],
+  "technology": ["ASHP", "central AC", "resistance heat", null],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",

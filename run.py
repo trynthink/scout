@@ -570,9 +570,12 @@ class Engine(object):
                         nunits_meas_tot >= 1 or
                             type(nunits_meas_tot) == numpy.ndarray and all(
                                 nunits_meas_tot) >= 1):
-                        # Per unit baseline capital cost
+                        # Per unit baseline capital cost; note that these costs
+                        # are aggregated as a baseline counterfactual for all
+                        # units captured by the measure and therefore must be
+                        # normalized by the number of measure-captured units
                         scostbase_unit[yr] = \
-                            stock_base_cost_tot / nunits_tot
+                            stock_base_cost_tot / nunits_meas_tot
                         # Per unit measure total capital cost
                         scostmeas_unit[yr] = \
                             stock_meas_cost_tot / nunits_meas_tot
@@ -3212,14 +3215,20 @@ class Engine(object):
                         1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
 
-        # Adjust the total and competed stock/stock cost captured by the
-        # measure by the appropriate measure market share, both overall and
+        # Adjust the total and competed stock captured by the measure and
+        # associated measure and base-case cost totals for that captured
+        # stock by the appropriate measure market share, both overall and
         # for the current contributing microsegment
 
         # Overall total measure stock
         mast["stock"]["total"]["measure"][yr] = \
             mast["stock"]["total"]["measure"][yr] - \
             adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+        # Overall total baseline stock cost
+        mast["cost"]["stock"]["total"]["baseline"][yr] = \
+            mast["cost"]["stock"]["total"]["baseline"][yr] - \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * (
+                1 - adj_t_b["stock"])
         # Overall total measure stock cost
         mast["cost"]["stock"]["total"]["efficient"][yr] = \
             mast["cost"]["stock"]["total"]["efficient"][yr] - \
@@ -3229,6 +3238,10 @@ class Engine(object):
         mast["stock"]["competed"]["measure"][yr] = \
             mast["stock"]["competed"]["measure"][yr] - \
             adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+        # Overall competed baseline stock cost
+        mast["cost"]["stock"]["competed"]["baseline"][yr] = \
+            mast["cost"]["stock"]["competed"]["baseline"][yr] - \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
         # Overall competed measure stock cost
         mast["cost"]["stock"]["competed"]["efficient"][yr] = \
             mast["cost"]["stock"]["competed"]["efficient"][yr] - \
@@ -3236,9 +3249,15 @@ class Engine(object):
         # Current contributing mseg total measure stock
         adj["stock"]["total"]["measure"][yr] = \
             adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+        # Current contributing mseg total baseline stock cost
+        adj["cost"]["stock"]["total"]["baseline"][yr] = \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * adj_t_b["stock"]
         # Current contributing mseg total measure stock cost
         adj["cost"]["stock"]["total"]["efficient"][yr] = \
             adj["cost"]["stock"]["total"]["efficient"][yr] * adj_t_e["stock"]
+        # Current contributing mseg competed baseline stock cost
+        adj["cost"]["stock"]["competed"]["baseline"][yr] = \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
         # Current contributing mseg competed measure stock
         adj["stock"]["competed"]["measure"][yr] = \
             adj["stock"]["competed"]["measure"][yr] * adj_c
@@ -3682,7 +3701,12 @@ class Engine(object):
 
                 # Envelope tech.; use units of ft^2 floor
                 if "demand" in m.technology_type["primary"]:
-                    stk_units = "(ft^2 floor affected)"
+                    if any([x in m.bldg_type for x in [
+                        "single family home", "multi family home",
+                            "mobile home"]]):
+                        stk_units = "(# homes affected)"
+                    else:
+                        stk_units = "(ft^2 floor affected)"
                 # Non-envelope residential tech.; use equipment units
                 elif any([x in m.bldg_type for x in [
                     "single family home", "multi family home",
@@ -3717,15 +3741,14 @@ class Engine(object):
                     x + stk_units for x in [
                         "Baseline Stock ", "Measure Stock "]]
 
-                # Report baseline stock and stock cost figures (all baseline
+                # Report baseline stock figures (all baseline
                 # stock/stock cost that the measure could affect/capture)
-                stk_base, stk_cost_base = [{
+                stk_base = {
                     yr: m.markets[adopt_scheme][
                         "uncompeted"]["master_mseg"]["stock"][
-                        "total"]["all"][yr] for yr in focus_yrs}, {
-                    yr: m.markets[adopt_scheme][
-                        "uncompeted"]["master_mseg"]["cost"]["stock"][
-                        "total"]["baseline"][yr] for yr in focus_yrs}]
+                        "total"]["all"][yr] for yr in focus_yrs}
+                stk_cost_base = {yr: mkts["cost"]["stock"]["total"][
+                    "baseline"][yr] for yr in focus_yrs}
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme][base_stk_key] = stk_base
                 # Report measure stock and stock cost figures
@@ -3755,9 +3778,8 @@ class Engine(object):
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
                         yr: ((stk_cost_meas_avg[yr] / stk_meas_avg[yr]) -
-                             (stk_cost_base[yr] / stk_base[yr])) *
-                        stk_meas_avg[yr] if all([x != 0 for x in [
-                            stk_meas_avg[yr], stk_base[yr]]]) else
+                             (stk_cost_base[yr] / stk_meas_avg[yr])) *
+                        stk_meas_avg[yr] if stk_meas_avg[yr] != 0 else
                         stk_cost_meas_avg[yr] for yr in focus_yrs}
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
@@ -3777,9 +3799,8 @@ class Engine(object):
                         adopt_scheme][
                             "Incremental Measure Stock Cost ($) (low)"] = {
                         yr: ((stk_cost_meas_low[yr] / stk_meas_low[yr]) -
-                             (stk_cost_base[yr] / stk_base[yr])) *
-                        stk_meas_low[yr] if all([x != 0 for x in [
-                            stk_meas_low[yr], stk_base[yr]]]) else
+                             (stk_cost_base[yr] / stk_meas_low[yr])) *
+                        stk_meas_low[yr] if stk_meas_low[yr] != 0 else
                         stk_cost_meas_low[yr] for yr in focus_yrs}
                     # Set the high measure stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
@@ -3791,9 +3812,8 @@ class Engine(object):
                         adopt_scheme][
                             "Incremental Measure Stock Cost ($) (high)"] = {
                         yr: ((stk_cost_meas_high[yr] / stk_meas_high[yr]) -
-                             (stk_cost_base[yr] / stk_base[yr])) *
-                        stk_meas_high[yr] if all([x != 0 for x in [
-                            stk_meas_high[yr], stk_base[yr]]]) else
+                             (stk_cost_base[yr] / stk_meas_high[yr])) *
+                        stk_meas_high[yr] if stk_meas_high[yr] != 0 else
                         stk_cost_meas_high[yr] for yr in focus_yrs}
 
         # Find mean and 5th/95th percentile values of each market/savings

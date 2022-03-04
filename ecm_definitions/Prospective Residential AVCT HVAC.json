@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "electricity",
-  "technology": ["ASHP", "GSHP", "central AC", "resistance heat"],
+  "technology": ["ASHP", "central AC", "resistance heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Program target year for the technology performance level indicated by this ECM, updated to current year to avoid retroactive savings effects.",
@@ -74,12 +74,10 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": {
     "ASHP": 1,
-    "GSHP": 1,
     "central AC": 1,
     "resistance heat": 0.553},
   "market_scaling_fractions_source": {
     "ASHP": "Applies to all homes with ASHPs",
-    "GSHP": "Applies to all homes with GSHPs",
     "central AC": "Applies to all homes with central ACs, as they have existing ductwork and electrical service that can be used by the ASHP",
     "resistance heat": {
       "title": "RECS 2015 - Table HC6.1",
