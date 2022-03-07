@@ -20,7 +20,7 @@ If you're new to Scout, this is the right place to get started. Steps for runnin
 2. Create new ECM definition(s) (optional)
 ------------------------------------------
 
-Visit the Scout web interface’s `ECM Summaries Page`_. Click the "Add New ECM" button towards the top of the page and follow the steps for creating a new ECM definition; the ECM definition will be downloaded to your computer. Move the downloaded ECM to the |html-filepath| ./ecm_definitions |html-fp-end| folder (see Web Interface :ref:`tuts-2-web` for additional guidance).
+Visit the Scout web interface’s `ECM Summaries Page`_. Register and/or sign in to your Scout account using the "Register" or "Sign In" button at the top right of the page. Once signed in, click the "Add ECM" dropdown at the top right of the page and select the "Write New ECM" option. Follow the steps for generating a new ECM definition; the ECM definition file will be downloaded to your computer. Move the downloaded ECM to the |html-filepath| ./ecm_definitions |html-fp-end| folder (see Web Interface :ref:`tuts-2-web` for additional guidance).
 
 Alternatively, follow Local Execution :ref:`tuts-1` to develop your own ECM definition(s) using a text editor.
 
@@ -44,7 +44,7 @@ Open a Terminal window (Mac) [#]_ or command prompt (Windows) [#]_ and navigate 
 4. Prepare ECMs for analysis
 ----------------------------
 
-Enter the following command line argument (see Local Execution :ref:`tuts-2` for additional guidance):
+Enter the following command line argument (see Local Execution :ref:`tuts-2` for additional guidance  and execution :ref:`options <tuts-2-cmd-opts>`):
 
 **Windows** ::
 
@@ -77,7 +77,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-ecm-li
 6. Run analysis on active ECMs
 ------------------------------
 
-Enter the following command line argument (see Local Execution :ref:`tuts-analysis` for additional guidance):
+Enter the following command line argument (see Local Execution :ref:`tuts-analysis` for additional guidance and execution :ref:`options <tuts-4-cmd-opts>`):
 
 **Windows** ::
 
@@ -92,9 +92,9 @@ Enter the following command line argument (see Local Execution :ref:`tuts-analys
 7. View results plots and data
 ------------------------------
 
-Visit the Scout web interface’s `Analysis Results Page`_. Click the "Custom Results" dropdown arrow towards the top right of the page, then click "Upload File" to upload results from your Scout run in the previous step (data found in |html-filepath| ./results/plots/ecm_results.json |html-fp-end|). Once the data are uploaded, click through the "Energy," "|CO2|," "Cost," and "Financial Metrics" tabs towards the top of the page to interactively visualize your results (see Web Interface :ref:`tuts-3-web` for additional guidance).
+.. Visit the Scout web interface’s `Analysis Results Page`_. Click the "Custom Results" dropdown arrow towards the top right of the page, then click "Upload File" to upload results from your Scout run in the previous step (data found in |html-filepath| ./results/plots/ecm_results.json |html-fp-end|). Once the data are uploaded, click through the "Energy," "|CO2|," "Cost," and "Financial Metrics" tabs towards the top of the page to interactively visualize your results (see Web Interface :ref:`tuts-3-web` for additional guidance).
 
-Alternatively, open the |html-filepath| ./results/plots |html-fp-end| folder to view local plots of your results and access underlying data in Excel (see Local Execution :ref:`tuts-results` for additional guidance). Local plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
+Open the |html-filepath| ./results/plots |html-fp-end| folder to view local plots of your results and access underlying data in Excel (see Local Execution :ref:`tuts-results` for additional guidance). Local plots are organized in folders by :ref:`adoption scenario <overview-adoption>` and :ref:`plotted metric of interest <overview-results>` (i.e., |html-filepath| ./results/plots/(adoption scenario)/(metric of interest)\ |html-fp-end|). Raw data for each adoption scenario's plots are stored in the XLSX files beginning with "Summary_Data."
 
 
 .. _Download the latest version of Scout: https://github.com/trynthink/scout/releases/latest
