@@ -12304,10 +12304,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {"2009": 2.227001, "2010": 2.227001},
                         "efficient": {"2009": 1.113501, "2010": 1.113501}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
+                        "baseline": {"2009": 1.113501, "2010": 1.113501},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -12350,10 +12350,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {"2009": 17.77300, "2010": 17.77300},
                         "efficient": {"2009": 8.886499, "2010": 8.886499}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {"2009": 8.886499, "2010": 8.886499},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -12396,11 +12396,12 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": 1.73179114, "2010": 1.73179114},
                         "efficient": {
                             "2009": 0.865895571, "2010": 0.865895571}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
+                        "baseline": {"2009": 0.865895571, "2010": 0.865895571},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -12451,10 +12452,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {"2009": 16.04455, "2010": 16.04455},
                         "efficient": {"2009": 8.022273, "2010": 8.022273}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {"2009": 8.022273, "2010": 8.022273},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -12497,10 +12498,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
+                        "baseline": {"2009": 22.22366, "2010": 22.22366},
                         "efficient": {"2009": 11.11183, "2010": 11.11183}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
+                        "baseline": {"2009": 11.11183, "2010": 11.11183},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -12579,14 +12580,22 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": numpy.array([
+                                2.227001, 9.770226, 0.01926735]),
+                            "2010": numpy.array([
+                                2.227001, 9.770226, 0.01926735])},
                         "efficient": {
                             "2009": numpy.array([
                                 1.113501, 4.885113, 0.009633673]),
                             "2010": numpy.array([
                                 1.113501, 4.885113, 0.009633673])}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
+                        "baseline": {
+                            "2009": numpy.array([
+                                1.113501, 4.885113, 0.009633673]),
+                            "2010": numpy.array([
+                                1.113501, 4.885113, 0.009633673])},
                         "efficient": {
                             "2009": numpy.array([0, 0, 0]),
                             "2010": numpy.array([0, 0, 0])}}},
@@ -12699,14 +12708,22 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {
+                            "2009": numpy.array([
+                                17.77300, 10.22977, 19.98073]),
+                            "2010": numpy.array([
+                                17.77300, 10.22977, 19.98073])},
                         "efficient": {
                             "2009": numpy.array([
                                 8.886499, 5.114887, 9.990366]),
                             "2010": numpy.array([
                                 8.886499, 5.114887, 9.990366])}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": numpy.array([
+                                8.886499, 5.114887, 9.990366]),
+                            "2010": numpy.array([
+                                8.886499, 5.114887, 9.990366])},
                         "efficient": {
                             "2009": numpy.array([0, 0, 0]),
                             "2010": numpy.array([0, 0, 0])}}},
@@ -12819,14 +12836,22 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": numpy.array([
+                                1.73179114, 0.01808835, 9.60332155]),
+                            "2010": numpy.array([
+                                1.73179114, 0.01808835, 9.60332155])},
                         "efficient": {
                             "2009": numpy.array([
                                 0.865895571, 0.01085301, 6.722325]),
                             "2010": numpy.array([
                                 0.865895571, 0.01085301, 6.722325])}},
                     "competed": {
-                        "baseline": {"2009": 5, "2010": 5},
+                        "baseline": {
+                            "2009": numpy.array([
+                                0.865895571, 0.009044176, 4.801660776]),
+                            "2010": numpy.array([
+                                0.865895571, 0.009044176, 4.801660776])},
                         "efficient": {
                             "2009": numpy.array([
                                 0, 0.001808835, 1.920664]),
@@ -12941,14 +12966,22 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {
+                            "2009": numpy.array([
+                                16.04455, 17.29736, 10.29000]),
+                            "2010": numpy.array([
+                                16.04455, 17.29736, 10.29000])},
                         "efficient": {
                             "2009": numpy.array([
                                 8.022273, 8.648681, 5.144998]),
                             "2010": numpy.array([
                                 8.022273, 8.648681, 5.144998])}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": numpy.array([
+                                8.022273, 8.648681, 5.144998]),
+                            "2010": numpy.array([
+                                8.022273, 8.648681, 5.144998])},
                         "efficient": {
                             "2009": numpy.array([0, 0, 0]),
                             "2010": numpy.array([0, 0, 0])}}},
@@ -13061,14 +13094,22 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
+                        "baseline": {
+                            "2009": numpy.array([
+                                22.22366, 22.68455, 20.10668]),
+                            "2010": numpy.array([
+                                22.22366, 22.68455, 20.10668])},
                         "efficient": {
                             "2009": numpy.array([
                                 11.11183, 11.34227, 10.05334]),
                             "2010": numpy.array([
                                 11.11183, 11.34227, 10.05334])}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
+                        "baseline": {
+                            "2009": numpy.array([
+                                11.11183, 11.34227, 10.05334]),
+                            "2010": numpy.array([
+                                11.11183, 11.34227, 10.05334])},
                         "efficient": {
                             "2009": numpy.array([0, 0, 0]),
                             "2010": numpy.array([0, 0, 0])}}},
@@ -22703,10 +22744,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {"2009": 17, "2010": 12},
                         "efficient": {"2009": 8.5, "2010": 6}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {"2009": 8.5, "2010": 6},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -22749,10 +22790,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {"2009": 10, "2010": 16},
                         "efficient": {"2009": 20, "2010": 8}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {"2009": 5, "2010": 8},
                         "efficient": {"2009": 10, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -22795,10 +22836,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
+                        "baseline": {"2009": 23, "2010": 22},
                         "efficient": {"2009": 11.5, "2010": 11}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
+                        "baseline": {"2009": 11.5, "2010": 11},
                         "efficient": {"2009": 0, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -22861,12 +22902,16 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {
+                            "2009": 17,
+                            "2010": numpy.array([12, 13, 16])},
                         "efficient": {
                             "2009": 8.5,
                             "2010": numpy.array([6, 6.5, 8])}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": 8.5,
+                            "2010": numpy.array([6.0, 6.5, 8.0])},
                         "efficient": {
                             "2009": 0,
                             "2010": numpy.array([0, 0, 0])}}},
@@ -22947,12 +22992,16 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 20},
+                        "baseline": {
+                            "2009": 10,
+                            "2010": numpy.array([16, 15, 13])},
                         "efficient": {
                             "2009": 20,
                             "2010": numpy.array([8, 9, 9.1])}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 10},
+                        "baseline": {
+                            "2009": 5,
+                            "2010": numpy.array([8.0, 7.5, 6.5])},
                         "efficient": {
                             "2009": 10,
                             "2010": numpy.array([0, 1.5, 2.6])}}},
@@ -23034,12 +23083,16 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 30, "2010": 30},
+                        "baseline": {
+                            "2009": 23,
+                            "2010": numpy.array([22, 22, 21])},
                         "efficient": {
                             "2009": 11.5,
                             "2010": numpy.array([11, 11, 10.5])}},
                     "competed": {
-                        "baseline": {"2009": 15, "2010": 15},
+                        "baseline": {
+                            "2009": 11.5,
+                            "2010": numpy.array([11.0, 11.0, 10.5])},
                         "efficient": {
                             "2009": 0,
                             "2010": numpy.array([0, 0, 0])}}},

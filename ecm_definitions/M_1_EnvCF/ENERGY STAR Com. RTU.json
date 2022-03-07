@@ -23,7 +23,7 @@
   "energy_efficiency": 3.57,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Uses 2018 ENERGY STAR EER of 12.2 (see notes under table); COP = EER * .293",
+    "notes": "Uses 2030 ENERGY STAR EER of 12.2 (see notes under table); COP = EER * .293",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
