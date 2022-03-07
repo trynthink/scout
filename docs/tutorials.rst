@@ -1578,6 +1578,8 @@ Uncompeted and competed ECM results are automatically converted into graphical f
 .. note::
    On-site generation results are currently not reflected in the graphical results summaries and XLSX write-out.
 
+.. _tuts-4-cmd-opts:
+
 Additional run options
 ~~~~~~~~~~~~~~~~~~~~~~
 
