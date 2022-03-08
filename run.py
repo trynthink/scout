@@ -3851,9 +3851,9 @@ class Engine(object):
                     if any([x in m.bldg_type for x in [
                         "single family home", "multi family home",
                             "mobile home"]]):
-                        stk_units = "(# homes affected)"
+                        stk_units = "(# homes served)"
                     else:
-                        stk_units = "(ft^2 floor affected)"
+                        stk_units = "(ft^2 floor served)"
                 # Non-envelope residential tech.; use equipment units
                 elif any([x in m.bldg_type for x in [
                     "single family home", "multi family home",
@@ -3864,25 +3864,25 @@ class Engine(object):
                     # If measure affects heating, units are always in terms
                     # of heating service
                     if "heating" in m.end_use["primary"]:
-                        stk_units = "(kBtu/h heating served)"
+                        stk_units = "(TBtu heating served)"
                     # If measure affects cooling but does not affect heating,
                     # units are always in terms of cooling service
                     elif "cooling" in m.end_use["primary"]:
-                        stk_units = "(kBtu/h cooling served)"
+                        stk_units = "(TBtu cooling served)"
                     elif "lighting" in m.end_use["primary"]:
-                        stk_units = "(1000 lm served)"
+                        stk_units = "(giga-lm-years served)"
                     elif "ventilation" in m.end_use["primary"]:
-                        stk_units = "(1000 CFM served)"
+                        stk_units = "(giga-CFM-years served)"
                     elif any([x in m.end_use["primary"] for x in [
                             "water heating", "refrigeration", "cooking"]]):
                         # Find end use name
                         eu = [x for x in [
                             "water heating", "refrigeration", "cooking"]
                             if x in m.end_use["primary"]][0]
-                        stk_units = "(kBtu/h " + eu + " served)"
+                        stk_units = "(TBtu " + eu + " served)"
                     # Computers and other equipment in units of ft^2 floor
                     else:
-                        stk_units = "(ft^2 floor affected)"
+                        stk_units = "(ft^2 floor served)"
                 # Set baseline and measure stock keys, including units
                 base_stk_key, meas_stk_key = [
                     x + stk_units for x in [
@@ -3924,10 +3924,8 @@ class Engine(object):
                 # Set the average measure incremental stock cost output
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
-                        yr: ((stk_cost_meas_avg[yr] / stk_meas_avg[yr]) -
-                             (stk_cost_base[yr] / stk_meas_avg[yr])) *
-                        stk_meas_avg[yr] if stk_meas_avg[yr] != 0 else
-                        stk_cost_meas_avg[yr] for yr in focus_yrs}
+                        yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
+                        for yr in focus_yrs}
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
                     meas_stk_key_low = meas_stk_key + " (low)"
@@ -3945,10 +3943,8 @@ class Engine(object):
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][
                             "Incremental Measure Stock Cost ($) (low)"] = {
-                        yr: ((stk_cost_meas_low[yr] / stk_meas_low[yr]) -
-                             (stk_cost_base[yr] / stk_meas_low[yr])) *
-                        stk_meas_low[yr] if stk_meas_low[yr] != 0 else
-                        stk_cost_meas_low[yr] for yr in focus_yrs}
+                        yr: (stk_cost_meas_low[yr] - stk_cost_base[yr])
+                        for yr in focus_yrs}
                     # Set the high measure stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][
@@ -3958,10 +3954,8 @@ class Engine(object):
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][
                             "Incremental Measure Stock Cost ($) (high)"] = {
-                        yr: ((stk_cost_meas_high[yr] / stk_meas_high[yr]) -
-                             (stk_cost_base[yr] / stk_meas_high[yr])) *
-                        stk_meas_high[yr] if stk_meas_high[yr] != 0 else
-                        stk_cost_meas_high[yr] for yr in focus_yrs}
+                        yr: (stk_cost_meas_high[yr] - stk_meas_high[yr])
+                        for yr in focus_yrs}
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
