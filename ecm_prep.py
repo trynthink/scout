@@ -43,6 +43,7 @@ class UsefulInputFiles(object):
         metadata (str) = Baseline metadata inc. min/max for year range.
         glob_vars (str) = Global settings from ecm_prep to use later in run
         cost_convert_in (tuple): Database of measure cost unit conversions.
+        cap_facts (tuple): Database of commercial equip. capacity factors.
         cbecs_sf_byvint (tuple): Commercial sq.ft. by vintage data.
         indiv_ecms (tuple): Individual ECM JSON definitions folder.
         ecm_packages (tuple): Measure package data.
@@ -180,6 +181,8 @@ class UsefulInputFiles(object):
         # self.metadata = "metadata_2017.json"
         self.cost_convert_in = ("supporting_data", "convert_data",
                                 "ecm_cost_convert.json")
+        self.cap_facts = ("supporting_data", "convert_data",
+                          "cap_facts.json")
         self.cbecs_sf_byvint = \
             ("supporting_data", "convert_data", "cbecs_sf_byvintage.json")
         self.indiv_ecms = "ecm_definitions"
@@ -466,6 +469,13 @@ class UsefulVars(object):
             raise ValueError(
                 "Error reading in '" +
                 handyfiles.cpi_data + "': " + str(e)) from None
+        # Read in commercial equipment capacity factors
+        with open(path.join(base_dir, *handyfiles.cap_facts), 'r') as cpfc:
+            try:
+                self.cap_facts = json.load(cpfc)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.cap_facts + "'")
         # Read in national-level site-source, emissions, and costs data
         with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
             try:
@@ -4737,8 +4747,8 @@ class Measure(object):
                      add_fs_carb_eff_remain, add_fs_energy_cost_eff_remain,
                      mkt_scale_frac_fin] = \
                         self.partition_microsegment(
-                            adopt_scheme, diffuse_params, mskeys,
-                            mkt_scale_frac, new_constr, add_stock,
+                            adopt_scheme, diffuse_params, mskeys, bldg_sect,
+                            sqft_subst, mkt_scale_frac, new_constr, add_stock,
                             add_energy, add_carb, cost_base, cost_meas,
                             cost_energy_base, cost_energy_meas, rel_perf,
                             life_base, life_meas, site_source_conv_base,
@@ -6663,8 +6673,8 @@ class Measure(object):
         return cost_meas_fin, cost_meas_units_fin
 
     def partition_microsegment(
-            self, adopt_scheme, diffuse_params, mskeys, mkt_scale_frac,
-            new_constr, stock_total_init, energy_total_init,
+            self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
+            mkt_scale_frac, new_constr, stock_total_init, energy_total_init,
             carb_total_init, cost_base, cost_meas, cost_energy_base,
             cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
@@ -6679,7 +6689,9 @@ class Measure(object):
                 adoption' consumer choice model (currently a placeholder).
             mskeys (tuple): Dictionary key information for the currently
                 partitioned market microsegment (mseg type->reg->bldg->
-                fuel->end use->technology type->structure type)
+                fuel->end use->technology type->structure type).
+            bldg_sect (str): Flag for residential or commercial.
+            sqft_subst (int): Flag for use of square feet as a stock basis.
             mkt_scale_frac (float): Microsegment scaling fraction (used to
                 break market microsegments into more granular sub-markets).
             new_constr (dict): Data needed to determine the portion of the
@@ -7600,28 +7612,62 @@ class Measure(object):
             # Update total and competed stock, energy, and carbon
             # costs
 
+            # Commercial equipment stock numbers are in units of annual
+            # delivered service; to reach total stock numbers, they must
+            # be converted to units of hourly service capacity, which is
+            # consistent with the baseline/measure unit cost numbers
+            if bldg_sect == "commercial" and sqft_subst != 1:
+                # Use try/except to handle missing capacity factor data
+                try:
+                    # Set appropriate capacity factor (TBtu delivered service
+                    # for hours of actual operation / TBtu service running at
+                    # full capacity for all hours of the year)
+                    cap_fact_mseg = self.handyvars.cap_facts[
+                        "data"][mskeys[2]][mskeys[4]]
+                    # Conversion: (1) divides stock (service delivered) by
+                    # the capacity factor (service delivered per year /
+                    # service per year @ full capacity) to get to service per
+                    # year @ full capacity; (2) divides by 8760 hours / year
+                    # to get to service per hour at full capacity; (3)
+                    # multiplies by 1e9 to get from service demand units of
+                    # TBtu/h (heating/cooling), giga-lm (lighting) or giga-
+                    # CFM (ventilation) to the baseline/measure cost unit
+                    # denominators of kBtu/h, 1000 lm, and 1000 CFM
+                    stk_cost_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9
+                except (KeyError):
+                    raise KeyError(
+                        "Microsegment '" + str(mskeys) + "'"
+                        "requires capacity factor data that are missing")
+            else:
+                stk_cost_cnv = 1
+
             # Baseline cost of the competed and total stock; anchor this on
             # the stock captured by the measure to allow direct comparison
             # with measure stock costs
-            stock_compete_cost[yr] = stock_compete_meas[yr] * cost_base[yr]
-            stock_total_cost[yr] = stock_total_meas[yr] * cost_base[yr]
+            stock_compete_cost[yr] = \
+                (stock_compete_meas[yr] * stk_cost_cnv) * cost_base[yr]
+            stock_total_cost[yr] = \
+                (stock_total_meas[yr] * stk_cost_cnv) * cost_base[yr]
             # Total and competed-efficient stock cost for add-on and
             # full service measures. * Note: the baseline technology installed
             # cost must be added to the measure installed cost in the case of
             # an add-on measure type
             if self.measure_type == "add-on":
                 # Competed-efficient stock cost (add-on measure)
-                stock_compete_cost_eff[yr] = stock_compete_meas[yr] * (
+                stock_compete_cost_eff[yr] = \
+                    (stock_compete_meas[yr] * stk_cost_cnv) * (
                     cost_meas[yr] + cost_base[yr])
                 # Total-efficient stock cost (add-on measure)
-                stock_total_cost_eff[yr] = stock_total_meas[yr] * (
+                stock_total_cost_eff[yr] = \
+                    (stock_total_meas[yr] * stk_cost_cnv) * (
                     cost_meas[yr] + cost_base[yr])
             else:
                 # Competed-efficient stock cost (full service measure)
                 stock_compete_cost_eff[yr] = \
-                    stock_compete_meas[yr] * cost_meas[yr]
+                    (stock_compete_meas[yr] * stk_cost_cnv) * cost_meas[yr]
                 # Total-efficient stock cost (full service measure)
-                stock_total_cost_eff[yr] = stock_total_meas[yr] * cost_meas[yr]
+                stock_total_cost_eff[yr] = \
+                    (stock_total_meas[yr] * stk_cost_cnv) * cost_meas[yr]
 
             # Competed baseline energy cost
             energy_compete_cost[yr] = energy_total_sbmkt[yr] * \

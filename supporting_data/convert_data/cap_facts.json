@@ -1,0 +1,104 @@
+{
+"source": "From EIA NEMS Commercial Demand Module file 'kcapfac.txt'; average EIA values grouped by building type (currently does not breakout by Census Division, as in that file)",
+"data": {
+	"assembly": {
+		"heating": 0.024066667,
+		"cooling": 0.104888889,
+		"water heating": 0.1762,
+		"ventilation": 0.3776,
+		"cooking": 0.0462,
+		"lighting": 0.3582,
+		"refrigeration": 0.162233333
+	},
+	"education": {
+		"heating": 0.039688889,
+		"cooling": 0.097233333,
+		"water heating": 0.123577778,
+		"ventilation": 0.449111111,
+		"cooking": 0.0462,
+		"lighting": 0.4358,
+		"refrigeration": 0.162233333
+	},
+	"food sales": {
+		"heating": 0.113277778,
+		"cooling": 0.025555556,
+		"water heating": 0.292755556,
+		"ventilation": 0.750088889,
+		"cooking": 0.5416,
+		"lighting": 0.4241,
+		"refrigeration": 0.237411111
+	},
+	"food service": {
+		"heating": 0.062922222,
+		"cooling": 0.151255556,
+		"water heating": 0.352977778,
+		"ventilation": 0.833422222,
+		"cooking": 0.1521,
+		"lighting": 0.7371,
+		"refrigeration": 0.431744444
+	},
+	"health care": {
+		"heating": 0.167433333,
+		"cooling": 0.289344444,
+		"water heating": 0.362655556,
+		"ventilation": 0.800111111,
+		"cooking": 0.152,
+		"lighting": 0.488,
+		"refrigeration": 0.295255556
+	},
+	"lodging": {
+		"heating": 0.0808,
+		"cooling": 0.175988889,
+		"water heating": 0.245911111,
+		"ventilation": 0.469811111,
+		"cooking": 0.1885,
+		"lighting": 0.3774,
+		"refrigeration": 0.318366667
+	},
+	"large office": {
+		"heating": 0.024066667,
+		"cooling": 0.104888889,
+		"water heating": 0.1762,
+		"ventilation": 0.3776,
+		"cooking": 0.0992,
+		"lighting": 0.3582,
+		"refrigeration": 0.297011111
+	},
+	"small office": {
+		"heating": 0.045933333,
+		"cooling": 0.099344444,
+		"water heating": 0.237655556,
+		"ventilation": 0.584122222,
+		"cooking": 0.0727,
+		"lighting": 0.3261,
+		"refrigeration": 0.2296
+	},
+	"mercantile/service": {
+		"heating": 0.052055556,
+		"cooling": 0.100111111,
+		"water heating": 0.237655556,
+		"ventilation": 0.623522222,
+		"cooking": 0.1521,
+		"lighting": 0.4157,
+		"refrigeration": 0.431744444
+	},
+	"warehouse": {
+		"heating": 0.0252,
+		"cooling": 0.081777778,
+		"water heating": 0.237655556,
+		"ventilation": 0.228366667,
+		"cooking": 0.0462,
+		"lighting": 0.3145,
+		"refrigeration": 0.956011111
+	},
+	"other": {
+		"heating": 0.024066667,
+		"cooling": 0.104888889,
+		"water heating": 0.1762,
+		"ventilation": 0.3776,
+		"cooking": 0.0992,
+		"lighting": 0.3582,
+		"refrigeration": 0.297011111
+	}
+}
+}
