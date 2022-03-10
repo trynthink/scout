@@ -40,6 +40,8 @@ class UsefulInputFiles(object):
         iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions/states.
         ash_emm_map (tuple): Maps ASHRAE climates to EMM regions.
         aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
+        state_emm_map (tuple): Maps states to EMM regions.
+        state_aia_map (tuple): Maps states to AIA regions.
         metadata (str) = Baseline metadata inc. min/max for year range.
         glob_vars (str) = Global settings from ecm_prep to use later in run
         cost_convert_in (tuple): Database of measure cost unit conversions.
@@ -83,6 +85,8 @@ class UsefulInputFiles(object):
         tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
         health_data (tuple): EPA public health benefits data by EMM region.
         hp_convert_rates (tuple): Fuel switching conversion rates.
+        fug_emissions_dat (tuple): Refrigerant and supply chain methane leakage
+            data to asses fugitive emissions sources.
     """
 
     def __init__(self, opts):
@@ -99,6 +103,8 @@ class UsefulInputFiles(object):
                                  "cpl_res_com_cz.json")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_AIA_ColSums.txt")
+            self.state_aia_map = ("supporting_data", "convert_data", "geo_map",
+                                  "AIA_State_RowSums.txt")
         elif opts.alt_regions == 'EMM':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                              "mseg_res_com_emm.gz")
@@ -110,6 +116,8 @@ class UsefulInputFiles(object):
                                    "geo_map", "AIA_EMM_ColSums.txt")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_EMM_ColSums.txt")
+            self.state_emm_map = ("supporting_data", "convert_data", "geo_map",
+                                  "EMM_State_RowSums.txt")
             # Toggle EMM emissions and price data based on whether or not
             # a grid decarbonization scenario is used
             if opts.grid_decarb is not False:
@@ -270,6 +278,8 @@ class UsefulInputFiles(object):
             "supporting_data", "convert_data", "epa_costs.csv")
         self.hp_convert_rates = ("supporting_data", "convert_data",
                                  "hp_convert_rates.json")
+        self.fug_emissions_dat = ("supporting_data", "convert_data",
+                                  "fugitive_emissions_convert.json")
 
 
 class UsefulVars(object):
@@ -300,6 +310,8 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
+        fug_emissions (dict): Refrigerant leakage data and supply chain
+            methane data to support assessments of fugitive emissions.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
             list of climates, buildings, fuels, end uses, or technologies.
         valid_mktnames (list): List of all valid applicable baseline market
@@ -701,6 +713,20 @@ class UsefulVars(object):
             self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (
                 None for n in range(3))
 
+        # Load external refrigerant and supply chain methane leakage data
+        # to assess fugitive emissions sources
+        if opts.fugitive_emissions is not False:
+            with open(path.join(
+                    base_dir, *handyfiles.fug_emissions_dat),
+                    'r') as fs_r:
+                try:
+                    self.fug_emissions = json.load(fs_r)
+                except ValueError:
+                    print("Error reading in '" +
+                          handyfiles.fug_emissions_dat + "'")
+        else:
+            self.fug_emissions = None
+
         # Set valid region names and regional output categories
         if opts.alt_regions in [False, "AIA"]:
             valid_regions = [
@@ -725,6 +751,20 @@ class UsefulVars(object):
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_reg_map, "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)])}
+            # Read in mapping for state methane leakage rates for
+            # AIA -> state mapping
+            if self.fug_emissions:
+                try:
+                    self.fugitive_emissions_map = numpy.genfromtxt(
+                        path.join(base_dir, *handyfiles.state_aia_map),
+                        names=True, delimiter='\t', dtype=(
+                            ['<U25'] * 1 + ['<f8'] * 51))
+                except ValueError as e:
+                    raise ValueError(
+                        "Error reading in '" +
+                        handyfiles.state_aia_map + "': " + str(e)) from None
+            else:
+                self.fugitive_emissions_map = None
             # HP conversion rates unsupported for AIA regional breakouts
             self.hp_rates_reg_map = None
         elif opts.alt_regions in ["EMM", "State"]:
@@ -761,6 +801,21 @@ class UsefulVars(object):
                     }
                 else:
                     self.hp_rates_reg_map = None
+                # If applicable, pull regional mapping needed to read in
+                # state methane leakage data and map to EMM regions
+                if self.fug_emissions:
+                    try:
+                        self.fugitive_emissions_map = numpy.genfromtxt(
+                            path.join(base_dir, *handyfiles.state_emm_map),
+                            names=True, delimiter='\t', dtype=(
+                                ['<U25'] * 1 + ['<f8'] * 51))
+                    except ValueError as e:
+                        raise ValueError(
+                            "Error reading in '" +
+                            handyfiles.state_emm_map + "': " +
+                            str(e)) from None
+                else:
+                    self.fugitive_emissions_map = None
             else:
                 # Note: for now, exclude AK and HI
                 valid_regions = [
@@ -2290,6 +2345,15 @@ class Measure(object):
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]})])
+            # Add fugitive emissions key to output dict if fugitive
+            # emissions option is set
+            if self.usr_opts["fugitive_emissions"] is not False:
+                self.markets[adopt_scheme]["master_mseg"][
+                    "fugitive emissions"] = {
+                        "total": {
+                            "baseline": None, "efficient": None},
+                        "competed": {
+                            "baseline": None, "efficient": None}}
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -4673,6 +4737,90 @@ class Measure(object):
                             for key, val in add_energy.items()
                             if key in self.handyvars.aeo_years}
 
+                # If applicable, determine fugitive emissions from
+                # supply chain methane leakage and refrigerants.
+
+                # Calculate fugitive emissions from methane leakage
+                # for cases where baseline fuel is natural gas. Map
+                # the current mseg region to the regionality of the
+                # fugitive emissions methane leakage data.
+                if opts.fugitive_emissions is not False and mskeys[3] == \
+                        "natural gas":
+                    try:
+                        reg_weight_row = [r_i for r_i, r in enumerate(
+                            self.handyvars.fugitive_emissions_map) if
+                            r[0] == mskeys[1]][0]
+                    except (IndexError):
+                        raise ValueError("No fugitive emissions state-level \
+                            mapping data found for region '" + mskeys[1] + "'")
+                    reg_weight = self.handyvars.fugitive_emissions_map[
+                        reg_weight_row]
+                    try:
+                        lkg_rate = sum([self.handyvars.fug_emissions[
+                            "methane"]["total_leakage_rate"][state] *
+                            reg_weight[state] for state in
+                            self.handyvars.fug_emissions[
+                            "methane"]["total_leakage_rate"].keys()])
+                    except (KeyError):
+                        raise ValueError("Inconsistent state keys \
+                            between fugitive emissions leakage rate data \
+                            and geographical mapping data")
+                elif opts.fugitive_emissions is not False and \
+                        mskeys[3] == "natural gas":
+                    lkg_rate = self.handyvars.fug_emissions[
+                        "methane"]["total_leakage_rate"][mskeys[1]]
+
+                # Total fugitive emissions, specified separately
+                # for emissions from refrigerant leakage and
+                # emissions from methane leakage from the nat gas
+                # supply chain
+                # add_fcarb = {"refrigerants": {key: (val * \
+                #                 # Annual refrigerant leakage emissions
+                #                 # CO2e = (typ_charge * typ_ann_leak * GWP)
+                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["typ_charge_kg"] * \
+                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["typ_ann_leak_pct"] * \
+                #                 # refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 # ["system_life"] * \
+                #                 refrigerant_co2["refrigerant_GWP100"] \
+                #                 [refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["typ_refrigerant"]]) + \
+                #                 # Add EOL refrigerant leakage emissions
+                #                 (refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["typ_charge_kg"] * \
+                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["EOL_leak_pct"] * \
+                #                 refrigerant_co2["refrigerant_GWP100"] \
+                #                 [refrigerant_co2[bldg_sect][mskeys[-2]] \
+                #                 ["typ_refrigerant"]])
+                #             for key, val in add_stock.items()
+                #             if key in self.handyvars.aeo_years}}
+                # # Add handling of typ refrig by year
+                # Set lkg_emissions
+
+                # Calculate fugitive emissions totals by year for supply
+                # chain methane leakage. If fugitive emissions options are
+                # valid and measure applies to natural gas microsegments,
+                # all microsegments for that measure are prepared with
+                # fugitive emissions key in their output dict structure.
+                # If fugitive emissions  options are not set, fugitive
+                # emissions keys not added to dict structure.
+                if opts.fugitive_emissions is not False and mskeys[3] == \
+                        "natural gas":
+                    add_fcarb = {key: val * lkg_rate *
+                                 intensity_carb_base[key] for key, val in
+                                 add_energy.items() if key in
+                                 self.handyvars.aeo_years}
+
+                elif opts.fugitive_emissions is not False:
+                    add_fcarb = {key: val * 0 for key, val in
+                                 add_energy.items() if key in
+                                 self.handyvars.aeo_years}
+
+                else:
+                    add_fcarb = None
+
                 # Check for time-sensitive efficiency valuation (e.g., a
                 # measure has time sensitive features and/or the user has
                 # optionally specified time sensitive output metrics or sector-
@@ -4741,10 +4889,12 @@ class Measure(object):
                     # carbon and baseline/measure cost info. based on adoption
                     # scheme
                     [add_stock_total, add_energy_total, add_carb_total,
-                     add_stock_total_meas, add_energy_total_eff,
-                     add_carb_total_eff, add_stock_compete, add_energy_compete,
-                     add_carb_compete, add_stock_compete_meas,
-                     add_energy_compete_eff, add_carb_compete_eff,
+                     add_fcarb_total, add_stock_total_meas,
+                     add_energy_total_eff, add_carb_total_eff,
+                     add_fcarb_total_eff, add_stock_compete,
+                     add_energy_compete, add_carb_compete, add_fcarb_compete,
+                     add_stock_compete_meas, add_energy_compete_eff,
+                     add_carb_compete_eff, add_fcarb_compete_eff,
                      add_stock_cost, add_energy_cost, add_carb_cost,
                      add_stock_cost_meas, add_energy_cost_eff,
                      add_carb_cost_eff, add_stock_cost_compete,
@@ -4756,13 +4906,13 @@ class Measure(object):
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys, bldg_sect,
                             sqft_subst, mkt_scale_frac, new_constr, add_stock,
-                            add_energy, add_carb, cost_base, cost_meas,
-                            cost_energy_base, cost_energy_meas, rel_perf,
-                            life_base, life_meas, site_source_conv_base,
-                            site_source_conv_meas, intensity_carb_base,
-                            intensity_carb_meas, energy_total_scnd,
-                            tsv_scale_fracs, tsv_shapes, opts,
-                            contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
+                            add_energy, add_carb, add_fcarb, cost_base,
+                            cost_meas, cost_energy_base, cost_energy_meas,
+                            rel_perf, life_base, life_meas,
+                            site_source_conv_base, site_source_conv_meas,
+                            intensity_carb_base, intensity_carb_meas,
+                            energy_total_scnd, tsv_scale_fracs, tsv_shapes,
+                            opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
                             retro_rate_mseg, calc_sect_shapes)
 
                     # Remove double counted stock and stock cost for equipment
@@ -4846,6 +4996,17 @@ class Measure(object):
                                 yr: life_base[yr] * add_stock_total[yr] for
                                 yr in self.handyvars.aeo_years},
                             "measure": life_meas}}
+
+                    # Check fugitive emissions option settings and update
+                    # dict with fugitive emissions.
+                    if opts.fugitive_emissions is not False:
+                        add_dict['fugitive emissions'] = {
+                                "total": {
+                                    "baseline": add_fcarb_total,
+                                    "efficient": add_fcarb_total_eff},
+                                "competed": {
+                                    "baseline": add_fcarb_compete,
+                                    "efficient": add_fcarb_compete_eff}}
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -6729,8 +6890,8 @@ class Measure(object):
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
             mkt_scale_frac, new_constr, stock_total_init, energy_total_init,
-            carb_total_init, cost_base, cost_meas, cost_energy_base,
-            cost_energy_meas, rel_perf, life_base, life_meas,
+            carb_total_init, fcarb_total_init, cost_base, cost_meas,
+            cost_energy_base, cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
             tsv_shapes, opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
@@ -6754,6 +6915,8 @@ class Measure(object):
             energy_total_init (dict): Baseline microsegment primary energy use,
                 by year.
             carb_total_init (dict): Baseline microsegment carbon emissions,
+                by year.
+            fcarb_total_init (dict): Baseline microsegment fugitive emissions,
                 by year.
             cost_base (dict): Baseline technology installed cost, by year.
             cost_meas (float): Measure installed cost, by year.
@@ -6788,19 +6951,20 @@ class Measure(object):
         """
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total, stock_total_sbmkt, energy_total, carb_total, \
-            energy_total_sbmkt, carb_total_sbmkt, stock_total_meas, \
-            stock_comp_cum_sbmkt, stock_total_hp_convert, energy_total_eff, \
-            carb_total_eff, stock_compete, stock_compete_meas, \
-            stock_compete_sbmkt, stock_comp_hp_convert, stock_comp_hp_remain, \
-            energy_compete, carb_compete, energy_compete_sbmkt, \
-            carb_compete_sbmkt, energy_compete_eff, carb_compete_eff, \
-            stock_total_cost, energy_total_cost, carb_total_cost, \
-            stock_total_cost_eff, energy_total_eff_cost, carb_total_eff_cost, \
-            stock_compete_cost, energy_compete_cost, carb_compete_cost, \
-            stock_compete_cost_eff, energy_compete_cost_eff, \
-            carb_compete_cost_eff, mkt_scale_frac_fin = (
-                {} for n in range(35))
+        stock_total, stock_total_sbmkt, energy_total, carb_total, fcarb_total,\
+            energy_total_sbmkt, carb_total_sbmkt, fcarb_total_sbmkt, \
+            stock_total_meas, stock_comp_cum_sbmkt, stock_total_hp_convert, \
+            energy_total_eff, carb_total_eff, fcarb_total_eff, stock_compete, \
+            stock_compete_meas, stock_compete_sbmkt, stock_comp_hp_convert, \
+            stock_comp_hp_remain, energy_compete, carb_compete, \
+            fcarb_compete, energy_compete_sbmkt, carb_compete_sbmkt, \
+            fcarb_compete_sbmkt, energy_compete_eff, carb_compete_eff, \
+            fcarb_compete_eff, stock_total_cost, energy_total_cost, \
+            carb_total_cost, stock_total_cost_eff, energy_total_eff_cost, \
+            carb_total_eff_cost, stock_compete_cost, energy_compete_cost, \
+            carb_compete_cost, stock_compete_cost_eff, \
+            energy_compete_cost_eff, carb_compete_cost_eff, \
+            mkt_scale_frac_fin = ({} for n in range(41))
 
         # Initialize the portion of microsegment already captured by the
         # efficient measure as 0, the cumulative portion of the microsegment
@@ -6965,6 +7129,10 @@ class Measure(object):
             stock_total_sbmkt[yr] = stock_total_init[yr] * mkt_scale_frac
             energy_total_sbmkt[yr] = energy_total_init[yr] * mkt_scale_frac
             carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
+            # Total fugitive emissions markets after accounting for any
+            # sub-market scaling
+            if opts.fugitive_emissions is not False:
+                fcarb_total_sbmkt[yr] = fcarb_total_init[yr] * mkt_scale_frac
 
             # Calculate new, replacement, and retrofit fractions for the
             # baseline and efficient stock as applicable. * Note: these
@@ -7299,6 +7467,12 @@ class Measure(object):
                 energy_total_sbmkt[yr] * diffuse_frac * tsv_energy_base
             carb_total[yr] = \
                 carb_total_sbmkt[yr] * diffuse_frac * tsv_carb_base
+            # Final total fugitive emissions markets after accounting for
+            # diffusion/conversion dynamics or accounting for time-sensitive
+            # effects
+            if opts.fugitive_emissions is not False:
+                fcarb_total[yr] = \
+                    fcarb_total_sbmkt[yr] * diffuse_frac * tsv_energy_base
 
             # Finalize the sub-market scaling fraction as the initial sub-
             # market scaling fraction from the measure definition times
@@ -7332,6 +7506,9 @@ class Measure(object):
             stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
             energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * comp_frac_sbmkt
             carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * comp_frac_sbmkt
+            if opts.fugitive_emissions is not False:
+                fcarb_compete_sbmkt[yr] = fcarb_total_sbmkt[yr] * \
+                    comp_frac_sbmkt
 
             # Final competed stock, energy, and carbon markets after accounting
             # for any diffusion/conversion dynamics that restrict a measure's
@@ -7345,6 +7522,10 @@ class Measure(object):
             carb_compete[yr] = \
                 carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
                 tsv_carb_base
+            if opts.fugitive_emissions is not False:
+                fcarb_compete[yr] = \
+                    fcarb_total_sbmkt[yr] * diffuse_frac * \
+                    comp_frac_diffuse * tsv_energy_base
 
             # Final competed stock captured by the measure
             stock_compete_meas[yr] = \
@@ -7624,11 +7805,41 @@ class Measure(object):
                 tsv_carb_base * (1 - comp_frac_diffuse) * (
                     1 - meas_cum_frac) * rel_perf_uncapt
 
+            # Set common variables for the fugitive emissions calculations
+            if opts.fugitive_emissions is not False:
+                # Competed carbon captured by measure
+                fcarb_tot_comp_meas = fcarb_total_sbmkt[yr] * diffuse_frac * \
+                    tsv_energy_eff * comp_frac_diffuse_meas * rel_perf_capt * \
+                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                    intensity_carb_ratio
+                fcarb_tot_comp_base = fcarb_total_sbmkt[yr] * diffuse_frac * \
+                    tsv_energy_base * (
+                        comp_frac_diffuse - comp_frac_diffuse_meas) * \
+                    rel_perf_uncapt
+                # Uncompeted carbon captured by measure
+                fcarb_tot_uncomp_meas = fcarb_total_sbmkt[yr] * \
+                    diffuse_frac * tsv_energy_eff * (1 - comp_frac_diffuse) * \
+                    meas_cum_frac * rel_perf_capt * (
+                        site_source_conv_meas[yr] /
+                        site_source_conv_base[yr]) * \
+                    intensity_carb_ratio
+                fcarb_tot_uncomp_base = fcarb_total_sbmkt[yr] * \
+                    diffuse_frac * tsv_energy_base * \
+                    (1 - comp_frac_diffuse) * (1 - meas_cum_frac) * \
+                    rel_perf_uncapt
+
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_tot_comp_meas + carb_tot_comp_base
             # Total-efficient energy
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 carb_tot_uncomp_meas + carb_tot_uncomp_base
+            # Competed-efficient fugitive emissions
+            if opts.fugitive_emissions is not False:
+                fcarb_compete_eff[yr] = fcarb_tot_comp_meas + \
+                    fcarb_tot_comp_base
+                # Total-efficient energy
+                fcarb_total_eff[yr] = fcarb_compete_eff[yr] + \
+                    fcarb_tot_uncomp_meas + fcarb_tot_uncomp_base
 
             # Update total and competed stock, energy, and carbon
             # costs
@@ -7762,12 +7973,13 @@ class Measure(object):
                     energy_cost_tot_comp_base + energy_cost_tot_uncomp_base
 
         # Return partitioned stock, energy, and cost mseg information
-        return [stock_total, energy_total, carb_total,
+        return [stock_total, energy_total, carb_total, fcarb_total,
                 stock_total_meas, energy_total_eff, carb_total_eff,
-                stock_compete, energy_compete,
-                carb_compete, stock_compete_meas, energy_compete_eff,
-                carb_compete_eff, stock_total_cost, energy_total_cost,
-                carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
+                fcarb_total_eff, stock_compete, energy_compete,
+                carb_compete, fcarb_compete, stock_compete_meas,
+                energy_compete_eff, carb_compete_eff, fcarb_compete_eff,
+                stock_total_cost, energy_total_cost, carb_total_cost,
+                stock_total_cost_eff, energy_total_eff_cost,
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff,
@@ -11314,6 +11526,40 @@ def main(base_dir):
             warn_text + ": ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
 
+    # If accounting for fugitive emissions is to be applied, gather further
+    # information about which fugitive emissions sources should be included and
+    # whether to use typical refrigerants (including representation of expected
+    # phase-out years) or user-defined low-GWP refrigerants
+    if opts and opts.fugitive_emissions is True:
+        input_var = [0, 0]
+        # Determine which fuel switching scenario to use
+        while input_var[0] not in ['1', '2', '3']:
+            input_var[0] = input(
+                "\nChoose which fugitive emissions sources to account for \n"
+                "(1 = assess supply chain methane leakage only, \n"
+                "2 = assess refrigerant leakage only, \n"
+                "3 = assess both refrigerant leakage and "
+                "supply chain methane leakage): ")
+            if input_var[0] not in ['1', '2', '3']:
+                print('Please try again. Enter either 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
+        # Convert the user settings choice to a settings name in the input file
+        fugitive_emissions_settings = [
+            "methane leakage only", "refrigerants only", "both"]
+        input_var[0] = fugitive_emissions_settings[int(input_var[0])-1]
+        # Determine assumptions about typical vs. low-GWP refrigerants
+        while (input_var[0] not in ['methane leakage only'] and input_var[1]
+                not in ['1', '2']):
+            input_var[1] = input(
+                "\nEnter 1 to use typical refrigerants, including "
+                "representation of their phase-out years \n or 2 "
+                "to use user-specified low-GWP refrigerants: ")
+            if input_var[1] not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        input_var[1] = fugitive_emissions_settings[int(input_var[1])]
+        opts.fugitive_emissions = input_var
+
     # If the user wishes to modify early retrofit settings from the default
     # (zero), gather further information about which set of assumptions to use
     if opts.retro_set is True:
@@ -12437,6 +12683,10 @@ if __name__ == "__main__":
     parser.add_argument("--detail_brkout", action="store_true",
                         help=("Use more detailed region/building type "
                               "breakouts as applicable"))
+    # Optional flag to include accounting of fugitive emissions from
+    # refrigerant leakage and/or supply chain methane leakage
+    parser.add_argument("--fugitive_emissions", action="store_true",
+                        help="Account for fugitive emissions sources")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
 
