@@ -10,9 +10,10 @@
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": ["cooling", "heating"],
+  "end_use": ["cooling", "heating", "ventilation"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "electric_res-heat"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "electric_res-heat",
+                 "all ventilation"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in the baseline",
@@ -56,16 +57,25 @@
     "res_type_central_AC": 0.32,
     "wall-window_room_AC": 0.32,
     "electric_res-heat": 1,
-    "elec_boiler": 1
+    "elec_boiler": 1,
+    "CAV_Vent": 0.274,
+    "VAV_Vent": 0.274
   },
-  "market_scaling_fractions_source": {
+  "market_scaling_fractions_source": [{
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
       "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf)."
-  },
+  },{
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-HP electric boiler/resistance for heating (30,157 sf/80,078 sf) AND which do not use a chiller for cooling (57,645 sf / 79,294 sf)."
+  }],
   "_notes": "Measure Definition and Status Google spreadsheet contains calculations for combining RTU and commercial envelope measures and converting units",
   "_added_by": {
     "name": "Jared Langevin",
@@ -83,5 +93,10 @@
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
-  }]
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Mar 10 14:52:10 EST 2022"}]
 }
+

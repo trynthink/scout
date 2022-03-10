@@ -7,11 +7,12 @@
     "large office", "small office", "education", "food service",
     "mercantile/service"],
   "structure_type": "all",
-  "end_use": [
-    "heating",
-    "cooling"],
-  "fuel_type": ["natural gas", "distillate"],
-  "technology": "all",
+  "end_use": ["heating", "cooling", "ventilation"],
+  "fuel_type": ["natural gas", "distillate", "electricity"],
+  "technology": ["gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler",
+                 "gas_furnace", "oil_boiler", "oil_furnace", "gas_eng-driven_RTAC",
+                 "gas_chiller", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                 "CAV_Vent", "VAV_Vent"],
   "market_entry_year": 2030,
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
@@ -35,8 +36,19 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "heating": 1,
+    "ventilation": 0.67 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-electric heating (53,873 sf/80,078 sf)."
+  },
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -44,5 +56,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Mar 24 09:23:11 EDT 2021"
   },
-  "_updated_by": null
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  }
 }

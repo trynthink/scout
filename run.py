@@ -2655,15 +2655,11 @@ class Engine(object):
         # adjustments as part of the measure competition calculations
 
         # Handle case where an equipment measure has multiple end uses that
-        # include heating and cooling or cooling and other end uses and the
-        # contributing microsegment to be adjusted applies to cooling (for the
-        # first case) or something other than cooling (for the second). In the
-        # first case, which represents e.g. a HP measure or a controls measure,
-        # only heating stock data will be tracked and turnover adjustments
-        # should be based on heating technologies. In the second case, which
-        # represents e.g., a controls measure where heating is not specified,
-        # only cooling stock data will be tracked and turnover adjustments
-        # should be based on cooling technologies.
+        # include heating and/or cooling and the contributing microsegment
+        # needs to be anchored on the stock turnover of the heating equipment
+        # (or cooling if not available). Such measures might include, for
+        # example, HP measures, HVAC + envelope packages, or controls measures
+        # spanning heating/cooling and other end uses
         if len(m.end_use) > 1 and "demand" not in mseg_key and ((
             "heating" in m.end_use["primary"] and "heating" not in mseg_key)
             or ("heating" not in m.end_use["primary"] and (
@@ -2707,15 +2703,23 @@ class Engine(object):
                             # Reset fuel
                             key_list[3] = "electricity"
                         else:
+                            # Initialize list of heating technologies that
+                            # would be expected for a non-HP cooling tech.
                             tech_search = [x for x in [
                                 "furnace (NG)", "boiler (NG)",
                                 "boiler (distillate)", "furnace (distillate)",
                                 "furnace (LPG)", "furnace (kerosene)",
                                 "stove (wood)"] if x
                                 in m.technology["primary"]]
+                            # If the microsegment is non-cooling (e.g.,
+                            # secondary heating), expand to all commercial
+                            # heating tech.
+                            if "cooling" not in mseg_key:
+                                tech_search.extend(["ASHP", "GSHP", "NGHP"])
                             if len(tech_search) == 0:
                                 raise ValueError(
                                     "Contributing microsegment " + mseg_key +
+                                    " for measure " + m.name +
                                     " has unexpected heating technology "
                                     "information for stock turnover "
                                     "calculations")
@@ -2727,8 +2731,11 @@ class Engine(object):
                                     key_list[3] = "natural gas"
                                 elif "distillate" in tech_search[0]:
                                     key_list[3] = "distillate"
-                                else:
+                                elif any([x in tech_search[0] for x in [
+                                        "LPG", "kerosene", "wood"]]):
                                     key_list[3] = "other fuel"
+                                else:
+                                    key_list[3] = "electricity"
                     # Cooling tech. is HP; heating tech. is identical and no
                     # further action is needed
                     elif any([x in mseg_key for x in [
@@ -2737,7 +2744,8 @@ class Engine(object):
                     # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key + " has "
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
                             "unexpected technology information for stock "
                             "turnover calculations")
                 # Commercial case
@@ -2754,20 +2762,33 @@ class Engine(object):
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
+
+                        # Initialize list of heating technologies that would
+                        # be expected for a non-HP cooling tech.
                         tech_search = [x for x in [
                             "elec_boiler", "electric_res-heat", "gas_boiler",
                             "gas_furnace", "oil_boiler", "oil_furnace"] if x in
                             m.technology["primary"]]
+                        # If the microsegment is non-cooling (e.g.,
+                        # ventilation), expand to all commercial heating tech.
+                        if "cooling" not in mseg_key:
+                            tech_search.extend([
+                                "rooftop_ASHP-heat", "comm_GSHP-heat",
+                                "gas_eng-driven_RTHP-heat",
+                                "res_type_gasHP-heat"])
                         if len(tech_search) == 0:
                             raise ValueError(
                                 "Contributing microsegment " + mseg_key +
-                                " has unexpected heating technology "
-                                "information for stock turnover calculations")
+                                " for measure " + m.name + " has unexpected "
+                                "heating technology information for stock "
+                                "turnover calculations")
                         else:
                             # Reset tech.
                             key_list[-2] = tech_search[0]
                             # Reset fuel
-                            if "elec" in tech_search[0]:
+                            if "elec" in tech_search[0] or any([
+                                    x in tech_search[0] for
+                                    x in ["ASHP", "GSHP"]]):
                                 key_list[3] = "electricity"
                             elif "gas" in tech_search[0]:
                                 key_list[3] = "natural gas"
@@ -2786,7 +2807,8 @@ class Engine(object):
                     # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key + " has "
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
                             "unexpected technology information for stock "
                             "turnover calculations")
             # Case 2: heating is not in the measure end uses, cooling is in the
@@ -2814,6 +2836,7 @@ class Engine(object):
                     if len(tech_search) == 0:
                         raise ValueError(
                             "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
                             " has unexpected cooling technology "
                             "information for stock turnover calculations")
                     else:
@@ -2841,6 +2864,7 @@ class Engine(object):
                     if len(tech_search) == 0:
                         raise ValueError(
                             "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
                             " has unexpected cooling technology "
                             "information for stock turnover calculations")
                     else:
@@ -2854,6 +2878,7 @@ class Engine(object):
             else:
                 raise ValueError(
                     "Contributing microsegment " + mseg_key +
+                    " for measure " + m.name +
                     " has unexpected information for stock turnover "
                     "calculations")
             # After making the adjustments above, convert the modified
@@ -2888,10 +2913,21 @@ class Engine(object):
                     "mseg_adjust"]["contributing mseg keys and values"][
                     mseg_key_stk_trk_alt]["stock"]
             except KeyError:
-                raise ValueError(
-                    "Stock turnover data could not be keyed in "
-                    "for contributing microsegment " + mseg_key + " using the "
-                    "keys " + mseg_key_stk_trk + " or " + mseg_key_stk_trk_alt)
+                # Handle case where expected microsegment stock data to be
+                # linked to the stock turnover calculations for the current
+                # microsegment is not available; key in stock data with the
+                # current microsegment stock info.
+                try:
+                    adj_stk_trk = m.markets[adopt_scheme]["competed"][
+                        "mseg_adjust"]["contributing mseg keys and values"][
+                        mseg_key]["stock"]
+                except KeyError:
+                    raise ValueError(
+                        "Stock turnover data could not be keyed in "
+                        "for contributing microsegment " + mseg_key +
+                        " for measure " + m.name + " using the "
+                        "keys " + mseg_key_stk_trk + ", " +
+                        + mseg_key_stk_trk_alt + "," or mseg_key)
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
@@ -3584,11 +3620,28 @@ class Engine(object):
                                                       for yr in focus_yrs}
                                         except KeyError:
                                             continue
-                            # Add to total energy/carbon/cost for meas/region
+                            # Finalize energy/carbon/cost scaling fraction
+                            # for meas/metric/case/region
                             self.output_ecms_cfs[m.name][k][mt][reg] = {
                                 yr: (tot_c[yr] / tot_uc[yr]) if
                                 tot_uc[yr] != 0 else 1 for yr in focus_yrs}
-                # Pull stock scaling fractions
+                            # Check for and if possible handle energy/carbon/
+                            # cost competition fractions that are not between
+                            # 0 and 1
+                            yrs_v_adj = [
+                                yr for yr in self.output_ecms_cfs[
+                                    m.name][k][mt][reg].keys()
+                                if (self.output_ecms_cfs[
+                                        m.name][k][mt][reg][yr] > 1 or
+                                    self.output_ecms_cfs[
+                                        m.name][k][mt][reg][yr] < 0)]
+                            for yva in yrs_v_adj:
+                                # Screen for small savings
+                                if (tot_c[yva] > -1 and tot_c[yva] < 1):
+                                    self.output_ecms_cfs[
+                                        m.name][k][mt][reg][yva] = 0
+
+                # Finalize stock scaling fraction for measure
                 stk_c, stk_uc = [
                     m.markets[adopt_scheme][scn]["master_mseg"]["stock"][
                         "total"]["measure"] for scn in [
@@ -3596,6 +3649,16 @@ class Engine(object):
                 self.output_ecms_cfs[m.name]["stock"] = {
                     yr: (stk_c[yr] / stk_uc[yr]) if stk_uc[yr] != 0 else 1
                     for yr in focus_yrs}
+                # Check for and if possible handle stock competition fractions
+                # that are not between 0 and 1
+                yrs_v_adj = [
+                    yr for yr in self.output_ecms_cfs[m.name]["stock"].keys()
+                    if (self.output_ecms_cfs[m.name]["stock"][yr] > 1 or
+                        self.output_ecms_cfs[m.name]["stock"][yr] < 0)]
+                for yva in yrs_v_adj:
+                    # Screen for small numbers/artifacts
+                    if (stk_c[yva] > -1 and stk_c[yva] < 1):
+                        self.output_ecms_cfs[m.name]["stock"][yva] = 0
 
             # Normalize the baseline energy/carbon/cost, efficient energy/
             # carbon/cost, and energy/carbon/cost savings for the measure that

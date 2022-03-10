@@ -2439,11 +2439,6 @@ class Measure(object):
         # loads and 40% decrease in cooling load)
         light_scnd_autoperf = False
 
-        # Initialize a list that tracks completed cost conversions - including
-        # converted values and units - for cases where the cost conversion need
-        # occur only once per microsegment building type
-        bldgs_costconverted = {}
-
         # Fill out any "secondary" end use impact information and any climate
         # zone, building type, fuel type, end use, and/or technology attributes
         # marked 'all' by users
@@ -2624,11 +2619,10 @@ class Measure(object):
             # has been made from updating "primary" microsegment info. to
             # updating "secondary" microsegment info. (relevant to cost/
             # lifetime units only), c) Any of performance/cost/lifetime units
-            # is a dict which must be parsed further to reach the final value,
-            # or d) A new cost conversion is required for the current mseg
-            # (relevant to cost only). * Note: cost/lifetime/sub-market
-            # information is not updated for "secondary" microsegments, which
-            # do not pertain to these variables; lifetime units are in years
+            # is a dict which must be parsed further to reach the final value.
+            # * Note: cost/lifetime/sub-market information is not updated for
+            # "secondary" microsegments, which do not pertain to these
+            # variables; lifetime units are in years
             if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
                or isinstance(self.energy_efficiency, dict):
                 perf_meas = self.energy_efficiency
@@ -2645,25 +2639,18 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                # If applicable, set ECM cost attribute to value previously
-                # calculated for current microsegment building type, if
-                # available, provided microsegment does not require
-                # re-initiating cost conversions for each new technology type
-                # (cost data are formatted as a dict, or commercial cost data
-                # are in $/ft^2 floor, which may not be consistent with
-                # baseline cost units per service demand)
-                if mskeys[2] in bldgs_costconverted.keys() and not (
-                    isinstance(self.installed_cost, dict) or
-                    isinstance(self.cost_units, dict)) and (
-                        bldg_sect != "commercial" or "$/ft^2 floor"
-                        not in self.cost_units):
-                    cost_meas, cost_units = [x for x in bldgs_costconverted[
-                        mskeys[2]]]
-                # Re-initialize ECM cost attribute for each new building
-                # type or technology type if required for the given cost units
-                else:
-                    cost_meas, cost_units = [
-                        self.installed_cost, self.cost_units]
+                if (sqft_subst == 1 or "$/ft^2 floor" in self.cost_units) or \
+                    ind == 0 or ((
+                        ms_iterable[ind][0] != ms_iterable[ind - 1][0]) or (
+                        ms_iterable[ind][4] != ms_iterable[ind - 1][4])) \
+                   or isinstance(self.cost_units, dict):
+                    cost_units = self.cost_units
+                if (sqft_subst == 1 or "$/ft^2 floor" in self.cost_units) or \
+                    ind == 0 or ((
+                        ms_iterable[ind][0] != ms_iterable[ind - 1][0]) or (
+                        ms_iterable[ind][4] != ms_iterable[ind - 1][4])) \
+                   or isinstance(self.installed_cost, dict):
+                    cost_meas = self.installed_cost
                 # Set lifetime attribute to initial value
                 if ind == 0 or isinstance(
                         self.product_lifetime, dict):
@@ -4105,13 +4092,27 @@ class Measure(object):
                     # Handle special case of commercial heat pumps, where costs
                     # may be specified in $/kBtu/h heating or cooling but the
                     # measure will apply to both heating and cooling
+                    # microsegments and possibly also ventilation
                     # microsegments; in this case, set the measure cost units
                     # to the baseline cost units without further translation of
                     # cost values, under the assumption that costs are
-                    # identical per unit heating vs. per unit cooling
+                    # identical per unit heating vs. per unit cooling, and
+                    # that costs will be anchored on the measure's heating
+                    # microsegment(s) (see comment beginning 'Remove double
+                    # counted stock and stock cost...')
                     if any([x in cost_units for x in [
                            '$/kBtu/h heating', '$/kBtu/h cooling']]):
-                        cost_units = cost_base_units
+                        if mskeys[4] in ["heating", "cooling"] or (
+                            mskeys[4] == "ventilation" and any([
+                                x in ms_lists[3] for x in [
+                                "heating", "cooling"]])):
+                            cost_units = cost_base_units
+                        else:
+                            raise ValueError(
+                                "Cost units of '" + cost_units +
+                                "' are incompatible with definition of "
+                                "measure '" + self.name +
+                                "'; check definition")
                     else:
                         # Case where measure cost has not yet been recast
                         # across AEO years
@@ -4130,10 +4131,6 @@ class Measure(object):
                                     cost_meas[yr], cost_units, cost_base_units,
                                     opts.verbose)
                         cost_converts += 1
-                    # Add microsegment building type to cost conversion
-                    # tracking list for cases where cost conversion need
-                    # occur only once per building type
-                    bldgs_costconverted[mskeys[2]] = [cost_meas, cost_units]
 
                 # Handle special case where residential cost units in $/ft^2
                 # floor must be converted to a per household basis for
@@ -8971,7 +8968,8 @@ class MeasurePackage(Measure):
         # controls; also raise error if package is merging equipment measures
         # with inconsistent fuel switching settings
         elif not (all([all([x in ["heating", "secondary heating",
-                                  "cooling"] for x in m.end_use["primary"]])
+                                  "ventilation", "cooling"] for x in
+                            m.end_use["primary"]])
                        for m in self.contributing_ECMs_eqp]) or (
                   all([m.end_use["primary"] == "lighting" for
                        m in self.contributing_ECMs_eqp]) and

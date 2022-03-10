@@ -9,9 +9,9 @@
     "large office", "small office", "education", "food service",
     "mercantile/service"],
   "structure_type": "all",
-  "end_use": ["cooling", "heating"],
+  "end_use": ["cooling", "heating", "ventilation"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat"],
+  "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat", "all ventilation"],
   "market_entry_year": 2035,
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
@@ -35,8 +35,18 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "heating": 1,
+    "ventilation": 0.09},
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use RTHP electricity for heating (7,215 sf/80,078 sf)."
+  },
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -44,10 +54,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Mar 24 09:23:11 EDT 2021"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
-  }
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar  9 12:17:29 EST 2022"
+  }]
 }
