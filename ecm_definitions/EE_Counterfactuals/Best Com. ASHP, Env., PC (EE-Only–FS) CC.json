@@ -10,6 +10,7 @@
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating", "ventilation"],
+  "fuel_type": "electricity",
   "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
                  "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
                  "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
