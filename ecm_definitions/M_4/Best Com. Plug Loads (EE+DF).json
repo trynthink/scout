@@ -1,5 +1,5 @@
 {
-  "name": "Best Com. MELs (EE+DF)",
+  "name": "Best Com. Plug Loads (EE+DF)",
   "tsv_features": {
     "shape": {
       "custom_annual_savings": "DR_EE_MELs.csv"
@@ -59,14 +59,8 @@
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
+    "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 10 12:05:15 EDT 2019"
-  },
-  "_updated_by": {
-    "name": "Aven Satre-Meloy",
-    "organization": "Lawrence Berkeley National Lab",
-    "email": "asatremeloy@lbl.gov",
-    "timestamp": "Mon Mar 29 17:33:36 EDT 2021"
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
   }
 }

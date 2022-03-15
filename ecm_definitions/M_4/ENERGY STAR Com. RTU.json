@@ -3,9 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": "cooling",
+  "end_use": ["cooling", "ventilation"],
   "fuel_type": "electricity",
-  "technology": "rooftop_AC",
+  "technology": ["rooftop_AC", "all ventilation"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
@@ -20,8 +20,12 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.57,
-  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency": {
+      "cooling": 3.57,
+      "ventilation": 0},
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "ventilation": "relative savings (constant)"},
   "energy_efficiency_source": {
     "notes": "Uses 2030 ENERGY STAR EER of 12.2 (see notes under table); COP = EER * .293",
     "source_data": [{
@@ -40,7 +44,9 @@
       "pages": null,
       "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
     }]},
-  "installed_cost": 104.44,
+  "installed_cost": {
+      "cooling": 104.44,
+      "ventilation": 0},
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "Total ENERGY STAR installed cost divided by typical capacity (90 kBtu/h)",
@@ -68,8 +74,18 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": "NA",
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.57 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use RTUs for cooling (45,153 sf/79,294 sf)."
+  },
   "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance standard in 2017",
   "_notes": null,
   "_added_by": {

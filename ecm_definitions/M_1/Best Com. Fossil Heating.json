@@ -1,44 +1,28 @@
 {
-  "name": "Com. Fossil Heating, 90.1 c. 2019 (2030)",
-  "_description": "Fossil-based boilers and furnaces for commercial buildings that meet the ASHRAE 90.1-2019 standard; market entry year set for packaging with prospective measures",
+  "name": "Best Com. Fossil Heating",
+  "_description": "Best available fossil-based boilers and furnaces for commercial buildings",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "heating",
   "fuel_type": ["natural gas", "distillate"],
   "technology": ["gas_furnace", "oil_furnace", "gas_boiler", "oil_boiler"],
-  "market_entry_year": 2030,
+  "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Year needed to pair with prospective envelope packages.",
+    "notes": "Year in which guideline went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "gas_furnace": 0.83,
-      "oil_furnace": 0.8,
-      "gas_boiler": 0.8,
-      "oil_boiler": 0.84},
+      "gas_furnace": 0.95,
+      "oil_furnace": 0.85,
+      "gas_boiler": 0.99,
+      "oil_boiler": 0.97},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 90.1-2019 for given equipment type, assume typical capacity from EIA source; bump up efficiency to reflect expected efficiency in later market entry year",
+    "notes": "High performance in 2020 (or 2017 where not available)",
     "source_data": [{
-      "title": "ASHRAE Standard 90.1 2019: Table 6.8.1-5",
-      "author": null,
-      "organization": "ASHRAE",
-      "year": 2019,
-      "pages": 132,
-      "URL": null
-    },
-    {
-      "title": "ASHRAE 90.1 Standard 2019: Table 6.8.1-6 Gas- and Oil-Fired Boilers",
-      "author": null,
-      "organization": "ASHRAE",
-      "year": 2019,
-      "pages": 133,
-      "URL": null
-    },
-    {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
@@ -68,13 +52,13 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
   },
   "installed_cost": {
-      "gas_furnace": 5.38,
-      "oil_furnace": 16.38,
-      "gas_boiler": 32.25,
-      "oil_boiler": 35},
+      "gas_furnace": 9.875,
+      "oil_furnace": 16.875,
+      "gas_boiler": 58.4375,
+      "oil_boiler": 66.5625},
   "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2017 divided by typical input capacity",
+    "notes": "High installed cost in 2020 (or 2017 when unavailable) divided by high input capacity",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -151,7 +135,6 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Nov  5 06:16:38 EDT 2021"
-  },
-  "_updated_by": null
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  }
 }

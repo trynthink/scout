@@ -8,9 +8,9 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": "cooling",
+  "end_use": ["cooling", "ventilation"],
   "fuel_type": "electricity",
-  "technology": "rooftop_AC",
+  "technology": ["rooftop_AC", "all ventilation"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in the baseline",
@@ -49,8 +49,18 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.57 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use RTUs for cooling (45,153 sf/79,294 sf)."
+  },
   "_description": "Adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types; restrict to RTUs",
   "_notes": "Measure Definition and Status Google spreadsheet contains calculations for combining RTU and commercial envelope measures and converting units",
   "_added_by": {

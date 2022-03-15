@@ -5,21 +5,27 @@
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
-  "end_use": "cooling",
+  "end_use": ["cooling", "ventilation"],
   "fuel_type": "electricity",
-  "technology": "rooftop_AC",
+  "technology": ["rooftop_AC", "all ventilation"],
   "market_entry_year": 2035,
   "market_entry_year_source": {
     "notes": "null",
     "source_data": null
   },
-  "energy_efficiency": 12.3,
-  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency": {
+      "cooling": 12.3,
+      "ventilation": 0},
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "ventilation": "relative savings (constant)"},
   "energy_efficiency_source": {
     "notes": "ET target",
     "source_data": null
   },
-  "installed_cost": 117.3,
+  "installed_cost": {
+    "cooling": 117.3,
+    "ventilation": 0},
   "installed_cost_source": {
     "notes": "average US cost based on scout 5 yr payback; note that cost is based on cooling",
     "source_data": null
@@ -34,8 +40,18 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.57 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use RTUs for cooling (45,153 sf/79,294 sf)."
+  },
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

@@ -161,7 +161,7 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Best Res. N-Elec. Env.",
   "contributing_ECMs": [
-    "Res. Fossil Heating, ESTAR",
+    "Best Res. Fossil Heating",
     "Other Res. Heating (N-Elec)",
     "Best Residential Windows",
     "Best Res. Air Sealing (New)",
@@ -183,7 +183,7 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Best Com. N-Elec. Env.",
   "contributing_ECMs": [
-    "Com. Fossil Heating, 90.1 c. 2019",
+    "Best Com. Fossil Heating",
     "Other Com. Heating (N-Elec)",
     "Best Com. Air Sealing (Exist)",
     "Best Com. Air Sealing (New)",
