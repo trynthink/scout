@@ -454,7 +454,8 @@ class UsefulVars(object):
             'windows solar', 'ventilation', 'other heat gain', 'wall']
         self.zero_cost_tech = ['infiltration']
         self.inverted_relperf_list = ["ACH", "CFM/ft^2 @ 0.3 in. w.c.",
-                                      "kWh/yr", "kWh/day", "SHGC", "HP/CFM"]
+                                      "kWh/yr", "kWh/day", "SHGC", "HP/CFM",
+                                      "kWh/cycle"]
         self.valid_submkt_urls = [
             '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov',
             '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
@@ -4208,9 +4209,19 @@ class Measure(object):
                     "Ref. Case" in self.name and \
                         self.fuel_switch_to is None:
                     # Reset measure performance and cost to track baseline
-                    perf_meas, cost_meas = [
-                        {yr: val[yr] for yr in self.handyvars.aeo_years}
-                        for val in [perf_base, cost_base]]
+                    perf_meas = {
+                        yr: perf_base[yr] for yr in self.handyvars.aeo_years}
+                    # For cost, ensure that measure is not listed as add-on;
+                    # if so, added cost is zero
+                    if self.measure_type == "add-on":
+                        cost_meas = {
+                            yr: 0 for
+                            yr in self.handyvars.aeo_years}
+                    else:
+                        cost_meas = {
+                            yr: cost_base[yr] for
+                            yr in self.handyvars.aeo_years}
+
                     # Set measure lifetime to track baseline (to remain
                     # consistent with measure lifetime formatting as a
                     # point value, pull data for the first year in the
@@ -8160,11 +8171,14 @@ class Measure(object):
                                 self.technology[mseg_type]]
                 # Generate a list of all possible combinations of the
                 # elements in 'ms_lists_add' above and add this list
-                # to 'ms_iterable_init', also adding 'ms_lists_add'
-                # to 'ms_lists'
+                # to 'ms_iterable_init', also adding the elements of
+                # 'ms_lists_add' to the initial elements of 'ms_lists'
+                # if not already present
                 ms_iterable_init.extend(
                     list(itertools.product(*ms_lists_add)))
-                ms_lists.extend(ms_lists_add)
+                for ind, ms_lists_add_i in enumerate(ms_lists_add):
+                    if ms_lists_add_i not in ms_lists[ind]:
+                        ms_lists[ind].extend(ms_lists_add_i)
 
         # Case without heating or cooling microsegments
         else:
