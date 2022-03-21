@@ -9138,6 +9138,51 @@ class MeasurePackage(Measure):
         # Initialize a list of dicts for storing measure microsegment data as
         # it is looped through and updated
         mseg_dat_rec = [{} for n in range(len(self.contributing_ECMs_eqp))]
+
+        # When a user wishes to package envelope costs with equipment costs
+        # in a package, pull a common set of measure-captured stock figures
+        # to use in calculating the envelope costs to add to the package
+        # later, across all equipment measures in the package
+        if opts.pkg_env_costs is True and len(self.contributing_ECMs_env) > 0:
+            # Initialize dict of common stock data for all equipment
+            # measures in the package
+            common_stk = {a_s: {} for a_s in self.handyvars.adopt_schemes}
+            # Loop through all equipment measures in the package
+            for m in self.contributing_ECMs_eqp:
+                # Loop through all adoption scenarios
+                for a_s in self.handyvars.adopt_schemes:
+                    # Shorthand deep copy of measure stock data
+                    stk_cpy = copy.deepcopy(m.markets[a_s]["mseg_adjust"][
+                        "contributing mseg keys and values"])
+                    # Loop through all contributing msegs for measure
+                    for cm in stk_cpy.keys():
+                        # If contributing mseg is not already
+                        # represented in the common measure-captured stock
+                        # data, add stock data for measure/adoption scn./
+                        # contributing mseg
+                        if cm not in common_stk.keys():
+                            common_stk[a_s][cm] = {met: {yr: stk_cpy[
+                                cm]["stock"][met]["measure"][yr]
+                                for yr in self.handyvars.aeo_years} for
+                                met in ["total", "competed"]}
+                        # If contributing mseg is already represented
+                        # in the common stock data, add stock data for
+                        # contributing measure/adoption scn./contributing mseg
+                        # only if the data values are higher than those already
+                        # stored (e.g., pull the highest measure-captured
+                        # stock values from equipment measures to use in
+                        # adding envelope costs to the package later)
+                        else:
+                            common_stk[a_s][cm] = {met: {yr: stk_cpy[
+                                cm]["stock"][met]["measure"][yr] if
+                                stk_cpy[cm]["stock"][met]["measure"][yr] >
+                                common_stk[a_s][cm][met][yr] else
+                                common_stk[a_s][cm][met][yr]
+                                for yr in self.handyvars.aeo_years} for
+                                met in ["total", "competed"]}
+        else:
+            common_stk = None
+
         # Loop through each measure and either adjust and record its attributes
         # for further processing or directly add its attributes to the merged
         # package measure definition
@@ -9335,7 +9380,7 @@ class MeasurePackage(Measure):
                             msegs_meas_fin[cm], cm, adopt_scheme,
                             mseg_out_break_fin, m[adopt_scheme]["name"],
                             m[adopt_scheme]["fuel_switch_to"], fs_eff_splt,
-                            key_list, opts)
+                            key_list, opts, common_stk)
                     # Apply any additional energy savings and/or installed cost
                     # benefits from packaging
                     msegs_meas_fin[cm] = self.apply_pkg_benefits(
@@ -9525,7 +9570,7 @@ class MeasurePackage(Measure):
                         # data for the current contributing microsegment
                         # across both the equipment and envelope side
                         # that are needed to remove the overlap subsequently
-                        if dmd_match_ECMs != 0:
+                        if len(dmd_match_ECMs) != 0:
                             # Determine the specific contributing microsegment
                             # key(s) to use in pulling data from overlapping
                             # envelope measures for the current region/bldg/
@@ -9716,7 +9761,7 @@ class MeasurePackage(Measure):
                             {yr: 0 for yr in self.handyvars.aeo_years}
                         for n in range(2)]
 
-            # Adjust stock and stock cost data based to be consistent with the
+            # Adjust stock data to be consistent with the
             # energy-based baseline adjustment fractions calculated above
             self.adj_pkg_mseg_keyvals(
                 msegs_meas["stock"], base_adj, base_adj, base_adj,
@@ -9795,14 +9840,17 @@ class MeasurePackage(Measure):
         return msegs_meas, mseg_out_break_adj
 
     def merge_htcl_overlaps(
-            self, msegs_meas, cm_key, adopt_scheme, mseg_out_break_adj,
-            name_meas, fuel_switch_to, fs_eff_splt, key_list, opts):
+            self, msegs_meas, cm_key, adopt_scheme,
+            mseg_out_break_adj, name_meas, fuel_switch_to, fs_eff_splt,
+            key_list, opts, common_stk):
 
         """Adjust measure mseg data to address equip/env overlaps in package.
 
         Args:
             msegs_meas (dict): Data for the contributing microsegment of an
-                individual measure that is being merged into the package.
+                individual measure that is being merged into the package,
+                post-adjustment to consider overlaps across equipment measures
+                in the package.
             cm_key (tuple): Microsegment key describing the contributing
                 microsegment currently being added (e.g. reg->bldg, etc.)
             adopt_scheme (string): Assumed consumer adoption scenario.
@@ -9817,6 +9865,8 @@ class MeasurePackage(Measure):
             key_list (list): List of keys with microsegment info. (primary/
                 secondary, region, bldg, fuel, end use, tech type, vintage).
             opts (object): Stores user-specified execution options.
+            common_stk (dict or NoneType): Common, pre-adjusted measure-
+                captured stock data for the current contributing microsegment.
 
         Returns:
             Updated contributing microsegment and out break info. for the
@@ -9857,22 +9907,36 @@ class MeasurePackage(Measure):
                     tot_base_orig, tot_eff_orig, tot_save_orig,
                     tot_base_orig_ecost, tot_eff_orig_ecost,
                     tot_save_orig_ecost, key_list, fuel_switch_to, fs_eff_splt)
-            # If desired by the user, incorporate envelope stock costs
-            if opts.pkg_env_costs is True:
+            # If desired by the user, incorporate envelope stock costs,
+            # provided that the total measure stock for the current equipment
+            # microsegment anchor is not zero across the time horizon
+            if opts.pkg_env_costs is True and not all([
+                    msegs_meas["stock"]["total"]["measure"][yr] == 0 for yr in
+                    self.handyvars.aeo_years]):
                 mseg_cost_adj = self.add_env_costs_to_pkg(
-                    msegs_meas, adopt_scheme, htcl_key_match)
+                    msegs_meas, adopt_scheme, htcl_key_match, key_list, cm_key,
+                    common_stk)
 
         return msegs_meas, mseg_out_break_adj
 
-    def add_env_costs_to_pkg(self, msegs_meas, adopt_scheme, htcl_key_match):
+    def add_env_costs_to_pkg(
+            self, msegs_meas, adopt_scheme, htcl_key_match, key_list, cm_key,
+            common_stk):
         """Reflect envelope stock costs in HVAC/envelope package data.
 
         Args:
             msegs_meas (dict): Data for the contributing microsegment of an
-                individual measure that is being merged into the package.
+                individual measure that is being merged into the package,
+                post-adjustment to consider overlaps across equipment measures
+                in the package.
             adopt_scheme (string): Assumed consumer adoption scenario.
             htcl_key_match (string): Matching mseg keys to use in pulling
                 overlapping HVAC equipment and envelope data.
+            key_list (string): Mseg key list.
+            cm_key (tuple): Microsegment key describing the contributing
+                microsegment currently being added (e.g. reg->bldg, etc.)
+            common_stk (dict or NoneType): Common, pre-adjusted measure-
+                captured stock data for the current contributing microsegment.
 
         Returns:
             Updated contributing microsegment info. for the equip. measure
@@ -9904,7 +9968,7 @@ class MeasurePackage(Measure):
             for c_mseg in range(len(olm_sc)):
                 tot_stk_eff, tot_stk_cost_eff, tot_stk_base, \
                     tot_stk_cost_base, comp_stk_eff, comp_stk_cost_eff, \
-                    comp_stk_base, comp_stk_cost_base, = [{
+                    comp_stk_base, comp_stk_cost_base = [{
                         yr: (x[yr] + y[yr])
                         for yr in self.handyvars.aeo_years}
                         for x, y in zip([
@@ -9920,38 +9984,6 @@ class MeasurePackage(Measure):
                             olm_sc[c_mseg]["competed"]["efficient"],
                             olm_s[c_mseg]["competed"]["all"],
                             olm_sc[c_mseg]["competed"]["baseline"]])]
-            # Set efficient and baseline envelope costs, normalized by the
-            # stock (# homes in residential, # sf in commercial), to add to
-            # the unit costs of the HVAC equipment measure; note that in both
-            # cases, aggregate costs are anchored on the measure-captured
-            # stock numbers
-            env_cost_eff_tot_unit = {
-                yr: (tot_stk_cost_eff[yr] / tot_stk_eff[yr])
-                if tot_stk_eff[yr] != 0
-                else 0 for yr in self.handyvars.aeo_years}
-            env_cost_base_tot_unit = {
-                yr: (tot_stk_cost_base[yr] / tot_stk_eff[yr])
-                if tot_stk_eff[yr] != 0
-                else 0 for yr in self.handyvars.aeo_years}
-            # Account for the fact that stock turnover dynamics could force
-            # competed stock to zero in certain years, even when measure is
-            # on the market; pull competed stock data from previous year
-            env_cost_eff_comp_unit = {
-                yr: (comp_stk_cost_eff[yr] / comp_stk_eff[yr])
-                if comp_stk_eff[yr] != 0
-                else ((comp_stk_cost_eff[str(int(yr) - 1)] /
-                       comp_stk_eff[str(int(yr) - 1)])
-                      if (yr != self.handyvars.aeo_years[0] and
-                          comp_stk_eff[str(int(yr) - 1)] != 0)
-                      else 0) for yr in self.handyvars.aeo_years}
-            env_cost_base_comp_unit = {
-                yr: (comp_stk_cost_base[yr] / comp_stk_eff[yr])
-                if comp_stk_eff[yr] != 0
-                else ((comp_stk_cost_base[str(int(yr) - 1)] /
-                       comp_stk_eff[str(int(yr) - 1)])
-                      if (yr != self.handyvars.aeo_years[0] and
-                          comp_stk_eff[str(int(yr) - 1)] != 0)
-                      else 0) for yr in self.handyvars.aeo_years}
 
             # Determine whether current mseg pertains to residential or
             # commercial buildings
@@ -9961,22 +9993,24 @@ class MeasurePackage(Measure):
                 bldg_sect = "residential"
             else:
                 bldg_sect = "commercial"
-            # For commercial microsegments, envelope costs will be in units
-            # of $/ft^2 floor; pull factor to convert these costs to the
-            # units of $/kBtu/h heating or cooling service that the HVAC
-            # equipment measures will be using. Note that the factors read
-            # in here are set up to convert from $/kBtu/h heating or cooling
-            # to $/ft^2 floor, and must be inverted to get intended conversion
+            # For commercial microsegments, envelope stock will be in units
+            # of ft^2 floor; pull factor to convert these costs to the
+            # units of kBtu/h heating or cooling service demand that the HVAC
+            # equipment measures will be using
             if bldg_sect == "commercial":
+                # Initial conversion from ft^2 floor to service capacity units.
+                # Note that the factors read in here are set up to convert
+                # from kBtu/h heating or cooling capacity to ft^2 floor,
+                # and must be inverted to get intended conversion
                 if "heating" in htcl_key_match:
-                    convert_env_to_hvac_cost_units = (
+                    stk_cnv_1 = (
                         1 / self.pkg_env_cost_convert_data[
                             "cost unit conversions"]["heating and cooling"][
                             "supply"]["heating equipment"][
                             "conversion factor"]["value"])
 
                 elif "cooling" in htcl_key_match:
-                    convert_env_to_hvac_cost_units = (
+                    stk_cnv_1 = (
                         1 / self.pkg_env_cost_convert_data[
                             "cost unit conversions"]["heating and cooling"][
                             "supply"]["cooling equipment"][
@@ -9986,38 +10020,115 @@ class MeasurePackage(Measure):
                         "Non-heating or cooling end use encountered when "
                         "translating envelope measure cost data unit to "
                         "match those of packaged HVAC equipment measures")
-            # For residential microsegments, envelope costs will already
-            # have been converted to $/home, which is considered 1:1 with
-            # the HVAC equipment measure units ($/unit equipment)
+                # Secondary conversion from hourly service capacity to annual
+                # service demand units
+                try:
+                    # Set appropriate capacity factor (TBtu delivered service
+                    # for hours of actual operation / TBtu service running at
+                    # full capacity for all hours of the year), keyed in
+                    # by building type and end use service
+                    cap_fact_mseg = self.handyvars.cap_facts[
+                        "data"][key_list[2]][key_list[4]]
+                    # Conversion: (1) divides by 1e9 to get from capacity
+                    # units of kBtu to service demand units of TBtu (2)
+                    # multiplies by 8760 to translate units from per hour full
+                    # capacity to per year full capacity (3) multiplies
+                    # by capacity factor (service delivered per year /
+                    # service per year @ full capacity) to get to final units
+                    # of heating or cooling service delivered per year
+                    stk_cnv_2 = (1 / 1e9) * (8760) * cap_fact_mseg
+                    # Adjust conversion to account for capacity factor
+                    convert_env_to_hvac_stk_units = stk_cnv_1 * stk_cnv_2
+                except (KeyError):
+                    raise KeyError(
+                        "Microsegment '" + str(htcl_key_match) + "'"
+                        "requires capacity factor data that are missing")
+
+            # For residential microsegments, envelope stock will already
+            # have been converted to # homes, which is considered 1:1 with
+            # the HVAC equipment measure units (assume one HVAC unit per home)
             else:
-                convert_env_to_hvac_cost_units = 1
+                convert_env_to_hvac_stk_units = 1
+
+            # Convert stock totals for envelope measures to same basis
+            # as stock of HVAC equip. measures, using conversion from above
+            tot_stk_eff, comp_stk_eff = [
+                {yr: s_e[yr] * convert_env_to_hvac_stk_units for
+                 yr in self.handyvars.aeo_years} for s_e in [
+                    tot_stk_eff, comp_stk_eff]]
+            # Pull equipment stock totals to use in normalizing costs; note
+            # that these values are pre-adjustment for overlaps across multiple
+            # equipment measures in the package (e.g., they are the total
+            # measure-captured stock for the current overlapping
+            # microsegment, to ensure this calculation is consistent across
+            # all overlapping equipment measures)
+            tot_stk_eff_hvac_unadj, comp_stk_eff_hvac_unadj = [{
+                yr: s[yr] * convert_env_to_hvac_stk_units for
+                yr in self.handyvars.aeo_years} for s in [
+                    common_stk[adopt_scheme][cm_key]["total"],
+                    common_stk[adopt_scheme][cm_key]["competed"]]]
+            # Develop factors to map number of envelope measure stock
+            # units to number of HVAC measure stock units; note that when
+            # the captured stock for the envelope measure is greater than
+            # that of the HVAC measure, assume envelope stock (# units of
+            # equipment it applies to, for residential, or units demand served,
+            # for commercial) equals the HVAC equipment stock it is being
+            # merged with
+            tot_env_to_hvac_stk = {
+                yr: (tot_stk_eff[yr] / tot_stk_eff_hvac_unadj[yr]) if (
+                    tot_stk_eff[yr] < tot_stk_eff_hvac_unadj[yr]) else (
+                        1 if tot_stk_eff_hvac_unadj[yr] != 0 else 0)
+                for yr in self.handyvars.aeo_years}
+            comp_env_to_hvac_stk = {
+                yr: (comp_stk_eff[yr] / comp_stk_eff_hvac_unadj[yr]) if (
+                    comp_stk_eff[yr] < comp_stk_eff_hvac_unadj[yr]) else (
+                        1 if comp_stk_eff_hvac_unadj[yr] != 0 else 0)
+                for yr in self.handyvars.aeo_years}
+
+            # Set efficient and baseline envelope costs, normalized by the
+            # stock (converted above to same units as HVAC equipment), to add
+            # to the unit costs of the HVAC equipment measure; note that in
+            # both cases, aggregate costs are anchored on the measure-captured
+            # stock numbers
+            env_cost_eff_tot_unit = {
+                yr: ((tot_stk_cost_eff[yr] / tot_stk_eff[yr]) *
+                     tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
+                else 0 for yr in self.handyvars.aeo_years}
+            env_cost_base_tot_unit = {
+                yr: ((tot_stk_cost_base[yr] / tot_stk_eff[yr]) *
+                     tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
+                else 0 for yr in self.handyvars.aeo_years}
+            env_cost_eff_comp_unit = {
+                yr: ((comp_stk_cost_eff[yr] / comp_stk_eff[yr]) *
+                     comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
+                else 0 for yr in self.handyvars.aeo_years}
+            env_cost_base_comp_unit = {
+                yr: ((comp_stk_cost_base[yr] / comp_stk_eff[yr]) *
+                     comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
+                else 0 for yr in self.handyvars.aeo_years}
 
             # Adjust total efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["total"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
                      "efficient"][yr] + env_cost_eff_tot_unit[yr] *
-                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust total baseline stock cost to account for envelope
             msegs_meas["cost"]["stock"]["total"]["baseline"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
                      "baseline"][yr] + env_cost_base_tot_unit[yr] *
-                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust competed efficient stock cost to account for envelope
             msegs_meas["cost"]["stock"]["competed"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
                     "efficient"][yr] + env_cost_eff_comp_unit[yr] *
-                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
             # Adjust competed baseline stock cost to account for envelope
             msegs_meas["cost"]["stock"]["competed"]["baseline"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
                      "baseline"][yr] + env_cost_base_comp_unit[yr] *
-                convert_env_to_hvac_cost_units *
                 msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
 
