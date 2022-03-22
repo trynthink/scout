@@ -2351,10 +2351,16 @@ class Measure(object):
             if self.usr_opts["fugitive_emissions"] is not False:
                 self.markets[adopt_scheme]["master_mseg"][
                     "fugitive emissions"] = {
-                        "total": {
-                            "baseline": None, "efficient": None},
-                        "competed": {
-                            "baseline": None, "efficient": None}}
+                        "methane": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}},
+                        "refrigerants": {
+                            "total": {
+                                "baseline": None, "efficient": None},
+                            "competed": {
+                                "baseline": None, "efficient": None}}}
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -5013,15 +5019,24 @@ class Measure(object):
                             "measure": life_meas}}
 
                     # Check fugitive emissions option settings and update
-                    # dict with fugitive emissions.
+                    # dict with fugitive emissions, broken out by the source
+                    # of the fugitive emissions
                     if opts.fugitive_emissions is not False:
                         add_dict['fugitive emissions'] = {
+                            "methane": {
                                 "total": {
                                     "baseline": add_fcarb_total,
                                     "efficient": add_fcarb_total_eff},
                                 "competed": {
                                     "baseline": add_fcarb_compete,
-                                    "efficient": add_fcarb_compete_eff}}
+                                    "efficient": add_fcarb_compete_eff}},
+                            "refrigerants": {
+                                "total": {
+                                    "baseline": None,
+                                    "efficient": None},
+                                "competed": {
+                                    "baseline": None,
+                                    "efficient": None}}}
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -11655,10 +11670,10 @@ def main(base_dir):
     # If accounting for fugitive emissions is to be applied, gather further
     # information about which fugitive emissions sources should be included and
     # whether to use typical refrigerants (including representation of expected
-    # phase-out years) or user-defined low-GWP refrigerants
+    # phase-out years) or user-defined low-GWP refrigerants, as applicable
     if opts and opts.fugitive_emissions is True:
-        input_var = [0, 0]
-        # Determine which fuel switching scenario to use
+        input_var = [0, None]
+        # Determine which fugitive emissions setting to use
         while input_var[0] not in ['1', '2', '3']:
             input_var[0] = input(
                 "\nChoose which fugitive emissions sources to account for \n"
@@ -11669,21 +11684,17 @@ def main(base_dir):
             if input_var[0] not in ['1', '2', '3']:
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
-        # Convert the user settings choice to a settings name in the input file
-        fugitive_emissions_settings = [
-            "methane leakage only", "refrigerants only", "both"]
-        input_var[0] = fugitive_emissions_settings[int(input_var[0])-1]
-        # Determine assumptions about typical vs. low-GWP refrigerants
-        while (input_var[0] not in ['methane leakage only'] and input_var[1]
-                not in ['1', '2']):
-            input_var[1] = input(
-                "\nEnter 1 to use typical refrigerants, including "
-                "representation of their phase-out years \n or 2 "
-                "to use user-specified low-GWP refrigerants: ")
-            if input_var[1] not in ['1', '2']:
-                print('Please try again. Enter either 1 or 2. '
-                      'Use ctrl-c to exit.')
-        input_var[1] = fugitive_emissions_settings[int(input_var[1])]
+        # In cases where refrigerant emissions are being assessed,
+        # determine assumptions about typical vs. low-GWP refrigerants
+        if input_var[0] != '1':
+            while input_var[1] not in ['1', '2']:
+                input_var[1] = input(
+                    "\nEnter 1 to assume measures use typical refrigerants, "
+                    "including representation of their phase-out years,\nor 2 "
+                    "to assume measures use low-GWP refrigerants: ")
+                if input_var[1] not in ['1', '2']:
+                    print('Please try again. Enter either 1 or 2. '
+                          'Use ctrl-c to exit.')
         opts.fugitive_emissions = input_var
 
     # If the user wishes to modify early retrofit settings from the default
