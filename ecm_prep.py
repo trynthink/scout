@@ -8415,41 +8415,11 @@ class Measure(object):
                 tsv_carb_base * (1 - comp_frac_diffuse) * (
                     1 - meas_cum_frac)
 
-            # Set common variables for the fugitive emissions calculations
-            if opts.fugitive_emissions is not False:
-                # Competed carbon captured by measure
-                fcarb_tot_comp_meas = fcarb_total_sbmkt[yr] * diffuse_frac * \
-                    tsv_energy_eff * comp_frac_diffuse_meas * rel_perf_capt * \
-                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
-                fcarb_tot_comp_base = fcarb_total_sbmkt[yr] * diffuse_frac * \
-                    tsv_energy_base * (
-                        comp_frac_diffuse - comp_frac_diffuse_meas) * \
-                    rel_perf_uncapt
-                # Uncompeted carbon captured by measure
-                fcarb_tot_uncomp_meas = fcarb_total_sbmkt[yr] * \
-                    diffuse_frac * tsv_energy_eff * (1 - comp_frac_diffuse) * \
-                    meas_cum_frac * rel_perf_capt * (
-                        site_source_conv_meas[yr] /
-                        site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
-                fcarb_tot_uncomp_base = fcarb_total_sbmkt[yr] * \
-                    diffuse_frac * tsv_energy_base * \
-                    (1 - comp_frac_diffuse) * (1 - meas_cum_frac) * \
-                    rel_perf_uncapt
-
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_tot_comp_meas + carb_tot_comp_base
             # Total-efficient energy
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 carb_tot_uncomp_meas + carb_tot_uncomp_base
-            # Competed-efficient fugitive emissions
-            if opts.fugitive_emissions is not False:
-                fcarb_compete_eff[yr] = fcarb_tot_comp_meas + \
-                    fcarb_tot_comp_base
-                # Total-efficient energy
-                fcarb_total_eff[yr] = fcarb_compete_eff[yr] + \
-                    fcarb_tot_uncomp_meas + fcarb_tot_uncomp_base
 
             # Set common variables for the fugitive emissions calculations
 
