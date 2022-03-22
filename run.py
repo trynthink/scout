@@ -277,6 +277,25 @@ class Measure(object):
         self.savings, self.financial_metrics = ({} for n in range(2))
         self.update_results = {"savings": {}, "financial metrics": True}
         self.eff_fs_splt = {}
+        # Determine whether fugitive emissions should be assessed for the
+        # measure based on usr_opts attribute; handle case where this
+        # attribute is not present
+        try:
+            if self.usr_opts["fugitive_emissions"] is not False and type(
+                    self.usr_opts["fugitive_emissions"]) == list:
+                # Methane only
+                if self.usr_opts["fugitive_emissions"][0] == '1':
+                    self.fug_e = ["methane"]
+                # Refrigerants only
+                elif self.usr_opts["fugitive_emissions"][0] == '2':
+                    self.fug_e = ["refrigerants"]
+                # Methane and refrigerants
+                elif self.usr_opts["fugitive_emissions"][0] == '3':
+                    self.fug_e = ["methane", "refrigerants"]
+            else:
+                self.fug_e = ""
+        except AttributeError:
+            self.fug_e = ""
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
         self.convert_to_numpy(self.markets)
@@ -297,7 +316,8 @@ class Measure(object):
                         "cost savings": None},
                     "carbon": {
                         "savings": None,
-                        "cost savings": None}},
+                        "cost savings": None}
+                    },
                 "competed": {
                     "stock": {
                         "cost savings": None},
@@ -306,7 +326,15 @@ class Measure(object):
                         "cost savings": None},
                     "carbon": {
                         "savings": None,
-                        "cost savings": None}}}
+                        "cost savings": None}
+                    }}
+            # Append a key to the savings dict for fugitive emissions data in
+            # the case where those data are being assessed for the measure
+            if self.fug_e:
+                for met in ["uncompeted", "competed"]:
+                    self.savings[adopt_scheme][met]["fugitive emissions"] = {
+                        "methane": {"savings": None},
+                        "refrigerants": {"savings": None}}
             self.financial_metrics = {
                 "unit cost": {
                     "stock cost": {
@@ -480,6 +508,20 @@ class Engine(object):
                 ccostsave_tot = ({
                     yr: None for yr in self.handyvars.aeo_years} for
                     n in range(5))
+            # Initialize methane savings dict if fugitive emissions from
+            # methane leaks are being assessed for the measure
+            if m.fug_e and "methane" in m.fug_e:
+                meth_save_tot = {
+                    yr: None for yr in self.handyvars.aeo_years}
+            else:
+                meth_save_tot = ""
+            # Initialize refrigerants savings dict if fugitive emissions from
+            # refrigerant leaks are being assessed for the measure
+            if m.fug_e and "refrigerants" in m.fug_e:
+                meth_save_tot = {
+                    yr: None for yr in self.handyvars.aeo_years}
+            else:
+                refr_save_tot = ""
             # Shorthand for data used to determine uncompeted and competed
             # savings by adoption scheme
             markets_save = m.markets[adopt_scheme][comp_scheme]["master_mseg"]
@@ -506,6 +548,21 @@ class Engine(object):
                 ccostsave_tot[yr] = \
                     markets_save["cost"]["carbon"]["total"]["baseline"][yr] - \
                     markets_save["cost"]["carbon"]["total"]["efficient"][yr]
+                # Calculate fugitive methane emissions savings if applicable
+                if meth_save_tot:
+                    meth_save_tot[yr] = \
+                        markets_save["fugitive emissions"]["methane"][
+                            "total"]["baseline"][yr] - \
+                        markets_save["fugitive emissions"]["methane"][
+                            "total"]["efficient"][yr]
+                # Calculate fugitive refrigerant emissions savings if
+                # applicable
+                if refr_save_tot:
+                    refr_save_tot[yr] = \
+                        markets_save["fugitive emissions"][
+                            "refrigerants"]["total"]["baseline"][yr] - \
+                        markets_save["fugitive emissions"][
+                            "refrigerants"]["total"]["efficient"][yr]
 
             # Record final measure savings figures (across all years)
 
@@ -519,6 +576,14 @@ class Engine(object):
             # Update carbon and carbon cost savings
             save["carbon"]["savings"] = csave_tot
             save["carbon"]["cost savings"] = ccostsave_tot
+            # Update fugitive methane emissions savings if applicable
+            if meth_save_tot:
+                save["fugitive emissions"][
+                    "methane"]["savings"] = meth_save_tot
+            # Update fugitive refrigerant emissions savings if applicable
+            if refr_save_tot:
+                save["fugitive emissions"][
+                    "refrigerants"]["savings"] = refr_save_tot
 
             # Set measure savings for the current adoption and competition
             # schemes to finalized status
@@ -2569,6 +2634,34 @@ class Engine(object):
             mast["energy"]["competed"]["efficient"],
             mast["carbon"]["competed"]["efficient"]]
 
+        # Add total-baseline and competed-baseline overall fugitive emissions
+        # totals to the lists above, if applicable
+
+        # Add fugitive emissions from methane if applicable
+        if m.fug_e and "methane" in m.fug_e:
+            mast_list_base.extend([
+                mast["fugitive emissions"]["methane"][
+                    "total"]["baseline"],
+                mast["fugitive emissions"]["methane"][
+                    "competed"]["baseline"]])
+            mast_list_eff.extend([
+                mast["fugitive emissions"]["methane"][
+                    "total"]["efficient"],
+                mast["fugitive emissions"]["methane"][
+                    "competed"]["efficient"]])
+        # Add fugitive emissions from refrigerants if applicable
+        if m.fug_e and "refrigerants" in m.fug_e:
+            mast_list_base.extend([
+                mast["fugitive emissions"]["refrigerants"][
+                    "total"]["baseline"],
+                mast["fugitive emissions"]["refrigerants"][
+                    "competed"]["baseline"]])
+            mast_list_eff.extend([
+                mast["fugitive emissions"]["refrigerants"][
+                    "total"]["efficient"],
+                mast["fugitive emissions"]["refrigerants"][
+                    "competed"]["efficient"]])
+
         # Initialize shorthand dict for baseline energy/cost/carbon, efficient
         # energy/cost/carbon, and energy/cost/carbon savings breakout
         # information for the current measure that falls under the climate
@@ -2960,6 +3053,34 @@ class Engine(object):
             adj["cost"]["carbon"]["competed"]["efficient"],
             adj["energy"]["competed"]["efficient"],
             adj["carbon"]["competed"]["efficient"]]
+
+        # Add total-baseline and competed-baseline contributing microsegment
+        # fugitive emissions totals to the lists above, if applicable
+
+        # Add fugitive emissions from methane if applicable
+        if m.fug_e and "methane" in m.fug_e:
+            adj_list_base.extend([
+                adj["fugitive emissions"]["methane"][
+                    "total"]["baseline"],
+                adj["fugitive emissions"]["methane"][
+                    "competed"]["baseline"]])
+            adj_list_eff.extend([
+                adj["fugitive emissions"]["methane"][
+                    "total"]["efficient"],
+                adj["fugitive emissions"]["methane"][
+                    "competed"]["efficient"]])
+        # Add fugitive emissions from refrigerants if applicable
+        if m.fug_e and "refrigerants" in m.fug_e:
+            adj_list_base.extend([
+                adj["fugitive emissions"]["refrigerants"][
+                    "total"]["baseline"],
+                adj["fugitive emissions"]["refrigerants"][
+                    "competed"]["baseline"]])
+            adj_list_eff.extend([
+                adj["fugitive emissions"]["refrigerants"][
+                    "total"]["efficient"],
+                adj["fugitive emissions"]["refrigerants"][
+                    "competed"]["efficient"]])
 
         return mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
             adj_list_eff, adj_list_base, adj_stk_trk
@@ -3457,18 +3578,47 @@ class Engine(object):
                 adj["carbon"]["total"][x][yr] = [
                 (x[yr] * adj_t[v]) for x, v in zip(
                     adjlist[3:5], ["energy", "carbon"])]
+
+            # Adjust total emissions from fugitive emissions if applicable
+            if measure.fug_e:
+                # Loop through total vs. competed metric types
+                for met in ["total", "competed"]:
+                    # Set appropriate adjustment fraction; total adjustment
+                    # is based on the adjustment for energy (fugitive
+                    # emissions totals are based on amount of energy consumed)
+                    if met == "total":
+                        adj_frac = adj_t["energy"]
+                    else:
+                        adj_frac = adj_c
+                    # Adjust fugitive methane emissions results if applicable
+                    if measure.fug_e and "methane" in measure.fug_e:
+                        mast["fugitive emissions"]["methane"][met][x][yr] = \
+                            mastlist[-2][yr] - (
+                                adjlist[-2][yr] * (1 - adj_frac))
+                        adj["fugitive emissions"]["methane"][met][x][yr] = \
+                            adjlist[10][yr] * adj_frac
+                    # Adjust fugitive refrigerant emissions results if
+                    # applicable
+                    if measure.fug_e and "refrigerants" in measure.fug_e:
+                        mast["fugitive emissions"][
+                            "refrigerants"][met][x][yr] = mastlist[-1][yr] - (
+                                adjlist[-1][yr] * (1 - adj_frac))
+                        adj["fugitive emissions"][
+                            "refrigerants"][met][x][yr] = \
+                            adjlist[-1][yr] * adj_frac
+
             # Adjust competed energy/carbon and energy/carbon costs
             mast["cost"]["energy"]["competed"][x][yr], \
                 mast["cost"]["carbon"]["competed"][x][yr], \
                 mast["energy"]["competed"][x][yr], \
                 mast["carbon"]["competed"][x][yr] = [
                     x[yr] - (y[yr] * (1 - adj_c)) for x, y in
-                    zip(mastlist[6:], adjlist[6:])]
+                    zip(mastlist[6:10], adjlist[6:10])]
             adj["cost"]["energy"]["competed"][x][yr], \
                 adj["cost"]["carbon"]["competed"][x][yr], \
                 adj["energy"]["competed"][x][yr], \
                 adj["carbon"]["competed"][x][yr] = [
-                    (x[yr] * adj_c) for x in adjlist[6:]]
+                    (x[yr] * adj_c) for x in adjlist[6:10]]
 
     def finalize_outputs(
             self, adopt_scheme, trim_out, trim_yrs, report_stk, report_cfs):
@@ -3493,6 +3643,10 @@ class Engine(object):
         # Initialize markets and savings totals across all ECMs
         summary_vals_all_ecms = [{
             yr: 0 for yr in focus_yrs} for n in range(12)]
+        # Initialize fugitive markets and savings totals across all ECMs
+        # as None (re-initialized below in case where fugitive emissions are
+        # assessed)
+        summary_vals_all_ecms_f_e = None
         # Initialize variable that aggregates total and incremental
         # stock cost for deploying measures across all measures, provided
         # the user has chosen to report those data. Structure this variable
@@ -3545,6 +3699,56 @@ class Engine(object):
                 yr: summary_vals_all_ecms[v][yr] + summary_vals[v][yr] for
                 yr in focus_yrs} for v in range(0, 12)]
 
+            # If fugitive emissions are being assessed for the measure,
+            # initialize a summary list for those data
+            if m.fug_e:
+                # Set baseline and efficient fugitive emissions results
+                summary_vals_f_e = [
+                    mkts["fugitive emissions"][x]["total"][y] for x in
+                        ["methane", "refrigerants"] for y in
+                        ["baseline", "efficient"]]
+                # Set fugitive emissions savings results
+                summary_vals_f_e.extend([
+                    save["fugitive emissions"][x]["savings"] for x in
+                    ["methane", "refrigerants"]])
+                # Order the year entries in the above markets, savings,
+                # and portfolio metrics outputs
+                summary_vals_init_f_e = [OrderedDict(
+                    sorted(x.items())) if x is not None else None
+                    for x in summary_vals_f_e]
+                # Apply focus year range, if applicable
+                for ind, v in enumerate(summary_vals_f_e):
+                    # Exclude None values from operation (e.g.,
+                    # when methane is assessed without refrigerants,
+                    # refrigerant values will be None and vice versa)
+                    if v is not None:
+                        summary_vals_f_e[ind] = {
+                            yr: summary_vals_init_f_e[ind][yr]
+                            for yr in focus_yrs}
+                # If summary list of fugitive emissions results across all
+                # ECMs has not already been re-initialized, do so while adding
+                # the fugitive emissions data for the current measure
+                if summary_vals_all_ecms_f_e is None:
+                    summary_vals_all_ecms_f_e = []
+                    for ind, v in enumerate(summary_vals_f_e):
+                        # Exclude None values from operation
+                        if v is not None:
+                            summary_vals_all_ecms_f_e.append({
+                                yr: summary_vals_f_e[ind][yr] for
+                                yr in focus_yrs})
+                        else:
+                            summary_vals_all_ecms_f_e.append(v)
+                # Otherwise, add fugitive emissions data for the current
+                # measure to the previously initialized sum of fugitive
+                # emissions data across all ECMs
+                else:
+                    for ind, v in enumerate(summary_vals_f_e):
+                        # Exclude None values from operation
+                        if v is not None:
+                            summary_vals_all_ecms_f_e[ind] = {
+                                yr: (summary_vals_all_ecms_f_e[ind][yr] +
+                                     summary_vals_f_e[ind][yr]) for
+                                yr in focus_yrs}
             # Find mean and 5th/95th percentile values of each output
             # (note: if output is point value, all three of these values
             # will be the same)
@@ -3630,6 +3834,44 @@ class Engine(object):
                     "Avoided CO2 Emissions (MMTons)".translate(sub),
                     "Energy Cost Savings (USD)",
                     "CO2 Cost Savings (USD)".translate(sub)]
+                # Record updated (post-competed) fugitive emissions results
+                # for individual ECM if applicable
+                if m.fug_e:
+                    # Record updated baseline/efficient methane results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Baseline Fugitive Methane (MMTons CO2e)"], \
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Methane (MMTons CO2e)"] = \
+                        summary_vals_f_e[0:2]
+                    # Record updated methane savings results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Fugitive Methane Savings (MMTons CO2e)"] = \
+                        summary_vals_f_e[4]
+                    # Record updated baseline/efficient refrigerant results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
+                        summary_vals_f_e[2:4]
+                    # Record updated refrigerant savings results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
+                        summary_vals_f_e[5]
+                    mkt_base_keys.extend([
+                        "Baseline Fugitive Methane (MMTons CO2e)",
+                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
+                    mkt_eff_keys.extend([
+                        "Efficient Fugitive Methane (MMTons CO2e)",
+                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
+                    save_keys.extend([
+                        "Fugitive Methane Savings (MMTons CO2e)",
+                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
             else:
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
@@ -3660,6 +3902,44 @@ class Engine(object):
                 save_keys = [
                     "Energy Savings (MMBtu)",
                     "Avoided CO2 Emissions (MMTons)".translate(sub)]
+                # Record updated (post-competed) fugitive emissions results
+                # for individual ECM if applicable
+                if m.fug_e:
+                    # Record updated baseline/efficient methane results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Baseline Fugitive Methane (MMTons CO2e)"], \
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Methane (MMTons CO2e)"] = \
+                        summary_vals_f_e[0:2]
+                    # Record updated methane savings results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Fugitive Methane Savings (MMTons CO2e)"] = \
+                        summary_vals_f_e[4]
+                    # Record updated baseline/efficient refrigerant results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
+                        summary_vals_f_e[2:4]
+                    # Record updated refrigerant savings results
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][
+                        "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
+                        summary_vals_f_e[5]
+                    mkt_base_keys.extend([
+                        "Baseline Fugitive Methane (MMTons CO2e)",
+                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
+                    mkt_eff_keys.extend([
+                        "Efficient Fugitive Methane (MMTons CO2e)",
+                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
+                    save_keys.extend([
+                        "Fugitive Methane Savings (MMTons CO2e)",
+                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
 
             # If competition adjustment fractions must be reported, find/store
             # those data
@@ -4160,7 +4440,33 @@ class Engine(object):
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme]["Incremental Measure Stock Cost ($)"] = \
                 stk_cost_all_ecms[1]
-
+        # Record updated (post-competed) fugitive emissions results across all
+        # ECMs if applicable
+        if summary_vals_all_ecms_f_e is not None:
+            # Record updated baseline/efficient methane results
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Baseline Fugitive Methane (MMTons CO2e)"], \
+                self.output_all["All ECMs"][
+                    "Markets and Savings (Overall)"][adopt_scheme][
+                "Efficient Fugitive Methane (MMTons CO2e)"] = \
+                summary_vals_all_ecms_f_e[0:2]
+            # Record updated methane savings results
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Fugitive Methane Savings (MMTons CO2e)"] = \
+                summary_vals_all_ecms_f_e[4]
+            # Record updated baseline/efficient refrigerant results
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme][
+                    "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
+                self.output_all["All ECMs"][
+                    "Markets and Savings (Overall)"][adopt_scheme][
+                "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
+                summary_vals_all_ecms_f_e[2:4]
+            # Record updated refrigerant savings results
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme][
+                    "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
+                summary_vals_all_ecms_f_e[5]
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
         if trim_out is not False and energy_eff_all_avg != energy_eff_all_low:
