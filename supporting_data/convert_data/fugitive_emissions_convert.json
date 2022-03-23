@@ -113,7 +113,7 @@
       "refrigerant_data_by_tech_type": {
          "commercial": {
             "scroll_chiller": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 0.872807018,
                "typ_ann_leak_pct": 0.05,
@@ -121,7 +121,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "centrifugal_chiller": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234ze'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234ze"},
                "low_gwp_refrigerant": "R-1234ze",
                "typ_charge": 0.188433333,
                "typ_ann_leak_pct": 0.02,
@@ -129,7 +129,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "reciprocating_chiller": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234ze'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234ze"},
                "low_gwp_refrigerant": "R-1234ze",
                "typ_charge": 0.552777778,
                "typ_ann_leak_pct": 0.05,
@@ -137,7 +137,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "screw_chiller": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234ze'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234ze"},
                "low_gwp_refrigerant": "R-1234ze",
                "typ_charge": 0.414583333,
                "typ_ann_leak_pct": 0.05,
@@ -145,7 +145,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "res_type_central_AC": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 0.094444444,
                "typ_ann_leak_pct": 0.05,
@@ -153,7 +153,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "comm_GSHP-cool": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 2.708333333,
                "typ_ann_leak_pct": 0.05,
@@ -161,15 +161,23 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "rooftop_ASHP-cool": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 1.444444444,
                "typ_ann_leak_pct": 0.05,
                "EOL_leak_pct": 0.15,
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
+            "rooftop_AC": {
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
+               "low_gwp_refrigerant": "R-32",
+               "typ_charge": 45.4,
+               "typ_ann_leak_pct": 0.025,
+               "EOL_leak_pct": 0.15,
+               "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
+            },
             "wall-window_room_AC": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 0.066666667,
                "typ_ann_leak_pct": 0.02,
@@ -177,7 +185,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "refrigeration - large": {
-               "typ_refrigerant": "{2020: 'R-404A', 2025: 'R454C'}",
+               "typ_refrigerant": {"2020": "R-404A", "2025": "R454C"},
                "low_gwp_refrigerant": "R454C",
                "typ_charge": 0.914362177,
                "typ_ann_leak_pct": 0.18,
@@ -185,7 +193,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "refrigeration - small": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234yf'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234yf"},
                "low_gwp_refrigerant": "R-1234yf",
                "typ_charge": 0.914362177,
                "typ_ann_leak_pct": 0.05,
@@ -195,7 +203,7 @@
          },
          "residential": {
             "room AC": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 0.7,
                "typ_ann_leak_pct": 0.02,
@@ -203,7 +211,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "ASHP": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 3.3,
                "typ_ann_leak_pct": 0.04,
@@ -211,7 +219,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "GSHP": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 3.3,
                "typ_ann_leak_pct": 0.04,
@@ -219,23 +227,15 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "central AC": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
+               "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
                "typ_charge": 3.4,
                "typ_ann_leak_pct": 0.04,
                "EOL_leak_pct": 0.15,
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
-            "rooftop_AC": {
-               "typ_refrigerant": "{2020: 'R-410A', 2025: 'R-32'}",
-               "low_gwp_refrigerant": "R-32",
-               "typ_charge": 45.4,
-               "typ_ann_leak_pct": 0.025,
-               "EOL_leak_pct": 0.15,
-               "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
-            },
             "HPWH": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234yf'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234yf"},
                "low_gwp_refrigerant": "R-1234yf",
                "typ_charge": 4.7,
                "typ_ann_leak_pct": 0.02,
@@ -243,7 +243,7 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "refrigeration": {
-               "typ_refrigerant": "{2020: 'R-134a', 2025: 'R-1234yf'}",
+               "typ_refrigerant": {"2020": "R-134a", "2025": "R-1234yf"},
                "low_gwp_refrigerant": "R-1234yf",
                "typ_charge": 0.275,
                "typ_ann_leak_pct": 0.003,
