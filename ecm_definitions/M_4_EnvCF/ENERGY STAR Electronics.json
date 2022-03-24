@@ -57,15 +57,27 @@
     }]
   },
   "installed_cost": {
-      "TV": 432,
-      "desktop PC": 529,
-      "laptop PC": 595,
+      "TV": 700,
+      "desktop PC": 600,
+      "laptop PC": 800,
       "monitors": 159,
-      "set top box": 124.5
+      "set top box": 124.2
   },
-  "cost_units": "2017$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Assume same 2021 cost as typical products in Scout cost, performance, and lifetime database",
+    "notes": "TVs/PCs based on Amazon searches of lowest-cost ENERGY STAR products; monitors/set top boxes based on Scout baseline data 2022 cost",
+    "source_data": [{
+      "title": "Amazon.com",
+      "author": null,
+      "organization": "Amazon, Inc.",
+      "year": 2022,
+      "pages": null,
+      "URL": [
+        "https://www.amazon.com/s?i=electronics&bbn=6459737011&rh=n%3A6459737011%2Cp_n_special_merchandising_browse-bin%3A544495011%2Cp_n_size_browse-bin%3A3578042011%2Cp_n_feature_nine_browse-bin%3A21103541011%7C23478599011&s=price-asc-rank&dc&qid=1648048646&rnid=4972967011&ref=sr_nr_p_n_feature_nine_browse-bin_1",
+        "https://www.amazon.com/s?k=desktop+computer&i=electronics&rh=n%3A565098%2Cp_n_special_merchandising_browse-bin%3A544495011%2Cp_n_condition-type%3A2224371011%2Cp_n_operating_system_browse-bin%3A23724790011%2Cp_n_feature_twenty-three_browse-bin%3A7817224011&s=price-asc-rank&dc&crid=11OPWY0UQ1E58&qid=1648049393&rnid=2257851011&sprefix=desktop+computer%2Caps%2C78&ref=sr_nr_p_n_feature_twenty-three_browse-bin_3",
+        "https://www.amazon.com/s?k=laptop+computer&i=computers&rh=n%3A565108%2Cp_n_size_browse-bin%3A3545275011%2Cp_n_operating_system_browse-bin%3A23724789011%7C23724790011%7C7529233011%2Cp_n_condition-type%3A2224371011%2Cp_n_special_merchandising_browse-bin%3A544495011&s=price-asc-rank&dc&crid=20RAXSSMV6E95&qid=1648048996&rnid=544494011&sprefix=laptop%2Ccomputers%2C59&ref=sr_nr_p_n_special_merchandising_browse-bin_1"]
+    },{
+    "notes": "Assume same lifetime as typical products in Scout cost, performance, and lifetime database",
     "source_data": {
       "title": "Scout baseline cost, pperformance, and lifetime data",
       "author": null,
@@ -73,7 +85,7 @@
       "year": 2021,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
-    }},
+    }}]},
   "product_lifetime": {
       "TV": 8,
       "desktop PC": 5,
