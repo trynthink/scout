@@ -710,6 +710,21 @@ class UsefulVars(object):
                 "centrifugal_chiller", "screw_chiller",
                 "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool",
                 "gas_eng-driven_RTHP-cool"]
+        # Fugitive refrigerant emissions calculations also require
+        # understanding of which commercial heating/cooling technologies fall
+        # into the RTU/small commercial category vs. large commercial category
+        elif opts.fugitive_emissions is not False:
+            self.hp_rates = None
+            self.com_RTU_fs_tech = [
+                "gas_furnace", "oil_furnace", "electric_res-heat",
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+            self.com_nRTU_fs_tech = [
+                "elec_boiler", "gas_eng-driven_RTHP-heat",
+                "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
+                "scroll_chiller", "reciprocating_chiller",
+                "centrifugal_chiller", "screw_chiller",
+                "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool",
+                "gas_eng-driven_RTHP-cool"]
         else:
             self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (
                 None for n in range(3))
@@ -752,9 +767,10 @@ class UsefulVars(object):
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_reg_map, "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)])}
-            # Read in mapping for state methane leakage rates for
-            # AIA -> state mapping
-            if self.fug_emissions:
+            # Read in state -> AIA mapping data only when methane leakage is
+            # assessed
+            if opts.fugitive_emissions is not False and \
+                    opts.fugitive_emissions[0] in ['1', '3']:
                 try:
                     self.fugitive_emissions_map = numpy.genfromtxt(
                         path.join(base_dir, *handyfiles.state_aia_map),
@@ -802,9 +818,10 @@ class UsefulVars(object):
                     }
                 else:
                     self.hp_rates_reg_map = None
-                # If applicable, pull regional mapping needed to read in
-                # state methane leakage data and map to EMM regions
-                if self.fug_emissions:
+                # Read in state -> EMM mapping data only when methane leakage
+                # is assessed
+                if opts.fugitive_emissions is not False and \
+                        opts.fugitive_emissions[0] in ['1', '3']:
                     try:
                         self.fugitive_emissions_map = numpy.genfromtxt(
                             path.join(base_dir, *handyfiles.state_emm_map),
@@ -2349,18 +2366,37 @@ class Measure(object):
             # Add fugitive emissions key to output dict if fugitive
             # emissions option is set
             if self.usr_opts["fugitive_emissions"] is not False:
+                # Initialize methane/refrigerant values as zero when that
+                # fugitive option is being assessed (in which case new data
+                # will be summed into the zero dicts), and as None otherwise
+
+                # Check for methane assessment/initialization of zero dict
+                if self.usr_opts["fugitive_emissions"][0] in ['1', '3']:
+                    init_meth = {yr: 0 for yr in self.handyvars.aeo_years}
+                else:
+                    init_meth = None
+                # Check for refrigerants assessment/initialization of zero dict
+                if self.usr_opts["fugitive_emissions"][0] in ['2', '3']:
+                    init_refr = {yr: 0 for yr in self.handyvars.aeo_years}
+                else:
+                    init_refr = None
+                # Organize methane and refrigerants dict under broader key
                 self.markets[adopt_scheme]["master_mseg"][
                     "fugitive emissions"] = {
                         "methane": {
                             "total": {
-                                "baseline": None, "efficient": None},
+                                "baseline": copy.deepcopy(init_meth),
+                                "efficient": copy.deepcopy(init_meth)},
                             "competed": {
-                                "baseline": None, "efficient": None}},
+                                "baseline": copy.deepcopy(init_meth),
+                                "efficient": copy.deepcopy(init_meth)}},
                         "refrigerants": {
                             "total": {
-                                "baseline": None, "efficient": None},
+                                "baseline": copy.deepcopy(init_refr),
+                                "efficient": copy.deepcopy(init_refr)},
                             "competed": {
-                                "baseline": None, "efficient": None}}}
+                                "baseline": copy.deepcopy(init_refr),
+                                "efficient": copy.deepcopy(init_refr)}}}
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -4759,14 +4795,20 @@ class Measure(object):
                             if key in self.handyvars.aeo_years}
 
                 # If applicable, determine fugitive emissions from
-                # supply chain methane leakage and refrigerants.
+                # supply chain methane leakage and refrigerants
 
                 # Calculate fugitive emissions from methane leakage
                 # for cases where baseline fuel is natural gas. Map
                 # the current mseg region to the regionality of the
-                # fugitive emissions methane leakage data.
-                if opts.fugitive_emissions is not False and mskeys[3] == \
-                        "natural gas":
+                # fugitive emissions methane leakage data (state breakouts)
+
+                # Non-state region setting must be mapped to state
+                if opts.fugitive_emissions is not False and \
+                    opts.fugitive_emissions[0] in ['1', '3'] and (
+                        opts.alt_regions != "State" and
+                        mskeys[3] == "natural gas"):
+                    # Prepare fractions needed to map state-resolved
+                    # fugitive methane data to current region
                     try:
                         reg_weight_row = [r_i for r_i, r in enumerate(
                             self.handyvars.fugitive_emissions_map) if
@@ -4776,6 +4818,7 @@ class Measure(object):
                             mapping data found for region '" + mskeys[1] + "'")
                     reg_weight = self.handyvars.fugitive_emissions_map[
                         reg_weight_row]
+                    # Apply mapping fractions to develop methane leakage rate
                     try:
                         lkg_rate = sum([self.handyvars.fug_emissions[
                             "methane"]["total_leakage_rate"][state] *
@@ -4786,61 +4829,239 @@ class Measure(object):
                         raise ValueError("Inconsistent state keys \
                             between fugitive emissions leakage rate data \
                             and geographical mapping data")
+                # State region setting requires no further mapping
                 elif opts.fugitive_emissions is not False and \
+                    opts.fugitive_emissions[0] in ['1', '3'] and \
                         mskeys[3] == "natural gas":
+                    # Directly pull methane leakage rate for current state
                     lkg_rate = self.handyvars.fug_emissions[
                         "methane"]["total_leakage_rate"][mskeys[1]]
+                else:
+                    lkg_rate = None
 
-                # Total fugitive emissions, specified separately
-                # for emissions from refrigerant leakage and
-                # emissions from methane leakage from the nat gas
-                # supply chain
-                # add_fcarb = {"refrigerants": {key: (val * \
-                #                 # Annual refrigerant leakage emissions
-                #                 # CO2e = (typ_charge * typ_ann_leak * GWP)
-                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["typ_charge_kg"] * \
-                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["typ_ann_leak_pct"] * \
-                #                 # refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 # ["system_life"] * \
-                #                 refrigerant_co2["refrigerant_GWP100"] \
-                #                 [refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["typ_refrigerant"]]) + \
-                #                 # Add EOL refrigerant leakage emissions
-                #                 (refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["typ_charge_kg"] * \
-                #                 refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["EOL_leak_pct"] * \
-                #                 refrigerant_co2["refrigerant_GWP100"] \
-                #                 [refrigerant_co2[bldg_sect][mskeys[-2]] \
-                #                 ["typ_refrigerant"]])
-                #             for key, val in add_stock.items()
-                #             if key in self.handyvars.aeo_years}}
-                # # Add handling of typ refrig by year
-                # Set lkg_emissions
+                # Calculate fugitive emissions from refrigerants
+                # for cases where supporting refrigerant leakage data are
+                # available for the current mseg building/technology type
+                if opts.fugitive_emissions is not False and \
+                        opts.fugitive_emissions[0] in ['2', '3']:
+                    # Set building type name (residential/commercial) to key
+                    # refrigerant data
+                    bldg_name_chk = copy.deepcopy(bldg_sect)
+
+                    # Set technology names to key baseline and efficient case
+                    # refrigerant data for the current mseg; set name
+                    # separately for measure and comparable baseline
+                    # technology
+
+                    # Thermal end use technology casess
+                    if mskeys[4] in ["heating", "cooling", "secondary heating",
+                                     "water heating"]:
+                        # Flag for HP measure (requires special handling)
+                        hp_flag = any([x in self.name for x in [
+                            "HP", "heat pump", "Heat Pump"]])
+
+                        # Measure is HP for heating/cooling
+                        if hp_flag and mskeys[4] in [
+                                "heating", "cooling", "secondary heating"]:
+                            # Set measure refrigerant data to that of
+                            # a GSHP or ASHP based on measure name
+                            if any([x in self.name for x in [
+                                    "GSHP", "Ground", "ground"]]):
+                                if bldg_sect == "residential":
+                                    tech_name_chk_e = "GSHP"
+                                else:
+                                    tech_name_chk_e = "comm_GSHP-cool"
+                            else:
+                                # Residential case; assume switching to
+                                # air source heat pump
+                                if bldg_sect == "residential":
+                                    tech_name_chk_e = "ASHP"
+                                # Commercial case; assume switching to
+                                # air source heat pump for small
+                                # commercial HVAC, and water/ground
+                                # source HP for large
+                                else:
+                                    # Small commercial
+                                    if mskeys[-2] in \
+                                            self.handyvars.com_RTU_fs_tech:
+                                        tech_name_chk_e = \
+                                            "rooftop_ASHP-cool"
+                                    # Large commercial
+                                    else:
+                                        tech_name_chk_e = "comm_GSHP-cool"
+                            # Set baseline refrigerant data to that of the
+                            # measure in the case of a like-for-like heat
+                            # pump replacement or the case of switching to
+                            # a HP from another baseline heating technology
+                            if (mskeys[-2] is not None and
+                                "HP" in mskeys[-2]) \
+                                    or "cooling" not in mskeys:
+                                tech_name_chk_b = copy.deepcopy(
+                                    tech_name_chk_e)
+                                # Given like-for-like HP replacement, do not
+                                # set flag to zero out baseline refrigerant
+                                # emissions (since they occur in baseline too)
+                                if mskeys[-2] is not None and \
+                                        "HP" in mskeys[-2]:
+                                    zero_b_r_flag, zero_m_r_flag = (
+                                        False for n in range(2))
+                                # Given switch to HP from another baseline
+                                # heating technology, set flag to zero out
+                                # baseline refrigerant emissions (since they
+                                # do not occur in baseline)
+                                else:
+                                    zero_b_r_flag = True
+                                    zero_m_r_flag = False
+                            # Set baseline refrigerant data to that of the
+                            # baseline technology name in the case of a
+                            # switch to HP from another baseline cooling tech.
+                            else:
+                                tech_name_chk_b = mskeys[-2]
+                                # Given switch to HP from another baseline
+                                # cooling technology, set flag to zero out
+                                # measure refrigerant emissions (since they
+                                # are assessed for the heating stock portion of
+                                # the HP technology and thus would otherwise
+                                # be double counted)
+                                zero_b_r_flag = False
+                                zero_m_r_flag = True
+                        # Measure is HP for water heating
+                        elif hp_flag and mskeys[4] in "water heating":
+                            # Set measure refrigerant data to that of a HPWH,
+                            # names differ by bldg. typ.
+                            if bldg_sect == "residential":
+                                tech_name_chk_e = "HPWH"
+                            else:
+                                tech_name_chk_e = "HP water heater"
+                            # Set baseline refrigerant data to that of the
+                            # measure in the case of a like-for-like heat
+                            # pump WH replacement or the case of switching to
+                            # a HPWH from another baseline WH technology (e.g.,
+                            # in all possible cases)
+                            tech_name_chk_b = copy.deepcopy(tech_name_chk_e)
+                            # Given like-for-like HPWH replacement, do not
+                            # set flag to zero out baseline refrigerant
+                            # emissions (since they occur in baseline too)
+                            if (mskeys[-2] is not None and
+                                    "HP" in mskeys[-2]):
+                                tech_name_chk_b = copy.deepcopy(
+                                    tech_name_chk_e)
+                                zero_b_r_flag, zero_m_r_flag = (
+                                        False for n in range(2))
+                            # Given switch to HPWH from another baseline
+                            # heating technology, set flag to zero out
+                            # baseline refrigerant emissions (since they
+                            # do not occur in baseline)
+                            else:
+                                zero_b_r_flag = True
+                                zero_m_r_flag = False
+                        # In all other cases, assume measure tech. follows
+                        # baseline tech., accounting for special handling of
+                        # commercial HP name (this handles a case where a
+                        # measure applies to a HP but hasn't been flagged as a
+                        # HP measure above based on its name)
+                        else:
+                            if bldg_name_chk == "residential":
+                                tech_name_chk_b = mskeys[-2]
+                            else:
+                                # Commercial heat pump refrigerant data are
+                                # organized around cooling mode; ensure that
+                                # efficient HP segments applying to heating are
+                                # keyed to pull in data
+                                if mskeys[-2] is not None and \
+                                        "GSHP" in mskeys[-2]:
+                                    tech_name_chk_b = "comm_GSHP-cool"
+                                elif mskeys[-2] is not None and \
+                                        "ASHP" in mskeys[-2]:
+                                    tech_name_chk_b = "rooftop_ASHP-cool"
+                                else:
+                                    tech_name_chk_b = mskeys[-2]
+                            tech_name_chk_e = copy.deepcopy(tech_name_chk_b)
+                            zero_b_r_flag, zero_m_r_flag = (
+                                False for n in range(2))
+                    # Refrigeration measure; special handling needed
+                    # for commercial
+                    elif mskeys[4] == "refrigeration":
+                        # Residential case; use mseg technology name as-is
+                        # to key in refrigerants data; pull identical
+                        # refrigerant data for baseline and efficient cases
+                        if bldg_name_chk == "residential":
+                            tech_name_chk_b, tech_name_chk_e = (
+                                mskeys[-2] for n in range(2))
+                        # Commercial case; map technology name to small and
+                        # large refrigeration categories used in the
+                        # refrigerants data; pull identical refrigerant
+                        # data for baseline and efficient cases
+                        else:
+                            if mskeys[-2] in [
+                                "Commercial Refrigerated Vending Machines",
+                                "Commercial Beverage Merchandisers",
+                                "Commercial Ice Machines",
+                                "Commercial Reach-In Freezers",
+                                    "Commercial Reach-In Refrigerators"]:
+                                tech_name_chk_b, tech_name_chk_e = (
+                                    "refrigeration - small" for n in range(2))
+                            else:
+                                tech_name_chk_b, tech_name_chk_e = (
+                                    "refrigeration - large" for n in range(2))
+                        zero_b_r_flag, zero_m_r_flag = (
+                            False for n in range(2))
+                    else:
+                        tech_name_chk_b, tech_name_chk_e = (
+                            mskeys[-2] for n in range(2))
+                        zero_b_r_flag, zero_m_r_flag = (
+                            False for n in range(2))
+
+                    # Attempt to pull refrigerant data dict for the base case
+                    # technology; if no data available set to None
+                    try:
+                        f_refr_b = self.handyvars.fug_emissions[
+                            "refrigerants"]["refrigerant_data_by_tech_type"][
+                                bldg_name_chk][tech_name_chk_b]
+                    except KeyError:
+                        f_refr_b = None
+                    # Attempt to pull refrigerant data dict for the measure
+                    # case; if no data available set to None
+                    try:
+                        f_refr_e = self.handyvars.fug_emissions[
+                            "refrigerants"]["refrigerant_data_by_tech_type"][
+                                bldg_name_chk][tech_name_chk_e]
+                    except KeyError:
+                        f_refr_e = None
+                else:
+                    f_refr_e, f_refr_b = (None for n in range(2))
+                    zero_b_r_flag, zero_m_r_flag = (False for n in range(2))
+
+                # Finalize dict of supporting fugitive refrigerant emissions
+                # data and flags for the baseline and measure cases
+                if any([x is not None for x in [f_refr_b, f_refr_e]]):
+                    f_refr = {"baseline": [f_refr_b, zero_b_r_flag],
+                              "efficient": [f_refr_e, zero_m_r_flag]}
+                else:
+                    f_refr = None
 
                 # Calculate fugitive emissions totals by year for supply
-                # chain methane leakage. If fugitive emissions options are
-                # valid and measure applies to natural gas microsegments,
+                # chain methane leakage. If methane leakage assessment is
+                # desired and measure applies to natural gas microsegments,
                 # all microsegments for that measure are prepared with
-                # fugitive emissions key in their output dict structure.
-                # If fugitive emissions  options are not set, fugitive
-                # emissions keys not added to dict structure.
-                if opts.fugitive_emissions is not False and mskeys[3] == \
+                # fugitive methane emissions data in their output dict (
+                # including dicts of zeros for any non-NG msegs the measure
+                # applies to. If no assessment of fugitive methane emissions
+                # is desired, set to None
+                if opts.fugitive_emissions is not False and \
+                    opts.fugitive_emissions[0] in ['1', '3'] and mskeys[3] == \
                         "natural gas":
-                    add_fcarb = {key: val * lkg_rate *
+                    add_fmeth = {key: val * lkg_rate *
                                  intensity_carb_base[key] for key, val in
                                  add_energy.items() if key in
                                  self.handyvars.aeo_years}
-
-                elif opts.fugitive_emissions is not False:
-                    add_fcarb = {key: val * 0 for key, val in
+                elif opts.fugitive_emissions is not False and \
+                        opts.fugitive_emissions[0] in ['1', '3']:
+                    add_fmeth = {key: val * 0 for key, val in
                                  add_energy.items() if key in
                                  self.handyvars.aeo_years}
-
                 else:
-                    add_fcarb = None
+                    add_fmeth = None
 
                 # Check for time-sensitive efficiency valuation (e.g., a
                 # measure has time sensitive features and/or the user has
@@ -4910,14 +5131,15 @@ class Measure(object):
                     # carbon and baseline/measure cost info. based on adoption
                     # scheme
                     [add_stock_total, add_energy_total, add_carb_total,
-                     add_fcarb_total, add_stock_total_meas,
+                     add_fmeth_total, add_frefr_total, add_stock_total_meas,
                      add_energy_total_eff, add_carb_total_eff,
-                     add_fcarb_total_eff, add_stock_compete,
-                     add_energy_compete, add_carb_compete, add_fcarb_compete,
+                     add_fmeth_total_eff, add_frefr_total_eff,
+                     add_stock_compete, add_energy_compete, add_carb_compete,
+                     add_fmeth_compete, add_frefr_compete,
                      add_stock_compete_meas, add_energy_compete_eff,
-                     add_carb_compete_eff, add_fcarb_compete_eff,
-                     add_stock_cost, add_energy_cost, add_carb_cost,
-                     add_stock_cost_meas, add_energy_cost_eff,
+                     add_carb_compete_eff, add_fmeth_compete_eff,
+                     add_frefr_compete_eff, add_stock_cost, add_energy_cost,
+                     add_carb_cost, add_stock_cost_meas, add_energy_cost_eff,
                      add_carb_cost_eff, add_stock_cost_compete,
                      add_energy_cost_compete, add_carb_cost_compete,
                      add_stock_cost_compete_meas, add_energy_cost_compete_eff,
@@ -4927,9 +5149,9 @@ class Measure(object):
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys, bldg_sect,
                             sqft_subst, mkt_scale_frac, new_constr, add_stock,
-                            add_energy, add_carb, add_fcarb, cost_base,
-                            cost_meas, cost_energy_base, cost_energy_meas,
-                            rel_perf, life_base, life_meas,
+                            add_energy, add_carb, add_fmeth, f_refr,
+                            cost_base, cost_meas, cost_energy_base,
+                            cost_energy_meas, rel_perf, life_base, life_meas,
                             site_source_conv_base, site_source_conv_meas,
                             intensity_carb_base, intensity_carb_meas,
                             energy_total_scnd, tsv_scale_fracs, tsv_shapes,
@@ -5020,23 +5242,27 @@ class Measure(object):
 
                     # Check fugitive emissions option settings and update
                     # dict with fugitive emissions, broken out by the source
-                    # of the fugitive emissions
+                    # of the fugitive emissions; note that entries to this
+                    # dict will be None when the given type of fugitive
+                    # emissions is not selected (e.g., all under the methane
+                    # key will be None when only refrigerants are being
+                    # assessed, and vice versa)
                     if opts.fugitive_emissions is not False:
                         add_dict['fugitive emissions'] = {
                             "methane": {
                                 "total": {
-                                    "baseline": add_fcarb_total,
-                                    "efficient": add_fcarb_total_eff},
+                                    "baseline": add_fmeth_total,
+                                    "efficient": add_fmeth_total_eff},
                                 "competed": {
-                                    "baseline": add_fcarb_compete,
-                                    "efficient": add_fcarb_compete_eff}},
+                                    "baseline": add_fmeth_compete,
+                                    "efficient": add_fmeth_compete_eff}},
                             "refrigerants": {
                                 "total": {
-                                    "baseline": None,
-                                    "efficient": None},
+                                    "baseline": add_frefr_total,
+                                    "efficient": add_frefr_total_eff},
                                 "competed": {
-                                    "baseline": None,
-                                    "efficient": None}}}
+                                    "baseline": add_frefr_compete,
+                                    "efficient": add_frefr_compete_eff}}}
 
                     # Using the key chain for the current microsegment,
                     # determine the output climate zone, building type, and end
@@ -6920,7 +7146,7 @@ class Measure(object):
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
             mkt_scale_frac, new_constr, stock_total_init, energy_total_init,
-            carb_total_init, fcarb_total_init, cost_base, cost_meas,
+            carb_total_init, fmeth_total_init, f_refr, cost_base, cost_meas,
             cost_energy_base, cost_energy_meas, rel_perf, life_base, life_meas,
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
@@ -6946,8 +7172,10 @@ class Measure(object):
                 by year.
             carb_total_init (dict): Baseline microsegment carbon emissions,
                 by year.
-            fcarb_total_init (dict): Baseline microsegment fugitive emissions,
-                by year.
+            fmeth_total_init (dict or NoneType): Baseline microsegment
+                fugitive emissions from methane, by year.
+            f_refr (dict or NoneType): Supporting data for calculating fugitive
+                emissions from refrigerants for the current microsegment.
             cost_base (dict): Baseline technology installed cost, by year.
             cost_meas (float): Measure installed cost, by year.
             cost_energy_base (dict): Baseline fuel cost, by year.
@@ -6981,20 +7209,77 @@ class Measure(object):
         """
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
-        stock_total, stock_total_sbmkt, energy_total, carb_total, fcarb_total,\
-            energy_total_sbmkt, carb_total_sbmkt, fcarb_total_sbmkt, \
-            stock_total_meas, stock_comp_cum_sbmkt, stock_total_hp_convert, \
-            energy_total_eff, carb_total_eff, fcarb_total_eff, stock_compete, \
-            stock_compete_meas, stock_compete_sbmkt, stock_comp_hp_convert, \
-            stock_comp_hp_remain, energy_compete, carb_compete, \
-            fcarb_compete, energy_compete_sbmkt, carb_compete_sbmkt, \
-            fcarb_compete_sbmkt, energy_compete_eff, carb_compete_eff, \
-            fcarb_compete_eff, stock_total_cost, energy_total_cost, \
-            carb_total_cost, stock_total_cost_eff, energy_total_eff_cost, \
+        stock_total, stock_total_sbmkt, energy_total, carb_total, \
+            energy_total_sbmkt, carb_total_sbmkt, stock_total_meas, \
+            stock_comp_cum_sbmkt, stock_total_hp_convert, energy_total_eff, \
+            carb_total_eff, stock_compete, stock_compete_meas, \
+            stock_compete_sbmkt, stock_comp_hp_convert, stock_comp_hp_remain, \
+            energy_compete, carb_compete, energy_compete_sbmkt, \
+            carb_compete_sbmkt, energy_compete_eff, carb_compete_eff, \
+            stock_total_cost, energy_total_cost, carb_total_cost, \
+            stock_total_cost_eff, energy_total_eff_cost, \
             carb_total_eff_cost, stock_compete_cost, energy_compete_cost, \
             carb_compete_cost, stock_compete_cost_eff, \
             energy_compete_cost_eff, carb_compete_cost_eff, \
-            mkt_scale_frac_fin = ({} for n in range(41))
+            mkt_scale_frac_fin = ({} for n in range(35))
+
+        # Case needing fugitive methane assessment where current mseg
+        # has fugitive methane
+        if opts.fugitive_emissions is not False and \
+            opts.fugitive_emissions[0] in ['1', '3'] and any([
+                x[1] != 0 for x in fmeth_total_init.items()]):
+            # Initialize fugitive methane dicts for further calculations
+            fmeth_total_sbmkt, fmeth_total, fmeth_total_eff, fmeth_compete, \
+                fmeth_compete_sbmkt, fmeth_compete_eff = ({} for n in range(6))
+            # Flag further assessment of fugitive methane in this function
+            f_meth_assess = True
+        # Case needing fugitive methane assessment where current mseg
+        # is not relevant to fugitive methane calcs.
+        elif opts.fugitive_emissions is not False and \
+                opts.fugitive_emissions[0] in ['1', '3']:
+            # Set fugitive methane dicts to all zeros
+            fmeth_total_sbmkt, fmeth_total, fmeth_total_eff, fmeth_compete, \
+                fmeth_compete_sbmkt, fmeth_compete_eff = (
+                    {yr: 0 for yr in self.handyvars.aeo_years} for
+                    n in range(6))
+            # No further assessment of fugitive methane required in function
+            f_meth_assess = ""
+        # Case not needing fugitive methane assessment
+        else:
+            # All fugitive methane dicts are set to None
+            fmeth_total_sbmkt, fmeth_total, fmeth_total_eff, fmeth_compete, \
+                fmeth_compete_sbmkt, fmeth_compete_eff = (
+                    None for n in range(6))
+            # No further assessment of fugitive methane required in function
+            f_meth_assess = ""
+
+        # Case needing fugitive refrigerants assessment where current mseg
+        # has fugitive refrigerants
+        if opts.fugitive_emissions is not False and \
+            opts.fugitive_emissions[0] in ['2', '3'] and \
+                f_refr is not None:
+            # Initialize fugitive refrigerant dicts for further calculations
+            frefr_total, frefr_total_eff, frefr_compete, frefr_compete_eff = (
+                {} for n in range(4))
+            # Flag further assessment of fugitive refrigerants in this function
+            f_refr_assess = True
+        # Case needing fugitive refrigerant assessment where current mseg
+        # is not relevant to fugitive refrigerant calcs.
+        elif opts.fugitive_emissions is not False and \
+                opts.fugitive_emissions[0] in ['2', '3']:
+            # Set fugitive refrigerants dicts to all zeros
+            frefr_total, frefr_total_eff, frefr_compete, frefr_compete_eff = ({
+                    yr: 0 for yr in self.handyvars.aeo_years} for
+                    n in range(4))
+            # No further assessment of fugitive refrig. required in function
+            f_refr_assess = ""
+        # Case not needing fugitive refrigerant assessment
+        else:
+            # All fugitive refrigerant dicts are set to None
+            frefr_total, frefr_total_eff, frefr_compete,  frefr_compete_eff = (
+                None for n in range(4))
+            # No further assessment of fugitive refrig. required in function
+            f_refr_assess = ""
 
         # Initialize the portion of microsegment already captured by the
         # efficient measure as 0, the cumulative portion of the microsegment
@@ -7097,9 +7382,10 @@ class Measure(object):
         tsv_energy_base = tsv_adj_init["energy"]["baseline"]
 
         # Commercial equipment stock numbers are in units of annual
-        # delivered service; to reach total stock numbers, they must
-        # be converted to units of hourly service capacity, which is
-        # consistent with the baseline/measure unit cost numbers
+        # demand served; cost and (if applicable) refrigerant charge
+        # values are in units of hourly service capacity; to multiply the
+        # former by the latter, a conversion factor is needed to translate
+        # stock from unit service demand to unit service capacity
         if bldg_sect == "commercial" and sqft_subst != 1:
             # Use try/except to handle missing capacity factor data
             try:
@@ -7186,8 +7472,8 @@ class Measure(object):
             carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
             # Total fugitive emissions markets after accounting for any
             # sub-market scaling
-            if opts.fugitive_emissions is not False:
-                fcarb_total_sbmkt[yr] = fcarb_total_init[yr] * mkt_scale_frac
+            if f_meth_assess:
+                fmeth_total_sbmkt[yr] = fmeth_total_init[yr] * mkt_scale_frac
 
             # Calculate new, replacement, and retrofit fractions for the
             # baseline and efficient stock as applicable. * Note: these
@@ -7513,6 +7799,159 @@ class Measure(object):
             else:
                 comp_frac_diffuse_meas = 0
 
+            # If applicable, pull baseline and efficient case refrigerant
+            # leakage emissions on a per unit basis
+            if f_refr_assess:
+                # Baseline tech. unit-level refrigerant emissions
+                if f_refr["baseline"][0] is not None:
+                    # Find key to use in pulling global warming potential
+                    # value for the typical baseline tech. refrigerant; typical
+                    # refrigerants may be stored as a dict keyed in by year
+                    if type(f_refr["baseline"][0]["typ_refrigerant"]) == dict:
+                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"][[
+                            y for y in f_refr["baseline"][0][
+                                "typ_refrigerant"].keys() if
+                            int(yr) >= int(y)][-1]]
+                    else:
+                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                    # Use key above to pull baseline tech. refrigerant GWP
+                    try:
+                        base_gwp_yr = self.handyvars.fug_emissions[
+                            "refrigerants"]["refrigerant_GWP100"][r_key_b]
+                    except KeyError:
+                        raise ValueError(
+                            "Refrigerant '" + r_key_b +
+                            "' has no available GWP data in supporting "
+                            "file ./supporting_data/convert_data/"
+                            "fugitive_emissions_convert.json")
+                else:
+                    base_gwp_yr = ""
+                # Measure tech. unit-level refrigerant emissions
+                if f_refr["efficient"][0] is not None:
+                    # Case where user assumes measure uses low GWP refrigerant
+                    if opts.fugitive_emissions[1] == '2':
+                        # Low GWP refrigerant may be specified as a measure
+                        # attribute; first try to pull from this attribute
+                        try:
+                            self.low_gwp_refrigerant
+                            # User may set low GWP refrigerant to a default
+                            # choice in the measure definition, or otherwise
+                            # will provide the low GWP refrigerant name
+                            if self.low_gwp_refrigerant in [
+                                None, "default"] or \
+                                    type(self.low_gwp_refrigerant) is not str:
+                                low_gwp_usr = ""
+                            else:
+                                low_gwp_usr = self.low_gwp_refrigerant
+                        except AttributeError:
+                            low_gwp_usr = ""
+                        # Find key to use in pulling global warming potential
+                        # value for the measure tech. refrigerant; this is
+                        # either provided by the user or otherwise available
+                        # in the supporting refrigerants data file
+                        if low_gwp_usr:
+                            r_key_e = low_gwp_usr
+                        else:
+                            # Low GWP refrigerants may be stored as a dict
+                            # keyed in by year
+                            if type(f_refr["efficient"][0][
+                                    "low_gwp_refrigerant"]) == dict:
+                                r_key_e = f_refr["efficient"][0][
+                                    "low_gwp_refrigerant"][
+                                     [y for y in f_refr["efficient"][0][
+                                      "low_gwp_refrigerant"].keys() if
+                                      int(yr) >= int(y)][-1]]
+                            else:
+                                r_key_e = f_refr["efficient"][0][
+                                    "low_gwp_refrigerant"]
+                    # Case where user assumes measure uses typical refrigerant
+                    else:
+                        # Typical refrigerants may be stored as a dict keyed
+                        # in by year
+                        if type(f_refr[
+                                "efficient"][0]["typ_refrigerant"]) == dict:
+                            r_key_e = f_refr["efficient"][0][
+                                "typ_refrigerant"][
+                                [y for y in f_refr["efficient"][0][
+                                  "typ_refrigerant"].keys() if
+                                 int(yr) >= int(y)][-1]]
+                        else:
+                            r_key_e = \
+                                f_refr["efficient"][0]["low_gwp_refrigerant"]
+                    # Use key above to pull measure refrigerant GWP
+                    try:
+                        meas_gwp_yr = self.handyvars.fug_emissions[
+                            "refrigerants"]["refrigerant_GWP100"][r_key_e]
+                    except KeyError:
+                        raise ValueError(
+                            "Refrigerant '" + r_key_e +
+                            "' has no available GWP data in supporting "
+                            "file ./supporting_data/convert_data/"
+                            "fugitive_emissions_convert.json")
+                else:
+                    meas_gwp_yr = ""
+
+                # Calculate per unit baseline and measure refrigerant
+                # emissions; calculation is:
+                # ((typ. unit charge (kg) * typ. unit leakage (%) +
+                #  (typ. unit charge (kg) * typ. unit leakage (%))/lifetime) *
+                # refrigerant 100 year GWP * (1 MMT / 1e9 kg)
+                # NOTE: use baseline lifetime to annualize end of life
+                # refrigerant leakage across baseline/measure cases
+
+                # Per unit baseline tech. refrigerant emissions in the current
+                # year; if not available, set to zero
+                if base_gwp_yr:
+                    base_f_r_unit_yr = (
+                        f_refr["baseline"][0]["typ_charge"] *
+                        f_refr["baseline"][0]["typ_ann_leak_pct"] + ((
+                            f_refr["baseline"][0]["typ_charge"] *
+                            f_refr["baseline"][0]["EOL_leak_pct"]) /
+                            life_base[yr])) * base_gwp_yr * (1 / 1e9)
+                else:
+                    base_f_r_unit_yr = 0
+
+                # Weighted overall (for stock captured in current year and all
+                # previous years) and previously captured per unit
+                # baseline tech. refrigerant emissions
+
+                # If first year in modeling time horizon, initialize
+                # overall/previously captured unit baseline refrigerant
+                # emissions as the same as the first year's values
+                if yr == self.handyvars.aeo_years[0]:
+                    base_f_r_unit_overall, base_f_r_unit_capt = (
+                        copy.deepcopy(base_f_r_unit_yr) for n in range(2))
+                # Otherwise calculate overall unit baseline refrigerant
+                # emissions by weighing competed baseline stock from current
+                # year with stock from previous years
+                else:
+                    # Set overall per unit refrigerant emissions; use
+                    # competition fraction to weight current vs. previous
+                    # year baseline unit refrigerant emissions
+                    base_f_r_unit_overall = \
+                        base_f_r_unit_yr * comp_frac_diffuse + \
+                        base_f_r_unit_capt * (1 - comp_frac_diffuse)
+
+                # Per unit measure tech. refrigerant emissions; if
+                # not available, set to zero
+                if meas_gwp_yr:
+                    meas_f_r_unit_yr = (
+                        f_refr["efficient"][0]["typ_charge"] *
+                        f_refr["efficient"][0]["typ_ann_leak_pct"] + ((
+                            f_refr["efficient"][0]["typ_charge"] *
+                            f_refr["efficient"][0]["EOL_leak_pct"]) /
+                            life_base[yr])) * meas_gwp_yr * (1 / 1e9)
+                else:
+                    meas_f_r_unit_yr = 0
+                # Set measure unit refrigerant emissions relative to the
+                # baseline unit refrigerant emissions (used below to
+                # calculate total efficient refrigerant emissions relative
+                # to total baseline refrigerant emissions)
+                rel_frefr_yr = meas_f_r_unit_yr / base_f_r_unit_yr
+            else:
+                base_f_r_unit_yr, base_f_r_unit_overall, \
+                    base_f_r_unit_capt = ("" for n in range(3))
+
             # Final total stock, energy, and carbon markets after accounting
             # for any diffusion/conversion dynamics that restrict a measure's
             # access to it's full baseline market (after sub-mkt scaling), as
@@ -7523,12 +7962,23 @@ class Measure(object):
             carb_total[yr] = \
                 carb_total_sbmkt[yr] * diffuse_frac * tsv_carb_base
             # Final total fugitive emissions markets after accounting for
-            # diffusion/conversion dynamics or accounting for time-sensitive
-            # effects
-            if opts.fugitive_emissions is not False:
-                fcarb_total[yr] = \
-                    fcarb_total_sbmkt[yr] * diffuse_frac * tsv_energy_base
-
+            # diffusion/conversion dynamics/accounting for time-sensitive
+            # effects (the latter only relevant to methane)
+            if f_meth_assess:
+                fmeth_total[yr] = \
+                    fmeth_total_sbmkt[yr] * diffuse_frac * tsv_energy_base
+            if f_refr_assess:
+                # Check for flag to force baseline refrig. emissions to zero
+                if f_refr["baseline"][1] is True:
+                    frefr_total[yr] = 0
+                else:
+                    # For total baseline fugitive refrigerants, multiply
+                    # number of total stock units by baseline fugitive
+                    # refrigerant emissions per unit for the overall stock,
+                    # also accounting for any required stock unit conversions)
+                    frefr_total[yr] = \
+                        stock_total_sbmkt[yr] * stk_serv_cap_cnv * \
+                        base_f_r_unit_overall * diffuse_frac
             # Finalize the sub-market scaling fraction as the initial sub-
             # market scaling fraction from the measure definition times
             # the diffusion fraction by year
@@ -7561,8 +8011,10 @@ class Measure(object):
             stock_compete_sbmkt[yr] = stock_total_sbmkt[yr] * comp_frac_sbmkt
             energy_compete_sbmkt[yr] = energy_total_sbmkt[yr] * comp_frac_sbmkt
             carb_compete_sbmkt[yr] = carb_total_sbmkt[yr] * comp_frac_sbmkt
-            if opts.fugitive_emissions is not False:
-                fcarb_compete_sbmkt[yr] = fcarb_total_sbmkt[yr] * \
+            # Competed fugitive emissions markets after accounting for
+            # any sub-market scaling
+            if f_meth_assess:
+                fmeth_compete_sbmkt[yr] = fmeth_total_sbmkt[yr] * \
                     comp_frac_sbmkt
 
             # Final competed stock, energy, and carbon markets after accounting
@@ -7577,10 +8029,27 @@ class Measure(object):
             carb_compete[yr] = \
                 carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
                 tsv_carb_base
-            if opts.fugitive_emissions is not False:
-                fcarb_compete[yr] = \
-                    fcarb_total_sbmkt[yr] * diffuse_frac * \
+            # Final competed fugitive emissions markets after accounting for
+            # diffusion/conversion dynamics that restrict a measure's
+            # access to it's full baseline market (after sub-mkt scaling), as
+            # well as any adjustments to account for time-sensitive effects
+            # (only relevant to methane)
+            if f_meth_assess:
+                fmeth_compete[yr] = fmeth_total_sbmkt[yr] * diffuse_frac * \
                     comp_frac_diffuse * tsv_energy_base
+            if f_refr_assess:
+                # Check for flag to force baseline refrig. emissions to zero
+                if f_refr["baseline"][1] is True:
+                    frefr_compete[yr] = 0
+                else:
+                    # For competed baseline fugitive refrigerants, multiply
+                    # number of competed stock units by baseline fugitive
+                    # refrigerant emissions per unit for the current year
+                    # stock, also accounting for any required stock unit
+                    # conversions)
+                    frefr_compete[yr] = stock_total_sbmkt[yr] * \
+                        stk_serv_cap_cnv * base_f_r_unit_yr * diffuse_frac * \
+                        comp_frac_diffuse
 
             # Final competed stock captured by the measure
             stock_compete_meas[yr] = \
@@ -7746,6 +8215,11 @@ class Measure(object):
                 # Update overall and previously captured measure stock RP
                 rel_perf_overall, rel_perf_capt = (
                     copy.deepcopy(rel_perf[yr]) for n in range(2))
+                # Update overall and previously captured measure unit
+                # refrigerant emissions, if needed
+                if f_refr_assess:
+                    rel_frefr_overall, rel_frefr_capt = (
+                        copy.deepcopy(rel_frefr_yr) for n in range(2))
             # Set a measure stock turnover weight to use in balancing
             # current measure year's relative performance and fugitive
             # refrigerant emissions per unit (if applicable) with values
@@ -7769,6 +8243,11 @@ class Measure(object):
                 # Update overall measure stock RP
                 rel_perf_overall = (rel_perf[yr] * to_m_stk +
                                     rel_perf_capt * (1 - to_m_stk))
+                # Update overall and previously captured measure unit
+                # refrigerant emissions, if needed
+                if f_refr_assess:
+                    rel_frefr_overall = (rel_frefr_yr * to_m_stk +
+                                         rel_frefr_capt * (1 - to_m_stk))
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -7865,41 +8344,84 @@ class Measure(object):
                 tsv_carb_base * (1 - comp_frac_diffuse) * (
                     1 - meas_cum_frac)
 
-            # Set common variables for the fugitive emissions calculations
-            if opts.fugitive_emissions is not False:
-                # Competed carbon captured by measure
-                fcarb_tot_comp_meas = fcarb_total_sbmkt[yr] * diffuse_frac * \
-                    tsv_energy_eff * comp_frac_diffuse_meas * rel_perf_capt * \
-                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
-                fcarb_tot_comp_base = fcarb_total_sbmkt[yr] * diffuse_frac * \
-                    tsv_energy_base * (
-                        comp_frac_diffuse - comp_frac_diffuse_meas) * \
-                    rel_perf_uncapt
-                # Uncompeted carbon captured by measure
-                fcarb_tot_uncomp_meas = fcarb_total_sbmkt[yr] * \
-                    diffuse_frac * tsv_energy_eff * (1 - comp_frac_diffuse) * \
-                    meas_cum_frac * rel_perf_capt * (
-                        site_source_conv_meas[yr] /
-                        site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
-                fcarb_tot_uncomp_base = fcarb_total_sbmkt[yr] * \
-                    diffuse_frac * tsv_energy_base * \
-                    (1 - comp_frac_diffuse) * (1 - meas_cum_frac) * \
-                    rel_perf_uncapt
-
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_tot_comp_meas + carb_tot_comp_base
             # Total-efficient energy
             carb_total_eff[yr] = carb_compete_eff[yr] + \
                 carb_tot_uncomp_meas + carb_tot_uncomp_base
-            # Competed-efficient fugitive emissions
-            if opts.fugitive_emissions is not False:
-                fcarb_compete_eff[yr] = fcarb_tot_comp_meas + \
-                    fcarb_tot_comp_base
-                # Total-efficient energy
-                fcarb_total_eff[yr] = fcarb_compete_eff[yr] + \
-                    fcarb_tot_uncomp_meas + fcarb_tot_uncomp_base
+
+            # Set common variables for the fugitive emissions calculations
+
+            # Methane
+            if f_meth_assess:
+                # Competed fugitive methane captured by measure
+                fmeth_tot_comp_meas = fmeth_total_sbmkt[yr] * diffuse_frac * \
+                    tsv_energy_eff * comp_frac_diffuse_meas * rel_perf[yr] * \
+                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
+                    intensity_carb_ratio
+                # Competed fugitive methane not captured by measure
+                fmeth_tot_comp_base = fmeth_total_sbmkt[yr] * diffuse_frac * \
+                    tsv_energy_base * (
+                        comp_frac_diffuse - comp_frac_diffuse_meas)
+                # Uncompeted fugitive methane captured by measure
+                fmeth_tot_uncomp_meas = fmeth_total_sbmkt[yr] * \
+                    diffuse_frac * tsv_energy_eff * (1 - comp_frac_diffuse) * \
+                    meas_cum_frac * rel_perf_capt * (
+                        site_source_conv_meas[yr] /
+                        site_source_conv_base[yr]) * \
+                    intensity_carb_ratio
+                # Uncompeted fugitive methane not captured by measure
+                fmeth_tot_uncomp_base = fmeth_total_sbmkt[yr] * \
+                    diffuse_frac * tsv_energy_base * \
+                    (1 - comp_frac_diffuse) * (1 - meas_cum_frac)
+                # Competed-efficient fugitive methane
+                fmeth_compete_eff[yr] = fmeth_tot_comp_meas + \
+                    fmeth_tot_comp_base
+                # Total-efficient fugitive methane
+                fmeth_total_eff[yr] = fmeth_compete_eff[yr] + \
+                    fmeth_tot_uncomp_meas + fmeth_tot_uncomp_base
+            # Refrigerants
+            if f_refr_assess:
+                # Check for flag to force measure refrig. emissions to zero
+                if f_refr["efficient"][1] is True:
+                    frefr_tot_comp_meas, frefr_tot_uncomp_meas = (
+                        0 for n in range(2))
+                else:
+                    # # Competed fugitive refrigerants captured by measure
+                    frefr_tot_comp_meas = stock_total_sbmkt[yr] * \
+                        stk_serv_cap_cnv * diffuse_frac * \
+                        comp_frac_diffuse_meas * base_f_r_unit_yr * \
+                        rel_frefr_yr
+                    # Uncompeted fugitive refrigerants captured by measure
+                    frefr_tot_uncomp_meas = stock_total_sbmkt[yr] * \
+                        stk_serv_cap_cnv * diffuse_frac * (
+                            1 - comp_frac_diffuse) * \
+                        meas_cum_frac * base_f_r_unit_capt * rel_frefr_capt
+                # Check for flag to force baseline refrig. emissions to zero
+                if f_refr["baseline"][1] is True:
+                    frefr_tot_comp_base, frefr_tot_uncomp_base = (
+                        0 for n in range(2))
+                else:
+                    # Competed fugitive refrigerants not captured by measure
+                    frefr_tot_comp_base = stock_total_sbmkt[yr] * \
+                        stk_serv_cap_cnv * diffuse_frac * \
+                        (comp_frac_diffuse - comp_frac_diffuse_meas) * \
+                        base_f_r_unit_yr
+                    # Uncompeted fugitive refrigerants not captured by measure
+                    frefr_tot_uncomp_base = stock_total_sbmkt[yr] * \
+                        stk_serv_cap_cnv * diffuse_frac * (
+                            1 - comp_frac_diffuse) * (
+                            1 - meas_cum_frac) * base_f_r_unit_capt
+                # Competed-efficient fugitive refrigerants
+                frefr_compete_eff[yr] = frefr_tot_comp_meas + \
+                    frefr_tot_comp_base
+                # Total-efficient fugitive refrigerants
+                frefr_total_eff[yr] = frefr_compete_eff[yr] + \
+                    frefr_tot_uncomp_meas + frefr_tot_uncomp_base
+                # Reset previously captured baseline refrigerant emissions for
+                # next year to that of overall baseline stock in current yr.
+                base_f_r_unit_capt, rel_frefr_capt = [
+                    base_f_r_unit_overall, rel_frefr_overall]
 
             # Update total and competed stock, energy, and carbon
             # costs
@@ -8008,13 +8530,14 @@ class Measure(object):
                     energy_cost_tot_comp_base + energy_cost_tot_uncomp_base
 
         # Return partitioned stock, energy, and cost mseg information
-        return [stock_total, energy_total, carb_total, fcarb_total,
-                stock_total_meas, energy_total_eff, carb_total_eff,
-                fcarb_total_eff, stock_compete, energy_compete,
-                carb_compete, fcarb_compete, stock_compete_meas,
-                energy_compete_eff, carb_compete_eff, fcarb_compete_eff,
-                stock_total_cost, energy_total_cost, carb_total_cost,
-                stock_total_cost_eff, energy_total_eff_cost,
+        return [stock_total, energy_total, carb_total, fmeth_total,
+                frefr_total, stock_total_meas, energy_total_eff,
+                carb_total_eff, fmeth_total_eff, frefr_total_eff,
+                stock_compete, energy_compete, carb_compete,
+                fmeth_compete, frefr_compete, stock_compete_meas,
+                energy_compete_eff, carb_compete_eff, fmeth_compete_eff,
+                frefr_compete_eff, stock_total_cost, energy_total_cost,
+                carb_total_cost, stock_total_cost_eff, energy_total_eff_cost,
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff,
@@ -8645,7 +9168,7 @@ class Measure(object):
             # Do not divide any energy, carbon, lifetime, or sub-market
             # scaling information
             if (k == "energy" or k == "carbon" or k == "lifetime" or
-                    k == "sub-market scaling"):
+                    k == "sub-market scaling" or k == "fugitive emissions"):
                 continue
             else:
                 if isinstance(i, dict):
@@ -9357,6 +9880,41 @@ class MeasurePackage(Measure):
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]}}
 
+            # Add fugitive emissions key to output dict if fugitive
+            # emissions option is set
+            if self.usr_opts["fugitive_emissions"] is not False:
+                # Initialize methane/refrigerant values as zero when that
+                # fugitive option is being assessed (in which case new data
+                # will be summed into the zero dicts), and as None otherwise
+
+                # Check for methane assessment/initialization of zero dict
+                if self.usr_opts["fugitive_emissions"][0] in ['1', '3']:
+                    init_meth = {yr: 0 for yr in self.handyvars.aeo_years}
+                else:
+                    init_meth = None
+                # Check for refrigerants assessment/initialization of zero dict
+                if self.usr_opts["fugitive_emissions"][0] in ['2', '3']:
+                    init_refr = {yr: 0 for yr in self.handyvars.aeo_years}
+                else:
+                    init_refr = None
+                # Organize methane and refrigerants dict under broader key
+                self.markets[adopt_scheme]["master_mseg"][
+                    "fugitive emissions"] = {
+                        "methane": {
+                            "total": {
+                                "baseline": copy.deepcopy(init_meth),
+                                "efficient": copy.deepcopy(init_meth)},
+                            "competed": {
+                                "baseline": copy.deepcopy(init_meth),
+                                "efficient": copy.deepcopy(init_meth)}},
+                        "refrigerants": {
+                            "total": {
+                                "baseline": copy.deepcopy(init_refr),
+                                "efficient": copy.deepcopy(init_refr)},
+                            "competed": {
+                                "baseline": copy.deepcopy(init_refr),
+                                "efficient": copy.deepcopy(init_refr)}}}
+
     def merge_measures(self, opts):
         """Merge the markets information of multiple individual measures.
 
@@ -9998,6 +10556,24 @@ class MeasurePackage(Measure):
             self.adj_pkg_mseg_keyvals(
                 msegs_meas["stock"], base_adj, base_adj, base_adj,
                 base_eff_flag=None, comp_flag=None)
+
+            # If necessary, adjust fugitive emissions data
+
+            # Methane data adjusted consistent with energy data adjustment
+            if self.usr_opts["fugitive_emissions"] is not False and \
+                    self.usr_opts["fugitive_emissions"][0] in ['1', '3']:
+                self.adj_pkg_mseg_keyvals(
+                    msegs_meas["fugitive emissions"]["methane"],
+                    base_adj, eff_adj, eff_adj_c, base_eff_flag=None,
+                    comp_flag=None)
+            # Refrigerants data adjusted consistent with stock data adjustment
+            if self.usr_opts["fugitive_emissions"] is not False and \
+                    self.usr_opts["fugitive_emissions"][0] in ['2', '3']:
+                self.adj_pkg_mseg_keyvals(
+                    msegs_meas["fugitive emissions"]["refrigerants"],
+                    base_adj, base_adj, base_adj, base_eff_flag=None,
+                    comp_flag=None)
+
             # Adjust measure lifetime for contributing microsegment such that
             # when added to package, it averages with the lifetime data for
             # overlapping measures in the package for the current mseg
@@ -10139,6 +10715,18 @@ class MeasurePackage(Measure):
                     tot_base_orig, tot_eff_orig, tot_save_orig,
                     tot_base_orig_ecost, tot_eff_orig_ecost,
                     tot_save_orig_ecost, key_list, fuel_switch_to, fs_eff_splt)
+
+            # If necessary, adjust fugitive emissions data
+
+            # Methane data adjusted consistent with energy data adjustment
+            # No adjustment to refrigerant data required, as envelope
+            # overlaps only affect energy use/methane
+            if self.usr_opts["fugitive_emissions"] is not False and \
+                    self.usr_opts["fugitive_emissions"][0] in ['1', '3']:
+                self.adj_pkg_mseg_keyvals(
+                    msegs_meas["fugitive emissions"]["methane"],
+                    base_adj, eff_adj, eff_adj_c, base_eff_flag=None,
+                    comp_flag=None)
             # If desired by the user, incorporate envelope stock costs,
             # provided that the total measure stock for the current equipment
             # microsegment anchor is not zero across the time horizon
