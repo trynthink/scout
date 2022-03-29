@@ -518,7 +518,7 @@ class Engine(object):
             # Initialize refrigerants savings dict if fugitive emissions from
             # refrigerant leaks are being assessed for the measure
             if m.fug_e and "refrigerants" in m.fug_e:
-                meth_save_tot = {
+                refr_save_tot = {
                     yr: None for yr in self.handyvars.aeo_years}
             else:
                 refr_save_tot = ""
@@ -2076,7 +2076,7 @@ class Engine(object):
                         mast["energy"]["competed"][x][yr], \
                         mast["carbon"]["competed"][x][yr] = [
                             x[yr] - (y[yr] * (1 - adj_frac_comp)) for x, y in
-                            zip(mastlist[6:], adjlist[6:])]
+                            zip(mastlist[6:10], adjlist[6:10])]
                     adj["cost"]["energy"]["total"][x][yr], \
                         adj["cost"]["carbon"]["total"][x][yr], \
                         adj["energy"]["total"][x][yr], \
@@ -2086,7 +2086,22 @@ class Engine(object):
                         adj["cost"]["carbon"]["competed"][x][yr], \
                         adj["energy"]["competed"][x][yr], \
                         adj["carbon"]["competed"][x][yr] = [
-                            (x[yr] * adj_frac_comp) for x in adjlist[6:]]
+                            (x[yr] * adj_frac_comp) for x in adjlist[6:10]]
+                    # Adjust fugitive methane emissions if applicable
+                    if m.fug_e and "methane" in m.fug_e:
+                        # Total
+                        mast["fugitive emissions"]["methane"][
+                            "total"][x][yr] = mastlist[10][yr] - (
+                                adjlist[10][yr] * (1 - adj_frac_t))
+                        adj["fugitive emissions"]["methane"][
+                            "total"][x][yr] = adjlist[10][yr] * adj_frac_t
+                        # Competed
+                        mast["fugitive emissions"]["methane"][
+                            "competed"][x][yr] = mastlist[11][yr] - (
+                                adjlist[11][yr] * (1 - adj_frac_comp))
+                        adj["fugitive emissions"]["methane"][
+                            "competed"][x][yr] = \
+                            adjlist[11][yr] * adj_frac_comp
 
     def htcl_adj_rec(self, htcl_adj_data, msu, msu_mkts, htcl_totals):
         """Record overlaps in heating/cooling supply and demand-side energy.
@@ -2351,7 +2366,17 @@ class Engine(object):
                             mast["energy"]["competed"][x][yr],\
                             mast["carbon"]["competed"][x][yr] = [
                                 x[yr] - (y[yr] * (1 - adj_frac))
-                                for x, y in zip(mastlist[6:], adjlist[6:])]
+                                for x, y in zip(mastlist[6:10], adjlist[6:10])]
+                        # Adjust fugitive methane emissions if applicable
+                        if m.fug_e and "methane" in m.fug_e:
+                            # Total
+                            mast["fugitive emissions"]["methane"][
+                                "total"][x][yr] = mastlist[10][yr] - (
+                                    adjlist[10][yr] * (1 - adj_frac))
+                            # Competed
+                            mast["fugitive emissions"]["methane"][
+                                "competed"][x][yr] = mastlist[11][yr] - (
+                                    adjlist[11][yr] * (1 - adj_frac))
 
                     # Adjust baseline energy/cost/carbon, efficient energy/
                     # cost/carbon, and energy/cost/carbon savings totals
@@ -3576,31 +3601,35 @@ class Engine(object):
 
             # Adjust total emissions from fugitive emissions if applicable
             if measure.fug_e:
-                # Loop through total vs. competed metric types
-                for met in ["total", "competed"]:
-                    # Set appropriate adjustment fraction; total adjustment
-                    # is based on the adjustment for energy (fugitive
-                    # emissions totals are based on amount of energy consumed)
-                    if met == "total":
-                        adj_frac = adj_t["energy"]
-                    else:
-                        adj_frac = adj_c
-                    # Adjust fugitive methane emissions results if applicable
-                    if measure.fug_e and "methane" in measure.fug_e:
-                        mast["fugitive emissions"]["methane"][met][x][yr] = \
-                            mastlist[-2][yr] - (
-                                adjlist[-2][yr] * (1 - adj_frac))
-                        adj["fugitive emissions"]["methane"][met][x][yr] = \
-                            adjlist[10][yr] * adj_frac
-                    # Adjust fugitive refrigerant emissions results if
-                    # applicable
-                    if measure.fug_e and "refrigerants" in measure.fug_e:
-                        mast["fugitive emissions"][
-                            "refrigerants"][met][x][yr] = mastlist[-1][yr] - (
-                                adjlist[-1][yr] * (1 - adj_frac))
-                        adj["fugitive emissions"][
-                            "refrigerants"][met][x][yr] = \
-                            adjlist[-1][yr] * adj_frac
+                # Adjust fugitive methane emissions results if applicable
+                if measure.fug_e and "methane" in measure.fug_e:
+                    # Total
+                    mast["fugitive emissions"]["methane"][
+                        "total"][x][yr] = mastlist[10][yr] - (
+                            adjlist[10][yr] * (1 - adj_t["energy"]))
+                    adj["fugitive emissions"]["methane"][
+                        "total"][x][yr] = adjlist[10][yr] * adj_t["energy"]
+                    # Competed
+                    mast["fugitive emissions"]["methane"][
+                        "competed"][x][yr] = mastlist[11][yr] - (
+                            adjlist[11][yr] * (1 - adj_c))
+                    adj["fugitive emissions"]["methane"]["competed"][x][yr] = \
+                        adjlist[11][yr] * adj_c
+                # Adjust fugitive refrigerant emissions results if
+                # applicable
+                if measure.fug_e and "refrigerants" in measure.fug_e:
+                    # Total
+                    mast["fugitive emissions"]["refrigerants"][
+                        "total"][x][yr] = mastlist[-2][yr] - (
+                            adjlist[-2][yr] * (1 - adj_t["stock"]))
+                    adj["fugitive emissions"]["refrigerants"][
+                        "total"][x][yr] = adjlist[-2][yr] * adj_t["stock"]
+                    # Competed
+                    mast["fugitive emissions"]["refrigerants"][
+                        "competed"][x][yr] = mastlist[-1][yr] - (
+                            adjlist[-1][yr] * (1 - adj_c))
+                    adj["fugitive emissions"]["refrigerants"][
+                        "competed"][x][yr] = adjlist[-1][yr] * adj_c
 
             # Adjust competed energy/carbon and energy/carbon costs
             mast["cost"]["energy"]["competed"][x][yr], \
