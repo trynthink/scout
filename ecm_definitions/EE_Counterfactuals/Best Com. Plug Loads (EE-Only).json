@@ -1,5 +1,5 @@
 {
-  "name": "Best Com. MELs (EE-Only)",
+  "name": "Best Com. Plug Loads (EE-Only)",
   "tsv_features": {
     "shape": {
       "custom_annual_savings": "EE_MELs.csv"

@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": "natural gas",
-  "technology": ["gas_water_heater", "gas_instantaneous_WH", "gas_booster_WH"],
+  "technology": ["gas_water_heater"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",

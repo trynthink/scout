@@ -14,96 +14,16 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-      "gas_furnace": 0.83,
-      "oil_furnace": 0.8,
-      "gas_boiler": 0.8,
-      "oil_boiler": 0.84},
-  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": "ASHRAE 90.1-2019 for given equipment type, assume typical capacity from EIA source; bump up efficiency to reflect expected efficiency in later market entry year",
-    "source_data": [{
-      "title": "ASHRAE Standard 90.1 2019: Table 6.8.1-5",
-      "author": null,
-      "organization": "ASHRAE",
-      "year": 2019,
-      "pages": 132,
-      "URL": null
-    },
-    {
-      "title": "ASHRAE 90.1 Standard 2019: Table 6.8.1-6 Gas- and Oil-Fired Boilers",
-      "author": null,
-      "organization": "ASHRAE",
-      "year": 2019,
-      "pages": 133,
-      "URL": null
-    },
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-  },
-  "installed_cost": {
-      "gas_furnace": 5.38,
-      "oil_furnace": 16.38,
-      "gas_boiler": 32.25,
-      "oil_boiler": 35},
-  "cost_units": "2017$/kBtu/h heating",
+    "notes": "Assume reference case characteristics",
+    "source_data": null},
+  "installed_cost": 0,
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2017 divided by typical input capacity",
-    "source_data": [{
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-  },
+    "notes": "Assume reference case characteristics",
+    "source_data": null},
   "product_lifetime": {
       "gas_furnace": 23,
       "oil_furnace": 23,
@@ -142,7 +62,7 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
 
   },
-  "measure_type": "full service",
+  "measure_type": "add-on",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
