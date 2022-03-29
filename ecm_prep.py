@@ -3495,7 +3495,9 @@ class Measure(object):
                                 # msegs attached to electric resistance heating
                                 # msegs that are subject to the HP rates should
                                 # be subject to the same rates
-                                elif self.fuel_switch_to is None:
+                                elif self.fuel_switch_to is None and (
+                                    mskeys[-2] is not None and
+                                        "HP" not in mskeys[-2]):
                                     # Separately handle different bldg. types
                                     if bldg_sect == "residential":
                                         try:
@@ -3529,6 +3531,8 @@ class Measure(object):
                                             hp_rate = None
                                     else:
                                         hp_rate = None
+                                else:
+                                    hp_rate = None
                             # Handle switch from commercial heating in RTUs vs.
                             # other technologies
                             elif hp_eu_key == "heating" and \
@@ -6831,10 +6835,6 @@ class Measure(object):
         fs_energy_eff_remain, fs_carb_eff_remain, fs_energy_cost_eff_remain = (
             {yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
 
-        # Set the relative energy performance of the current year's
-        # competed and uncompeted stock that goes uncaptured
-        rel_perf_uncapt = 1
-
         # In cases where secondary microsegments are present, initialize a
         # dict of year-by-year secondary microsegment adjustment information
         # that will be used to scale down the secondary microsegment(s) in
@@ -6916,6 +6916,35 @@ class Measure(object):
         # Set time sensitive energy scaling factors for all baseline stock
         # (does not depend on year)
         tsv_energy_base = tsv_adj_init["energy"]["baseline"]
+
+        # Commercial equipment stock numbers are in units of annual
+        # delivered service; to reach total stock numbers, they must
+        # be converted to units of hourly service capacity, which is
+        # consistent with the baseline/measure unit cost numbers
+        if bldg_sect == "commercial" and sqft_subst != 1:
+            # Use try/except to handle missing capacity factor data
+            try:
+                # Set appropriate capacity factor (TBtu delivered service
+                # for hours of actual operation / TBtu service running at
+                # full capacity for all hours of the year)
+                cap_fact_mseg = self.handyvars.cap_facts[
+                    "data"][mskeys[2]][mskeys[4]]
+                # Conversion: (1) divides stock (service delivered) by
+                # the capacity factor (service delivered per year /
+                # service per year @ full capacity) to get to service per
+                # year @ full capacity; (2) divides by 8760 hours / year
+                # to get to service per hour at full capacity; (3)
+                # multiplies by 1e9 to get from service demand units of
+                # TBtu/h (heating/cooling), giga-lm (lighting) or giga-
+                # CFM (ventilation) to the baseline/measure cost unit
+                # denominators of kBtu/h, 1000 lm, and 1000 CFM
+                stk_serv_cap_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9
+            except (KeyError):
+                raise KeyError(
+                    "Microsegment '" + str(mskeys) + "'"
+                    "requires capacity factor data that are missing")
+        else:
+            stk_serv_cap_cnv = 1
 
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
@@ -7510,33 +7539,40 @@ class Measure(object):
                     stock_total_meas[yr] > stock_total[yr]:
                 stock_total_meas[yr] = stock_total[yr]
 
-            # Update the relative performance and time-sensitive efficiency
-            # scaling factors of the current year's measure-captured stock. Set
-            # to the relative performance/scaling factors of the current year
-            # only for all years through market entry; after market entry,
-            # these values are weighted combinations of the relative perf./
-            # scaling factor values for captured stock in both the current year
-            # and all previous years since market entry
+            # Set the weighted overall relative performance and per unit
+            # measure tech. refrigerant emissions (if applicable) for stock
+            # captured in current year and all previous years.
+
+            # Set to the relative performance/unit measure refrigerant
+            # emissions of the current year only for all years through
+            # market entry
             if int(yr) <= self.market_entry_year:
-                # Update relative performance
-                rel_perf_capt = rel_perf[yr]
+                # Update overall and previously captured measure stock RP
+                rel_perf_overall, rel_perf_capt = (
+                    copy.deepcopy(rel_perf[yr]) for n in range(2))
+            # Set a measure stock turnover weight to use in balancing
+            # current measure year's relative performance and fugitive
+            # refrigerant emissions per unit (if applicable) with values
+            # for measure stock captured in all previous years since market
+            # entry; weight is equal to the ratio of total competed measure
+            # stock in the current year to total previously captured
+            # measure stock across all previous years
             else:
-                # Set a turnover weight to use in balancing current year's rel.
-                # perf. with that of all previous years since market entry;
-                # weight is equal to the total competed fraction in the given
-                # year after accounting for diffusion fractions (if any) and
-                # stock turnover effects (new, replacement, and retrofit
-                # turnover that are captured by the measure)
-                turnover_wt = diffuse_frac * comp_frac_diffuse_meas
-                # Ensure the turnover weight never exceeds 1
-                if (type(turnover_wt) != numpy.ndarray) and turnover_wt > 1:
-                    turnover_wt = 1
-                elif (type(turnover_wt) == numpy.ndarray) and any(
-                        turnover_wt > 1):
-                    turnover_wt[numpy.where(turnover_wt > 1)] = 1
-                # Update relative performance
-                rel_perf_capt = (rel_perf[yr] * turnover_wt +
-                                 rel_perf_capt * (1 - turnover_wt))
+                if stock_total_meas[yr] != 0:
+                    to_m_stk = (
+                        stock_compete_meas[yr] / stock_total_meas[yr])
+                else:
+                    to_m_stk = 0
+                # Ensure the measure turnover weight never exceeds 1
+                if (type(to_m_stk) != numpy.ndarray) and \
+                        to_m_stk > 1:
+                    to_m_stk = 1
+                elif (type(to_m_stk) == numpy.ndarray) and any(
+                        to_m_stk > 1):
+                    to_m_stk[numpy.where(to_m_stk > 1)] = 1
+                # Update overall measure stock RP
+                rel_perf_overall = (rel_perf[yr] * to_m_stk +
+                                    rel_perf_capt * (1 - to_m_stk))
 
             # Update total-efficient and competed-efficient energy and
             # carbon, where "efficient" signifies the total and competed
@@ -7548,13 +7584,12 @@ class Measure(object):
             # Competed energy captured by measure
             energy_tot_comp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_eff * comp_frac_diffuse_meas * \
-                rel_perf_capt * (
+                rel_perf[yr] * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr])
             # Competed energy not captured by measure
             energy_tot_comp_base = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_base * (
-                    comp_frac_diffuse - comp_frac_diffuse_meas) * \
-                rel_perf_uncapt
+                    comp_frac_diffuse - comp_frac_diffuse_meas)
             # Uncompeted energy captured by measure
             energy_tot_uncomp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
@@ -7563,7 +7598,7 @@ class Measure(object):
             # Uncompeted energy not captured by measure
             energy_tot_uncomp_base = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_base * (1 - comp_frac_diffuse) * (
-                    1 - meas_cum_frac) * rel_perf_uncapt
+                    1 - meas_cum_frac)
 
             # Competed-efficient energy
             energy_compete_eff[yr] = energy_tot_comp_meas + \
@@ -7616,14 +7651,13 @@ class Measure(object):
 
             # Competed carbon captured by measure
             carb_tot_comp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
-                tsv_carb_eff * comp_frac_diffuse_meas * rel_perf_capt * \
+                tsv_carb_eff * comp_frac_diffuse_meas * rel_perf[yr] * \
                 (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 intensity_carb_ratio
             # Competed carbon not captured by measure
             carb_tot_comp_base = carb_total_sbmkt[yr] * diffuse_frac * \
                 tsv_carb_base * (
-                    comp_frac_diffuse - comp_frac_diffuse_meas) * \
-                rel_perf_uncapt
+                    comp_frac_diffuse - comp_frac_diffuse_meas)
             # Uncompeted carbon captured by measure
             carb_tot_uncomp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
                 tsv_carb_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
@@ -7633,7 +7667,7 @@ class Measure(object):
             # Uncompeted carbon not captured by measure
             carb_tot_uncomp_base = carb_total_sbmkt[yr] * diffuse_frac * \
                 tsv_carb_base * (1 - comp_frac_diffuse) * (
-                    1 - meas_cum_frac) * rel_perf_uncapt
+                    1 - meas_cum_frac)
 
             # Competed-efficient carbon
             carb_compete_eff[yr] = carb_tot_comp_meas + carb_tot_comp_base
@@ -7644,42 +7678,13 @@ class Measure(object):
             # Update total and competed stock, energy, and carbon
             # costs
 
-            # Commercial equipment stock numbers are in units of annual
-            # delivered service; to reach total stock numbers, they must
-            # be converted to units of hourly service capacity, which is
-            # consistent with the baseline/measure unit cost numbers
-            if bldg_sect == "commercial" and sqft_subst != 1:
-                # Use try/except to handle missing capacity factor data
-                try:
-                    # Set appropriate capacity factor (TBtu delivered service
-                    # for hours of actual operation / TBtu service running at
-                    # full capacity for all hours of the year)
-                    cap_fact_mseg = self.handyvars.cap_facts[
-                        "data"][mskeys[2]][mskeys[4]]
-                    # Conversion: (1) divides stock (service delivered) by
-                    # the capacity factor (service delivered per year /
-                    # service per year @ full capacity) to get to service per
-                    # year @ full capacity; (2) divides by 8760 hours / year
-                    # to get to service per hour at full capacity; (3)
-                    # multiplies by 1e9 to get from service demand units of
-                    # TBtu/h (heating/cooling), giga-lm (lighting) or giga-
-                    # CFM (ventilation) to the baseline/measure cost unit
-                    # denominators of kBtu/h, 1000 lm, and 1000 CFM
-                    stk_cost_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9
-                except (KeyError):
-                    raise KeyError(
-                        "Microsegment '" + str(mskeys) + "'"
-                        "requires capacity factor data that are missing")
-            else:
-                stk_cost_cnv = 1
-
             # Baseline cost of the competed and total stock; anchor this on
             # the stock captured by the measure to allow direct comparison
             # with measure stock costs
             stock_compete_cost[yr] = \
-                (stock_compete_meas[yr] * stk_cost_cnv) * cost_base[yr]
+                (stock_compete_meas[yr] * stk_serv_cap_cnv) * cost_base[yr]
             stock_total_cost[yr] = \
-                (stock_total_meas[yr] * stk_cost_cnv) * cost_base[yr]
+                (stock_total_meas[yr] * stk_serv_cap_cnv) * cost_base[yr]
             # Total and competed-efficient stock cost for add-on and
             # full service measures. * Note: the baseline technology installed
             # cost must be added to the measure installed cost in the case of
@@ -7687,19 +7692,19 @@ class Measure(object):
             if self.measure_type == "add-on":
                 # Competed-efficient stock cost (add-on measure)
                 stock_compete_cost_eff[yr] = \
-                    (stock_compete_meas[yr] * stk_cost_cnv) * (
+                    (stock_compete_meas[yr] * stk_serv_cap_cnv) * (
                     cost_meas[yr] + cost_base[yr])
                 # Total-efficient stock cost (add-on measure)
                 stock_total_cost_eff[yr] = \
-                    (stock_total_meas[yr] * stk_cost_cnv) * (
+                    (stock_total_meas[yr] * stk_serv_cap_cnv) * (
                     cost_meas[yr] + cost_base[yr])
             else:
                 # Competed-efficient stock cost (full service measure)
                 stock_compete_cost_eff[yr] = \
-                    (stock_compete_meas[yr] * stk_cost_cnv) * cost_meas[yr]
+                    (stock_compete_meas[yr] * stk_serv_cap_cnv) * cost_meas[yr]
                 # Total-efficient stock cost (full service measure)
                 stock_total_cost_eff[yr] = \
-                    (stock_total_meas[yr] * stk_cost_cnv) * cost_meas[yr]
+                    (stock_total_meas[yr] * stk_serv_cap_cnv) * cost_meas[yr]
 
             # Competed baseline energy cost
             energy_compete_cost[yr] = energy_total_sbmkt[yr] * \
@@ -7714,14 +7719,14 @@ class Measure(object):
             # Competed energy cost captured by measure
             energy_cost_tot_comp_meas = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_eff * comp_frac_diffuse_meas * \
-                rel_perf_capt * (
+                rel_perf[yr] * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
                 cost_energy_meas[yr]
             # Competed energy cost remaining with baseline
             energy_cost_tot_comp_base = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_base * (
                     comp_frac_diffuse - comp_frac_diffuse_meas) * \
-                rel_perf_uncapt * cost_energy_base[yr]
+                cost_energy_base[yr]
             # Total energy cost captured by measure
             energy_cost_tot_uncomp_meas = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_eff * (
@@ -7732,7 +7737,7 @@ class Measure(object):
             energy_cost_tot_uncomp_base = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_base * (
                     1 - comp_frac_diffuse) * (1 - meas_cum_frac) * \
-                rel_perf_uncapt * cost_energy_base[yr]
+                cost_energy_base[yr]
 
             # Competed-efficient energy cost
             energy_compete_cost_eff[yr] = energy_cost_tot_comp_meas + \
@@ -7753,6 +7758,10 @@ class Measure(object):
             # Total carbon-efficient cost
             carb_total_eff_cost[yr] = \
                 carb_total_eff[yr] * self.handyvars.ccosts[yr]
+
+            # Reset previously captured measure relative performance for next
+            # year to that of the overall stock in the current year
+            rel_perf_capt = rel_perf_overall
 
             # For fuel switching measures where exogenous HP conversion
             # rates have NOT been specified only, record the portion of total
@@ -9746,13 +9755,9 @@ class MeasurePackage(Measure):
                         msegs_meas["cost"]["stock"][
                         "competed"]["efficient"] = [{
                             yr: (msegs_meas["cost"]["stock"][s][
-                                "efficient"][yr] - ((
-                                    msegs_meas["cost"]["stock"][s][
-                                        "baseline"][yr] /
-                                    msegs_meas["stock"][s]["all"][yr]) *
-                                    msegs_meas["stock"][s]["measure"][yr])) if
-                            msegs_meas["stock"][s]["all"][yr] != 0 else
-                            msegs_meas["cost"]["stock"][s]["efficient"][yr]
+                                "efficient"][yr] -
+                                 msegs_meas["cost"]["stock"][s][
+                                 "baseline"][yr])
                             for yr in self.handyvars.aeo_years}
                             for s in ["total", "competed"]]
                     # Set baseline stock costs to zero
@@ -9999,19 +10004,16 @@ class MeasurePackage(Measure):
             # equipment measures will be using
             if bldg_sect == "commercial":
                 # Initial conversion from ft^2 floor to service capacity units.
-                # Note that the factors read in here are set up to convert
-                # from kBtu/h heating or cooling capacity to ft^2 floor,
-                # and must be inverted to get intended conversion
                 if "heating" in htcl_key_match:
                     stk_cnv_1 = (
-                        1 / self.pkg_env_cost_convert_data[
+                        self.pkg_env_cost_convert_data[
                             "cost unit conversions"]["heating and cooling"][
                             "supply"]["heating equipment"][
                             "conversion factor"]["value"])
 
                 elif "cooling" in htcl_key_match:
                     stk_cnv_1 = (
-                        1 / self.pkg_env_cost_convert_data[
+                        self.pkg_env_cost_convert_data[
                             "cost unit conversions"]["heating and cooling"][
                             "supply"]["cooling equipment"][
                             "conversion factor"]["value"])
@@ -10063,8 +10065,7 @@ class MeasurePackage(Measure):
             # microsegment, to ensure this calculation is consistent across
             # all overlapping equipment measures)
             tot_stk_eff_hvac_unadj, comp_stk_eff_hvac_unadj = [{
-                yr: s[yr] * convert_env_to_hvac_stk_units for
-                yr in self.handyvars.aeo_years} for s in [
+                yr: s_u[yr] for yr in self.handyvars.aeo_years} for s_u in [
                     common_stk[adopt_scheme][cm_key]["total"],
                     common_stk[adopt_scheme][cm_key]["competed"]]]
             # Develop factors to map number of envelope measure stock
