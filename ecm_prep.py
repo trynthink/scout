@@ -4839,6 +4839,15 @@ class Measure(object):
                         raise ValueError("Inconsistent state keys \
                             between fugitive emissions leakage rate data \
                             and geographical mapping data")
+                    # Handle case where measure is switching away from
+                    # a baseline case with methane leakage to a non-gas tech.
+                    # without such leakage
+                    if self.fuel_switch_to is not None:
+                        lkg_fmeth_base = copy.deepcopy(lkg_rate)
+                        lkg_fmeth_meas = 0
+                    else:
+                        lkg_fmeth_base, lkg_fmeth_meas = (
+                            copy.deepcopy(lkg_rate) for n in range(2))
                 # State region setting requires no further mapping
                 elif opts.fugitive_emissions is not False and \
                     opts.fugitive_emissions[0] in ['1', '3'] and \
@@ -4846,8 +4855,18 @@ class Measure(object):
                     # Directly pull methane leakage rate for current state
                     lkg_rate = self.handyvars.fug_emissions[
                         "methane"]["total_leakage_rate"][mskeys[1]]
+                    # Handle case where measure is switching away from
+                    # a baseline case with methane leakage to a non-gas tech.
+                    # without such leakage
+                    if self.fuel_switch_to is not None:
+                        lkg_fmeth_base = copy.deepcopy(lkg_rate)
+                        lkg_fmeth_meas = 0
+                    else:
+                        lkg_fmeth_base, lkg_fmeth_meas = (
+                            copy.deepcopy(lkg_rate) for n in range(2))
                 else:
-                    lkg_rate = None
+                    lkg_rate, lkg_fmeth_base, lkg_fmeth_meas = (
+                        None for n in range(3))
 
                 # Calculate fugitive emissions from refrigerants
                 # for cases where supporting refrigerant leakage data are
@@ -4863,7 +4882,7 @@ class Measure(object):
                     # separately for measure and comparable baseline
                     # technology
 
-                    # Thermal end use technology casess
+                    # Thermal end use technology cases
                     if mskeys[4] in ["heating", "cooling", "secondary heating",
                                      "water heating"]:
                         # Flag for HP measure (requires special handling)
@@ -5061,15 +5080,19 @@ class Measure(object):
                 if opts.fugitive_emissions is not False and \
                     opts.fugitive_emissions[0] in ['1', '3'] and mskeys[3] == \
                         "natural gas":
-                    add_fmeth = {key: val * lkg_rate *
-                                 intensity_carb_base[key] for key, val in
-                                 add_energy.items() if key in
-                                 self.handyvars.aeo_years}
+                    # Create variables for converting natural gas energy
+                    # to volume and mass
+                    mmbtu_to_mcf = 1 / 1.037
+                    methane_gram_per_mcf = 20200
+                    methane_100yr_GWP = 28
+                    mmt_conv = 1 / 1000000000
+                    add_fmeth = {key: val * mmbtu_to_mcf * lkg_rate *
+                                 methane_gram_per_mcf * methane_100yr_GWP *
+                                 mmt_conv for key, val in
+                                 add_energy.items()}
                 elif opts.fugitive_emissions is not False and \
                         opts.fugitive_emissions[0] in ['1', '3']:
-                    add_fmeth = {key: val * 0 for key, val in
-                                 add_energy.items() if key in
-                                 self.handyvars.aeo_years}
+                    add_fmeth = {key: 0 for key in add_energy.keys()}
                 else:
                     add_fmeth = None
 
@@ -5165,7 +5188,8 @@ class Measure(object):
                             intensity_carb_base, intensity_carb_meas,
                             energy_total_scnd, tsv_scale_fracs, tsv_shapes,
                             opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
-                            retro_rate_mseg, calc_sect_shapes, warn_list)
+                            retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base,
+                            lkg_fmeth_meas, warn_list)
 
                     # Remove double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
@@ -7157,7 +7181,8 @@ class Measure(object):
             site_source_conv_base, site_source_conv_meas, intensity_carb_base,
             intensity_carb_meas, energy_total_scnd, tsv_adj_init,
             tsv_shapes, opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
-            retro_rate_mseg, calc_sect_shapes, warn_list):
+            retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base, lkg_fmeth_meas,
+            warn_list):
         """Find total, competed, and efficient portions of a mkt. microsegment.
 
         Args:
@@ -7206,6 +7231,10 @@ class Measure(object):
                 to HPs, if applicable.
             retro_rate_mseg (dict): Microsegment-specific retrofit rate.
             calc_sect_shapes (boolean): Flag for sector-shape calculations.
+            lkg_fmeth_base (float): Methane leakage for baseline mseg tech.,
+                if applicable.
+            lkg_fmeth_meas (float): Methane leakage for measure tech. that is
+                replacing baseline mseg, if applicable.
 
         Returns:
             Total, total-efficient, competed, and competed-efficient
@@ -8517,11 +8546,21 @@ class Measure(object):
 
             # Methane
             if f_meth_assess:
+                # Anticipate and handle case with base carbon intensity of zero
+                # for electricity; in this case, assume the measure/baseline
+                # intensity is the same (zero intensity is only possible for
+                # electricity; assume measures will not be switched away from
+                # electricity)
+                try:
+                    lkg_fmeth_ratio = (lkg_fmeth_meas / lkg_fmeth_base)
+                except ZeroDivisionError:
+                    lkg_fmeth_ratio = 1
+
                 # Competed fugitive methane captured by measure
                 fmeth_tot_comp_meas = fmeth_total_sbmkt[yr] * diffuse_frac * \
                     tsv_energy_eff * comp_frac_diffuse_meas * rel_perf[yr] * \
                     (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
+                    lkg_fmeth_ratio
                 # Competed fugitive methane not captured by measure
                 fmeth_tot_comp_base = fmeth_total_sbmkt[yr] * diffuse_frac * \
                     tsv_energy_base * (
@@ -8532,7 +8571,7 @@ class Measure(object):
                     meas_cum_frac * rel_perf_capt * (
                         site_source_conv_meas[yr] /
                         site_source_conv_base[yr]) * \
-                    intensity_carb_ratio
+                    lkg_fmeth_ratio
                 # Uncompeted fugitive methane not captured by measure
                 fmeth_tot_uncomp_base = fmeth_total_sbmkt[yr] * \
                     diffuse_frac * tsv_energy_base * \
