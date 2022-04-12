@@ -1,9 +1,8 @@
 {
-  "name": "Ref. Case Res. Elec. HVAC (FS)",
+  "name": "Ref. Case Res. Elec. HVAC (FS) CC",
   "_description": "Represents switch to electric residential HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential HVAC technologies currently (or soon to be) on the market, from AEO 2021",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                   "CASO"],
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],

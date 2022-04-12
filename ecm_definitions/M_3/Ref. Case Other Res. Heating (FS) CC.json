@@ -1,8 +1,7 @@
 { 
-  "name": "Ref. Case Other Res. Heating (FS)",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                   "CASO"],
+  "name": "Ref. Case Other Res. Heating (FS) CC",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["heating", "secondary heating", "cooling"],
