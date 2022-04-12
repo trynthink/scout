@@ -171,8 +171,8 @@
             "rooftop_AC": {
                "typ_refrigerant": {"2020": "R-410A", "2025": "R-32"},
                "low_gwp_refrigerant": "R-32",
-               "typ_charge": 45.4,
-               "typ_ann_leak_pct": 0.025,
+               "typ_charge": 1.571111111,
+               "typ_ann_leak_pct": 0.05,
                "EOL_leak_pct": 0.15,
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
@@ -185,8 +185,8 @@
                "References": "Typical refrigerant, low-GWP refrigerant, typical annual leakage, and EOL leakage: Hwang, 2016 (https://iifiir.org/en/fridoc/harmonization-of-life-cycle-climate-performance-methodology-139940); Phase-out year: U.S. Environmental Protection Agency, 2016 (https://www.epa.gov/sites/default/files/2016-12/documents/snap_action_scr2_factsheet.pdf); Typical charge: TBD"
             },
             "refrigeration - large": {
-               "typ_refrigerant": {"2020": "R-404A", "2025": "R454C"},
-               "low_gwp_refrigerant": "R454C",
+               "typ_refrigerant": {"2020": "R-404A", "2025": "R-454C"},
+               "low_gwp_refrigerant": "R-454C",
                "typ_charge": 1.78412132,
                "typ_ann_leak_pct": 0.225,
                "EOL_leak_pct": 0.15,
