@@ -4910,9 +4910,10 @@ class Measure(object):
                             self.handyvars.fug_emissions[
                             "methane"]["total_leakage_rate"].keys()])
                     except (KeyError):
-                        raise ValueError("Inconsistent state keys \
-                            between fugitive emissions leakage rate data \
-                            and geographical mapping data")
+                        raise ValueError(
+                            "Inconsistent state keys "
+                            "between fugitive emissions leakage rate data "
+                            "and geographical mapping data")
                     # Handle case where measure is switching away from
                     # a baseline case with methane leakage to a non-gas tech.
                     # without such leakage
@@ -7566,7 +7567,7 @@ class Measure(object):
                 stk_serv_cap_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9
             except (KeyError):
                 raise KeyError(
-                    "Microsegment '" + str(mskeys) + "'"
+                    "Microsegment '" + str(mskeys) + "' "
                     "requires capacity factor data that are missing")
         else:
             stk_serv_cap_cnv = 1
@@ -7896,9 +7897,35 @@ class Measure(object):
                     diffuse_frac = stock_total_hp_convert_frac
                     # Fraction of total converted stock that was
                     # converted in the current year
+<<<<<<< HEAD
                     if stock_total_hp_convert[yr] != 0:
                         comp_frac_diffuse = stock_comp_hp_convert[yr] / \
                             stock_total_hp_convert[yr]
+=======
+                    if diffuse_frac != 1:
+                        if stock_total_hp_convert[yr] != 0:
+                            comp_frac_diffuse = stock_comp_hp_convert[yr] / \
+                                stock_total_hp_convert[yr]
+                        else:
+                            comp_frac_diffuse = 0
+                    # If full cumulative conversion was achieved
+                    elif adopt_scheme != "Technical potential":
+                        # Achieved in the current year; set to the fraction of
+                        # total converted stock that was converted in the
+                        # current year; if no additional stock was converted
+                        # (current year not great than previou), set to zero
+                        if yr == self.handyvars.aeo_years[0]:
+                            comp_frac_diffuse = 1
+                        elif (stock_total_hp_convert[str(int(yr) - 1)] <
+                                stock_total_hp_convert[yr]):
+                            comp_frac_diffuse = (
+                                stock_total_hp_convert[yr] -
+                                stock_total_hp_convert[str(int(yr) - 1)]) / \
+                                stock_total_hp_convert[yr]
+                        # Achieved in a previous year; set to zero
+                        else:
+                            comp_frac_diffuse = 0
+>>>>>>> 73f62ae (Add tests of fugitive refrigerant emissions)
                     else:
                         comp_frac_diffuse = 0
                 # Case where the measure's microsegment is being eroded
@@ -7981,10 +8008,12 @@ class Measure(object):
                             self.low_gwp_refrigerant
                             # User may set low GWP refrigerant to a default
                             # choice in the measure definition, or otherwise
-                            # will provide the low GWP refrigerant name
+                            # will provide the low GWP refrigerant name as a
+                            # single string or in a dict keyed by year
                             if self.low_gwp_refrigerant in [
                                 None, "default"] or \
-                                    type(self.low_gwp_refrigerant) is not str:
+                                    type(self.low_gwp_refrigerant) not in [
+                                        str, dict]:
                                 low_gwp_usr = ""
                             else:
                                 low_gwp_usr = self.low_gwp_refrigerant
@@ -7995,7 +8024,14 @@ class Measure(object):
                         # either provided by the user or otherwise available
                         # in the supporting refrigerants data file
                         if low_gwp_usr:
-                            r_key_e = low_gwp_usr
+                            # Handle low gwp broken out by year in the
+                            # user input
+                            if type(low_gwp_usr) == dict:
+                                r_key_e = low_gwp_usr[
+                                     [y for y in low_gwp_usr.keys() if
+                                      int(yr) >= int(y)][-1]]
+                            else:
+                                r_key_e = low_gwp_usr
                         else:
                             # Low GWP refrigerants may be stored as a dict
                             # keyed in by year
@@ -11061,7 +11097,7 @@ class MeasurePackage(Measure):
                     convert_env_to_hvac_stk_units = stk_cnv_1 * stk_cnv_2
                 except (KeyError):
                     raise KeyError(
-                        "Microsegment '" + str(htcl_key_match) + "'"
+                        "Microsegment '" + str(htcl_key_match) + "' "
                         "requires capacity factor data that are missing")
 
             # For residential microsegments, envelope stock will already
