@@ -5157,7 +5157,7 @@ class Measure(object):
                         "natural gas":
                     # Create variables for converting natural gas energy
                     # to volume and mass
-                    mmbtu_to_mcf = 1 / 1.037
+                    mmbtu_to_mcf = 0.0009643202
                     methane_gram_per_mcf = 20200
                     methane_100yr_GWP = 28
                     mmt_conv = 1 / 1000000000
