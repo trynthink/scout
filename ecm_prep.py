@@ -2445,6 +2445,16 @@ class Measure(object):
         # marked 'all' by users
         self.fill_attr()
 
+        # Flag the auto-generation of reference case technology analogues for
+        # all of the current measure's applicable markets, if applicable –
+        # exclude 'Ref. Case' fuel switching measures, which must be manually
+        # defined
+        if (opts.add_typ_eff is True and "Ref. Case" in self.name) and (
+                self.fuel_switch_to is None):
+            agen_ref = True
+        else:
+            agen_ref = ""
+
         # Flag for whether or not the measure requires calculation of sector-
         # level electricity savings shapes. Exclude envelope measures that are
         # part of packages w/HVAC equipment; these measures simply scale HVAC
@@ -4209,9 +4219,7 @@ class Measure(object):
                 # cost, and lifetime characteristics to the baseline values
                 # (note, this excludes typical/BAU fuel switching measures,
                 # which are defined and assessed like normal measures)
-                elif opts.add_typ_eff is True and \
-                    "Ref. Case" in self.name and \
-                        self.fuel_switch_to is None:
+                elif agen_ref:
                     # Reset measure performance and cost to track baseline
                     perf_meas = {
                         yr: perf_base[yr] for yr in self.handyvars.aeo_years}
@@ -4405,10 +4413,7 @@ class Measure(object):
                     # perform calculations on typical/BAU efficiency measures,
                     # as their performance and cost already tracks baseline
                     if opts.rp_persist is True and (
-                            opts.add_typ_eff is not True or
-                            (opts.add_typ_eff is True and (
-                                "Ref. Case" not in self.name or
-                                self.fuel_switch_to is not None))):
+                            opts.add_typ_eff is not True or not agen_ref):
                         # Preclude consistent performance improvements for
                         # prospective measures, which tend to already be at
                         # performance limits
@@ -8186,8 +8191,17 @@ class Measure(object):
                 ms_iterable_init.extend(
                     list(itertools.product(*ms_lists_add)))
                 for ind, ms_lists_add_i in enumerate(ms_lists_add):
-                    if ms_lists_add_i not in ms_lists[ind]:
-                        ms_lists[ind].extend(ms_lists_add_i)
+                    if ind != (len(ms_lists_add)-1):
+                        ms_lists[ind].extend([
+                            x for x in ms_lists_add_i if
+                            x not in ms_lists[ind]])
+                    # Special handling for technology attribute, which
+                    # is the last element in 'ms_lists_add' but the second
+                    # to last element in 'ms_lists'
+                    elif ind == (len(ms_lists_add)-1):
+                        ms_lists[(ind + 1)].extend([
+                            x for x in ms_lists_add_i if
+                            x not in ms_lists[(ind + 1)]])
 
         # Case without heating or cooling microsegments
         else:
@@ -9152,7 +9166,8 @@ class MeasurePackage(Measure):
         # in a package, pull a common set of measure-captured stock figures
         # to use in calculating the envelope costs to add to the package
         # later, across all equipment measures in the package
-        if opts.pkg_env_costs is True and len(self.contributing_ECMs_env) > 0:
+        if opts.pkg_env_costs is not False and len(
+                self.contributing_ECMs_env) > 0:
             # Initialize dict of common stock data for all equipment
             # measures in the package
             common_stk = {a_s: {} for a_s in self.handyvars.adopt_schemes}
@@ -9230,7 +9245,7 @@ class MeasurePackage(Measure):
             # else fuel switch (sector shapes are inapplicable)
             if opts.sect_shapes is True:
                 calc_sect_shapes = (
-                    (self.technology_type["primary"] != "demand") and
+                    (self.technology_type["primary"][0] != "demand") and
                     ("Ref. Case" not in self.name or
                      self.fuel_switch_to is not None) and
                     ("electricity" in self.fuel_type["primary"] or
@@ -9619,7 +9634,7 @@ class MeasurePackage(Measure):
                             # If the user opts to include envelope costs in
                             # the total costs of the HVAC/envelope package,
                             # record those overlapping costs
-                            if opts.pkg_env_costs is True:
+                            if opts.pkg_env_costs is not False:
                                 dmd_stk_cost = [[
                                     dmd_match_ECMs[m].markets[adopt_scheme][
                                         "mseg_adjust"][
@@ -9915,7 +9930,7 @@ class MeasurePackage(Measure):
             # If desired by the user, incorporate envelope stock costs,
             # provided that the total measure stock for the current equipment
             # microsegment anchor is not zero across the time horizon
-            if opts.pkg_env_costs is True and not all([
+            if opts.pkg_env_costs is not False and not all([
                     msegs_meas["stock"]["total"]["measure"][yr] == 0 for yr in
                     self.handyvars.aeo_years]):
                 mseg_cost_adj = self.add_env_costs_to_pkg(
@@ -11721,6 +11736,22 @@ def main(base_dir):
             "cost adders: ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
 
+    # Given inclusion of envelope costs in envelope/HVAC packages, prompt
+    # user to select whether HVAC-only measure data should be written out
+    # for inclusion in subsequent measure competition, or not
+    if opts.pkg_env_costs is True:
+        input_var = 0
+        while input_var not in ['1', '2']:
+            input_var = input(
+                "\nEnter 1 to prepare HVAC-only versions of all HVAC/envelope "
+                "packages for subsequent measure competition,\nor 2 to "
+                "exclude these HVAC-only measures from subsequent measure "
+                "competition: ")
+            if input_var not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
+        opts.pkg_env_costs = input_var
+
     # Custom format all warning messages (ignore everything but
     # message itself) *** Note: sometimes yields error; investigate ***
     # warnings.formatwarning = custom_formatwarning
@@ -11980,20 +12011,30 @@ def main(base_dir):
                                         meas_dict["name"], new_name])
                     # Add copies of ESTAR, IECC, or 90.1 measures that
                     # downgrade to typical/BAU efficiency levels; exclude typ.
-                    # /BAU fuel switching measures, which must be explicitly
-                    # defined by the user and are handled like normal measures;
-                    # also exclude typical windows/envelope measures, as these
-                    # are already baked into the energy use totals for typical
-                    # HVAC equipment measures
+                    # /BAU fuel switching measures that are assessed under
+                    # exogenously determined FS rates; such measures must be
+                    # manually defined by the user and are handled like normal
+                    # measures; also exclude typical windows/envelope measures,
+                    # as these are already baked into the energy use totals for
+                    # typical/BAU HVAC equipment measures
                     if opts is not None and opts.add_typ_eff is True and \
                         any([x in meas_dict["name"] for x in [
                             "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and \
-                        meas_dict["fuel_switch_to"] is None and (
+                        (meas_dict["fuel_switch_to"] is None or
+                         opts.exog_hp_rates is False) and (
                             not ((isinstance(meas_dict["technology"], list)
                                   and all([x in handyvars.demand_tech for
                                            x in meas_dict["technology"]])) or
                                  meas_dict["technology"] in
                                  handyvars.demand_tech)):
+                        # If measure was set to fuel switch without exogenous
+                        # FS rates, reset typical/BAU analogue FS to None (
+                        # e.g., such that for an ASHP FS measure, a typical/
+                        # BAU fossil-based heating analogue is created
+                        # for later competition with that FS measure)
+                        if (meas_dict["fuel_switch_to"] is not None and
+                                opts.exog_hp_rates is False):
+                            meas_dict["fuel_switch_to"] = None
                         # Find substring in existing measure name to replace
                         if "ENERGY STAR" in meas_dict["name"]:
                             name_substr = "ENERGY STAR"
@@ -12115,7 +12156,7 @@ def main(base_dir):
                         m_exist[0]["benefits"]["energy savings increase"]) or (
                         m["benefits"]["cost reduction"] !=
                         m_exist[0]["benefits"]["cost reduction"])) or (
-                    (opts is not None and opts.pkg_env_costs is True and
+                    (opts is not None and opts.pkg_env_costs is not False and
                      m_exist[0]["pkg_env_costs"] is False) or
                     (opts is None or opts.pkg_env_costs is False and
                      m_exist[0]["pkg_env_costs"] is not False))):
@@ -12348,11 +12389,16 @@ def main(base_dir):
         # Add all prepared high-level measure information to existing
         # high-level data and to list of active measures for analysis;
         # ensure that high-level data for measures that contribute to
-        # packages are not written out
+        # packages are not written out, with the exception of HVAC
+        # measures in a package that the user has requested be written
+        # out for eventual competition with the packages they contribute to
         for m_i, m in enumerate([x for x in meas_prepped_summary]):
             # Measure does not serve as counterfactual for isolating
             # envelope impacts within packages
-            if "(CF)" not in m["name"] and m["name"] not in ctrb_ms_pkg_prep:
+            if "(CF)" not in m["name"] and (
+                m["name"] not in ctrb_ms_pkg_prep or (
+                    opts.pkg_env_costs == '1' and
+                    m["technology_type"]["primary"][0] == "supply")):
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary]:
@@ -12381,8 +12427,10 @@ def main(base_dir):
                 # the package measure; in a scenario where public health costs
                 # are assumed, add only the "high" health costs versions of
                 # prepared measures to active list
-                if (m["name"] not in ctrb_ms_pkg_prep) and (
-                    opts.health_costs is False or
+                if (m["name"] not in ctrb_ms_pkg_prep or (
+                    opts.pkg_env_costs == '1' and
+                    m["technology_type"]["primary"][0] == "supply")) and (
+                        opts.health_costs is False or
                         "PHC-EE (high)" in m["name"]):
                     # Measure not already in active measures list (add to list)
                     if m["name"] not in run_setup["active"]:
@@ -12394,8 +12442,10 @@ def main(base_dir):
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
-            elif opts.pkg_env_sep is True and \
-                    m["name"] not in ctrb_ms_pkg_prep:
+            elif opts.pkg_env_sep is True and (
+                    m["name"] not in ctrb_ms_pkg_prep or (
+                    opts.pkg_env_costs == '1' and
+                    m["technology_type"]["primary"][0] == "supply")):
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary_env_cf]:
@@ -12420,8 +12470,13 @@ def main(base_dir):
         for ind, m in enumerate(meas_prepped_objs):
             # Ensure that competed data is not written out for
             # counterfactual measures or measures that contribute to
-            # packages, since neither will be processed via analysis engine
-            if "(CF)" not in m.name and m.name not in ctrb_ms_pkg_prep:
+            # packages, with the exception of HVAC measures in a package that
+            # the user has requested be written out for eventual competition
+            # with the packages they contribute to
+            if "(CF)" not in m.name and (
+                    m.name not in ctrb_ms_pkg_prep or (
+                    opts.pkg_env_costs == '1' and
+                    m.technology_type["primary"][0] == "supply")):
                 # Assemble file name for measure competition data
                 meas_file_name = m.name + ".pkl.gz"
                 # Assemble folder path for measure competition data
