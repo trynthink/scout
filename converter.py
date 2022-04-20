@@ -36,6 +36,7 @@ from collections import OrderedDict
 
 
 class UsefulVars(object):
+
     """Class of variables that are handy to have widely available.
 
     Attributes:
@@ -48,6 +49,7 @@ class UsefulVars(object):
         emm_conv_file_out (str): Relative path from main scout directory
             to location for writing newly updated EMM projections data.
     """
+
     def __init__(self):
         self.ss_conv_file = ('supporting_data/convert_data/' +
                              'site_source_co2_conversions.json')
@@ -60,13 +62,15 @@ class UsefulVars(object):
         self.emm_state_map = ('supporting_data/convert_data/geo_map/' +
                               'EMM_State_ColSums.txt')
         self.state_baseline_data = ('supporting_data/convert_data/' +
-                                    'EIA_State_Price_Emissions_Baselines_2019.csv')  # noqa: E501
+                                    'EIA_State_Emissions_Prices_Baselines_\
+                                    2020.csv')
         self.state_conv_file_out = ('supporting_data/convert_data/' +
                                     'state_emissions_prices-updated.json')
         self.metadata = ('metadata.json')
 
 
 class ValidQueries(object):
+
     """Define valid query options for AEO data requested via the EIA data API
 
     Attributes:
@@ -85,6 +89,7 @@ class ValidQueries(object):
             API and values denoting region abbreviations to use for
             writing the updated json file.
     """
+
     def __init__(self):
         self.years = ['2018', '2019', '2020', '2021']
         self.emm_years = ['2020', '2021']
@@ -119,6 +124,7 @@ class ValidQueries(object):
 
 
 class EIAQueryData(object):
+
     """Reference strings for obtaining required data from EIA AEO
 
     Attributes:
@@ -135,43 +141,59 @@ class EIAQueryData(object):
     """
     def __init__(self, yr, scen):
         self.data_series = [
-            'AEO.'+yr+'.'+scen+'.CNSM_NA_ELEP_NA_HYD_CNV_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_NA_ELEP_NA_GEOTHM_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_NA_ELEP_NA_SLR_THERM_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_NA_ELEP_NA_SLR_PHTVL_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_NA_ELEP_NA_WND_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_ALLS_NA_ELC_DELV_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_ALLS_NA_ERL_DELV_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_ELC_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_ERL_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_ERL_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_ELC_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_RESD_NA_ELC_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_COMM_NA_ELC_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_RESD_NA_ELC_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_COMM_NA_ELC_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_NG_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_NG_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_RESD_NA_NG_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_COMM_NA_NG_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_RESD_NA_NG_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_COMM_NA_NG_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_LFL_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_RESD_NA_PET_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_LFL_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_COMM_NA_PET_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_CL_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.EMI_CO2_COMM_NA_CL_NA_NA_MILLMETNCO2.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_RESD_NA_PROP_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_RESD_NA_DFO_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_PROP_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_RESD_NA_DFO_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_COMM_NA_PROP_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_COMM_NA_DFO_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.PRCE_REAL_COMM_NA_RFL_NA_NA_Y13DLRPMMBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_PROP_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_DFO_NA_NA_QBTU.A',
-            'AEO.'+yr+'.'+scen+'.CNSM_ENU_COMM_NA_RFO_NA_NA_QBTU.A']
+            'AEO.' + yr + '.' + scen + '.CNSM_NA_ELEP_NA_HYD_CNV_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_NA_ELEP_NA_GEOTHM_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_NA_ELEP_NA_SLR_THERM_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_NA_ELEP_NA_SLR_PHTVL_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_NA_ELEP_NA_WND_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_ALLS_NA_ELC_DELV_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_ALLS_NA_ERL_DELV_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_ELC_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_ERL_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_ERL_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_ELC_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_ELC_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_ELC_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_ELC_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_ELC_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_NG_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_NG_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_NG_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_NG_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_NG_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_NG_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_LFL_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_PET_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_LFL_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_PET_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_CL_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_CL_NA_NA_\
+                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_PROP_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_DFO_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_PROP_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_DFO_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_PROP_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_DFO_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_RFL_NA_NA_\
+                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_PROP_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_DFO_NA_NA_QBTU.A',
+            'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_RFO_NA_NA_QBTU.A']
 
         self.data_names = [
             'elec_renew_hydro',
@@ -216,22 +238,22 @@ class EIAQueryData(object):
         self.data_names_emm = []
 
         for reg in list(ValidQueries().regions_dict.keys()):
-            self.data_series_emm.append(['AEO.'+yr+'.' + scen +
+            self.data_series_emm.append(['AEO.' + yr + '.' + scen +
                                          '.EMI_CO2_ELEP_NA_NA_NA_' +
-                                         reg+'_MILLTON.A',
-                                         'AEO.'+yr+'.'+scen +
+                                         reg + '_MILLTON.A',
+                                         'AEO.' + yr + '.' + scen +
                                          '.CNSM_NA_ELEP_NA_ELC_NA_' +
-                                         reg+'_BLNKWH.A',
-                                         'AEO.'+yr+'.'+scen +
+                                         reg + '_BLNKWH.A',
+                                         'AEO.' + yr + '.' + scen +
                                          '.PRCE_NA_RESD_NA_ELC_NA_' +
-                                         reg+'_Y13CNTPKWH.A',
-                                         'AEO.'+yr+'.'+scen +
+                                         reg + '_Y13CNTPKWH.A',
+                                         'AEO.' + yr + '.' + scen +
                                          '.PRCE_NA_COMM_NA_ELC_NA_' +
-                                         reg+'_Y13CNTPKWH.A'])
-            self.data_names_emm.append(['elec_co2_total_'+reg,
-                                        'elec_sales_total_'+reg,
-                                        'elec_enduse_price_res_'+reg,
-                                        'elec_enduse_price_com_'+reg])
+                                         reg + '_Y13CNTPKWH.A'])
+            self.data_names_emm.append(['elec_co2_total_' + reg,
+                                        'elec_sales_total_' + reg,
+                                        'elec_enduse_price_res_' + reg,
+                                        'elec_enduse_price_com_' + reg])
 
 
 def api_query(api_key, series_id):
@@ -304,7 +326,8 @@ def data_processor(data):
         diff = (min(years) - aeo_min).astype(int)
 
         # add prior years to array for length of diff
-        new_years = np.array([aeo_min + np.timedelta64(i, 'Y') for i in range(diff)])  # noqa: E501
+        new_years = np.array([aeo_min + np.timedelta64(i, 'Y') for i in
+                              range(diff)])
         years = np.insert(years, 0, new_years, axis=0)
 
         # add repeated data to array to match number of prior years added
@@ -312,7 +335,8 @@ def data_processor(data):
         data = np.insert(data, 0, data_insert, axis=0)
 
         # convert years back to array of strings
-        years = np.array([np.datetime_as_string(year, unit='Y') for year in years])  # noqa: E501
+        years = np.array([np.datetime_as_string(year, unit='Y') for year in
+                          years])
 
         # Re-sort in ascending year order
         data = np.array(data)[years.argsort()]
@@ -498,8 +522,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
         co2_res_ints = (z['elec_res_co2'] /
                         (z['elec_res_energy_site']+z['elec_res_energy_loss']))
         for idx, year in enumerate(yrs):
-            conv['electricity']['CO2 intensity']['data']['residential'][year] = (  # noqa: E501
-                    round(co2_res_ints[idx]/capnrg[idx], 6))
+            conv['electricity']['CO2 intensity']['data']['residential'][
+                 year] = (round(co2_res_ints[idx]/capnrg[idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
               'electricity CO2 emissions intensities were not updated.')
@@ -509,8 +533,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
         co2_com_ints = (z['elec_com_co2'] /
                         (z['elec_com_energy_site']+z['elec_com_energy_loss']))
         for idx, year in enumerate(yrs):
-            conv['electricity']['CO2 intensity']['data']['commercial'][year] = (  # noqa: E501
-                round(co2_com_ints[idx]/capnrg[idx], 6))
+            conv['electricity']['CO2 intensity']['data']['commercial'][
+                 year] = (round(co2_com_ints[idx]/capnrg[idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
               'electricity CO2 emissions intensities were not updated.')
@@ -519,8 +543,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
     try:
         co2_res_ng_ints = z['ng_res_co2']/z['ng_res_energy']
         for idx, year in enumerate(yrs):
-            conv['natural gas']['CO2 intensity']['data']['residential'][year] = (  # noqa: E501
-                round(co2_res_ng_ints[idx], 6))
+            conv['natural gas']['CO2 intensity']['data']['residential'][
+                 year] = (round(co2_res_ng_ints[idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
               'natural gas CO2 emissions intensities were not updated.')
@@ -529,8 +553,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
     try:
         co2_com_ng_ints = z['ng_com_co2']/z['ng_com_energy']
         for idx, year in enumerate(yrs):
-            conv['natural gas']['CO2 intensity']['data']['commercial'][year] = (  # noqa: E501
-                round(co2_com_ng_ints[idx], 6))
+            conv['natural gas']['CO2 intensity']['data']['commercial'][
+                 year] = (round(co2_com_ng_ints[idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
               'natural gas CO2 emissions intensities were not updated.')
@@ -541,7 +565,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
             conv['propane']['CO2 intensity']['data']['residential'][year] = (
                 62.88)  # hard coded  CO2 intensity of propane
     except KeyError:
-        print('\nError updating residential propane CO2 emissions intensities.')
+        print('\nError updating residential propane CO2 emissions \
+              intensities.')
 
     # Commercial propane CO2 intensities [Mt CO2/quads]
     try:
@@ -549,23 +574,26 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
             conv['propane']['CO2 intensity']['data']['commercial'][year] = (
                 62.88)  # hard coded  CO2 intensity of propane
     except KeyError:
-        print('\nError updating commercial propane CO2 emissions intensities.')
+        print('\nError updating commercial propane CO2 emissions \
+              intensities.')
 
     # Residential distillate CO2 intensities [Mt CO2/quads]
     try:
         for idx, year in enumerate(yrs):
-            conv['distillate']['CO2 intensity']['data']['residential'][year] = (
-                74.14)  # hard coded CO2 intensity of distillate
+            conv['distillate']['CO2 intensity']['data']['residential'][
+                year] = (74.14)  # hard coded CO2 intensity of distillate
     except KeyError:
-        print('\nError updating residential distillate CO2 emissions intensities.')
+        print('\nError updating residential distillate CO2 emissions \
+              intensities.')
 
     # Commercial distillate CO2 intensities [Mt CO2/quads]
     try:
         for idx, year in enumerate(yrs):
-            conv['distillate']['CO2 intensity']['data']['commercial'][year] = (
-                74.14)  # hard coded CO2 intensity of distillate
+            conv['distillate']['CO2 intensity']['data']['commercial'][
+                 year] = (74.14)  # hard coded CO2 intensity of distillate
     except KeyError:
-        print('\nError updating commercial distillate CO2 emissions intensities.')
+        print('\nError updating commercial distillate CO2 emissions \
+              intensities.')
 
     # Residential electricity prices [$/MMBtu source]
     try:
@@ -643,8 +671,8 @@ def updater(conv, api_key, aeo_yr, scen, captured_energy_method):
 
 
 def updater_emm(conv, api_key, aeo_yr, scen):
-    """Perform calculations using EIA data to update EMM conversion factors JSON.
-    Using data from the AEO year and specified NEMS modeling scenario,
+    """Perform calculations using EIA data to update EMM conversion factors
+    JSON. Using data from the AEO year and specified NEMS modeling scenario,
     calculate CO2 emissions intensities and energy prices for EIA EMM regions.
     For each of the calculations performed, in case of data missing from
     the record dict 'z' not obtained from the API due to invalid series
@@ -674,14 +702,16 @@ def updater_emm(conv, api_key, aeo_yr, scen):
 
         # Electricity CO2 intensities [Mt CO2/MWh]
         try:
-            co2_ints = ((z['elec_co2_total_'+key] * conv_factor) /
-                        (z['elec_sales_total_'+key]))   # /293.07))
+            co2_ints = ((z['elec_co2_total_' + key] * conv_factor) /
+                        # account for T&D losses by multiplying sales by 5%
+                        (z['elec_sales_total_' + key] * 1.05))
             for idx, year in enumerate(yrs):
                 conv['CO2 intensity of electricity']['data'][value][year] = (
                     round(co2_ints[idx], 6))
             # Ensure years are ordered chronologically
             conv['CO2 intensity of electricity']['data'][value] = (
-                OrderedDict(sorted(conv['CO2 intensity of electricity']['data'][value].items())))  # noqa:E501
+                OrderedDict(sorted(conv['CO2 intensity of electricity'][
+                    'data'][value].items())))
 
         except KeyError:
             print('\nDue to failed data retrieval from the API, '
@@ -690,11 +720,13 @@ def updater_emm(conv, api_key, aeo_yr, scen):
     # Residential electricity prices [$/kWh site]
         try:
             for idx, year in enumerate(yrs):
-                conv['End-use electricity price']['data']['residential'][value][year] = (  # noqa:E501
-                    round((z['elec_enduse_price_res_'+key][idx] / 100), 6))
+                conv['End-use electricity price']['data']['residential'][
+                    value][year] = (round((z['elec_enduse_price_res_' + key][
+                        idx] / 100), 6))
             # Ensure years are ordered chronologically
             conv['End-use electricity price']['data']['residential'][value] = (
-                OrderedDict(sorted(conv['End-use electricity price']['data']['residential'][value].items())))  # noqa:E501
+                OrderedDict(sorted(conv['End-use electricity price']['data'][
+                    'residential'][value].items())))
 
         except KeyError:
             print('\nDue to failed data retrieval from the API, residential '
@@ -703,11 +735,13 @@ def updater_emm(conv, api_key, aeo_yr, scen):
     # Commercial electricity prices [$/kWh site]
         try:
             for idx, year in enumerate(yrs):
-                conv['End-use electricity price']['data']['commercial'][value][year] = (  # noqa:E501
-                    round((z['elec_enduse_price_com_'+key][idx] / 100), 6))
+                conv['End-use electricity price']['data']['commercial'][value][
+                    year] = (round((z['elec_enduse_price_com_' + key][
+                                idx] / 100), 6))
             # Ensure years are ordered chronologically
             conv['End-use electricity price']['data']['commercial'][value] = (
-                OrderedDict(sorted(conv['End-use electricity price']['data']['commercial'][value].items())))  # noqa:E501
+                OrderedDict(sorted(conv['End-use electricity price']['data'][
+                    'commercial'][value].items())))
 
         except KeyError:
             print('\nDue to failed data retrieval from the API, commercial '
@@ -751,11 +785,7 @@ def updater_state(conv, api_key, aeo_yr, scen):
     # Load and clean state baselines data from CSV
     # Drop AK and HI and rename columns
     state_baselines = pd.read_csv(UsefulVars().state_baseline_data).set_index(
-         'Name').drop(['AK', 'HI'], axis='index').drop(
-         ['Avg. res retail price (cents/kWh)',
-          'Avg. com retail price (cents/kWh)',
-          'Total Emissions (thousand metric tons CO2)',
-          'Total retail sales (MWh)'], axis=1)
+         'State')
 
     # Load and clean EMM to State mapping file
     emm_state_map = pd.read_csv(UsefulVars().emm_state_map,
@@ -822,7 +852,7 @@ def updater_state(conv, api_key, aeo_yr, scen):
     state_price_res_proj = {state:
                             {yr: state_price_res[state][yr] *
                              state_baselines.loc[state,
-                             'Residential price ($/kWh)'] for
+                             'Residential Electricity Price ($/kWh)'] for
                              yr in emm_price_res_ratios.columns} for
                             state in state_price_res.keys()}
 
@@ -835,22 +865,25 @@ def updater_state(conv, api_key, aeo_yr, scen):
     state_price_com_proj = {state:
                             {yr: state_price_com[state][yr] *
                              state_baselines.loc[state,
-                             'Commercial price ($/kWh)'] for
+                             'Commercial Electricity Price ($/kWh)'] for
                              yr in emm_price_com_ratios.columns} for
                             state in state_price_com.keys()}
 
     # Create new json file to store state factors
     conv_state = conv_emm.copy()
     conv_state['CO2 intensity of electricity']['data'] = state_co2_proj
-    conv_state['CO2 intensity of electricity']['source'] = 'Base year data from EIA State Electricity \
-    Data website, projected to 2050 using sales-weighted average trends in \
-    CO2 intensity for EMM regions that comprise a given state.'
-    conv_state['End-use electricity price']['data']['residential'] = state_price_res_proj  # noqa: E501
-    conv_state['End-use electricity price']['data']['commercial'] = state_price_com_proj  # noqa: E501
-    conv_state['End-use electricity price']['source'] = 'Base year data from EIA State Electricity \
-    Data website, projected to 2050 using sales-weighted average trends in \
-    residential & commercial electricity prices for EMM regions that comprise \
-    a given state.'
+    conv_state['CO2 intensity of electricity']['source'] = 'Base year data \
+        from EIA State Electricity Data website, projected to 2050 using \
+        sales-weighted average trends in CO2 intensity for EMM regions that \
+            comprise a given state.'
+    conv_state['End-use electricity price']['data'][
+               'residential'] = state_price_res_proj
+    conv_state['End-use electricity price']['data'][
+               'commercial'] = state_price_com_proj
+    conv_state['End-use electricity price']['source'] = 'Base year data from \
+        EIA State Electricity Data website, projected to 2050 using \
+        sales-weighted average trends in residential & commercial electricity \
+        prices for EMM regions that comprise a given state.'
 
     return conv_state
 
@@ -911,7 +944,8 @@ if __name__ == '__main__':
         # Set converter file variable
         conv_file = 'site_source_co2_conversions.json'
         # Load current file to be updated
-        conv = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))  # noqa: E501
+        conv = json.load(open('supporting_data/convert_data/' +
+                              conv_file, 'r'))  # noqa: E501
 
         # Set up command line argument for switching to the "captured
         # energy" method for calculating electricity site-source conversions
@@ -953,7 +987,8 @@ if __name__ == '__main__':
         # Set converter file variable to EMM region file
         conv_file = 'emm_region_emissions_prices.json'
         # Load file
-        conv_init = json.load(open('supporting_data/convert_data/' + conv_file, 'r'))  # noqa: E501
+        conv_init = json.load(open('supporting_data/convert_data/' +
+                                   conv_file, 'r'))  # noqa: E501
 
         # Change conversion factors dict imported from JSON to OrderedDict
         # so that the AEO year and scenario specified by the user can be
