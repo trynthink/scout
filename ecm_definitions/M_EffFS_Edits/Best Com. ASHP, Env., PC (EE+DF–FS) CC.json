@@ -1,6 +1,10 @@
 {
-  "name": "Ref. Case Com. Elec. HVAC (FS) CC",
-  "_description": "Represents switch to electric commercial HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric commercial HVAC technologies currently (or soon to be) on the market, from AEO 2021",
+  "name": "Best Com. ASHP, Env., PC (EE+DF–FS) CC",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "DR_EE_HVAC_PreCool_Envelope.csv"
+    }
+  },
   "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all commercial",
@@ -13,52 +17,62 @@
                  "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Assume historical measure penetration is captured in baseline",
+    "notes": "Assume historical penetration is captured in baseline",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "heating": 2.32,
-      "cooling": 4.13
-  },
-  "energy_efficiency_units": "BTU out/BTU in",
+      "cooling": 3.6,
+      "heating": 2.2},
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "heating": "BTU out/BTU in"},
   "energy_efficiency_source": {
-    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "notes": "New/replacement service demand-weighted average electric central cooling/heating efficiency in 2021 based on AEO 2020 microtables and EIA equipment efficiencies doc",
     "source_data": [
       {
-        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-        "author": null,
-        "organization": "U.S. Energy Information Administration",
-        "year": 2018,
-        "pages": [96, 112, 116, 118],
-        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      }
-    ]
-    },
-  "installed_cost": 145,
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix A – Electric Boilers, Electric Resistance Heaters, RTAC, GSHP, RTHP",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [94, 96, 112, 116, 118],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "EIA AEO 2020 Commercial Microtables – Sales Tab 'SDPivotTable', Year 2021",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2020,
+      "pages": null,
+      "URL": null
+      }]
+  },
+  "installed_cost": 178.33,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Sales-weighted combinations of installed costs for typical rooftop HPs, rooftop AC, and GSHPs; note costs are all based on capacity of cooling tech. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [112, 116, 118],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
-  "product_lifetime": 18,
+  "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Sales-weighted combinations of lifetimes for typical rooftop HPs, rooftop AC + resistance, and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "notes": "Average lifetimes for high efficiency RTU in 2017",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [112, 116, 118],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+      "pages": 116,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
@@ -74,11 +88,18 @@
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
       "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
+  "_description": "Switch to typical size light commercial rooftop HP unit that meets the best available performance level in 2017, adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types, cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+    "timestamp": "Wed Apr  7 05:37:30 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
   }
 }

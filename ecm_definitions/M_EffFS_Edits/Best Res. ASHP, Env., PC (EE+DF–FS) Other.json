@@ -1,5 +1,5 @@
 { 
-  "name": "Ref. Case Other Res. Heating (FS)",
+  "name": "Best Res. ASHP, Env., PC (EE+DF–FS) Other",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],
@@ -37,7 +37,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
-  "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
+  "_description": "Reference case residential heating tech. not covered by other measures to pair with envelope (no savings, no incremental cost)",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

@@ -4019,8 +4019,7 @@ class Measure(object):
                                     "' missing valid baseline "
                                     "cost/performance/lifetime data " +
                                     "for technology '" + str(mskeys[-2]) +
-                                    "'; ECM is 'add-on' type with constant " +
-                                    "relative savings and technology will " +
+                                    "'; technology will " +
                                     "remain in analysis with cost of zero; " +
                                     "; if lifetime data are missing, " +
                                     "lifetime is set to 10 years")

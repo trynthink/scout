@@ -4,7 +4,7 @@
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "secondary heating", "cooling"],
+  "end_use": ["heating", "secondary heating"],
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": ["stove (wood)", "all secondary heating"],
   "market_entry_year": 2021,
