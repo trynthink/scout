@@ -1,0 +1,92 @@
+{
+  "name": "Best Res. HPWH (EE+DF–FS)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P3d_Best_waterheater_DR_waterheater.csv"
+    }
+  },
+  "_description": "Switch to best available HPWH with grid–responsive controls",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": "all",
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "energy_efficiency": 1.14,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted average electric water heating efficiency in 2021 based on AEO 2020 microtables and EIA equipment efficiencies doc",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix A – Electric Resistance Storage WH, HPWH",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [56, 58],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "EIA AEO 2020 Residential Microtables – Sales Tab 'DetailedEquipTable', Year 2021",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2020,
+      "pages": null,
+      "URL": null
+      }]
+  },
+  "installed_cost": 1506,
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'Add-on Control' values plus installed costs for best HPWH in 2020; adds incentives from BBB for non-LMI",
+    "source_data": [
+      {
+      "title": "U.S. Department of Energy Commercial Reference Building Models of the National Building Stock",
+      "author": "Deru et al. 2011",
+      "organization": "National Renewable Energy Laboratory",
+      "year": 2011,
+      "pages": 58,
+      "URL": "https://www.nrel.gov/docs/fy11osti/46861.pdf"},
+      {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 30,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+      {
+      "title": "Making Buildings Better: Building Provisions in the Build Back Better Act",
+      "author": "Baldwin et al.",
+      "organization": "Energy Innovation",
+      "year": 2021,
+      "pages": 6,
+      "URL": "https://energyinnovation.org/wp-content/uploads/2021/12/Making-Buildings-Better-in-the-Build-Back-Better-Act.pdf"}
+    ]},
+  "product_lifetime": 13,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low/high 'Average Life (yrs.)' values",
+    "source_data": {
+     "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 30,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+    }
+  },
+  "_updated_by": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "timestamp": "2021-03-23 13:00:00 UTC"
+  }
+}
