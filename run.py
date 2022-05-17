@@ -3209,20 +3209,20 @@ class Engine(object):
                 secnd_adj_mktshr = measure.markets[adopt_scheme][
                     "competed"]["mseg_adjust"]["secondary mseg adjustments"][
                     "market share"]
-                # Total captured stock
+                # Total captured energy
                 secnd_adj_mktshr["original energy (total captured)"][
                     secnd_mseg_adjkey][yr] += \
                     adj["energy"]["total"]["efficient"][yr]
-                # Competed and captured stock
+                # Competed and captured energy
                 secnd_adj_mktshr["original energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += \
                     adj["energy"]["competed"]["efficient"][yr]
-                # Adjusted total captured stock
+                # Adjusted total captured energy
                 secnd_adj_mktshr["adjusted energy (total captured)"][
                     secnd_mseg_adjkey][yr] += (
                         adj["energy"]["total"]["efficient"][yr] *
                         adj_t_e["stock"])
-                # Adjusted competed and captured stock
+                # Adjusted competed and captured energy
                 secnd_adj_mktshr["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey][yr] += (
                         adj["energy"]["competed"]["efficient"][yr] * adj_c)
@@ -3345,52 +3345,59 @@ class Engine(object):
         # Adjust the total and competed stock captured by the measure and
         # associated measure and base-case cost totals for that captured
         # stock by the appropriate measure market share, both overall and
-        # for the current contributing microsegment
+        # for the current contributing microsegment. For years in which the
+        # measure is not on the market (e.g., not yet introduced to the
+        # market, or subject to a market exit year), captured stock/stock cost
+        # totals will already reflect this and need not be adjusted further.
+        if yr in measure.yrs_on_mkt:
 
-        # Overall total measure stock
-        mast["stock"]["total"]["measure"][yr] = \
-            mast["stock"]["total"]["measure"][yr] - \
-            adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
-        # Overall total baseline stock cost
-        mast["cost"]["stock"]["total"]["baseline"][yr] = \
-            mast["cost"]["stock"]["total"]["baseline"][yr] - \
-            adj["cost"]["stock"]["total"]["baseline"][yr] * (
-                1 - adj_t_b["stock"])
-        # Overall total measure stock cost
-        mast["cost"]["stock"]["total"]["efficient"][yr] = \
-            mast["cost"]["stock"]["total"]["efficient"][yr] - \
-            adj["cost"]["stock"]["total"]["efficient"][yr] * (
-                1 - adj_t_e["stock"])
-        # Overall competed measure stock
-        mast["stock"]["competed"]["measure"][yr] = \
-            mast["stock"]["competed"]["measure"][yr] - \
-            adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
-        # Overall competed baseline stock cost
-        mast["cost"]["stock"]["competed"]["baseline"][yr] = \
-            mast["cost"]["stock"]["competed"]["baseline"][yr] - \
-            adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
-        # Overall competed measure stock cost
-        mast["cost"]["stock"]["competed"]["efficient"][yr] = \
-            mast["cost"]["stock"]["competed"]["efficient"][yr] - \
-            adj["cost"]["stock"]["competed"]["efficient"][yr] * (1 - adj_c)
-        # Current contributing mseg total measure stock
-        adj["stock"]["total"]["measure"][yr] = \
-            adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
-        # Current contributing mseg total baseline stock cost
-        adj["cost"]["stock"]["total"]["baseline"][yr] = \
-            adj["cost"]["stock"]["total"]["baseline"][yr] * adj_t_b["stock"]
-        # Current contributing mseg total measure stock cost
-        adj["cost"]["stock"]["total"]["efficient"][yr] = \
-            adj["cost"]["stock"]["total"]["efficient"][yr] * adj_t_e["stock"]
-        # Current contributing mseg competed measure stock
-        adj["stock"]["competed"]["measure"][yr] = \
-            adj["stock"]["competed"]["measure"][yr] * adj_c
-        # Current contributing mseg competed baseline stock cost
-        adj["cost"]["stock"]["competed"]["baseline"][yr] = \
-            adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
-        # Current contributing mseg competed measure stock cost
-        adj["cost"]["stock"]["competed"]["efficient"][yr] = \
-            adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
+            # Overall total measure stock
+            mast["stock"]["total"]["measure"][yr] = \
+                mast["stock"]["total"]["measure"][yr] - \
+                adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+            # Overall total baseline stock cost
+            mast["cost"]["stock"]["total"]["baseline"][yr] = \
+                mast["cost"]["stock"]["total"]["baseline"][yr] - \
+                adj["cost"]["stock"]["total"]["baseline"][yr] * (
+                    1 - adj_t_b["stock"])
+            # Overall total measure stock cost
+            mast["cost"]["stock"]["total"]["efficient"][yr] = \
+                mast["cost"]["stock"]["total"]["efficient"][yr] - \
+                adj["cost"]["stock"]["total"]["efficient"][yr] * (
+                    1 - adj_t_e["stock"])
+            # Overall competed measure stock
+            mast["stock"]["competed"]["measure"][yr] = \
+                mast["stock"]["competed"]["measure"][yr] - \
+                adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+            # Overall competed baseline stock cost
+            mast["cost"]["stock"]["competed"]["baseline"][yr] = \
+                mast["cost"]["stock"]["competed"]["baseline"][yr] - \
+                adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
+            # Overall competed measure stock cost
+            mast["cost"]["stock"]["competed"]["efficient"][yr] = \
+                mast["cost"]["stock"]["competed"]["efficient"][yr] - \
+                adj["cost"]["stock"]["competed"]["efficient"][yr] * (
+                    1 - adj_c)
+            # Current contributing mseg total measure stock
+            adj["stock"]["total"]["measure"][yr] = \
+                adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+            # Current contributing mseg total baseline stock cost
+            adj["cost"]["stock"]["total"]["baseline"][yr] = \
+                adj["cost"]["stock"]["total"]["baseline"][yr] * \
+                adj_t_b["stock"]
+            # Current contributing mseg total measure stock cost
+            adj["cost"]["stock"]["total"]["efficient"][yr] = \
+                adj["cost"]["stock"]["total"]["efficient"][yr] * \
+                adj_t_e["stock"]
+            # Current contributing mseg competed measure stock
+            adj["stock"]["competed"]["measure"][yr] = \
+                adj["stock"]["competed"]["measure"][yr] * adj_c
+            # Current contributing mseg competed baseline stock cost
+            adj["cost"]["stock"]["competed"]["baseline"][yr] = \
+                adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
+            # Current contributing mseg competed measure stock cost
+            adj["cost"]["stock"]["competed"]["efficient"][yr] = \
+                adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
 
         # Adjust total and competed baseline and efficient energy, carbon,
         # and cost data by measure market share
