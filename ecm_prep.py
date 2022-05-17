@@ -7144,6 +7144,7 @@ class Measure(object):
                         repl_frac, retro_frac = (0 for n in range(2))
             else:
                 new_frac, repl_frac, retro_frac = (0 for n in range(3))
+                prev_capt_turnover = False
 
             # Determine the fraction of total stock, energy, and carbon
             # in a given year post-sub-mkt scaling that the measure will
@@ -7334,6 +7335,16 @@ class Measure(object):
             else:
                 comp_frac_diffuse_meas = 0
 
+            # Flag a case where the measure is not currently on the market,
+            # but the measure has previously captured stock that is now
+            # turning over; in this case, the previously captured measure stock
+            # should be decremented by the current year's competed stock value
+            # (see use of this below)
+            if not measure_on_mkt and prev_capt_turnover:
+                decrmnt_meas_capt_stk = True
+            else:
+                decrmnt_meas_capt_stk = False
+
             # Final total stock, energy, and carbon markets after accounting
             # for any diffusion/conversion dynamics that restrict a measure's
             # access to it's full baseline market (after sub-mkt scaling), as
@@ -7518,12 +7529,19 @@ class Measure(object):
                         # measure specifically and an efficient alternative (
                         # reflects all previously captured stock +
                         # captured competed stock from the current year).
-                        stock_total_meas[yr] = stock_total_meas[
-                            str(int(yr) - 1)] + stock_compete_meas[yr]
+                        if not decrmnt_meas_capt_stk:
+                            stock_total_meas[yr] = stock_total_meas[
+                                str(int(yr) - 1)] + stock_compete_meas[yr]
+                        else:
+                            stock_total_meas[yr] = stock_total_meas[
+                                str(int(yr) - 1)] - stock_compete[yr]
                         stock_comp_cum_sbmkt[yr] = stock_comp_cum_sbmkt[
                             str(int(yr) - 1)] + stock_compete_sbmkt[yr]
                     except KeyError:
-                        stock_total_meas[yr] = stock_compete_meas[yr]
+                        if not decrmnt_meas_capt_stk:
+                            stock_total_meas[yr] = stock_compete_meas[yr]
+                        else:
+                            stock_total_meas[yr] = 0
                         stock_comp_cum_sbmkt[yr] = stock_compete_sbmkt[yr]
                 # All other cases, including technical potential case where
                 # measure is not on the market (stock goes immediately to zero)
@@ -7532,16 +7550,24 @@ class Measure(object):
                     stock_comp_cum_sbmkt[yr] = 0
 
             # Ensure stock captured by measure never exceeds total stock
+            # and that it never goes below zero
 
             # Handle case where stock captured by measure is an array
             if type(stock_total_meas[yr]) == numpy.ndarray and \
                     any(stock_total_meas[yr] > stock_total[yr]) is True:
                 stock_total_meas[yr][numpy.where(
                     stock_total_meas[yr] > stock_total[yr])] = stock_total[yr]
+            elif type(stock_total_meas[yr]) == numpy.ndarray and \
+                    any(stock_total_meas[yr] < 0) is True:
+                stock_total_meas[yr][numpy.where(
+                    stock_total_meas[yr] < 0)] = 0
             # Handle case where stock captured by measure is point val
             elif type(stock_total_meas[yr]) != numpy.ndarray and \
                     stock_total_meas[yr] > stock_total[yr]:
                 stock_total_meas[yr] = stock_total[yr]
+            elif type(stock_total_meas[yr]) != numpy.ndarray and \
+                    stock_total_meas[yr] < 0:
+                stock_total_meas[yr] = 0
 
             # Set the weighted overall relative performance and per unit
             # measure tech. refrigerant emissions (if applicable) for stock
