@@ -309,14 +309,19 @@ class CommonMethods(object):
 
             # At the terminal/leaf node, formatted as a numpy array
             # (for input uncertainty test cases)
-            elif isinstance(i, numpy.ndarray):
+            elif isinstance(i, numpy.ndarray) or isinstance(i, list):
                 self.assertTrue(type(i) == type(i2))
                 for x in range(0, len(i)):
                     self.assertAlmostEqual(i[x], i2[x], places=2)
 
             # At the terminal/leaf node, formatted as a point value
             else:
-                self.assertAlmostEqual(i, i2, places=2)
+                try:
+                    self.assertAlmostEqual(i, i2, places=2)
+                except ValueError:
+                    raise ValueError(
+                        "Tested values " + str(i) + " and " + str(i2) +
+                        " are not of the same type")
 
 
 class TestMeasureInit(unittest.TestCase):
@@ -12282,10 +12287,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_master_msegs_out = [{
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 2.227001, "2010": 2.227001},
                     "measure": {"2009": 2.23, "2010": 2.23}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
+                    "all": {"2009": 1.113501, "2010": 1.113501},
                     "measure": {"2009": 1.11, "2010": 1.11}}},
             "energy": {
                 "total": {
@@ -12328,10 +12333,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {"2009": 17.77300, "2010": 17.77300},
                     "measure": {"2009": 17.77, "2010": 17.77}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 8.886499, "2010": 8.886499},
                     "measure": {"2009": 8.89, "2010": 8.89}}},
             "energy": {
                 "total": {
@@ -12374,10 +12379,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 1.73179114, "2010": 1.73179114},
                     "measure": {"2009": 1.73, "2010": 1.73}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
+                    "all": {"2009": 0.865895571, "2010": 0.865895571},
                     "measure": {"2009": 0.87, "2010": 0.87}}},
             "energy": {
                 "total": {
@@ -12430,10 +12435,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {"2009": 16.04455, "2010": 16.04455},
                     "measure": {"2009": 16.04, "2010": 16.04}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 8.022273, "2010": 8.022273},
                     "measure": {"2009": 8.02, "2010": 8.02}}},
             "energy": {
                 "total": {
@@ -12476,10 +12481,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 30, "2010": 30},
+                    "all": {"2009": 22.22366, "2010": 22.22366},
                     "measure": {"2009": 22.22, "2010": 22.22}},
                 "competed": {
-                    "all": {"2009": 15, "2010": 15},
+                    "all": {"2009": 11.11183, "2010": 11.11183},
                     "measure": {"2009": 11.11, "2010": 11.11}}},
             "energy": {
                 "total": {
@@ -12522,12 +12527,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_master_msegs_out_dist = [{
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": numpy.array([
+                                2.227001, 9.770226, 0.01926735]),
+                            "2010": numpy.array([
+                                2.227001, 9.770226, 0.01926735])},
                     "measure": {
                         "2009": numpy.array([2.23, 9.77, 0.02]),
                         "2010": numpy.array([2.23, 9.77, 0.02])}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
+                    "all": {
+                            "2009": numpy.array([
+                                1.113501, 4.885113, 0.009633673]),
+                            "2010": numpy.array([
+                                1.113501, 4.885113, 0.009633673])},
                     "measure": {
                         "2009": numpy.array([1.11, 4.89, 0.01]),
                         "2010": numpy.array([1.11, 4.89, 0.01])}}},
@@ -12650,12 +12663,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {
+                            "2009": numpy.array([
+                                17.77300, 10.22977, 19.98073]),
+                            "2010": numpy.array([
+                                17.77300, 10.22977, 19.98073])},
                     "measure": {
                         "2009": numpy.array([17.77, 10.23, 19.98]),
                         "2010": numpy.array([17.77, 10.23, 19.98])}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": numpy.array([
+                                8.886499, 5.114887, 9.990366]),
+                            "2010": numpy.array([
+                                8.886499, 5.114887, 9.990366])},
                     "measure": {
                         "2009": numpy.array([8.89, 5.11, 9.99]),
                         "2010": numpy.array([8.89, 5.11, 9.99])}}},
@@ -12778,12 +12799,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": numpy.array([
+                                1.73179114, 0.01808835, 9.60332155]),
+                            "2010": numpy.array([
+                                1.73179114, 0.01808835, 9.60332155])},
                     "measure": {
                         "2009": numpy.array([1.73, 0.02, 9.60]),
                         "2010": numpy.array([1.73, 0.02, 9.60])}},
                 "competed": {
-                    "all": {"2009": 5, "2010": 5},
+                    "all": {
+                            "2009": numpy.array([
+                                0.865895571, 0.009044176, 4.801660776]),
+                            "2010": numpy.array([
+                                0.865895571, 0.009044176, 4.801660776])},
                     "measure": {
                         "2009": numpy.array([0.87, 0.01, 4.80]),
                         "2010": numpy.array([0.87, 0.01, 4.80])}}},
@@ -12908,12 +12937,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {
+                            "2009": numpy.array([
+                                16.04455, 17.29736, 10.29000]),
+                            "2010": numpy.array([
+                                16.04455, 17.29736, 10.29000])},
                     "measure": {
                         "2009": numpy.array([16.04, 17.30, 10.29]),
                         "2010": numpy.array([16.04, 17.30, 10.29])}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": numpy.array([
+                                8.022273, 8.648681, 5.144998]),
+                            "2010": numpy.array([
+                                8.022273, 8.648681, 5.144998])},
                     "measure": {
                         "2009": numpy.array([8.02, 8.65, 5.14]),
                         "2010": numpy.array([8.02, 8.65, 5.14])}}},
@@ -13036,12 +13073,20 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 30, "2010": 30},
+                    "all": {
+                            "2009": numpy.array([
+                                22.22366, 22.68455, 20.10668]),
+                            "2010": numpy.array([
+                                22.22366, 22.68455, 20.10668])},
                     "measure": {
                         "2009": numpy.array([22.22, 22.68, 20.11]),
                         "2010": numpy.array([22.22, 22.68, 20.11])}},
                 "competed": {
-                    "all": {"2009": 15, "2010": 15},
+                    "all": {
+                            "2009": numpy.array([
+                                11.11183, 11.34227, 10.05334]),
+                            "2010": numpy.array([
+                                11.11183, 11.34227, 10.05334])},
                     "measure": {
                         "2009": numpy.array([11.11, 11.34, 10.05]),
                         "2010": numpy.array([11.11, 11.34, 10.05])}}},
@@ -22722,10 +22767,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_master_msegs_out = [{
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {"2009": 17, "2010": 12},
                     "measure": {"2009": 17, "2010": 12}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 8.5, "2010": 6},
                     "measure": {"2009": 8.5, "2010": 6}}},
             "energy": {
                 "total": {
@@ -22768,10 +22813,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {"2009": 10, "2010": 16},
                     "measure": {"2009": 0, "2010": 16}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {"2009": 5, "2010": 8},
                     "measure": {"2009": 0, "2010": 8}}},
             "energy": {
                 "total": {
@@ -22814,10 +22859,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 30, "2010": 30},
+                    "all": {"2009": 23, "2010": 22},
                     "measure": {"2009": 23, "2010": 22}},
                 "competed": {
-                    "all": {"2009": 15, "2010": 15},
+                    "all": {"2009": 11.5, "2010": 11},
                     "measure": {"2009": 11.5, "2010": 11}}},
             "energy": {
                 "total": {
@@ -22860,12 +22905,16 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.measures_master_msegs_out_dist = [{
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {
+                            "2009": 17,
+                            "2010": numpy.array([12, 13, 16])},
                     "measure": {
                         "2009": 17,
                         "2010": numpy.array([12, 13, 16])}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": 8.5,
+                            "2010": numpy.array([6.0, 6.5, 8.0])},
                     "measure": {
                         "2009": 8.5,
                         "2010": numpy.array([6.0, 6.5, 8.0])}}},
@@ -22950,12 +22999,16 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             {
             "stock": {
                 "total": {
-                    "all": {"2009": 20, "2010": 20},
+                    "all": {
+                            "2009": 10,
+                            "2010": numpy.array([16, 15, 13])},
                     "measure": {
                         "2009": 0,
                         "2010": numpy.array([16, 15, 13])}},
                 "competed": {
-                    "all": {"2009": 10, "2010": 10},
+                    "all": {
+                            "2009": 5,
+                            "2010": numpy.array([8.0, 7.5, 6.5])},
                     "measure": {
                         "2009": 0,
                         "2010": numpy.array([8.0, 7.5, 6.5])}}},
@@ -23041,12 +23094,15 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "stock": {
                 "total": {
                     "all": {
-                        "2009": 30, "2010": 30},
+                            "2009": 23,
+                            "2010": numpy.array([22, 22, 21])},
                     "measure": {
                         "2009": 23,
                         "2010": numpy.array([22, 22, 21])}},
                 "competed": {
-                    "all": {"2009": 15, "2010": 15},
+                    "all": {
+                            "2009": 11.5,
+                            "2010": numpy.array([11.0, 11.0, 10.5])},
                     "measure": {
                         "2009": 11.5,
                         "2010": numpy.array([11.0, 11.0, 10.5])}}},

@@ -12026,14 +12026,6 @@ def main(base_dir):
                                            x in meas_dict["technology"]])) or
                                  meas_dict["technology"] in
                                  handyvars.demand_tech)):
-                        # If measure was set to fuel switch without exogenous
-                        # FS rates, reset typical/BAU analogue FS to None (
-                        # e.g., such that for an ASHP FS measure, a typical/
-                        # BAU fossil-based heating analogue is created
-                        # for later competition with that FS measure)
-                        if (meas_dict["fuel_switch_to"] is not None and
-                                opts.exog_hp_rates is False):
-                            meas_dict["fuel_switch_to"] = None
                         # Find substring in existing measure name to replace
                         if "ENERGY STAR" in meas_dict["name"]:
                             name_substr = "ENERGY STAR"
@@ -12055,6 +12047,14 @@ def main(base_dir):
                         new_meas = copy.deepcopy(meas_dict)
                         # Set the copied measure name to the name above
                         new_meas["name"] = new_name
+                        # If measure was set to fuel switch without exogenous
+                        # FS rates, reset typical/BAU analogue FS to None (
+                        # e.g., such that for an ASHP FS measure, a typical/
+                        # BAU fossil-based heating analogue is created
+                        # for later competition with that FS measure)
+                        if (meas_dict["fuel_switch_to"] is not None and
+                                opts.exog_hp_rates is False):
+                            new_meas["fuel_switch_to"] = None
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)
