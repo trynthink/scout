@@ -2899,16 +2899,19 @@ class Engine(object):
             mseg_key_stk_trk_alt = None
 
         # Pull data for stock turnover calculations for the current
-        # contributing microsegment, using the data key information from above
+        # contributing microsegment, using the data key information from above;
+        # note that these calculations rely on pre-competition (unadjusted)
+        # stock data that will be common to all measures that compete for
+        # the microsegment
 
         # Handle case where data are keyed in with additional "-FS" in the
         # technology information (use alternate stock data key from above)
         try:
-            adj_stk_trk = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+            adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
         except KeyError:
             try:
-                adj_stk_trk = m.markets[adopt_scheme]["competed"][
+                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
                     "mseg_adjust"]["contributing mseg keys and values"][
                     mseg_key_stk_trk_alt]["stock"]
             except KeyError:
@@ -2917,7 +2920,7 @@ class Engine(object):
                 # microsegment is not available; key in stock data with the
                 # current microsegment stock info.
                 try:
-                    adj_stk_trk = m.markets[adopt_scheme]["competed"][
+                    adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
                         "mseg_adjust"]["contributing mseg keys and values"][
                         mseg_key]["stock"]
                 except KeyError:
@@ -3319,6 +3322,24 @@ class Engine(object):
                         adj[var]["total"]["efficient"][yr]) * (
                         1 - adj_t_e[var]) * (1 - adj_out_break[
                             "efficient fuel splits"][var][yr])
+
+        # Adjust the total and competed baseline stock captured, both overall
+        # and for the current contributing microsegment
+
+        # Overall total baseline stock
+        mast["stock"]["total"]["all"][yr] = \
+            mast["stock"]["total"]["all"][yr] - \
+            (adj["stock"]["total"]["all"][yr] * (1 - adj_t_b["stock"]))
+        # Competed total baseline stock
+        mast["stock"]["competed"]["all"][yr] = \
+            mast["stock"]["competed"]["all"][yr] - \
+            (adj["stock"]["competed"]["all"][yr] * (1 - adj_c))
+        # Current contributing mseg total baseline stock
+        adj["stock"]["total"]["all"][yr] = \
+            adj["stock"]["total"]["all"][yr] * adj_t_b["stock"]
+        # Current contributing mseg competed baseline stock
+        adj["stock"]["competed"]["all"][yr] = \
+            adj["stock"]["competed"]["all"][yr] * adj_c
 
         # Adjust the total and competed stock captured by the measure and
         # associated measure and base-case cost totals for that captured
@@ -3946,20 +3967,25 @@ class Engine(object):
                     else:
                         stk_units = "(ft^2 floor served)"
                 # Set baseline and measure stock keys, including units
-                base_stk_key, meas_stk_key = [
+                base_stk_uc_key, base_stk_c_key, meas_stk_key = [
                     x + stk_units for x in [
-                        "Baseline Stock ", "Measure Stock "]]
-
-                # Report baseline stock figures (all baseline
-                # stock/stock cost that the measure could affect/capture)
-                stk_base = {
-                    yr: m.markets[adopt_scheme][
-                        "uncompeted"]["master_mseg"]["stock"][
-                        "total"]["all"][yr] for yr in focus_yrs}
+                        "Baseline Stock (Uncompeted)",
+                        "Baseline Stock (Competed)",
+                        "Measure Stock (Competed)"]]
+                # Report baseline stock and stock cost figures (all baseline
+                # stock/stock cost that the measure could affect/capture);
+                # report both uncompeted/competed versions
+                stk_base_uc = {yr: m.markets[adopt_scheme][
+                    "uncompeted"]["master_mseg"]["stock"][
+                    "total"]["all"][yr] for yr in focus_yrs}
+                stk_base_c = {
+                    yr: mkts["stock"]["total"]["all"][yr] for yr in focus_yrs}
                 stk_cost_base = {yr: mkts["cost"]["stock"]["total"][
                     "baseline"][yr] for yr in focus_yrs}
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][base_stk_key] = stk_base
+                    adopt_scheme][base_stk_uc_key] = stk_base_uc
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][base_stk_c_key] = stk_base_c
                 # Report measure stock and stock cost figures
                 stk_meas, stk_cost_meas = [{yr: mkts["stock"]["total"][
                         "measure"][yr] for yr in focus_yrs},
@@ -4371,9 +4397,16 @@ def main(base_dir):
         except FileNotFoundError:
             meas_eff_fs_data = None
         for adopt_scheme in handyvars.adopt_schemes:
-            # Reset measure competition data attribute to imported values
-            m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
+            # Reset measure microsegment data attribute to imported values;
+            # initialize an uncompeted and post-competition copy of these data
+            # (the former of which will be used to establish a common set of
+            # stock turnover constraints in the competition, the latter of which
+            # will be adjusted by the competition)
+            m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
+            m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
+                copy.deepcopy(
+                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
             # Reset measure fuel split attribute to imported values
             m.eff_fs_splt = meas_eff_fs_data
         # Print data import message for each ECM if in verbose mode
