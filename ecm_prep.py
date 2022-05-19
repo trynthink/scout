@@ -205,13 +205,17 @@ class UsefulInputFiles(object):
             if opts.grid_decarb[0] == "1":
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-decarb.json")
+                self.tsv_cost_data = ("supporting_data", "tsv_data",
+                                      "tsv_cost-decarb.json")
+                self.tsv_carbon_data = ("supporting_data", "tsv_data",
+                                        "tsv_carbon-decarb.json")
             else:
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-decarb_lite.json")
-            self.tsv_cost_data = ("supporting_data", "tsv_data",
-                                  "tsv_cost-decarb.json")
-            self.tsv_carbon_data = ("supporting_data", "tsv_data",
-                                    "tsv_carbon-decarb.json")
+                self.tsv_cost_data = ("supporting_data", "tsv_data",
+                                      "tsv_cost-decarb_lite.json")
+                self.tsv_carbon_data = ("supporting_data", "tsv_data",
+                                        "tsv_carbon-decarb_lite.json")
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
             if opts.grid_decarb[1] == "1":
