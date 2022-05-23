@@ -15,7 +15,7 @@ from functools import reduce  # forward compatibility for Python 3
 import operator
 from argparse import ArgumentParser
 from ast import literal_eval
-# from datetime import datetime
+from datetime import datetime
 
 
 class MyEncoder(json.JSONEncoder):
@@ -385,8 +385,7 @@ class UsefulVars(object):
         # # Set minimum AEO modeling year
         # aeo_min = aeo_yrs["min year"]
         # Set minimum year to current year
-        # aeo_min = datetime.today().year
-        aeo_min = 2022
+        aeo_min = datetime.today().year
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years

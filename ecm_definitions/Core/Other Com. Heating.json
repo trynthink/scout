@@ -1,5 +1,6 @@
 { 
   "name": "Other Com. Heating",
+  "_description": "Reference case commercial 'other' fuel heating tech. to pair with envelope (no savings, no incremental cost)",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],
@@ -37,7 +38,6 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Reference case commercial 'other' fuel heating tech. to pair with envelope (no savings, no incremental cost)",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",
