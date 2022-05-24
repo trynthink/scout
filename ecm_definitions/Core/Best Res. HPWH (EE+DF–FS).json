@@ -81,6 +81,9 @@
   "market_scaling_fractions_source": null,
   "_notes": null,
   "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
     "timestamp": "2021-03-23 13:00:00 UTC"
   }
 }
