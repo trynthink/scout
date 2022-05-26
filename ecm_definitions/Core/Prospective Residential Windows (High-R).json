@@ -1,52 +1,59 @@
 {
-  "name": "Prospective Residential High-R CI Walls",
+  "name": "Prospective Residential High-R Windows",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
-  "technology": "wall",
-  "market_entry_year": 2040,
+  "technology": "windows conduction",
+  "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "Target technology market entry year",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 40,
+  "energy_efficiency": 13,
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Target performance set assuming 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
+    "notes": "Target based on expert judgment regarding the current state-of-the-art and potential for technology improvements at a market acceptable price point by the target entry year",
     "source_data": null
   },
-  "installed_cost": 0.75,
-  "cost_units": "2016$/ft^2 wall",
+  "installed_cost": 55,
+  "cost_units": "2016$/ft^2 glazing",
   "installed_cost_source": {
     "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
   },
-  "product_lifetime": 50,
+  "product_lifetime": 30,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "",
-    "source_data": null
+    "notes": "Assumes midpoint of lifetime for aluminum and wood window assemblies, plus 5 years for improvements in quality",
+    "source_data": {
+      "title": "Study of the Life Expectancy of Home Components",
+      "author": null,
+      "organization": "National Association of Homebuilders",
+      "year": 2007,
+      "pages": 15,
+      "URL": "http://stevesmallman.com/wp-content/uploads/2013/05/NAHB-Lifetimes.pdf"
+    }
   },
-  "measure_type": "add-on",
+  "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "_description": "Target for continuous wall insulation outboard of the frame for residential buildings",
+  "_description": "Residential highly insulating windows",
   "_notes": null,
   "_added_by": {
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2018-10-04 02:15 UTC"
+    "timestamp": "2016-10-04 17:00 UTC"
   },
   "_updated_by": {
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2021-08-23 21:00 UTC"
+    "timestamp": "2022-02-25 19:21 UTC"
   }
 }

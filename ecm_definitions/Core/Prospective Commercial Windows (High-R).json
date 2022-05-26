@@ -1,0 +1,59 @@
+{
+  "name": "Prospective Commercial High-R Windows",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "windows conduction",
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Target technology market entry year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 10,
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Target based on expert judgment regarding the current state-of-the-art and potential for technology improvements through the target market entry year",
+    "source_data": null
+  },
+  "installed_cost": 66.3,
+  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost_source": {
+    "notes": "Target cost set based on 7 year payback period objective",
+    "source_data": null
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes midpoint of lifetime for aluminum and wood window assemblies, plus 5 years for improvements in quality; assume similar lifetimes for commercial windows",
+    "source_data": {
+      "title": "Study of the Life Expectancy of Home Components",
+      "author": null,
+      "organization": "National Association of Homebuilders",
+      "year": 2007,
+      "pages": 15,
+      "URL": "http://stevesmallman.com/wp-content/uploads/2013/05/NAHB-Lifetimes.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Commercial highly insulating windows",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2016-10-04 17:00 UTC"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2022-02-28 19:15 UTC"
+  }
+}

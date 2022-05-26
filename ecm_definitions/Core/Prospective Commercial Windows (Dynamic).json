@@ -1,0 +1,114 @@
+{
+  "name": "Prospective Commercial Dynamic Facades",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "all",
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "",
+    "source_data": {
+      "title": "",
+      "author": null,
+      "organization": "",
+      "year": 2018,
+      "pages": null,
+      "URL": ""
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "assembly": 
+      {"heating": 0.086,
+       "cooling": 0.228},
+    "education": 
+      {"heating": 0.053,
+       "cooling": 0.124},
+    "food sales": 
+      {"heating": 0.01,
+       "cooling": 0.054},
+    "food service": 
+      {"heating": 0.008,
+       "cooling": 0.014},
+    "health care": 
+      {"heating": 0.117,
+       "cooling": 0.076},
+    "lodging": 
+      {"heating": 0.101,
+       "cooling": 0.103},
+    "large office": 
+      {"heating": 0.187,
+       "cooling": 0.172},
+    "small office": 
+      {"heating": 0.056,
+       "cooling": 0.176},
+    "mercantile/service": 
+      {"heating": 0.017,
+       "cooling": 0.05},
+    "warehouse": 
+      {"heating": 0.086,
+       "cooling": 0.228},
+    "other": 
+      {"heating": 0.031,
+       "cooling": 0.095}
+  },
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Median heating and cooling savings derived from ComStock; values by building type were mapped from ComStock building types. Small office is mean of medium office and small office electric; assembly is warehouse, education is secondary school electric; food sales is retail; food service is full service restaurant; health care is hospital; lodging is mean of large hotel and small hotel electric, mercantile is strip mall, other is average electric.",
+    "source_data": {
+      "title": "",
+      "author": null,
+      "organization": "",
+      "year": 2018,
+      "pages": null,
+      "URL": ""
+    }
+  },
+  "installed_cost": 0.0561,
+  "cost_units": "2017$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Installed cost set based on 10 year simple payback target",
+    "source_data": {
+      "title": "",
+      "author": null,
+      "organization": "",
+      "year": 2018,
+      "pages": null,
+      "URL": ""
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "",
+    "source_data": {
+      "title": "",
+      "author": null,
+      "organization": "",
+      "year": 2018,
+      "pages": null,
+      "URL": ""
+    }
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Dynamic facade system with resulting window U-factor of 1.6 W/m^2-K. Clear state 0.652 SHGC, 0.861 VT; tinted state 0.09 SHGC, 0.01 VT, modeled with two intermediate tint states.",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2022-04-27 23:13 UTC"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
