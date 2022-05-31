@@ -1,6 +1,6 @@
 {
   "name": "Prospective Residential Ctls. (ASHP-FS)",
-  "_description": "10 yr ET target, non-cold-climate",
+  "_description": "Advanced controls to package with residential ASHP replacing fossil-based HVAC, non-cold climate",
   "measure_type": "add-on",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
@@ -18,16 +18,20 @@
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
   "market_entry_year": 2035,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "installed_cost": 0.5,
   "cost_units": "$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "product_lifetime": 10,

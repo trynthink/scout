@@ -1,9 +1,9 @@
 {
   "name": "Best Com. ASHP, Env., PC (EE+DF–LFL) (CF)",
-  "_description": "Typical size light commercial rooftop HP unit that meets the best available performance level in 2017, adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types, non-cold-climate, like-for-like",
+  "_description": "Envelope-only counterfactual for this measure, non-cold-climate",
   "tsv_features": {
     "shape": {
-      "custom_annual_savings": "DR_EE_HVAC_PreCool.csv"
+      "custom_annual_savings": "EE_Envelope_All.csv"
     }
   },
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",

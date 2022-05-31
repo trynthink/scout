@@ -1,6 +1,6 @@
 {
   "name": "Prospective Residential CAC",
-  "_description": "10 yr ET target - central AC",
+  "_description": "Ultra-efficient central AC target, replace existing CAC",
   "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -10,26 +10,33 @@
   "technology": "central AC",
   "market_entry_year": 2030,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Targeted year of breakthrough technology market entry",
     "source_data": null
   },
-  "energy_efficiency": 12.3,
+  "energy_efficiency": 12,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "ET Targets",
+    "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
     "source_data": null
   },
-  "installed_cost": 4738,
+  "installed_cost": 4780.0,
   "cost_units": "$/unit",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on heating",
+    "notes": "Cost that yields a 5 year overall payback period for given performance level",
     "source_data": null
   },
-  "product_lifetime": 25,
+  "product_lifetime": 18,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential air source heat pump",
-    "source_data": null
+    "notes": "Median of average lifetimes for 2020 'typical' residential CAC",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -41,7 +48,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Apr 21 09:39:00 EDT 2021"
+    "timestamp": "Thu May 19 11:46:56 EDT 2022"
   },
-  "_updated_by": null
+    "_updated_by": null
 }

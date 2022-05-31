@@ -6,7 +6,7 @@
   "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "infiltration",
-  "market_entry_year": 2035,
+  "market_entry_year": 2040,
   "market_entry_year_source": {
     "notes": "Target technology market entry year",
     "source_data": null
@@ -19,10 +19,10 @@
     "notes": "Target performance set based on expert knowledge",
     "source_data": null
   },
-  "installed_cost": 0.48,
+  "installed_cost": 0.9,
   "cost_units": "2016$/ft^2 wall",
   "installed_cost_source": {
-    "notes": "Target cost set based on 5 year payback period objective",
+    "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
   },
   "product_lifetime": 30,
@@ -44,9 +44,9 @@
     "timestamp": "2018-10-09 22:00 UTC"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2021-08-23 21:00 UTC"
   }
 }

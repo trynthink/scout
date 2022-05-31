@@ -8,7 +8,7 @@
   "technology": null,
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency oil water heater in 2017, updated to current year to avoid retroactive savings effects.",
+    "notes": "High efficiency oil water heater in 2020, updated to current year to avoid retroactive savings effects.",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -21,7 +21,7 @@
   "energy_efficiency": 0.69,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "High efficiency UEF in 2017",
+    "notes": "High efficiency UEF in 2020",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -32,7 +32,7 @@
   "installed_cost": 2525,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Median of high efficiency 2017 installed cost range",
+    "notes": "Median of high efficiency 2020 installed cost range",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -43,7 +43,7 @@
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of high efficiency 2017 lifetime range",
+    "notes": "Median of high efficiency 2020 lifetime range",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -55,7 +55,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Highest efficiency residential oil water heater in 2017",
+  "_description": "Highest efficiency residential oil water heater in 2020",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

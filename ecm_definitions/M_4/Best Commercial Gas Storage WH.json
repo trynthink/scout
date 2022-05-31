@@ -8,7 +8,7 @@
   "technology": ["gas_water_heater", "gas_instantaneous_WH", "gas_booster_WH"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency gas-fired storage water heater in 2017, updated to current year to avoid retroactive savings effects.",
+    "notes": "High efficiency gas-fired storage water heater in 2020, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -22,7 +22,7 @@
   "energy_efficiency": 0.99,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "High thermal efficiency in 2017",
+    "notes": "High thermal efficiency in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -31,10 +31,10 @@
       "pages": 120,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "installed_cost": 30.52,
+  "installed_cost": 30.53,
   "cost_units": "2017$/kBtu/h water heating",
   "installed_cost_source": {
-    "notes": "Median of high efficiency total installed cost range in 2017 divided by input capacity of 199 kBtu/h",
+    "notes": "Median of high efficiency total installed cost range in 2020 divided by input capacity of 199 kBtu/h",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -46,7 +46,7 @@
   "product_lifetime": 10,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "High efficiency average lifetime in 2017",
+    "notes": "High efficiency average lifetime in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -59,7 +59,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Highest efficiency commercial gas storage water heater in 2017",
+  "_description": "Highest efficiency commercial gas storage water heater in 2020",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

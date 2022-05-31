@@ -25,8 +25,8 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 3.6,
-      "heating": 2.2,
+      "cooling": 4.13,
+      "heating": 2.32,
       "ventilation": 0
   },
   "energy_efficiency_units": {
@@ -35,25 +35,18 @@
       "ventilation": "relative savings (constant)"
   },
   "energy_efficiency_source": {
-    "notes": "New/replacement service demand-weighted average electric central cooling/heating efficiency in 2021 based on AEO 2020 microtables and EIA equipment efficiencies doc",
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": [
       {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix A – Electric Boilers, Electric Resistance Heaters, RTAC, GSHP, RTHP",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": [94, 96, 112, 116, 118],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-      "title": "EIA AEO 2020 Commercial Microtables – Sales Tab 'SDPivotTable', Year 2021",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2020,
-      "pages": null,
-      "URL": null
-      }]
-  },
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": [96, 112, 116, 118],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+    ]
+    },
   "installed_cost": 178.33,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {

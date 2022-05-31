@@ -37,7 +37,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Reference case residential 'other' fuel heating tech. to pair with envelope (no savings, no incremental cost)",
+  "_description": "Reference case commercial 'other' fuel heating tech. to pair with envelope (no savings, no incremental cost)",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

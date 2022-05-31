@@ -1,6 +1,6 @@
 {
   "name": "Prospective Residential ASHP (RST) CC",
-  "_description": "10 yr ET target - heat pumps; upgrade existing electric, cold-climate, replace resistance",
+  "_description": "Ultra-efficient heat pump target, replace resistance/CAC, cold climate",
   "measure_type": "full service",
   "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
@@ -11,29 +11,36 @@
   "technology": ["resistance heat", "central AC"],
   "market_entry_year": 2035,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
+    "notes": "Targeted year of breakthrough technology market entry",
     "source_data": null
   },
   "energy_efficiency": {
-    "cooling": 12.3,
+    "cooling": 12,
     "heating": 6
   },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "ET Targets",
+    "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
     "source_data": null
   },
-  "installed_cost": 4391,
+  "installed_cost": 6223.0,
   "cost_units": "$/unit",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on heating for non-FS condition in cold climate",
+    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in cold climate; based on comparison with counterfactual heating technology",
     "source_data": null
   },
-  "product_lifetime": 25,
+  "product_lifetime": 22,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential air source heat pump",
-    "source_data": null
+    "notes": "Median of average lifetimes for 2020 'typical' residential NG furnace",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -43,23 +50,21 @@
     "resistance heat": 1},
   "market_scaling_fractions_source": {
     "central AC": {
-      "title": "RECS 2015 - Table HC6.1",
+      "title": "RECS 2015 Microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
       "fraction_derivation": "Central AC multiple of 40.5% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with electric heating system (76,090,522 - 45,241,958 fuel-fired systems)."
     },
     "resistance heat": "Applies to all homes with electric resistance furnaces (the resistance heat tech. is indicative of a forced air electric furnace in the EIA data)"
   },
   "_notes": null,
   "_added_by": {
-    "timestamp": "2020-05-03 19:05:19 UTC"
-  },
-    "_updated_by": {
     "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
+    "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
-  }
+    "timestamp": "Thu May 19 11:46:56 EDT 2022"
+  },
+    "_updated_by": null
 }

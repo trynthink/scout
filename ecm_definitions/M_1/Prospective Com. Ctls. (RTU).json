@@ -1,6 +1,6 @@
 {
   "name": "Prospective Com. Ctls. (RTU)",
-  "_description": "Template for sensors and controls package.",
+  "_description": "Advanced controls to package with commercial RTUs",
   "measure_type": "add-on",
   "climate_zone": "all",
   "bldg_type": [
@@ -11,16 +11,20 @@
   "fuel_type": "electricity",
   "technology": ["rooftop_AC", "all ventilation"],
   "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "installed_cost": 1.0,
   "cost_units": "$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "product_lifetime": 10,

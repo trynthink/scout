@@ -1,6 +1,6 @@
 {
   "name": "Best Res. ASHP, Env., PC (EE+DF–LFL) (CF)",
-  "_description": "Highest efficiency residential air source heat pump in 2019 combined with an internet-connected thermostat (ICT), preconditioning, and 6-sided envelope upgrade, non-cold-climate, like-for-like",
+  "_description": "Envelope-only counterfactual for this measure, non-cold-climate",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],
@@ -25,7 +25,7 @@
   "market_exit_year_source": null,
   "tsv_features": {
     "shape": {
-      "custom_annual_savings": "P3_upgrade_3_ASHP_ICT_precond.csv"
+      "custom_annual_savings": "P1d_Best_envelope.csv"
     }
   },
   "energy_efficiency": 0,

@@ -1,6 +1,6 @@
 {
   "name": "Prospective Residential HPWH",
-  "_description": "target",
+  "_description": "High efficiency heat pump water heater target, replace resistance WH",
   "measure_type": "full service",
   "climate_zone": "all",
   "bldg_type": "all residential",
@@ -10,40 +10,40 @@
   "technology": "electric WH",
   "market_entry_year": 2035,
   "market_entry_year_source": {
-    "notes": "Program target year for the technology performance level indicated by this ECM",
-    "source_data": {
-      "URL": "https://energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf",
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null
-    }
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
   },
   "energy_efficiency": 3.55,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "Target high HP performance from AEO",
+    "notes": "Based on highest level of performance projected by EIA",
     "source_data": {
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-a.pdf",
-      "title": null,
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 58,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 2155.27,
+  "installed_cost": 2266.27,
   "cost_units": "$/unit",
   "installed_cost_source": {
-    "notes": "average US cost based on scout 5 yr payback; note that cost is based on non-FS condition",
+    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS HPWH application",
     "source_data": null
   },
-  "product_lifetime": 20,
+  "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-a.pdf",
-    "source_data": null
+    "notes": "Median of average lifetimes for 2020 'typical' residential HPWH",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 58,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
   },
   "_updated_by": null,
   "market_exit_year": null,
@@ -53,6 +53,10 @@
   "market_scaling_fractions_source": null,
   "_notes": null,
   "_added_by": {
-    "timestamp": "2021-03-23 13:00:00 UTC"
-  }
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu May 19 11:46:56 EDT 2022"
+  },
+    "_updated_by": null
 }

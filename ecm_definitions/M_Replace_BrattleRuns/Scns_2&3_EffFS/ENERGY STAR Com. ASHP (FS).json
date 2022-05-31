@@ -1,10 +1,5 @@
 {
-  "name": "Best Com. ASHP, Env., PC (EE+DF–FS)",
-  "tsv_features": {
-    "shape": {
-      "custom_annual_savings": "DR_EE_HVAC_PreCool_Envelope.csv"
-    }
-  },
+  "name": "ENERGY STAR Com. ASHP (FS)",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],
@@ -19,14 +14,14 @@
                  "all ventilation"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Assume historical penetration is captured in baseline",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 3.6,
-      "heating": 2.2,
+      "cooling": 3.4,
+      "heating": 3.4,
       "ventilation": 0
   },
   "energy_efficiency_units": {
@@ -35,29 +30,19 @@
       "ventilation": "relative savings (constant)"
   },
   "energy_efficiency_source": {
-    "notes": "New/replacement service demand-weighted average electric central cooling/heating efficiency in 2021 based on AEO 2020 microtables and EIA equipment efficiencies doc",
-    "source_data": [
-      {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix A – Electric Boilers, Electric Resistance Heaters, RTAC, GSHP, RTHP",
+    "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": [94, 96, 112, 116, 118],
+      "pages": 116,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-      "title": "EIA AEO 2020 Commercial Microtables – Sales Tab 'SDPivotTable', Year 2021",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2020,
-      "pages": null,
-      "URL": null
-      }]
-  },
-  "installed_cost": 346,
+    }]},
+  "installed_cost": 141.2,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities; incremental envelope package cost of 168 is added (see https://docs.google.com/spreadsheets/d/1fII6Nbpst2etPNqrvkkOk6LWWaCIr3PY4LQCue6Tj1c/edit?usp=sharing)",
+    "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -70,7 +55,7 @@
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetimes for high efficiency RTU in 2017",
+    "notes": "Typical lifetime in 2030",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -102,18 +87,28 @@
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
       "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-electric heating (53,873 sf/80,078 sf) AND which do not use a chiller for cooling (57,645 sf / 79,294 sf)."
   }],
-  "_description": "Switch to typical size light commercial rooftop HP unit that meets the best available performance level in 2017, adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types, non-cold-climate",
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, non-cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Apr  7 05:37:30 EDT 2021"
+    "timestamp": "2016-11-16 20:57:11 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
-  }
+    "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
+  },{
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Tue Jan 21 14:57:37 MST 2020"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  }]
 }

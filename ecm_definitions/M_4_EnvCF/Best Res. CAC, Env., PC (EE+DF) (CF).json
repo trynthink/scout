@@ -22,7 +22,7 @@
   "market_exit_year_source": null,
   "tsv_features": {
     "shape": {
-      "custom_annual_savings": "P2_upgrade_2_CAC_ICT_precond.csv"
+      "custom_annual_savings": "P1d_Best_envelope.csv"
     }
   },
   "energy_efficiency": 0,
@@ -65,7 +65,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "_description": "Highest efficiency central AC unit in 2019 combined with an internet-connected thermostat (ICT), preconditioning, and 6-sided envelope upgrade",
+  "_description": "Envelope-only counterfactual for this measure, non-cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Chioke Harris",

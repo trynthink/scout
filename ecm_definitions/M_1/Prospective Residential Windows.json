@@ -22,7 +22,7 @@
         "windows solar": 0},
     "cooling": {
         "windows conduction": 13,
-        "windows solar": 0.05
+        "windows solar": 0.09
     }
   },
   "energy_efficiency_units": {
@@ -41,10 +41,10 @@
     "notes": "Target based on expert judgment regarding potential for improvement in the performance of the technology class relative to the current state-of-the-art",
     "source_data": null
   },
-  "installed_cost": 52.36,
+  "installed_cost": 55,
   "cost_units": "2016$/ft^2 glazing",
   "installed_cost_source": {
-    "notes": "Target cost set based on 5 year payback period objective; note that target cost is based on that estimated for the windows conduction portion of measure",
+    "notes": "Target cost set based on 10 year payback period objective; note that target cost is based on that estimated for the windows conduction portion of measure",
     "source_data": null
   },
   "product_lifetime": 30,
@@ -83,5 +83,10 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  },{
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2022-02-25 19:21 UTC"
   }]
 }

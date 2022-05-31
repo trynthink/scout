@@ -6,7 +6,7 @@
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": "roof",
-  "market_entry_year": 2035,
+  "market_entry_year": 2040,
   "market_entry_year_source": {
     "notes": "Target technology market entry year",
     "source_data": null
@@ -31,10 +31,10 @@
       "pages": null,
       "URL": ""}
     },
-  "installed_cost": 0.341,
+  "installed_cost": 0.55,
   "cost_units": "2016$/ft^2 roof",
   "installed_cost_source": {
-    "notes": "Target cost set based on 5 year payback period objective",
+    "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
   },
   "product_lifetime": 30,
@@ -63,9 +63,9 @@
     "timestamp": "2018-10-04 02:30 UTC"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2021-08-25 21:00 UTC"
   }
 }

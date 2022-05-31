@@ -21,7 +21,7 @@
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2021 microdata files, available from EIA upon request.",
     "source_data": {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,
@@ -33,25 +33,25 @@
   },
   "installed_cost": {
       "electricity": {
-        "new": 3719,
-        "existing": 4719
+        "new": 0,
+        "existing": 0
       },
       "natural gas": {
         "new": 3719,
-        "existing": 4719
+        "existing": 7719
       }, 
       "distillate": {
         "new": 3719,
-        "existing": 5719
+        "existing": 8719
       },
       "other fuel": {
         "new": 3719,
-        "existing": 5719
+        "existing": 8719
       }
   },
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Sales-weighted combinations of heating and cooling installed costs for typical 2020 ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request. For existing buildings, added service costs of $1K for switching from natural gas and $2K for distillate/other assigned based on EIA report",
+    "notes": "Sales-weighted combinations of heating installed costs for typical 2020 ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2021 microdata files, available from EIA upon request. For existing buildings, added service costs of $1K for switching from natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -67,7 +67,14 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"},
+      {
+      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
+      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
+      "organization": "Redwood Energy & Menlo Spark",
+      "year": 2021,
+      "pages": 19,
+      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
     ]},
   "product_lifetime": 19,
   "product_lifetime_units": "years",

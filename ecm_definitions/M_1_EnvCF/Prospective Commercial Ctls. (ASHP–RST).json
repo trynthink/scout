@@ -1,6 +1,6 @@
 {
   "name": "Prospective Commercial Ctls. (ASHP–RST)",
-  "_description": "10 yr ET target, non-cold-climate, replace resistance",
+  "_description": "Advanced controls to package with commercial ASHP replacing resistance, non-cold climate",
   "measure_type": "add-on",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
@@ -15,16 +15,20 @@
                  "reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller",
                  "elec_boiler", "electric_res-heat", "all ventilation"],
   "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "installed_cost": 1.0,
   "cost_units": "$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Prospective goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
   "product_lifetime": 10,

@@ -52,7 +52,7 @@
       "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use chiller for cooling (21,649 sf/79,294 sf)."
   },
   "_description": "Counterfactual chillers measure, no savings vs. reference case",
-  "_notes": "Measure Definition and Status Google spreadsheet contains calculations for combining chiller and commercial envelope measures and converting units",
+  "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
