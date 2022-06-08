@@ -21,9 +21,14 @@
   },
   "energy_efficiency": {
     "cooling": 12,
-    "heating": 6
+    "heating": 6,
+    "ventilation": 0
   },
-  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "heating": "BTU out/BTU in",
+      "ventilation": "relative savings (constant)"
+  },
   "energy_efficiency_source": {
     "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
     "source_data": null

@@ -3035,6 +3035,12 @@ class Engine(object):
             # measure's efficient data
             rp_adj, save_c, tot_c = ({
                 v: 0 for v in ["energy", "carbon", "cost"]} for n in range(3))
+            # Initialize tracker of cumulative competed stock (including
+            # in years before measure entered market) for use in subsequent
+            # measure-captured stock adjustment for measures that enter the
+            # market after the minimum market entry year across competing
+            # measures
+            cum_compete_stk = 0
         else:
             delay_entry_adj = False
             rp_adj, save_c, tot_c = (None for n in range(3))
@@ -3069,6 +3075,11 @@ class Engine(object):
                                        adj_stk_trk["total"]["all"][wyr])
                     else:
                         wt_comp_wyr = 0
+                    # For measures with delayed market entry, add current year
+                    # competed stock value to tracker of cumulative competed
+                    # stock (including in years before measure entered market)
+                    if delay_entry_adj:
+                        cum_compete_stk += adj_stk_trk["competed"]["all"][wyr]
 
                     # If needed, update efficient data adjustment for measures
                     # with delayed market entry; adjustment represents the
@@ -3139,52 +3150,65 @@ class Engine(object):
             v: adj_frac_t for v in ["stock", "energy", "carbon", "cost"]}
             for n in range(2))
 
-        # If necessary, implement adjustment to ensure that relative
-        # performance of measure post-market share adjustment is consistent
-        # with its relative performance pre-market share adjustment
+        # If necessary, implement adjustment to ensure that measure-captured
+        # portion of total stock and relative performance of measure
+        # post-market share adjustment is consistent with its measure-captured
+        # portion of stock/relative performance pre-market share adjustment
         if delay_entry_adj:
             # Make unique calculation for each output metric of interest
-            for var in ["energy", "carbon", "cost"]:
+            for var in ["stock", "energy", "carbon", "cost"]:
+                if var == "stock":
+                    # Develop a factor that adjusts measure-captured stock
+                    # values to account for missed competed stock in years
+                    # before measure entered market
+                    try:
+                        b_e_ratio = cum_compete_stk / \
+                            adj[var]["total"]["measure"][yr]
+                    except (ZeroDivisionError, FloatingPointError):
+                        b_e_ratio = 1
+                    adj_t_e[var] = adj_t_b[var] * b_e_ratio
                 # Cumulative competed relative performance equals cumulatively
                 # competed-captured savings for the metric divided by
                 # cumulatively competed-captured baseline; handle zero
                 # denominator
-                if tot_c[var] != 0:
-                    rp_adj[var] = 1 - (save_c[var] / tot_c[var])
                 else:
-                    rp_adj[var] = 1
+                    if tot_c[var] != 0:
+                        rp_adj[var] = 1 - (save_c[var] / tot_c[var])
+                    else:
+                        rp_adj[var] = 1
 
-                # Since the relative performance adjustment is calculated
-                # relative to baseline data, develop a ratio that first
-                # translates efficient to baseline values, before the
-                # relative performance factor is applied
+                    # Since the relative performance adjustment is calculated
+                    # relative to baseline data, develop a ratio that first
+                    # translates efficient to baseline values, before the
+                    # relative performance factor is applied
 
-                # Handle cost data structure separately, focus on energy costs
-                if var == "cost":
-                    try:
-                        b_e_ratio = \
-                            adj[var]["energy"]["total"]["baseline"][yr] / \
-                            adj[var]["energy"]["total"]["efficient"][yr]
-                    except (ZeroDivisionError, FloatingPointError):
+                    # Handle cost data structure separately, focus on energy
+                    # costs
+                    if var == "cost":
+                        try:
+                            b_e_ratio = \
+                                adj[var]["energy"]["total"]["baseline"][yr] / \
+                                adj[var]["energy"]["total"]["efficient"][yr]
+                        except (ZeroDivisionError, FloatingPointError):
+                            b_e_ratio = 1
+                    # Energy/carbon data
+                    else:
+                        try:
+                            b_e_ratio = adj[var]["total"]["baseline"][yr] / \
+                                adj[var]["total"]["efficient"][yr]
+                        except (ZeroDivisionError, FloatingPointError):
+                            b_e_ratio = 1
+
+                    # Ensure that calculated ratio is a finite number
+                    if (type(b_e_ratio) == numpy.ndarray and not all(
+                        numpy.isfinite(b_e_ratio))) or (
+                        type(b_e_ratio) != numpy.ndarray and not
+                            numpy.isfinite(b_e_ratio)):
                         b_e_ratio = 1
-                # Energy/carbon data
-                else:
-                    try:
-                        b_e_ratio = adj[var]["total"]["baseline"][yr] / \
-                            adj[var]["total"]["efficient"][yr]
-                    except (ZeroDivisionError, FloatingPointError):
-                        b_e_ratio = 1
 
-                # Ensure that calculated ratio is a finite number
-                if (type(b_e_ratio) == numpy.ndarray and not all(
-                    numpy.isfinite(b_e_ratio))) or (
-                    type(b_e_ratio) != numpy.ndarray and not numpy.isfinite(
-                        b_e_ratio)):
-                    b_e_ratio = 1
-
-                # Further scale efficient market share adjustment fraction
-                # on the basis of the factors calculated above
-                adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
+                    # Further scale efficient market share adjustment fraction
+                    # on the basis of the factors calculated above
+                    adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3345,59 +3369,55 @@ class Engine(object):
         # Adjust the total and competed stock captured by the measure and
         # associated measure and base-case cost totals for that captured
         # stock by the appropriate measure market share, both overall and
-        # for the current contributing microsegment. For years in which the
-        # measure is not on the market (e.g., not yet introduced to the
-        # market, or subject to a market exit year), captured stock/stock cost
-        # totals will already reflect this and need not be adjusted further.
-        if yr in measure.yrs_on_mkt:
+        # for the current contributing microsegment.
 
-            # Overall total measure stock
-            mast["stock"]["total"]["measure"][yr] = \
-                mast["stock"]["total"]["measure"][yr] - \
-                adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
-            # Overall total baseline stock cost
-            mast["cost"]["stock"]["total"]["baseline"][yr] = \
-                mast["cost"]["stock"]["total"]["baseline"][yr] - \
-                adj["cost"]["stock"]["total"]["baseline"][yr] * (
-                    1 - adj_t_b["stock"])
-            # Overall total measure stock cost
-            mast["cost"]["stock"]["total"]["efficient"][yr] = \
-                mast["cost"]["stock"]["total"]["efficient"][yr] - \
-                adj["cost"]["stock"]["total"]["efficient"][yr] * (
-                    1 - adj_t_e["stock"])
-            # Overall competed measure stock
-            mast["stock"]["competed"]["measure"][yr] = \
-                mast["stock"]["competed"]["measure"][yr] - \
-                adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
-            # Overall competed baseline stock cost
-            mast["cost"]["stock"]["competed"]["baseline"][yr] = \
-                mast["cost"]["stock"]["competed"]["baseline"][yr] - \
-                adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
-            # Overall competed measure stock cost
-            mast["cost"]["stock"]["competed"]["efficient"][yr] = \
-                mast["cost"]["stock"]["competed"]["efficient"][yr] - \
-                adj["cost"]["stock"]["competed"]["efficient"][yr] * (
-                    1 - adj_c)
-            # Current contributing mseg total measure stock
-            adj["stock"]["total"]["measure"][yr] = \
-                adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
-            # Current contributing mseg total baseline stock cost
-            adj["cost"]["stock"]["total"]["baseline"][yr] = \
-                adj["cost"]["stock"]["total"]["baseline"][yr] * \
-                adj_t_b["stock"]
-            # Current contributing mseg total measure stock cost
-            adj["cost"]["stock"]["total"]["efficient"][yr] = \
-                adj["cost"]["stock"]["total"]["efficient"][yr] * \
-                adj_t_e["stock"]
-            # Current contributing mseg competed measure stock
-            adj["stock"]["competed"]["measure"][yr] = \
-                adj["stock"]["competed"]["measure"][yr] * adj_c
-            # Current contributing mseg competed baseline stock cost
-            adj["cost"]["stock"]["competed"]["baseline"][yr] = \
-                adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
-            # Current contributing mseg competed measure stock cost
-            adj["cost"]["stock"]["competed"]["efficient"][yr] = \
-                adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
+        # Overall total measure stock
+        mast["stock"]["total"]["measure"][yr] = \
+            mast["stock"]["total"]["measure"][yr] - \
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+        # Overall total baseline stock cost
+        mast["cost"]["stock"]["total"]["baseline"][yr] = \
+            mast["cost"]["stock"]["total"]["baseline"][yr] - \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * (
+                1 - adj_t_b["stock"])
+        # Overall total measure stock cost
+        mast["cost"]["stock"]["total"]["efficient"][yr] = \
+            mast["cost"]["stock"]["total"]["efficient"][yr] - \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * (
+                1 - adj_t_e["stock"])
+        # Overall competed measure stock
+        mast["stock"]["competed"]["measure"][yr] = \
+            mast["stock"]["competed"]["measure"][yr] - \
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+        # Overall competed baseline stock cost
+        mast["cost"]["stock"]["competed"]["baseline"][yr] = \
+            mast["cost"]["stock"]["competed"]["baseline"][yr] - \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
+        # Overall competed measure stock cost
+        mast["cost"]["stock"]["competed"]["efficient"][yr] = \
+            mast["cost"]["stock"]["competed"]["efficient"][yr] - \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * (
+                1 - adj_c)
+        # Current contributing mseg total measure stock
+        adj["stock"]["total"]["measure"][yr] = \
+            adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+        # Current contributing mseg total baseline stock cost
+        adj["cost"]["stock"]["total"]["baseline"][yr] = \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * \
+            adj_t_b["stock"]
+        # Current contributing mseg total measure stock cost
+        adj["cost"]["stock"]["total"]["efficient"][yr] = \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * \
+            adj_t_e["stock"]
+        # Current contributing mseg competed measure stock
+        adj["stock"]["competed"]["measure"][yr] = \
+            adj["stock"]["competed"]["measure"][yr] * adj_c
+        # Current contributing mseg competed baseline stock cost
+        adj["cost"]["stock"]["competed"]["baseline"][yr] = \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
+        # Current contributing mseg competed measure stock cost
+        adj["cost"]["stock"]["competed"]["efficient"][yr] = \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
 
         # Adjust total and competed baseline and efficient energy, carbon,
         # and cost data by measure market share
@@ -3575,16 +3595,57 @@ class Engine(object):
                             ("CO2 Cost Savings (USD)".
                                 translate(sub), carb_costsave_avg)]) for
                             n in range(2))
+                # Record list of baseline variable names for use in finalizing
+                # output breakouts below
+                mkt_base_keys = [
+                    "Baseline Energy Use (MMBtu)",
+                    "Baseline CO2 Emissions (MMTons)".translate(sub),
+                    "Baseline Energy Cost (USD)",
+                    "Baseline CO2 Cost (USD)".translate(sub)]
+                # Record list of efficient variable names for use in finalizing
+                # output breakouts below
+                mkt_eff_keys = [
+                    "Efficient Energy Use (MMBtu)",
+                    "Efficient CO2 Emissions (MMTons)".translate(sub),
+                    "Efficient Energy Cost (USD)",
+                    "Efficient CO2 Cost (USD)".translate(sub)]
+                # Record list of savings variable names for use in finalizing
+                # output breakouts below
+                save_keys = [
+                    "Energy Savings (MMBtu)",
+                    "Avoided CO2 Emissions (MMTons)".translate(sub),
+                    "Energy Cost Savings (USD)",
+                    "CO2 Cost Savings (USD)".translate(sub)]
             else:
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
                         "Markets and Savings (by Category)"][
                         adopt_scheme] = (OrderedDict([
+                            ("Baseline Energy Use (MMBtu)", energy_base_avg),
+                            ("Efficient Energy Use (MMBtu)", energy_eff_avg),
+                            ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                                carb_base_avg),
+                            ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                                carb_eff_avg),
                             ("Energy Savings (MMBtu)", energy_save_avg),
                             ("Avoided CO2 Emissions (MMTons)".
-                                translate(sub), carb_save_avg),
-                            ("Energy Cost Savings (USD)", energy_costsave_avg)
+                                translate(sub), carb_save_avg)
                             ]) for n in range(2))
+                # Record list of baseline variable names for use in finalizing
+                # output breakouts below
+                mkt_base_keys = [
+                    "Baseline Energy Use (MMBtu)",
+                    "Baseline CO2 Emissions (MMTons)".translate(sub)]
+                # Record list of efficient variable names for use in finalizing
+                # output breakouts below
+                mkt_eff_keys = [
+                    "Efficient Energy Use (MMBtu)",
+                    "Efficient CO2 Emissions (MMTons)".translate(sub)]
+                # Record list of savings variable names for use in finalizing
+                # output breakouts below
+                save_keys = [
+                    "Energy Savings (MMBtu)",
+                    "Avoided CO2 Emissions (MMTons)".translate(sub)]
 
             # If competition adjustment fractions must be reported, find/store
             # those data
@@ -3688,12 +3749,11 @@ class Engine(object):
                     if (stk_c[yva] > -1 and stk_c[yva] < 1):
                         self.output_ecms_cfs[m.name]["stock"][yva] = 0
 
-            # Normalize the baseline energy/carbon/cost, efficient energy/
-            # carbon/cost, and energy/carbon/cost savings for the measure that
-            # falls into each of the climate, building type, and end use output
-            # categories by the total baseline energy/carbon/cost, efficient
-            # energy/carbon/cost, and energy/carbon/cost savings for the
-            # measure (all post-competition); this yields fractions to use
+            # Normalize the baseline energy/carbon/cost and efficient energy/
+            # carbon/cost for the measure that falls into each of the climate,
+            # building type, and end use output categories by the total
+            # baseline energy/carbon/cost and efficient energy/carbon/cost for
+            # the measure (all post-competition); this yields fractions to use
             # in apportioning energy, carbon, and cost results by category
 
             # Energy
@@ -3707,16 +3767,6 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "energy"]["efficient"], energy_eff_avg, focus_yrs,
                 divide=True)
-            # Determine total energy savings to use as normalization factor
-            norm_save_energy = {
-                yr: (energy_base_avg[yr] - energy_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate energy savings fractions by output breakout category
-            frac_save_energy = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["energy"]["savings"],
-                norm_save_energy, focus_yrs, divide=True)
-
             # Cost
             # Calculate baseline energy cost fractions by output breakout
             # category
@@ -3730,18 +3780,6 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "cost"]["efficient"], energy_cost_eff_avg,
                 focus_yrs, divide=True)
-            # Determine total energy cost savings to use as normalization
-            # factor
-            norm_save_cost = {
-                yr: (energy_cost_base_avg[yr] - energy_cost_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate energy cost savings fractions by output breakout
-            # category
-            frac_save_cost = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["cost"]["savings"],
-                norm_save_cost, focus_yrs, divide=True)
-
             # Carbon
             # Calculate baseline carbon fractions by output breakout category
             frac_base_carb = self.out_break_walk(
@@ -3753,23 +3791,16 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "carbon"]["efficient"], carb_eff_avg, focus_yrs,
                 divide=True)
-            # Determine total carbon savings to use as normalization factor
-            norm_save_carb = {
-                yr: (carb_base_avg[yr] - carb_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate carbon savings fractions by output breakout category
-            frac_save_carb = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["carbon"]["savings"],
-                norm_save_carb, focus_yrs, divide=True)
 
             # Create shorthand variable for results by breakout category
             mkt_save_brk = self.output_ecms[m.name][
                 "Markets and Savings (by Category)"][adopt_scheme]
-
-            # Apply output breakout fractions to total energy, carbon, and cost
-            # results initialized above
-            for k in mkt_save_brk.keys():
+            # Create combined list of baseline and efficient variables to
+            # loop through below in finalizing baseline/efficient breakouts
+            mkt_keys = mkt_base_keys + mkt_eff_keys
+            # Apply output breakout fractions to total baseline and efficient
+            # energy, carbon, and cost results initialized above
+            for k in mkt_keys:
                 # Apply baseline partitioning fractions to baseline values
                 if "Baseline" in k:
                     # Energy results
@@ -3804,23 +3835,19 @@ class Engine(object):
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_carb), mkt_save_brk[k],
                             focus_yrs, divide=False)
-                # Apply savings partitioning fractions to savings values
-                else:
-                    # Energy results
-                    if ("Energy" in k and "Cost" not in k):
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_energy), mkt_save_brk[k],
-                           focus_yrs, divide=False)
-                    # Energy cost results
-                    elif "Energy Cost" in k:
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_cost), mkt_save_brk[k],
-                           focus_yrs, divide=False)
-                    # Carbon results
-                    else:
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_carb), mkt_save_brk[k],
-                           focus_yrs, divide=False)
+            # Assess final output breakouts of savings as the difference
+            # between finalized baseline and efficient breakouts from above
+            for ind_k, k in enumerate(save_keys):
+                # Copy baseline breakouts dict to use in establishing the
+                # structure of the final savings output breakouts dict
+                orig_dict_struct = copy.deepcopy(
+                    mkt_save_brk[mkt_base_keys[ind_k]])
+                # Loop through all nested levels of the dict above; when
+                # reaching terminal nodes, finalize savings values as
+                # difference between finalized baseline and efficient results
+                mkt_save_brk[k] = self.out_break_walk_subtr(
+                    orig_dict_struct, mkt_save_brk[mkt_base_keys[ind_k]],
+                    mkt_save_brk[mkt_eff_keys[ind_k]], focus_yrs)
 
             # Record low and high estimates on markets, if available and
             # user has not specified trimmed output
@@ -4143,8 +4170,8 @@ class Engine(object):
                 of multiplying them (the default option).
 
         Returns:
-            Measure results partitioned by climate, building sector,
-            end use, and possibly fuel type (electric/non-electric).
+            Measure baseline or efficient results partitioned by climate,
+            building sector, end use, and possibly fuel type.
         """
         for (k, i) in sorted(adjust_dict.items()):
             if isinstance(i, dict) and len(i.keys()) > 0:
@@ -4165,6 +4192,32 @@ class Engine(object):
             else:
                 del adjust_dict[k]
         return adjust_dict
+
+    def out_break_walk_subtr(self, orig_dict, base_val, eff_val, focus_yrs):
+        """Subtract efficient from base values in nested dicts to get savings.
+
+        Args:
+            orig_dict (dict): The final dict/dict structure to be produced.
+            base_val (dict): Baseline values in nested dict.
+            eff_val (list): Efficient values in nested dict.
+            focus_yrs (list): Optional years of focus within overall yr. range
+
+        Returns:
+            Measure savings results partitioned by climate, building sector,
+            end use, and possibly fuel type.
+        """
+        for (k, i) in sorted(orig_dict.items()):
+            if isinstance(i, dict) and len(i.keys()) > 0:
+                self.out_break_walk_subtr(
+                    i, base_val[k], eff_val[k], focus_yrs)
+            elif isinstance(i, dict):
+                del orig_dict[k]
+            elif k in focus_yrs:
+                # Subtract efficient from baseline values at terminal nodes
+                orig_dict[k] = base_val[k] - eff_val[k]
+            else:
+                del orig_dict[k]
+        return orig_dict
 
 
 def main(base_dir):
@@ -4408,8 +4461,8 @@ def main(base_dir):
             # Reset measure microsegment data attribute to imported values;
             # initialize an uncompeted and post-competition copy of these data
             # (the former of which will be used to establish a common set of
-            # stock turnover constraints in the competition, the latter of which
-            # will be adjusted by the competition)
+            # stock turnover constraints in the competition, the latter of
+            # which will be adjusted by the competition)
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
