@@ -3902,7 +3902,6 @@ class Engine(object):
                     save_keys.extend([
                         "Fugitive Methane Savings (MMTons CO2e)",
                         "Fugitive Refrigerants Savings (MMTons CO2e)"])
-
             else:
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
@@ -3933,6 +3932,7 @@ class Engine(object):
                 save_keys = [
                     "Energy Savings (MMBtu)",
                     "Avoided CO2 Emissions (MMTons)".translate(sub)]
+
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
                 if m.fug_e:
