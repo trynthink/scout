@@ -3879,15 +3879,6 @@ class Engine(object):
                         adopt_scheme][
                         "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                         summary_vals_f_e[5]
-                    mkt_base_keys.extend([
-                        "Baseline Fugitive Methane (MMTons CO2e)",
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
-                    mkt_eff_keys.extend([
-                        "Efficient Fugitive Methane (MMTons CO2e)",
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
-                    save_keys.extend([
-                        "Fugitive Methane Savings (MMTons CO2e)",
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
             else:
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
@@ -3948,15 +3939,6 @@ class Engine(object):
                         adopt_scheme][
                         "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                         summary_vals_f_e[5]
-                    mkt_base_keys.extend([
-                        "Baseline Fugitive Methane (MMTons CO2e)",
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
-                    mkt_eff_keys.extend([
-                        "Efficient Fugitive Methane (MMTons CO2e)",
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
-                    save_keys.extend([
-                        "Fugitive Methane Savings (MMTons CO2e)",
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
 
             # If competition adjustment fractions must be reported, find/store
             # those data
