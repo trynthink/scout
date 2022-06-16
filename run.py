@@ -3806,27 +3806,6 @@ class Engine(object):
                             ("CO2 Cost Savings (USD)".
                                 translate(sub), carb_costsave_avg)]) for
                             n in range(2))
-                # Record list of baseline variable names for use in finalizing
-                # output breakouts below
-                mkt_base_keys = [
-                    "Baseline Energy Use (MMBtu)",
-                    "Baseline CO2 Emissions (MMTons)".translate(sub),
-                    "Baseline Energy Cost (USD)",
-                    "Baseline CO2 Cost (USD)".translate(sub)]
-                # Record list of efficient variable names for use in finalizing
-                # output breakouts below
-                mkt_eff_keys = [
-                    "Efficient Energy Use (MMBtu)",
-                    "Efficient CO2 Emissions (MMTons)".translate(sub),
-                    "Efficient Energy Cost (USD)",
-                    "Efficient CO2 Cost (USD)".translate(sub)]
-                # Record list of savings variable names for use in finalizing
-                # output breakouts below
-                save_keys = [
-                    "Energy Savings (MMBtu)",
-                    "Avoided CO2 Emissions (MMTons)".translate(sub),
-                    "Energy Cost Savings (USD)",
-                    "CO2 Cost Savings (USD)".translate(sub)]
 
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
@@ -3857,15 +3836,6 @@ class Engine(object):
                         adopt_scheme][
                         "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                         summary_vals_f_e[5]
-                    mkt_base_keys.extend([
-                        "Baseline Fugitive Methane (MMTons CO2e)",
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
-                    mkt_eff_keys.extend([
-                        "Efficient Fugitive Methane (MMTons CO2e)",
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
-                    save_keys.extend([
-                        "Fugitive Methane Savings (MMTons CO2e)",
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
             else:
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
@@ -3876,21 +3846,6 @@ class Engine(object):
                                 translate(sub), carb_save_avg),
                             ("Energy Cost Savings (USD)", energy_costsave_avg)
                             ]) for n in range(2))
-                # Record list of baseline variable names for use in finalizing
-                # output breakouts below
-                mkt_base_keys = [
-                    "Baseline Energy Use (MMBtu)",
-                    "Baseline CO2 Emissions (MMTons)".translate(sub)]
-                # Record list of efficient variable names for use in finalizing
-                # output breakouts below
-                mkt_eff_keys = [
-                    "Efficient Energy Use (MMBtu)",
-                    "Efficient CO2 Emissions (MMTons)".translate(sub)]
-                # Record list of savings variable names for use in finalizing
-                # output breakouts below
-                save_keys = [
-                    "Energy Savings (MMBtu)",
-                    "Avoided CO2 Emissions (MMTons)".translate(sub)]
 
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
@@ -3921,15 +3876,6 @@ class Engine(object):
                         adopt_scheme][
                         "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                         summary_vals_f_e[5]
-                    mkt_base_keys.extend([
-                        "Baseline Fugitive Methane (MMTons CO2e)",
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"])
-                    mkt_eff_keys.extend([
-                        "Efficient Fugitive Methane (MMTons CO2e)",
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"])
-                    save_keys.extend([
-                        "Fugitive Methane Savings (MMTons CO2e)",
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"])
 
             # If competition adjustment fractions must be reported, find/store
             # those data
