@@ -3626,9 +3626,9 @@ class Engine(object):
                     # Total
                     mast["fugitive emissions"]["refrigerants"][
                         "total"][x][yr] = mastlist[-2][yr] - (
-                            adjlist[-2][yr] * (1 - adj_t["stock"]))
+                            adjlist[-2][yr] * (1 - adj_t_b["stock"]))
                     adj["fugitive emissions"]["refrigerants"][
-                        "total"][x][yr] = adjlist[-2][yr] * adj_t["stock"]
+                        "total"][x][yr] = adjlist[-2][yr] * adj_t_b["stock"]
                     # Competed
                     mast["fugitive emissions"]["refrigerants"][
                         "competed"][x][yr] = mastlist[-1][yr] - (
