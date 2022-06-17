@@ -7649,22 +7649,27 @@ class Measure(object):
                 # the measure-captured (switched to/added) loads in the
                 # efficient-case sector shape; otherwise, represent both
                 # measure-captured and remaining baseline loads for
-                # electricity microsegments
+                # electricity microsegments. NOTE: divided out by previously
+                # applied TSV factors to avoid double counting of impacts
+                # in the efficient case
                 if self.fuel_switch_to == "electricity" and \
                         "electricity" not in mskeys:
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "efficient"] = [self.sector_shapes[adopt_scheme][
-                            mskeys[1]][yr]["efficient"][x] + (
-                            energy_tot_comp_meas + energy_tot_uncomp_meas) *
+                            mskeys[1]][yr]["efficient"][x] + ((
+                                energy_tot_comp_meas +
+                                energy_tot_uncomp_meas) / tsv_energy_eff) *
                             tsv_shapes["efficient"][x]
                         for x in range(8760)]
                 else:
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "efficient"] = [self.sector_shapes[adopt_scheme][
-                            mskeys[1]][yr]["efficient"][x] + (
-                            energy_tot_comp_meas + energy_tot_uncomp_meas) *
-                            tsv_shapes["efficient"][x] + (
-                            energy_tot_comp_base + energy_tot_uncomp_base) *
+                            mskeys[1]][yr]["efficient"][x] + ((
+                                energy_tot_comp_meas +
+                                energy_tot_uncomp_meas) / tsv_energy_eff) *
+                            tsv_shapes["efficient"][x] + ((
+                                energy_tot_comp_base +
+                                energy_tot_uncomp_base) / tsv_energy_base) *
                             tsv_shapes["baseline"][x]
                         for x in range(8760)]
             # Anticipate and handle case with base carbon intensity of zero for
