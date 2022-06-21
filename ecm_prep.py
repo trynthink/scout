@@ -5202,15 +5202,17 @@ class Measure(object):
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "baseline"][out_cz][out_bldg][
-                                            out_eu][yr] += base_data[ind][yr]
+                                            out_eu]["All Fuels"][
+                                            yr] += base_data[ind][yr]
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "efficient"][out_cz][out_bldg][
-                                            out_eu][yr] += eff_data[ind][yr]
+                                            out_eu]["All Fuels"][
+                                            yr] += eff_data[ind][yr]
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "savings"][out_cz][out_bldg][
-                                            out_eu][yr] += (
+                                            out_eu]["All Fuels"][yr] += (
                                                 base_data[ind][yr] -
                                                 eff_data[ind][yr])
                             except KeyError:
@@ -5218,17 +5220,20 @@ class Measure(object):
                                         "energy", "cost", "carbon"]):
                                     self.markets[adopt_scheme][
                                         "mseg_out_break"][key]["baseline"][
-                                        out_cz][out_bldg][out_eu] = {
+                                        out_cz][out_bldg][out_eu][
+                                        "All Fuels"] = {
                                             yr: base_data[ind][yr] for
                                             yr in self.handyvars.aeo_years}
                                     self.markets[adopt_scheme][
                                         "mseg_out_break"][key]["efficient"][
-                                        out_cz][out_bldg][out_eu] = {
+                                        out_cz][out_bldg][out_eu][
+                                        "All Fuels"] = {
                                             yr: eff_data[ind][yr] for
                                             yr in self.handyvars.aeo_years}
                                     self.markets[adopt_scheme][
                                         "mseg_out_break"][key]["savings"][
-                                        out_cz][out_bldg][out_eu] = {
+                                        out_cz][out_bldg][out_eu][
+                                        "All Fuels"] = {
                                             yr: (base_data[ind][yr] -
                                                  eff_data[ind][yr]) for
                                             yr in self.handyvars.aeo_years}

@@ -1792,8 +1792,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 20, "2010": 20}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -1981,8 +1981,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 15, "2010": 15}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -2170,7 +2170,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {"2009": 5, "2010": 5}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -2478,8 +2479,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 20, "2010": 20}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -2667,8 +2668,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 15, "2010": 15}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -2856,7 +2857,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {"2009": 5, "2010": 5}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -3218,8 +3220,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 20, "2010": 20}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -3407,8 +3409,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 15, "2010": 15}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -3596,7 +3598,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {"2009": 5, "2010": 5}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -3947,8 +3950,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 20, "2010": 20}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -4136,8 +4139,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 15, "2010": 15}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -4325,7 +4328,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {"2009": 5, "2010": 5}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -4707,8 +4711,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 40, "2010": 40}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 40, "2010": 40}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -4896,8 +4900,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 30, "2010": 30}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 30, "2010": 30}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -5085,8 +5089,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 10, "2010": 10}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 10, "2010": 10}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -5457,8 +5461,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 40, "2010": 40}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 40, "2010": 40}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -5646,8 +5650,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 30, "2010": 30}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 30, "2010": 30}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -5835,8 +5839,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Computers and Electronics': {},
                                     'Heating (Equip.)': {},
                                     'Heating (Env.)': {},
-                                    'Cooling (Env.)': {
-                                        "2009": 10, "2010": 10}},
+                                    'Cooling (Env.)': {"All Fuels": {
+                                        "2009": 10, "2010": 10}}},
                                 'Commercial (New)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
                                     'Lighting': {},
@@ -6148,8 +6152,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 20, "2010": 20},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -6337,8 +6341,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -6526,8 +6530,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 5, "2010": 5},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -6836,8 +6840,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 20, "2010": 20},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -7025,8 +7029,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -7214,8 +7218,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 5, "2010": 5},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -7552,8 +7556,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 20, "2010": 20},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -7741,8 +7745,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -7930,8 +7934,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 5, "2010": 5},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -8257,8 +8261,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 20, "2010": 20},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 20, "2010": 20}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -8446,8 +8450,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -8635,8 +8639,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 5, "2010": 5},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 5, "2010": 5}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -9018,8 +9022,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 40, "2010": 40},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -9207,8 +9211,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 30, "2010": 30},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 30, "2010": 30}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -9396,8 +9400,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 10, "2010": 10},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 10, "2010": 10}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -9768,8 +9772,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 40, "2010": 40},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -9957,8 +9961,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 30, "2010": 30},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 30, "2010": 30}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -10146,8 +10150,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 10, "2010": 10},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 10, "2010": 10}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -10591,8 +10595,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 60, "2010": 60},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 60, "2010": 60}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -10780,8 +10784,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 45, "2010": 45},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 45, "2010": 45}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -10969,8 +10973,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -11403,8 +11407,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 60, "2010": 60},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 60, "2010": 60}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -11592,8 +11596,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 45, "2010": 45},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 45, "2010": 45}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -11781,8 +11785,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                                     'Heating (Env.)': {},
                                     'Cooling (Env.)': {}},
                                 'Residential (Existing)': {
-                                    'Cooling (Equip.)': {
-                                        "2009": 15, "2010": 15},
+                                    'Cooling (Equip.)': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Ventilation': {},
                                     'Lighting': {},
                                     'Refrigeration': {}, 'Other': {},
@@ -13228,8 +13232,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {
-                            "2009": 2.227001, "2010": 2.227001}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 2.227001, "2010": 2.227001}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -13417,8 +13421,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {
-                            "2009": 1.670251, "2010": 1.670251}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 1.670251, "2010": 1.670251}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -13606,7 +13610,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {"2009": 0.55675, "2010": 0.55675}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 0.55675, "2010": 0.55675}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -13795,8 +13800,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {
-                            "2009": 27.77300, "2010": 27.77300}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 27.77300, "2010": 27.77300}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -13984,8 +13989,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {
-                            "2009": 20.82975, "2010": 20.82975}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 20.82975, "2010": 20.82975}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -14173,8 +14178,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Computers and Electronics': {},
                         'Heating (Equip.)': {},
                         'Heating (Env.)': {},
-                        'Cooling (Env.)': {
-                            "2009": 6.94325, "2010": 6.94325}},
+                        'Cooling (Env.)': {"All Fuels": {
+                            "2009": 6.94325, "2010": 6.94325}}},
                     'Commercial (New)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
                         'Lighting': {},
@@ -14355,8 +14360,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 1.73179114, "2010": 1.73179114},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 1.73179114, "2010": 1.73179114}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -14544,8 +14549,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 1.29884336, "2010": 1.29884336},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 1.29884336, "2010": 1.29884336}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -14733,576 +14738,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 0.43294778, "2010": 0.43294778},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ2': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ3': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ4': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ5': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}}}},
-            {
-            "baseline": {
-                'AIA CZ1': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 26.04455, "2010": 26.04455},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ2': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ3': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ4': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ5': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}}},
-            "efficient": {
-                'AIA CZ1': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 19.53341, "2010": 19.53341},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ2': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ3': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ4': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}},
-                'AIA CZ5': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {}, 'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (New)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Commercial (Existing)': {
-                        'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}}}},
-            "savings": {
-                'AIA CZ1': {
-                    'Residential (New)': {
-                        'Cooling (Equip.)': {},
-                        'Ventilation': {},
-                        'Lighting': {},
-                        'Refrigeration': {}, 'Other': {},
-                        'Water Heating': {},
-                        'Computers and Electronics': {},
-                        'Heating (Equip.)': {},
-                        'Heating (Env.)': {},
-                        'Cooling (Env.)': {}},
-                    'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 6.51114, "2010": 6.51114},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 0.43294778, "2010": 0.43294778}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -15491,8 +14928,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 42.22366, "2010": 42.22366},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 26.04455, "2010": 26.04455}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -15680,8 +15117,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 31.66775, "2010": 31.66775},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 19.53341, "2010": 19.53341}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -15869,8 +15306,576 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                         'Heating (Env.)': {},
                         'Cooling (Env.)': {}},
                     'Residential (Existing)': {
-                        'Cooling (Equip.)': {
-                            "2009": 10.55591, "2010": 10.55591},
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 6.51114, "2010": 6.51114}},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ2': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ3': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ4': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ5': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}}}},
+            {
+            "baseline": {
+                'AIA CZ1': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 42.22366, "2010": 42.22366}},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ2': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ3': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ4': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ5': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}}},
+            "efficient": {
+                'AIA CZ1': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 31.66775, "2010": 31.66775}},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ2': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ3': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ4': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}},
+                'AIA CZ5': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {}, 'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (New)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Commercial (Existing)': {
+                        'Cooling (Equip.)': {}, 'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}}}},
+            "savings": {
+                'AIA CZ1': {
+                    'Residential (New)': {
+                        'Cooling (Equip.)': {},
+                        'Ventilation': {},
+                        'Lighting': {},
+                        'Refrigeration': {}, 'Other': {},
+                        'Water Heating': {},
+                        'Computers and Electronics': {},
+                        'Heating (Equip.)': {},
+                        'Heating (Env.)': {},
+                        'Cooling (Env.)': {}},
+                    'Residential (Existing)': {
+                        'Cooling (Equip.)': {"All Fuels": {
+                            "2009": 10.55591, "2010": 10.55591}},
                         'Ventilation': {},
                         'Lighting': {},
                         'Refrigeration': {}, 'Other': {},
@@ -16103,6 +16108,8 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         # Check updated competed master microsegments for each sample measure
         # following competition/supply-demand overlap adjustments
         for ind, d in enumerate(self.a_run_dist.measures):
+            self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
+                "competed"]["master_mseg"]
             self.dict_check(
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
@@ -16418,7 +16425,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -16606,7 +16614,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 30, "2010": 30},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 30, "2010": 30}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -16794,7 +16803,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 10, "2010": 10},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 10, "2010": 10}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -17172,7 +17182,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -17360,7 +17371,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 30, "2010": 30},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 30, "2010": 30}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -17548,7 +17560,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 10, "2010": 10},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 10, "2010": 10}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -17940,7 +17953,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -18128,7 +18142,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 30},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 30}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -18316,7 +18331,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 0, "2010": 10},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 0, "2010": 10}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -18694,7 +18710,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -19477,7 +19494,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -19665,7 +19683,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 30},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 30}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -19853,7 +19872,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 0, "2010": 10},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 0, "2010": 10}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -20246,7 +20266,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 40},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 40}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -20434,7 +20455,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 40, "2010": 30},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 40, "2010": 30}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -20622,7 +20644,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 0, "2010": 10},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 0, "2010": 10}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -21076,7 +21099,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 60, "2010": 60},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 60, "2010": 60}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -21264,7 +21288,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 45, "2010": 45},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 45, "2010": 45}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -21452,7 +21477,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 15, "2010": 15},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -21892,7 +21918,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 60, "2010": 60},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 60, "2010": 60}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -22080,7 +22107,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 45, "2010": 45},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 45, "2010": 45}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -22268,7 +22296,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                                     'Cooling (Env.)': {}},
                                 'Commercial (Existing)': {
                                     'Cooling (Equip.)': {}, 'Ventilation': {},
-                                    'Lighting': {"2009": 15, "2010": 15},
+                                    'Lighting': {"All Fuels": {
+                                        "2009": 15, "2010": 15}},
                                     'Refrigeration': {}, 'Other': {},
                                     'Water Heating': {},
                                     'Computers and Electronics': {},
@@ -23218,7 +23247,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 34, "2010": 24},
+                        'Lighting': {"All Fuels": {"2009": 34, "2010": 24}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -23406,7 +23435,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 25.5, "2010": 18.0},
+                        'Lighting': {"All Fuels": {"2009": 25.5, "2010": 18}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -23594,7 +23623,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 8.5, "2010": 6},
+                        'Lighting': {"All Fuels": {"2009": 8.5, "2010": 6}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -23783,7 +23812,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0, "2010": 24},
+                        'Lighting': {"All Fuels": {"2009": 0, "2010": 24}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -23971,7 +24000,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0, "2010": 18},
+                        'Lighting': {"All Fuels": {"2009": 0, "2010": 18}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -24159,7 +24188,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0, "2010": 6},
+                        'Lighting': {"All Fuels": {"2009": 0, "2010": 6}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -24348,7 +24377,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 46, "2010": 44},
+                        'Lighting': {"All Fuels": {"2009": 46, "2010": 44}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -24536,7 +24565,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 34.5, "2010": 33},
+                        'Lighting': {"All Fuels": {"2009": 34.5, "2010": 33}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -24724,7 +24753,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 11.5, "2010": 11},
+                        'Lighting': {"All Fuels": {"2009": 11.5, "2010": 11}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -24914,8 +24943,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 34,
-                                     "2010": numpy.array([24, 26, 32])},
+                        'Lighting': {"All Fuels": {"2009": 34,
+                                     "2010": numpy.array([24, 26, 32])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -25103,8 +25132,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 25.5,
-                                     "2010": numpy.array([18, 19.5, 24])},
+                        'Lighting': {"All Fuels": {"2009": 25.5,
+                                     "2010": numpy.array([18, 19.5, 24])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -25292,8 +25321,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 8.5,
-                                     "2010": numpy.array([6, 6.5, 8])},
+                        'Lighting': {"All Fuels": {"2009": 8.5,
+                                     "2010": numpy.array([6, 6.5, 8])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -25482,8 +25511,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0,
-                                     "2010": numpy.array([24, 20, 12])},
+                        'Lighting': {"All Fuels": {"2009": 0,
+                                     "2010": numpy.array([24, 20, 12])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -25671,8 +25700,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0,
-                                     "2010": numpy.array([18, 15, 9])},
+                        'Lighting': {"All Fuels": {"2009": 0,
+                                     "2010": numpy.array([18, 15, 9])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -25860,8 +25889,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 0,
-                                     "2010": numpy.array([6, 5, 3])},
+                        'Lighting': {"All Fuels": {"2009": 0,
+                                     "2010": numpy.array([6, 5, 3])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -26050,8 +26079,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 46,
-                                     "2010": numpy.array([44, 44, 42])},
+                        'Lighting': {"All Fuels": {"2009": 46,
+                                     "2010": numpy.array([44, 44, 42])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -26239,8 +26268,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 34.5,
-                                     "2010": numpy.array([33, 33, 31.5])},
+                        'Lighting': {"All Fuels": {"2009": 34.5,
+                                     "2010": numpy.array([33, 33, 31.5])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},
@@ -26428,8 +26457,8 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                         'Cooling (Env.)': {}},
                     'Commercial (Existing)': {
                         'Cooling (Equip.)': {}, 'Ventilation': {},
-                        'Lighting': {"2009": 11.5,
-                                     "2010": numpy.array([11, 11, 10.5])},
+                        'Lighting': {"All Fuels": {"2009": 11.5,
+                                     "2010": numpy.array([11, 11, 10.5])}},
                         'Refrigeration': {}, 'Other': {},
                         'Water Heating': {},
                         'Computers and Electronics': {},

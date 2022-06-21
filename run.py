@@ -2639,7 +2639,7 @@ class Engine(object):
                 for var_sub in ["baseline", "efficient", "savings"]:
                     adj_out_break["base fuel"][var][var_sub] = \
                         m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                            var][var_sub][out_cz][out_bldg][out_eu]
+                            var][var_sub][out_cz][out_bldg][out_eu]["All Fuels"]
                 # No adjustment to efficient results required to account for
                 # fuel splits
                 adj_out_break["efficient fuel splits"][var] = {
