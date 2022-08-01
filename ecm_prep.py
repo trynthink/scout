@@ -5092,22 +5092,34 @@ class Measure(object):
                         if bldg_name_chk == "residential":
                             tech_name_chk_b, tech_name_chk_e = (
                                 mskeys[-2] for n in range(2))
-                        # Commercial case; map technology name to small and
-                        # large refrigeration categories used in the
-                        # refrigerants data; pull identical refrigerant
-                        # data for baseline and efficient cases
+                        # Commercial case; centralized refrigeration is
+                        # anchored on supermarket display cases (compressor
+                        # racks/condensers are included in EIA's display case
+                        # estimates to avoid double counting); all other
+                        # commercial refrigeration equipment has dedicated
+                        # data in the refigerants input file
                         else:
-                            if mskeys[-2] in [
-                                "Commercial Refrigerated Vending Machines",
-                                "Commercial Beverage Merchandisers",
-                                "Commercial Ice Machines",
+                            if mskeys[-2] == \
+                                    "Commercial Supermarket Display Cases":
+                                tech_name_chk_b, tech_name_chk_e = (
+                                    "Centralized refrigeration" for
+                                    n in range(2))
+                            elif mskeys[-2] in [
+                                "Commercial Walk-In Freezers",
+                                "Commercial Walk-In Refrigerators",
+                                "Commercial Reach-In Refrigerators",
                                 "Commercial Reach-In Freezers",
-                                    "Commercial Reach-In Refrigerators"]:
+                                "Commercial Ice Machines",
+                                "Commercial Beverage Merchandisers",
+                                "Commercial Refrigerated Vending Machines"
+                                    ]:
                                 tech_name_chk_b, tech_name_chk_e = (
-                                    "refrigeration - small" for n in range(2))
+                                    mskeys[-2] for n in range(2))
                             else:
-                                tech_name_chk_b, tech_name_chk_e = (
-                                    "refrigeration - large" for n in range(2))
+                                raise ValueError(
+                                    "Unexpected commercial refrigeration "
+                                    "technology encountered for segment " +
+                                    mskeys)
                         zero_b_r_flag, zero_m_r_flag = (
                             False for n in range(2))
                     else:
@@ -7897,35 +7909,9 @@ class Measure(object):
                     diffuse_frac = stock_total_hp_convert_frac
                     # Fraction of total converted stock that was
                     # converted in the current year
-<<<<<<< HEAD
                     if stock_total_hp_convert[yr] != 0:
                         comp_frac_diffuse = stock_comp_hp_convert[yr] / \
                             stock_total_hp_convert[yr]
-=======
-                    if diffuse_frac != 1:
-                        if stock_total_hp_convert[yr] != 0:
-                            comp_frac_diffuse = stock_comp_hp_convert[yr] / \
-                                stock_total_hp_convert[yr]
-                        else:
-                            comp_frac_diffuse = 0
-                    # If full cumulative conversion was achieved
-                    elif adopt_scheme != "Technical potential":
-                        # Achieved in the current year; set to the fraction of
-                        # total converted stock that was converted in the
-                        # current year; if no additional stock was converted
-                        # (current year not great than previou), set to zero
-                        if yr == self.handyvars.aeo_years[0]:
-                            comp_frac_diffuse = 1
-                        elif (stock_total_hp_convert[str(int(yr) - 1)] <
-                                stock_total_hp_convert[yr]):
-                            comp_frac_diffuse = (
-                                stock_total_hp_convert[yr] -
-                                stock_total_hp_convert[str(int(yr) - 1)]) / \
-                                stock_total_hp_convert[yr]
-                        # Achieved in a previous year; set to zero
-                        else:
-                            comp_frac_diffuse = 0
->>>>>>> 73f62ae (Add tests of fugitive refrigerant emissions)
                     else:
                         comp_frac_diffuse = 0
                 # Case where the measure's microsegment is being eroded
