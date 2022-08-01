@@ -5018,22 +5018,34 @@ class Measure(object):
                         if bldg_name_chk == "residential":
                             tech_name_chk_b, tech_name_chk_e = (
                                 mskeys[-2] for n in range(2))
-                        # Commercial case; map technology name to small and
-                        # large refrigeration categories used in the
-                        # refrigerants data; pull identical refrigerant
-                        # data for baseline and efficient cases
+                        # Commercial case; centralized refrigeration is
+                        # anchored on supermarket display cases (compressor
+                        # racks/condensers are included in EIA's display case
+                        # estimates to avoid double counting); all other
+                        # commercial refrigeration equipment has dedicated
+                        # data in the refigerants input file
                         else:
-                            if mskeys[-2] in [
-                                "Commercial Refrigerated Vending Machines",
-                                "Commercial Beverage Merchandisers",
-                                "Commercial Ice Machines",
+                            if mskeys[-2] == \
+                                    "Commercial Supermarket Display Cases":
+                                tech_name_chk_b, tech_name_chk_e = (
+                                    "Centralized refrigeration" for
+                                    n in range(2))
+                            elif mskeys[-2] in [
+                                "Commercial Walk-In Freezers",
+                                "Commercial Walk-In Refrigerators",
+                                "Commercial Reach-In Refrigerators",
                                 "Commercial Reach-In Freezers",
-                                    "Commercial Reach-In Refrigerators"]:
+                                "Commercial Ice Machines",
+                                "Commercial Beverage Merchandisers",
+                                "Commercial Refrigerated Vending Machines"
+                                    ]:
                                 tech_name_chk_b, tech_name_chk_e = (
-                                    "refrigeration - small" for n in range(2))
+                                    mskeys[-2] for n in range(2))
                             else:
-                                tech_name_chk_b, tech_name_chk_e = (
-                                    "refrigeration - large" for n in range(2))
+                                raise ValueError(
+                                    "Unexpected commercial refrigeration "
+                                    "technology encountered for segment " +
+                                    mskeys)
                         zero_b_r_flag, zero_m_r_flag = (
                             False for n in range(2))
                     else:
