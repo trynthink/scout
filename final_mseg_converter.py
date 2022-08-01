@@ -414,7 +414,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                         base_dict[k] = (base_dict[k] +
                                         add_dict[k2] * convert_fact)
         else:
-            raise(KeyError('Merge keys do not match!'))
+            raise (KeyError('Merge keys do not match!'))
 
     # Return a single dict representing sum of values of original two dicts
     return base_dict
@@ -502,7 +502,7 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
                                       (cz_number + 1), cd.cdivdict, cd_list,
                                       res_convert_array, com_convert_array)
             else:
-                raise(KeyError("Census division name not found in dict keys!"))
+                raise (KeyError("Census division name not found in dict keys!"))
 
         # Once fully updated with the data from all census divisions,
         # write the resulting data to a new variable and update the
