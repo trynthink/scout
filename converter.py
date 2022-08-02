@@ -983,7 +983,6 @@ if __name__ == '__main__':
               'BY THIS FUNCTION. PLEASE UPDATE THOSE FIELDS MANUALLY.\n')
 
     else:
-
         # Set converter file variable to EMM region file
         conv_file = 'emm_region_emissions_prices.json'
         # Load file
