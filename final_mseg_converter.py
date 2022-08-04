@@ -337,7 +337,8 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
         # an unmodified zero in certain building and fuel type combinations
         if k == k2 and not (
             cpl and (
-                (k == 'other' and not isinstance(i, dict)) or k == 'unspecified')):
+                (k == 'other' and not isinstance(i, dict)) or
+                k == 'unspecified')):
             # Identify appropriate census division to custom region
             # conversion weighting factor array as a function of building
             # type; k and k2 correspond to the current top level/parent key,
