@@ -22,44 +22,44 @@
   "energy_efficiency": 3.9,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Typical HPWH COP in 2017 (high efficiency not available)",
+    "notes": "Typical HPWH COP in 2020 (high efficiency not available)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 126,
+      "pages": 127,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "installed_cost": 298.64,
   "cost_units": "2017$/kBtu/h water heating",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2017 divided by output capacity of 170.607 kBtu/h (50kW)",
+    "notes": "Typical installed cost in 2020 divided by output capacity of 170.607 kBtu/h (50kW)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 126,
+      "pages": 127,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "High efficiency average lifetime in 2017",
+    "notes": "High efficiency average lifetime in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
-      "pages": 126,
+      "pages": 127,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Highest efficiency commercial heat pump water heater in 2017",
+  "_description": "Highest efficiency commercial heat pump water heater in 2020",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

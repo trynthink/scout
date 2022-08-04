@@ -5513,6 +5513,9 @@ class Measure(object):
                         # Ceiling fan maps to cooling load shape
                         elif mskeys[4] == "ceiling fan":
                             eu = "cooling"
+                        # Clothes drying technology maps to clothes drying
+                        elif mskeys[4] == "drying":
+                            eu = "clothes drying"
                         # Other end use maps to various load shapes
                         elif mskeys[4] == "other":
                             # Dishwasher technology maps to dishwasher
@@ -5521,9 +5524,6 @@ class Measure(object):
                             # Clothes washing tech. maps to clothes washing
                             elif mskeys[5] == "clothes washing":
                                 eu = "clothes washing"
-                            # Clothes drying technology maps to clothes drying
-                            elif mskeys[5] == "clothes drying":
-                                eu = "clothes drying"
                             # Pool heaters/pumps map to pool heaters/pumps
                             elif mskeys[5] == "pool heaters and pumps":
                                 eu = "pool heaters and pumps"
@@ -5594,7 +5594,12 @@ class Measure(object):
                     elif mskeys[2] == "health care":
                         eplus_bldg_wts = {"Hospital": 1}
             else:
-                eplus_bldg_wts = {"ResStockSingleFamily": 1}
+                if mskeys[2] == "single family home":
+                    eplus_bldg_wts = {"SF": 1}
+                elif mskeys[2] == "multi family home":
+                    eplus_bldg_wts = {"MF": 1}
+                else:
+                    eplus_bldg_wts = {"MH": 1}
             # Check to ensure that building type weighting factors sum to 1
             if round(sum([x[1] for x in eplus_bldg_wts.items()]), 2) != 1:
                 raise ValueError(
@@ -5801,15 +5806,11 @@ class Measure(object):
         # are broken out by) that map to the current Scout building type
         for bldg in eplus_bldg_wts.keys():
             # Find the appropriate key in the load shape information for the
-            # current EnergyPlus building type; in the residential sector,
-            # there is currently no building type breakout, set key to None
-            if bldg_sect == "commercial":
-                load_fact_bldg_key = [
+            # current EnergyPlus building type
+            load_fact_bldg_key = [
                     x for x in load_fact.keys() if (bldg in load_fact[x][
                         "represented building types"] or load_fact[x][
                         "represented building types"] == "all")][0]
-            else:
-                load_fact_bldg_key = "SFD Home"
 
             # Ensure that all applicable ASHRAE climate zones are represented
             # in the keys for time sensitive metrics data; if a zone is not
@@ -5855,31 +5856,24 @@ class Measure(object):
                 # and ASHRAE/IECC climate to Scout building and EMM region,
                 # and set the appropriate baseline load shape (8760 hourly
                 # fractions of annual load)
+                # Set the weighting factor; note EPlus/Scout building types map
+                # 1:1 for residential and thus no building type weighting is
+                # necessary here
                 if bldg_sect == "commercial":
-                    # Set the weighting factor
                     emm_adj_wt = eplus_bldg_wts[bldg] * cz[1]
-                    # Set the baseline load shape
-
-                    # Handle case where the load shape is not broken out by
-                    # climate zone
-                    try:
-                        base_load_hourly = load_fact[
-                            load_fact_bldg_key]["load shape"][cz[0]]
-                    except (KeyError, TypeError):
-                        base_load_hourly = load_fact[
-                            load_fact_bldg_key]["load shape"]
                 else:
-                    # Set the weighting factor
                     emm_adj_wt = cz[1]
-                    # Set the baseline load shape (8760 hourly fractions of
-                    # annual load)
 
-                    # Handle case where the load shape is not broken out by
-                    # climate zone
-                    try:
-                        base_load_hourly = load_fact[cz[0]]
-                    except (KeyError, TypeError):
-                        base_load_hourly = load_fact
+                # Set the baseline load shape
+
+                # Handle case where the load shape is not broken out by
+                # climate zone
+                try:
+                    base_load_hourly = load_fact[
+                        load_fact_bldg_key]["load shape"][cz[0]]
+                except (KeyError, TypeError):
+                    base_load_hourly = load_fact[
+                        load_fact_bldg_key]["load shape"]
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = copy.deepcopy(base_load_hourly)
