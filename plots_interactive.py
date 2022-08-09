@@ -11,6 +11,7 @@
 import sys, getopt
 import os.path
 from plots_utilities import ECM_PREP
+from plots_utilities import ECM_RESULTS
 
 
 ################################################################################
@@ -51,9 +52,9 @@ if __name__ == "__main__":
             print(help_usage)
             print(help_options)
             sys.exit()
-        elif opt in ("-r", "--ecm_results"):
+        elif opt in ("--ecm_results"):
             ecm_results = arg
-        elif opt in ("-p", "--ecm_prep"):
+        elif opt in ("--ecm_prep"):
             ecm_prep = arg
         elif opt in ("-d", "--debug"):
             debug = True
@@ -67,20 +68,27 @@ if __name__ == "__main__":
         print(f"{ecm_results} can not be reached or does not exist.")
         sys.exit(1)
 
+    ############################################################################
     # Import the Data sets
     print(f"Importing data from {ecm_prep}")
     ecm_prep = ECM_PREP(path = ecm_prep)
-    print(ecm_prep.info())
-    print(f"\n\necm_prep.lifetime_baseline:\n {ecm_prep.lifetime_baseline}")
-    print(f"\n\necm_prep.lifetime_measure:\n {ecm_prep.lifetime_measure}")
-    print(f"\n\necm_prep.stock:\n {ecm_prep.stock}")
-    print(f"\n\necm_prep.master_mseg:\n {ecm_prep.master_mseg}")
-    print(f"\n\necm_prep.master_mseg_cost:\n {ecm_prep.master_mseg_cost}")
-    print(f"\n\necm_prep.mseg_out_break:\n {ecm_prep.mseg_out_break}")
+    print(ecm_prep)
 
     print(f"Importing data from {ecm_results}")
-    ecm_results
+    ecm_results = ECM_RESULTS(path = ecm_results)
 
+    print(ecm_results)
+
+    ############################################################################
+    # build useful things for ui
+    #ecms = [{"label" : l, "value" : l} for l in set(ecm_results.financial_metrics.ecm)]
+    #years = [y for y in set(ecm_results.mas_by_category.year)]
+    #years.sort()
+
+    ############################################################################
+    # run the dash app
+    #print("Launching dash app")
+    #app.run_server(port = port, debug = debug)
 
 
 
