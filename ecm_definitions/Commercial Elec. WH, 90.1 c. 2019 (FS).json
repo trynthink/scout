@@ -27,7 +27,7 @@
     }
   },
   "installed_cost": 63.09,
-  "cost_units": "2017$/kBtu/h heating",
+  "cost_units": "2017$/kBtu/h water heating",
   "installed_cost_source": {
     "notes": "Median of standard efficiency installed cost in 2017, divided by (18 kW * (3.412 kBtu/h/kW)), based on 18 kW input capacity per EIA data",
     "source_data": {
