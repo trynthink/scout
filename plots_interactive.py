@@ -10,8 +10,123 @@
 
 import sys, getopt
 import os.path
+import dash
+import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
+from dash import dcc
+from dash import html
+
 from plots_utilities import ECM_PREP
 from plots_utilities import ECM_RESULTS
+
+################################################################################
+# Define the Dash Application
+app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP])
+
+################################################################################
+# Define the Dash Application UI
+
+# styling the side bar and contents
+sidebar_style = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "24rem",
+    "padding": "2rem 1rem",
+    "background-color": "#f8f9fa",
+}
+
+# the styles for the main content position it to the right of the sidebar and
+# add some padding.
+content_style = {
+    "margin-left": "26rem",
+    "margin-right": "2rem",
+    "padding": "2rem 1rem",
+}
+
+# build the sidebar
+sidebar = html.Div(
+    [
+        html.H2("Scout Diagnostic Plots", className="display-4"),
+        html.Hr(),
+        dbc.Nav(
+            [
+                dbc.NavLink("Home", href="/", active="exact"),
+                dbc.NavLink("Financial Metrics",
+                    href="/financial_metrics", active="exact"),
+                dbc.NavLink("Cost Effective Savings",
+                    href="/cost_effective_savings", active="exact"),
+                dbc.NavLink("Total Savings",
+                    href="/total_savings", active="exact"),
+                dbc.NavLink("Competed vs Uncompeted",
+                    href="/cms_v_ums", active="exact"),
+            ],
+            vertical=True,
+            pills=True,
+        ),
+    ],
+    style=sidebar_style,
+)
+
+content = html.Div(id="page-content", style=content_style)
+
+app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+################################################################################
+# App Call Backs
+
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+def render_page_content(pathname):
+    if pathname == "/":
+        return home()
+    elif pathname == "/financial_metrics":
+        return financial_metrics()
+    elif pathname == "/cost_effective_savings":
+        return cost_effective_savings()
+    elif pathname == "/total_savings":
+        return total_savings()
+    elif pathname == "/cms_v_ums":
+        return cms_v_ums()
+    # If the user tries to reach a different page, return a 404 message
+    return dbc.Div(
+        [
+            html.H1("404: Not found", className="text-danger"),
+            html.Hr(),
+            html.P(f"The pathname {pathname} was not recognised.")
+        ]
+    )
+
+
+def home():
+    pg = html.Div([
+        html.P("A overview of what this application does goes here.")
+        ])
+    return pg
+
+def financial_metrics():
+    pg = html.Div([
+        html.H1("Financial Metrics")
+        ])
+    return pg
+
+def cost_effective_savings():
+    pg = html.Div([
+        html.H1("Cost Effective Savings")
+        ])
+    return pg
+
+def total_savings():
+    pg = html.Div([
+        html.H1("Total Savings")
+        ])
+    return pg
+
+def cms_v_ums():
+    pg = html.Div([
+        html.H1("Competed v Uncompeted")
+        ])
+    return pg
 
 
 ################################################################################
@@ -72,12 +187,9 @@ if __name__ == "__main__":
     # Import the Data sets
     print(f"Importing data from {ecm_prep}")
     ecm_prep = ECM_PREP(path = ecm_prep)
-    print(ecm_prep)
 
     print(f"Importing data from {ecm_results}")
     ecm_results = ECM_RESULTS(path = ecm_results)
-
-    print(ecm_results)
 
     ############################################################################
     # build useful things for ui
@@ -87,8 +199,8 @@ if __name__ == "__main__":
 
     ############################################################################
     # run the dash app
-    #print("Launching dash app")
-    #app.run_server(port = port, debug = debug)
+    print("Launching dash app")
+    app.run_server(port = port, debug = debug)
 
 
 
