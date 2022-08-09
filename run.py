@@ -4619,105 +4619,105 @@ def main(base_dir):
                 base_dir, *handyfiles.comp_fracs_out), "w") as jso:
             json.dump(a_run.output_ecms_cfs, jso, indent=2)
 
-    # # Plot output data in R when using AIA climate regions OR when using EMM
-    # # regions to assess the public health benefits of efficiency
-    # if regions == "AIA" or (
-    #         regions == "EMM" and "PHC" in measures_objlist[0].name):
+    ## # Plot output data in R when using AIA climate regions OR when using EMM
+    ## # regions to assess the public health benefits of efficiency
+    ## if regions == "AIA" or (
+    ##         regions == "EMM" and "PHC" in measures_objlist[0].name):
 
-    # *** NOTE: Allow plots in all cases for now, possibly restrict for
-    # EMM-based measures in the future as above ***
+    ## *** NOTE: Allow plots in all cases for now, possibly restrict for
+    ## EMM-based measures in the future as above ***
 
-    # Do not plot for the case where a user has trimmed down the results
-    # (not all data required for the plots will be available)
-    if opts.trim_results is False:
-        # Notify user that the output data are being plotted
-        print('Plotting output data...', end="", flush=True)
+    ## Do not plot for the case where a user has trimmed down the results
+    ## (not all data required for the plots will be available)
+    #if opts.trim_results is False:
+    #    # Notify user that the output data are being plotted
+    #    print('Plotting output data...', end="", flush=True)
 
-        # Ensure presence of R/Perl in Windows user PATH environment variable
-        if sys.platform.startswith('win'):
-            if "R-" not in environ["PATH"]:
-                # Find the path to the user's Rscript.exe file
-                lookfor, r_path = ("R-", None)
-                for root, directory, files in walk(path.join("C:", sep)):
-                    if lookfor in root and "Rscript.exe" in files:
-                        r_path = root
-                        break
-                # If Rscript.exe was not found, yield warning; else add to PATH
-                if r_path is None:
-                    warnings.warn("R executable not found for plotting")
-                else:
-                    environ["PATH"] += pathsep + r_path
-            if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
-                # Find the path to the user's perl.exe file
-                lookfor, perl_path = (["Perl", "perl"], None)
-                for root, directory, files in walk(path.join("C:", sep)):
-                    if any([x in root for x in lookfor]) and \
-                            "perl.exe" in files:
-                        perl_path = root
-                        break
-                # If perl.exe was not found, yield warning; else add to PATH
-                if perl_path is None:
-                    warnings.warn(
-                        "Perl executable not found for plot XLSX writing")
-                else:
-                    environ["PATH"] += pathsep + perl_path
-        # If user's operating system can't be determined, yield warning message
-        elif sys.platform == "unknown":
-            warnings.warn("Could not determine OS for plotting routine")
+    #    # Ensure presence of R/Perl in Windows user PATH environment variable
+    #    if sys.platform.startswith('win'):
+    #        if "R-" not in environ["PATH"]:
+    #            # Find the path to the user's Rscript.exe file
+    #            lookfor, r_path = ("R-", None)
+    #            for root, directory, files in walk(path.join("C:", sep)):
+    #                if lookfor in root and "Rscript.exe" in files:
+    #                    r_path = root
+    #                    break
+    #            # If Rscript.exe was not found, yield warning; else add to PATH
+    #            if r_path is None:
+    #                warnings.warn("R executable not found for plotting")
+    #            else:
+    #                environ["PATH"] += pathsep + r_path
+    #        if all([x not in environ["PATH"] for x in ["perl", "Perl"]]):
+    #            # Find the path to the user's perl.exe file
+    #            lookfor, perl_path = (["Perl", "perl"], None)
+    #            for root, directory, files in walk(path.join("C:", sep)):
+    #                if any([x in root for x in lookfor]) and \
+    #                        "perl.exe" in files:
+    #                    perl_path = root
+    #                    break
+    #            # If perl.exe was not found, yield warning; else add to PATH
+    #            if perl_path is None:
+    #                warnings.warn(
+    #                    "Perl executable not found for plot XLSX writing")
+    #            else:
+    #                environ["PATH"] += pathsep + perl_path
+    #    # If user's operating system can't be determined, yield warning message
+    #    elif sys.platform == "unknown":
+    #        warnings.warn("Could not determine OS for plotting routine")
 
-        # Run R code
+    #    # Run R code
 
-        # Set variable used to hide subprocess output
-        FNULL = open(devnull, 'w')
+    #    # Set variable used to hide subprocess output
+    #    FNULL = open(devnull, 'w')
 
-        try:
-            # Define shell command for R plotting function
-            shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
-            # Execute R code
-            subprocess.run(shell_command, shell=True, check=True,
-                           stdout=FNULL, stderr=FNULL)
-            # Notify user of plotting outcome if no error is thrown
-            print("Plotting complete")
-        except AttributeError:
-            # If run module in subprocess throws AttributeError, try
-            # subprocess.call() (used in Python versions before 3.5)
-            try:
-                # Execute R code
-                subprocess.check_call(shell_command, shell=True,
-                                      stdout=FNULL, stderr=FNULL)
-                # Notify user of plotting outcome if no error is thrown
-                print("Plotting complete")
-            except subprocess.CalledProcessError:
-                try:
-                    # Define shell command for R plotting function - handle 3.5
-                    # bug in escaping spaces/apostrophes by adding --vanilla
-                    # command (recommended here: https://stackoverflow.com/
-                    # questions/50028090/is-this-a-bug-in-r-3-5)
-                    shell_command = 'Rscript --vanilla ' + \
-                        '"' + path.join(base_dir, 'plots_shell.R') + '"'
-                    # Execute R code
-                    subprocess.check_call(shell_command, shell=True)
-                    # Notify user of plotting outcome if no error is thrown
-                    print("Plotting complete")
-                except subprocess.CalledProcessError as err:
-                    print("Plotting failed to complete: ", err)
-        except subprocess.CalledProcessError:
-            # Else if run module in subprocess throws any other type of error,
-            # try handling a bug in R 3.5 where spaces/apostrophes in a
-            # directory name are not escaped
-            try:
-                # Define shell command for R plotting function - handle 3.5 bug
-                # in escaping spaces/apostrophes by adding --vanilla command
-                # (recommended here: https://stackoverflow.com/questions/
-                # 50028090/is-this-a-bug-in-r-3-5)
-                shell_command = 'Rscript --vanilla ' + \
-                    '"' + path.join(base_dir, 'plots_shell.R') + '"'
-                # Execute R code
-                subprocess.run(shell_command, shell=True, check=True)
-                # Notify user of plotting outcome if no error is thrown
-                print("Plotting complete")
-            except subprocess.CalledProcessError as err:
-                print("Plotting failed to complete: ", err)
+    #    try:
+    #        # Define shell command for R plotting function
+    #        shell_command = 'Rscript ' + path.join(base_dir, 'plots_shell.R')
+    #        # Execute R code
+    #        subprocess.run(shell_command, shell=True, check=True,
+    #                       stdout=FNULL, stderr=FNULL)
+    #        # Notify user of plotting outcome if no error is thrown
+    #        print("Plotting complete")
+    #    except AttributeError:
+    #        # If run module in subprocess throws AttributeError, try
+    #        # subprocess.call() (used in Python versions before 3.5)
+    #        try:
+    #            # Execute R code
+    #            subprocess.check_call(shell_command, shell=True,
+    #                                  stdout=FNULL, stderr=FNULL)
+    #            # Notify user of plotting outcome if no error is thrown
+    #            print("Plotting complete")
+    #        except subprocess.CalledProcessError:
+    #            try:
+    #                # Define shell command for R plotting function - handle 3.5
+    #                # bug in escaping spaces/apostrophes by adding --vanilla
+    #                # command (recommended here: https://stackoverflow.com/
+    #                # questions/50028090/is-this-a-bug-in-r-3-5)
+    #                shell_command = 'Rscript --vanilla ' + \
+    #                    '"' + path.join(base_dir, 'plots_shell.R') + '"'
+    #                # Execute R code
+    #                subprocess.check_call(shell_command, shell=True)
+    #                # Notify user of plotting outcome if no error is thrown
+    #                print("Plotting complete")
+    #            except subprocess.CalledProcessError as err:
+    #                print("Plotting failed to complete: ", err)
+    #    except subprocess.CalledProcessError:
+    #        # Else if run module in subprocess throws any other type of error,
+    #        # try handling a bug in R 3.5 where spaces/apostrophes in a
+    #        # directory name are not escaped
+    #        try:
+    #            # Define shell command for R plotting function - handle 3.5 bug
+    #            # in escaping spaces/apostrophes by adding --vanilla command
+    #            # (recommended here: https://stackoverflow.com/questions/
+    #            # 50028090/is-this-a-bug-in-r-3-5)
+    #            shell_command = 'Rscript --vanilla ' + \
+    #                '"' + path.join(base_dir, 'plots_shell.R') + '"'
+    #            # Execute R code
+    #            subprocess.run(shell_command, shell=True, check=True)
+    #            # Notify user of plotting outcome if no error is thrown
+    #            print("Plotting complete")
+    #        except subprocess.CalledProcessError as err:
+    #            print("Plotting failed to complete: ", err)
 
 
 if __name__ == '__main__':
