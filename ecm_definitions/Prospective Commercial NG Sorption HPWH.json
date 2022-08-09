@@ -34,7 +34,7 @@
     }
   },
   "installed_cost": 29.85,
-  "cost_units": "2013$/kBtu/h heating",
+  "cost_units": "2013$/kBtu/h water heating",
   "installed_cost_source": {
     "notes": "$7.14/FHR target cost premium * 100 FHR/unit * 1 unit/199 kBtu/h (assumed FHR is same as typical commercial gas-fired storage water heater tank size) + baseline cost of $26.26/kBtu/h (average $5225/unit / 199 kBtu/h for total installed cost of a 'typical' 2020 commercial electric resistance storage water heater with 'typical' 2020 input capacity)",
     "source_data": [{
