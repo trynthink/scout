@@ -1,0 +1,14 @@
+name: scout
+channels:
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - plotly
+  - dash
+  - pip
+  - pip:
+    - coverage
+    - tox
+    - dash_bootstrap_components
+    - tabulate
