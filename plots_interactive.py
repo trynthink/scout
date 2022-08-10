@@ -108,7 +108,7 @@ def financial_metrics():
     pg = html.Div([
         html.H1("Financial Metrics"),
         html.Div([
-            html.P("Select Type of Graphic:"),
+            html.Label("Select Type of Graphic:"),
             dcc.Dropdown(id = "fm_dropdown",
                 options = [
                     {"label" : "Aggregated overall All ECMs", "value" : "agg_ecms"},
@@ -128,12 +128,18 @@ def financial_metrics():
                 clearable = False)
             ],
             id = "ecm_dropdown_div",
-            style = {"min-width" : "500px", "display" : "none"}),
-        html.Div(
-            id = "fm-output-container",
-            style = {'width' : '90%', 'height': '900px'}
-            )
-        ])
+            style = {"min-width" : "500px", "display" : "none"}
+            ),
+        html.Hr(),
+        dcc.Loading(
+            id = "loading-fm-output-container",
+            children = html.Div(
+                    id = "fm-output-container",
+                    style = {'width' : '90%', 'height': '900px'}
+                    ),
+            type = "default")
+            ]
+        )
     return pg
 
 @app.callback(
@@ -142,9 +148,9 @@ def financial_metrics():
         )
 def show_hide_ecm_dropdown(value):
     if value == "each_ecm":
-        return {"display" : "block"}
+        return {"width" : "25%", "display" : "inline-block"}
     else:
-        return {"display" : "none"}
+        return {"width" : "25%", "display" : "none"}
 
 @app.callback(
         Output('fm-output-container', 'children'),
@@ -183,7 +189,12 @@ def cost_effective_savings():
             ),
         html.Div([
             html.Label("Year:"),
-            dcc.Dropdown(id = "year_dropdown", options = years, value = years[0], clearable = False)], id = "ecm_dropdown_div", style = {"min-width" : "500px", "display" : "inline-block"}),
+            dcc.Dropdown(id = "year_dropdown",
+                options = years,
+                value = years[0],
+                clearable = False)],
+            id = "year_dropdown_div",
+            style = {"min-width" : "500px", "display" : "inline-block"}),
         html.Div(id = "ces-output-container", style = {'width' : '90%', 'height': '900px'})
     ])
     return pg
