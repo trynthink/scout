@@ -135,7 +135,11 @@ def financial_metrics():
             id = "loading-fm-output-container",
             children = html.Div(
                     id = "fm-output-container",
-                    style = {'width' : '90%', 'height': '900px'}
+                    style = {
+                        'border': '1px solid black',
+                        'width' : '1200px',
+                        'height': '900px'
+                        }
                     ),
             type = "default")
             ]
@@ -178,11 +182,9 @@ def cost_effective_savings():
             html.Label("Impact:"),
             dcc.Dropdown(id = "ces_cce_dropdown",
                 options = [
-                    {"label" : "Avoided CO\u2082 Emissions (MMTons)", "value" : "carbon"},
-                    {"label" : "Energy Cost Savings (USD)",           "value" : "cost"},
-                    {"label" : "Energy Savings (MMBtu)",              "value" : "energy"}
+                    {"label" : i, "value" : i} for i in impact_dict.values()
                     ],
-                value = "carbon",
+                value = list(impact_dict.values())[0],
                 clearable = False
                 )],
             style = {"width" : "25%", "display" : "inline-block"}
@@ -195,10 +197,17 @@ def cost_effective_savings():
                 clearable = False)],
             id = "year_dropdown_div",
             style = {"min-width" : "500px", "display" : "inline-block"}),
+        html.Hr(),
         dcc.Loading(
             id = "loading-cse-output-container",
-            children = html.Div(id = "ces-output-container", style = {'width' :
-                '90%', 'height': '900px'}),
+            children = html.Div(
+                id = "ces-output-container",
+                style = {
+                    'border': '1px solid black',
+                    'width' : '1200px',
+                    'height': '900px'
+                    }
+                ),
             type = "default"
             )
     ])
@@ -210,15 +219,10 @@ def cost_effective_savings():
         Input('year_dropdown', 'value')
         )
 def update_ces_output(ces_dropdown_value, year_dropdown_value):
-    if ces_dropdown_value == "carbon":
-        m = "Avoided CO\u2082 Emissions (MMTons)"
-    elif ces_dropdown_value == "cost":
-        m = "Energy Cost Savings (USD)"
-    elif ces_dropdown_value == "energy":
-        m = "Energy Savings (MMBtu)"
-    else: 
-        m = None
-    return dcc.Graph(figure = ecm_results.generate_cost_effective_savings(m = m, year = year_dropdown_value))
+    return dcc.Graph(figure = ecm_results.generate_cost_effective_savings(
+        m = ces_dropdown_value,
+        year = year_dropdown_value)
+        )
 
 def total_savings():
     pg = html.Div([
@@ -227,11 +231,9 @@ def total_savings():
             html.Label("Impact:"),
             dcc.Dropdown(id = "savings_dropdown",
                 options = [
-                    {"label" : "Avoided CO\u2082 Emissions (MMTons)", "value" : "carbon"},
-                    {"label" : "Energy Cost Savings (USD)",           "value" : "cost"},
-                    {"label" : "Energy Savings (MMBtu)",              "value" : "energy"}
+                    {"label" : i, "value" : i} for i in impact_dict.values()
                     ],
-                value = "carbon",
+                value = list(impact_dict.values())[0],
                 clearable = False
                 )],
             style = {"width" : "25%", "display" : "inline-block"}
@@ -264,9 +266,16 @@ def total_savings():
             id = "savings_annual_cumulative_dropdown_div",
             style = {"min-width" : "400px", "display" : "inline-block"}
             ),
+        html.Hr(),
         dcc.Loading(
             id = "loading-savings-output-container",
-            children = html.Div(id = "savings-output-container", style = {'width' : '90%', 'height': '900px'}),
+            children = html.Div(
+                id = "savings-output-container",
+                style = {
+                    'border': '1px solid black',
+                    'width' : '1200px',
+                    'height': '900px'
+                    }),
             type = "default"
             )
         ])
@@ -279,20 +288,12 @@ def total_savings():
         Input("savings_annual_cumulative_dropdown", "value")
         )
 def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, savings_annual_cumulative_dropdown):
-    if savings_dropdown_value == "carbon":
-        m = "Avoided CO\u2082 Emissions (MMTons)"
-    elif savings_dropdown_value == "cost":
-        m = "Energy Cost Savings (USD)"
-    elif savings_dropdown_value == "energy":
-        m = "Energy Savings (MMBtu)"
-    else: 
-        m = None
 
     if savings_by_dropdown_value == "overall":
         savings_by_dropdown_value = None
 
     return dcc.Graph(figure = ecm_results.generate_total_savings(
-        m = m,
+        m = savings_dropdown_value,
         by = savings_by_dropdown_value,
         annual_or_cumulative = savings_annual_cumulative_dropdown
         ))
@@ -374,6 +375,22 @@ if __name__ == "__main__":
 
     years = [y for y in set(ecm_results.mas_by_category.year)]
     years.sort()
+
+    impacts = [i for i in set(ecm_results.mas_by_category.impact)]
+
+    impact_dict = {"carbon" : "", "cost" : "", "energy" : ""}
+    m = [x for x in impacts if x.startswith("Avoided CO\u2082 Emissions")]
+    assert len(m) == 1
+    impact_dict["carbon"] = m[0]
+
+    m = [x for x in impacts if x.startswith("Energy Cost Savings")]
+    assert len(m) == 1
+    impact_dict["cost"] = m[0]
+
+    m = [x for x in impacts if x.startswith("Energy Savings")]
+    assert len(m) == 1
+    impact_dict["energy"] = m[0]
+
 
     ############################################################################
     # run the dash app

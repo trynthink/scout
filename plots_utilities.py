@@ -457,27 +457,33 @@ class ECM_RESULTS:
     def generate_fm_agg_ecms(self, force = False):
         if (self.fm_agg_ecms is None) or (force):
             self.fm_agg_ecms =\
-                    px.line(data_frame = self.financial_metrics\
+                    px.line(
+                        data_frame = self.financial_metrics\
                             .groupby(["impact", "year"])\
                             .value\
                             .agg(["mean"])\
-                            .reset_index()
-                        , x = "year"
-                        , y = "mean"
-                        , title = "Mean Financial Metric Value by Year"
-                        , facet_col = "impact"
-                        , facet_col_wrap = 2
-                        , facet_col_spacing = 0.04
+                            .reset_index(),
+                        x = "year",
+                        y = "mean",
+                        title = "Mean Financial Metric Value by Year",
+                        facet_col = "impact",
+                        facet_col_wrap = 2,
+                        facet_col_spacing = 0.04,
+                        markers = True
                         )
             self.fm_agg_ecms.update_yaxes(
                     title = None,
                     matches = None,
-                    exponentformat = "e",
-                    showticklabels = True
+                    exponentformat = "B",
+                    showticklabels = True,
+                    gridcolor = "lightgrey"
                     )
-            #self.fm_agg_ecms.for_each_yaxis(
-            #        lambda yaxis: yaxis.update(showticklabels = True)
-            #        )
+            self.fm_agg_ecms.update_xaxes(
+                    title = None,
+                    tick0 = 2025,
+                    dtick = 5,
+                    gridcolor = "lightgrey"
+                    )
             self.fm_agg_ecms.for_each_annotation(
                     lambda a: a.update(text = a.text.split("=")[-1])
                     )
@@ -486,8 +492,10 @@ class ECM_RESULTS:
                     )
             self.fm_agg_ecms.update_layout(
                     autosize = False,
-                    width = 900,
-                    height = 900)
+                    width = 1175,
+                    height = 875,
+                    plot_bgcolor = "rgba(0, 0, 0, 0)"
+                    )
         return self.fm_agg_ecms
 
     ############################################################################
@@ -500,28 +508,80 @@ class ECM_RESULTS:
                 ecm = None
 
         if (ecm is None):
-            fig = px.line(data_frame = self.financial_metrics
-                    , x = "year"
-                    , y = "value"
-                    , color = "ecm"
-                    , facet_col = "impact"
-                    , facet_col_wrap = 2
+            fig = px.line(
+                    data_frame = self.financial_metrics,
+                    x = "year",
+                    y = "value",
+                    color = "ecm",
+                    facet_col = "impact",
+                    facet_col_wrap = 2,
+                    facet_col_spacing = 0.05,
+                    markers = True
                     )
-            fig.update_yaxes(matches = None, exponentformat = "e")
-            fig.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
-            fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
-            fig.update_layout(autosize = False, width = 900, height = 900)
+            fig.update_yaxes(
+                    title = None,
+                    matches = None,
+                    exponentformat = "B",
+                    showticklabels = True,
+                    gridcolor = "lightgrey"
+                    )
+            fig.update_xaxes(
+                    title = None,
+                    tick0 = 2025,
+                    dtick = 5,
+                    gridcolor = "lightgrey"
+                    )
+            fig.for_each_annotation(
+                    lambda a: a.update(text = a.text.split("=")[-1])
+                    )
+            fig.for_each_annotation(
+                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                    )
+            fig.update_layout(
+                    autosize = False,
+                    width = 1175,
+                    height = 875,
+                    plot_bgcolor = "rgba(0, 0, 0, 0)",
+                    legend = {
+                        "title" : "ECM"
+                        }
+                    )
         else:
-            fig = px.line(data_frame = self.financial_metrics[self.financial_metrics.ecm == ecm]
-                    , x = "year"
-                    , y = "value"
-                    , facet_col = "impact"
-                    , facet_col_wrap = 2
+            fig = px.line(
+                    data_frame =
+                      self.financial_metrics[self.financial_metrics.ecm == ecm],
+                    x = "year",
+                    y = "value",
+                    facet_col = "impact",
+                    facet_col_wrap = 2,
+                    facet_col_spacing = 0.04,
+                    markers = True
                     )
-            fig.update_yaxes(matches = None, exponentformat = "e")
-            fig.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
-            fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
-            fig.update_layout(autosize = False, width = 900, height = 900)
+            fig.update_yaxes(
+                    title = None,
+                    matches = None,
+                    exponentformat = "B",
+                    showticklabels = True,
+                    gridcolor = "lightgrey"
+                    )
+            fig.update_xaxes(
+                    title = None,
+                    tick0 = 2025,
+                    dtick = 5,
+                    gridcolor = "lightgrey"
+                    )
+            fig.for_each_annotation(
+                    lambda a: a.update(text = a.text.split("=")[-1])
+                    )
+            fig.for_each_annotation(
+                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                    )
+            fig.update_layout(
+                    autosize = False,
+                    width = 1175,
+                    height = 875,
+                    plot_bgcolor = "rgba(0, 0, 0, 0)"
+                    )
 
         return fig
 
@@ -550,26 +610,47 @@ class ECM_RESULTS:
                             on = ["ecm", "year"])
 
         fig = px.scatter(
-                    self.ces_data[(self.ces_data.year == year)]
-                , x = m
-                , y = "value"
-                , symbol = "building_class"
-                , color = "end_use"
-                , facet_col = "scenario"
-                , facet_row = "impact"
-                , hover_data = {
+                    self.ces_data[(self.ces_data.year == year)],
+                x = m,
+                y = "value",
+                symbol = "building_class",
+                color = "end_use",
+                facet_col = "scenario",
+                facet_row = "impact",
+                hover_data = {
                     "ecm": True,
                     m : True,
                     "value": True,
                     "end_use": True,
                     "building_class": True
-                    }
+                    },
+                symbol_sequence =
+                  ['circle', 'square', 'diamond', 'cross',
+                  'x', 'triangle-up', 'triangle-down']
                 )
-        fig.update_yaxes(title_text = "", matches = None, exponentformat = "e")
-        fig.update_xaxes(exponentformat = "e")
-        fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-        fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
-        fig.update_layout(autosize = False, width = 1200, height = 800)
+
+        fig.update_yaxes(
+                title_text = "",
+                matches = None,
+                exponentformat = "B",
+                gridcolor = "lightgrey"
+                )
+        fig.update_xaxes(
+                exponentformat = "B",
+                gridcolor = "lightgrey"
+                )
+        fig.for_each_annotation(
+                lambda a: a.update(text=a.text.split("=")[-1])
+                )
+        fig.for_each_annotation(
+                lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                )
+        fig.update_layout(
+                autosize = False,
+                width = 1175,
+                height = 875,
+                plot_bgcolor = "rgba(0, 0, 0, 0)"
+                )
 
         return fig
 
@@ -592,19 +673,53 @@ class ECM_RESULTS:
         c_data["total"] = "cumulative"
         plot_data = pd.concat([a_data, c_data])
 
+        # legend title
+        if by is not None:
+            lgnd_title = by.replace("_", " ").title()
+        else:
+            lgnd_title = None
+
         fig = px.line(
-                  plot_data[((plot_data.impact == m) & (plot_data.total == annual_or_cumulative))]
-                , x = "year"
-                , y = "value"
-                , color = by
-                , facet_col = "scenario"
-                , markers = True
+                  plot_data[((plot_data.impact == m) &
+                             (plot_data.total == annual_or_cumulative))],
+                  x = "year",
+                  y = "value",
+                  color = by,
+                  facet_col = "scenario",
+                  markers = True
                 )
         fig.update_traces(mode = "lines+markers")
-        fig.update_yaxes(exponentformat = "e", title = m)
-        fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-        fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
-        fig.update_layout(autosize = False, width = 1200, height = 800)
+        fig.update_yaxes(
+                exponentformat = "B",
+                title = None,
+                gridcolor = "lightgrey"
+                )
+        fig.update_xaxes(
+                tick0 = 2025,
+                dtick = 5,
+                title = None,
+                gridcolor = "lightgrey"
+                )
+        fig.for_each_annotation(
+                lambda a: a.update(text=a.text.split("=")[-1])
+                )
+        fig.for_each_annotation(
+                lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                )
+        fig.update_layout(
+                title = m,
+                autosize = False,
+                width = 1175,
+                height = 875,
+                plot_bgcolor = "rgba(0, 0, 0, 0)",
+                legend = {
+                    "x" : 0.02,
+                    "y" : 0.98,
+                    "title" : lgnd_title,
+                    "bordercolor" : "black",
+                    "borderwidth" : 2
+                    }
+                )
 
         return fig
 
