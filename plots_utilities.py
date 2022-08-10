@@ -557,6 +557,41 @@ class ECM_RESULTS:
 
         return fig
 
+    ############################################################################
+    def generate_total_savings(self, m, by, annual_or_cumulative, force = False):
+        
+        a_data = self.mas_by_category\
+            .sort_values(by = ["scenario", "impact", "year"])\
+            .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
+            .agg({"value" : "sum"})\
+            .reset_index()
+        c_data = self.mas_by_category\
+            .sort_values(by = ["scenario", "impact", "year"])\
+            .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
+            .agg({"value" : "sum"})\
+            .groupby(level = [j for j in ["scenario", "impact", by] if j is not None])\
+            .cumsum()\
+            .reset_index()
+        a_data["total"] = "annual"
+        c_data["total"] = "cumulative"
+        plot_data = pd.concat([a_data, c_data])
+
+        fig = px.line(
+                  plot_data[((plot_data.impact == m) & (plot_data.total == annual_or_cumulative))]
+                , x = "year"
+                , y = "value"
+                , color = by
+                , facet_col = "scenario"
+                , markers = True
+                )
+        fig.update_traces(mode = "lines+markers")
+        fig.update_yaxes(exponentformat = "e", title = m)
+        fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+        fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
+        fig.update_layout(autosize = False, width = 1200, height = 800)
+
+        return fig
+
 
 
     ############################################################################

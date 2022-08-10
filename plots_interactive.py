@@ -206,9 +206,76 @@ def update_ces_output(ces_dropdown_value, year_dropdown_value):
 
 def total_savings():
     pg = html.Div([
-        html.H1("Total Savings")
+        html.H1("Total Savings"),
+        html.Div([
+            html.Label("Impact:"),
+            dcc.Dropdown(id = "savings_dropdown",
+                options = [
+                    {"label" : "Avoided CO\u2082 Emissions (MMTons)", "value" : "carbon"},
+                    {"label" : "Energy Cost Savings (USD)",           "value" : "cost"},
+                    {"label" : "Energy Savings (MMBtu)",              "value" : "energy"}
+                    ],
+                value = "carbon",
+                clearable = False
+                )],
+            style = {"width" : "25%", "display" : "inline-block"}
+            ),
+        html.Div([
+            html.Label("Aggregate by:"),
+            dcc.Dropdown(id = "savings_by_dropdown",
+            options = [
+                {"label" : "Overall",           "value" : "overall"},
+                {"label" : "By Region ",        "value" : "region"},
+                {"label" : "By Building Class", "value" : "building_class"},
+                {"label" : "By End Use",        "value" : "end_use"}
+                ],
+            value = "overall",
+            clearable = False
+            )],
+            id = "savings_by_dropdown_div",
+            style = {"min-width" : "400px", "display" : "inline-block"}
+            ),
+        html.Div([
+            html.Label("Annual or Cumulative Totals?"),
+            dcc.Dropdown(id = "savings_annual_cumulative_dropdown",
+            options = [
+                {"label" : "Annual Totals",           "value" : "annual"},
+                {"label" : "Cumulative Totals",        "value" : "cumulative"}
+                ],
+            value = "annual",
+            clearable = False
+            )],
+            id = "savings_annual_cumulative_dropdown_div",
+            style = {"min-width" : "400px", "display" : "inline-block"}
+            ),
+        html.Div(id = "savings-output-container", style = {'width' : '90%', 'height': '900px'})
         ])
     return pg
+
+@app.callback(
+        Output("savings-output-container", 'children'),
+        Input("savings_dropdown", "value"),
+        Input("savings_by_dropdown", "value"),
+        Input("savings_annual_cumulative_dropdown", "value")
+        )
+def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, savings_annual_cumulative_dropdown):
+    if savings_dropdown_value == "carbon":
+        m = "Avoided CO\u2082 Emissions (MMTons)"
+    elif savings_dropdown_value == "cost":
+        m = "Energy Cost Savings (USD)"
+    elif savings_dropdown_value == "energy":
+        m = "Energy Savings (MMBtu)"
+    else: 
+        m = None
+
+    if savings_by_dropdown_value == "overall":
+        savings_by_dropdown_value = None
+
+    return dcc.Graph(figure = ecm_results.generate_total_savings(
+        m = m,
+        by = savings_by_dropdown_value,
+        annual_or_cumulative = savings_annual_cumulative_dropdown
+        ))
 
 def cms_v_ums():
     pg = html.Div([
