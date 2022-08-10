@@ -623,10 +623,7 @@ class ECM_RESULTS:
                     "value": True,
                     "end_use": True,
                     "building_class": True
-                    },
-                symbol_sequence =
-                  ['circle', 'square', 'diamond', 'cross',
-                  'x', 'triangle-up', 'triangle-down']
+                    }
                 )
 
         fig.update_yaxes(
@@ -649,7 +646,8 @@ class ECM_RESULTS:
                 autosize = False,
                 width = 1175,
                 height = 875,
-                plot_bgcolor = "rgba(0, 0, 0, 0)"
+                plot_bgcolor = "rgba(0, 0, 0, 0)",
+                showlegend = False
                 )
 
         return fig

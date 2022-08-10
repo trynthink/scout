@@ -187,7 +187,7 @@ def cost_effective_savings():
                 value = list(impact_dict.values())[0],
                 clearable = False
                 )],
-            style = {"width" : "25%", "display" : "inline-block"}
+            style = {"width" : "300px", "display" : "inline-block"}
             ),
         html.Div([
             html.Label("Year:"),
@@ -196,6 +196,28 @@ def cost_effective_savings():
                 value = years[0],
                 clearable = False)],
             id = "year_dropdown_div",
+            style = {"min-width" : "125px", "display" : "inline-block"}),
+        html.Br(),
+        html.Div([
+            html.Label("Included End Uses:"),
+            dcc.Dropdown(id = "end_uses_dropdown",
+                options = [{"label" : l, "value" : l} for l in end_uses],
+                value = end_uses,
+                multi = True,
+                clearable = False
+                )],
+            id = "end_uses_dropdown_div",
+            style = {"min-width" : "500px", "display" : "inline-block"}),
+        html.Br(),
+        html.Div([
+            html.Label("Included Building Classes:"),
+            dcc.Dropdown(id = "building_classes_dropdown",
+                options = [{"label" : l, "value" : l} for l in building_classes],
+                value = building_classes,
+                multi = True,
+                clearable = False
+                )],
+            id = "building_classes_dropdown_div",
             style = {"min-width" : "500px", "display" : "inline-block"}),
         html.Hr(),
         dcc.Loading(
@@ -390,6 +412,12 @@ if __name__ == "__main__":
     m = [x for x in impacts if x.startswith("Energy Savings")]
     assert len(m) == 1
     impact_dict["energy"] = m[0]
+
+    end_uses = list(set(ecm_results.mas_by_category.end_use))
+    end_uses.sort()
+
+    building_classes = list(set(ecm_results.mas_by_category.building_class))
+    building_classes.sort()
 
 
     ############################################################################
