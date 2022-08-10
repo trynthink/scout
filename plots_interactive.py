@@ -167,9 +167,42 @@ def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
 
 def cost_effective_savings():
     pg = html.Div([
-        html.H1("Cost Effective Savings")
-        ])
+        html.H1("Cost Effective Savings"),
+        html.Div([
+            html.Label("Impact:"),
+            dcc.Dropdown(id = "ces_cce_dropdown",
+                options = [
+                    {"label" : "Avoided CO\u2082 Emissions (MMTons)", "value" : "carbon"},
+                    {"label" : "Energy Cost Savings (USD)",           "value" : "cost"},
+                    {"label" : "Energy Savings (MMBtu)",              "value" : "energy"}
+                    ],
+                value = "carbon",
+                clearable = False
+                )],
+            style = {"width" : "25%", "display" : "inline-block"}
+            ),
+        html.Div([
+            html.Label("Year:"),
+            dcc.Dropdown(id = "year_dropdown", options = years, value = years[0], clearable = False)], id = "ecm_dropdown_div", style = {"min-width" : "500px", "display" : "inline-block"}),
+        html.Div(id = "ces-output-container", style = {'width' : '90%', 'height': '900px'})
+    ])
     return pg
+
+@app.callback(
+        Output('ces-output-container', 'children'),
+        Input('ces_cce_dropdown', 'value'),
+        Input('year_dropdown', 'value')
+        )
+def update_ces_output(ces_dropdown_value, year_dropdown_value):
+    if ces_dropdown_value == "carbon":
+        m = "Avoided CO\u2082 Emissions (MMTons)"
+    elif ces_dropdown_value == "cost":
+        m = "Energy Cost Savings (USD)"
+    elif ces_dropdown_value == "energy":
+        m = "Energy Savings (MMBtu)"
+    else: 
+        m = None
+    return dcc.Graph(figure = ecm_results.generate_cost_effective_savings(m = m, year = year_dropdown_value))
 
 def total_savings():
     pg = html.Div([
@@ -250,7 +283,8 @@ if __name__ == "__main__":
     # build useful things for ui
     ecms = [{"label" : l, "value" : l} 
             for l in set(ecm_results.financial_metrics.ecm)]
-    years = [y for y in set(ecm_results.mas_by_category.year)].sort()
+    years = [y for y in set(ecm_results.mas_by_category.year)]
+    years.sort()
 
     ############################################################################
     # run the dash app
