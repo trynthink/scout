@@ -467,11 +467,27 @@ class ECM_RESULTS:
                         , title = "Mean Financial Metric Value by Year"
                         , facet_col = "impact"
                         , facet_col_wrap = 2
+                        , facet_col_spacing = 0.04
                         )
-            self.fm_agg_ecms.update_yaxes(matches = None, exponentformat = "e")
-            self.fm_agg_ecms.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
-            self.fm_agg_ecms.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
-            self.fm_agg_ecms.update_layout(autosize = False, width = 900, height = 900)
+            self.fm_agg_ecms.update_yaxes(
+                    title = None,
+                    matches = None,
+                    exponentformat = "e",
+                    showticklabels = True
+                    )
+            #self.fm_agg_ecms.for_each_yaxis(
+            #        lambda yaxis: yaxis.update(showticklabels = True)
+            #        )
+            self.fm_agg_ecms.for_each_annotation(
+                    lambda a: a.update(text = a.text.split("=")[-1])
+                    )
+            self.fm_agg_ecms.for_each_annotation(
+                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                    )
+            self.fm_agg_ecms.update_layout(
+                    autosize = False,
+                    width = 900,
+                    height = 900)
         return self.fm_agg_ecms
 
     ############################################################################
