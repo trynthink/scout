@@ -106,9 +106,64 @@ def home():
 
 def financial_metrics():
     pg = html.Div([
-        html.H1("Financial Metrics")
+        html.H1("Financial Metrics"),
+        html.Div([
+            html.P("Select Aggregation Level:"),
+            dcc.Dropdown(id = "fm_dropdown",
+                options = [
+                    {"label" : "Aggregated by Year", "value" : "agg_year"},
+                    {"label" : "All ECMS", "value" : "all_ecms"},
+                    {"label" : "Select an ECM:", "value" : "each_ecm"}
+                    ],
+                value = "agg_year",
+                clearable = False
+                )],
+            style = {"width" : "25%", "display" : "inline-block"}
+            ),
+        html.Div([
+            html.Label("ECM:"),
+            dcc.Dropdown(id = "ecm_dropdown",
+                options = ecms,
+                value = ecms[0]["value"],
+                clearable = False)
+            ],
+            id = "ecm_dropdown_div",
+            style = {"min-width" : "500px", "display" : "none"}),
+        html.Div(
+            id = "fm-output-container",
+            style = {'width' : '90%', 'height': '900px'}
+            )
         ])
     return pg
+
+@app.callback(
+        Output(component_id = 'ecm_dropdown_div', component_property = "style"),
+        Input(component_id = 'fm_dropdown', component_property = 'value')
+        )
+def show_hide_ecm_dropdown(value):
+    if value == "each_ecm":
+        return {"display" : "block"}
+    else:
+        return {"display" : "none"}
+
+@app.callback(
+        Output('fm-output-container', 'children'),
+        Input('fm_dropdown', 'value'),
+        Input('ecm_dropdown', 'value')
+        )
+def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
+    if fm_dropdown_value == "agg_year":
+        return dcc.Graph(figure = ecm_results.generate_fm_agg_year())
+    elif fm_dropdown_value == "all_ecms":
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm())
+    elif fm_dropdown_value == "each_ecm":
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(ecm_dropdown_value))
+    else:
+        return "impressive, everything you did is wrong"
+
+
+
+
 
 def cost_effective_savings():
     pg = html.Div([
@@ -185,17 +240,17 @@ if __name__ == "__main__":
 
     ############################################################################
     # Import the Data sets
-    print(f"Importing data from {ecm_prep}")
-    ecm_prep = ECM_PREP(path = ecm_prep)
+    #print(f"Importing data from {ecm_prep}")
+    #ecm_prep = ECM_PREP(path = ecm_prep)
 
     print(f"Importing data from {ecm_results}")
     ecm_results = ECM_RESULTS(path = ecm_results)
 
     ############################################################################
     # build useful things for ui
-    #ecms = [{"label" : l, "value" : l} for l in set(ecm_results.financial_metrics.ecm)]
-    #years = [y for y in set(ecm_results.mas_by_category.year)]
-    #years.sort()
+    ecms = [{"label" : l, "value" : l} 
+            for l in set(ecm_results.financial_metrics.ecm)]
+    years = [y for y in set(ecm_results.mas_by_category.year)].sort()
 
     ############################################################################
     # run the dash app

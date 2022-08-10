@@ -22,6 +22,8 @@ import json
 import gzip
 import pandas as pd
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 
 ################################################################################
 def json_to_df(path = None, data = None):
@@ -272,8 +274,12 @@ class ECM_PREP:
 class ECM_RESULTS:
     def __init__(self, path):
 
-        self.emf_aggregation = None
+        ########################################################################
+        # define objects which will be generated conditionally
+        self.emf_aggregation = None # not currently in this version
         self.by_category_aggreation_vs_overall = None
+        
+        self.fm_agg_year = None # plotly figure, financial metrics
 
         ########################################################################
         # import and format results
@@ -409,7 +415,7 @@ class ECM_RESULTS:
         self.financial_metrics =\
                 financial_metrics.sort_values(by = ["ecm", "impact", "year"])
 
-
+    ############################################################################
     def  by_category_vs_overall(self, tol = 1e-8):
          mas = self.mas_by_category\
                  .groupby(["ecm", "scenario", "impact", "year"])\
@@ -438,20 +444,96 @@ class ECM_RESULTS:
          self.by_category_aggreation_vs_overall =\
                  {"Markets and Savings" : mas, "On-site Generation"  : osg}
 
+    ############################################################################
+    def generate_fm_agg_year(self, force = False):
+        if (self.fm_agg_year is None) or (force):
+            self.fm_agg_year =\
+                    px.line(data_frame = self.financial_metrics\
+                            .groupby(["impact", "year"])\
+                            .value\
+                            .agg(["mean"])\
+                            .reset_index()
+                        , x = "year"
+                        , y = "mean"
+                        , title = "Mean Financial Metric Value by Year"
+                        , facet_col = "impact"
+                        , facet_col_wrap = 2
+                        )
+            self.fm_agg_year.update_yaxes(matches = None, exponentformat = "e")
+            self.fm_agg_year.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
+            self.fm_agg_year.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
+            self.fm_agg_year.update_layout(autosize = False, width = 900, height = 900)
+        return self.fm_agg_year
+
+    ############################################################################
+    def generate_fm_by_ecm(self, ecm = None, force = False):
+        if (ecm is not None):
+            if (not any(self.financial_metrics.ecm == ecm)):
+                # warning ECM UNDEFINED, setting to None
+                # This logic is not needed for dash app, will be needed to deal
+                # with actual end users.
+                ecm = None
+
+        if (ecm is None):
+            fig = px.line(data_frame = self.financial_metrics
+                    , x = "year"
+                    , y = "value"
+                    , color = "ecm"
+                    , facet_col = "impact"
+                    , facet_col_wrap = 2
+                    )
+            fig.update_yaxes(matches = None, exponentformat = "e")
+            fig.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
+            fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
+            fig.update_layout(autosize = False, width = 900, height = 900)
+        else:
+            fig = px.line(data_frame = self.financial_metrics[self.financial_metrics.ecm == ecm]
+                    , x = "year"
+                    , y = "value"
+                    , facet_col = "impact"
+                    , facet_col_wrap = 2
+                    )
+            fig.update_yaxes(matches = None, exponentformat = "e")
+            fig.for_each_annotation(lambda a: a.update(text = a.text.split("=")[-1]))
+            fig.for_each_annotation(lambda a: a.update(text = a.text.replace(" (", "<br>(")))
+            fig.update_layout(autosize = False, width = 900, height = 900)
+
+        return fig
+
+    ############################################################################
     def info(self):
-        print("")
-        print("Data Sets (all pandas DataFrames)")
-        print("  * mas_by_category:    Markets and Savings (by Category)")
-        print("  * mas_overall:        Markets and Savings (Overall)")
-        print("  * financial_metrics:  Financial Metrics")
-        print("  * filter_variables:   Filter Variables")
-        print("  * osg_by_category:    On-site Generation (By Category)")
-        print("  * osg_overall:        On-site Generation (Overall)")
-        print("")
-        print("Methods")
-        print("  * by_category_vs_overall(tol = 1e-8):")
-        print("      - returns DataFrames showing the differences between the"+\
-                "By Category' and 'Overall' exceeding the tol(erance).")
+        info_str = """
+Objects:
+    * DataFrames
+      * mas_by_category:   Markets and Savings (by Category)
+      * mas_overall:       Markets and Savings (Overall)
+      * financial_metrics: Financial Metrics
+      * filter_variables:  Filter Variables
+      * osg_by_category:   On-site Generation (by Category)
+      * osg_overall:       On-site Generation (Overall)
+    * Graphics: generating functions need to be called at least once to define
+                these objects.
+      * fm_agg_year: a plotly object showing the annual summaries of each
+                     financial metric overall ECMs.
+
+Methods:
+    * info():
+      - Displays this info about the components of the class
+    * by_category_aggregation_vs_overall(tol = 1e-8):
+      - Returns a DataFrames showing the differences between the "by category"
+        and "Overall" value exceeding the given tol(erance).
+    * generate_fm_agg_year(force = False):
+      - generate a plotly object showing the annual summaries of each financial
+        metric overall all ECMs.  If the object already exists then nothing is
+        done, force the rebuild by setting `force = True`.
+        """
+        print(info_str)
+        #print("Methods")
+        #print("  * by_category_vs_overall(tol = 1e-8):")
+        #print("      - returns DataFrames showing the differences between the"+\
+        #        "By Category' and 'Overall' exceeding the tol(erance).")
+        #print("  * plot_fm_agg_year():")
+        #print("      - returns plotly object plotting ")
 
 ################################################################################
 #                                 End of File                                  #
