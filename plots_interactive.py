@@ -195,7 +195,12 @@ def cost_effective_savings():
                 clearable = False)],
             id = "year_dropdown_div",
             style = {"min-width" : "500px", "display" : "inline-block"}),
-        html.Div(id = "ces-output-container", style = {'width' : '90%', 'height': '900px'})
+        dcc.Loading(
+            id = "loading-cse-output-container",
+            children = html.Div(id = "ces-output-container", style = {'width' :
+                '90%', 'height': '900px'}),
+            type = "default"
+            )
     ])
     return pg
 
@@ -259,7 +264,11 @@ def total_savings():
             id = "savings_annual_cumulative_dropdown_div",
             style = {"min-width" : "400px", "display" : "inline-block"}
             ),
-        html.Div(id = "savings-output-container", style = {'width' : '90%', 'height': '900px'})
+        dcc.Loading(
+            id = "loading-savings-output-container",
+            children = html.Div(id = "savings-output-container", style = {'width' : '90%', 'height': '900px'}),
+            type = "default"
+            )
         ])
     return pg
 
