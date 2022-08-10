@@ -108,14 +108,14 @@ def financial_metrics():
     pg = html.Div([
         html.H1("Financial Metrics"),
         html.Div([
-            html.P("Select Aggregation Level:"),
+            html.P("Select Type of Graphic:"),
             dcc.Dropdown(id = "fm_dropdown",
                 options = [
-                    {"label" : "Aggregated by Year", "value" : "agg_year"},
-                    {"label" : "All ECMS", "value" : "all_ecms"},
-                    {"label" : "Select an ECM:", "value" : "each_ecm"}
+                    {"label" : "Aggregated overall All ECMs", "value" : "agg_ecms"},
+                    {"label" : "Plot Each ECM in one graphic", "value" : "all_ecms"},
+                    {"label" : "Plot a Selected ECM:", "value" : "each_ecm"}
                     ],
-                value = "agg_year",
+                value = "agg_ecms",
                 clearable = False
                 )],
             style = {"width" : "25%", "display" : "inline-block"}
@@ -152,8 +152,8 @@ def show_hide_ecm_dropdown(value):
         Input('ecm_dropdown', 'value')
         )
 def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
-    if fm_dropdown_value == "agg_year":
-        return dcc.Graph(figure = ecm_results.generate_fm_agg_year())
+    if fm_dropdown_value == "agg_ecms":
+        return dcc.Graph(figure = ecm_results.generate_fm_agg_ecms())
     elif fm_dropdown_value == "all_ecms":
         return dcc.Graph(figure = ecm_results.generate_fm_by_ecm())
     elif fm_dropdown_value == "each_ecm":
@@ -348,8 +348,10 @@ if __name__ == "__main__":
 
     ############################################################################
     # build useful things for ui
-    ecms = [{"label" : l, "value" : l} 
-            for l in set(ecm_results.financial_metrics.ecm)]
+    ecms = list(set(ecm_results.financial_metrics.ecm))
+    ecms.sort()
+    ecms = [{"label" : l, "value" : l} for l in ecms]
+
     years = [y for y in set(ecm_results.mas_by_category.year)]
     years.sort()
 
