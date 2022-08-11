@@ -278,6 +278,7 @@ class ECM_PREP:
 
 ################################################################################
 class ECM_RESULTS:
+
     def __init__(self, path):
 
         ########################################################################
@@ -409,7 +410,7 @@ class ECM_RESULTS:
                 .drop(columns = ["lvl1", "region", "building_class", "end_use"])
 
         ########################################################################
-        # # clean up financial_metrics
+        # clean up financial_metrics
         financial_metrics = financial_metrics[["ecm", "lvl2", "lvl3", "lvl4"]]
         financial_metrics = financial_metrics.rename(columns =
                 {"lvl2" : "impact", "lvl3" : "year", "lvl4" : "value"})
@@ -420,6 +421,24 @@ class ECM_RESULTS:
 
         assert all(financial_metrics.year.str.contains("^\d{4}$"))
         financial_metrics.year = financial_metrics.year.apply(int)
+
+        # join on the thresholds
+        self.financial_metrics_thresholds = pd.DataFrame(
+                data = [
+                    ('Cost of Conserved CO₂ ($/MTon CO₂ avoided)', 73),
+                    ('IRR (%)', 0),
+                    ('Cost of Conserved Energy ($/MMBtu saved)', 13),
+                    ('Payback (years)', 5)
+                    ],
+                columns = ["impact", "threshold"]
+                )
+
+        financial_metrics =\
+                financial_metrics\
+                .merge(
+                    self.financial_metrics_thresholds,
+                    on = "impact"
+                    )
 
         self.financial_metrics =\
                 financial_metrics.sort_values(by = ["ecm", "impact", "year"])
@@ -731,6 +750,7 @@ Objects:
       * mas_by_category:   Markets and Savings (by Category)
       * mas_overall:       Markets and Savings (Overall)
       * financial_metrics: Financial Metrics
+      * financial_metrics_thresholds: Financial Metrics thresholds
       * filter_variables:  Filter Variables
       * osg_by_category:   On-site Generation (by Category)
       * osg_overall:       On-site Generation (Overall)
