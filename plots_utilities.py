@@ -653,7 +653,7 @@ class ECM_RESULTS:
                     autosize = False,
                     width = 1175,
                     height = 875,
-                    plot_bgcolor = "rgba(0, 0, 0, 0)"
+                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
                     )
         return self.fm_agg_ecms
 
@@ -700,7 +700,7 @@ class ECM_RESULTS:
                     autosize = False,
                     width = 1175,
                     height = 875,
-                    plot_bgcolor = "rgba(0, 0, 0, 0)",
+                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
                     legend = {
                         "title" : "ECM"
                         }
@@ -739,49 +739,73 @@ class ECM_RESULTS:
                     autosize = False,
                     width = 1175,
                     height = 875,
-                    plot_bgcolor = "rgba(0, 0, 0, 0)"
+                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
                     )
 
         return fig
 
     ############################################################################
-    def generate_cost_effective_savings(self, m, year, force = False):
-        if (self.ces_data is None) or (force):
+    def generate_cost_effective_savings(self, m, year, end_uses, building_classes, building_types, force = False):
+        self.ces_data = self.mas_by_category.copy(deep = True)
+
+        if len(end_uses) > 0:
             self.ces_data =\
-                self.mas_by_category\
-                        .groupby(["scenario", "ecm", "impact", "year"])\
-                        .agg({
-                            "value" : "sum",
-                            "building_class" : unique_strings,
-                            "region" : unique_strings,
-                            "end_use" : unique_strings
-                            })\
-                        .reset_index()
-            self.ces_data = \
-                    pd.pivot_table(self.ces_data,
-                            values = "value",
-                            index = ["scenario", "ecm", "building_class", "end_use", "year"],
-                            columns = ["impact"]
-                            )\
-                    .reset_index()\
-                    .merge(self.financial_metrics,
-                            how = "left",
-                            on = ["ecm", "year"])
+                self.ces_data[self.mas_by_category.end_use.isin(end_uses)]
+        if (building_classes[0] is not None) and (len(building_classes) > 0) :
+            self.ces_data =\
+                self.ces_data[self.mas_by_category.building_class.isin(building_classes)]
+        if (building_types[0] is not None) and (len(building_types) > 0) :
+            self.ces_data =\
+                self.ces_data[self.mas_by_category.building_type.isin(building_types)]
+
+        agg_dict = {
+                "value" : "sum",
+                "region" : unique_strings,
+                "end_use" : unique_strings}
+
+        pivot_index = ["scenario", "ecm", "end_use", "year"]
+
+        if "building_class" in self.ces_data.columns:
+            agg_dict["building_class"] = unique_strings
+            pivot_index.append("building_class")
+
+        if "building_type" in self.ces_data.columns:
+            agg_dict["building_type"] = unique_strings
+            pivot_index.append("building_type")
+
+        self.ces_data =\
+                self.ces_data\
+                    .groupby(["scenario", "ecm", "impact", "year"])\
+                    .agg(agg_dict)\
+                    .reset_index()
+
+
+        self.ces_data = \
+                pd.pivot_table(self.ces_data,
+                        values = "value",
+                        index = pivot_index,
+                        columns = ["impact"]
+                        )\
+                .reset_index()\
+                .merge(self.financial_metrics,
+                        how = "left",
+                        on = ["ecm", "year"])
 
         fig = px.scatter(
                     self.ces_data[(self.ces_data.year == year)],
                 x = m,
                 y = "value",
-                symbol = "building_class",
-                color = "end_use",
+                #symbol = "building_class",
+                #color = "end_use",
                 facet_col = "scenario",
                 facet_row = "impact",
                 hover_data = {
                     "ecm": True,
                     m : True,
                     "value": True,
-                    "end_use": True,
-                    "building_class": True
+                    "end_use": True#,
+                    #"building_class": True,
+                    #"building_type": True
                     }
                 )
 
@@ -805,7 +829,7 @@ class ECM_RESULTS:
                 autosize = False,
                 width = 1175,
                 height = 875,
-                plot_bgcolor = "rgba(0, 0, 0, 0)",
+                plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
                 showlegend = False
                 )
 
@@ -868,7 +892,7 @@ class ECM_RESULTS:
                 autosize = False,
                 width = 1175,
                 height = 875,
-                plot_bgcolor = "rgba(0, 0, 0, 0)",
+                plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
                 legend = {
                     "x" : 0.02,
                     "y" : 0.98,

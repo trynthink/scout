@@ -112,7 +112,7 @@ def financial_metrics():
             dcc.Dropdown(id = "fm_dropdown",
                 options = [
                     {"label" : "Aggregated overall All ECMs", "value" : "agg_ecms"},
-                    {"label" : "Plot Each ECM in one graphic", "value" : "all_ecms"},
+                    {"label" : "Plot all ECMs in one graphic", "value" : "all_ecms"},
                     {"label" : "Plot a Selected ECM:", "value" : "each_ecm"}
                     ],
                 value = "agg_ecms",
@@ -197,39 +197,47 @@ def cost_effective_savings():
                 clearable = False)],
             id = "year_dropdown_div",
             style = {"min-width" : "125px", "display" : "inline-block"}),
-        #html.Br(),
-        #html.Div([
-        #    html.Label("Included End Uses:"),
-        #    dcc.Dropdown(id = "end_uses_dropdown",
-        #        options = [{"label" : l, "value" : l} for l in end_uses],
-        #        value = end_uses,
-        #        multi = True,
-        #        clearable = False
-        #        )],
-        #    id = "end_uses_dropdown_div",
-        #    style = {"min-width" : "500px", "display" : "inline-block"}),
-        #html.Br(),
-        #html.Div([
-        #    html.Label("Included Building Classes:"),
-        #    dcc.Dropdown(id = "building_classes_dropdown",
-        #        options = [{"label" : l, "value" : l} for l in building_classes],
-        #        value = building_classes,
-        #        multi = True,
-        #        clearable = False
-        #        )],
-        #    id = "building_classes_dropdown_div",
-        #    style = {"min-width" : "500px", "display" : "inline-block"}),
-        #html.Br(),
-        #html.Div([
-        #    html.Label("Included Building Types:"),
-        #    dcc.Dropdown(id = "building_types_dropdown",
-        #        options = [{"label" : l, "value" : l} for l in building_types],
-        #        value = building_types,
-        #        multi = True,
-        #        clearable = False
-        #        )],
-        #    id = "building_types_dropdown_div",
-        #    style = {"min-width" : "500px", "display" : "inline-block"}),
+        html.Br(),
+        html.Div([
+            html.Label("Included End Uses:"),
+            dcc.Dropdown(id = "end_uses_dropdown",
+                options = [{"label" : l, "value" : l} for l in end_uses],
+                value = end_uses,
+                multi = True,
+                clearable = False
+                )],
+            id = "end_uses_dropdown_div",
+            style = {"min-width" : "500px", "display" : "inline-block"}),
+        html.Br(),
+        html.Div([
+            html.Label("Included Building Classes:"),
+            dcc.Dropdown(id = "building_classes_dropdown",
+                options = [{"label" : l, "value" : l} for l in building_classes],
+                value = building_classes,
+                multi = True,
+                clearable = False
+                )],
+            id = "building_classes_dropdown_div",
+            style = {
+                "min-width" : "500px",
+                **({"display" : "none"} if building_classes[0] is None else {"display" : "inline-block"})
+                }
+            ),
+        html.Br(),
+        html.Div([
+            html.Label("Included Building Types:"),
+            dcc.Dropdown(id = "building_types_dropdown",
+                options = [{"label" : l, "value" : l} for l in building_types],
+                value = building_types,
+                multi = True,
+                clearable = False
+                )],
+            id = "building_types_dropdown_div",
+            style = {
+                "min-width" : "500px",
+                **({"display" : "none"} if building_types[0] is None else {"display" : "inline-block"})
+                }
+            ),
         html.Hr(),
         dcc.Loading(
             id = "loading-cse-output-container",
@@ -249,12 +257,25 @@ def cost_effective_savings():
 @app.callback(
         Output('ces-output-container', 'children'),
         Input('ces_cce_dropdown', 'value'),
-        Input('year_dropdown', 'value')
+        Input('year_dropdown', 'value'),
+        Input('end_uses_dropdown', 'value'),
+        Input('building_classes_dropdown', 'value'),
+        Input('building_types_dropdown', 'value')
         )
-def update_ces_output(ces_dropdown_value, year_dropdown_value):
-    return dcc.Graph(figure = ecm_results.generate_cost_effective_savings(
-        m = ces_dropdown_value,
-        year = year_dropdown_value)
+def update_ces_output(ces_dropdown_value,
+        year_dropdown_value,
+        end_uses_dropdown_value,
+        building_classes_dropdown_value,
+        building_types_dropdown_value
+        ):
+    return dcc.Graph(figure =
+            ecm_results.generate_cost_effective_savings(
+                m = ces_dropdown_value,
+                year = year_dropdown_value,
+                end_uses = end_uses_dropdown_value,
+                building_classes = building_classes_dropdown_value,
+                building_types = building_types_dropdown_value
+            )
         )
 
 def total_savings():
@@ -342,7 +363,8 @@ def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, sav
 
 def cms_v_ums():
     pg = html.Div([
-        html.H1("Competed v Uncompeted")
+        html.H1("Competed v Uncompeted"),
+        html.H1("UNDER CONSTRUCTION")
         ])
     return pg
 
@@ -375,10 +397,10 @@ if __name__ == "__main__":
         sys.exit(2)
 
     # set default values for command line arguments
-    ecm_prep    = "./supporting_data/ecm_prep.json"
-    ecm_results = "./results/ecm_results.json"
-    debug       = False
-    port        = 8050
+    ecm_prep_path    = "./supporting_data/ecm_prep.json"
+    ecm_results_path = "./results/ecm_results.json"
+    debug            = False
+    port             = 8050
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -386,28 +408,28 @@ if __name__ == "__main__":
             print(help_options)
             sys.exit()
         elif opt in ("--ecm_results"):
-            ecm_results = arg
+            ecm_results_path = arg
         elif opt in ("--ecm_prep"):
-            ecm_prep = arg
+            ecm_prep_path = arg
         elif opt in ("-d", "--debug"):
             debug = True
         elif opt in ("-p", "--port"):
             port = arg
 
-    if not os.path.exists(ecm_prep):
-        print(f"{ecm_prep} can not be reached or does not exist.")
+    if not os.path.exists(ecm_prep_path):
+        print(f"{ecm_prep_path} can not be reached or does not exist.")
         sys.exit(1)
-    if not os.path.exists(ecm_results):
-        print(f"{ecm_results} can not be reached or does not exist.")
+    if not os.path.exists(ecm_results_path):
+        print(f"{ecm_results_path} can not be reached or does not exist.")
         sys.exit(1)
 
     ############################################################################
     # Import the Data sets
-    #print(f"Importing data from {ecm_prep}")
-    #ecm_prep = ECM_PREP(path = ecm_prep)
+    #print(f"Importing data from {ecm_prep_path}")
+    #ecm_prep = ECM_PREP(path = ecm_prep_path)
 
-    print(f"Importing data from {ecm_results}")
-    ecm_results = ECM_RESULTS(path = ecm_results)
+    print(f"Importing data from {ecm_results_path}")
+    ecm_results = ECM_RESULTS(path = ecm_results_path)
 
     ############################################################################
     # build useful things for ui
@@ -435,10 +457,10 @@ if __name__ == "__main__":
 
     end_uses = list(set(ecm_results.mas_by_category.end_use))
     end_uses.sort()
-    
+
     # because building_class and building_type may or may not be in the results,
     # yeah, that's a thing, you'll need to build this project to address the
-    # cases with and with out.  
+    # cases with and with out.
     if "building_class" in ecm_results.mas_by_category.columns:
         building_classes = list(set(ecm_results.mas_by_category.building_class))
         building_classes.sort()
