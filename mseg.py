@@ -335,7 +335,7 @@ def json_translator(dictlist, filterformat):
         if (match_count == 0 and ms_level != (len(dictlist) - 1)) or \
            (match_count == 0 and ms_level == (len(dictlist) - 1) and
            enduse_techlevel == 0):
-            raise(KeyError("Filter list element not found in dict keys!"))
+            raise (KeyError("Filter list element not found in dict keys!"))
 
     # Return updated filtering list of lists: [[supply filter],[demand filter]]
     return json_translate
@@ -613,7 +613,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # If the end use is secondary heating, change the end use
         # in the filter to 'HT' from 'SH', because both primary and
@@ -643,7 +643,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_sqft_homes) is not aeo_years:
             if len(group_sqft_homes) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # Return sq. footage values and updated version of EIA
         # supply data with already matched data removed
@@ -697,7 +697,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy) is not aeo_years:
             if len(group_energy) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values
         return {'stock': group_stock, 'energy': group_energy}
@@ -1109,7 +1109,8 @@ def onsite_calc(generation_file, json_results):
 
     # Pull the onsite generation by census division
     for div in cdivdict:
-        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][['Year', 'OwnUse']]
+        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][[
+            'Year', 'OwnUse']]
         years = numpy.unique(cdiv['Year'])
         cdiv['OwnUse'] = cdiv['OwnUse']*to_mmbtu
         onsite_gen = dict([(i, cdiv[cdiv['Year'] == i][

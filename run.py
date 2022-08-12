@@ -962,7 +962,7 @@ class Engine(object):
         try:
             irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
             if not math.isfinite(irr_e):
-                raise(ValueError)
+                raise (ValueError)
         except ValueError:
             irr_e = 999
         try:
@@ -974,7 +974,7 @@ class Engine(object):
             irr_ec = npf.irr(
                 cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
             if not math.isfinite(irr_ec):
-                raise(ValueError)
+                raise (ValueError)
         except ValueError:
             irr_ec = 999
         try:
@@ -1026,7 +1026,7 @@ class Engine(object):
                             unit_cost_s_com["rate " + str(ind + 1)],
                             unit_cost_e_com["rate " + str(ind + 1)],
                             unit_cost_c_com["rate " + str(ind + 1)]]]):
-                        raise(ValueError)
+                        raise (ValueError)
             except ValueError:
                 unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
                     None for n in range(3))
@@ -4252,11 +4252,11 @@ def main(base_dir):
     # corresponding JSON definitions, loop through measures data in JSON,
     # initialize objects for all measures that are active and valid
     if active_ecms_w_jsons == 0:
-        raise(ValueError("No active measures found; ensure that the " +
-                         "'active' list in run_setup.json is not empty " +
-                         "and that all active measure names match those " +
-                         "found in the 'name' field for corresponding " +
-                         "measure definitions in ./ecm_definitions"))
+        raise (ValueError("No active measures found; ensure that the " +
+                          "'active' list in run_setup.json is not empty " +
+                          "and that all active measure names match those " +
+                          "found in the 'name' field for corresponding " +
+                          "measure definitions in ./ecm_definitions"))
     else:
         measures_objlist = [
             Measure(handyvars, **m) for m in meas_summary if
@@ -4408,8 +4408,8 @@ def main(base_dir):
             # Reset measure microsegment data attribute to imported values;
             # initialize an uncompeted and post-competition copy of these data
             # (the former of which will be used to establish a common set of
-            # stock turnover constraints in the competition, the latter of which
-            # will be adjusted by the competition)
+            # stock turnover constraints in the competition, the latter of
+            # which will be adjusted by the competition)
             m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
                 meas_comp_data[adopt_scheme]
             m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
