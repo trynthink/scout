@@ -105,6 +105,265 @@ def unique_strings(l):
     return '; '.join(ul)
 
 ################################################################################
+SCENARIOS = ["Max adoption potential", "Technical potential"]
+IMPACTS = [
+    'Energy Cost (USD)',      # On-site Generation
+    'Energy (MMBtu)',         # On-site Generation
+    'CO₂ Emissions (MMTons)', # On-site Generation
+
+    'Energy Savings (MMBtu)',           # Markets and Savings
+    'Avoided CO₂ Emissions (MMTons)',   # Markets and Savings
+    'CO₂ Cost Savings (USD)',           # Markets and Savings
+    'Efficient Energy Cost (USD)',      # Markets and Savings
+    'Baseline Energy Cost (USD)',       # Markets and Savings
+    'Baseline CO₂ Emissions (MMTons)',  # Markets and Savings
+    'Efficient CO₂ Cost (USD)',         # Markets and Savings
+    'Efficient CO₂ Emissions (MMTons)', # Markets and Savings
+    'Efficient Energy Use (MMBtu)',     # Markets and Savings
+    'Baseline CO₂ Cost (USD)',          # Markets and Savings
+    'Baseline Energy Use (MMBtu)',      # Markets and Savings
+    'Energy Cost Savings (USD)',        # Markets and Savings
+
+    'Cost of Conserved Energy ($/MMBtu saved)',   # Financial Metrics
+    'Cost of Conserved CO₂ ($/MTon CO₂ avoided)', # Financial Metrics
+    'IRR (%)',                                    # Financial Metrics
+    'Payback (years)'                             # Financial Metrics
+           ]
+
+# Yes, the AIA regions are sometimes denoted with a underscore, sometimes with a
+# space.  There is no way this will cause problems later on.  On-site Generation
+# uses the under scores, Markets and Savings use the spaces.
+REGIONS = [
+    "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
+    "AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5",
+
+    "TRE", "FRCC", "MISW", "MISC", "MISE", "MISS", "ISNE", "NYCW", "NYUP",
+    "PJME", "PJMW", "PJMC", "PJMD", "SRCA", "SRSE", "SRCE", "SPPS", "SPPC",
+    "SPPN", "SRSG", "CANO", "CASO", "NWPP", "RMRG", "BASN",
+
+    "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL",
+    "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO",
+    "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR",
+    "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+    ]
+
+BUILDING_CLASSES = [
+        "Residential (New)", "Residential (Existing)",
+        "Commercial (New)", "Commercial (Existing)"
+        ]
+
+BUILDING_TYPES = [
+    'single family home', # On-site Generation
+    'education',          # On-site Generation
+    'lodging',            # On-site Generation
+    'other',              # On-site Generation
+    'food sales',         # On-site Generation
+    'small office',       # On-site Generation
+    'health care',        # On-site Generation
+    'large office',       # On-site Generation
+    'mercantile/service', # On-site Generation
+    'warehouse',          # On-site Generation
+    'food service',       # On-site Generation
+    'assembly',           # On-site Generation
+    'Hospitals',            # Markets and Savings
+    'Multi Family Homes',   # Markets and Savings
+    'Retail',               # Markets and Savings
+    'Warehouses',           # Markets and Savings
+    'Large Offices',        # Markets and Savings
+    'Single Family Homes',  # Markets and Savings
+    'Education',            # Markets and Savings
+    'Hospitality',          # Markets and Savings
+    'Small/Medium Offices', # Markets and Savings
+    'Assembly/Other'        # Markets and Savings
+    ]
+
+END_USES = [
+        'Refrigeration',
+        'Ventilation',
+        'Water Heating',
+        'Cooling (Env.)',
+        'Heating (Env.)',
+        'Other',
+        'Lighting',
+        'Cooling (Equip.)',
+        'Heating (Equip.)'
+        ]
+
+SPLIT_FUEL = ['Non-Electric', 'Electric',
+        'Natural Gas',
+        'Biomass',
+        'Distillate/Other',
+        'Propane',
+        None
+        ]
+
+################################################################################
+def extract_osg(df):
+    """
+    Extract On-site Generation from results
+    """
+    assert any(df.lvl0 == "On-site Generation")
+    osg_by_category =\
+            df[((df.lvl0 == "On-site Generation") &
+                (df.lvl2 == "By Category"))].reset_index(drop = True)
+    osg_overall =\
+            df[((df.lvl0 == "On-site Generation") &
+                (df.lvl2 == "Overall"))].reset_index(drop = True)
+
+    for j in df.columns:
+        if all(osg_by_category[j].isna()):
+            osg_by_category.drop(columns = j, inplace = True)
+        if all(osg_overall[j].isna()):
+            osg_overall.drop(columns = j, inplace = True)
+
+    for j in reversed(osg_by_category.columns):
+        if all(osg_by_category[j].str.contains(r"^\d{4}$")):
+            osg_by_category[j] = osg_by_category[j].apply(int)
+            osg_by_category.rename(columns = {j : "year"}, inplace = True)
+        elif all(osg_by_category[j].apply(isfloat)):
+            osg_by_category[j] = osg_by_category[j].apply(float)
+            osg_by_category.rename(columns = {j : "value"}, inplace = True)
+        elif all(osg_by_category[j] == "By Category"):
+            osg_by_category.drop(columns = j, inplace = True)
+        elif all(osg_by_category[j] == "On-site Generation"):
+            osg_by_category.drop(columns = j, inplace = True)
+        elif all(osg_by_category[j].isin(IMPACTS)):
+            osg_by_category.rename(columns = {j : "impact"}, inplace = True)
+        elif all(osg_by_category[j].isin(REGIONS)):
+            osg_by_category.rename(columns = {j : "region"}, inplace = True)
+        elif all(osg_by_category[j].isin(BUILDING_TYPES)):
+            osg_by_category.rename(columns = {j : "building_type"}, inplace = True)
+        else:
+            continue
+
+    for j in reversed(osg_overall.columns):
+        if all(osg_overall[j].str.contains(r"^\d{4}$")):
+            osg_overall[j] = osg_overall[j].apply(int)
+            osg_overall.rename(columns = {j : "year"}, inplace = True)
+        elif all(osg_overall[j].apply(isfloat)):
+            osg_overall[j] = osg_overall[j].apply(float)
+            osg_overall.rename(columns = {j : "value"}, inplace = True)
+        elif all(osg_overall[j] == "Overall"):
+            osg_overall.drop(columns = j, inplace = True)
+        elif all(osg_overall[j] == "On-site Generation"):
+            osg_overall.drop(columns = j, inplace = True)
+        elif all(osg_overall[j].isin(IMPACTS)):
+            osg_overall.rename(columns = {j : "impact"}, inplace = True)
+        elif all(osg_overall[j].isin(REGIONS)):
+            osg_overall.rename(columns = {j : "region"}, inplace = True)
+        elif all(osg_overall[j].isin(BUILDING_TYPES)):
+            osg_overall.rename(columns = {j : "building_type"}, inplace = True)
+        else:
+            continue
+
+    return osg_by_category, osg_overall
+
+################################################################################
+def extract_financial_metrics(df):
+    assert any(df.lvl1 == "Financial Metrics")
+
+    fm = df[df.lvl1 == "Financial Metrics"]\
+            .drop(columns = "lvl1")\
+            .reset_index(drop = True)
+
+    for j in fm.columns:
+        if all(fm[j].isna()):
+            fm.drop(columns = j, inplace = True)
+        elif all(fm[j].str.contains(r"^\d{4}$")):
+            fm[j] = fm[j].apply(int)
+            fm.rename(columns = {j : "year"}, inplace = True)
+        elif all(fm[j].apply(isfloat)):
+            fm[j] = fm[j].apply(float)
+            fm.rename(columns = {j : "value"}, inplace = True)
+        elif all(fm[j].isin(IMPACTS)):
+            fm.rename(columns = {j : "impact"}, inplace = True)
+        else:
+            continue
+
+    return fm
+
+################################################################################
+def extract_mas(df):
+    mas_by_category =\
+            df[df.lvl1 == "Markets and Savings (by Category)"]\
+            .drop(columns = "lvl1")\
+            .reset_index(drop = True)
+    mas_overall =\
+            df[df.lvl1 == "Markets and Savings (Overall)"]\
+            .drop(columns = "lvl1")\
+            .reset_index(drop = True)
+
+    # Look to see if data needs to be shifted from one column to another.
+    # Example need, when fuel split is present then some of the rows will have
+    # Non-Electric or Electric in a column were as other rows will have nothing
+    # as flue split was not relevent.  This requires shifting the columns right
+    # so that the data in each column will be conceptually consistent.
+    for j in range(len(mas_by_category.columns)):
+        idx = mas_by_category[mas_by_category.columns[j]].isin(SPLIT_FUEL)
+        if any(idx):
+            if all(mas_by_category.loc[~idx, mas_by_category.columns[j + 2]].isna()):
+                mas_by_category.loc[~idx, mas_by_category.columns[j + 2]] =\
+                    mas_by_category.loc[~idx, mas_by_category.columns[j + 1]]
+                mas_by_category.loc[~idx, mas_by_category.columns[j + 1]] =\
+                    mas_by_category.loc[~idx, mas_by_category.columns[j + 0]]
+                mas_by_category.loc[~idx, mas_by_category.columns[j + 0]] = None
+
+    # Rename columns, drop columns with no information
+    for j in mas_by_category.columns:
+        if all(mas_by_category[j].isna()):
+            mas_by_category.drop(columns = j, inplace = True)
+        elif all(mas_by_category[j].str.contains(r"^\d{4}")):
+            mas_by_category[j] = mas_by_category[j].apply(int)
+            mas_by_category.rename(columns = {j : "year"}, inplace = True)
+        elif all(mas_by_category[j].apply(isfloat)):
+            mas_by_category[j] = mas_by_category[j].apply(float)
+            mas_by_category.rename(columns = {j : "value"}, inplace = True)
+        elif all(mas_by_category[j].isin(SCENARIOS)):
+            mas_by_category.rename(columns = {j : "scenario"}, inplace = True)
+        elif all(mas_by_category[j].isin(IMPACTS)):
+            mas_by_category.rename(columns = {j : "impact"}, inplace = True)
+        elif all(mas_by_category[j].isin(REGIONS)):
+            mas_by_category.rename(columns = {j : "region"}, inplace = True)
+        elif all(mas_by_category[j].isin(BUILDING_CLASSES)):
+            mas_by_category.rename(columns = {j : "building_class"}, inplace = True)
+        elif all(mas_by_category[j].isin(BUILDING_TYPES)):
+            mas_by_category.rename(columns = {j : "building_type"}, inplace = True)
+        elif all(mas_by_category[j].isin(END_USES)):
+            mas_by_category.rename(columns = {j : "end_use"}, inplace = True)
+        elif all(mas_by_category[j].isin(SPLIT_FUEL)):
+            mas_by_category.rename(columns = {j : "split_fuel"}, inplace = True)
+        else:
+            continue
+
+    for j in mas_overall.columns:
+        if all(mas_overall[j].isna()):
+            mas_overall.drop(columns = j, inplace = True)
+        elif all(mas_overall[j].str.contains(r"^\d{4}")):
+            mas_overall[j] = mas_overall[j].apply(int)
+            mas_overall.rename(columns = {j : "year"}, inplace = True)
+        elif all(mas_overall[j].apply(isfloat)):
+            mas_overall[j] = mas_overall[j].apply(float)
+            mas_overall.rename(columns = {j : "value"}, inplace = True)
+        elif all(mas_overall[j].isin(SCENARIOS)):
+            mas_overall.rename(columns = {j : "scenario"}, inplace = True)
+        elif all(mas_overall[j].isin(IMPACTS)):
+            mas_overall.rename(columns = {j : "impact"}, inplace = True)
+        elif all(mas_overall[j].isin(REGIONS)):
+            mas_overall.rename(columns = {j : "region"}, inplace = True)
+        elif all(mas_overall[j].isin(BUILDING_CLASSES)):
+            mas_overall.rename(columns = {j : "building_class"}, inplace = True)
+        elif all(mas_overall[j].isin(BUILDING_TYPES)):
+            mas_overall.rename(columns = {j : "building_type"}, inplace = True)
+        elif all(mas_overall[j].isin(END_USES)):
+            mas_overall.rename(columns = {j : "end_use"}, inplace = True)
+        elif all(mas_overall[j].isin(SPLIT_FUEL)):
+            mas_overall.rename(columns = {j : "split_fuel"}, inplace = True)
+        else:
+            continue
+
+    return mas_by_category, mas_overall
+
+################################################################################
 class ECM_PREP:
     """
     Class: ecm_prep
@@ -295,153 +554,12 @@ class ECM_RESULTS:
         # import and format results
         df = json_to_df(path = path)
 
-        assert len(df.columns) == 9, f"Expected {path} to be nine levels deep"+\
-                f" got {len(df.columns)}."
+        self.osg_by_category, self.osg_overall = extract_osg(df)
+        df.rename(columns = {"lvl0" : "ecm"}, inplace = True)
+        self.financial_metrics = extract_financial_metrics(df)
+        self.mas_by_category, self.mas_overall = extract_mas(df)
 
-        # build individual DataFrames - start by splitting up the df
-        osg  = df[df.lvl0 == "On-site Generation"].drop(columns = ["lvl0"])
-        ecms = df[df.lvl0 != "On-site Generation"]
-
-        # we can rename one of the columns for ecms
-        ecms = ecms.rename(columns = {"lvl0" : "ecm"})
-
-        # ecms will be split out further:
-        financial_metrics  = ecms[ecms.lvl1 == "Financial Metrics"]
-        filter_variables   = ecms[ecms.lvl1 == "Filter Variables"]
-        mas                = ecms[(
-                                    (ecms.lvl1 != "Financial Metrics") &
-                                    (ecms.lvl1 != "Filter Variables")
-                                 )]
-
-        # NOTE: additionally, the osg and mas will be split after some cleaning
-        # steps into _by_category and _overall
-
-        ########################################################################
-        # clean up the on-site generation DataFrame
-        assert all(osg.lvl7.isna())
-        assert all(osg.lvl8.isna())
-        osg = osg.drop(columns = ["lvl7", "lvl8"])
-
-        # The "Overall" version needs to have the year and value shifted right
-        # two columns
-        idx = osg.lvl2 == "Overall"
-        osg.loc[idx, "lvl6"] = osg.loc[idx, "lvl4"]
-        osg.loc[idx, "lvl5"] = osg.loc[idx, "lvl3"]
-
-        osg.loc[idx, "lvl4"] = np.nan
-        osg.loc[idx, "lvl3"] = np.nan
-
-        # rename columns in the osg frame for human ease of use
-        osg.rename(columns = {
-            "lvl1" : "impact",
-            # "lvl2" : "version" # "By Category" or "Overall"; will be dropped
-            "lvl3" : "region",
-            "lvl4" : "building_type",
-            "lvl5" : "year",
-            "lvl6" : "value"},
-            inplace = True)
-
-        # set data types
-        assert all(osg.value.apply(isfloat))
-        osg.value = osg.value.apply(float)
-
-        assert all(osg.year.str.contains(r"^\d{4}$"))
-        osg.year = osg.year.apply(int)
-
-        self.osg_by_category =\
-                osg[osg.lvl2 == "By Category"]\
-                .drop(columns = ["lvl2"])
-
-        self.osg_overall =\
-                osg[osg.lvl2 != "By Category"]\
-                .drop(columns = ["lvl2", "region", "building_type"])
-
-        ########################################################################
-        # clean up filter_variables
-        filter_variables = filter_variables.pivot(
-                index = ["ecm"],
-                columns = ["lvl2"],
-                values  = ["lvl3"]
-                )
-
-        filter_variables = filter_variables.reset_index(col_level = 1)
-        filter_variables.columns = filter_variables.columns.map(lambda t: t[1])
-
-        self.filter_variables = filter_variables
-
-        ########################################################################
-        # markets_and_savings
-        mas = mas.rename(columns = {
-            # "lvl1" : "version", -- by Category or Overall; will be dropped
-            "lvl2" : "scenario",
-            "lvl3" : "impact",
-            "lvl4" : "region",
-            "lvl5" : "building_class",
-            "lvl6" : "end_use",
-            "lvl7" : "year",
-            "lvl8" : "value"
-            })
-
-        # For the "Overall" set there are no region, building_class, or end_use.
-        # Move the to the correct column.
-        idx = mas.lvl1 == "Markets and Savings (Overall)"
-        assert all(mas[idx].value.isna())
-        assert all(mas[idx].year.isna())
-        assert all(mas[idx].end_use.isna())
-
-        mas.loc[idx, "value"] = mas.loc[idx, "building_class"]
-        mas.loc[idx, "year"]  = mas.loc[idx, "region"]
-        mas.loc[idx, "building_class"] = np.nan
-        mas.loc[idx, "region"] = np.nan
-
-        # set data types
-        assert all(mas.value.apply(isfloat))
-        mas.value = mas.value.apply(float)
-
-        assert all(mas.year.str.contains("^\d{4}$"))
-        mas.year = mas.year.apply(int)
-
-        self.mas_by_category =\
-                mas[mas.lvl1 == "Markets and Savings (by Category)"]\
-                .drop(columns = ["lvl1"])
-
-        self.mas_overall =\
-                mas[mas.lvl1 == "Markets and Savings (Overall)"]\
-                .drop(columns = ["lvl1", "region", "building_class", "end_use"])
-
-        ########################################################################
-        # clean up financial_metrics
-        financial_metrics = financial_metrics[["ecm", "lvl2", "lvl3", "lvl4"]]
-        financial_metrics = financial_metrics.rename(columns =
-                {"lvl2" : "impact", "lvl3" : "year", "lvl4" : "value"})
-
-        # set data types
-        assert all(financial_metrics.value.apply(isfloat))
-        financial_metrics.value = financial_metrics.value.apply(float)
-
-        assert all(financial_metrics.year.str.contains("^\d{4}$"))
-        financial_metrics.year = financial_metrics.year.apply(int)
-
-        # join on the thresholds
-        self.financial_metrics_thresholds = pd.DataFrame(
-                data = [
-                    ('Cost of Conserved CO₂ ($/MTon CO₂ avoided)', 73),
-                    ('IRR (%)', 0),
-                    ('Cost of Conserved Energy ($/MMBtu saved)', 13),
-                    ('Payback (years)', 5)
-                    ],
-                columns = ["impact", "threshold"]
-                )
-
-        financial_metrics =\
-                financial_metrics\
-                .merge(
-                    self.financial_metrics_thresholds,
-                    on = "impact"
-                    )
-
-        self.financial_metrics =\
-                financial_metrics.sort_values(by = ["ecm", "impact", "year"])
+        return None
 
     ############################################################################
     def  by_category_vs_overall(self, tol = 1e-8):
@@ -673,7 +791,7 @@ class ECM_RESULTS:
 
     ############################################################################
     def generate_total_savings(self, m, by, annual_or_cumulative, force = False):
-        
+
         a_data = self.mas_by_category\
             .sort_values(by = ["scenario", "impact", "year"])\
             .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
