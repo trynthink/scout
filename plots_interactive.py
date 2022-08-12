@@ -197,28 +197,39 @@ def cost_effective_savings():
                 clearable = False)],
             id = "year_dropdown_div",
             style = {"min-width" : "125px", "display" : "inline-block"}),
-        html.Br(),
-        html.Div([
-            html.Label("Included End Uses:"),
-            dcc.Dropdown(id = "end_uses_dropdown",
-                options = [{"label" : l, "value" : l} for l in end_uses],
-                value = end_uses,
-                multi = True,
-                clearable = False
-                )],
-            id = "end_uses_dropdown_div",
-            style = {"min-width" : "500px", "display" : "inline-block"}),
-        html.Br(),
-        html.Div([
-            html.Label("Included Building Classes:"),
-            dcc.Dropdown(id = "building_classes_dropdown",
-                options = [{"label" : l, "value" : l} for l in building_classes],
-                value = building_classes,
-                multi = True,
-                clearable = False
-                )],
-            id = "building_classes_dropdown_div",
-            style = {"min-width" : "500px", "display" : "inline-block"}),
+        #html.Br(),
+        #html.Div([
+        #    html.Label("Included End Uses:"),
+        #    dcc.Dropdown(id = "end_uses_dropdown",
+        #        options = [{"label" : l, "value" : l} for l in end_uses],
+        #        value = end_uses,
+        #        multi = True,
+        #        clearable = False
+        #        )],
+        #    id = "end_uses_dropdown_div",
+        #    style = {"min-width" : "500px", "display" : "inline-block"}),
+        #html.Br(),
+        #html.Div([
+        #    html.Label("Included Building Classes:"),
+        #    dcc.Dropdown(id = "building_classes_dropdown",
+        #        options = [{"label" : l, "value" : l} for l in building_classes],
+        #        value = building_classes,
+        #        multi = True,
+        #        clearable = False
+        #        )],
+        #    id = "building_classes_dropdown_div",
+        #    style = {"min-width" : "500px", "display" : "inline-block"}),
+        #html.Br(),
+        #html.Div([
+        #    html.Label("Included Building Types:"),
+        #    dcc.Dropdown(id = "building_types_dropdown",
+        #        options = [{"label" : l, "value" : l} for l in building_types],
+        #        value = building_types,
+        #        multi = True,
+        #        clearable = False
+        #        )],
+        #    id = "building_types_dropdown_div",
+        #    style = {"min-width" : "500px", "display" : "inline-block"}),
         html.Hr(),
         dcc.Loading(
             id = "loading-cse-output-container",
@@ -247,6 +258,20 @@ def update_ces_output(ces_dropdown_value, year_dropdown_value):
         )
 
 def total_savings():
+    savings_by_dropdown_options = [
+            {"label" : "Overall",           "value" : "overall"},
+            {"label" : "By Region ",        "value" : "region"},
+            {"label" : "By End Use",        "value" : "end_use"},
+            ]
+    if building_classes[0] is not None:
+        savings_by_dropdown_options.append(
+            {"label" : "By Building Class", "value" : "building_class"}
+            )
+    if building_types[0] is not None:
+        savings_by_dropdown_options.append(
+            {"label" : "By Building Type",  "value" : "building_type"},
+            )
+
     pg = html.Div([
         html.H1("Total Savings"),
         html.Div([
@@ -263,12 +288,7 @@ def total_savings():
         html.Div([
             html.Label("Aggregate by:"),
             dcc.Dropdown(id = "savings_by_dropdown",
-            options = [
-                {"label" : "Overall",           "value" : "overall"},
-                {"label" : "By Region ",        "value" : "region"},
-                {"label" : "By Building Class", "value" : "building_class"},
-                {"label" : "By End Use",        "value" : "end_use"}
-                ],
+            options = savings_by_dropdown_options,
             value = "overall",
             clearable = False
             )],
@@ -415,9 +435,21 @@ if __name__ == "__main__":
 
     end_uses = list(set(ecm_results.mas_by_category.end_use))
     end_uses.sort()
+    
+    # because building_class and building_type may or may not be in the results,
+    # yeah, that's a thing, you'll need to build this project to address the
+    # cases with and with out.  
+    if "building_class" in ecm_results.mas_by_category.columns:
+        building_classes = list(set(ecm_results.mas_by_category.building_class))
+        building_classes.sort()
+    else:
+        building_classes = [None]
 
-    building_classes = list(set(ecm_results.mas_by_category.building_class))
-    building_classes.sort()
+    if "building_type" in ecm_results.mas_by_category.columns:
+        building_types = list(set(ecm_results.mas_by_category.building_type))
+        building_types.sort()
+    else:
+        building_types = [None]
 
 
     ############################################################################

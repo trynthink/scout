@@ -293,6 +293,18 @@ def extract_mas(df):
             .drop(columns = "lvl1")\
             .reset_index(drop = True)
 
+    # remove columns with no information
+    for j in mas_by_category.columns:
+        if all(mas_by_category[j].isna()):
+            mas_by_category.drop(columns = j, inplace = True)
+        else: 
+            continue
+    for j in mas_overall.columns:
+        if all(mas_overall[j].isna()):
+            mas_overall.drop(columns = j, inplace = True)
+        else: 
+            continue
+
     # Look to see if data needs to be shifted from one column to another.
     # Example need, when fuel split is present then some of the rows will have
     # Non-Electric or Electric in a column were as other rows will have nothing
@@ -308,7 +320,17 @@ def extract_mas(df):
                     mas_by_category.loc[~idx, mas_by_category.columns[j + 0]]
                 mas_by_category.loc[~idx, mas_by_category.columns[j + 0]] = None
 
-    # Rename columns, drop columns with no information
+    for j in range(len(mas_overall.columns)):
+        idx = mas_overall[mas_overall.columns[j]].isin(SPLIT_FUEL)
+        if any(idx):
+            if all(mas_overall.loc[~idx, mas_overall.columns[j + 2]].isna()):
+                mas_overall.loc[~idx, mas_overall.columns[j + 2]] =\
+                    mas_overall.loc[~idx, mas_overall.columns[j + 1]]
+                mas_overall.loc[~idx, mas_overall.columns[j + 1]] =\
+                    mas_overall.loc[~idx, mas_overall.columns[j + 0]]
+                mas_overall.loc[~idx, mas_overall.columns[j + 0]] = None
+
+    # Rename columns, set data storage modes
     for j in mas_by_category.columns:
         if all(mas_by_category[j].isna()):
             mas_by_category.drop(columns = j, inplace = True)
