@@ -197,6 +197,13 @@ SPLIT_FUEL = ['Non-Electric', 'Electric',
         None
         ]
 
+TOTAL_COMPETED = ['total', 'competed']
+ABEM = ['all', 'baseline', 'efficient', 'measure']
+ECS = ['energy', 'carbon', 'stock']
+BSE = ['baseline', 'savings', 'efficient']
+ECC = ['energy', 'carbon', 'cost']
+
+
 ################################################################################
 def extract_osg(df):
     """
@@ -297,12 +304,12 @@ def extract_mas(df):
     for j in mas_by_category.columns:
         if all(mas_by_category[j].isna()):
             mas_by_category.drop(columns = j, inplace = True)
-        else: 
+        else:
             continue
     for j in mas_overall.columns:
         if all(mas_overall[j].isna()):
             mas_overall.drop(columns = j, inplace = True)
-        else: 
+        else:
             continue
 
     # Look to see if data needs to be shifted from one column to another.
@@ -386,6 +393,176 @@ def extract_mas(df):
     return mas_by_category, mas_overall
 
 ################################################################################
+def extract_lifetime_baseline(df):
+    lb = df[(df.lvl2 == "lifetime") & (df.lvl3 == "baseline")]\
+            .drop(columns = ["mseg", "lvl2", "lvl3"])\
+            .rename(columns = {
+                "lvl0" : "scenario",
+                "lvl4" : "year",
+                "lvl5" : "value"
+                })\
+            .reset_index(drop = True)
+
+    for j in lb.columns:
+        if all(lb[j].isna()):
+            lb.drop(columns = j, inplace = True)
+
+    if all(lb.year.str.contains(r"^\d{4}$")):
+        lb.year = lb.year.apply(int)
+    if all(lb.value.apply(isfloat)):
+        lb.value = lb.value.apply(float)
+
+    return lb
+
+################################################################################
+def extract_stock(df):
+    stock = df[df.lvl2 == "stock"]\
+            .drop(columns = ["mseg", "lvl2"])\
+            .reset_index(drop = True)
+
+    for j in stock.columns:
+        if all(stock[j].isna()):
+            stock.drop(columns = j, inplace = True)
+        elif all(stock[j].str.contains(r"^\d{4}$")):
+            stock[j] = stock[j].apply(int)
+            stock.rename(columns = {j : "year"}, inplace = True)
+        elif all(stock[j].apply(isfloat)):
+            stock[j] = stock[j].apply(float)
+            stock.rename(columns = {j : "value"}, inplace = True)
+        elif all(stock[j].isin(TOTAL_COMPETED)):
+            stock.rename(columns = {j : "total_competed"}, inplace = True)
+        elif all(stock[j].isin(ABEM)):
+            stock.rename(columns = {j : "abem"}, inplace = True)
+        else:
+            continue
+
+    return stock
+
+################################################################################
+def extract_lifetime_measure(df):
+    lm = df[(df.lvl2 == "lifetime") & (df.lvl3 == "measure")]\
+            .drop(columns = ["mseg", "lvl2", "lvl3"])\
+            .rename(columns = {
+                "lvl4" : "value",
+                })\
+            .reset_index(drop = True)
+
+    for j in lm.columns:
+        if all(lm[j].isna()):
+            lm.drop(columns = j, inplace = True)
+
+    if all(lm.value.apply(isfloat)):
+        lm.value = lm.value.apply(float)
+
+    return lm
+
+################################################################################
+def extract_master_mseg(df):
+    mm = df[(df.mseg == "master_mseg") & ~(df.lvl2.isin(["cost", "lifetime"]))]\
+            .drop(columns = ["mseg"])\
+            .reset_index(drop = True)
+
+    for j in mm.columns:
+        if all(mm[j].isna()):
+            mm.drop(columns = j, inplace = True)
+        elif all(mm[j].str.contains(r"^\d{4}$")):
+            mm[j] = mm[j].apply(int)
+            mm.rename(columns = {j : "year"}, inplace = True)
+        elif all(mm[j].apply(isfloat)):
+            mm[j] = mm[j].apply(float)
+            mm.rename(columns = {j : "value"}, inplace = True)
+        elif all(mm[j].isin(TOTAL_COMPETED)):
+            mm.rename(columns = {j : "total_competed"}, inplace = True)
+        elif all(mm[j].isin(ABEM)):
+            mm.rename(columns = {j : "abem"}, inplace = True)
+        elif all(mm[j].isin(ECS)):
+            mm.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
+        else:
+            continue
+
+
+    return mm
+
+################################################################################
+def extract_master_mseg_cost(df):
+    mmc = df[(df.mseg == "master_mseg") & (df.lvl2 == "cost")]\
+            .drop(columns = ["mseg", "lvl2"])\
+            .reset_index(drop = True)
+
+    for j in mmc.columns:
+        if all(mmc[j].isna()):
+            mmc.drop(columns = j, inplace = True)
+        elif all(mmc[j].str.contains(r"^\d{4}$")):
+            mmc[j] = mmc[j].apply(int)
+            mmc.rename(columns = {j : "year"}, inplace = True)
+        elif all(mmc[j].apply(isfloat)):
+            mmc[j] = mmc[j].apply(float)
+            mmc.rename(columns = {j : "value"}, inplace = True)
+        elif all(mmc[j].isin(TOTAL_COMPETED)):
+            mmc.rename(columns = {j : "total_competed"}, inplace = True)
+        elif all(mmc[j].isin(ABEM)):
+            mmc.rename(columns = {j : "abem"}, inplace = True)
+        elif all(mmc[j].isin(ECS)):
+            mmc.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
+        else:
+            continue
+
+    return mmc
+
+################################################################################
+def extract_mseg_out_break(df):
+    mob = df[(df.mseg == "mseg_out_break")]\
+            .drop(columns = ["mseg"])\
+            .reset_index(drop = True)
+
+    # split fuels and years can be in the first column
+    for j in range(len(mob.columns)):
+        idx1 = mob[mob.columns[j]].str.contains(r"\d{4}$")
+        idx2 = mob[mob.columns[j]].isin(SPLIT_FUEL)
+        idx = idx1 | idx2
+        if all(idx) and (not all(idx1)) and (not all(idx2)):
+            if all(mob.loc[idx1, mob.columns[j + 2]].isna()):
+                mob.loc[idx1, mob.columns[j + 2]] = mob.loc[idx1, mob.columns[j + 1]]
+                mob.loc[idx1, mob.columns[j + 1]] = mob.loc[idx1, mob.columns[j]]
+                mob.loc[idx1, mob.columns[j]] = np.nan
+
+    # rename columns, set storage modes
+    for j in mob.columns:
+        if all(mob[j].isna()):
+            mob.drop(columns = j, inplace = True)
+        elif all(mob[j].str.contains(r"^\d{4}$")):
+            mob[j] = mob[j].apply(int)
+            mob.rename(columns = {j : "year"}, inplace = True)
+        elif all(mob[j].apply(isfloat)):
+            mob[j] = mob[j].apply(float)
+            mob.rename(columns = {j : "value"}, inplace = True)
+        elif all(mob[j].isin(TOTAL_COMPETED)):
+            mob.rename(columns = {j : "total_competed"}, inplace = True)
+        elif all(mob[j].isin(ABEM)):
+            mob.rename(columns = {j : "abem"}, inplace = True)
+        elif all(mob[j].isin(ECS)):
+            mob.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
+        elif all(mob[j].isin(REGIONS)):
+            mob.rename(columns = {j : "region"}, inplace = True)
+        elif all(mob[j].isin(BUILDING_CLASSES)):
+            mob.rename(columns = {j : "building_class"}, inplace = True)
+        elif all(mob[j].isin(BUILDING_TYPES)):
+            mob.rename(columns = {j : "building_type"}, inplace = True)
+        elif all(mob[j].isin(END_USES)):
+            mob.rename(columns = {j : "end_use"}, inplace = True)
+        elif all(mob[j].isin(BSE)):
+            mob.rename(columns = {j : "baseline_savings_efficient"}, inplace = True)
+        elif all(mob[j].isin(ECC)):
+            mob.rename(columns = {j : "energy_carbon_cost"}, inplace = True)
+        elif all(mob[j].isin(SPLIT_FUEL) | mob[j].isna()):
+            mob.rename(columns = {j : "split_fuel"}, inplace = True)
+        else:
+            continue
+
+    return mob
+
+
+################################################################################
 class ECM_PREP:
     """
     Class: ecm_prep
@@ -421,129 +598,16 @@ class ECM_PREP:
 
         ########################################################################
         # split the data into several seperate DataFrames
-        self.lifetime_baseline =\
-                markets[
-                        (markets.lvl2 == "lifetime") &
-                        (markets.lvl3 == "baseline")
-                        ]
+        self.lifetime_baseline = extract_lifetime_baseline(markets)
+        self.lifetime_measure = extract_lifetime_measure(markets)
 
-        self.lifetime_measure =\
-                markets[
-                        (markets.lvl2 == "lifetime") &
-                        (markets.lvl3 == "measure")
-                        ]
+        self.stock = extract_stock(markets)
 
-        self.stock = markets[markets.lvl2 == "stock"]
+        self.master_mseg = extract_master_mseg(markets)
 
-        self.master_mseg =\
-                markets[
-                        (markets.mseg == "master_mseg") &
-                        (markets.lvl2 != "cost")
-                        ]
+        self.master_mseg_cost = extract_master_mseg_cost(markets)
 
-        self.master_mseg_cost =\
-                markets[
-                        (markets.mseg == "master_mseg") &
-                        (markets.lvl2 == "cost")
-                        ]
-
-        self.mseg_out_break = markets[markets.mseg == "mseg_out_break"]
-
-        ########################################################################
-        # clean up lifetime_baseline
-        self.lifetime_baseline =\
-                self.lifetime_baseline\
-                .drop(columns =
-                        ["mseg", "lvl2", "lvl3", "lvl6", "lvl7", "lvl8"]
-                     )\
-                .rename(columns = {"lvl4" : "year", "lvl5" : "value"})\
-                .reset_index(drop = True)
-
-        ########################################################################
-        # clean up lifetime_measure
-        self.lifetime_measure =\
-                self.lifetime_measure\
-                .drop(columns =
-                        ["mseg", "lvl2", "lvl3", "lvl5", "lvl6", "lvl7", "lvl8"]
-                     )\
-                .rename(columns = {"lvl4" : "value"})\
-                .reset_index(drop = True)
-
-        ########################################################################
-        # clean up stock
-        self.stock = \
-                self.stock\
-                .drop(columns = ["lvl2", "lvl7", "lvl8"])\
-                .rename(columns = {
-                    "lvl3" : "total_or_competed",
-                    "lvl4" : "measure_or_all",
-                    "lvl5" : "year",
-                    "lvl6" : "value"})\
-                .reset_index(drop = True)
-
-        ########################################################################
-        # Clean up master_mseg
-        self.master_mseg = \
-                self.master_mseg\
-                .drop(columns = ["mseg", "lvl7", "lvl8"])\
-                .reset_index(drop = True)
-
-        # move values from one column to another as needed
-        idx = (self.master_mseg.lvl6.isna()) & (self.master_mseg.lvl5.notna())
-        self.master_mseg.loc[idx, "lvl6"] = self.master_mseg.loc[idx, "lvl5"]
-        self.master_mseg.loc[idx, "lvl5"] = self.master_mseg.loc[idx, "lvl4"]
-        self.master_mseg.loc[idx, "lvl4"] = None
-
-        idx = (self.master_mseg.lvl6.isna()) &\
-                (self.master_mseg.lvl5.isna()) &\
-                (self.master_mseg.lvl4.notna())
-        self.master_mseg.loc[idx, "lvl6"] = self.master_mseg.loc[idx, "lvl4"]
-        self.master_mseg.loc[idx, "lvl4"] = self.master_mseg.loc[idx, "lvl3"]
-        self.master_mseg.loc[idx, "lvl3"] = None
-
-        self.master_mseg\
-                .rename(columns = {
-                    "lvl3" : "total_or_competed",
-                    "lvl4" : "baseline_measure",
-                    "lvl5" : "year",
-                    "lvl6" : "value"},
-                    inplace = True)
-
-        ########################################################################
-        # clean up master_mseg_cost
-        self.master_mseg_cost = \
-                self.master_mseg_cost\
-                .drop(columns = ["mseg", "lvl2", "lvl8"])\
-                .rename(columns = {
-                    "lvl3" : "impact",
-                    "lvl4" : "total_or_competed",
-                    "lvl5" : "baseline_efficient",
-                    "lvl6" : "year",
-                    "lvl7" : "value"})\
-                .reset_index(drop = True)
-        self.master_mseg_cost.loc[
-                self.master_mseg_cost.impact == "stock", "impact"] = "capital"
-        self.master_mseg_cost.loc[
-                self.master_mseg_cost.impact == "energy", "impact"] =\
-                        "utility bill"
-        self.master_mseg_cost.loc[
-                self.master_mseg_cost.impact == "carbon", "impact"] =\
-                        "social cost"
-
-        ########################################################################
-        # clean up mseg_out_break
-        self.mseg_out_break = \
-                self.mseg_out_break\
-                .drop(columns = ["mseg"])\
-                .rename(columns = {
-                    "lvl2" : "impact",
-                    "lvl3" : "baseline_efficient_savings",
-                    "lvl4" : "region",
-                    "lvl5" : "building_class",
-                    "lvl6" : "end_use",
-                    "lvl7" : "year",
-                    "lvl8" : "value"})\
-                .reset_index(drop = True)
+        self.mseg_out_break = extract_mseg_out_break(markets)
 
     ############################################################################
     def info(self):
