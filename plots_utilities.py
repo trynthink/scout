@@ -390,6 +390,48 @@ def extract_mas(df):
         else:
             continue
 
+    # merge on the baseline_savings_efficient and energy_carbon_cost columns for
+    # mapping between the ecm_results (competed) and the ecm_prep (uncompeted)
+    # data sets
+    map_between_prep_and_results =\
+        pd.DataFrame(data =
+                [
+                    ("baseline", "energy", "Baseline Energy Use (MMBtu)"),
+                    ("baseline", "carbon", "Baseline CO₂ Emissions (MMTons)"),
+                    ("baseline", "cost", "Baseline Energy Cost (USD)"),
+                    ("baseline", "energy", "Baseline Energy Use (low) (MMBtu)"),
+                    ("baseline", "carbon", "Baseline CO₂ Emissions (low) (MMTons)"),
+                    ("baseline", "cost", "Baseline Energy Cost (low) (USD)"),
+                    ("baseline", "energy", "Baseline Energy Use (high) (MMBtu)"),
+                    ("baseline", "carbon", "Baseline CO₂ Emissions (high) (MMTons)"),
+                    ("baseline", "cost", "Baseline Energy Cost (high) (USD)"),
+                    ("efficient", "energy", "Efficient Energy Use (MMBtu)"),
+                    ("efficient", "carbon", "Efficient CO₂ Emissions (MMTons)"),
+                    ("efficient", "cost", "Efficient Energy Cost (USD)"),
+                    ("efficient", "energy", "Efficient Energy Use (low) (MMBtu)"),
+                    ("efficient", "carbon", "Efficient CO₂ Emissions (low) (MMTons)"),
+                    ("efficient", "cost", "Efficient Energy Cost (low) (USD)"),
+                    ("efficient", "energy", "Efficient Energy Use (high) (MMBtu)"),
+                    ("efficient", "carbon", "Efficient CO₂ Emissions (high) (MMTons)"),
+                    ("efficient", "cost", "Efficient Energy Cost (high) (USD)")
+                ],
+                columns = ["baseline_savings_efficient", "energy_carbon_cost", "impact"]
+                )
+
+    mas_by_category =\
+            pd.merge(mas_by_category, map_between_prep_and_results,
+                    how = "left", 
+                    on = ["impact"],
+                    suffixes = ["_uncompeted", "_competed"]
+                    )
+
+    mas_overall =\
+            pd.merge(mas_overall, map_between_prep_and_results,
+                    how = "left", 
+                    on = ["impact"],
+                    suffixes = ["_uncompeted", "_competed"]
+                    )
+
     return mas_by_category, mas_overall
 
 ################################################################################
@@ -588,10 +630,6 @@ class ECM_PREP:
             markets[i]["ecm"] = data[i]["name"]
 
         markets = pd.concat(markets)
-
-        assert len(markets.columns) - 1 == 9,\
-                f"expected ecm_prep to be nine levels deep," +\
-                f" got {len(markets.columns)}"
 
         markets = markets.rename(columns =
                 {"lvl0" : "scenario", "lvl1" : "mseg"})
@@ -999,6 +1037,52 @@ Methods:
         shown in one graphic.
         """
         print(info_str)
+
+################################################################################
+class ECM_PREP_VS_RESULTS:
+    def __init__(self, ecm_prep, ecm_results):
+        self.m = pd.merge(
+                ecm_prep.mseg_out_break,
+                ecm_results.mas_by_category,
+                how = "inner", 
+                on = ["ecm", "scenario", "region", "building_class", "end_use", "year", "baseline_savings_efficient", "energy_carbon_cost"],
+                suffixes = ["_uncompeted", "_competed"]
+                )
+
+        self.m =\
+            pd.wide_to_long(self.m,
+                    stubnames = "value",
+                    i = ["ecm", "scenario", "region", "building_class",
+                        "end_use", "year", "impact", "baseline_savings_efficient",
+                        "energy_carbon_cost"],
+                    j = "competed",
+                    sep = "_",
+                    suffix = r'\w+'
+                    ).reset_index()
+
+        return None
+
+    def generate_by_ecm(self, ecm):
+        agg_dict = {
+                "value" : "sum",
+                "region" : unique_strings,
+                "end_use" : unique_strings}
+        d = self.m\
+                .groupby(["scenario", "baseline_savings_efficient", "competed",
+                    "impact", "year"])\
+                .agg(agg_dict)\
+                .reset_index()
+
+        fig = px.scatter(d,
+                x = "year",
+                y = "value",
+                color = "baseline_savings_efficient",
+                symbol = "competed",
+                facet_col = "scenario",
+                facet_row = "impact"
+                )
+        fig.update_traces(mode = "lines+markers")
+        return fig
 
 ################################################################################
 #                                 End of File                                  #

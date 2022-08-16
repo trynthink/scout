@@ -18,6 +18,7 @@ from dash import html
 
 from plots_utilities import ECM_PREP
 from plots_utilities import ECM_RESULTS
+from plots_utilities import ECM_PREP_VS_RESULTS
 
 ################################################################################
 # Define the Dash Application
@@ -320,8 +321,8 @@ def total_savings():
             html.Label("Annual or Cumulative Totals?"),
             dcc.Dropdown(id = "savings_annual_cumulative_dropdown",
             options = [
-                {"label" : "Annual Totals",           "value" : "annual"},
-                {"label" : "Cumulative Totals",        "value" : "cumulative"}
+                {"label" : "Annual Totals",     "value" : "annual"},
+                {"label" : "Cumulative Totals", "value" : "cumulative"}
                 ],
             value = "annual",
             clearable = False
@@ -363,10 +364,68 @@ def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, sav
 
 def cms_v_ums():
     pg = html.Div([
-        html.H1("Competed v Uncompeted"),
-        html.H1("UNDER CONSTRUCTION")
+        html.H1("Competed versus Uncompeted"),
+        html.Div([
+            html.Label("Select Type of Graphic:"),
+            dcc.Dropdown(id = "cms_v_ums_type_dropdown",
+                options = [
+                    {"label" : "Plot a Selected ECM:", "value" : "each_ecm"}
+                    ],
+                value = "each_ecm",
+                clearable = False
+                )],
+            style = {"width" : "25%", "display" : "inline-block"}
+            ),
+        html.Div([
+            html.Label("ECM:"),
+            dcc.Dropdown(id = "cms_v_ums_ecm_dropdown",
+                options = ecms,
+                value = ecms[0]["value"],
+                clearable = False)
+            ],
+            id = "cms_v_ums_ecm_dropdown_div",
+            style = {"min-width" : "500px", "display" : "none"}
+            ),
+        html.Hr(),
+        dcc.Loading(
+            id = "loading-cms_v_ums-output-container",
+            children = html.Div(
+                    id = "cms_v_ums-output-container",
+                    style = {
+                        'border': '1px solid black',
+                        'width' : '1200px',
+                        'height': '900px'
+                        }
+                    ),
+            type = "default")
         ])
     return pg
+
+@app.callback(
+        Output(component_id = 'cms_v_ums_ecm_dropdown_div', component_property = "style"),
+        Input(component_id = 'cms_v_ums_type_dropdown', component_property = 'value')
+        )
+def show_hide_cms_v_ums_ecm_dropdown(value):
+    if value == "each_ecm":
+        return {"width" : "25%", "display" : "inline-block"}
+    else:
+        return {"width" : "25%", "display" : "none"}
+
+
+@app.callback(
+        Output("cms_v_ums-output-container", "children"),
+        Input("cms_v_ums_type_dropdown", "value"),
+        Input("cms_v_ums_ecm_dropdown", "value")
+        )
+def update_cms_v_ums_output(
+        cms_v_ums_type_dropdown_value,
+        cms_v_ums_ecm_dropdown_value
+        ):
+
+    if (cms_v_ums_type_dropdown_value == "each_ecm"):
+        fig = ecm_prep_v_results.generate_by_ecm(cms_v_ums_ecm_dropdown_value)
+
+    return dcc.Graph(figure = fig)
 
 
 ################################################################################
@@ -425,11 +484,14 @@ if __name__ == "__main__":
 
     ############################################################################
     # Import the Data sets
-    #print(f"Importing data from {ecm_prep_path}")
-    #ecm_prep = ECM_PREP(path = ecm_prep_path)
+    print(f"Importing data from {ecm_prep_path}")
+    ecm_prep = ECM_PREP(path = ecm_prep_path)
 
     print(f"Importing data from {ecm_results_path}")
     ecm_results = ECM_RESULTS(path = ecm_results_path)
+
+    print(f"Building data set for Unompeted versus Competed metrics")
+    ecm_prep_v_results = ECM_PREP_VS_RESULTS(ecm_prep, ecm_results)
 
     ############################################################################
     # build useful things for ui
@@ -441,7 +503,7 @@ if __name__ == "__main__":
     years.sort()
 
     impacts = [i for i in set(ecm_results.mas_by_category.impact)]
-
+    
     impact_dict = {"carbon" : "", "cost" : "", "energy" : ""}
     m = [x for x in impacts if x.startswith("Avoided CO\u2082 Emissions")]
     assert len(m) == 1
