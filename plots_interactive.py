@@ -75,30 +75,7 @@ content = html.Div(id="page-content", style=content_style)
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 ################################################################################
-# App Call Backs
-
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def render_page_content(pathname):
-    if pathname == "/":
-        return home()
-    elif pathname == "/financial_metrics":
-        return financial_metrics()
-    elif pathname == "/cost_effective_savings":
-        return cost_effective_savings()
-    elif pathname == "/total_savings":
-        return total_savings()
-    elif pathname == "/cms_v_ums":
-        return cms_v_ums()
-    # If the user tries to reach a different page, return a 404 message
-    return dbc.Div(
-        [
-            html.H1("404: Not found", className="text-danger"),
-            html.Hr(),
-            html.P(f"The pathname {pathname} was not recognised.")
-        ]
-    )
-
-
+# Pages
 def home():
     pg = html.Div([
         html.P("A overview of what this application does goes here.")
@@ -125,7 +102,7 @@ def financial_metrics():
             html.Label("ECM:"),
             dcc.Dropdown(id = "ecm_dropdown",
                 options = ecms,
-                value = ecms[0]["value"],
+                value = ecms[0],#["value"],
                 clearable = False)
             ],
             id = "ecm_dropdown_div",
@@ -146,35 +123,6 @@ def financial_metrics():
             ]
         )
     return pg
-
-@app.callback(
-        Output(component_id = 'ecm_dropdown_div', component_property = "style"),
-        Input(component_id = 'fm_dropdown', component_property = 'value')
-        )
-def show_hide_ecm_dropdown(value):
-    if value == "each_ecm":
-        return {"width" : "25%", "display" : "inline-block"}
-    else:
-        return {"width" : "25%", "display" : "none"}
-
-@app.callback(
-        Output('fm-output-container', 'children'),
-        Input('fm_dropdown', 'value'),
-        Input('ecm_dropdown', 'value')
-        )
-def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
-    if fm_dropdown_value == "agg_ecms":
-        return dcc.Graph(figure = ecm_results.generate_fm_agg_ecms())
-    elif fm_dropdown_value == "all_ecms":
-        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm())
-    elif fm_dropdown_value == "each_ecm":
-        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(ecm_dropdown_value))
-    else:
-        return "impressive, everything you did is wrong"
-
-
-
-
 
 def cost_effective_savings():
     pg = html.Div([
@@ -255,30 +203,6 @@ def cost_effective_savings():
     ])
     return pg
 
-@app.callback(
-        Output('ces-output-container', 'children'),
-        Input('ces_cce_dropdown', 'value'),
-        Input('year_dropdown', 'value'),
-        Input('end_uses_dropdown', 'value'),
-        Input('building_classes_dropdown', 'value'),
-        Input('building_types_dropdown', 'value')
-        )
-def update_ces_output(ces_dropdown_value,
-        year_dropdown_value,
-        end_uses_dropdown_value,
-        building_classes_dropdown_value,
-        building_types_dropdown_value
-        ):
-    return dcc.Graph(figure =
-            ecm_results.generate_cost_effective_savings(
-                m = ces_dropdown_value,
-                year = year_dropdown_value,
-                end_uses = end_uses_dropdown_value,
-                building_classes = building_classes_dropdown_value,
-                building_types = building_types_dropdown_value
-            )
-        )
-
 def total_savings():
     savings_by_dropdown_options = [
             {"label" : "Overall",           "value" : "overall"},
@@ -345,23 +269,6 @@ def total_savings():
         ])
     return pg
 
-@app.callback(
-        Output("savings-output-container", 'children'),
-        Input("savings_dropdown", "value"),
-        Input("savings_by_dropdown", "value"),
-        Input("savings_annual_cumulative_dropdown", "value")
-        )
-def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, savings_annual_cumulative_dropdown):
-
-    if savings_by_dropdown_value == "overall":
-        savings_by_dropdown_value = None
-
-    return dcc.Graph(figure = ecm_results.generate_total_savings(
-        m = savings_dropdown_value,
-        by = savings_by_dropdown_value,
-        annual_or_cumulative = savings_annual_cumulative_dropdown
-        ))
-
 def cms_v_ums():
     pg = html.Div([
         html.H1("Competed versus Uncompeted"),
@@ -401,6 +308,103 @@ def cms_v_ums():
         ])
     return pg
 
+################################################################################
+# App Call Backs
+
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+def render_page_content(pathname):
+    if pathname == "/":
+        return home()
+    elif pathname == "/financial_metrics":
+        return financial_metrics()
+    elif pathname == "/cost_effective_savings":
+        return cost_effective_savings()
+    elif pathname == "/total_savings":
+        return total_savings()
+    elif pathname == "/cms_v_ums":
+        return cms_v_ums()
+    # If the user tries to reach a different page, return a 404 message
+    return dbc.Div(
+        [
+            html.H1("404: Not found", className="text-danger"),
+            html.Hr(),
+            html.P(f"The pathname {pathname} was not recognised.")
+        ]
+    )
+
+@app.callback(
+        Output(component_id = 'ecm_dropdown_div', component_property = "style"),
+        Input(component_id = 'fm_dropdown', component_property = 'value')
+        )
+def show_hide_ecm_dropdown(value):
+    if value == "each_ecm":
+        return {"width" : "25%", "display" : "inline-block"}
+    else:
+        return {"width" : "25%", "display" : "none"}
+
+@app.callback(
+        Output('fm-output-container', 'children'),
+        Input('fm_dropdown', 'value'),
+        Input('ecm_dropdown', 'value')
+        )
+def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
+    if fm_dropdown_value == "agg_ecms":
+        return dcc.Graph(figure = ecm_results.generate_fm_agg_ecms())
+    elif fm_dropdown_value == "all_ecms":
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm())
+    elif fm_dropdown_value == "each_ecm":
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(ecm_dropdown_value))
+    else:
+        return "impressive, everything you did is wrong"
+
+
+
+
+
+
+@app.callback(
+        Output('ces-output-container', 'children'),
+        Input('ces_cce_dropdown', 'value'),
+        Input('year_dropdown', 'value'),
+        Input('end_uses_dropdown', 'value'),
+        Input('building_classes_dropdown', 'value'),
+        Input('building_types_dropdown', 'value')
+        )
+def update_ces_output(ces_dropdown_value,
+        year_dropdown_value,
+        end_uses_dropdown_value,
+        building_classes_dropdown_value,
+        building_types_dropdown_value
+        ):
+    return dcc.Graph(figure =
+            ecm_results.generate_cost_effective_savings(
+                m = ces_dropdown_value,
+                year = year_dropdown_value,
+                end_uses = end_uses_dropdown_value,
+                building_classes = building_classes_dropdown_value,
+                building_types = building_types_dropdown_value
+            )
+        )
+
+
+@app.callback(
+        Output("savings-output-container", 'children'),
+        Input("savings_dropdown", "value"),
+        Input("savings_by_dropdown", "value"),
+        Input("savings_annual_cumulative_dropdown", "value")
+        )
+def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, savings_annual_cumulative_dropdown):
+
+    if savings_by_dropdown_value == "overall":
+        savings_by_dropdown_value = None
+
+    return dcc.Graph(figure = ecm_results.generate_total_savings(
+        m = savings_dropdown_value,
+        by = savings_by_dropdown_value,
+        annual_or_cumulative = savings_annual_cumulative_dropdown
+        ))
+
+
 @app.callback(
         Output(component_id = 'cms_v_ums_ecm_dropdown_div', component_property = "style"),
         Input(component_id = 'cms_v_ums_type_dropdown', component_property = 'value')
@@ -429,21 +433,19 @@ def update_cms_v_ums_output(
 
 
 ################################################################################
-# Define to do if the file is run directory
-
 # Define some help documentation which will be conditionally shown to the end
 # user.
 help_usage = "Usage: plots_interactive.py [options]"
 help_options = """
 Options:
-  -h --help          Print this help and exit"
-  -d --debug         If present, run the app with debug = True"
-  -p --port=N        The port to run the dash app through"
-  --ecm_prep=FILE    Path to a ecm_prep.json FILE, the results of ecm_prep.py"
-  --ecm_results=FILE Path to a ecm_results.json FILE, the results of run.py"
+  -h --help          Print this help and exit
+  -d --debug         If present, run the app with debug = True
+  -p --port=N        The port to run the dash app through
+  --ecm_prep=FILE    Path to a ecm_prep.json FILE, the results of ecm_prep.py
+  --ecm_results=FILE Path to a ecm_results.json FILE, the results of run.py
 """
 
-
+################################################################################
 if __name__ == "__main__":
 
     # get command line options
@@ -484,26 +486,26 @@ if __name__ == "__main__":
 
     ############################################################################
     # Import the Data sets
-    print(f"Importing data from {ecm_prep_path}")
-    ecm_prep = ECM_PREP(path = ecm_prep_path)
+    # print(f"Importing data from {ecm_prep_path}")
+    # ecm_prep = ECM_PREP(path = ecm_prep_path)
 
     print(f"Importing data from {ecm_results_path}")
     ecm_results = ECM_RESULTS(path = ecm_results_path)
 
-    print(f"Building data set for Unompeted versus Competed metrics")
-    ecm_prep_v_results = ECM_PREP_VS_RESULTS(ecm_prep, ecm_results)
+    #print(f"Building data set for Unompeted versus Competed metrics")
+    #ecm_prep_v_results = ECM_PREP_VS_RESULTS(ecm_prep, ecm_results)
 
     ############################################################################
     # build useful things for ui
-    ecms = list(set(ecm_results.financial_metrics.ecm))
+    ecms = list(set(ecm_results.mas_by_category.ecm))
     ecms.sort()
-    ecms = [{"label" : l, "value" : l} for l in ecms]
+    #ecms = [{"label" : l, "value" : l} for l in ecms]
 
     years = [y for y in set(ecm_results.mas_by_category.year)]
     years.sort()
 
     impacts = [i for i in set(ecm_results.mas_by_category.impact)]
-    
+
     impact_dict = {"carbon" : "", "cost" : "", "energy" : ""}
     m = [x for x in impacts if x.startswith("Avoided CO\u2082 Emissions")]
     assert len(m) == 1

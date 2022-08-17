@@ -204,6 +204,49 @@ BSE = ['baseline', 'savings', 'efficient']
 ECC = ['energy', 'carbon', 'cost']
 
 
+CONCEPTS = {
+        "scenario" : SCENARIOS,
+        "impact"   : IMPACTS,
+        "region"   : REGIONS,
+        "building_class" : BUILDING_CLASSES,
+        "building_type" : BUILDING_TYPES,
+        "end_use" : END_USES,
+        "split_fuel" : SPLIT_FUEL,
+        "total_competed" : TOTAL_COMPETED,
+        "abem" : ABEM,
+        "ecs" : ECS,
+        "bse" : BSE,
+        "ecc" : ECC
+        }
+
+################################################################################
+def rename_set_mode(df):
+    """ Rename columns and set storage modes for columns in a DataFrame
+    """
+
+    for j in df.columns:
+        if all(df[j].isna()):
+            df.drop(columns = j, inplace = True)
+
+    for n, s in CONCEPTS.items():
+        for j in [j for j in df.columns if j.startswith("lvl")]:
+            if all(df[j].isin(s)):
+                df.rename(columns = {j : n}, inplace = True)
+
+    for j in [j for j in df.columns if j.startswith("lvl")]:
+        if all(df[j].str.contains(r"^\d{4}")):
+            df[j] = df[j].apply(int)
+            df.rename(columns = {j : "year"}, inplace = True)
+        elif all(df[j].apply(isfloat)):
+            df[j] = df[j].apply(float)
+            df.rename(columns = {j : "value"}, inplace = True)
+        else:
+            continue
+
+    return df
+
+
+
 ################################################################################
 def extract_osg(df):
     """
@@ -217,51 +260,8 @@ def extract_osg(df):
             df[((df.lvl0 == "On-site Generation") &
                 (df.lvl2 == "Overall"))].reset_index(drop = True)
 
-    for j in df.columns:
-        if all(osg_by_category[j].isna()):
-            osg_by_category.drop(columns = j, inplace = True)
-        if all(osg_overall[j].isna()):
-            osg_overall.drop(columns = j, inplace = True)
-
-    for j in reversed(osg_by_category.columns):
-        if all(osg_by_category[j].str.contains(r"^\d{4}$")):
-            osg_by_category[j] = osg_by_category[j].apply(int)
-            osg_by_category.rename(columns = {j : "year"}, inplace = True)
-        elif all(osg_by_category[j].apply(isfloat)):
-            osg_by_category[j] = osg_by_category[j].apply(float)
-            osg_by_category.rename(columns = {j : "value"}, inplace = True)
-        elif all(osg_by_category[j] == "By Category"):
-            osg_by_category.drop(columns = j, inplace = True)
-        elif all(osg_by_category[j] == "On-site Generation"):
-            osg_by_category.drop(columns = j, inplace = True)
-        elif all(osg_by_category[j].isin(IMPACTS)):
-            osg_by_category.rename(columns = {j : "impact"}, inplace = True)
-        elif all(osg_by_category[j].isin(REGIONS)):
-            osg_by_category.rename(columns = {j : "region"}, inplace = True)
-        elif all(osg_by_category[j].isin(BUILDING_TYPES)):
-            osg_by_category.rename(columns = {j : "building_type"}, inplace = True)
-        else:
-            continue
-
-    for j in reversed(osg_overall.columns):
-        if all(osg_overall[j].str.contains(r"^\d{4}$")):
-            osg_overall[j] = osg_overall[j].apply(int)
-            osg_overall.rename(columns = {j : "year"}, inplace = True)
-        elif all(osg_overall[j].apply(isfloat)):
-            osg_overall[j] = osg_overall[j].apply(float)
-            osg_overall.rename(columns = {j : "value"}, inplace = True)
-        elif all(osg_overall[j] == "Overall"):
-            osg_overall.drop(columns = j, inplace = True)
-        elif all(osg_overall[j] == "On-site Generation"):
-            osg_overall.drop(columns = j, inplace = True)
-        elif all(osg_overall[j].isin(IMPACTS)):
-            osg_overall.rename(columns = {j : "impact"}, inplace = True)
-        elif all(osg_overall[j].isin(REGIONS)):
-            osg_overall.rename(columns = {j : "region"}, inplace = True)
-        elif all(osg_overall[j].isin(BUILDING_TYPES)):
-            osg_overall.rename(columns = {j : "building_type"}, inplace = True)
-        else:
-            continue
+    osg_by_category = rename_set_mode(osg_by_category)
+    osg_overall     = rename_set_mode(osg_overall)
 
     return osg_by_category, osg_overall
 
@@ -273,19 +273,7 @@ def extract_financial_metrics(df):
             .drop(columns = "lvl1")\
             .reset_index(drop = True)
 
-    for j in fm.columns:
-        if all(fm[j].isna()):
-            fm.drop(columns = j, inplace = True)
-        elif all(fm[j].str.contains(r"^\d{4}$")):
-            fm[j] = fm[j].apply(int)
-            fm.rename(columns = {j : "year"}, inplace = True)
-        elif all(fm[j].apply(isfloat)):
-            fm[j] = fm[j].apply(float)
-            fm.rename(columns = {j : "value"}, inplace = True)
-        elif all(fm[j].isin(IMPACTS)):
-            fm.rename(columns = {j : "impact"}, inplace = True)
-        else:
-            continue
+    fm = rename_set_mode(fm)
 
     return fm
 
@@ -338,57 +326,8 @@ def extract_mas(df):
                 mas_overall.loc[~idx, mas_overall.columns[j + 0]] = None
 
     # Rename columns, set data storage modes
-    for j in mas_by_category.columns:
-        if all(mas_by_category[j].isna()):
-            mas_by_category.drop(columns = j, inplace = True)
-        elif all(mas_by_category[j].str.contains(r"^\d{4}")):
-            mas_by_category[j] = mas_by_category[j].apply(int)
-            mas_by_category.rename(columns = {j : "year"}, inplace = True)
-        elif all(mas_by_category[j].apply(isfloat)):
-            mas_by_category[j] = mas_by_category[j].apply(float)
-            mas_by_category.rename(columns = {j : "value"}, inplace = True)
-        elif all(mas_by_category[j].isin(SCENARIOS)):
-            mas_by_category.rename(columns = {j : "scenario"}, inplace = True)
-        elif all(mas_by_category[j].isin(IMPACTS)):
-            mas_by_category.rename(columns = {j : "impact"}, inplace = True)
-        elif all(mas_by_category[j].isin(REGIONS)):
-            mas_by_category.rename(columns = {j : "region"}, inplace = True)
-        elif all(mas_by_category[j].isin(BUILDING_CLASSES)):
-            mas_by_category.rename(columns = {j : "building_class"}, inplace = True)
-        elif all(mas_by_category[j].isin(BUILDING_TYPES)):
-            mas_by_category.rename(columns = {j : "building_type"}, inplace = True)
-        elif all(mas_by_category[j].isin(END_USES)):
-            mas_by_category.rename(columns = {j : "end_use"}, inplace = True)
-        elif all(mas_by_category[j].isin(SPLIT_FUEL)):
-            mas_by_category.rename(columns = {j : "split_fuel"}, inplace = True)
-        else:
-            continue
-
-    for j in mas_overall.columns:
-        if all(mas_overall[j].isna()):
-            mas_overall.drop(columns = j, inplace = True)
-        elif all(mas_overall[j].str.contains(r"^\d{4}")):
-            mas_overall[j] = mas_overall[j].apply(int)
-            mas_overall.rename(columns = {j : "year"}, inplace = True)
-        elif all(mas_overall[j].apply(isfloat)):
-            mas_overall[j] = mas_overall[j].apply(float)
-            mas_overall.rename(columns = {j : "value"}, inplace = True)
-        elif all(mas_overall[j].isin(SCENARIOS)):
-            mas_overall.rename(columns = {j : "scenario"}, inplace = True)
-        elif all(mas_overall[j].isin(IMPACTS)):
-            mas_overall.rename(columns = {j : "impact"}, inplace = True)
-        elif all(mas_overall[j].isin(REGIONS)):
-            mas_overall.rename(columns = {j : "region"}, inplace = True)
-        elif all(mas_overall[j].isin(BUILDING_CLASSES)):
-            mas_overall.rename(columns = {j : "building_class"}, inplace = True)
-        elif all(mas_overall[j].isin(BUILDING_TYPES)):
-            mas_overall.rename(columns = {j : "building_type"}, inplace = True)
-        elif all(mas_overall[j].isin(END_USES)):
-            mas_overall.rename(columns = {j : "end_use"}, inplace = True)
-        elif all(mas_overall[j].isin(SPLIT_FUEL)):
-            mas_overall.rename(columns = {j : "split_fuel"}, inplace = True)
-        else:
-            continue
+    mas_by_category = rename_set_mode(mas_by_category)
+    mas_overall     = rename_set_mode(mas_overall)
 
     # merge on the baseline_savings_efficient and energy_carbon_cost columns for
     # mapping between the ecm_results (competed) and the ecm_prep (uncompeted)
@@ -420,14 +359,14 @@ def extract_mas(df):
 
     mas_by_category =\
             pd.merge(mas_by_category, map_between_prep_and_results,
-                    how = "left", 
+                    how = "left",
                     on = ["impact"],
                     suffixes = ["_uncompeted", "_competed"]
                     )
 
     mas_overall =\
             pd.merge(mas_overall, map_between_prep_and_results,
-                    how = "left", 
+                    how = "left",
                     on = ["impact"],
                     suffixes = ["_uncompeted", "_competed"]
                     )
@@ -445,14 +384,7 @@ def extract_lifetime_baseline(df):
                 })\
             .reset_index(drop = True)
 
-    for j in lb.columns:
-        if all(lb[j].isna()):
-            lb.drop(columns = j, inplace = True)
-
-    if all(lb.year.str.contains(r"^\d{4}$")):
-        lb.year = lb.year.apply(int)
-    if all(lb.value.apply(isfloat)):
-        lb.value = lb.value.apply(float)
+    lb = rename_set_mode(lb)
 
     return lb
 
@@ -462,21 +394,7 @@ def extract_stock(df):
             .drop(columns = ["mseg", "lvl2"])\
             .reset_index(drop = True)
 
-    for j in stock.columns:
-        if all(stock[j].isna()):
-            stock.drop(columns = j, inplace = True)
-        elif all(stock[j].str.contains(r"^\d{4}$")):
-            stock[j] = stock[j].apply(int)
-            stock.rename(columns = {j : "year"}, inplace = True)
-        elif all(stock[j].apply(isfloat)):
-            stock[j] = stock[j].apply(float)
-            stock.rename(columns = {j : "value"}, inplace = True)
-        elif all(stock[j].isin(TOTAL_COMPETED)):
-            stock.rename(columns = {j : "total_competed"}, inplace = True)
-        elif all(stock[j].isin(ABEM)):
-            stock.rename(columns = {j : "abem"}, inplace = True)
-        else:
-            continue
+    stock = rename_set_mode(stock)
 
     return stock
 
@@ -489,12 +407,7 @@ def extract_lifetime_measure(df):
                 })\
             .reset_index(drop = True)
 
-    for j in lm.columns:
-        if all(lm[j].isna()):
-            lm.drop(columns = j, inplace = True)
-
-    if all(lm.value.apply(isfloat)):
-        lm.value = lm.value.apply(float)
+    lm = rename_set_mode(lm)
 
     return lm
 
@@ -504,24 +417,7 @@ def extract_master_mseg(df):
             .drop(columns = ["mseg"])\
             .reset_index(drop = True)
 
-    for j in mm.columns:
-        if all(mm[j].isna()):
-            mm.drop(columns = j, inplace = True)
-        elif all(mm[j].str.contains(r"^\d{4}$")):
-            mm[j] = mm[j].apply(int)
-            mm.rename(columns = {j : "year"}, inplace = True)
-        elif all(mm[j].apply(isfloat)):
-            mm[j] = mm[j].apply(float)
-            mm.rename(columns = {j : "value"}, inplace = True)
-        elif all(mm[j].isin(TOTAL_COMPETED)):
-            mm.rename(columns = {j : "total_competed"}, inplace = True)
-        elif all(mm[j].isin(ABEM)):
-            mm.rename(columns = {j : "abem"}, inplace = True)
-        elif all(mm[j].isin(ECS)):
-            mm.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
-        else:
-            continue
-
+    mm = rename_set_mode(mm)
 
     return mm
 
@@ -531,23 +427,7 @@ def extract_master_mseg_cost(df):
             .drop(columns = ["mseg", "lvl2"])\
             .reset_index(drop = True)
 
-    for j in mmc.columns:
-        if all(mmc[j].isna()):
-            mmc.drop(columns = j, inplace = True)
-        elif all(mmc[j].str.contains(r"^\d{4}$")):
-            mmc[j] = mmc[j].apply(int)
-            mmc.rename(columns = {j : "year"}, inplace = True)
-        elif all(mmc[j].apply(isfloat)):
-            mmc[j] = mmc[j].apply(float)
-            mmc.rename(columns = {j : "value"}, inplace = True)
-        elif all(mmc[j].isin(TOTAL_COMPETED)):
-            mmc.rename(columns = {j : "total_competed"}, inplace = True)
-        elif all(mmc[j].isin(ABEM)):
-            mmc.rename(columns = {j : "abem"}, inplace = True)
-        elif all(mmc[j].isin(ECS)):
-            mmc.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
-        else:
-            continue
+    mmc = rename_set_mode(mmc)
 
     return mmc
 
@@ -568,41 +448,37 @@ def extract_mseg_out_break(df):
                 mob.loc[idx1, mob.columns[j + 1]] = mob.loc[idx1, mob.columns[j]]
                 mob.loc[idx1, mob.columns[j]] = np.nan
 
-    # rename columns, set storage modes
-    for j in mob.columns:
-        if all(mob[j].isna()):
-            mob.drop(columns = j, inplace = True)
-        elif all(mob[j].str.contains(r"^\d{4}$")):
-            mob[j] = mob[j].apply(int)
-            mob.rename(columns = {j : "year"}, inplace = True)
-        elif all(mob[j].apply(isfloat)):
-            mob[j] = mob[j].apply(float)
-            mob.rename(columns = {j : "value"}, inplace = True)
-        elif all(mob[j].isin(TOTAL_COMPETED)):
-            mob.rename(columns = {j : "total_competed"}, inplace = True)
-        elif all(mob[j].isin(ABEM)):
-            mob.rename(columns = {j : "abem"}, inplace = True)
-        elif all(mob[j].isin(ECS)):
-            mob.rename(columns = {j : "energy_carbon_stock"}, inplace = True)
-        elif all(mob[j].isin(REGIONS)):
-            mob.rename(columns = {j : "region"}, inplace = True)
-        elif all(mob[j].isin(BUILDING_CLASSES)):
-            mob.rename(columns = {j : "building_class"}, inplace = True)
-        elif all(mob[j].isin(BUILDING_TYPES)):
-            mob.rename(columns = {j : "building_type"}, inplace = True)
-        elif all(mob[j].isin(END_USES)):
-            mob.rename(columns = {j : "end_use"}, inplace = True)
-        elif all(mob[j].isin(BSE)):
-            mob.rename(columns = {j : "baseline_savings_efficient"}, inplace = True)
-        elif all(mob[j].isin(ECC)):
-            mob.rename(columns = {j : "energy_carbon_cost"}, inplace = True)
-        elif all(mob[j].isin(SPLIT_FUEL) | mob[j].isna()):
-            mob.rename(columns = {j : "split_fuel"}, inplace = True)
-        else:
-            continue
+
+    mob = rename_set_mode(mob)
 
     return mob
 
+################################################################################
+# Common plotly layout setting
+def scout_plotly_layout(fig):
+    fig.update_yaxes(
+            exponentformat = "B",
+            showticklabels = True,
+            gridcolor = "lightgrey"
+            )
+    fig.update_xaxes(
+            gridcolor = "lightgrey"
+                    )
+    fig.for_each_annotation(
+            lambda a: a.update(text = a.text.split("=")[-1])
+                    )
+    fig.for_each_annotation(
+            lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                    )
+
+    fig.update_layout(
+            autosize = False,
+            width = 1175,
+            height = 875,
+            plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
+                    )
+
+    return fig
 
 ################################################################################
 class ECM_PREP:
@@ -721,41 +597,25 @@ class ECM_RESULTS:
                     px.line(
                         data_frame = self.financial_metrics\
                             .groupby(["impact", "year"])\
-                            .value\
-                            .agg(["mean"])\
+                            .agg({"value" : "mean"})\
                             .reset_index(),
                         x = "year",
-                        y = "mean",
+                        y = "value",
                         title = "Mean Financial Metric Value by Year",
                         facet_col = "impact",
                         facet_col_wrap = 2,
                         facet_col_spacing = 0.04,
                         markers = True
                         )
+            self.fm_agg_ecms = scout_plotly_layout(self.fm_agg_ecms)
             self.fm_agg_ecms.update_yaxes(
                     title = None,
                     matches = None,
-                    exponentformat = "B",
-                    showticklabels = True,
-                    gridcolor = "lightgrey"
                     )
             self.fm_agg_ecms.update_xaxes(
                     title = None,
                     tick0 = 2025,
                     dtick = 5,
-                    gridcolor = "lightgrey"
-                    )
-            self.fm_agg_ecms.for_each_annotation(
-                    lambda a: a.update(text = a.text.split("=")[-1])
-                    )
-            self.fm_agg_ecms.for_each_annotation(
-                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
-                    )
-            self.fm_agg_ecms.update_layout(
-                    autosize = False,
-                    width = 1175,
-                    height = 875,
-                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
                     )
         return self.fm_agg_ecms
 
@@ -1044,7 +904,7 @@ class ECM_PREP_VS_RESULTS:
         self.m = pd.merge(
                 ecm_prep.mseg_out_break,
                 ecm_results.mas_by_category,
-                how = "inner", 
+                how = "inner",
                 on = ["ecm", "scenario", "region", "building_class", "end_use", "year", "baseline_savings_efficient", "energy_carbon_cost"],
                 suffixes = ["_uncompeted", "_competed"]
                 )
