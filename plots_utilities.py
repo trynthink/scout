@@ -24,6 +24,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 ################################################################################
 def json_to_df(path = None, data = None):
@@ -593,30 +594,54 @@ class ECM_RESULTS:
     ############################################################################
     def generate_fm_agg_ecms(self, force = False):
         if (self.fm_agg_ecms is None) or (force):
-            self.fm_agg_ecms =\
-                    px.line(
-                        data_frame = self.financial_metrics\
-                            .groupby(["impact", "year"])\
-                            .agg({"value" : "mean"})\
-                            .reset_index(),
-                        x = "year",
-                        y = "value",
-                        title = "Mean Financial Metric Value by Year",
-                        facet_col = "impact",
-                        facet_col_wrap = 2,
-                        facet_col_spacing = 0.04,
-                        markers = True
-                        )
-            self.fm_agg_ecms = scout_plotly_layout(self.fm_agg_ecms)
-            self.fm_agg_ecms.update_yaxes(
-                    title = None,
-                    matches = None,
+            fms = [s for s in set(self.financial_metrics.impact)]
+            fms.sort()
+
+            d = self.financial_metrics\
+                    .groupby(["impact", "year"])\
+                    .agg({"value" : "mean"})\
+                    .reset_index()
+
+            self.fm_agg_ecms = make_subplots(
+                    rows = 2,
+                    cols = 2,
+                    subplot_titles = tuple(fms)
                     )
+
+            i = -1
+            for r in [1, 2]:
+                for c in [1, 2]:
+                    i += 1
+                    self.fm_agg_ecms.add_trace(
+                        go.Scatter(
+                         x = d.loc[d.impact == fms[i], "year"],
+                         y = d.loc[d.impact == fms[i], "value"],
+                         mode = "lines+markers",
+                         name = fms[i]
+                        ),
+                        row = r,
+                        col = c,
+                    )
+
+            self.fm_agg_ecms = scout_plotly_layout(self.fm_agg_ecms)
             self.fm_agg_ecms.update_xaxes(
-                    title = None,
                     tick0 = 2025,
                     dtick = 5,
                     )
+            self.fm_agg_ecms.update_xaxes(
+                    mirror = True,
+                    ticks  = 'outside',
+                    showline = True,
+                    linecolor = "black"
+                    )
+            self.fm_agg_ecms.update_yaxes(
+                    mirror = True,
+                    ticks  = 'outside',
+                    showline = True,
+                    linecolor = "black"
+                    )
+            self.fm_agg_ecms.update_layout(showlegend = False)
+
         return self.fm_agg_ecms
 
     ############################################################################
