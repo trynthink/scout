@@ -101,8 +101,8 @@ def financial_metrics():
         html.Div([
             html.Label("ECM:"),
             dcc.Dropdown(id = "ecm_dropdown",
-                options = ecms,
-                value = ecms[0],#["value"],
+                options = ecm_results.ecms,
+                value = ecm_results.ecms[0],#["value"],
                 clearable = False)
             ],
             id = "ecm_dropdown_div",
@@ -286,8 +286,8 @@ def cms_v_ums():
         html.Div([
             html.Label("ECM:"),
             dcc.Dropdown(id = "cms_v_ums_ecm_dropdown",
-                options = ecms,
-                value = ecms[0]["value"],
+                options = ecm_results.ecms,
+                value = ecm_results.ecms[0]["value"],
                 clearable = False)
             ],
             id = "cms_v_ums_ecm_dropdown_div",
@@ -497,9 +497,10 @@ if __name__ == "__main__":
 
     ############################################################################
     # build useful things for ui
-    ecms = list(set(ecm_results.mas_by_category.ecm))
-    ecms.sort()
+    #ecms = list(set(ecm_results.mas_by_category.ecm))
+    #ecms.sort()
     #ecms = [{"label" : l, "value" : l} for l in ecms]
+    # should now be in ecm_results.ecms
 
     years = [y for y in set(ecm_results.mas_by_category.year)]
     years.sort()

@@ -456,30 +456,31 @@ def extract_mseg_out_break(df):
 
 ################################################################################
 # Common plotly layout setting
-def scout_plotly_layout(fig):
-    fig.update_yaxes(
-            exponentformat = "B",
-            showticklabels = True,
-            gridcolor = "lightgrey"
-            )
-    fig.update_xaxes(
-            gridcolor = "lightgrey"
-                    )
-    fig.for_each_annotation(
-            lambda a: a.update(text = a.text.split("=")[-1])
-                    )
-    fig.for_each_annotation(
-            lambda a: a.update(text = a.text.replace(" (", "<br>("))
-                    )
+scout_yaxes = {
+        "exponentformat" : "B",
+        "showticklabels" : True,
+        "gridcolor"      : "lightgrey",
+        "mirror"         : True,
+        "ticks"          : 'outside',
+        "showline"       : True,
+        "linecolor"      : "black"
+        }
 
-    fig.update_layout(
-            autosize = False,
-            width = 1175,
-            height = 875,
-            plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
-                    )
+scout_xaxes = {
+        "mirror"    : True,
+        "ticks"     : 'outside',
+        "showline"  : True,
+        "linecolor" : "black",
+        "gridcolor" : "lightgrey"
+        }
 
-    return fig
+scout_layout = {
+        "autosize"     : False,
+        "width"        : 1175,
+        "height"       : 875,
+        "plot_bgcolor" : "whitesmoke" #"rgba(0, 0, 0, 0)"
+        }
+
 
 ################################################################################
 class ECM_PREP:
@@ -560,6 +561,10 @@ class ECM_RESULTS:
         self.financial_metrics = extract_financial_metrics(df)
         self.mas_by_category, self.mas_overall = extract_mas(df)
 
+
+        self.ecms = list(set(self.mas_by_category.ecm))
+        self.ecms.sort()
+
         return None
 
     ############################################################################
@@ -620,27 +625,30 @@ class ECM_RESULTS:
                          name = fms[i]
                         ),
                         row = r,
-                        col = c,
+                        col = c
                     )
 
-            self.fm_agg_ecms = scout_plotly_layout(self.fm_agg_ecms)
+            self.fm_agg_ecms.for_each_annotation(
+                    lambda a: a.update(text = a.text.split("=")[-1])
+                    )
+            self.fm_agg_ecms.for_each_annotation(
+                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                    )
+
             self.fm_agg_ecms.update_xaxes(
                     tick0 = 2025,
                     dtick = 5,
+                    **scout_xaxes
                     )
-            self.fm_agg_ecms.update_xaxes(
-                    mirror = True,
-                    ticks  = 'outside',
-                    showline = True,
-                    linecolor = "black"
-                    )
+
             self.fm_agg_ecms.update_yaxes(
-                    mirror = True,
-                    ticks  = 'outside',
-                    showline = True,
-                    linecolor = "black"
+                **scout_yaxes
                     )
-            self.fm_agg_ecms.update_layout(showlegend = False)
+
+            self.fm_agg_ecms.update_layout(
+                **scout_layout,
+                showlegend = False
+                )
 
         return self.fm_agg_ecms
 
@@ -654,80 +662,88 @@ class ECM_RESULTS:
                 ecm = None
 
         if (ecm is None):
-            fig = px.line(
-                    data_frame = self.financial_metrics,
-                    x = "year",
-                    y = "value",
-                    color = "ecm",
-                    facet_col = "impact",
-                    facet_col_wrap = 2,
-                    facet_col_spacing = 0.05,
-                    markers = True
+
+            fms = [s for s in set(self.financial_metrics.impact)]
+            fms.sort()
+
+            fig = make_subplots(
+                    rows = 2,
+                    cols = 2,
+                    subplot_titles = tuple(fms)
                     )
-            fig.update_yaxes(
-                    title = None,
-                    matches = None,
-                    exponentformat = "B",
-                    showticklabels = True,
-                    gridcolor = "lightgrey"
-                    )
-            fig.update_xaxes(
-                    title = None,
-                    tick0 = 2025,
-                    dtick = 5,
-                    gridcolor = "lightgrey"
-                    )
+
+            i = -1
+            for r in [1, 2]:
+                for c in [1, 2]:
+                    i += 1
+                    for e in self.ecms:
+                        fig.add_trace(
+                            go.Scatter(
+                             x = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == e), "year"],
+                             y = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == e), "value"],
+                             mode = "lines+markers", 
+                             name = fms[i] + "<br>" + e,
+                             hovertemplate =
+                                 'year: %{x}<br>' +
+                                 fms[i] + ': %{y}<br>' +
+                                 'ECM: ' + e
+                            ),
+                            row = r,
+                            col = c
+                        )
+
             fig.for_each_annotation(
                     lambda a: a.update(text = a.text.split("=")[-1])
                     )
             fig.for_each_annotation(
                     lambda a: a.update(text = a.text.replace(" (", "<br>("))
                     )
-            fig.update_layout(
-                    autosize = False,
-                    width = 1175,
-                    height = 875,
-                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
-                    legend = {
-                        "title" : "ECM"
-                        }
-                    )
+
+            fig.update_xaxes(tick0 = 2025, dtick = 5, **scout_xaxes)
+            fig.update_yaxes(**scout_yaxes)
+            fig.update_layout(**scout_layout, showlegend = False)
+
         else:
-            fig = px.line(
-                    data_frame =
-                      self.financial_metrics[self.financial_metrics.ecm == ecm],
-                    x = "year",
-                    y = "value",
-                    facet_col = "impact",
-                    facet_col_wrap = 2,
-                    facet_col_spacing = 0.04,
-                    markers = True
+            fms = [s for s in set(self.financial_metrics.impact)]
+            fms.sort()
+
+            fig = make_subplots(
+                    rows = 2,
+                    cols = 2,
+                    subplot_titles = tuple(fms)
                     )
-            fig.update_yaxes(
-                    title = None,
-                    matches = None,
-                    exponentformat = "B",
-                    showticklabels = True,
-                    gridcolor = "lightgrey"
+
+            i = -1
+            for r in [1, 2]:
+                for c in [1, 2]:
+                    i += 1
+                    fig.add_trace(
+                        go.Scatter(
+                         x = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == ecm), "year"],
+                         y = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == ecm), "value"],
+                         mode = "lines+markers",
+                         name = fms[i] + " " + ecm,
+                         hovertemplate =
+                             'year: %{x}<br>' +
+                             fms[i] + ': %{y}<br>' +
+                             'ECM: ' + ecm
+                        ),
+                        row = r,
+                        col = c
                     )
-            fig.update_xaxes(
-                    title = None,
-                    tick0 = 2025,
-                    dtick = 5,
-                    gridcolor = "lightgrey"
-                    )
+
             fig.for_each_annotation(
                     lambda a: a.update(text = a.text.split("=")[-1])
                     )
             fig.for_each_annotation(
                     lambda a: a.update(text = a.text.replace(" (", "<br>("))
                     )
-            fig.update_layout(
-                    autosize = False,
-                    width = 1175,
-                    height = 875,
-                    plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)"
-                    )
+
+            fig.update_xaxes(tick0 = 2025, dtick = 5, **scout_xaxes)
+
+            fig.update_yaxes(**scout_yaxes )
+
+            fig.update_layout(**scout_layout, showlegend = False)
 
         return fig
 
