@@ -8,7 +8,8 @@ __pycache__/
 #################################
 
 *out.txt
-ktek.*
+*out-orig.txt
+ktek*
 k*.txt
 rs*.txt
 
