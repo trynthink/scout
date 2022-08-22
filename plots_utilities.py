@@ -481,6 +481,10 @@ scout_layout = {
         "plot_bgcolor" : "whitesmoke" #"rgba(0, 0, 0, 0)"
         }
 
+# colors from color brewer2
+colors_paired12 = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c",
+        "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
+
 
 ################################################################################
 class ECM_PREP:
@@ -564,6 +568,9 @@ class ECM_RESULTS:
 
         self.ecms = list(set(self.mas_by_category.ecm))
         self.ecms.sort()
+
+        self.scenarios = list(set(self.mas_by_category.scenario))
+        self.scenarios.sort()
 
         return None
 
@@ -839,23 +846,25 @@ class ECM_RESULTS:
         return fig
 
     ############################################################################
-    def generate_total_savings(self, m, by, annual_or_cumulative, force = False):
+    def generate_total_savings(self, impact, by = None, annual_or_cumulative = "annual", force = False):
 
-        a_data = self.mas_by_category\
-            .sort_values(by = ["scenario", "impact", "year"])\
-            .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
-            .agg({"value" : "sum"})\
-            .reset_index()
-        c_data = self.mas_by_category\
-            .sort_values(by = ["scenario", "impact", "year"])\
-            .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
-            .agg({"value" : "sum"})\
-            .groupby(level = [j for j in ["scenario", "impact", by] if j is not None])\
-            .cumsum()\
-            .reset_index()
-        a_data["total"] = "annual"
-        c_data["total"] = "cumulative"
-        plot_data = pd.concat([a_data, c_data])
+        if not (annual_or_cumulative in ["annual", "cumulative"]):
+            annual_or_cumulative = "annual"
+
+        if annual_or_cumulative == "annual":
+            plot_data = self.mas_by_category\
+                .sort_values(by = ["scenario", "impact", "year"])\
+                .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
+                .agg({"value" : "sum"})\
+                .reset_index()
+        else:
+            plot_data = self.mas_by_category\
+                .sort_values(by = ["scenario", "impact", "year"])\
+                .groupby([j for j in ["scenario", "impact", "year", by] if j is not None])\
+                .agg({"value" : "sum"})\
+                .groupby(level = [j for j in ["scenario", "impact", by] if j is not None])\
+                .cumsum()\
+                .reset_index()
 
         # legend title
         if by is not None:
@@ -863,47 +872,102 @@ class ECM_RESULTS:
         else:
             lgnd_title = None
 
-        fig = px.line(
-                  plot_data[((plot_data.impact == m) &
-                             (plot_data.total == annual_or_cumulative))],
-                  x = "year",
-                  y = "value",
-                  color = by,
-                  facet_col = "scenario",
-                  markers = True
-                )
-        fig.update_traces(mode = "lines+markers")
-        fig.update_yaxes(
-                exponentformat = "B",
-                title = None,
-                gridcolor = "lightgrey"
-                )
-        fig.update_xaxes(
-                tick0 = 2025,
-                dtick = 5,
-                title = None,
-                gridcolor = "lightgrey"
-                )
+        fig = make_subplots(rows = 1, cols = len(set(plot_data.scenario)), subplot_titles = tuple(self.scenarios))
+
+        if by is None:
+            i = 1
+            for s in self.scenarios:
+                fig.add_trace(
+                        go.Scatter(
+                            x = plot_data.loc[((plot_data.scenario == s) & (plot_data.impact == impact)), "year"],
+                            y = plot_data.loc[((plot_data.scenario == s) & (plot_data.impact == impact)), "value"],
+                            mode = "lines+markers",
+                            name = s
+                            ),
+                        row = 1,
+                        col = i)
+                i += 1
+        else:
+            i = 0
+            for s in self.scenarios:
+                i += 1
+                j = 0
+                for b in list(set(plot_data[by])):
+                    fig.add_trace(
+                            go.Scatter(
+                                x = plot_data.loc[((plot_data.scenario == s) & (plot_data.impact == impact) & (plot_data[by] == b)), "year"],
+                                y = plot_data.loc[((plot_data.scenario == s) & (plot_data.impact == impact) & (plot_data[by] == b)), "value"],
+                                mode = "lines+markers",
+                                name = b,
+                                line_color = colors_paired12[j],
+                                legendgroup = b,
+                                showlegend = (i == 1)
+                                ),
+                            row = 1,
+                            col = i)
+                    j += 1
+
         fig.for_each_annotation(
-                lambda a: a.update(text=a.text.split("=")[-1])
+                lambda a: a.update(text = a.text.split("=")[-1])
                 )
         fig.for_each_annotation(
                 lambda a: a.update(text = a.text.replace(" (", "<br>("))
                 )
-        fig.update_layout(
-                title = m,
-                autosize = False,
-                width = 1175,
-                height = 875,
-                plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
-                legend = {
-                    "x" : 0.02,
-                    "y" : 0.98,
-                    "title" : lgnd_title,
-                    "bordercolor" : "black",
-                    "borderwidth" : 2
-                    }
+
+        fig.update_xaxes(
+                tick0 = 2025,
+                dtick = 5,
+                **scout_xaxes
                 )
+        fig.update_yaxes(
+            **scout_yaxes
+                )
+        fig.update_layout(
+            **scout_layout,
+            showlegend = True
+            )
+
+        #fig = px.line(
+        #          plot_data[((plot_data.impact == impact) &
+        #                     (plot_data.total == annual_or_cumulative))],
+        #          x = "year",
+        #          y = "value",
+        #          color = by,
+        #          facet_col = "scenario",
+        #          markers = True
+        #        )
+        #fig.update_traces(mode = "lines+markers")
+        #fig.update_yaxes(
+        #        exponentformat = "B",
+        #        title = None,
+        #        gridcolor = "lightgrey"
+        #        )
+        #fig.update_xaxes(
+        #        tick0 = 2025,
+        #        dtick = 5,
+        #        title = None,
+        #        gridcolor = "lightgrey"
+        #        )
+        #fig.for_each_annotation(
+        #        lambda a: a.update(text=a.text.split("=")[-1])
+        #        )
+        #fig.for_each_annotation(
+        #        lambda a: a.update(text = a.text.replace(" (", "<br>("))
+        #        )
+        #fig.update_layout(
+        #        title = impact,
+        #        autosize = False,
+        #        width = 1175,
+        #        height = 875,
+        #        plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
+        #        legend = {
+        #            "x" : 0.02,
+        #            "y" : 0.98,
+        #            "title" : lgnd_title,
+        #            "bordercolor" : "black",
+        #            "borderwidth" : 2
+        #            }
+        #        )
 
         return fig
 

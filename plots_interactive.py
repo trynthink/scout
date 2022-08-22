@@ -398,11 +398,13 @@ def update_savings_output(savings_dropdown_value, savings_by_dropdown_value, sav
     if savings_by_dropdown_value == "overall":
         savings_by_dropdown_value = None
 
-    return dcc.Graph(figure = ecm_results.generate_total_savings(
-        m = savings_dropdown_value,
-        by = savings_by_dropdown_value,
-        annual_or_cumulative = savings_annual_cumulative_dropdown
-        ))
+    return dcc.Graph(
+            figure = ecm_results.generate_total_savings(
+                impact = savings_dropdown_value,
+                by = savings_by_dropdown_value,
+                annual_or_cumulative = savings_annual_cumulative_dropdown
+                )
+            )
 
 
 @app.callback(
