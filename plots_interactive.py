@@ -376,9 +376,10 @@ def update_ces_output(ces_dropdown_value,
         building_classes_dropdown_value,
         building_types_dropdown_value
         ):
+
     return dcc.Graph(figure =
             ecm_results.generate_cost_effective_savings(
-                m = ces_dropdown_value,
+                results_impact = ces_dropdown_value,
                 year = year_dropdown_value,
                 end_uses = end_uses_dropdown_value,
                 building_classes = building_classes_dropdown_value,

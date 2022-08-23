@@ -572,6 +572,9 @@ class ECM_RESULTS:
         self.scenarios = list(set(self.mas_by_category.scenario))
         self.scenarios.sort()
 
+        self.financial_impacts = [s for s in set(self.financial_metrics.impact)]
+        self.financial_impacts.sort()
+
         return None
 
     ############################################################################
@@ -606,8 +609,6 @@ class ECM_RESULTS:
     ############################################################################
     def generate_fm_agg_ecms(self, force = False):
         if (self.fm_agg_ecms is None) or (force):
-            fms = [s for s in set(self.financial_metrics.impact)]
-            fms.sort()
 
             d = self.financial_metrics\
                     .groupby(["impact", "year"])\
@@ -617,7 +618,7 @@ class ECM_RESULTS:
             self.fm_agg_ecms = make_subplots(
                     rows = 2,
                     cols = 2,
-                    subplot_titles = tuple(fms)
+                    subplot_titles = tuple(self.financial_impacts)
                     )
 
             i = -1
@@ -626,10 +627,10 @@ class ECM_RESULTS:
                     i += 1
                     self.fm_agg_ecms.add_trace(
                         go.Scatter(
-                         x = d.loc[d.impact == fms[i], "year"],
-                         y = d.loc[d.impact == fms[i], "value"],
+                         x = d.loc[d.impact == self.financial_impacts[i], "year"],
+                         y = d.loc[d.impact == self.financial_impacts[i], "value"],
                          mode = "lines+markers",
-                         name = fms[i]
+                         name = self.financial_impacts[i]
                         ),
                         row = r,
                         col = c
@@ -669,14 +670,10 @@ class ECM_RESULTS:
                 ecm = None
 
         if (ecm is None):
-
-            fms = [s for s in set(self.financial_metrics.impact)]
-            fms.sort()
-
             fig = make_subplots(
                     rows = 2,
                     cols = 2,
-                    subplot_titles = tuple(fms)
+                    subplot_titles = tuple(self.financial_impacts)
                     )
 
             i = -1
@@ -686,13 +683,13 @@ class ECM_RESULTS:
                     for e in self.ecms:
                         fig.add_trace(
                             go.Scatter(
-                             x = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == e), "year"],
-                             y = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == e), "value"],
+                             x = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == e), "year"],
+                             y = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == e), "value"],
                              mode = "lines+markers", 
-                             name = fms[i] + "<br>" + e,
+                             name = self.financial_impacts[i] + "<br>" + e,
                              hovertemplate =
                                  'year: %{x}<br>' +
-                                 fms[i] + ': %{y}<br>' +
+                                 self.financial_impacts[i] + ': %{y}<br>' +
                                  'ECM: ' + e
                             ),
                             row = r,
@@ -711,13 +708,10 @@ class ECM_RESULTS:
             fig.update_layout(**scout_layout, showlegend = False)
 
         else:
-            fms = [s for s in set(self.financial_metrics.impact)]
-            fms.sort()
-
             fig = make_subplots(
                     rows = 2,
                     cols = 2,
-                    subplot_titles = tuple(fms)
+                    subplot_titles = tuple(self.financial_impacts)
                     )
 
             i = -1
@@ -726,13 +720,13 @@ class ECM_RESULTS:
                     i += 1
                     fig.add_trace(
                         go.Scatter(
-                         x = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == ecm), "year"],
-                         y = self.financial_metrics.loc[(self.financial_metrics.impact == fms[i]) & (self.financial_metrics.ecm == ecm), "value"],
+                         x = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == ecm), "year"],
+                         y = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == ecm), "value"],
                          mode = "lines+markers",
-                         name = fms[i] + " " + ecm,
+                         name = self.financial_impacts[i] + " " + ecm,
                          hovertemplate =
                              'year: %{x}<br>' +
-                             fms[i] + ': %{y}<br>' +
+                             self.financial_impacts[i] + ': %{y}<br>' +
                              'ECM: ' + ecm
                         ),
                         row = r,
@@ -755,8 +749,11 @@ class ECM_RESULTS:
         return fig
 
     ############################################################################
-    def generate_cost_effective_savings(self, m, year, end_uses, building_classes, building_types, force = False):
+    def generate_cost_effective_savings(self, results_impact, year, end_uses, building_classes, building_types, force = False):
         self.ces_data = self.mas_by_category.copy(deep = True)
+
+        self.ces_data = self.ces_data[self.ces_data.impact == results_impact]
+        self.ces_data = self.ces_data[self.ces_data.year == year]
 
         if len(end_uses) > 0:
             self.ces_data =\
@@ -789,7 +786,6 @@ class ECM_RESULTS:
                     .agg(agg_dict)\
                     .reset_index()
 
-
         self.ces_data = \
                 pd.pivot_table(self.ces_data,
                         values = "value",
@@ -801,47 +797,49 @@ class ECM_RESULTS:
                         how = "left",
                         on = ["ecm", "year"])
 
-        fig = px.scatter(
-                    self.ces_data[(self.ces_data.year == year)],
-                x = m,
-                y = "value",
-                #symbol = "building_class",
-                #color = "end_use",
-                facet_col = "scenario",
-                facet_row = "impact",
-                hover_data = {
-                    "ecm": True,
-                    m : True,
-                    "value": True,
-                    "end_use": True#,
-                    #"building_class": True,
-                    #"building_type": True
-                    }
+        fig = make_subplots(
+                rows = len(self.financial_impacts),
+                cols = len(self.scenarios),
+                x_title = results_impact,
+                subplot_titles = tuple(
+                    [a + "<br>" + b for b in self.financial_impacts for a in self.scenarios]
+                    )
                 )
 
-        fig.update_yaxes(
-                title_text = "",
-                matches = None,
-                exponentformat = "B",
-                gridcolor = "lightgrey"
-                )
-        fig.update_xaxes(
-                exponentformat = "B",
-                gridcolor = "lightgrey"
-                )
+        c = 0
+        for s in self.scenarios:
+            c += 1
+            r = 0
+            for fi in self.financial_impacts:
+                r += 1
+                idx = ((self.ces_data.year == year) & (self.ces_data.scenario == s) & (self.ces_data.impact == fi))
+                fig.add_trace(
+                        go.Scatter(
+                            x = self.ces_data.loc[idx, results_impact],
+                            y = self.ces_data.loc[idx, "value"],
+                            marker_symbol =  ["circle", "square"][ c - 1 ],
+                            marker_color = colors_paired12[r - 1],
+                            legendgroup = fi,
+                            showlegend = (c == 1),
+                            mode = "markers",
+                            name = fi
+                            ),
+                        row = r, col = c
+                        )
+                #fig.update_xaxes(title_text = results_impact, row = r, col = c)
+                #fig.update_yaxes(title_text = fi, row = r, col = c)
+
         fig.for_each_annotation(
-                lambda a: a.update(text=a.text.split("=")[-1])
+                lambda a: a.update(text = a.text.split("=")[-1])
                 )
         fig.for_each_annotation(
                 lambda a: a.update(text = a.text.replace(" (", "<br>("))
                 )
-        fig.update_layout(
-                autosize = False,
-                width = 1175,
-                height = 875,
-                plot_bgcolor = "whitesmoke", #"rgba(0, 0, 0, 0)",
-                showlegend = False
-                )
+
+        fig.update_xaxes(**scout_xaxes)
+        fig.update_yaxes(**scout_yaxes)
+
+        fig.update_layout(**scout_layout, showlegend = True)
 
         return fig
 
