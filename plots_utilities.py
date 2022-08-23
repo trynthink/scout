@@ -822,12 +822,15 @@ class ECM_RESULTS:
                             legendgroup = fi,
                             showlegend = (c == 1),
                             mode = "markers",
-                            name = fi
+                            name = fi,
+                            hovertemplate =
+                            '(x-axis) Results Impact: ' + results_impact + ': %{x}<br>' +
+                            '(y-axis) Financial Impact: ' + fi + ': %{y}<br>' +
+                            'Scenario: ' + s + '<br>' +
+                            'Year: ' + str(year)
                             ),
                         row = r, col = c
                         )
-                #fig.update_xaxes(title_text = results_impact, row = r, col = c)
-                #fig.update_yaxes(title_text = fi, row = r, col = c)
 
         fig.for_each_annotation(
                 lambda a: a.update(text = a.text.split("=")[-1])
@@ -839,7 +842,7 @@ class ECM_RESULTS:
         fig.update_xaxes(**scout_xaxes)
         fig.update_yaxes(**scout_yaxes)
 
-        fig.update_layout(**scout_layout, showlegend = True)
+        fig.update_layout(**scout_layout, showlegend = False)
 
         return fig
 
