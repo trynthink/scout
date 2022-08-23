@@ -962,7 +962,7 @@ class Engine(object):
         try:
             irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
             if not math.isfinite(irr_e):
-                raise(ValueError)
+                raise (ValueError)
         except ValueError:
             irr_e = 999
         try:
@@ -974,7 +974,7 @@ class Engine(object):
             irr_ec = npf.irr(
                 cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
             if not math.isfinite(irr_ec):
-                raise(ValueError)
+                raise (ValueError)
         except ValueError:
             irr_ec = 999
         try:
@@ -1026,7 +1026,7 @@ class Engine(object):
                             unit_cost_s_com["rate " + str(ind + 1)],
                             unit_cost_e_com["rate " + str(ind + 1)],
                             unit_cost_c_com["rate " + str(ind + 1)]]]):
-                        raise(ValueError)
+                        raise (ValueError)
             except ValueError:
                 unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
                     None for n in range(3))
@@ -3477,9 +3477,6 @@ class Engine(object):
             report_stk (boolean): Flag for stock data reporting.
             report_cfs (boolean): Flag for reporting comp. scaling fractions.
         """
-        # Initialize markets and savings totals across all ECMs
-        summary_vals_all_ecms = [{
-            yr: 0 for yr in self.handyvars.aeo_years} for n in range(12)]
         # Set up subscript translator for carbon variable strings
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # If user has specified a reduced results file size, check for whether
@@ -3488,6 +3485,18 @@ class Engine(object):
             focus_yrs = [str(x) for x in trim_yrs]
         else:
             focus_yrs = self.handyvars.aeo_years
+        # Initialize markets and savings totals across all ECMs
+        summary_vals_all_ecms = [{
+            yr: 0 for yr in focus_yrs} for n in range(12)]
+        # Initialize variable that aggregates total and incremental
+        # stock cost for deploying measures across all measures, provided
+        # the user has chosen to report those data. Structure this variable
+        # as a list of two dicts, where the first dict will store total cost
+        # data and the second will store incremental cost data
+        if opts.report_stk is True:
+            stk_cost_all_ecms = [{yr: 0 for yr in focus_yrs} for n in range(2)]
+        else:
+            stk_cost_all_ecms = ""
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
             # Set competed measure markets and savings and financial metrics
@@ -4049,6 +4058,14 @@ class Engine(object):
                     adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
                         yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
                         for yr in focus_yrs}
+                # Update stock cost data across all ECMs with data for
+                # current ECM
+                for yr in focus_yrs:
+                    # Add to total stock cost data (first element of list)
+                    stk_cost_all_ecms[0][yr] += stk_cost_meas_avg[yr]
+                    # Add to inc. stock cost data (second element of list)
+                    stk_cost_all_ecms[1][yr] += (
+                        stk_cost_meas_avg[yr] - stk_cost_base[yr])
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
                     meas_stk_key_low = meas_stk_key + " (low)"
@@ -4130,6 +4147,14 @@ class Engine(object):
                 ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
                 ("Efficient CO2 Cost (USD)".translate(sub),
                  carb_cost_eff_all_avg)])
+        # If necessary, record stock costs across all ECMs
+        if opts.report_stk is True and stk_cost_all_ecms:
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Total Measure Stock Cost ($)"] = \
+                stk_cost_all_ecms[0]
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Incremental Measure Stock Cost ($)"] = \
+                stk_cost_all_ecms[1]
 
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
@@ -4305,11 +4330,11 @@ def main(base_dir):
     # corresponding JSON definitions, loop through measures data in JSON,
     # initialize objects for all measures that are active and valid
     if active_ecms_w_jsons == 0:
-        raise(ValueError("No active measures found; ensure that the " +
-                         "'active' list in run_setup.json is not empty " +
-                         "and that all active measure names match those " +
-                         "found in the 'name' field for corresponding " +
-                         "measure definitions in ./ecm_definitions"))
+        raise (ValueError("No active measures found; ensure that the " +
+                          "'active' list in run_setup.json is not empty " +
+                          "and that all active measure names match those " +
+                          "found in the 'name' field for corresponding " +
+                          "measure definitions in ./ecm_definitions"))
     else:
         measures_objlist = [
             Measure(handyvars, **m) for m in meas_summary if

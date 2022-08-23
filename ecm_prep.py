@@ -5484,7 +5484,7 @@ class Measure(object):
                     # etc.) that should be used to key in the appropriate load
                     # shape information
                     if mskeys[4] == "other":
-                        raise(KeyError)
+                        raise (KeyError)
                     else:
                         # Set load data end use key for use in 'apply_tsv'
                         eu = mskeys[4]
@@ -8039,7 +8039,7 @@ class Measure(object):
                         del_keys = [x for x in attr.keys() if x in [
                                     'all residential', 'all commercial']]
                         for dk in del_keys:
-                            del(attr[dk])
+                            del (attr[dk])
             # If there is no 'all' building type input, still record the
             # measure's applicability to the residential and/or
             # the commercial building sector in a list (for use in filling out
@@ -8858,7 +8858,7 @@ class Measure(object):
         dict_keys = list(itertools.product(*keylevels))
         # Remove all natural gas cooling key chains (EnergyPlus output
         # files do not include a column for natural gas cooling)
-        dict_keys = [x for x in dict_keys if not(
+        dict_keys = [x for x in dict_keys if not (
             'natural gas' in x and 'cooling' in x)]
 
         # Use an input dictionary with valid baseline microsegment information
