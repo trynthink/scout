@@ -770,7 +770,7 @@ class ECM_RESULTS:
                 "region" : unique_strings,
                 "end_use" : unique_strings}
 
-        pivot_index = ["scenario", "ecm", "end_use", "year"]
+        pivot_index = ["scenario", "ecm", "region", "end_use", "year"]
 
         if "building_class" in self.ces_data.columns:
             agg_dict["building_class"] = unique_strings
@@ -827,7 +827,10 @@ class ECM_RESULTS:
                             '(x-axis) Results Impact: ' + results_impact + ': %{x}<br>' +
                             '(y-axis) Financial Impact: ' + fi + ': %{y}<br>' +
                             'Scenario: ' + s + '<br>' +
-                            'Year: ' + str(year)
+                            'Year: ' + str(year) + '<br>' +
+                            'ECM: ' + self.ces_data.loc[idx, "ecm"] + '<br>' +
+                            'Region(s): ' + self.ces_data.loc[idx, "region"] + '<br>' +
+                            'End Use(s): ' + self.ces_data.loc[idx, "end_use"]
                             ),
                         row = r, col = c
                         )
