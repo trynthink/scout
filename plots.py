@@ -39,7 +39,7 @@ def pretty(low, high, n):
     return numpy.arange(miny, maxy+0.5*d, d)
 
 
-def run_plot(meas_summary, a_run, handyvars, measures_objlist):
+def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Set base directory
     base_dir = getcwd()
     # Set uncompeted ECM energy, carbon, and cost data
@@ -105,9 +105,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
         'Northwest', 'Great Basin', 'California', 'Rocky Mountains',
         'Upper Midwest', 'Lower Midwest', 'Lakes/Mid-Atl.', 'Texas',
         'Southwest', 'Southeast', 'Northeast']
+    # Exclude AK and HI for now
     state_names_detail = [
-        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-        'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+        'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+        'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
         'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
         'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
         'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
@@ -116,14 +117,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
       'West North Central', 'South Atlantic', 'East South Central',
       'West South Central', 'Mountain', 'Pacific']
 
-    # Pull czones from first available ECM
-    czones_test = a_run.output_ecms[meas_names[1]][
-                                    'Filter Variables']['Applicable Regions']
-    czones_test = ', '.join([str(elem) for elem in czones_test])
-
     # Check for AIA regional breakouts; if not there, check for EMM regional
     # breakouts; if not there, assume state breakouts
-    if "AIA" in czones_test:
+    if regions == "AIA":
         # Set region legend names
         czones_out = aia_reg_names
         # Set alternate region flags
@@ -131,11 +127,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
         emm_det_flag = False
         state_flag = False
         state_det_flag = False
-    elif any([map(czones_test.__contains__, x)
-              for x in [emm_reg_names, emm_reg_names_detail]]):
+    elif regions == "EMM":
         # Set region legend names
-        if (compete_results_agg["Output Resolution"] == "detail" or
-                compete_results_agg["Output Resolution"] == "detail_reg"):
+        if compete_results_agg["Output Resolution"] == "detail" or \
+                "reg" in compete_results_agg["Output Resolution"]:
             czones_out = emm_reg_names_detail
             emm_det_flag = True
         else:
@@ -145,10 +140,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
         emm_flag = True
         state_flag = False
         state_det_flag = False
-    else:
+    elif regions == "State":
         # Set region legend names
-        if (compete_results_agg["Output Resolution"] == "detail" or
-                compete_results_agg["Output Resolution"] == "detail_reg"):
+        if compete_results_agg["Output Resolution"] == "detail" or \
+                "reg" in compete_results_agg["Output Resolution"]:
             czones_out = state_names_detail
             # state_det_flag = True
         else:
@@ -158,6 +153,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
         emm_flag = False
         emm_det_flag = False
         state_flag = True
+        state_det_flag = True
+    else:
+        raise ValueError("Unexpected regional setting '" + regions + "'")
 
     # Set region legend colors; use special handling of the colorpalette
     # to handle region sets that are possibly longer than 20 entries
@@ -169,8 +167,8 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
 
     # Set list of possible building classes and associated colors for aggregate
     # savings plot
-    if (compete_results_agg["Output Resolution"] == "detail" or
-            compete_results_agg["Output Resolution"] == "detail_bldg"):
+    if compete_results_agg["Output Resolution"] == "detail" or \
+            "bldg" in compete_results_agg["Output Resolution"]:
         bclasses_out_agg = [
             'Single Family Homes', 'Multi Family Homes',
             'Hospitals', 'Large Offices', 'Small/Medium Offices',
@@ -187,6 +185,15 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
         bclasses_out_finmets = [
             ['Residential (New)', 'Residential (Existing)'],
             ['Commercial (New)', 'Commercial (Existing)']]
+
+    # Set list of possible fuel types for data aggregation
+    if compete_results_agg["Output Resolution"] == "detail" or \
+            "fuel" in compete_results_agg["Output Resolution"]:
+        ftypes_out = ['Electric', 'Natural Gas',
+                      'Propane', 'Distillate/Other', 'Biomass']
+    else:
+        ftypes_out = ['Electric', 'Non-Electric']
+
     cmb = plt.get_cmap("tab20", len(bclasses_out_agg))
     bclasses_out_agg_col = [
         mpl.colors.rgb2hex(cmb(i)) for i in range(cmb.N)]
@@ -388,7 +395,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
     # Default plot limits for each financial metric
     plot_lims_finmets = [[-50, 150], [0, 25], [-50, 150], [-500, 1000]]
     # Cost effectiveness threshold lines for each financial metric
-    plot_ablines_finmets = [0, 5, 13, 73]
+    plot_ablines_finmets = [0, 10, 13, 100]
     # Financial metric type and key names for retrieving JSON data on each
     fin_metrics = ['IRR (%)', 'Payback (years)',
                    'Cost of Conserved Energy ($/MMBtu saved)',
@@ -444,13 +451,16 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
             col_names_xlsx.extend(xlsx_names_years)
 
             # Initialize data frame to write to Excel worksheet
-            # (note: number of rows equals to number of ECMs * number of
-            # results scenarios (baseline/efficient + competed/uncompeted) plus
-            # two additional rows to accommodate baseline/efficient competed
-            # results summed across all ECMs)
+            # (note: number of rows accounts for 3 rows at the top that sum
+            # competed baseline/efficient results and savings across all ECMs,
+            # breakouts of savings for each of the regions (depends on
+            # simulation settings), bldg. types (depends on simulation
+            # settings), and end uses (11), and competed and uncompeted
+            # baseline/efficient results for each ECM
             xlsx_data = pd.DataFrame(columns=col_names_xlsx,
-                                     index=range((
-                                        len(meas_names) * 4 + 2 + 11)*2))
+                                     index=range(3 + len(czones_out) +
+                                                 len(bclasses_out_agg) + 11 +
+                                                 len(meas_names) * 4))
 
             # Set a factor to convert the results data to final plotting units
             # for given variable (quads for energy, Mt for CO2,
@@ -572,17 +582,20 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                     # of the file
                     row_ind_start = 0
                 else:
-                    # Otherwise, leave the first 4 rows for the 'All ECMs'
-                    # total uncompeted/ competed energy, carbon, and cost data,
-                    # plus another set of rows for 'All ECMs' energy, carbon,\
-                    # and cost savings totals, first summarized across all
-                    # climate zones, building types, and end uses (1 row) and
-                    # subsequently broken out by climate zone (5, 25, or
-                    # 48 rows, depending on regionality in the data),
-                    # building type (4 rows), and end use (11 rows)
-                    row_ind_start = (m)*4 + 1 + (
-                                    1 + len(czones_out) + 4 + 11) - 1
-
+                    # Otherwise, leave the first 5 rows for 4 competed 'All
+                    # ECMs' baseline/efficient results rows and one row for
+                    # competed savings, another set of rows for breakouts of
+                    # savings across all ECMs, broken out by region (#
+                    # dependent on region settings and level of detail in
+                    # outputs), building type (# dependent on level
+                    # of detail in outputs), and end use (11 rows), and finally
+                    # 4 rows each for baseline/efficient competed/uncompeted
+                    # results per measure that preceded the current one (
+                    # excluding the 'All ECMs' measure which is already
+                    # accounted for via the above rows)
+                    row_ind_start = (
+                        5 + len(czones_out) + len(bclasses_out_agg) + 11 +
+                        (m - 1) * 4)
                 # Add measure name to Excel sheet
                 xlsx_data.iloc[row_ind_start:(row_ind_start + 4), 0] = \
                     meas_names[m]
@@ -918,9 +931,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                                                     # variable vector; handle
                                                     # case where end use
                                                     # savings are further split
-                                                    # out by fuel type (
-                                                    # 'Electric' vs.
-                                                    # 'Non-Electric')
+                                                    # out by fuel type
 
                                                     if any([
                                                         str(years[yr]) in x
@@ -932,10 +943,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                                                             r_agg_temp[
                                                             str(years[yr])]
                                                     else:
-                                                        for fuel in [
-                                                            "Electric",
-                                                            "Non-Electric"
-                                                        ]:
+                                                        for fuel in ftypes_out:
                                                             if fuel in (
                                                                 r_agg_temp.
                                                                     keys()):
@@ -1134,9 +1142,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                     # ECM totals
                     legend_param = [
                          "Ref. Case (Uncompeted)",
-                         "/w Measures (Uncompeted)",
+                         "w/ Measure(s) (Uncompeted)",
                          "Ref. Case (Competed)",
-                         "/w Measures (Competed)"]
+                         "w/ Measure(s) (Competed)"]
 
                 # Set limits of y axis for plot based on min. and
                 # max. values in data
@@ -1296,28 +1304,40 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                 # ylim_ann = pretty(min_val_ann, max_val_ann, 10)
 
                 # Initialize plot region for total annual savings and savings
-                # by filter variable category
-                axb.plot(years, total_ann, lw=3, color="#4d4d4d", label="")
-                buff_a = 0.05 * abs(max_val_ann - min_val_ann)
-                axb.set_xlim(2018, 2052)  # hardcode years
-                axb.set_ylim(min_val_ann-buff_a, max_val_ann+buff_a)
-                axb.set_ylabel(plot_axis_labels_agg_ann[v])
-                axb.set_xlabel("Year")
+                # by filter variable category, assuming savings aren't zero
+                if any([not math.isclose(x, 0, abs_tol=1e-9) for
+                        x in total_cum]):
+                    axb.plot(
+                        years, total_ann, lw=3, color="#4d4d4d", label="")
+                    buff_a = 0.05 * abs(max_val_ann - min_val_ann)
+                    axb.set_xlim(2018, 2052)  # hardcode years
+                    axb.set_ylim(min_val_ann-buff_a, max_val_ann+buff_a)
+                    axb.set_ylabel(plot_axis_labels_agg_ann[v])
+                    axb.set_xlabel("Year")
 
-                # Develop y limits for total cumulative savings
-                min_val_cum = min(total_cum)
-                max_val_cum = max(total_cum)
-                # ylim_cum = pretty(min_val_cum, max_val_cum, 10)
+                    # Develop y limits for total cumulative savings
+                    min_val_cum = min(total_cum)
+                    max_val_cum = max(total_cum)
+                    # ylim_cum = pretty(min_val_cum, max_val_cum, 10)
 
-                # Initialize plot region for total cumulative savings
-                axb2 = axb.twinx()
-                # Add total cumulative savings line
-                axb2.plot(years, total_cum, lw=3, color="#7f7f7f", ls='dotted')
-                buff_c = 0.05 * abs(max_val_cum - min_val_cum)
-                axb2.set_ylim(min_val_cum-buff_c, max_val_cum+buff_c)
-                axb2.set_ylabel(plot_axis_labels_agg_cum[v])
-
-                axb.set_title(plot_titles_agg[v] + ' by ' + filter_var[f])
+                    # Initialize plot region for total cumulative savings
+                    axb2 = axb.twinx()
+                    # Add total cumulative savings line
+                    axb2.plot(
+                        years, total_cum, lw=3, color="#7f7f7f", ls='dotted')
+                    buff_c = 0.05 * abs(max_val_cum - min_val_cum)
+                    axb2.set_ylim(min_val_cum-buff_c, max_val_cum+buff_c)
+                    axb2.set_ylabel(plot_axis_labels_agg_cum[v])
+                    # Add plot title; force switch 'Climate Zone' variable to
+                    # 'Region'
+                    if filter_var[f] != 'Climate Zone':
+                        axb.set_title(plot_titles_agg[v] + ' by ' +
+                                      filter_var[f])
+                    else:
+                        axb.set_title(plot_titles_agg[v] + ' by ' + 'Region')
+                else:  # produce blank plots
+                    axb.set_xlim(0, 1)
+                    axb.set_ylim(0, 1)
 
                 # Add total aggregate savings data across all climate zones,
                 # building types, and end uses to the data frame that will be
@@ -1443,101 +1463,62 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
             plt.savefig(plot_file_name_agg + "-Aggregate.pdf",
                         bbox_inches='tight')
 
-            # convert NoneType in the list into NaN
-            res1 = numpy.array(results_finmets[:, :6], dtype=float)
-            res2 = results_finmets[:, 6:]
-            results_finmets = numpy.column_stack((res1, res2))
-            # measnum = len(meas_names)
-
             fig, axcs = plt.subplots(2, 2, figsize=(10, 7))
             for (axc, fmp) in zip(fig.axes, range(len(fin_metrics))):
-
-                # Shorthand for financial metrics results (y axis of plot)
-                fmp_arr = numpy.array(results_finmets[:, fmp], dtype=float)
-
-                # Find ECMs with financial metrics that are within a
-                # reasonable range (NA results are marked 999)
-                restrict_non_na = numpy.where(
-                    (fmp_arr > -500) & (fmp_arr < 500))[0]
-                # Set vector of savings results for ECMs with a non-NA
-                # financial metric result
-                results_non_na = numpy.array(
-                    results_finmets[:, 4])[restrict_non_na]
-                # Find the savings-based ranking of ECMs with a non-NA
-                # financial metric result
-                temp_non_na = {val: key for key, val in enumerate(sorted(
-                    results_non_na, reverse=True))}
-                order_non_na = list(map(temp_non_na.get, results_non_na))
-                # Finally, record the index numbers of the filtered/ranked ECMs
-                final_index_non_na = [
-                    x for _, x in sorted(zip(order_non_na, order_non_na))]
-
-                # Find the top 5 cost effective ECMs, as judged by the cost
-                # effectiveness threshold for the given financial metric and
-                # the ECM's energy, carbon, or cost savings value in the cost
-                # effectiveness snapshot year
-
-                # First, find the ECMs that meet the cost effectiveness
-                # threshold (note: for IRR 'cost effective' is above the
-                # threshold, for all other metrics 'cost effective' is below
-                # the threshold); restrict only to ECMs with a cost
-                # effectiveness result inside the -500 < y < 500 range
-
+                # Shorthands for x and y data on the plot
+                s_x, s_y = [results_finmets[:, 4], results_finmets[:, fmp]]
+                # Indices of sorted x data
+                sorted_ind = sorted(
+                    range(len(s_x)), key=lambda k: s_x[k], reverse=True)
+                # Indices of sorted x data constrained to points where
+                # associated y data are within pre-defined range for plots
+                # and savings are non-zero
+                final_index_non_na = [i for i in sorted_ind if (
+                    (s_y[i] > -500) and (s_y[i] < 500) and
+                    not math.isclose(s_x[i], 0, abs_tol=1e-9))]
+                # Indices of sorted x data constrained to points where
+                # associated y data are within pre-defined range for plots
+                # and meet cost effectiveness threshold
                 if fmp == 0:
-                    restrict = numpy.where(
-                            (fmp_arr >= plot_ablines_finmets[fmp]) &
-                            (fmp_arr > -500) & (fmp_arr < 500))[0]
+                    final_index_ce = [i for i in final_index_non_na if (
+                        (s_y[i] >= plot_ablines_finmets[fmp]))]
                 else:
-                    restrict = numpy.where(
-                            (fmp_arr <= plot_ablines_finmets[fmp]) &
-                            (fmp_arr > -500) & (fmp_arr < 500))[0]
+                    final_index_ce = [i for i in final_index_non_na if (
+                        (s_y[i] <= plot_ablines_finmets[fmp]))]
 
-                # Set vector of cost effective savings results
-                results_ce = \
-                    numpy.array(results_finmets[:, 4])[restrict]
+                # Shorthands for rank-ordered measure results and plotting
+                # parameters
+                results_sort_x, results_sort_y, results_sort_pch,\
+                    results_sort_bg = [[
+                        results_finmets[:, met][i] for i in final_index_non_na]
+                        for met in [4, fmp, 6, 7]]
+                # Shorthands for rank-ordered cost-effective measure results
+                results_sort_x_ce, results_sort_y_ce = [[
+                        results_finmets[:, met][i] for i in final_index_ce]
+                        for met in [4, fmp]]
 
                 # Sum total cost effective savings
-                total_save_ce = sum(results_ce[results_ce >= 0])
-
-                # Second, find the ranking of those ECMs that meet the cost
-                # effectiveness threshold
-                temp_ce = {val: key for key, val in enumerate(sorted(
-                    results_ce, reverse=True))}
-                order_ce = list(map(temp_ce.get, results_ce))
-
-                # Finally, record the index numbers of the filtered/ranked ECMs
-                final_index_ce = [
-                    x for _, x in sorted(zip(order_ce, restrict))]
-
+                total_save_ce = sum(s_x[final_index_ce])
                 # Handle cases where there are less than 5 cost effective
                 # ECMs to rank
                 if len(final_index_ce) < 5:
                     ecm_length = len(final_index_ce)
                 else:
                     ecm_length = 5
+                # Set x axis savings values for top 5 ECMs
+                label_vals_x = results_sort_x_ce[0:ecm_length]
+                label_vals_x_ranks_str = [str(r+1) for r in range(ecm_length)]
+                # Set y axis financial metrics values for top 5 ECMs
+                label_vals_y = results_sort_y_ce[0:ecm_length]
 
                 # Construct shorthands for rank-ordered measure names
                 meas_names_sort = [
                     meas_names_no_all[i] for i in final_index_ce]
-
-                # Construct shorthands for rank-ordered measure results and
-                # plotting parameters
-                results_sort_x, results_sort_y, results_sort_pch,\
-                    results_sort_bg = [[
-                        results_finmets[:, met][i] for i in final_index_non_na]
-                        for met in [4, fmp, 6, 7]]
-
                 # Set top 5 ECM names (add rank number next to each name)
                 meas_names_lgnd = meas_names_sort[0:ecm_length]
                 for mn in range(len(meas_names_lgnd)):
                     meas_names_lgnd[mn] = str(mn + 1) + " " + \
                         meas_names_lgnd[mn]
-
-                # Set x axis savings values for top 5 ECMs
-                label_vals_x = results_sort_x[0:ecm_length]
-                label_vals_x_ranks_str = [str(r+1) for r in range(ecm_length)]
-                # Set y axis financial metrics values for top 5 ECMs
-                label_vals_y = results_sort_y[0:ecm_length]
 
                 # Set y limits for the plot
                 ylim_fm = plot_lims_finmets[fmp]
@@ -1658,6 +1639,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
                                  verticalalignment=aln,
                                  fontdict=dict(color="black", size=6),
                                  zorder=1)
+                else:  # produce blank plots
+                    axc.set_xlim(0, 1)
+                    axc.set_ylim(0, 1)
 
             # Add a series of legends to the second page of the PDF device
             # that distinguish the applicable climate zone, building type,
@@ -1705,15 +1689,17 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist):
             # Generate cost effectiveness figure
             plt.tight_layout()
             plt.savefig(plot_file_name_finmets, bbox_inches='tight')
+
+            # Append Excel data, excluding the first two rows (uncompeted
+            # 'All ECMs' results, which are not meaningful)
             xlsx_var_name_list.append(xlsx_data.iloc[2:xlsx_data.shape[0],
                                       0:len(xlsx_data.columns)])
-
+        # Write out Excel results
         writer = pd.ExcelWriter(
             xlsx_file_name, engine='xlsxwriter')
         for i in range(len(xlsx_var_name_list)):
             xlsx_var_name_list[i].to_excel(
                 writer, sheet_name=file_names_ecms[i], index=False)
-
         writer.save()
 
 
