@@ -96,7 +96,7 @@ class CommercialTranslationDicts(object):
                              'mercantile/service': 9,
                              'warehouse': 10,
                              'other': 11,
-                             'non-building': 12  # Applies to specific MELs
+                             'unspecified': 12  # for some "other" energy
                              }
 
         self.endusedict = {'heating': 1,
@@ -108,7 +108,9 @@ class CommercialTranslationDicts(object):
                            'refrigeration': 7,
                            'PCs': 8,
                            'non-PC office equipment': 9,
-                           'MELs': 10
+                           'other': 10,
+                           'MELs': 10,
+                           'unspecified': 11
                            }
 
         self.mels_techdict = {'distribution transformers': 1,
@@ -231,8 +233,13 @@ def json_interpreter(key_series):
     # keys will have one additional entry, which should be
     # processed against the dict 'mels_techdict'
     if 'MELs' in keys:
-        # Interpret the MEL type specified and append to the list
-        interpreted_values.append(cd.mels_techdict[keys[4]])
+        # MELs "other" captures the total "other" electricity not reported
+        # as a specific MEL device under MiscElConsump in the data; this
+        # case should extract the total "other" to be adjusted later to
+        # deduct the electricity under specific MELs
+        if not keys[4] == 'other':
+            # Interpret the MEL type specified and append to the list
+            interpreted_values.append(cd.mels_techdict[keys[4]])
 
     return interpreted_values
 
@@ -541,10 +548,17 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         # in the 'EndUseConsump' section is 10, but technology specific
         # in the 'MiscElConsump' section, the MEL-specific number is
         # written over the 10 in the 'EndUse' position in idx_series
-        idx_series[2] = idx_series[4]
+        if not key_series[4] == 'other':
+            idx_series[2] = idx_series[4]
 
-        # Extract the data from KDBOUT
-        subset = catg_data_selector(db_array, idx_series, 'MiscElConsump', yrs)
+            # Extract the data from KDBOUT
+            subset = catg_data_selector(db_array, idx_series, 'MiscElConsump',
+                                        yrs)
+        # Extract the total electricity listed as "other"
+        else:
+            # Extract the electricity "other" from KDBOUT
+            subset = catg_data_selector(db_array, idx_series, 'EndUseConsump',
+                                        yrs)
 
         # Convert into dict with years as keys and energy as values
         final_dict = {'energy': dict(zip(subset['Year'],
@@ -1057,7 +1071,7 @@ def onsite_calc(generation_file, json_results):
         pull = array_mult(pull, -1)
         return pull
 
-# Pull the onsite generation by census division and building type
+    # Pull the onsite generation by census division and building type
     cdiv = np.unique(generation_file['Division'])
     bldtype = np.unique(generation_file['BldgType'])
 
@@ -1123,6 +1137,7 @@ def main():
 
             # Add in onsite generation
             result = onsite_calc(onsite_gen, result)
+
             # Write the updated dict of data to a new JSON file
             json.dump(result, jso, indent=2)
 

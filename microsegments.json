@@ -776,7 +776,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -815,7 +816,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -835,7 +837,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -903,7 +906,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -942,7 +946,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -962,7 +967,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -1030,7 +1036,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1069,7 +1076,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1089,7 +1097,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -1157,7 +1166,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1196,7 +1206,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1216,7 +1227,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -1284,7 +1296,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1323,7 +1336,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1343,7 +1357,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -1411,7 +1426,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1450,7 +1466,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1470,7 +1487,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -1538,7 +1556,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1577,7 +1596,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1597,7 +1617,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -1665,7 +1686,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1704,7 +1726,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1724,7 +1747,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -1792,7 +1816,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1831,7 +1856,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1851,7 +1877,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -1919,7 +1946,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -1958,7 +1986,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -1978,7 +2007,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -2046,7 +2076,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -2085,7 +2116,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -2105,7 +2137,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -2886,7 +2934,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -2925,7 +2974,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -2945,7 +2995,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -3013,7 +3064,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3052,7 +3104,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3072,7 +3125,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -3140,7 +3194,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3179,7 +3234,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3199,7 +3255,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -3267,7 +3324,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3306,7 +3364,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3326,7 +3385,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -3394,7 +3454,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3433,7 +3494,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3453,7 +3515,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -3521,7 +3584,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3560,7 +3624,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3580,7 +3645,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -3648,7 +3714,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3687,7 +3754,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3707,7 +3775,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -3775,7 +3844,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3814,7 +3884,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3834,7 +3905,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -3902,7 +3974,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -3941,7 +4014,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -3961,7 +4035,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -4029,7 +4104,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -4068,7 +4144,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -4088,7 +4165,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -4156,7 +4234,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -4195,7 +4274,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -4215,7 +4295,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -4996,7 +5092,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5035,7 +5132,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5055,7 +5153,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -5123,7 +5222,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5162,7 +5262,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5182,7 +5283,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -5250,7 +5352,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5289,7 +5392,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5309,7 +5413,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -5377,7 +5482,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5416,7 +5522,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5436,7 +5543,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -5504,7 +5612,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5543,7 +5652,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5563,7 +5673,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -5631,7 +5742,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5670,7 +5782,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5690,7 +5803,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -5758,7 +5872,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5797,7 +5912,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5817,7 +5933,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -5885,7 +6002,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -5924,7 +6042,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -5944,7 +6063,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -6012,7 +6132,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -6051,7 +6172,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -6071,7 +6193,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -6139,7 +6262,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -6178,7 +6302,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -6198,7 +6323,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -6266,7 +6392,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -6305,7 +6432,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -6325,7 +6453,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -7106,7 +7250,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7145,7 +7290,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7165,7 +7311,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -7233,7 +7380,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7272,7 +7420,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7292,7 +7441,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -7360,7 +7510,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7399,7 +7550,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7419,7 +7571,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -7487,7 +7640,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7526,7 +7680,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7546,7 +7701,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -7614,7 +7770,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7653,7 +7810,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7673,7 +7831,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -7741,7 +7900,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7780,7 +7940,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7800,7 +7961,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -7868,7 +8030,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -7907,7 +8070,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -7927,7 +8091,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -7995,7 +8160,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -8034,7 +8200,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -8054,7 +8221,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -8122,7 +8290,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -8161,7 +8330,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -8181,7 +8351,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -8249,7 +8420,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -8288,7 +8460,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -8308,7 +8481,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -8376,7 +8550,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -8415,7 +8590,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -8435,7 +8611,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -9216,7 +9408,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9255,7 +9448,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9275,7 +9469,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -9343,7 +9538,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9382,7 +9578,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9402,7 +9599,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -9470,7 +9668,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9509,7 +9708,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9529,7 +9729,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -9597,7 +9798,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9636,7 +9838,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9656,7 +9859,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -9724,7 +9928,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9763,7 +9968,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9783,7 +9989,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -9851,7 +10058,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -9890,7 +10098,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -9910,7 +10119,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -9978,7 +10188,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -10017,7 +10228,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -10037,7 +10249,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -10105,7 +10318,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -10144,7 +10358,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -10164,7 +10379,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -10232,7 +10448,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -10271,7 +10488,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -10291,7 +10509,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -10359,7 +10578,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -10398,7 +10618,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -10418,7 +10639,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -10486,7 +10708,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -10525,7 +10748,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -10545,7 +10769,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -11326,7 +11566,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -11365,7 +11606,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -11385,7 +11627,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -11453,7 +11696,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -11492,7 +11736,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -11512,7 +11757,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -11580,7 +11826,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -11619,7 +11866,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -11639,7 +11887,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -11707,7 +11956,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -11746,7 +11996,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -11766,7 +12017,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -11834,7 +12086,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -11873,7 +12126,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -11893,7 +12147,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -11961,7 +12216,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12000,7 +12256,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12020,7 +12277,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -12088,7 +12346,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12127,7 +12386,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12147,7 +12407,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -12215,7 +12476,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12254,7 +12516,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12274,7 +12537,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -12342,7 +12606,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12381,7 +12646,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12401,7 +12667,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -12469,7 +12736,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12508,7 +12776,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12528,7 +12797,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -12596,7 +12866,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -12635,7 +12906,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -12655,7 +12927,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -13436,7 +13724,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -13475,7 +13764,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -13495,7 +13785,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -13563,7 +13854,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -13602,7 +13894,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -13622,7 +13915,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -13690,7 +13984,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -13729,7 +14024,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -13749,7 +14045,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -13817,7 +14114,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -13856,7 +14154,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -13876,7 +14175,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -13944,7 +14244,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -13983,7 +14284,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14003,7 +14305,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -14071,7 +14374,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14110,7 +14414,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14130,7 +14435,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -14198,7 +14504,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14237,7 +14544,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14257,7 +14565,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -14325,7 +14634,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14364,7 +14674,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14384,7 +14695,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -14452,7 +14764,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14491,7 +14804,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14511,7 +14825,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -14579,7 +14894,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14618,7 +14934,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14638,7 +14955,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -14706,7 +15024,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -14745,7 +15064,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -14765,7 +15085,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -15546,7 +15882,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -15585,7 +15922,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -15605,7 +15943,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -15673,7 +16012,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -15712,7 +16052,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -15732,7 +16073,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -15800,7 +16142,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -15839,7 +16182,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -15859,7 +16203,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -15927,7 +16272,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -15966,7 +16312,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -15986,7 +16333,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -16054,7 +16402,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16093,7 +16442,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16113,7 +16463,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -16181,7 +16532,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16220,7 +16572,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16240,7 +16593,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -16308,7 +16662,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16347,7 +16702,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16367,7 +16723,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -16435,7 +16792,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16474,7 +16832,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16494,7 +16853,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -16562,7 +16922,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16601,7 +16962,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16621,7 +16983,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -16689,7 +17052,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16728,7 +17092,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16748,7 +17113,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -16816,7 +17182,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -16855,7 +17222,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -16875,7 +17243,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	},
@@ -17656,7 +18040,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -17695,7 +18080,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -17715,7 +18101,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"education": {
@@ -17783,7 +18170,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -17822,7 +18210,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -17842,7 +18231,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food sales": {
@@ -17910,7 +18300,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -17949,7 +18340,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -17969,7 +18361,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"food service": {
@@ -18037,7 +18430,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18076,7 +18470,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18096,7 +18491,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"health care": {
@@ -18164,7 +18560,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18203,7 +18600,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18223,7 +18621,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"lodging": {
@@ -18291,7 +18690,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18330,7 +18730,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18350,7 +18751,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"large office": {
@@ -18418,7 +18820,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18457,7 +18860,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18477,7 +18881,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"small office": {
@@ -18545,7 +18950,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18584,7 +18990,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18604,7 +19011,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"mercantile/service": {
@@ -18672,7 +19080,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18711,7 +19120,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18731,7 +19141,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"warehouse": {
@@ -18799,7 +19210,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18838,7 +19250,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18858,7 +19271,8 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
 			}
 			},
 		"other": {
@@ -18926,7 +19340,8 @@
                     "private branch exchanges": 0,
                     "voice-over-IP telecom": 0,
                     "water services": 0,
-                    "telecom systems": 0
+                    "telecom systems": 0,
+                    "other": 0
 				}
 				},
 			"natural gas": {
@@ -18965,7 +19380,8 @@
 					"supply": 0
 					},
 				"water heating": 0,
-				"cooking": 0
+				"cooking": 0,
+				"other": 0
 				},
 			"distillate": {
 				"heating": {
@@ -18985,7 +19401,23 @@
 						},
 					"supply": 0
 					},
-				"water heating": 0
+				"water heating": 0,
+				"other": 0
+			}
+			},
+		"unspecified": {
+			"electricity": {
+				"MELs": {
+                    "water services": 0,
+                    "telecom systems": 0
+				},
+				"unspecified": 0
+				},
+			"natural gas": {
+				"unspecified": 0
+				},
+			"distillate": {
+				"unspecified": 0
 			}
 		}
 	}
