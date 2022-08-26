@@ -250,7 +250,7 @@ class UsefulVars(object):
 
 
 def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
-              res_convert_array, com_convert_array, cd_to_cz_factor=0,
+              res_convert_array, com_convert_array, cpl, cd_to_cz_factor=0,
               fuel_flag=None):
     """Calculate values to restructure census division data to custom regions.
 
@@ -304,6 +304,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             from census divisions to custom regions for residential buildings.
         com_convert_array (numpy.ndarray): Coefficients for converting
             from census divisions to custom regions for commercial buildings.
+        cpl (bool): True if cpl data are being processed
         cd_to_cz_factor (float): The numeric conversion factor to
             calculate the contribution from the current census division
             'cd' to the current custom region 'cz'.
@@ -330,8 +331,13 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
         # Compare the top level/parent keys of the section of the dict
         # currently being parsed to ensure that both the base_dict
         # (census division basis) and add_dict (custom region basis)
-        # are proceeding with the same structure
-        if k == k2:
+        # are proceeding with the same structure; when cost, performance,
+        # and lifetime data are being processed, skip the "unspecified"
+        # building type and the "other" end use where it appears as
+        # an unmodified zero in certain building and fuel type combinations
+        if k == k2 and not (
+            cpl and (
+                (k == 'other' and not isinstance(i, dict)) or k == 'unspecified')):
             # Identify appropriate census division to custom region
             # conversion weighting factor array as a function of building
             # type; k and k2 correspond to the current top level/parent key,
@@ -370,7 +376,7 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             # Recursively loop through both dicts
             if isinstance(i, dict):
                 merge_sum(i, i2, cd, cz, cd_dict, cd_list, res_convert_array,
-                          com_convert_array, cd_to_cz_factor, fuel_flag)
+                          com_convert_array, cpl, cd_to_cz_factor, fuel_flag)
             elif type(base_dict[k]) is not str:
                 # Check whether the conversion array needs to be further keyed
                 # by fuel type, as is the case when converting to EMM region or
@@ -413,14 +419,14 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                     else:
                         base_dict[k] = (base_dict[k] +
                                         add_dict[k2] * convert_fact)
-        else:
+        elif k != k2:
             raise (KeyError('Merge keys do not match!'))
 
     # Return a single dict representing sum of values of original two dicts
     return base_dict
 
 
-def clim_converter(input_dict, res_convert_array, com_convert_array):
+def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
     """Convert input data dict from a census division to a custom region basis.
 
     This function principally serves to prepare the inputs for, and
@@ -437,6 +443,8 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
         com_convert_array (numpy.ndarray): Array of census
             division to custom region conversion factors for
             commercial building types.
+        data_in (str): User input indicating energy and stock (1) or cost,
+            performance, and lifetime data are being processed (2)
 
     Returns:
         A complete dict with the same structure as input_dict,
@@ -449,6 +457,13 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
     # com_mseg, which contains a dict that translates census division
     # strings into the corresponding integer codes
     cd = cm.CommercialTranslationDicts()
+
+    # Set boolean for whether cost, performance, and lifetime data
+    # are being processed
+    if data_in == '2':
+        cpl_bool = True
+    else:
+        cpl_bool = False
 
     # Obtain list of all custom region names as strings
     try:
@@ -500,7 +515,8 @@ def clim_converter(input_dict, res_convert_array, com_convert_array):
                 # division is added to the custom region by merge_sum
                 base_dict = merge_sum(base_dict, add_dict, cd_number,
                                       (cz_number + 1), cd.cdivdict, cd_list,
-                                      res_convert_array, com_convert_array)
+                                      res_convert_array, com_convert_array,
+                                      cpl_bool)
             else:
                 raise (
                     KeyError("Census division name not found in dict keys!"))
@@ -1424,7 +1440,7 @@ def main():
                 input_var[0] == '2' and input_var[1] != '3'):
             # Convert data
             result = clim_converter(
-                msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv)
+                msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv, input_var[0])
         else:
             result = msjson_cdiv
 

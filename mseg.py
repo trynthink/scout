@@ -574,8 +574,8 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # from json_translator, handling the difference in the bulb
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
-    if aeo_years in [42, 36]:  # AEO 2017-2019 formatting
-        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-2019
+    if aeo_years in [42, 36]:  # AEO 2017- formatting
+        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-
                           ('REF', 'INC'), ('EXT', 'INC')]
     else:  # AEO 2015 formatting
         lt_with_energy = [('GSL', 'Inc'), ('LFL', 'T12'),
@@ -1272,6 +1272,8 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
             if row[0].strip() not in skip_rows:
                 if len(tuple(row)) != len(dtype_list):
                     row = row + [0]*(len(dtype_list)-len(row))
+                if not row[8]:
+                    row[8] = 0
                 data.append(tuple(row))
 
         # Convert data into numpy structured array, using a try/catch
