@@ -518,8 +518,8 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
                                       res_convert_array, com_convert_array,
                                       cpl_bool)
             else:
-                raise (
-                    KeyError("Census division name not found in dict keys!"))
+                raise (KeyError(
+                    "Census division name not found in dict keys!"))
 
         # Once fully updated with the data from all census divisions,
         # write the resulting data to a new variable and update the

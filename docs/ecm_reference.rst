@@ -271,11 +271,11 @@ Technology names appear verbatim. For residential building types, the lighting t
 
 * computers: desktop PC, laptop PC, network equipment, monitors
 
-* TVs: home theater and audio, set top box, video game consoles, DVD, TV
+* TVs: home theater and audio, set top box, video game consoles, OTT streaming devices, TV
 
 * other
 
-   * electricity: dishwasher, clothes washing, freezers, rechargeables, coffee maker, dehumidifier, electric other, microwave, pool heaters and pumps, security system, portable electric spas, wine coolers
+   * electricity: dishwasher, clothes washing, freezers, rechargeables, coffee maker, dehumidifier, electric other, small kitchen appliances, microwave, smartphones, pool heaters, pool pumps, security system, portable electric spas, smart speakers, tablets, wine coolers
    * natural gas: other appliances
    * distillate: other appliances
    * other fuel: other appliances

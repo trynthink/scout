@@ -176,8 +176,8 @@ tech_eia_lt = {"linear fluorescent (T-12)": ["EIA_LT", ["LFL", "T12"],
                                              "lm/W"],
                "linear fluorescent (T-8)": ["EIA_LT", ["LFL", "T-8"], "lm/W"],
                "linear fluorescent (LED)": ["EIA_LT", ["LFL", "LED"], "lm/W"],
-               "general service (incandescent)": ["EIA_LT", ["GSL", "INC"],
-                                                  "lm/W"],
+               # "general service (incandescent)": ["EIA_LT", ["GSL", "INC"],
+               #                                    "lm/W"],
                "general service (CFL)": ["EIA_LT", ["GSL", "CFL"], "lm/W"],
                "general service (LED)": ["EIA_LT", ["GSL", "LED"], "lm/W"],
                "reflector (incandescent)": ["EIA_LT", ["REF", "INC"],
@@ -731,6 +731,7 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
             if len(match_list) > 0:
                 match_list = numpy.array(match_list, dtype=eia_lt.dtype)
             else:
+                print(filter_info)
                 raise ValueError(
                     "No performance/cost/lifetime data match for" +
                     " lighting technology!")
@@ -987,7 +988,7 @@ def main():
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017])
+                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year

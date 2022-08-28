@@ -4971,9 +4971,10 @@ def main(base_dir):
     # (not all data required for the plots will be available)
     if opts.trim_results is False:
         # Notify user that the output data are being plotted
-        print('Plotting output data...', end="", flush=True)
+        print("Plotting output data...", end="", flush=True)
         # Execute plots
-        run_plot(meas_summary, a_run, handyvars, measures_objlist)
+        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions)
+        print("Plotting complete")
 
 
 if __name__ == '__main__':

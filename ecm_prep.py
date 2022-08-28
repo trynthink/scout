@@ -966,9 +966,10 @@ class UsefulVars(object):
                                 'dishwasher', 'clothes washing', 'freezers',
                                 'rechargeables', 'coffee maker',
                                 'dehumidifier', 'electric other',
-                                'microwave', 'pool heaters and pumps',
+                                'small kitchen appliances', 'microwave',
+                                'smartphones', 'pool heaters', 'pool pumps',
                                 'security system', 'portable electric spas',
-                                'wine coolers'],
+                                'smart speakers', 'tablets', 'wine coolers'],
                             'water heating': ['solar WH', 'electric WH'],
                             'cooling': [
                                 'room AC', 'ASHP', 'GSHP', 'central AC'],
@@ -991,7 +992,8 @@ class UsefulVars(object):
                             'secondary heating': ['secondary heater'],
                             'TVs': [
                                 'home theater and audio', 'set top box',
-                                'video game consoles', 'DVD', 'TV'],
+                                'video game consoles', 'TV',
+                                'OTT streaming devices'],
                             'heating': ['GSHP', 'resistance heat', 'ASHP'],
                             'ceiling fan': [None],
                             'fans and pumps': [None],
@@ -2687,7 +2689,7 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         warn_list = []
-        print('')
+
         for ind, mskeys in enumerate(ms_iterable):
             # Set building sector for the current microsegment
             if mskeys[2] in [
@@ -5966,7 +5968,7 @@ class Measure(object):
                             elif mskeys[5] == "clothes washing":
                                 eu = "clothes washing"
                             # Pool heaters/pumps map to pool heaters/pumps
-                            elif mskeys[5] == "pool heaters and pumps":
+                            elif mskeys[5] in ["pool heaters", "pool pumps"]:
                                 eu = "pool heaters and pumps"
                             # Freezers map to refrigeration
                             elif mskeys[5] == "freezers":

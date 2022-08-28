@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": "other",
   "fuel_type": "electricity",
-  "technology": "pool heaters and pumps",
+  "technology": ["pool heaters", "pool pumps"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": null,
