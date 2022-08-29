@@ -8,7 +8,7 @@
   "technology": "all",
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "Best residential gas dryer in 2017, updated to current year to avoid retroactive savings effects.",
+    "notes": "Best residential gas dryer in 2020, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -21,7 +21,7 @@
   "energy_efficiency": 3.49,
   "energy_efficiency_units": "CEF",
   "energy_efficiency_source": {
-    "notes": "High efficiency CEF in 2017",
+    "notes": "High efficiency CEF in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -32,7 +32,7 @@
   "installed_cost": 770,
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "High efficiency total installed cost in 2017",
+    "notes": "High efficiency total installed cost in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -43,7 +43,7 @@
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "High efficiency average life in 2017",
+    "notes": "High efficiency average life in 2020",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -55,7 +55,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Highest efficiency residential gas dryer in 2017",
+  "_description": "Highest efficiency residential gas dryer in 2020",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

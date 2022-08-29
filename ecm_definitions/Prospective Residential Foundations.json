@@ -1,12 +1,12 @@
 {
-  "name": "Prospective Residential Foundation CI",
+  "name": "Prospective Residential Foundations",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["heating", "secondary heating", "cooling"],
   "fuel_type": "all",
   "technology": "ground",
-  "market_entry_year": 2030,
+  "market_entry_year": 2040,
   "market_entry_year_source": {
     "notes": "Target technology market entry year",
     "source_data": null
@@ -19,10 +19,10 @@
     "notes": "Target performance set assuming 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
     "source_data": null
   },
-  "installed_cost": 0.418,
+  "installed_cost": 0.79,
   "cost_units": "2016$/ft^2 footprint",
   "installed_cost_source": {
-    "notes": "Target cost set based on 5 year payback period objective",
+    "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
   },
   "product_lifetime": 50,
@@ -44,9 +44,9 @@
     "timestamp": "2018-10-04 02:30 UTC"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2020-02-23 21:00 UTC"
   }
 }

@@ -1,0 +1,109 @@
+{
+  "name": "ENERGY STAR Com. RTU",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "ventilation"],
+  "fuel_type": "electricity",
+  "technology": ["rooftop_AC", "all ventilation"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 112,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "cooling": 3.57,
+      "ventilation": 0},
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "ventilation": "relative savings (constant)"},
+  "energy_efficiency_source": {
+    "notes": "Uses 2030 ENERGY STAR EER of 12.2 (see notes under table); COP = EER * .293",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 112,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
+    {
+      "title": "COPs, EERs, and SEERs",
+      "author": null,
+      "organization": "power knot",
+      "year": null,
+      "pages": null,
+      "URL": "http://www.powerknot.com/how-efficient-is-your-air-conditioning-system.html"
+    }]},
+  "installed_cost": {
+      "cooling": 104.44,
+      "ventilation": 0},
+  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "Total ENERGY STAR installed cost divided by typical capacity (90 kBtu/h)",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 112,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "ENERGY STAR average lifetime in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 112,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.57 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use RTUs for cooling (45,153 sf/79,294 sf)."
+  },
+  "_description": "Typical size light commercial rooftop AC unit that meets the ENERGY STAR performance standard in 2017",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-11-16 20:54:49 EST"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 13:16:38 EDT 2018"
+  },
+  "_updated_by": {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Jan 17 12:01:38 MST 2020"
+  }
+}

@@ -8,7 +8,7 @@
   "technology": null,
   "market_entry_year": 2021,
   "market_entry_year_source": {
-    "notes": "High efficiency refrigerators in 2017, updated to current year to avoid retroactive savings effects.",
+    "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -61,7 +61,7 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Fri Sep 14 2018 13:15:54 EDT"},
+    "timestamp": "Fri Sep 14 13:15:54 EDT 2018"},
   "_updated_by": {
     "name": null,
     "organization": null,
