@@ -17,6 +17,7 @@ from argparse import ArgumentParser
 from ast import literal_eval
 import math
 import pandas as pd
+from datetime import datetime
 
 
 class MyEncoder(json.JSONEncoder):
@@ -395,12 +396,9 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
-        # # Set minimum AEO modeling year
-        # aeo_min = aeo_yrs["min year"]
-        # Set minimum year to current year
-        # aeo_min = datetime.today().year
-        aeo_min = 2022
-        # Set maximum AEO modeling year
+        # Set minimum modeling year to current year
+        aeo_min = datetime.today().year
+        # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
         self.aeo_years = [
@@ -2124,6 +2122,12 @@ class Measure(object):
             if "shape" in self.tsv_features.keys() and \
                 "custom_annual_savings" in \
                     self.tsv_features["shape"].keys():
+                # Retrieve custom savings shapes for all applicable
+                # end use, building type, and climate zone combinations
+                # and store within a dict for use in 'apply_tsv' function
+
+                print("Retrieving custom savings shape data for measure "
+                      + self.name + "...", end="", flush=True)
                 # Determine the CSV file name
                 csv_shape_file_name = \
                     self.tsv_features["shape"]["custom_annual_savings"]
@@ -2131,27 +2135,31 @@ class Measure(object):
                 # files, import custom savings shape data as numpy array and
                 # store it in the ECM's custom savings shape attribute for
                 # subsequent use in the 'apply_tsv' function
-                self.tsv_features["shape"]["custom_annual_savings"] = \
-                    numpy.genfromtxt(
-                        path.join(base_dir, *handyfiles.tsv_shape_data,
-                                  csv_shape_file_name),
-                        names=True, delimiter=',', dtype=[
-                            ('Hour_of_Year', '<i4'),
-                            ('Climate_Zone', '<U25'),
-                            ('Net_Load_Version', '<i4'),
-                            ('Building_Type', '<U25'),
-                            ('End_Use', '<U25'),
-                            ('Baseline_Load', '<f8'),
-                            ('Measure_Load', '<f8'),
-                            ('Relative_Savings', '<f8')],
-                        encoding="latin1")
-
-                # Retrieve custom savings shapes for all applicable
-                # end use, building type, and climate zone combinations
-                # and store within a dict for use in 'apply_tsv' function
-
-                print("Retrieving custom savings shape data for measure "
-                      + self.name + "...", end="", flush=True)
+                try:
+                    self.tsv_features["shape"]["custom_annual_savings"] = \
+                        numpy.genfromtxt(
+                            path.join(base_dir, *handyfiles.tsv_shape_data,
+                                      csv_shape_file_name),
+                            names=True, delimiter=',', dtype=[
+                                ('Hour_of_Year', '<i4'),
+                                ('Climate_Zone', '<U25'),
+                                ('Net_Load_Version', '<i4'),
+                                ('Building_Type', '<U25'),
+                                ('End_Use', '<U25'),
+                                ('Baseline_Load', '<f8'),
+                                ('Measure_Load', '<f8'),
+                                ('Relative_Savings', '<f8')],
+                            encoding="latin1")
+                except OSError:
+                    raise OSError(
+                        "Savings shape data file indicated in 'tsv_features' "
+                        "attribute of measure '" + self.name + "' not found; "
+                        "looking for file " + (
+                            path.join(base_dir, *handyfiles.tsv_shape_data,
+                                      csv_shape_file_name)) + ". "
+                        "Find the latest measure savings shape data here: "
+                        "https://doi.org/10.5281/zenodo.4737655, files "
+                        "'Latest_Com_Shapes.zip' and 'Latest_Res_Shapes.zip'")
 
                 # Set shorthand for custom savings shape data
                 css_dat = self.tsv_features["shape"][
@@ -8811,7 +8819,23 @@ class Measure(object):
         invalid_names = [
             y for y in check_list if y not in self.handyvars.valid_mktnames]
         # If invalid names are discovered, report them in an error message
-        if len(invalid_names) > 0:
+
+        # Special case: ECM uses region names that are inconsistent with
+        # higher-level region settings for the simulation
+        if len(invalid_names) > 0 and ((
+            type(self.climate_zone) == list and all([
+                x in self.climate_zone for x in invalid_names])) or (
+            type(self.climate_zone) == str and all([
+                x == self.climate_zone for x in invalid_names]))):
+            raise ValueError(
+                "'climate_zone' input name(s) for ECM '" + self.name +
+                "' (" + str(invalid_names) + ") inconsistent with region "
+                "settings for the simulation run. Either revise the "
+                "'climate_zone' input or the simulation's region setting ("
+                "default is AIA zones, with alternates specified via "
+                "'--alt_regions' command line option) to ensure consistency")
+        # All other cases
+        elif len(invalid_names) > 0:
             raise ValueError(
                 "Input names in the following list are invalid for ECM '" +
                 self.name + "': " + str(invalid_names))
