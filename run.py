@@ -3649,6 +3649,18 @@ class Engine(object):
             focus_yrs = [str(x) for x in trim_yrs]
         else:
             focus_yrs = self.handyvars.aeo_years
+        # Initialize markets and savings totals across all ECMs
+        summary_vals_all_ecms = [{
+            yr: 0 for yr in focus_yrs} for n in range(12)]
+        # Initialize variable that aggregates total and incremental
+        # stock cost for deploying measures across all measures, provided
+        # the user has chosen to report those data. Structure this variable
+        # as a list of two dicts, where the first dict will store total cost
+        # data and the second will store incremental cost data
+        if opts.report_stk is True:
+            stk_cost_all_ecms = [{yr: 0 for yr in focus_yrs} for n in range(2)]
+        else:
+            stk_cost_all_ecms = ""
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
             # Set competed measure markets and savings and financial metrics
@@ -4313,6 +4325,14 @@ class Engine(object):
                     adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
                         yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
                         for yr in focus_yrs}
+                # Update stock cost data across all ECMs with data for
+                # current ECM
+                for yr in focus_yrs:
+                    # Add to total stock cost data (first element of list)
+                    stk_cost_all_ecms[0][yr] += stk_cost_meas_avg[yr]
+                    # Add to inc. stock cost data (second element of list)
+                    stk_cost_all_ecms[1][yr] += (
+                        stk_cost_meas_avg[yr] - stk_cost_base[yr])
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
                     meas_stk_key_low = meas_stk_key + " (low)"
@@ -4394,6 +4414,7 @@ class Engine(object):
                 ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
                 ("Efficient CO2 Cost (USD)".translate(sub),
                  carb_cost_eff_all_avg)])
+
         # Record updated (post-competed) fugitive emissions results across all
         # ECMs if applicable
         if summary_vals_all_ecms_f_e is not None:
@@ -4421,6 +4442,15 @@ class Engine(object):
                 adopt_scheme][
                     "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                 summary_vals_all_ecms_f_e[5]
+
+        # If necessary, record stock costs across all ECMs
+        if opts.report_stk is True and stk_cost_all_ecms:
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Total Measure Stock Cost ($)"] = \
+                stk_cost_all_ecms[0]
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]["Incremental Measure Stock Cost ($)"] = \
+                stk_cost_all_ecms[1]
 
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
