@@ -53,15 +53,11 @@ sidebar = html.Div(
         html.Hr(),
         dbc.Nav(
             [
-                dbc.NavLink("Home", href="/", active="exact"),
-                dbc.NavLink("Financial Metrics",
-                    href="/financial_metrics", active="exact"),
-                dbc.NavLink("Cost Effective Savings",
-                    href="/cost_effective_savings", active="exact"),
-                dbc.NavLink("Total Savings",
-                    href="/total_savings", active="exact"),
-                dbc.NavLink("Competed vs Uncompeted",
-                    href="/cms_v_ums", active="exact"),
+                dbc.NavLink("Home",                   href="/", active="exact"),
+                dbc.NavLink("Financial Metrics",      href="/financial_metrics", active="exact"),
+                dbc.NavLink("Cost Effective Savings", href="/cost_effective_savings", active="exact"),
+                dbc.NavLink("Total Savings",          href="/total_savings", active="exact"),
+                dbc.NavLink("Competed vs Uncompeted", href="/cms_v_ums", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -86,6 +82,10 @@ def financial_metrics():
     pg = html.Div([
         html.H1("Financial Metrics"),
         html.Div([
+            html.Label("999 Values?"),
+            dcc.RadioItems(id = "fm_omit999",
+                options = ["Omit", "Include"],
+                value = "Omit"),
             html.Label("Select Type of Graphic:"),
             dcc.Dropdown(id = "fm_dropdown",
                 options = [
@@ -344,16 +344,17 @@ def show_hide_ecm_dropdown(value):
 
 @app.callback(
         Output('fm-output-container', 'children'),
+        Input('fm_omit999', 'value'),
         Input('fm_dropdown', 'value'),
         Input('ecm_dropdown', 'value')
         )
-def update_fm_output(fm_dropdown_value, ecm_dropdown_value):
+def update_fm_output(fm_omit999_value, fm_dropdown_value, ecm_dropdown_value):
     if fm_dropdown_value == "agg_ecms":
-        return dcc.Graph(figure = ecm_results.generate_fm_agg_ecms())
+        return dcc.Graph(figure = ecm_results.generate_fm_agg_ecms(omit999 = (fm_omit999_value == "Omit")))
     elif fm_dropdown_value == "all_ecms":
-        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm())
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(omit999 = (fm_omit999_value == "Omit")))
     elif fm_dropdown_value == "each_ecm":
-        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(ecm_dropdown_value))
+        return dcc.Graph(figure = ecm_results.generate_fm_by_ecm(ecm = ecm_dropdown_value, omit999 = (fm_omit999_value == "Omit")))
     else:
         return "impressive, everything you did is wrong"
 

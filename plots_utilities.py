@@ -607,144 +607,112 @@ class ECM_RESULTS:
                  {"Markets and Savings" : mas, "On-site Generation"  : osg}
 
     ############################################################################
-    def generate_fm_agg_ecms(self, force = False):
-        if (self.fm_agg_ecms is None) or (force):
+    def generate_fm_agg_ecms(self, omit999 = True, force = False):
 
-            d = self.financial_metrics\
-                    .groupby(["impact", "year"])\
-                    .agg({"value" : "mean"})\
-                    .reset_index()
+        if omit999:
+            d = self.financial_metrics[self.financial_metrics.value != 999]
+        else:
+            d = self.financial_metrics
 
-            self.fm_agg_ecms = make_subplots(
-                    rows = 2,
-                    cols = 2,
-                    subplot_titles = tuple(self.financial_impacts)
-                    )
+        d = d\
+            .groupby(["impact", "year"])\
+            .agg({"value" : "median"})\
+            .reset_index()
 
-            i = -1
-            for r in [1, 2]:
-                for c in [1, 2]:
-                    i += 1
-                    self.fm_agg_ecms.add_trace(
-                        go.Scatter(
-                         x = d.loc[d.impact == self.financial_impacts[i], "year"],
-                         y = d.loc[d.impact == self.financial_impacts[i], "value"],
-                         mode = "lines+markers",
-                         name = self.financial_impacts[i]
-                        ),
-                        row = r,
-                        col = c
-                    )
-
-            self.fm_agg_ecms.for_each_annotation(
-                    lambda a: a.update(text = a.text.split("=")[-1])
-                    )
-            self.fm_agg_ecms.for_each_annotation(
-                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
-                    )
-
-            self.fm_agg_ecms.update_xaxes(
-                    tick0 = 2025,
-                    dtick = 5,
-                    **scout_xaxes
-                    )
-
-            self.fm_agg_ecms.update_yaxes(
-                **scout_yaxes
-                    )
-
-            self.fm_agg_ecms.update_layout(
-                **scout_layout,
-                showlegend = False
+        self.fm_agg_ecms = make_subplots(
+                rows = 2,
+                cols = 2,
+                subplot_titles = tuple(["Median " + fi for fi in self.financial_impacts])
                 )
+
+        i = -1
+        for r in [1, 2]:
+            for c in [1, 2]:
+                i += 1
+                self.fm_agg_ecms.add_trace(
+                    go.Scatter(
+                     x = d.loc[d.impact == self.financial_impacts[i], "year"],
+                     y = d.loc[d.impact == self.financial_impacts[i], "value"],
+                     mode = "lines+markers",
+                     name = self.financial_impacts[i]
+                    ),
+                    row = r,
+                    col = c
+                )
+
+        self.fm_agg_ecms.for_each_annotation(
+                lambda a: a.update(text = a.text.split("=")[-1])
+                )
+        self.fm_agg_ecms.for_each_annotation(
+                lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                )
+
+        self.fm_agg_ecms.update_xaxes(
+                tick0 = 2025,
+                dtick = 5,
+                **scout_xaxes
+                )
+
+        self.fm_agg_ecms.update_yaxes( **scout_yaxes )
+
+        self.fm_agg_ecms.update_layout( **scout_layout, showlegend = False)
 
         return self.fm_agg_ecms
 
     ############################################################################
-    def generate_fm_by_ecm(self, ecm = None, force = False):
+    def generate_fm_by_ecm(self, ecm = None, omit999 = True, force = False):
         if (ecm is not None):
             if (not any(self.financial_metrics.ecm == ecm)):
                 # warning ECM UNDEFINED, setting to None
                 # This logic is not needed for dash app, will be needed to deal
                 # with actual end users.
-                ecm = None
+                ecms = self.ecms
+            else:
+                ecms = [ecm]
 
-        if (ecm is None):
-            fig = make_subplots(
-                    rows = 2,
-                    cols = 2,
-                    subplot_titles = tuple(self.financial_impacts)
-                    )
+        fig = make_subplots(
+                rows = 2,
+                cols = 2,
+                subplot_titles = tuple(self.financial_impacts)
+                )
 
-            i = -1
-            for r in [1, 2]:
-                for c in [1, 2]:
-                    i += 1
-                    for e in self.ecms:
-                        fig.add_trace(
-                            go.Scatter(
-                             x = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == e), "year"],
-                             y = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == e), "value"],
-                             mode = "lines+markers", 
-                             name = self.financial_impacts[i] + "<br>" + e,
-                             hovertemplate =
-                                 'year: %{x}<br>' +
-                                 self.financial_impacts[i] + ': %{y}<br>' +
-                                 'ECM: ' + e
-                            ),
-                            row = r,
-                            col = c
-                        )
+        print(ecms)
 
-            fig.for_each_annotation(
-                    lambda a: a.update(text = a.text.split("=")[-1])
-                    )
-            fig.for_each_annotation(
-                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
-                    )
-
-            fig.update_xaxes(tick0 = 2025, dtick = 5, **scout_xaxes)
-            fig.update_yaxes(**scout_yaxes)
-            fig.update_layout(**scout_layout, showlegend = False)
-
+        if omit999:
+            d = self.financial_metrics[self.financial_metrics.value != 999]
         else:
-            fig = make_subplots(
-                    rows = 2,
-                    cols = 2,
-                    subplot_titles = tuple(self.financial_impacts)
-                    )
+            d = self.financial_metrics
 
-            i = -1
-            for r in [1, 2]:
-                for c in [1, 2]:
-                    i += 1
+        i = -1
+        for r in [1, 2]:
+            for c in [1, 2]:
+                i += 1
+                for e in ecms:
                     fig.add_trace(
                         go.Scatter(
-                         x = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == ecm), "year"],
-                         y = self.financial_metrics.loc[(self.financial_metrics.impact == self.financial_impacts[i]) & (self.financial_metrics.ecm == ecm), "value"],
-                         mode = "lines+markers",
-                         name = self.financial_impacts[i] + " " + ecm,
+                         x = d.loc[(d.impact == self.financial_impacts[i]) & (d.ecm == e), "year"],
+                         y = d.loc[(d.impact == self.financial_impacts[i]) & (d.ecm == e), "value"],
+                         mode = "lines+markers", 
+                         name = self.financial_impacts[i] + "<br>" + e,
                          hovertemplate =
                              'year: %{x}<br>' +
                              self.financial_impacts[i] + ': %{y}<br>' +
-                             'ECM: ' + ecm
+                             'ECM: ' + e
                         ),
                         row = r,
                         col = c
                     )
 
-            fig.for_each_annotation(
-                    lambda a: a.update(text = a.text.split("=")[-1])
-                    )
-            fig.for_each_annotation(
-                    lambda a: a.update(text = a.text.replace(" (", "<br>("))
-                    )
+        fig.for_each_annotation(
+                lambda a: a.update(text = a.text.split("=")[-1])
+                )
+        fig.for_each_annotation(
+                lambda a: a.update(text = a.text.replace(" (", "<br>("))
+                )
 
-            fig.update_xaxes(tick0 = 2025, dtick = 5, **scout_xaxes)
-
-            fig.update_yaxes(**scout_yaxes )
-
-            fig.update_layout(**scout_layout, showlegend = False)
+        fig.update_xaxes(tick0 = 2025, dtick = 5, **scout_xaxes)
+        fig.update_yaxes(**scout_yaxes)
+        fig.update_layout(**scout_layout, showlegend = False)
 
         return fig
 
