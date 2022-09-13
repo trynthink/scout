@@ -340,7 +340,7 @@ class TestMeasureInit(unittest.TestCase):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        handyvars = run.UsefulVars(base_dir, handyfiles)
+        handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -374,14 +374,14 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        handyvars = run.UsefulVars(base_dir, handyfiles)
+        handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
         cls.a_run = run.Engine(
             handyvars, measure_list, energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         cls.ok_total = {"2009": 100, "2010": 100}
         cls.ok_partitions = {
             "AIA CZ1": {
@@ -479,7 +479,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Technical potential'
@@ -1273,7 +1273,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # For first test case, verify correct adoption/competition scenario
@@ -1308,7 +1308,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1332,7 +1332,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1356,7 +1356,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1380,7 +1380,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1404,7 +1404,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         engine_instance.calc_savings_metrics(
             self.test_adopt_scheme, "uncompeted")
         # Verify test measure results update status
@@ -1455,7 +1455,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1480,7 +1480,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         engine_instance = run.Engine(
             self.handyvars, self.measure_list, energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Record the output for the test run of the 'metric_update'
         # function
         function_output = engine_instance.metric_update(
@@ -1520,7 +1520,7 @@ class PaybackTest(unittest.TestCase):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1533,7 +1533,7 @@ class PaybackTest(unittest.TestCase):
         engine_instance = run.Engine(
             self.handyvars, self.measure_list, energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Test that valid input cashflows yield correct output payback values
         for idx, cf in enumerate(self.ok_cashflows):
             self.assertAlmostEqual(engine_instance.payback(cf),
@@ -1608,7 +1608,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -12003,7 +12003,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         cls.a_run = run.Engine(
             cls.handyvars, cls.measures_all, energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Set information needed to finalize point value test measure
         # consumer metrics
         consumer_metrics_final = [{
@@ -12168,7 +12168,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             cls.handyvars, cls.measures_all_dist,
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_final_dist = [{
@@ -16170,7 +16170,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -22450,7 +22450,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         cls.a_run = run.Engine(
             cls.handyvars, cls.measures_all, energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics = [{
@@ -22617,7 +22617,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             cls.handyvars, cls.measures_all_dist,
             energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic",
-            report_cfs=False)
+            report_cfs=False, gcam_in=None, gcam_map=None)
         # Set information needed to finalize array test measure consumer
         # metrics
         consumer_metrics_dist = [{
@@ -22835,10 +22835,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 16},
+                        "baseline": {"2009": 10, "2010": 16},
                         "efficient": {"2009": 20, "2010": 8}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 8},
+                        "baseline": {"2009": 5, "2010": 8},
                         "efficient": {"2009": 10, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -23046,14 +23046,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "stock": {
                     "total": {
                         "baseline": {
-                            "2009": 20,
+                            "2009": 10,
                             "2010": numpy.array([16, 15, 13])},
                         "efficient": {
                             "2009": 20,
                             "2010": numpy.array([8, 9, 9.1])}},
                     "competed": {
                         "baseline": {
-                            "2009": 10,
+                            "2009": 5,
                             "2010": numpy.array([8.0, 7.5, 6.5])},
                         "efficient": {
                             "2009": 10,
@@ -26654,7 +26654,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26713,7 +26713,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
-        cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        cls.handyvars = run.UsefulVars(base_dir, handyfiles, gcam_out=False)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]
@@ -26889,7 +26889,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
             a_run = run.Engine(
                 self.handyvars, self.sample_measlist_in[ind],
                 energy_out=["fossil_equivalent", "NA", "NA", "NA", "NA"],
-                brkout="basic", report_cfs=False)
+                brkout="basic", report_cfs=False, gcam_in=None, gcam_map=None)
             # Execute the function
             measures_sbmkt_frac_data = a_run.find_added_sbmkt_fracs(
                 self.sample_mkt_fracs[ind], self.sample_measlist_in[ind],

@@ -12,6 +12,7 @@ import math
 from argparse import ArgumentParser
 import numpy_financial as npf
 from plots import run_plot
+import itertools
 
 
 class UsefulInputFiles(object):
@@ -29,6 +30,14 @@ class UsefulInputFiles(object):
         meas_engine_out_ecms (tuple): Individual measure output summaries.
         meas_engine_out_agg (tuple): Portfolio output summaries.
         comp_fracs_out (tuple): Competition adjustment fractions (if required)
+        gcam_in (JSON): Database of baseline microsegment stock/energy data
+            mapped to GCAM inputs
+        gcam_out (JSON): GCAM segments after adding impacts of measure set.
+        out_break_bldgtypes_gcam (dict): GCAM bldg-Scout bldg breakout mapping.
+        out_break_enduses_gcam (dict): GCAM euse-Scout euse breakout mapping.
+        out_break_fuels_gcam (dict): GCAM fuel-Scout fuel breakout mapping.
+        gcam_map (JSON): Support file for Scout building, fuel, and technology
+            types mapped to GCAM types
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
     """
@@ -43,6 +52,10 @@ class UsefulInputFiles(object):
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
         self.comp_fracs_out = ("results", "comp_fracs.json")
+        self.gcam_in = ("supporting_data/stock_energy_tech_data",
+                        "msegs_emm_gcam_ref.json")
+        self.gcam_out = ("results", "msegs_emm_gcam_alt.json")
+        self.gcam_map = ("supporting_data/convert_data", "gcam_map.json")
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -185,7 +198,7 @@ class UsefulVars(object):
         region_inout_namepairs (dict): Input/output region name pairs.
     """
 
-    def __init__(self, base_dir, handyfiles):
+    def __init__(self, base_dir, handyfiles, gcam_out):
         # Pull in global variable settings from ecm_prep
         with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
             try:
@@ -201,6 +214,32 @@ class UsefulVars(object):
         self.out_break_bldgtypes = gvars["out_break_bldg_types"]
         self.out_break_enduses = gvars["out_break_enduses"]
         self.out_break_fuels = gvars["out_break_fuels"]
+        # Set GCAM-specific versions of segment-to-breakout category mapping
+        # variables conditional on --gcam_out option settings
+        if gcam_out is True:
+            self.out_break_bldgtypes_gcam = {
+                'Residential (New)': ["resid"],
+                'Residential (Existing)': ["resid"],
+                'Commercial (New)': ["comm"],
+                'Commercial (Existing)': ["comm"]}
+            self.out_break_enduses_gcam = {
+                'Heating (Equip.)': ["heating"],
+                'Cooling (Equip.)': ["cooling"],
+                'Ventilation': ["ventilation"],
+                'Lighting': ["lighting"],
+                'Water Heating': ["hot water"],
+                'Refrigeration': ["refrigeration", "refrigerators",
+                                  "freezers"],
+                'Cooking': ["cooking"],
+                'Computers and Electronics': ["office", "computers"],
+                'Other': ["other", "dishwashers", "clothes washers",
+                          "clothes dryers", "furnace fans"]}
+            self.out_break_fuels_gcam = {
+                "Electric": ["electricity"],
+                "Natural Gas": ["gas"],
+                "Propane": ["propane"],
+                "Distillate/Other": ["refined liquids"],
+                "Biomass": ["biomass"]}
         # Set commercial time prefs and region in/out name pairs as unique
         # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
@@ -382,10 +421,12 @@ class Engine(object):
         output_all (OrderedDict): Summary results across all active measures;
             also stores data on energy output type (site, source (fossil
             equivalent site-source) or source (captured energy site-source).
+        gcam_in (dict): GCAM-formatted data for reference case.
+        gcam_map (dict): GCAM-Scout segment mapping data.
     """
 
     def __init__(self, handyvars, measure_objects, energy_out, brkout,
-                 report_cfs):
+                 report_cfs, gcam_in, gcam_map):
         self.handyvars = handyvars
         self.measures = measure_objects
         self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
@@ -393,6 +434,8 @@ class Engine(object):
             ("Markets and Savings (Overall)", OrderedDict())])
         self.output_all["Energy Output Type"] = energy_out
         self.output_all["Output Resolution"] = brkout
+        self.gcam_in = gcam_in
+        self.gcam_map = gcam_map
         # Initialize competition adjustment fraction dict, if required by user
         if report_cfs is True:
             self.output_ecms_cfs = {}
@@ -3197,6 +3240,12 @@ class Engine(object):
             # measure's efficient data
             rp_adj, save_c, tot_c = ({
                 v: 0 for v in ["energy", "carbon", "cost"]} for n in range(3))
+            # Initialize tracker of cumulative competed stock (including
+            # in years before measure entered market) for use in subsequent
+            # measure-captured stock adjustment for measures that enter the
+            # market after the minimum market entry year across competing
+            # measures
+            cum_compete_stk = 0
         else:
             delay_entry_adj = False
             rp_adj, save_c, tot_c = (None for n in range(3))
@@ -3231,6 +3280,11 @@ class Engine(object):
                                        adj_stk_trk["total"]["all"][wyr])
                     else:
                         wt_comp_wyr = 0
+                    # For measures with delayed market entry, add current year
+                    # competed stock value to tracker of cumulative competed
+                    # stock (including in years before measure entered market)
+                    if delay_entry_adj:
+                        cum_compete_stk += adj_stk_trk["competed"]["all"][wyr]
 
                     # If needed, update efficient data adjustment for measures
                     # with delayed market entry; adjustment represents the
@@ -3301,52 +3355,65 @@ class Engine(object):
             v: adj_frac_t for v in ["stock", "energy", "carbon", "cost"]}
             for n in range(2))
 
-        # If necessary, implement adjustment to ensure that relative
-        # performance of measure post-market share adjustment is consistent
-        # with its relative performance pre-market share adjustment
+        # If necessary, implement adjustment to ensure that measure-captured
+        # portion of total stock and relative performance of measure
+        # post-market share adjustment is consistent with its measure-captured
+        # portion of stock/relative performance pre-market share adjustment
         if delay_entry_adj:
             # Make unique calculation for each output metric of interest
-            for var in ["energy", "carbon", "cost"]:
+            for var in ["stock", "energy", "carbon", "cost"]:
+                if var == "stock":
+                    # Develop a factor that adjusts measure-captured stock
+                    # values to account for missed competed stock in years
+                    # before measure entered market
+                    try:
+                        b_e_ratio = cum_compete_stk / \
+                            adj[var]["total"]["measure"][yr]
+                    except (ZeroDivisionError, FloatingPointError):
+                        b_e_ratio = 1
+                    adj_t_e[var] = adj_t_b[var] * b_e_ratio
                 # Cumulative competed relative performance equals cumulatively
                 # competed-captured savings for the metric divided by
                 # cumulatively competed-captured baseline; handle zero
                 # denominator
-                if tot_c[var] != 0:
-                    rp_adj[var] = 1 - (save_c[var] / tot_c[var])
                 else:
-                    rp_adj[var] = 1
+                    if tot_c[var] != 0:
+                        rp_adj[var] = 1 - (save_c[var] / tot_c[var])
+                    else:
+                        rp_adj[var] = 1
 
-                # Since the relative performance adjustment is calculated
-                # relative to baseline data, develop a ratio that first
-                # translates efficient to baseline values, before the
-                # relative performance factor is applied
+                    # Since the relative performance adjustment is calculated
+                    # relative to baseline data, develop a ratio that first
+                    # translates efficient to baseline values, before the
+                    # relative performance factor is applied
 
-                # Handle cost data structure separately, focus on energy costs
-                if var == "cost":
-                    try:
-                        b_e_ratio = \
-                            adj[var]["energy"]["total"]["baseline"][yr] / \
-                            adj[var]["energy"]["total"]["efficient"][yr]
-                    except (ZeroDivisionError, FloatingPointError):
+                    # Handle cost data structure separately, focus on energy
+                    # costs
+                    if var == "cost":
+                        try:
+                            b_e_ratio = \
+                                adj[var]["energy"]["total"]["baseline"][yr] / \
+                                adj[var]["energy"]["total"]["efficient"][yr]
+                        except (ZeroDivisionError, FloatingPointError):
+                            b_e_ratio = 1
+                    # Energy/carbon data
+                    else:
+                        try:
+                            b_e_ratio = adj[var]["total"]["baseline"][yr] / \
+                                adj[var]["total"]["efficient"][yr]
+                        except (ZeroDivisionError, FloatingPointError):
+                            b_e_ratio = 1
+
+                    # Ensure that calculated ratio is a finite number
+                    if (type(b_e_ratio) == numpy.ndarray and not all(
+                        numpy.isfinite(b_e_ratio))) or (
+                        type(b_e_ratio) != numpy.ndarray and not
+                            numpy.isfinite(b_e_ratio)):
                         b_e_ratio = 1
-                # Energy/carbon data
-                else:
-                    try:
-                        b_e_ratio = adj[var]["total"]["baseline"][yr] / \
-                            adj[var]["total"]["efficient"][yr]
-                    except (ZeroDivisionError, FloatingPointError):
-                        b_e_ratio = 1
 
-                # Ensure that calculated ratio is a finite number
-                if (type(b_e_ratio) == numpy.ndarray and not all(
-                    numpy.isfinite(b_e_ratio))) or (
-                    type(b_e_ratio) != numpy.ndarray and not numpy.isfinite(
-                        b_e_ratio)):
-                    b_e_ratio = 1
-
-                # Further scale efficient market share adjustment fraction
-                # on the basis of the factors calculated above
-                adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
+                    # Further scale efficient market share adjustment fraction
+                    # on the basis of the factors calculated above
+                    adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3526,59 +3593,55 @@ class Engine(object):
         # Adjust the total and competed stock captured by the measure and
         # associated measure and base-case cost totals for that captured
         # stock by the appropriate measure market share, both overall and
-        # for the current contributing microsegment. For years in which the
-        # measure is not on the market (e.g., not yet introduced to the
-        # market, or subject to a market exit year), captured stock/stock cost
-        # totals will already reflect this and need not be adjusted further.
-        if yr in measure.yrs_on_mkt:
+        # for the current contributing microsegment.
 
-            # Overall total measure stock
-            mast["stock"]["total"]["measure"][yr] = \
-                mast["stock"]["total"]["measure"][yr] - \
-                adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
-            # Overall total baseline stock cost
-            mast["cost"]["stock"]["total"]["baseline"][yr] = \
-                mast["cost"]["stock"]["total"]["baseline"][yr] - \
-                adj["cost"]["stock"]["total"]["baseline"][yr] * (
-                    1 - adj_t_b["stock"])
-            # Overall total measure stock cost
-            mast["cost"]["stock"]["total"]["efficient"][yr] = \
-                mast["cost"]["stock"]["total"]["efficient"][yr] - \
-                adj["cost"]["stock"]["total"]["efficient"][yr] * (
-                    1 - adj_t_e["stock"])
-            # Overall competed measure stock
-            mast["stock"]["competed"]["measure"][yr] = \
-                mast["stock"]["competed"]["measure"][yr] - \
-                adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
-            # Overall competed baseline stock cost
-            mast["cost"]["stock"]["competed"]["baseline"][yr] = \
-                mast["cost"]["stock"]["competed"]["baseline"][yr] - \
-                adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
-            # Overall competed measure stock cost
-            mast["cost"]["stock"]["competed"]["efficient"][yr] = \
-                mast["cost"]["stock"]["competed"]["efficient"][yr] - \
-                adj["cost"]["stock"]["competed"]["efficient"][yr] * (
-                    1 - adj_c)
-            # Current contributing mseg total measure stock
-            adj["stock"]["total"]["measure"][yr] = \
-                adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
-            # Current contributing mseg total baseline stock cost
-            adj["cost"]["stock"]["total"]["baseline"][yr] = \
-                adj["cost"]["stock"]["total"]["baseline"][yr] * \
-                adj_t_b["stock"]
-            # Current contributing mseg total measure stock cost
-            adj["cost"]["stock"]["total"]["efficient"][yr] = \
-                adj["cost"]["stock"]["total"]["efficient"][yr] * \
-                adj_t_e["stock"]
-            # Current contributing mseg competed measure stock
-            adj["stock"]["competed"]["measure"][yr] = \
-                adj["stock"]["competed"]["measure"][yr] * adj_c
-            # Current contributing mseg competed baseline stock cost
-            adj["cost"]["stock"]["competed"]["baseline"][yr] = \
-                adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
-            # Current contributing mseg competed measure stock cost
-            adj["cost"]["stock"]["competed"]["efficient"][yr] = \
-                adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
+        # Overall total measure stock
+        mast["stock"]["total"]["measure"][yr] = \
+            mast["stock"]["total"]["measure"][yr] - \
+            adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+        # Overall total baseline stock cost
+        mast["cost"]["stock"]["total"]["baseline"][yr] = \
+            mast["cost"]["stock"]["total"]["baseline"][yr] - \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * (
+                1 - adj_t_b["stock"])
+        # Overall total measure stock cost
+        mast["cost"]["stock"]["total"]["efficient"][yr] = \
+            mast["cost"]["stock"]["total"]["efficient"][yr] - \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * (
+                1 - adj_t_e["stock"])
+        # Overall competed measure stock
+        mast["stock"]["competed"]["measure"][yr] = \
+            mast["stock"]["competed"]["measure"][yr] - \
+            adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+        # Overall competed baseline stock cost
+        mast["cost"]["stock"]["competed"]["baseline"][yr] = \
+            mast["cost"]["stock"]["competed"]["baseline"][yr] - \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
+        # Overall competed measure stock cost
+        mast["cost"]["stock"]["competed"]["efficient"][yr] = \
+            mast["cost"]["stock"]["competed"]["efficient"][yr] - \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * (
+                1 - adj_c)
+        # Current contributing mseg total measure stock
+        adj["stock"]["total"]["measure"][yr] = \
+            adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+        # Current contributing mseg total baseline stock cost
+        adj["cost"]["stock"]["total"]["baseline"][yr] = \
+            adj["cost"]["stock"]["total"]["baseline"][yr] * \
+            adj_t_b["stock"]
+        # Current contributing mseg total measure stock cost
+        adj["cost"]["stock"]["total"]["efficient"][yr] = \
+            adj["cost"]["stock"]["total"]["efficient"][yr] * \
+            adj_t_e["stock"]
+        # Current contributing mseg competed measure stock
+        adj["stock"]["competed"]["measure"][yr] = \
+            adj["stock"]["competed"]["measure"][yr] * adj_c
+        # Current contributing mseg competed baseline stock cost
+        adj["cost"]["stock"]["competed"]["baseline"][yr] = \
+            adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
+        # Current contributing mseg competed measure stock cost
+        adj["cost"]["stock"]["competed"]["efficient"][yr] = \
+            adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
 
         # Adjust total and competed baseline and efficient energy, carbon,
         # and cost data by measure market share
@@ -3994,6 +4057,21 @@ class Engine(object):
                         adopt_scheme][
                         "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
                         summary_vals_f_e[5]
+                # Record list of baseline variable names for use in finalizing
+                # output breakouts below
+                mkt_base_keys = [
+                    "Baseline Energy Use (MMBtu)",
+                    "Baseline CO2 Emissions (MMTons)".translate(sub)]
+                # Record list of efficient variable names for use in finalizing
+                # output breakouts below
+                mkt_eff_keys = [
+                    "Efficient Energy Use (MMBtu)",
+                    "Efficient CO2 Emissions (MMTons)".translate(sub)]
+                # Record list of savings variable names for use in finalizing
+                # output breakouts below
+                save_keys = [
+                    "Energy Savings (MMBtu)",
+                    "Avoided CO2 Emissions (MMTons)".translate(sub)]
 
             # If competition adjustment fractions must be reported, find/store
             # those data
@@ -4127,16 +4205,6 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "energy"]["efficient"], energy_eff_avg, focus_yrs,
                 divide=True)
-            # Determine total energy savings to use as normalization factor
-            norm_save_energy = {
-                yr: (energy_base_avg[yr] - energy_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate energy savings fractions by output breakout category
-            frac_save_energy = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["energy"]["savings"],
-                norm_save_energy, focus_yrs, divide=True)
-
             # Cost
             # Calculate baseline energy cost fractions by output breakout
             # category
@@ -4150,18 +4218,6 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "cost"]["efficient"], energy_cost_eff_avg,
                 focus_yrs, divide=True)
-            # Determine total energy cost savings to use as normalization
-            # factor
-            norm_save_cost = {
-                yr: (energy_cost_base_avg[yr] - energy_cost_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate energy cost savings fractions by output breakout
-            # category
-            frac_save_cost = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["cost"]["savings"],
-                norm_save_cost, focus_yrs, divide=True)
-
             # Carbon
             # Calculate baseline carbon fractions by output breakout category
             frac_base_carb = self.out_break_walk(
@@ -4173,23 +4229,16 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "carbon"]["efficient"], carb_eff_avg, focus_yrs,
                 divide=True)
-            # Determine total carbon savings to use as normalization factor
-            norm_save_carb = {
-                yr: (carb_base_avg[yr] - carb_eff_avg[yr]) for
-                yr in focus_yrs}
-            # Calculate carbon savings fractions by output breakout category
-            frac_save_carb = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"][
-                    "mseg_out_break"]["carbon"]["savings"],
-                norm_save_carb, focus_yrs, divide=True)
 
             # Create shorthand variable for results by breakout category
             mkt_save_brk = self.output_ecms[m.name][
                 "Markets and Savings (by Category)"][adopt_scheme]
-
-            # Apply output breakout fractions to total energy, carbon, and cost
-            # results initialized above
-            for k in mkt_save_brk.keys():
+            # Create combined list of baseline and efficient variables to
+            # loop through below in finalizing baseline/efficient breakouts
+            mkt_keys = mkt_base_keys + mkt_eff_keys
+            # Apply output breakout fractions to total baseline and efficient
+            # energy, carbon, and cost results initialized above
+            for k in mkt_keys:
                 # Apply baseline partitioning fractions to baseline values
                 if "Baseline" in k:
                     # Stock results
@@ -4234,23 +4283,6 @@ class Engine(object):
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_carb), mkt_save_brk[k],
                             focus_yrs, divide=False)
-                # Apply savings partitioning fractions to savings values
-                else:
-                    # Energy results
-                    if ("Energy" in k and "Cost" not in k):
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_energy), mkt_save_brk[k],
-                           focus_yrs, divide=False)
-                    # Energy cost results
-                    elif "Energy Cost" in k:
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_cost), mkt_save_brk[k],
-                           focus_yrs, divide=False)
-                    # Carbon results
-                    else:
-                        mkt_save_brk[k] = self.out_break_walk(
-                           copy.deepcopy(frac_save_carb), mkt_save_brk[k],
-                           focus_yrs, divide=False)
             # Assess final output breakouts of savings as the difference
             # between finalized baseline and efficient breakouts from above.
             # Note: account for the fact that save_keys has one less variable
@@ -4428,14 +4460,6 @@ class Engine(object):
                     adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
                         yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
                         for yr in focus_yrs}
-                # Update stock cost data across all ECMs with data for
-                # current ECM
-                for yr in focus_yrs:
-                    # Add to total stock cost data (first element of list)
-                    stk_cost_all_ecms[0][yr] += stk_cost_meas_avg[yr]
-                    # Add to inc. stock cost data (second element of list)
-                    stk_cost_all_ecms[1][yr] += (
-                        stk_cost_meas_avg[yr] - stk_cost_base[yr])
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
                     meas_stk_key_low = meas_stk_key + " (low)"
@@ -4466,6 +4490,231 @@ class Engine(object):
                             "Incremental Measure Stock Cost ($) (high)"] = {
                         yr: (stk_cost_meas_high[yr] - stk_meas_high[yr])
                         for yr in focus_yrs}
+
+            # If a user desires output compatible with GCAM format, assess
+            # impacts of measures on GCAM baselines stock/energy segments.
+            if opts.gcam_out is True:
+                # List of end uses to exclude from calculations
+                exclude_eus = ["secondary heating"]
+                # List of techs to exclude from calculations
+                exclude_techs = ["NGHP"]
+                # Create list of applicable Scout measure microsegments to
+                # iterate over
+                ms_lists = [m.climate_zone, m.bldg_type,
+                            m.fuel_type['primary'],
+                            m.end_use['primary'], m.technology['primary']]
+                ms_iterable_init = list(itertools.product(*ms_lists))
+                # Map applicable measure microsegments to GCAM segments
+                gcam_segs = [[] for n in range(len(ms_iterable_init))]
+                for ind, seg in enumerate(ms_iterable_init):
+                    # Exclude all secondary heating and NGHP impacts
+                    if any([(x in seg or y in seg) for x, y in zip(
+                            exclude_eus, exclude_techs)]):
+                        continue
+                    try:
+                        gcam_segs[ind] = [
+                            seg[0],   # region (no mapping needed)
+                            [x[0] for x in
+                                self.gcam_map["bldg"].items()
+                                if seg[1] in x[1]][0],  # bldg
+                            [x[0] for x in
+                                self.gcam_map["fuel"].items()
+                                if seg[2] in x[1]][0],  # fuel
+                            [x[0] for x in
+                                self.gcam_map["end_use"].items() if
+                                seg[3] in x[1]][0],  # eu
+                            [x[0] for x in
+                                self.gcam_map["tech"].items()
+                                if seg[4] in x[1]][0]]  # tech
+                    # Handle case where no Scout technology name applies
+                    except IndexError:
+                        gcam_segs[ind] = [
+                            seg[0],   # region (no mapping needed)
+                            [x[0] for x in
+                                self.gcam_map["bldg"].items()
+                                if seg[1] in x[1]][0],  # bldg
+                            [x[0] for x in
+                                self.gcam_map["fuel"].items()
+                                if seg[2] in x[1]][0],  # fuel
+                            [x[0] for x in
+                                self.gcam_map["end_use"].items() if
+                                seg[3] in x[1]][0],  # eu
+                            [x[0] for x in
+                                self.gcam_map["tech"].items()
+                                # map to GCAM tech using Scout fuel type and EU
+                                if (seg[2] in x[1] and seg[3] in x[1])][0]]
+                    # Handle custom mapping needs for specific fuel/tech type
+                    # combinations
+                    # Fuel type
+
+                    # Set wood stoves/secondary heaters to GCAM biomass fuel
+                    if seg[4] in ['stove (wood)', 'secondary heater (wood)']:
+                        gcam_segs[ind][2] = "biomass"
+                    # Temporarily set propane furnaces to propane fuel for the
+                    # purposes of pulling the appropriate Scout breakout data –
+                    # this will be reset to GCAM's 'refined liquids' fuel type,
+                    # which encompasses propane, below
+                    elif seg[4] == 'furnace (LPG)':
+                        gcam_segs[ind][2] = "propane"
+                    # End uses
+                    # Add "s" to specific "other" Scout end uses to match GCAM
+                    # end-use names
+                    if 'other' in gcam_segs[ind][3] and gcam_segs[ind][4] \
+                            in ['dishwasher', 'clothes washer', 'freezer']:
+                        gcam_segs[ind][3] = gcam_segs[ind][4] + 's'
+                # Handle/remove any duplicate segments
+                gcam_segs = list(set(tuple(x) for x in gcam_segs))
+                # Reset to mutable lists
+                gcam_segs = [list(x) for x in gcam_segs]
+                # Initiate list that tracks all breakout category combinations
+                # pulled for baseline calculations (each should only be pulled
+                # once)
+                brkout_track = []
+
+                # Loop through GCAM segments and adjust reference case
+                # data on the basis of modifications from Scout measure
+                for ind, seg_b in enumerate(gcam_segs):
+                    # Set mapping variables to map GCAM segments to standard
+                    # Scout market breakouts in order to find appropriate
+                    # Scout market segment
+                    bldg_map_b = [
+                        k for k, v in
+                        self.handyvars.out_break_bldgtypes_gcam.items() if
+                        seg_b[1] in v]
+                    eu_map_b = [
+                        k for k, v in
+                        self.handyvars.out_break_enduses_gcam.items() if
+                        seg_b[3] in v][0]
+                    fuel_map_b = [
+                        k for k, v in
+                        self.handyvars.out_break_fuels_gcam.items() if
+                        seg_b[2] in v][0]
+                    # Segments flagged as propane for the purposes of pulling
+                    # Scout breakout data ("Propane" breakout category) must be
+                    # reset to 'refined liquids' in GCAM, which includes
+                    # propane
+                    if seg_b[2] == "propane":
+                        seg_b[2] = "refined liquids"
+                    # For electrification measures, make a measure-specific
+                    # copy of segment info. Special handling for electric
+                    # cooling segments of HP measures; air
+                    # conditioning energy changes, but stock does not change
+                    if any([x in m.name for x in ["FS", "RST"]]) and \
+                            (seg_b[3] != "cooling" or
+                             seg_b[4] == "gas heat pump"):
+                        seg_m = copy.deepcopy(list(seg_b))
+                        # Set appropriate fuel
+                        seg_m[2] = "electricity"
+                        # Set appropriate switched to technology, on the basis
+                        # of end use
+                        # Water heating
+                        if seg_m[3] == "hot water":
+                            seg_m[4] = "electric heat pump water heater"
+                        # Heating
+                        if seg_m[3] == "heating":
+                            seg_m[4] = "electric heat pump"
+                        # Residential Cooking
+                        if seg_m[1] == "resid" and seg_m[3] == "cooking":
+                            seg_m[4] = "electric oven"
+                        # Commercial Cooking
+                        if seg_m[1] == "comm" and seg_m[3] == "cooking":
+                            seg_m[4] = "electric range"
+                        # Building and end use mapping are same for baseline
+                        # and switched segment
+                        bldg_map_m, eu_map_m = [bldg_map_b, eu_map_b]
+                        # Fuel mapping is
+                        fuel_map_m = "Electric"
+                    else:
+                        seg_m = ""
+
+                    # Determine full set of segments and mapping variables
+                    # to loop through in modifying GCAM reference case data
+                    if seg_m:
+                        seg, bldg_map, eu_map, fuel_map = [
+                            [seg_b, seg_m], [bldg_map_b, bldg_map_m],
+                            [eu_map_b, eu_map_m], [fuel_map_b, fuel_map_m]]
+                        stk_assess = True
+                    else:
+                        seg, bldg_map, eu_map, fuel_map = [
+                            [seg_b], [bldg_map_b], [eu_map_b], [fuel_map_b]]
+                        stk_assess = False
+
+                    # Loop through all baseline and (if applicable) measure
+                    # switched to segments and pull/update GCAM reference case
+                    # energy and (if applicable) stock data
+                    exceptions = []
+                    for ind, s in enumerate(seg):
+                        # Pull energy savings from Scout breakouts, summing
+                        # across new/existing building vintages
+                        esave = dict()
+                        try:
+                            # When looping through the baseline segment (first
+                            # element), record the breakout categories used
+                            # to pull data to data aren't double counted
+                            brkout = str([s[0], bldg_map[ind], eu_map[ind],
+                                          fuel_map[ind]])
+                            # Continue with update if not looping through
+                            # baseline segment data or if looping through
+                            # those data and they have not already been
+                            # pulled for the given breakout combination
+                            if all([y != brkout for y in brkout_track]):
+                                for bldg in bldg_map[ind]:
+                                    esave[bldg] = mkt_save_brk[
+                                        'Energy Savings (MMBtu)'][
+                                        s[0]][bldg][eu_map[ind]][
+                                        fuel_map[ind]]
+                                # Add "(New)" and "(Existing)" energy savings
+                                # dictionaries together
+                                esave = {k: esave[bldg_map[ind][0]][k] +
+                                         esave[bldg_map[ind][1]][k]
+                                         for k in self.handyvars.aeo_years}
+                                # Subtract summed energy savings from
+                                # appropriate GCAM reference "energy" data for
+                                # segment by year
+                                for k in self.handyvars.aeo_years:
+                                    self.gcam_in[s[0]][s[1]][s[2]][s[3]][
+                                        s[4]]['energy'][k] -= esave[k]
+                                # If necessary, adjust measure stock data (
+                                # relevant to tech. switching measures)
+                                if stk_assess is True:
+                                    # Pull difference between efficient and
+                                    # baseline stock for each Scout building
+                                    # type (New and Existing); stock
+                                    # additions will show up as positive
+                                    # and subtractions as negative here
+                                    stk_delt = dict()
+                                    for bldg in bldg_map[ind]:
+                                        stk_delt[bldg] = {
+                                            yr: mkt_save_brk[(
+                                                "Measure Stock " + stk_units)][
+                                                s[0]][bldg][eu_map[ind]][
+                                                fuel_map[ind]][yr] -
+                                            mkt_save_brk[
+                                                ("Baseline Stock " +
+                                                 stk_units)][
+                                                s[0]][bldg][eu_map[ind]][
+                                                fuel_map[ind]][yr]
+                                            for yr in self.handyvars.aeo_years}
+                                    # Add "(New)" and "(Existing)" stock data
+                                    # dictionaries together
+                                    stk_delt = {
+                                        k: stk_delt[bldg_map[ind][0]][k] +
+                                        stk_delt[bldg_map[ind][1]][k] for k
+                                        in self.handyvars.aeo_years}
+                                    for k in self.handyvars.aeo_years:
+                                        # Add difference in stock to
+                                        # appropriate GCAM reference "stock"
+                                        # data by year
+                                        self.gcam_in[s[0]][s[1]][s[2]][s[3]][
+                                            s[4]]['stock'][k] += stk_delt[k]
+                                brkout_track.append(brkout)
+                            else:
+                                break
+                        except KeyError:
+                            exceptions.append(s[1:])
+                            break
+                    exceptions = list(set(tuple(x) for x in exceptions))
+                    # print(exceptions)
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
@@ -4594,8 +4843,8 @@ class Engine(object):
                 of multiplying them (the default option).
 
         Returns:
-            Measure results partitioned by climate, building sector,
-            end use, and possibly fuel type (electric/non-electric).
+            Measure baseline or efficient results partitioned by climate,
+            building sector, end use, and possibly fuel type.
         """
         for (k, i) in sorted(adjust_dict.items()):
             if isinstance(i, dict) and len(i.keys()) > 0:
@@ -4616,6 +4865,32 @@ class Engine(object):
             else:
                 del adjust_dict[k]
         return adjust_dict
+
+    def out_break_walk_subtr(self, orig_dict, base_val, eff_val, focus_yrs):
+        """Subtract efficient from base values in nested dicts to get savings.
+
+        Args:
+            orig_dict (dict): The final dict/dict structure to be produced.
+            base_val (dict): Baseline values in nested dict.
+            eff_val (list): Efficient values in nested dict.
+            focus_yrs (list): Optional years of focus within overall yr. range
+
+        Returns:
+            Measure savings results partitioned by climate, building sector,
+            end use, and possibly fuel type.
+        """
+        for (k, i) in sorted(orig_dict.items()):
+            if isinstance(i, dict) and len(i.keys()) > 0:
+                self.out_break_walk_subtr(
+                    i, base_val[k], eff_val[k], focus_yrs)
+            elif isinstance(i, dict):
+                del orig_dict[k]
+            elif k in focus_yrs:
+                # Subtract efficient from baseline values at terminal nodes
+                orig_dict[k] = base_val[k] - eff_val[k]
+            else:
+                del orig_dict[k]
+        return orig_dict
 
 
 def main(base_dir):
@@ -4640,7 +4915,7 @@ def main(base_dir):
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles)
+    handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -4889,9 +5164,29 @@ def main(base_dir):
     else:
         print('Data load complete')
 
+    # Import GCAM data if necessary
+    if opts.gcam_out is True:
+        # Import GCAM reference case data
+        with open(path.join(base_dir, *handyfiles.gcam_in), 'r') as gc:
+            try:
+                gcam_in = json.load(gc)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.gcam_in + "'")
+        # Import GCAM mapping support file
+        with open(path.join(base_dir, *handyfiles.gcam_map), 'r') as gc_map:
+            try:
+                gcam_map = json.load(gc_map)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.gcam_map + "'")
+    else:
+        gcam_in = ""
+        gcam_map = ""
+
     # Instantiate an Engine object using active measures list
     a_run = Engine(handyvars, measures_objlist, energy_out, brkout,
-                   opts.report_cfs)
+                   opts.report_cfs, gcam_in, gcam_map)
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
@@ -4920,6 +5215,10 @@ def main(base_dir):
         a_run.finalize_outputs(
             adopt_scheme, trim_out, trim_yrs, opts.report_stk,
             opts.report_cfs)
+        # Write outputs to revised GCAM file if applicable
+        if opts.gcam_out is True:
+            with open(path.join(base_dir, *handyfiles.gcam_out), 'w') as gco:
+                json.dump(a_run.gcam_in, gco, indent=2)
         print("Results finalized")
 
     # Notify user that all analysis engine calculations are completed
@@ -5100,6 +5399,9 @@ if __name__ == '__main__':
     # Optional flag to report competition adjustment fractions
     parser.add_argument("--report_cfs", action="store_true",
                         help="Report competition adjustment fractions")
+    # Optional flag to prepare output data in format for integration in GCAM
+    parser.add_argument("--gcam_out", action="store_true",
+                        help="Prepare output data in GCAM format")
     opts = parser.parse_args()
     # Set function that only prints message when in verbose mode
     verboseprint = print if opts.verbose else lambda *a, **k: None
