@@ -12,9 +12,18 @@
     "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0,
+  "energy_efficiency": 0.55,
   "energy_efficiency_units": "relative savings (constant)",
-  "energy_efficiency_source": null,
+  "energy_efficiency_source": {
+    "notes": "Compare overall UEC of natural gas vs. electric cooking across all regions and building types",
+    "source_data": {
+      "title": "AEO 2021 Microtables",
+      "author": null,
+      "organization": "EIA",
+      "year": 2021,
+      "pages": null,
+      "URL": null}
+  },
   "installed_cost": 87.27,
   "cost_units": "2017$/kBtu/h cooking",
   "installed_cost_source": {
