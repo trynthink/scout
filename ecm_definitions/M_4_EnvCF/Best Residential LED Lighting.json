@@ -1,0 +1,90 @@
+{
+  "name": "Best Residential LED Lighting",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["general service (CFL)", "general service (incandescent)", "general service (LED)"],
+  "market_entry_year": 2022,
+  "market_entry_year_source": {
+    "notes": "Most efficient general service 60W replacement LED bulb on the market in 2022, updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "ENERGY STAR Certified Light Bulbs",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://www.energystar.gov/productfinder/product/certified-light-bulbs/details/2293883"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "general service (CFL)": 120,
+      "general service (incandescent)": 120,
+      "general service (LED)": 120},
+  "energy_efficiency_units": "lm/W",
+  "energy_efficiency_source": {
+    "notes": "Based on most efficient general service LED bulb in ENERGY STAR product finder database; use lm/W rating provided on retailer website (lower than on ENERGY STAR website)",
+    "source_data": [{
+      "title": "ENERGY STAR Certified Light Bulbs",
+      "author": null,
+      "organization": "ENERGY STAR",
+      "year": 2022,
+      "pages": null,
+      "URL": "https://www.energystar.gov/productfinder/product/certified-light-bulbs/details/2293883"
+    },
+    {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-Clear-Filament-Vintage-Style-LED-Light-Bulb-Daylight-4-Pack-A7A19A60WESGD03/301766890"
+    }]
+  },
+  "installed_cost": 4,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Based on EcoSmart 60W Equivalent A19 Dimmable Energy Star (4-Pack) $3.12, adjust to reflect at least baseline LED cost of $4, which may be slightly outdated",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-Clear-Filament-Vintage-Style-LED-Light-Bulb-Daylight-4-Pack-A7A19A60WESGD03/301766890"
+    }
+  },
+  "product_lifetime": 13.7,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Based on EcoSmart 60W Equivalent A19 Dimmable Energy Star (4-Pack); assume 3h/day use",
+    "source_data": [{
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": "https://www.homedepot.com/p/EcoSmart-60-Watt-Equivalent-A19-Dimmable-Energy-Star-Clear-Filament-Vintage-Style-LED-Light-Bulb-Daylight-4-Pack-A8A19A60WESGD04/304350293?keyword=EcoSmart+-+1002459555&semanticToken=21050000+++%3E++++st%3A%7Becosmart+-+1002459555%7D%3Ast++cnn%3A%7B0%3A0%7D++cnt%3A%7B7%3A0%7D++ecosmart+%7Bbrand%7D+1002459555+%7Brest%7D++qu%3A%7B1002459555%7D"
+    }]
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Highest efficiency 60W equivalent LED bulb available in 2018",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Sep 14 2018 13:56:45 EDT"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}

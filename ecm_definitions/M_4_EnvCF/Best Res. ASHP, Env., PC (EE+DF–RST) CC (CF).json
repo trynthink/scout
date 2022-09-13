@@ -1,0 +1,105 @@
+{
+  "name": "Best Res. ASHP, Env., PC (EE+DF–RST) CC (CF)",
+  "_description": "Envelope-only counterfactual for this measure, non-cold-climate",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": ["resistance heat", "central AC"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P1d_Best_envelope.csv"
+    }
+  },
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": 6357,
+  "cost_units": "2020$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 29,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 17,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
+    ]},
+  "product_lifetime": 15.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low & high values for 'Average Life (yrs.)'",
+    "source_data": {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 19,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "central AC": 0.405,
+    "resistance heat": 1},
+  "market_scaling_fractions_source": {
+    "central AC": {
+      "title": "RECS 2015 - Table HC6.1",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015",
+      "fraction_derivation": "Central AC multiple of 40.5% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with electric heating system (76,090,522 - 45,241,958 fuel-fired systems)."
+    },
+    "resistance heat": "Applies to all homes with electric resistance furnaces (the resistance heat tech. is indicative of a forced air electric furnace in the EIA data)"
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Sep 16 2019 19:28:00 UTC"},
+  "_updated_by": [{
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Fri Oct 30 2020 22:00:00 UTC"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 14:39:36 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  }]
+}

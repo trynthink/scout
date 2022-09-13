@@ -1,0 +1,105 @@
+{
+  "name": "Best Residential Windows",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+  "fuel_type": "all",
+  "technology": [
+      "windows conduction",
+      "windows solar"
+    ],
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Highest R value, lowest SHGC in the NREL database, updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=16&ctId=190"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+      	"windows conduction": 5.88,
+      	"windows solar": 0.49},
+      "AIA_CZ2": {
+      	"windows conduction": 5.88,
+      	"windows solar": 0.42},
+      "AIA_CZ3": {
+      	"windows conduction": 5.88,
+      	"windows solar": 0.27},
+      "AIA_CZ4": {
+      	"windows conduction": 5.88,
+      	"windows solar": 0.27},
+      "AIA_CZ5": {
+      	"windows conduction": 5.88,
+      	"windows solar": 0.27}},
+  "energy_efficiency_units": {
+      "windows conduction": "R value",
+      "windows solar": "SHGC"
+    },
+  "energy_efficiency_source": {
+    "notes": "Low-E, Triple, Insulated, Arg, L-Gain R value (1/U val.) and SHGC; northern, heating-dominated climates assume baseline SHGC",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=16&ctId=190"
+    }
+  },
+  "installed_cost": 57,
+  "cost_units": "2017$/ft^2 glazing",
+  "installed_cost_source": {
+    "notes": "Low-E, Triple, Insulated, Arg, L-Gain average installed cost",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=16&ctId=190"
+    }
+  },
+  "product_lifetime": 30,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Low-E, Triple, Insulated, Arg, L-Gain lifetime",
+    "source_data": {
+      "title": "National Residential Efficiency Measures Database",
+      "author": null,
+      "organization": "NREL",
+      "year": 2018,
+      "pages": null,
+      "URL": "https://remdb.nrel.gov/measures.php?gId=16&ctId=190"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Highest efficiency window in the NREL database in 2018",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri Sep 14 2021 12:39:31 EDT"
+  },
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null
+  }
+}
