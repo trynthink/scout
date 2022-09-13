@@ -26,7 +26,6 @@ from plots_utilities import ECM_RESULTS
 # set(ecm_results_v4.split_fuel)
 # {'Biomass', 'Propane', 'Electric', 'Natural Gas', None, 'Distillate/Other'}
 
-
 ################################################################################
 # mappings between ECM results and EMF aggregtaions
 emf_base_string =\
@@ -292,15 +291,15 @@ if __name__ == "__main__":
 
     a3_0 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "direct_indirect_fuel", "year"])\
+            .groupby(["region", "emf_base_string", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
     a3_1 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "direct_indirect_fuel", "year"])\
+            .groupby(["region", "emf_base_string", "building_class", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
     a3_2 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "direct_indirect_fuel", "year"])\
+            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
 
     a4_0 = ecm_results\
@@ -332,9 +331,9 @@ if __name__ == "__main__":
     a1["emf_string"] = a0.region + a1.emf_base_string + "|" + a1.building_class
     a2["emf_string"] = a0.region + a2.emf_base_string + "|" + a2.building_class + "|" + a2.emf_end_use
 
-    a3_0["emf_string"] = a3_0.region + a3_0.emf_base_string + "|" + a3_0.direct_indirect_fuel
-    a3_1["emf_string"] = a3_1.region + a3_1.emf_base_string + "|" + a3_1.building_class + "|" + a3_1.direct_indirect_fuel
-    a3_2["emf_string"] = a3_2.region + a3_2.emf_base_string + "|" + a3_2.building_class + "|" + a3_2.emf_end_use + "|" + a3_2.direct_indirect_fuel
+    a3_0["emf_string"] = a3_0.region + a3_0.emf_base_string + "|" + a3_0.emf_direct_indirect_fuel
+    a3_1["emf_string"] = a3_1.region + a3_1.emf_base_string + "|" + a3_1.building_class + "|" + a3_1.emf_direct_indirect_fuel
+    a3_2["emf_string"] = a3_2.region + a3_2.emf_base_string + "|" + a3_2.building_class + "|" + a3_2.emf_end_use + "|" + a3_2.emf_direct_indirect_fuel
 
     a4_0["emf_string"] = a4_0.region + a4_0.emf_base_string + "|" + a4_0.emf_fuel_type
     a4_1["emf_string"] = a4_1.region + a4_1.emf_base_string + "|" + a4_1.building_class + "|" + a4_1.emf_fuel_type
