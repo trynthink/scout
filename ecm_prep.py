@@ -7349,7 +7349,7 @@ class Measure(object):
 
         # Initialize flag for whether measure is on the market in a given year
         # as false
-        measure_on_mkt = ""
+        measure_on_mkt, measure_exited_mkt = ("" for n in range(2))
 
         # Initialize variables that capture the portion of baseline
         # energy, carbon, and energy cost that remains with the baseline fuel
@@ -7598,11 +7598,16 @@ class Measure(object):
         # each year in the modeling time horizon
         for yr in self.handyvars.aeo_years:
             # Reset flag for whether measure is on the market in current year
+            # and for whether measure has exited the market
             if (int(yr) >= self.market_entry_year and
                     int(yr) < self.market_exit_year):
                 measure_on_mkt = True
-            else:
+                measure_exited_mkt = ""
+            elif int(yr) >= self.market_exit_year:
                 measure_on_mkt = ""
+                measure_exited_mkt = True
+            else:
+                measure_on_mkt, measure_exited_mkt = ("" for n in range(2))
 
             # Set time sensitive cost/emissions scaling factors for all
             # baseline stock; handle cases where these factors are/are not
@@ -8262,9 +8267,17 @@ class Measure(object):
                         stk_serv_cap_cnv * base_f_r_unit_yr * diffuse_frac * \
                         comp_frac_diffuse
 
-            # Final competed stock captured by the measure
-            stock_compete_meas[yr] = \
-                stock_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse_meas
+            # Final competed stock captured by the measure; special handling
+            # for stock of measures that have exited the market to ensure that
+            # captured stock continues to be assessed after market exit – the
+            # effects of the market exit on captured stock are reflected later
+            # in the competition routine, run.py
+            if not measure_exited_mkt:
+                stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
+                    diffuse_frac * comp_frac_diffuse_meas
+            else:
+                stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
+                    diffuse_frac * comp_frac_diffuse
 
             # For primary microsegments only, update portion of stock captured
             # by efficient measure in previous years
@@ -8374,10 +8387,11 @@ class Measure(object):
                 stock_comp_cum_sbmkt[yr] = stock_compete_sbmkt[yr]
             # Subsequent year in modeling time horizon
             else:
-                # Technical potential case where the measure is on the
+                # Technical potential case where the measure has entered the
                 # market: the stock captured by the measure should equal the
                 # total stock (measure captures all stock)
-                if adopt_scheme == "Technical potential" and measure_on_mkt:
+                if adopt_scheme == "Technical potential" and (
+                        measure_on_mkt or measure_exited_mkt):
                     stock_total_meas[yr] = stock_total[yr]
                     stock_comp_cum_sbmkt[yr] = stock_total_sbmkt[yr]
                 # Non-technical potential case

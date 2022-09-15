@@ -22835,10 +22835,10 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "cost": {
                 "stock": {
                     "total": {
-                        "baseline": {"2009": 20, "2010": 16},
+                        "baseline": {"2009": 10, "2010": 16},
                         "efficient": {"2009": 20, "2010": 8}},
                     "competed": {
-                        "baseline": {"2009": 10, "2010": 8},
+                        "baseline": {"2009": 5, "2010": 8},
                         "efficient": {"2009": 10, "2010": 0}}},
                 "energy": {
                     "total": {
@@ -23046,14 +23046,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                 "stock": {
                     "total": {
                         "baseline": {
-                            "2009": 20,
+                            "2009": 10,
                             "2010": numpy.array([16, 15, 13])},
                         "efficient": {
                             "2009": 20,
                             "2010": numpy.array([8, 9, 9.1])}},
                     "competed": {
                         "baseline": {
-                            "2009": 10,
+                            "2009": 5,
                             "2010": numpy.array([8.0, 7.5, 6.5])},
                         "efficient": {
                             "2009": 10,
