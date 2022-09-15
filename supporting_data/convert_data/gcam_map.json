@@ -138,11 +138,11 @@
       "water heating"
     ],
     "fuel water heater": [
-      "oil water heater", "water heating",
-      "distillate", "other fuel"],
+      "oil water heater",
+      "distillate", "other fuel", "water heating"],
     "electric range": ["electric_range_oven_24x24_griddle"],
     "gas range": ["gas_range_oven_24x24_griddle"],
-    "electric oven": ["cooking", "electricity"],
+    "electric oven": ["electricity", "cooking"],
     "gas oven": ["natural gas", "cooking"],
     "office equipment": [
       "electricity",
@@ -212,8 +212,6 @@
       "private branch exchanges",
       "voice-over-IP telecom",
       "water services",
-      "fans and pumps",
-      "ceiling fan",
       "rechargeables",
       "coffee maker",
       "dehumidifier",
@@ -227,7 +225,10 @@
       "set top box",
       "DVD",
       "home theater and audio",
-      "video game consoles"
+      "video game consoles",
+      "electricity",
+      "fans and pumps",
+      "ceiling fan"
     ],
     "refrigeration": [
       "Commercial Ice Machines",
@@ -236,7 +237,9 @@
       "Commercial Refrigerated Vending Machines",
       "Commercial Supermarket Display Cases",
       "Commercial Walk-In Freezers",
-      "Commercial Walk-In Refrigerators"
+      "Commercial Walk-In Refrigerators",
+      "electricity",
+      "refrigeration"
     ],
     "ventilation": [
       "CAV_Vent",

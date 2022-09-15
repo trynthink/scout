@@ -4505,63 +4505,70 @@ class Engine(object):
                             m.end_use['primary'], m.technology['primary']]
                 ms_iterable_init = list(itertools.product(*ms_lists))
                 # Map applicable measure microsegments to GCAM segments
-                gcam_segs = [[] for n in range(len(ms_iterable_init))]
-                for ind, seg in enumerate(ms_iterable_init):
-                    # Exclude all secondary heating and NGHP impacts
-                    if any([(x in seg or y in seg) for x, y in zip(
+                # Initialize list of GCAM segments
+                gcam_segs = []
+                for scout_seg in ms_iterable_init:
+                    # Exclude all secondary heating and NGHP impacts (move to
+                    # next iteration of loop)
+                    if any([(x in scout_seg or y in scout_seg) for x, y in zip(
                             exclude_eus, exclude_techs)]):
                         continue
+                    # Prepare list of segment data to append to GCAM segments
                     try:
-                        gcam_segs[ind] = [
-                            seg[0],   # region (no mapping needed)
+                        append_to_gcam = [
+                            scout_seg[0],   # region (no mapping needed)
                             [x[0] for x in
                                 self.gcam_map["bldg"].items()
-                                if seg[1] in x[1]][0],  # bldg
+                                if scout_seg[1] in x[1]][0],  # bldg
                             [x[0] for x in
                                 self.gcam_map["fuel"].items()
-                                if seg[2] in x[1]][0],  # fuel
+                                if scout_seg[2] in x[1]][0],  # fuel
                             [x[0] for x in
                                 self.gcam_map["end_use"].items() if
-                                seg[3] in x[1]][0],  # eu
+                                scout_seg[3] in x[1]][0],  # eu
                             [x[0] for x in
                                 self.gcam_map["tech"].items()
-                                if seg[4] in x[1]][0]]  # tech
+                                if scout_seg[4] in x[1]][0]]  # tech
                     # Handle case where no Scout technology name applies
                     except IndexError:
-                        gcam_segs[ind] = [
-                            seg[0],   # region (no mapping needed)
+                        append_to_gcam = [
+                            scout_seg[0],   # region (no mapping needed)
                             [x[0] for x in
                                 self.gcam_map["bldg"].items()
-                                if seg[1] in x[1]][0],  # bldg
+                                if scout_seg[1] in x[1]][0],  # bldg
                             [x[0] for x in
                                 self.gcam_map["fuel"].items()
-                                if seg[2] in x[1]][0],  # fuel
+                                if scout_seg[2] in x[1]][0],  # fuel
                             [x[0] for x in
                                 self.gcam_map["end_use"].items() if
-                                seg[3] in x[1]][0],  # eu
+                                scout_seg[3] in x[1]][0],  # eu
                             [x[0] for x in
                                 self.gcam_map["tech"].items()
                                 # map to GCAM tech using Scout fuel type and EU
-                                if (seg[2] in x[1] and seg[3] in x[1])][0]]
+                                if (scout_seg[2] in x[1] and
+                                    scout_seg[3] in x[1])][0]]
                     # Handle custom mapping needs for specific fuel/tech type
                     # combinations
                     # Fuel type
 
                     # Set wood stoves/secondary heaters to GCAM biomass fuel
-                    if seg[4] in ['stove (wood)', 'secondary heater (wood)']:
-                        gcam_segs[ind][2] = "biomass"
+                    if scout_seg[4] in [
+                            'stove (wood)', 'secondary heater (wood)']:
+                        append_to_gcam[2] = "biomass"
                     # Temporarily set propane furnaces to propane fuel for the
                     # purposes of pulling the appropriate Scout breakout data –
                     # this will be reset to GCAM's 'refined liquids' fuel type,
                     # which encompasses propane, below
-                    elif seg[4] == 'furnace (LPG)':
-                        gcam_segs[ind][2] = "propane"
+                    elif scout_seg[4] == 'furnace (LPG)':
+                        append_to_gcam[2] = "propane"
                     # End uses
                     # Add "s" to specific "other" Scout end uses to match GCAM
                     # end-use names
-                    if 'other' in gcam_segs[ind][3] and gcam_segs[ind][4] \
+                    if append_to_gcam[3] == 'other' and append_to_gcam[4] \
                             in ['dishwasher', 'clothes washer', 'freezer']:
-                        gcam_segs[ind][3] = gcam_segs[ind][4] + 's'
+                        append_to_gcam[3] = append_to_gcam[4] + 's'
+                    # Append final list to gcam segments
+                    gcam_segs.append(append_to_gcam)
                 # Handle/remove any duplicate segments
                 gcam_segs = list(set(tuple(x) for x in gcam_segs))
                 # Reset to mutable lists
@@ -5099,7 +5106,7 @@ def main(base_dir):
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(base_dir, handyfiles)
+        handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
