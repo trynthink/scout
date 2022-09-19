@@ -21,10 +21,10 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 334,
+  "installed_cost": 362,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency RTU in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities; restrict to small commercial RTUs; incremental envelope package cost of 168 is added (see https://docs.google.com/spreadsheets/d/1fII6Nbpst2etPNqrvkkOk6LWWaCIr3PY4LQCue6Tj1c/edit?usp=sharing)",
+    "notes": "Total installed cost for high efficiency RTU in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities; restrict to small commercial RTUs; incremental envelope package cost of is added (see https://docs.google.com/spreadsheets/d/1g09M5XISuHJus555G2J10bXpwprEyMMaJ1Imer9OnTQ/edit?usp=sharing)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

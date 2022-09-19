@@ -43,21 +43,21 @@
         "existing": 0
       },
       "natural gas": {
-        "new": 20628,
-        "existing": 24628
+        "new": 15395,
+        "existing": 19395
       }, 
       "distillate": {
-        "new": 20628,
-        "existing": 25628
+        "new": 15395,
+        "existing": 20395
       },
       "other fuel": {
-        "new": 20628,
-        "existing": 25628
+        "new": 15395,
+        "existing": 20395
       }
   },
   "cost_units": "2020$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020 PLUS incremental res. envelope costs; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report; incremental envelope package cost of 14270 is added (see https://docs.google.com/spreadsheets/d/1fII6Nbpst2etPNqrvkkOk6LWWaCIr3PY4LQCue6Tj1c/edit?usp=sharing)",
+    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020 PLUS incremental res. envelope costs; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report; incremental envelope package cost of is added (see https://docs.google.com/spreadsheets/d/1g09M5XISuHJus555G2J10bXpwprEyMMaJ1Imer9OnTQ/edit?usp=sharing)",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",

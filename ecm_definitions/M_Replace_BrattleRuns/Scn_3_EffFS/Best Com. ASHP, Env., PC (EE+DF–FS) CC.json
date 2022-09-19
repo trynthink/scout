@@ -46,10 +46,10 @@
       }
     ]
     },
-  "installed_cost": 346,
+  "installed_cost": 375,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities; incremental envelope package cost of 168 is added (see https://docs.google.com/spreadsheets/d/1fII6Nbpst2etPNqrvkkOk6LWWaCIr3PY4LQCue6Tj1c/edit?usp=sharing)",
+    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities; incremental envelope package cost of is added (see https://docs.google.com/spreadsheets/d/1g09M5XISuHJus555G2J10bXpwprEyMMaJ1Imer9OnTQ/edit?usp=sharing)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
