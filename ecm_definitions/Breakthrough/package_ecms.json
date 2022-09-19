@@ -59,6 +59,16 @@
     "Residential Roof, IECC c. 2021",
     "Residential Floors, IECC c. 2021"],
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
+ {"name": "ENERGY STAR Res. CAC + Env.",
+  "contributing_ECMs": [
+    "ENERGY STAR Res. CAC",
+    "Res. Air Sealing (New), IECC c. 2021",
+    "Res. Air Sealing (Exist), IECC c. 2021",
+    "ENERGY STAR Windows v. 7.0",
+    "Residential Walls, IECC c. 2021",
+    "Residential Roof, IECC c. 2021",
+    "Residential Floors, IECC c. 2021"],
+  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Residential ASHP (FS)",
