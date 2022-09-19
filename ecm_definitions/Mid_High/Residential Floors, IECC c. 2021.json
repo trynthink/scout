@@ -1,0 +1,89 @@
+{
+  "name": "Residential Floors, IECC c. 2021",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+      "heating",
+      "secondary heating",
+      "cooling"
+    ],
+  "fuel_type": "all",
+  "technology": "ground",
+  "market_entry_year": 2021,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect",
+    "source_data": {
+      "title": "2021 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2021,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": 30.9,
+      "AIA_CZ2": 29.8,
+      "AIA_CZ3": 19.5,
+      "AIA_CZ4": 19,
+      "AIA_CZ5": 14.7
+    },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "In 2021 IECC, see table R402.1.3, floor (R-value) and use IECC -> AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=743005927",
+    "source_data": {
+      "title": "2021 International Energy Conservation Code",
+      "author": null,
+      "organization": "International Code Council",
+      "year": 2021,
+      "pages": 246,
+      "URL": null
+    }
+  },
+  "installed_cost": 3.06,
+  "cost_units": "2022$/ft^2 footprint",
+  "installed_cost_source": {
+    "notes": "Assume baseline floor cost from Scout data",
+    "source_data": {
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2023,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 100,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed to be the same as lifetime of the home",
+    "source_data": null
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Residential floor slab insulation that meets IECC 2021",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Thu Jan 4 2018 00:00:00 EST"
+  },
+  "_updated_by": [{
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Mar 9 2021 10:26:54 MST"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:22 UTC"
+  }]
+}

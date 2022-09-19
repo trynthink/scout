@@ -1,0 +1,136 @@
+{
+  "name": "Min. Eff. Res. Elec. HVAC (FS) CC",
+  "_description": "Represents switch to electric residential HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential HVAC technologies currently (or soon to be) on the market, from AEO 2023",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "all",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "cooling": 4.48,
+      "heating": 1.77},
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations in 2023 of heating and cooling efficiencies (COP) for typical ASHPs (4.48 cool/2.52 heat), GSHPs (5 cool/3.6 heat), and electric resistance + central AC (4.43 cool/1 heat). New/replacement sales numbers drawn from AEO 2023 microdata files (~43% resistance/~53% ASHP/~4% GSHP), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounted for via the savings shape data in `tsv_features`.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [23, 28, 39, 45],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": {
+      "electricity": {
+        "new": 0,
+        "existing": 0
+      },
+      "natural gas": {
+        "new": 5014,
+        "existing": 12014
+      }, 
+      "distillate": {
+        "new": 5014,
+        "existing": 12814
+      },
+      "other fuel": {
+        "new": 5014,
+        "existing": 12814
+      }
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Sales-weighted combinations of heating installed costs for typical 2022 or 2023 ASHPs, GSHPs, and electric resistance + central AC. New/replacement sales numbers drawn from AEO 2023 microdata files, available from EIA upon request. For existing buildings, added costs of $6300 are the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in the NV5 report, a new circuit cost of 700 $2022 using the upper bound (assuming a high amperage 240V circuit is required for the HVAC system) from the NV5 report, and additional tank removal costs of 800 2014$ (975 2022$) are applied for distillate and propane based on the 2015 EIA report, updating the cost from April 2014 to April 2022.",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+        "author": "Nubbe et al.",
+        "organization": "Guidehouse Inc.",
+        "year": 2020,
+        "pages": 17,
+        "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+      },
+      {
+        "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2015,
+        "pages": 11,
+        "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+        "organization": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "table": 4,
+        "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
+    ]},
+  "product_lifetime": 18,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Sales-weighted combinations of heating and cooling lifetime for typical 2022 or 2023 ASHPs, GSHPs, and electric resistance + central AC. New/replacement sales numbers drawn from AEO 2023 microdata files, available from EIA upon request.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [23, 28, 39, 45],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "electricity": {
+      "cooling": 0.68,
+      "heating": 0
+    },
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
+    "cooling": {
+      "title": "RECS 2020 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 68% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
+    }
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 13:15:48 EDT 2023"
+  }
+}

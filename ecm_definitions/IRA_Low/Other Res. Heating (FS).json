@@ -1,11 +1,11 @@
 { 
-  "name": "Other Res. Heating",
+  "name": "Other Res. Heating (FS)",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["secondary heating"],
-  "fuel_type": ["electricity"],
-  "technology": ["all secondary heating"],
+  "end_use": ["heating", "secondary heating"],
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": ["stove (wood)", "all secondary heating"],
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
@@ -34,8 +34,8 @@
   "measure_type": "add-on",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "fuel_switch_to": null,
-  "_description": "Reference case commercial 'other' fuel heating technologies to pair with envelope (no savings, no incremental cost)",
+  "fuel_switch_to": "electricity",
+  "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
   "_notes": null, 
   "_added_by": {
     "name": "Jared Langevin",
@@ -43,10 +43,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 14 15:09:37 EDT 2021"
   },
-  "_updated_by": {
-    "name": "Chioke Harris",
-    "organization": "National Renewable Energy Laboratory",
-    "email": "chioke.harris@nrel.gov",
-    "timestamp": "Tue May 23 2023 04:13:00 UTC"
-  }
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 12:31:13 EDT 2023"
+  }]
 }
