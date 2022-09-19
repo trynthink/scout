@@ -1,0 +1,75 @@
+{
+  "name": "Ref. Case Com. Chillers",
+  "tsv_features": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "ventilation"],
+  "fuel_type": "electricity",
+  "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller",
+                 "screw_chiller", "all ventilation"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": null,
+  "product_lifetime": {
+      "centrifugal_chiller": 25,    
+      "reciprocating_chiller": 20,
+      "screw_chiller": 20,
+      "scroll_chiller": 20,
+      "CAV_Vent": 35,
+      "VAV_Vent": 28},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for high efficiency chillers in 2022",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [125, 127, 129, 131],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [119, 121],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }]
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.32
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation consumption in commercial buildings where building cooling is served by a central chiller (230 TBtus / 728 TBtus)."
+  },
+  "_description": "Counterfactual chillers measure, no savings vs. reference case",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 30 22:17:24 PDT 2023"
+  }  
+}

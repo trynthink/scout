@@ -1,0 +1,92 @@
+{
+  "name": "Best Res. HPWH (FS)",
+  "tsv_features": null,
+  "_description": "Switch to best available HPWH in 2022",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": null,
+  "energy_efficiency": 3.73,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "High efficiency in 2022",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 2415,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is installed costs mean for high HPWH in 2022 in the EIA source, plus $700, the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [{
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
+    {
+      "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+      "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+      "organization": "NV5 and Redwood Energy",
+      "year": 2022,
+      "pages": 33,
+      "table": 4,
+      "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
+    ]
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for high category in 2022, rounded down to 15 years",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "_updated_by": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2021-03-23 13:00:00 UTC"
+  },
+  "_updated_by": [{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 14:39:36 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 12:31:13 EDT 2023"
+  }]
+}
