@@ -1,0 +1,56 @@
+{ 
+  "name": "Ref. Case Clothes Washer",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "other",
+  "fuel_type": "electricity",
+  "technology": "clothes washing",
+  "market_entry_year": 2023,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 985,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Average of median ENERGY STAR installed cost in 2022 (across front and top loading)",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [101, 102],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "product_lifetime": 11.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of median ENERGY STAR lifetime range in 2022 (across front and top loading)",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [101, 102],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "_description": "Counterfactual clothes washer, no savings relative to reference case",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Sun May 21 01:09:30 PDT 2023"
+  }  
+}

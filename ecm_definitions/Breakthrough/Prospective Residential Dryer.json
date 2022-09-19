@@ -29,8 +29,18 @@
       "pages": 77
     }
   },
+<<<<<<< HEAD:ecm_definitions/M_1/Prospective Residential Dryer.json
+<<<<<<< HEAD
   "installed_cost": 908,
   "cost_units": "2022$/unit",
+=======
+  "installed_cost": 776.21,
+  "cost_units": "2017$/unit",
+>>>>>>> 8bf2b7e (Measure changes, fix CPI, other small tweaks)
+=======
+  "installed_cost": 908,
+  "cost_units": "2022$/unit",
+>>>>>>> 02647f2 (Update to latest scenario measure sets):ecm_definitions/Breakthrough/Prospective Residential Dryer.json
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year payback period for given performance level and market entry year",
     "source_data": null
