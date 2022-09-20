@@ -67,7 +67,7 @@ class UsefulInputFiles(object):
         self.msegs_in = ("supporting_data", "stock_energy_tech_data",
                          "mseg_res_com_cz.json")
         self.msegs_in_emm = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.json")
+                             "mseg_res_com_emm.gz")
         self.msegs_in_state = ("supporting_data", "stock_energy_tech_data",
                                "mseg_res_com_state.gz")
         self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
@@ -299,7 +299,8 @@ def sum_htcl_energy(msegs, aeo_years, ss_conv):
     # combinations and sum the energy values associated with each
     for cz in msegs.keys():
         htcl_totals[cz] = {}
-        for bldg in msegs[cz].keys():
+        # Skip the "unspecified" building type, which is non-standard
+        for bldg in [b for b in msegs[cz].keys() if b != 'unspecified']:
             htcl_totals[cz][bldg] = {}
             # Find new vs. existing structure type fraction for bldg. type
             new_exist_frac = set_new_exist_frac(
@@ -368,8 +369,8 @@ def main():
             fo_capt = handyfiles.htcl_totals_ce_state
 
         # Import baseline microsegment stock and energy data; special
-        # handling needed for state data, which is in zip format
-        if f == "State":
+        # handling needed for state and EMM data, which are in zip format
+        if f in ["State", "EMM"]:
             bjszip = path.join(base_dir, *mseg_fi)
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs = json.loads(zip_ref.read().decode('utf-8'))

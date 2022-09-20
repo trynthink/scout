@@ -411,10 +411,10 @@ def main():
     # JSON file, check first to see if the output file is present
     # and if not, then fall back to the default file name
     try:
-        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().conv_file_out,
+        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().ss_conv_file_out,
                                           min_yrs, max_yrs)
     except FileNotFoundError:
-        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().conv_file,
+        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().ss_conv_file,
                                           min_yrs, max_yrs)
 
     # Check that all of the expected files have been imported, and if

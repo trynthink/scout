@@ -289,6 +289,10 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                     'F96T8 HO_HB': {
                         '2009': 0.38, '2010': 0.7601, '2011': 0.8866}}}}}]
 
+    # Set boolean indicating whether the data being combined are
+    # energy and stock (False) or cost, performance, and lifetime (True)
+    cpl_bool = False
+
     def test_conversion_calculation_for_individual_cz_cd_combinations(self):
         for idx, _ in enumerate(self.census_divisions):
             # Since the merge_sum function recursively operates on
@@ -306,7 +310,8 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                                    self.cd.cdivdict,
                                    self.cd_list,
                                    self.res_cd_cz_array,
-                                   self.com_cd_cz_array)
+                                   self.com_cd_cz_array,
+                                   self.cpl_bool)
 
             self.dict_check(result, self.loutput[idx])
 
@@ -1770,13 +1775,18 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'source': 'EIA AEO',
                                 'units': 'years'}}}}}}}
 
+    # Define user input strings
+    user_input_nrgstk = "1"  # User input to reprocess energy and stock data
+    user_input_cpl = "2"  # User input to reprocess CPL data
+
     # Compare the converted dict of energy, stock, and square footage
     # data to the expected data reported on a climate zone basis, given
     # conversion arrays that are not split out by fuel type
     def test_conversion_of_energy_stock_square_footage_data(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array,
-                                   self.com_cd_cz_array)
+                                   self.com_cd_cz_array,
+                                   self.user_input_nrgstk)
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
@@ -1786,7 +1796,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
     def test_conversion_of_energy_stock_square_footage_data_alt(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array_fuelsplit,
-                                   self.com_cd_cz_array_fuelsplit)
+                                   self.com_cd_cz_array_fuelsplit,
+                                   self.user_input_nrgstk)
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
@@ -1796,7 +1807,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
     def test_conversion_of_cost_performance_lifetime_data(self):
         dict1 = fmc.clim_converter(self.test_cpl_input,
                                    self.res_cd_cz_wtavg_array,
-                                   self.com_cd_cz_wtavg_array)
+                                   self.com_cd_cz_wtavg_array,
+                                   self.user_input_cpl)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -1806,7 +1818,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
     def test_conversion_of_cost_performance_lifetime_data_emm(self):
         dict1 = fmc.clim_converter(self.test_cpl_input,
                                    self.res_cd_cz_wtavg_array_fuelsplit,
-                                   self.com_cd_cz_wtavg_array_fuelsplit)
+                                   self.com_cd_cz_wtavg_array_fuelsplit,
+                                   self.user_input_cpl)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -1815,7 +1828,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         with self.assertRaises(KeyError):
             fmc.clim_converter(self.test_fail_input,
                                self.res_cd_cz_array,
-                               self.com_cd_cz_array)
+                               self.com_cd_cz_array,
+                               self.user_input_nrgstk)
 
 
 class EnvelopeDataUnitTest(CommonUnitTest):

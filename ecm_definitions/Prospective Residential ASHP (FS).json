@@ -1,0 +1,77 @@
+{
+  "name": "Prospective Residential ASHP (FS)",
+  "_description": "Ultra-efficient heat pump target, switch fossil-based heating and associated cooling to heat pumps, non-cold-climate",
+  "measure_type": "full service",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "all",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
+  "energy_efficiency": {
+      "cooling": 12,
+      "heating": 6
+  },
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
+    "source_data": null
+  },
+  "installed_cost": 5520.0,
+  "cost_units": "$/unit",
+  "installed_cost_source": {
+    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in non-cold climate; based on comparison with counterfactual heating technology",
+    "source_data": null
+  },
+  "product_lifetime": 22,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of average lifetimes for 2020 'typical' residential NG furnace",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "electricity":{
+      "cooling": 0.595,
+      "heating": 0
+    },
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
+    "cooling": {
+      "title": "RECS 2015 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
+    }
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu May 19 11:46:56 EDT 2022"
+  },
+    "_updated_by": null
+}

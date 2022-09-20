@@ -65,7 +65,7 @@ class SkipLines(object):
         json_out (str): Filename for JSON with residential building data added.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
     """
-    def __init__(self, aeo_import_year=2021):
+    def __init__(self, aeo_import_year=2022):
         self.aeo_import_year = aeo_import_year
         if self.aeo_import_year == 2015:
             self.nlt_cp_skip_header = 20
@@ -80,7 +80,7 @@ class SkipLines(object):
                 self.lt_skip_footer = 54
             else:
                 self.lt_skip_footer = 52
-        elif self.aeo_import_year == 2019:
+        elif self.aeo_import_year in [2019, 2022]:
             self.nlt_cp_skip_header = 2
             self.nlt_l_skip_header = 2
             self.lt_skip_header = 37
@@ -129,7 +129,44 @@ fueldict = {'electricity (on site)': 'SL',
 # changes their natural gas fuel type code to "NG" from "GS", it is
 # also left out of the "other fuel" definition.
 
-# End use dict
+# # End use dict
+# endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
+#               'new homes': 'HS',
+#               'total homes': 'HT',
+#               'heating': 'HT',
+#               'secondary heating': 'SH',
+#               'cooling': 'CL',
+#               'fans and pumps': 'FF',
+#               'ceiling fan': 'CFN',
+#               'lighting': 'LT',
+#               'water heating': 'HW',
+#               'refrigeration': 'RF',
+#               'cooking': 'CK',
+#               'drying': 'DR',
+#               'TVs': {'TV': 'TVS',
+#                       'set top box': 'STB',
+#                       'DVD': 'DVD',
+#                       'home theater and audio': 'HTS',
+#                       'video game consoles': 'VGC'},
+#               'computers': {'desktop PC': 'DPC',
+#                             'laptop PC': 'LPC',
+#                             'monitors': 'MON',
+#                             'network equipment': 'NET'},
+#               'other': {'clothes washing': 'CW',
+#                         'dishwasher': 'DW',
+#                         'freezers': 'FZ',
+#                         'rechargeables': 'BAT',
+#                         'coffee maker': 'COF',
+#                         'dehumidifier': 'DEH',
+#                         'electric other': 'EO',
+#                         'microwave': 'MCO',
+#                         'pool heaters and pumps': 'PHP',
+#                         'security system': 'SEC',
+#                         'portable electric spas': 'SPA',
+#                         'wine coolers': 'WCL',
+#                         'other appliances': 'OA'}}
+
+# End use dict with revised MELs breakout introduced in AEO 2022
 endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'new homes': 'HS',
               'total homes': 'HT',
@@ -145,8 +182,8 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
               'drying': 'DR',
               'TVs': {'TV': 'TVS',
                       'set top box': 'STB',
-                      'DVD': 'DVD',
                       'home theater and audio': 'HTS',
+                      'OTT streaming devices': 'OTT',
                       'video game consoles': 'VGC'},
               'computers': {'desktop PC': 'DPC',
                             'laptop PC': 'LPC',
@@ -159,10 +196,15 @@ endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
                         'coffee maker': 'COF',
                         'dehumidifier': 'DEH',
                         'electric other': 'EO',
+                        'small kitchen appliances': 'KIT',
                         'microwave': 'MCO',
-                        'pool heaters and pumps': 'PHP',
+                        'smartphones': 'PHN',
+                        'pool heaters': 'PLH',
+                        'pool pumps': 'PLP',
                         'security system': 'SEC',
                         'portable electric spas': 'SPA',
+                        'smart speakers': 'SPK',
+                        'tablets': 'TAB',
                         'wine coolers': 'WCL',
                         'other appliances': 'OA'}}
 
@@ -335,7 +377,7 @@ def json_translator(dictlist, filterformat):
         if (match_count == 0 and ms_level != (len(dictlist) - 1)) or \
            (match_count == 0 and ms_level == (len(dictlist) - 1) and
            enduse_techlevel == 0):
-            raise(KeyError("Filter list element not found in dict keys!"))
+            raise (KeyError("Filter list element not found in dict keys!"))
 
     # Return updated filtering list of lists: [[supply filter],[demand filter]]
     return json_translate
@@ -574,8 +616,8 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # from json_translator, handling the difference in the bulb
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
-    if aeo_years in [42, 36]:  # AEO 2017-2019 formatting
-        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-2019
+    if aeo_years in [42, 36]:  # AEO 2017- formatting
+        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-
                           ('REF', 'INC'), ('EXT', 'INC')]
     else:  # AEO 2015 formatting
         lt_with_energy = [('GSL', 'Inc'), ('LFL', 'T12'),
@@ -613,7 +655,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # If the end use is secondary heating, change the end use
         # in the filter to 'HT' from 'SH', because both primary and
@@ -643,7 +685,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_sqft_homes) is not aeo_years:
             if len(group_sqft_homes) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # Return sq. footage values and updated version of EIA
         # supply data with already matched data removed
@@ -683,8 +725,9 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
             # returned by nrg_stock_select() as a dict and
             # thus needs to be disassembled before applying the
             # weighting factor)
-            group_energy = dict(zip(sorted(group_energy.keys()),
-                                    list(group_energy.values())*lt_correction))
+            if group_energy:
+                group_energy = dict(zip(sorted(group_energy.keys()),
+                                        list(group_energy.values())*lt_correction))
         else:
             # Given input numpy array and 'compare from' list, return
             # energy/stock projection lists and reduced numpy array
@@ -697,7 +740,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy) is not aeo_years:
             if len(group_energy) != 0:
-                raise(ValueError('Error in length of discovered list!'))
+                raise (ValueError('Error in length of discovered list!'))
 
         # Return combined stock/energy use values
         return {'stock': group_stock, 'energy': group_energy}
@@ -1109,7 +1152,8 @@ def onsite_calc(generation_file, json_results):
 
     # Pull the onsite generation by census division
     for div in cdivdict:
-        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][['Year', 'OwnUse']]
+        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][
+            ['Year', 'OwnUse']]
         years = numpy.unique(cdiv['Year'])
         cdiv['OwnUse'] = cdiv['OwnUse']*to_mmbtu
         onsite_gen = dict([(i, cdiv[cdiv['Year'] == i][
@@ -1271,6 +1315,8 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
             if row[0].strip() not in skip_rows:
                 if len(tuple(row)) != len(dtype_list):
                     row = row + [0]*(len(dtype_list)-len(row))
+                if not row[8]:
+                    row[8] = 0
                 data.append(tuple(row))
 
         # Convert data into numpy structured array, using a try/catch
@@ -1402,7 +1448,7 @@ def main():
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017])
+                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year

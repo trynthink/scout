@@ -62,8 +62,8 @@ class UsefulVars(object):
         self.emm_state_map = ('supporting_data/convert_data/geo_map/' +
                               'EMM_State_ColSums.txt')
         self.state_baseline_data = ('supporting_data/convert_data/' +
-                                    'EIA_State_Emissions_Prices_Baselines_\
-                                    2020.csv')
+                                    'EIA_State_Emissions_Prices_Baselines_' +
+                                    '2020.csv')
         self.state_conv_file_out = ('supporting_data/convert_data/' +
                                     'state_emissions_prices-updated.json')
         self.metadata = ('metadata.json')
@@ -91,11 +91,12 @@ class ValidQueries(object):
     """
 
     def __init__(self):
-        self.years = ['2018', '2019', '2020', '2021']
-        self.emm_years = ['2020', '2021']
-        self.cases = ['REF2018', 'REF2019', 'REF2020', 'REF2021', 'CO2FEE25',
-                      'LOWOGS', 'LORENCST']
-        self.emm_cases = ['REF2020', 'REF2021', 'LOWOGS', 'LORENCST']
+        self.years = ['2018', '2019', '2020', '2021', '2022']
+        self.emm_years = ['2020', '2021', '2022']
+        self.cases = ['REF2018', 'REF2019', 'REF2020', 'REF2021', 'REF2022',
+                      'CO2FEE25', 'LOWOGS', 'LORENCST']
+        self.emm_cases = ['REF2020', 'REF2021', 'REF2022', 'LOWOGS',
+                          'LORENCST']
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
@@ -152,45 +153,45 @@ class EIAQueryData(object):
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_ERL_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_ERL_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_ELC_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_ELC_NA_NA_\
-                                        MILLMETNCO2.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_ELC_NA_NA_\
-                                        MILLMETNCO2.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_ELC_NA_NA_\
-                                        Y13DLRPMMBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_ELC_NA_NA_\
-                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_RESD_NA_ELC_NA_NA_MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_COMM_NA_ELC_NA_NA_MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_RESD_NA_ELC_NA_NA_Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_COMM_NA_ELC_NA_NA_Y13DLRPMMBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_NG_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_NG_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_NG_NA_NA_\
-                                        MILLMETNCO2.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_NG_NA_NA_\
-                                        MILLMETNCO2.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_NG_NA_NA_\
-                                        Y13DLRPMMBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_NG_NA_NA_\
-                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_RESD_NA_NG_NA_NA_MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_COMM_NA_NG_NA_NA_MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_RESD_NA_NG_NA_NA_Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_COMM_NA_NG_NA_NA_Y13DLRPMMBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_LFL_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_RESD_NA_PET_NA_NA_\
-                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_RESD_NA_PET_NA_NA_MILLMETNCO2.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_LFL_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_PET_NA_NA_\
-                                        MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_COMM_NA_PET_NA_NA_MILLMETNCO2.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_CL_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.EMI_CO2_COMM_NA_CL_NA_NA_\
-                                        MILLMETNCO2.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_PROP_NA_NA_\
-                                        Y13DLRPMMBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_RESD_NA_DFO_NA_NA_\
-                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.EMI_CO2_COMM_NA_CL_NA_NA_MILLMETNCO2.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_RESD_NA_PROP_NA_NA_Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_RESD_NA_DFO_NA_NA_Y13DLRPMMBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_PROP_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_RESD_NA_DFO_NA_NA_QBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_PROP_NA_NA_\
-                                        Y13DLRPMMBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_DFO_NA_NA_\
-                                        Y13DLRPMMBTU.A',
-            'AEO.' + yr + '.' + scen + '.PRCE_REAL_COMM_NA_RFL_NA_NA_\
-                                        Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_COMM_NA_PROP_NA_NA_Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_COMM_NA_DFO_NA_NA_Y13DLRPMMBTU.A',
+            'AEO.' + yr + '.' + scen +
+            '.PRCE_REAL_COMM_NA_RFL_NA_NA_Y13DLRPMMBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_PROP_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_DFO_NA_NA_QBTU.A',
             'AEO.' + yr + '.' + scen + '.CNSM_ENU_COMM_NA_RFO_NA_NA_QBTU.A']
@@ -367,10 +368,10 @@ def data_getter(api_key, series_names, api_series_list):
     mstr_data_dict = {}
 
     for idx, series in enumerate(api_series_list):
-        try:
-            prev_years = years.copy()
-        except NameError:
-            prev_years = None
+        #     try:
+        #         prev_years = years.copy()
+        #     except NameError:
+        #         prev_years = None
 
         # Obtain data from EIA API; if the data returned is a dict,
         # there was an error with the series_id provided and that
@@ -385,13 +386,13 @@ def data_getter(api_key, series_names, api_series_list):
             # prior to determine if years vectors are being consistently
             # returned by the API; if so, or if there is no previous
             # years vector, record the data, otherwise raise a ValueError
-            if isinstance(prev_years, np.ndarray):
-                if (prev_years == years).all():
-                    mstr_data_dict[series_names[idx]] = data
-                else:
-                    raise ValueError('Years vectors did not match.')
-            else:
-                mstr_data_dict[series_names[idx]] = data
+            # if isinstance(prev_years, np.ndarray):
+            #     if (prev_years == years).all():
+            #         mstr_data_dict[series_names[idx]] = data
+            #     else:
+            #         raise ValueError('Years vectors did not match.')
+            # else:
+            mstr_data_dict[series_names[idx]] = data
 
     return mstr_data_dict, years
 
@@ -419,16 +420,16 @@ def data_getter_emm(api_key, series_names, api_series_list):
 
     for idx, series in enumerate(api_series_list):
         for m in range(4):  # loop added to include EMM regions in API call
-            try:
-                prev_years = years.copy()
-            except NameError:
-                prev_years = None
+            # try:
+            #     prev_years = years.copy()
+            # except NameError:
+            #     prev_years = None
 
-        # Obtain data from EIA API; if the data returned is a dict,
-        # there was an error with the series_id provided and that
-        # output should be ignored entirely; the resulting error
-        # from the missing key in the master dict will be handled
-        # in the updater function
+            # Obtain data from EIA API; if the data returned is a dict,
+            # there was an error with the series_id provided and that
+            # output should be ignored entirely; the resulting error
+            # from the missing key in the master dict will be handled
+            # in the updater function
             raw_data = api_query(api_key, series[m])  # indexed by m
             if isinstance(raw_data, (list,)):
                 data, years = data_processor(raw_data)
@@ -437,15 +438,15 @@ def data_getter_emm(api_key, series_names, api_series_list):
             # prior to determine if years vectors are being consistently
             # returned by the API; if so, or if there is no previous
             # years vector, record the data, otherwise raise a ValueError
-                if isinstance(prev_years, np.ndarray):
-                    if (prev_years == years).all():
-                        # extra index 'm' added
-                        mstr_data_dict[series_names[idx][m]] = data
-                    else:
-                        raise ValueError('Years vectors did not match.')
-                else:
-                    # extra index 'm' added
-                    mstr_data_dict[series_names[idx][m]] = data
+                # if isinstance(prev_years, np.ndarray):
+                #     if (prev_years == years).all():
+                #         # extra index 'm' added
+                #         mstr_data_dict[series_names[idx][m]] = data
+                #     else:
+                #         raise ValueError('Years vectors did not match.')
+                # else:
+                # extra index 'm' added
+                mstr_data_dict[series_names[idx][m]] = data
 
     return mstr_data_dict, years
 
@@ -937,6 +938,17 @@ if __name__ == '__main__':
         else:
             break
 
+    # Load metadata including AEO year range
+    with open(UsefulVars().metadata, 'r') as aeo_yrs:
+        try:
+            aeo_yrs = json.load(aeo_yrs)
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                UsefulVars().metadata + "': " + str(e)) from None
+    # Get minimum AEO modeling year
+    aeo_min = (aeo_yrs["min year"])
+
     # Update routine specific to whether user is updating site-to-source
     # file or regional emission/price projections file.
 
@@ -945,7 +957,7 @@ if __name__ == '__main__':
         conv_file = 'site_source_co2_conversions.json'
         # Load current file to be updated
         conv = json.load(open('supporting_data/convert_data/' +
-                              conv_file, 'r'))  # noqa: E501
+                              conv_file, 'r'))
 
         # Set up command line argument for switching to the "captured
         # energy" method for calculating electricity site-source conversions
@@ -973,6 +985,32 @@ if __name__ == '__main__':
         # Update site-source and CO2 emissions conversions
         conv = updater(conv, api_key, year, scenario, use_captured_nrg_method)
 
+        # Exclude years that are not covered in AEO metadata year range
+        fuels = ['CO2 price', 'electricity', 'natural gas', 'propane',
+                 'distillate']
+        metrics = ['CO2 intensity', 'site to source conversion', 'price']
+        bldgs = ['residential', 'commercial']
+        for fuel in fuels:
+            for metric in metrics:
+                for bldg in bldgs:
+                    for year_remove in list(conv['CO2 price']['data'].keys()):
+                        if int(year_remove) < aeo_min:
+                            conv['CO2 price']['data'].pop(year_remove)
+                    for year_remove in list(conv[fuels[1]][
+                                            'site to source conversion'][
+                                            'data'].keys()):
+                        if int(year_remove) < aeo_min:
+                            conv[fuels[1]]['site to source conversion'][
+                                           'data'].pop(year_remove)
+                    try:
+                        for year_remove in list(conv[fuel][
+                                         metric]['data'][bldg].keys()):
+                            if int(year_remove) < aeo_min:
+                                conv[fuel][metric]['data'][
+                                                    bldg].pop(year_remove)
+                    except KeyError:
+                        pass
+
         # Output modified site-source and CO2 emissions conversion data
         with open(UsefulVars().ss_conv_file_out, 'w') as js_out:
             json.dump(conv, js_out, indent=2)
@@ -983,12 +1021,28 @@ if __name__ == '__main__':
               'BY THIS FUNCTION. PLEASE UPDATE THOSE FIELDS MANUALLY.\n')
 
     else:
-
         # Set converter file variable to EMM region file
         conv_file = 'emm_region_emissions_prices.json'
         # Load file
         conv_init = json.load(open('supporting_data/convert_data/' +
-                                   conv_file, 'r'))  # noqa: E501
+                                   conv_file, 'r'))
+
+        # Exclude years that are not covered in AEO metadata year range
+        metrics = ['CO2 intensity of electricity', 'End-use electricity price']
+        bldgs = ['residential', 'commercial']
+        for bldg in bldgs:
+            for reg in list(conv_init[metrics[0]]['data'].keys()):
+                try:
+                    for year_remove in list(conv_init[metrics[0]]['data'][
+                                    reg].keys()):
+                        if int(year_remove) < aeo_min:
+                            conv_init[metrics[0]]['data'][reg].pop(year_remove)
+                except KeyError:
+                    for year_remove in list(conv_init[metrics[1]]['data'][
+                                     bldg][reg].keys()):
+                        if int(year_remove) < aeo_min:
+                            conv_init[metrics[1]]['data'][
+                                                  bldg][reg].pop(year_remove)
 
         # Change conversion factors dict imported from JSON to OrderedDict
         # so that the AEO year and scenario specified by the user can be

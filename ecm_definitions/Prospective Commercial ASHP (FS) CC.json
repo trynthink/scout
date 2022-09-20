@@ -1,0 +1,72 @@
+{
+  "name": "Prospective Commercial ASHP (FS) CC",
+  "_description": "Ultra-efficient heat pump target, switch fossil-based heating and associated cooling to heat pumps, cold-climate; include chillers for prospective measure under the assumption that these performance levels can be achieve for large commercial applications",
+  "measure_type": "full service",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "all",
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
+                 "reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller", 
+                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
+                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
+                 "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
+  "energy_efficiency": {
+    "cooling": 12,
+    "heating": 6
+  },
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
+    "source_data": null
+  },
+  "installed_cost": 40.55,
+  "cost_units": "$/kBtu/h heating",
+  "installed_cost_source": {
+    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in cold climate",
+    "source_data": null
+  },
+  "product_lifetime": 23,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Lifetime for 2020 'typical' commercial gas furnace",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 90,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.68,
+    "heating": 1
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
+      "fraction_derivation": "Assume the prospective measure switches all non-electric heating technologies in the definition; cooling fraction excludes cooling in buildings that use electric source of primary heating ((79,294-25,613) sf/ 79,294 sf)."
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  },
+  "_updated_by": null
+}

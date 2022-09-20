@@ -1,0 +1,62 @@
+{
+  "name": "Ref. Case Com. Chillers",
+  "tsv_features": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "ventilation"],
+  "fuel_type": "electricity",
+  "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller",
+                 "screw_chiller", "all ventilation"],
+  "market_entry_year": 2021,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost_source": null,
+  "product_lifetime": {
+      "reciprocating_chiller": 20,
+      "centrifugal_chiller": 25,
+      "scroll_chiller": 20,
+      "screw_chiller": 20,
+      "CAV_Vent": 20,
+      "VAV_Vent": 20},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for high efficiency chillers in 2017",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": [102, 109],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "ventilation": 0.27 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2015,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use chiller for cooling (21,649 sf/79,294 sf)."
+  },
+  "_description": "Counterfactual chillers measure, no savings vs. reference case",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  }
+}
