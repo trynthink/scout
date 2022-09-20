@@ -145,7 +145,13 @@ REGIONS = [
     "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL",
     "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO",
     "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR",
-    "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+    "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI",
+    "WY",
+
+    'Great Basin', 'Upper Midwest', 'Northeast', 'Lower Midwest', 'Southwest',
+    'Rocky Mountains', 'Southeast', 'Northwest', 'California', 'Texas',
+    'Lakes/Mid-Atl.'
+
     ]
 
 BUILDING_CLASSES = [
@@ -182,6 +188,8 @@ END_USES = [
         'Refrigeration',
         'Ventilation',
         'Water Heating',
+        'Computers and Electronics',
+        'Cooking',
         'Cooling (Env.)',
         'Heating (Env.)',
         'Other',
