@@ -2,6 +2,7 @@ import sys, getopt
 import os.path
 import numpy as np
 import pandas as pd
+from plots_utilities import json_to_df
 from plots_utilities import ECM_PREP
 from plots_utilities import ECM_RESULTS
 
@@ -216,12 +217,105 @@ if __name__ == "__main__":
     print(f"Importing data from {ecm_results_path}")
     ecm_results = ECM_RESULTS(path = ecm_results_path).mas_by_category
 
-    print(f"Importing baseline data from {baseline_path}")
+    print(f"Importing data from {baseline_path}")
     baseline = json_to_df(path = baseline_path)
-
+    print(baseline)
 
     ############################################################################
-    # Data clean up
+    # Data clean up for baseline
+    #
+    # Per conversation with Chioke this is the outline of the structure of
+    # baseline json file
+    #     lvl0: Region
+    #     lvl1: building_type
+    #     lvl2:
+    #       one of two things:
+    #       1. building type metadata
+    #       2. fuel_type
+    #
+    #     lvl3:
+    #       if lvl2 is building type metadata then lvl3 the year (lvl4 value)
+    #       if lvl2 is fuel type lvl3 is _always_ end_use
+    #
+    #     lvl4:
+    #       One of four things:
+    #       1. values if lvl2 was building metadata
+    #       2. if lvl2 is fuel type then
+    #          a. supply/demand key if lvl3 is a heating or cooling end use
+    #             (includes secondary heating)
+    #          b. technology_type or
+    #          c. stock/energy keys
+    #
+    #     lvl5
+    #       if (lvl4 = 2a) then technology_type / envelope components
+    #       if (lvl4 = 2b) then stock/energy keys
+    #       if (lvl4 = 2c) year or NA
+    #
+    #     lvl6
+    #       if (lvl4 = 2c) value
+    #       if (lvl5 is stock/energy key) then NA or year
+    #       if (lvl5 is technology_type / envelope components) then stock/energy
+    #          key
+    #
+    #     lvl7
+    #       values or years
+    #
+    #     lvl8
+    #       values
+
+    # omit some rows with data on number of buildings
+    keep = ~baseline.lvl2.isin(["new homes", "total square footage",
+        "new square footage", "total homes"])
+    baseline = baseline[keep]
+    baseline.reset_index(inplace = True, drop = True)
+
+    # remove useless rows
+    baseline = baseline[~((baseline.lvl6 == "stock") & (baseline.lvl7 == "NA")) ]
+    baseline = baseline[~((baseline.lvl5 == "stock") & (baseline.lvl6 == "NA")) ]
+    baseline = baseline[~((baseline.lvl4 == "stock") & (baseline.lvl5 == "NA")) ]
+
+    # if stock/energy is in lvl4 then
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]),:]
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl8"] = baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl6"]
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl7"] = baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl5"]
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl6"] = baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl4"]
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl5"] = np.nan
+    baseline.loc[baseline.lvl4.isin(["stock", "energy"]), "lvl4"] = np.nan
+
+    # if stock/energy is in lvl5 then
+    baseline.loc[baseline.lvl5.isin(["stock", "energy"]),:]
+    baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl8"] =\
+        baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl7"]
+    baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl7"] =\
+        baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl6"]
+    baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl6"] =\
+        baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl5"]
+    baseline.loc[baseline.lvl5.isin(["stock", "energy"]), "lvl5"] = np.nan
+
+    # when lvl4 is supply demand, and the above has been done, then lvl5 is all
+    # missing values and data can be shifted
+    baseline.loc[baseline.lvl4.isin(["supply", "demand"]),"lvl3"]
+
+    baseline.loc[~baseline.lvl4.isin(["supply", "demand"]),"lvl5"] = \
+        baseline.loc[~baseline.lvl4.isin(["supply", "demand"]),"lvl4"]
+    baseline.loc[~baseline.lvl4.isin(["supply", "demand"]),"lvl4"] = np.nan
+
+    baseline.rename(
+            columns = {
+                "lvl0" : "region",
+                "lvl1" : "building_type",
+                "lvl2" : "fuel_type",
+                "lvl3" : "end_use",
+                "lvl4" : "supply_demand",
+                "lvl5" : "technology_type",
+                "lvl6" : "stock_energy",
+                "lvl7" : "year",
+                "lvl8" : "value"
+                },
+            inplace = True)
+
+    ############################################################################
+    # Data clean up for ecm_results
     # reduce rows to only the needed impacts:
     ecm_results =\
             ecm_results.merge(emf_base_string, how = "inner", on = "impact")
