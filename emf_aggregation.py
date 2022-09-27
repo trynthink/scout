@@ -189,6 +189,7 @@ if __name__ == "__main__":
     # set default values for command line arguments
     ecm_prep_path    = "./supporting_data/ecm_prep.json"
     ecm_results_path = "./results/ecm_results.json"
+    baseline_path    = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm"
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -214,6 +215,9 @@ if __name__ == "__main__":
 
     print(f"Importing data from {ecm_results_path}")
     ecm_results = ECM_RESULTS(path = ecm_results_path).mas_by_category
+
+    print(f"Importing baseline data from {baseline_path}")
+    baseline = json_to_df(path = baseline_path)
 
 
     ############################################################################
