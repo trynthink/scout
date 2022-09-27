@@ -219,10 +219,13 @@ if __name__ == "__main__":
 
     print(f"Importing data from {baseline_path}")
     baseline = json_to_df(path = baseline_path)
-    print(baseline)
+
+    print(f"Importing coversion coeffs_emm")
+    coeffs_emm = json_to_df(path = "./supporting_data/convert_data/emm_region_emissions_prices.json")
 
     ############################################################################
     # Data clean up for baseline
+    print("Cleaning and pre-processing baseline data")
     #
     # Per conversation with Chioke this is the outline of the structure of
     # baseline json file
@@ -314,9 +317,33 @@ if __name__ == "__main__":
                 },
             inplace = True)
 
+    baseline["emf_base_string"] = "*Final Energy|Buildings"
+
+    baseline = baseline\
+            .merge(
+                    building_type_to_class,
+                    how = "left",
+                    on = "building_type"
+                    )\
+            .merge(
+                    emf_end_uses,
+                    how = "left",
+                    left_on = "end_use",
+                    right_on = "scout_end_use")\
+            .merge(
+                    emf_fuel_types,
+                    how = "left",
+                    left_on = "fuel_type",
+                    right_on = "scout_split_fuel"
+                    )
+
+    baseline.value = baseline.value.apply(float)
+    baseline.year  = baseline.year.apply(int)
+
     ############################################################################
     # Data clean up for ecm_results
     # reduce rows to only the needed impacts:
+    print("Cleaning and pre-processing ecm_results data")
     ecm_results =\
             ecm_results.merge(emf_base_string, how = "inner", on = "impact")
 
@@ -337,7 +364,8 @@ if __name__ == "__main__":
                     right_on = "scout_split_fuel"
                     )
     else:
-        sys.exit("split_fuel is not a column in the ecm_results.")
+        print("Error: split_fuel is not a column in the ecm_results.")
+        sys.exit(1)
 
     # if building_class is part of the ecm_results then split into two columns
     if "building_class" in ecm_results.columns:
@@ -373,8 +401,36 @@ if __name__ == "__main__":
                     )\
             .drop(columns = ["end_use"])
 
+
+    # Convert MMBtu to Exajoules
+    idx = ecm_results.impact.str.contains("MMBtu")
+    ecm_results.loc[idx, "value"] *= 1.05505585262e-9
+    ecm_results.impact = ecm_results.impact.str.replace("MMBtu", "EJ")
+
+    ############################################################################
+    # Data clean up coeffs_emm
+    print("Cleaning up coeffs_emm")
+    coeffs_emm = \
+        coeffs_emm[(coeffs_emm.lvl0 == "CO2 intensity of electricity") &
+                   (coeffs_emm.lvl1 == "data")
+                   ]
+
+    coeffs_emm = \
+        coeffs_emm\
+        .drop(columns = ["lvl0", "lvl1", "lvl5"])\
+        .rename(columns = {
+            "lvl2" : "region",
+            "lvl3" : "year",
+            "lvl4" : "CO2_intensity_of_electricity"
+            })
+
+    coeffs_emm.CO2_intensity_of_electricity =\
+            coeffs_emm.CO2_intensity_of_electricity.apply(float)
+    coeffs_emm.year = coeffs_emm.year.apply(int)
+
     ############################################################################
     # ECM Results aggregations:
+    print("aggregating ecm_results to EMF summary")
     a0 = ecm_results\
             .groupby(["region", "emf_base_string", "year"])\
             .agg(value = ("value", "sum"))
@@ -469,20 +525,97 @@ if __name__ == "__main__":
     ecm_results_emf_aggregation_wide.reset_index(inplace = True, drop = False)
 
     
+    print("outputing EMF aggrgations:")
+    print("  " + ecm_results_path + "_emf_aggregation.csv")
     ecm_results_emf_aggregation.to_csv(
             path_or_buf = ecm_results_path + "_emf_aggregation.csv"
             )
+    print("  " + ecm_results_path + "_emf_aggregation_wide.csv")
     ecm_results_emf_aggregation_wide.to_csv(
             path_or_buf = ecm_results_path + "_emf_aggregation_wide.csv"
             )
 
+    ###########################################################################
+    # Baseline aggregations
+    print("Baseline Aggregation")
 
+    b0 = baseline\
+            .groupby(["region", "emf_base_string", "year"])\
+            .agg(value = ("value", "sum"))
 
+    b1 = baseline\
+            .groupby(["region", "emf_base_string", "emf_fuel_type", "year"])\
+            .agg(value = ("value", "sum"))
 
+    b2 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
+            .agg(value = ("value", "sum"))
 
+    b3 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "end_use", "emf_fuel_type", "year"])\
+            .agg(value = ("value", "sum"))
 
+    b0.reset_index(inplace = True)
+    b1.reset_index(inplace = True)
+    b2.reset_index(inplace = True)
+    b3.reset_index(inplace = True)
 
+    b0["emf_string"] = b0.region + b0.emf_base_string
+    b1["emf_string"] = b1.region + b1.emf_base_string + "|" + b1.emf_fuel_type
+    b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class + "|" + b2.emf_fuel_type
+    b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.end_use + "|" + b3.emf_fuel_type
 
+    baseline_emf_aggregation = pd.concat( [b0, b1, b2, b3])
+    baseline_emf_aggregation
 
+    # Unit conversions.
+    # The value column is in MMBtu and needs to be in EJ (extajuls)
+    MMBtu_to_EJ           = 1.05505585262e-9
+    EJ_to_quad            = 0.9478
+    pound_to_mt           = 0.000453592
+    EJ_to_twh             = 277.778
+    EJ_to_mt_co2_propane  = EJ_to_quad * 62.88
+    EJ_to_mt_co2_kerosene = EJ_to_quad * 73.38
+    EJ_to_mt_co2_gas      = EJ_to_quad * 53.056
+    EJ_to_mt_co2_oil      = EJ_to_quad * 74.14
+    EJ_to_mt_co2_bio      = EJ_to_quad * 96.88
+
+    baseline_emf_aggregation["EJ"] = baseline_emf_aggregation["value"] * MMBtu_to_EJ
+    baseline_emf_aggregation["CO2"] = np.nan # define the column for CO2
+
+    baseline_emf_aggregation =\
+            baseline_emf_aggregation\
+            .merge(coeffs_emm, on = ["region", "year"])
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Electricity"), "CO2"] =\
+                baseline_emf_aggregation.EJ * baseline_emf_aggregation.CO2_intensity_of_electricity * EJ_to_twh
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Gas_lpg"), "CO2"] =\
+            baseline_emf_aggregation.EJ * EJ_to_mt_co2_propane
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Gas"), "CO2"] =\
+            baseline_emf_aggregation.EJ * EJ_to_mt_co2_gas
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Oil_kerosene"), "CO2"] =\
+            baseline_emf_aggregation.EJ * EJ_to_mt_co2_kerosene
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Oil"), "CO2"] =\
+            baseline_emf_aggregation.EJ * EJ_to_mt_co2_oil
+
+    baseline_emf_aggregation\
+            .loc[baseline_emf_aggregation.emf_string.str.endswith("Biomass Solids"), "CO2"] =\
+            baseline_emf_aggregation.EJ * EJ_to_mt_co2_bio
+
+    print("Write out baseline aggregation:" +  ecm_results_path + "_baseline_emf_agg.csv")
+    baseline_emf_aggregation.to_csv(
+            path_or_buf = ecm_results_path + "_baseline_emf_agg.csv"
+            )
+
+    print(baseline_emf_aggregation)
 
 
