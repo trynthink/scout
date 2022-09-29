@@ -191,6 +191,10 @@ if __name__ == "__main__":
     ecm_prep_path    = "./supporting_data/ecm_prep.json"
     ecm_results_path = "./results/ecm_results.json"
     baseline_path    = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm"
+    emf_output_path  = "./emf_output"
+
+    if not os.path.exists(emf_output_path):
+        os.makedirs(emf_output_path)
 
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -526,13 +530,13 @@ if __name__ == "__main__":
 
     
     print("outputing EMF aggrgations:")
-    print("  " + ecm_results_path + "_emf_aggregation.csv")
+    print("  " + emf_output_path + "/ecm_results_emf_aggregation.csv")
     ecm_results_emf_aggregation.to_csv(
-            path_or_buf = ecm_results_path + "_emf_aggregation.csv"
+            path_or_buf = emf_output_path + "/ecm_results_emf_aggregation.csv"
             )
-    print("  " + ecm_results_path + "_emf_aggregation_wide.csv")
+    print("  " + emf_output_path + "/ecm_results_emf_aggregation_wide.csv")
     ecm_results_emf_aggregation_wide.to_csv(
-            path_or_buf = ecm_results_path + "_emf_aggregation_wide.csv"
+            path_or_buf = emf_output_path + "/ecm_results_emf_aggregation_wide.csv"
             )
 
     ###########################################################################
@@ -611,11 +615,31 @@ if __name__ == "__main__":
             .loc[baseline_emf_aggregation.emf_string.str.endswith("Biomass Solids"), "CO2"] =\
             baseline_emf_aggregation.EJ * EJ_to_mt_co2_bio
 
-    print("Write out baseline aggregation:" +  ecm_results_path + "_baseline_emf_agg.csv")
+
+    # wide version
+    baseline_emf_aggregation_wide = baseline_emf_aggregation.copy(deep = True)
+
+    baseline_emf_aggregation_wide.year =\
+            baseline_emf_aggregation_wide.year.apply(str) # this is needed so the column names post pivot are strings
+
+    baseline_emf_aggregation_wide =\
+            baseline_emf_aggregation_wide.pivot_table(
+                    index = ["emf_string"],
+                    columns = ["year"],
+                    values = ["CO2"]
+                    )
+
+    baseline_emf_aggregation_wide.columns = baseline_emf_aggregation_wide.columns.droplevel(0)
+
+    baseline_emf_aggregation.reset_index(inplace = True, drop = True)
+    baseline_emf_aggregation_wide.reset_index(inplace = True, drop = False)
+
+    print("Write out baseline aggregation:" +  emf_output_path + "/baseline_emf_aggregation.csv")
     baseline_emf_aggregation.to_csv(
-            path_or_buf = ecm_results_path + "_baseline_emf_agg.csv"
+            path_or_buf = emf_output_path + "/baseline_emf_aggregation.csv"
             )
-
-    print(baseline_emf_aggregation)
-
+    print("Write out baseline aggregation (wide):" +  emf_output_path + "/baseline_emf_aggregation_wide.csv")
+    baseline_emf_aggregation_wide.to_csv(
+            path_or_buf = emf_output_path + "/baseline_emf_aggregation_wide.csv"
+            )
 
