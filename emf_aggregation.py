@@ -52,7 +52,7 @@ emf_fuel_types =\
             , "Distillate/Other" : "Oil"
             , "distillate"       : "Oil"
             , "Biomass"          : "Biomass Solids"  # ecm_results
-            , "other fuel"       : "Biomass Solids"  # baseline
+            , "other fuel"       : "Oil"             # baseline
             , "Electric"         : "Electricity"
             , "Electricity"      : "Electricity"
             , "electricity"      : "Electricity"       # baseline
