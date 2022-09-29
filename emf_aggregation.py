@@ -44,6 +44,8 @@ emf_base_string =\
 # Other possible end uses that will need to be accounted for,
 #   * stove (wood)
 #   * secondary heater (wood)
+
+# For all but scout_split_fuel == "other fuel"
 emf_fuel_types =\
         pd.DataFrame(data = {
               "Natural Gas"      : "Gas"              # ecm_results
@@ -52,7 +54,6 @@ emf_fuel_types =\
             , "Distillate/Other" : "Oil"
             , "distillate"       : "Oil"
             , "Biomass"          : "Biomass Solids"  # ecm_results
-            , "other fuel"       : "Oil"             # baseline
             , "Electric"         : "Electricity"
             , "Electricity"      : "Electricity"
             , "electricity"      : "Electricity"       # baseline
@@ -60,6 +61,26 @@ emf_fuel_types =\
             }.items(),
             columns = ["scout_split_fuel", "emf_fuel_type"]
             )
+
+# This will be a nice to have feature later.  A good link table needs to be
+# built but this will also require a well defined data structure.  
+#
+# For the time being an ad hoc solution for scout_split_fuel == "other fuel"
+# will be used
+#
+#emf_other_fuel_types =\
+#        pd.DataFrame(data = {
+#            ("other fuel", "heating", "furnance (LPG)"),
+#            ("other fuel", "heating", "furnance (kerosene)"),
+#            ("other fuel", "heating", "stove (wood)"),
+#            ("other fuel", "secondary heating", "secondary heater (wood)"),
+#            ("other fuel", "secondary heating", "secondary heater (coal)"),
+#            ("other fuel", "secondary heating", "secondary heater (kerosene)"),
+#            ("other fuel", "secondary heating", "secondary heater (LPG)"),
+#            ("other fuel", "water heating",      np.nan),
+#            }
+#            , columns = ["scout_split_fuel", "scout_end_use",
+#                "scout_technology"])
 
 emf_direct_indirect_fuel =\
         pd.DataFrame(data = {
@@ -543,6 +564,8 @@ if __name__ == "__main__":
     ###########################################################################
     # Baseline aggregations
     print("Baseline Aggregation")
+
+    baseline.to_csv(path_or_buf = emf_output_path + "/baseline.csv")
 
     b0 = baseline\
             .groupby(["region", "emf_base_string", "year"])\
