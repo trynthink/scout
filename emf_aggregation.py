@@ -161,6 +161,7 @@ building_type_to_class =\
             , "single family home" : "Residential"
             , "multi family home"  : "Residential"
             , "mobile home"        : "Residential"
+            , "Mobile Homes"       : "Residential"
             }.items(),
             columns = ["building_type", "building_class"]
             )
