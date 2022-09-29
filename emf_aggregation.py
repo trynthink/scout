@@ -63,16 +63,16 @@ emf_fuel_types =\
 
 emf_direct_indirect_fuel =\
         pd.DataFrame(data = {
-            "Natural Gas"      : "Direct",
-            "natural gas"      : "Direct",
-            "Distillate/Other" : "Direct",
-            "distillate"       : "Direct",
-            "Biomass"          : "Direct",
-            "Propane"          : "Direct",
-            "Electric"         : "Indirect",
-            "electricity"      : "Indirect",
-            "Non-Electric"     : "Direct",
-            "other fuel"       : "Direct"
+              "Natural Gas"      : "Direct"
+            , "natural gas"      : "Direct"
+            , "Distillate/Other" : "Direct"
+            , "distillate"       : "Direct"
+            , "Biomass"          : "Direct"
+            , "Propane"          : "Direct"
+            , "Electric"         : "Indirect"
+            , "electricity"      : "Indirect"
+            , "Non-Electric"     : "Direct"
+            , "other fuel"       : "Direct"
             }.items(),
             columns = ["scout_split_fuel", "emf_direct_indirect_fuel"]
             )
