@@ -37,6 +37,18 @@ emf_base_string =\
         columns = ["impact", "emf_base_string"]
         )
 
+# Unit conversions.
+# The value column is in MMBtu and needs to be in EJ (extajuls)
+MMBtu_to_EJ           = 1.05505585262e-9
+EJ_to_quad            = 0.9478
+pound_to_mt           = 0.000453592
+EJ_to_twh             = 277.778
+EJ_to_mt_co2_propane  = EJ_to_quad * 62.88
+EJ_to_mt_co2_kerosene = EJ_to_quad * 73.38
+EJ_to_mt_co2_gas      = EJ_to_quad * 53.056
+EJ_to_mt_co2_oil      = EJ_to_quad * 74.14
+EJ_to_mt_co2_bio      = EJ_to_quad * 96.88
+
 # NOTE: Mapping to EMF fuel types _might_ require a mapping that uses both fuel
 # type and end use.  In the example script the combination of fuel_type = "distillate" and
 # end_use = "secondary heating (kerosene)" maps to "Oil_kerosene".
@@ -48,39 +60,35 @@ emf_base_string =\
 # For all but scout_split_fuel == "other fuel"
 emf_fuel_types =\
         pd.DataFrame(data = {
-              "Natural Gas"      : "Gas"              # ecm_results
-            , "natural gas"      : "Gas"              # baseline
-            , "Propane"          : "Gas_lpg"          # Will be mapped to Oil in a later step
-            , "Distillate/Other" : "Oil"
-            , "distillate"       : "Oil"
-            , "Biomass"          : "Biomass Solids"  # ecm_results
-            , "Electric"         : "Electricity"
-            , "Electricity"      : "Electricity"
-            , "electricity"      : "Electricity"       # baseline
-            # , "???"              : "Oil_kerosene"      # baseline
-            }.items(),
-            columns = ["scout_split_fuel", "emf_fuel_type"]
+              ("Natural Gas"      , "Gas"             , EJ_to_mt_co2_gas)
+            , ("natural gas"      , "Gas"             , EJ_to_mt_co2_gas)
+            , ("Propane"          , "Gas_lpg"         , EJ_to_mt_co2_propane)
+            , ("Distillate/Other" , "Oil"             , EJ_to_mt_co2_oil)
+            , ("distillate"       , "Oil"             , EJ_to_mt_co2_oil)
+            , ("Biomass"          , "Biomass Solids"  , EJ_to_mt_co2_oil)
+            , ("Electric"         , "Electricity"     , EJ_to_twh)
+            , ("Electricity"      , "Electricity"     , EJ_to_twh)
+            , ("electricity"      , "Electricity"     , EJ_to_twh)
+            }
+            ,
+            columns = ["scout_split_fuel", "emf_fuel_type", "emf_CO2_conversion_factor"]
             )
 
-# This will be a nice to have feature later.  A good link table needs to be
-# built but this will also require a well defined data structure.  
-#
-# For the time being an ad hoc solution for scout_split_fuel == "other fuel"
-# will be used
-#
-#emf_other_fuel_types =\
-#        pd.DataFrame(data = {
-#            ("other fuel", "heating", "furnance (LPG)"),
-#            ("other fuel", "heating", "furnance (kerosene)"),
-#            ("other fuel", "heating", "stove (wood)"),
-#            ("other fuel", "secondary heating", "secondary heater (wood)"),
-#            ("other fuel", "secondary heating", "secondary heater (coal)"),
-#            ("other fuel", "secondary heating", "secondary heater (kerosene)"),
-#            ("other fuel", "secondary heating", "secondary heater (LPG)"),
-#            ("other fuel", "water heating",      np.nan),
-#            }
-#            , columns = ["scout_split_fuel", "scout_end_use",
-#                "scout_technology"])
+emf_other_fuel_types =\
+        pd.DataFrame(data = {
+              ("other fuel" , "heating"           , "furnance (LPG)"               , "Oil"            , EJ_to_mt_co2_propane)
+            , ("other fuel" , "heating"           , "furnance (kerosene)"          , "Oil"            , EJ_to_mt_co2_kerosene)
+            , ("other fuel" , "heating"           , "stove (wood)"                 , "Biomass Solids" , EJ_to_mt_co2_bio)
+            , ("other fuel" , "secondary heating" , "secondary heater (wood)"      , "Biomass Solids" , EJ_to_mt_co2_bio)
+            , ("other fuel" , "secondary heating" , "secondary heater (coal)"      , "Biomass Solids" , EJ_to_mt_co2_bio)
+            , ("other fuel" , "secondary heating" , "secondary heater (kerosene)"  , "Oil"            , EJ_to_mt_co2_kerosene)
+            , ("other fuel" , "secondary heating" , "secondary heater (LPG)"       , "Oil"            , EJ_to_mt_co2_propane)
+            , ("other fuel" , "water heating"     , np.nan                         , "Oil"            , EJ_to_mt_co2_oil)
+            , ("other fuel" , "cooking"           , np.nan                         , "Oil"            , EJ_to_mt_co2_oil)
+            , ("other fuel" , "drying"            , np.nan                         , "Oil"            , EJ_to_mt_co2_oil)
+            , ("other fuel" , "other"             , np.nan                         , "Oil"            , EJ_to_mt_co2_oil)
+            }
+            , columns = ["scout_split_fuel", "scout_end_use", "scout_technology_type", "emf_fuel_type", "emf_CO2_conversion_factor"])
 
 emf_direct_indirect_fuel =\
         pd.DataFrame(data = {
@@ -206,7 +214,7 @@ if __name__ == "__main__":
         opts, args = getopt.getopt(sys.argv[1:], "h:", ["help", "ecm_results=", "ecm_prep="])
     except getopt.GetoptError:
         print(help_usage)
-        print("Get more details by running: plots_interactive.py -h")
+        print("Get more details by running: python emf_aggregation.py -h")
         sys.exit(2)
 
     # set default values for command line arguments
@@ -355,13 +363,7 @@ if __name__ == "__main__":
                     emf_end_uses,
                     how = "left",
                     left_on = "end_use",
-                    right_on = "scout_end_use")\
-            .merge(
-                    emf_fuel_types,
-                    how = "left",
-                    left_on = "fuel_type",
-                    right_on = "scout_split_fuel"
-                    )
+                    right_on = "scout_end_use")
 
     baseline.value = baseline.value.apply(float)
     baseline.year  = baseline.year.apply(int)
@@ -565,22 +567,40 @@ if __name__ == "__main__":
     # Baseline aggregations
     print("Baseline Aggregation")
 
-    baseline.to_csv(path_or_buf = emf_output_path + "/baseline.csv")
+    b1 = baseline[baseline.fuel_type == "other fuel"]
+    b2 = baseline[baseline.fuel_type != "other fuel"]
+
+    b1 = b1.merge(
+            right = emf_other_fuel_types, 
+            how = "left",
+            left_on = ["fuel_type", "end_use", "technology_type"],
+            right_on = ["scout_split_fuel", "scout_end_use", "scout_technology_type"]
+            )
+
+    b2 = b2.merge(
+            right = emf_fuel_types, 
+            how = "left",
+            left_on = ["fuel_type"],
+            right_on = ["scout_split_fuel"]
+            )
+
+    baseline = pd.concat([b1, b2])
+
 
     b0 = baseline\
-            .groupby(["region", "emf_base_string", "year"])\
+            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "year"])\
             .agg(value = ("value", "sum"))
 
     b1 = baseline\
-            .groupby(["region", "emf_base_string", "emf_fuel_type", "year"])\
+            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
 
     b2 = baseline\
-            .groupby(["region", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
+            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
 
     b3 = baseline\
-            .groupby(["region", "emf_base_string", "building_class", "end_use", "emf_fuel_type", "year"])\
+            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "end_use", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
 
     b0.reset_index(inplace = True)
@@ -594,55 +614,25 @@ if __name__ == "__main__":
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.end_use + "|" + b3.emf_fuel_type
 
     baseline_emf_aggregation = pd.concat( [b0, b1, b2, b3])
-    baseline_emf_aggregation
-
-    # Unit conversions.
-    # The value column is in MMBtu and needs to be in EJ (extajuls)
-    MMBtu_to_EJ           = 1.05505585262e-9
-    EJ_to_quad            = 0.9478
-    pound_to_mt           = 0.000453592
-    EJ_to_twh             = 277.778
-    EJ_to_mt_co2_propane  = EJ_to_quad * 62.88
-    EJ_to_mt_co2_kerosene = EJ_to_quad * 73.38
-    EJ_to_mt_co2_gas      = EJ_to_quad * 53.056
-    EJ_to_mt_co2_oil      = EJ_to_quad * 74.14
-    EJ_to_mt_co2_bio      = EJ_to_quad * 96.88
 
     baseline_emf_aggregation["EJ"] = baseline_emf_aggregation["value"] * MMBtu_to_EJ
     baseline_emf_aggregation["CO2"] = np.nan # define the column for CO2
 
+    # merge on the CO2 intensity of electricity.  This merge will result values
+    # for all rows.  After the merge we need to set the value for
+    # CO2_intensity_of_electricity to 1 for emf_fuel_type <> "Electricity" so
+    # that column multiplication can be used later.
     baseline_emf_aggregation =\
             baseline_emf_aggregation\
             .merge(coeffs_emm, on = ["region", "year"])
 
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Electricity"), "CO2"] =\
-                baseline_emf_aggregation.EJ * baseline_emf_aggregation.CO2_intensity_of_electricity * EJ_to_twh
+    baseline_emf_aggregation.loc[baseline_emf_aggregation.emf_fuel_type == "Electricity", "CO2_intensity_of_electricity"] = 1.00
 
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Gas_lpg"), "CO2"] =\
-            baseline_emf_aggregation.EJ * EJ_to_mt_co2_propane
-
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Gas"), "CO2"] =\
-            baseline_emf_aggregation.EJ * EJ_to_mt_co2_gas
-
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Oil_kerosene"), "CO2"] =\
-            baseline_emf_aggregation.EJ * EJ_to_mt_co2_kerosene
-
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Oil"), "CO2"] =\
-            baseline_emf_aggregation.EJ * EJ_to_mt_co2_oil
-
-    baseline_emf_aggregation\
-            .loc[baseline_emf_aggregation.emf_string.str.endswith("Biomass Solids"), "CO2"] =\
-            baseline_emf_aggregation.EJ * EJ_to_mt_co2_bio
-
-
-    # change Gas_lpg to Oil for EMF bookkeeping
-    baseline_emf_aggregation.loc[baseline_emf_aggregation.emf_string.str.endswith("Gas_lpg"), "emf_string"] = \
-        baseline_emf_aggregation.emf_string.str.replace("Gas_lpg", "Oil")
+    # CO2 values are:
+    baseline_emf_aggregation["CO2"] = \
+            baseline_emf_aggregation.EJ *\
+            baseline_emf_aggregation.CO2_intensity_of_electricity *\
+            baseline_emf_aggregation.emf_CO2_conversion_factor
 
     # wide version
     baseline_emf_aggregation_wide = baseline_emf_aggregation.copy(deep = True)
