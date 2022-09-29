@@ -48,7 +48,7 @@ emf_fuel_types =\
         pd.DataFrame(data = {
               "Natural Gas"      : "Gas"              # ecm_results
             , "natural gas"      : "Gas"              # baseline
-            , "Propane"          : "Oil"              # oil, not gas, per Chioke 29 Sept 2022
+            , "Propane"          : "Gas_lpg"          # Will be mapped to Oil in a later step
             , "Distillate/Other" : "Oil"
             , "distillate"       : "Oil"
             , "Biomass"          : "Biomass Solids"  # ecm_results
@@ -615,6 +615,10 @@ if __name__ == "__main__":
             .loc[baseline_emf_aggregation.emf_string.str.endswith("Biomass Solids"), "CO2"] =\
             baseline_emf_aggregation.EJ * EJ_to_mt_co2_bio
 
+
+    # change Gas_lpg to Oil for EMF bookkeeping
+    baseline_emf_aggregation.loc[baseline_emf_aggregation.emf_string.str.endswith("Gas_lpg"), "emf_string"] = \
+        baseline_emf_aggregation.emf_string.str.replace("Gas_lpg", "Oil")
 
     # wide version
     baseline_emf_aggregation_wide = baseline_emf_aggregation.copy(deep = True)
