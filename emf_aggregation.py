@@ -88,7 +88,7 @@ emf_end_uses =\
             , "Lighting"                  : "Lighting"    # ecm_results
             , "Other"                     : "Other"       # ecm_results
             , "Refrigeration"             : "Appliances"  # ecm_results
-            , "Ventilation"               : np.nan        # ecm_results
+            , "Ventilation"               : "Heating"     # ecm_results
             , "Water Heating"             : "Appliances"  # ecm_results
             , 'ceiling fan'               : "Appliances"  # baseline
             , "cooking"                   : "Appliances"  # baseline
