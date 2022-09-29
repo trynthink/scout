@@ -48,7 +48,7 @@ emf_fuel_types =\
         pd.DataFrame(data = {
               "Natural Gas"      : "Gas"              # ecm_results
             , "natural gas"      : "Gas"              # baseline
-            , "Propane"          : "Gas"
+            , "Propane"          : "Oil"              # oil, not gas, per Chioke 29 Sept 2022
             , "Distillate/Other" : "Oil"
             , "distillate"       : "Oil"
             , "Biomass"          : "Biomass Solids"  # ecm_results
