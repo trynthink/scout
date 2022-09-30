@@ -637,7 +637,7 @@ if __name__ == "__main__":
     baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3])
 
     # Aggregation for Emissions|CO2|Energy|Demand|Buildings
-    baseline["emf_base_string"] = "*Final Energy|Buildings"
+    baseline["emf_base_string"] = "*Emissions|CO2|Energy|Demand|Buildings"
 
     b0 = baseline\
             .groupby(["region", "emf_base_string", "year"])\
