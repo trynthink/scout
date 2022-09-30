@@ -351,7 +351,6 @@ if __name__ == "__main__":
                 },
             inplace = True)
 
-    baseline["emf_base_string"] = "*Final Energy|Buildings"
 
     baseline = baseline\
             .merge(
@@ -585,23 +584,45 @@ if __name__ == "__main__":
             )
 
     baseline = pd.concat([b1, b2])
+    baseline = baseline.merge(
+            emf_direct_indirect_fuel,
+            how = "left",
+            left_on = "fuel_type",
+            right_on = "scout_split_fuel"
+            )
 
+    # merge on the CO2 intensity of electricity.  This merge will result values
+    # for all rows.  After the merge we need to set the value for
+    # CO2_intensity_of_electricity to 1 for emf_fuel_type <> "Electricity" so
+    # that column multiplication can be used later.
+    baseline = baseline.merge(coeffs_emm, on = ["region", "year"])
+    baseline.loc[baseline.emf_fuel_type == "Electricity", "CO2_intensity_of_electricity"] = 1.00
 
+    baseline["EJ"] = baseline["value"] * MMBtu_to_EJ
+
+    # CO2 values are:
+    baseline["CO2"] = \
+            baseline.EJ *\
+            baseline.CO2_intensity_of_electricity *\
+            baseline.emf_CO2_conversion_factor
+
+    # Aggregation for the Final Energy | Buildings
+    baseline["emf_base_string"] = "*Final Energy|Buildings"
     b0 = baseline\
-            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "year"])\
-            .agg(value = ("value", "sum"))
+            .groupby(["region", "emf_base_string", "year"])\
+            .agg(value = ("EJ", "sum"))
 
     b1 = baseline\
-            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "emf_fuel_type", "year"])\
-            .agg(value = ("value", "sum"))
+            .groupby(["region", "emf_base_string", "emf_fuel_type", "year"])\
+            .agg(value = ("EJ", "sum"))
 
     b2 = baseline\
-            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
-            .agg(value = ("value", "sum"))
+            .groupby(["region", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
+            .agg(value = ("EJ", "sum"))
 
     b3 = baseline\
-            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "emf_end_use", "emf_fuel_type", "year"])\
-            .agg(value = ("value", "sum"))
+            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_fuel_type", "year"])\
+            .agg(value = ("EJ", "sum"))
 
     b0.reset_index(inplace = True)
     b1.reset_index(inplace = True)
@@ -613,28 +634,50 @@ if __name__ == "__main__":
     b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class + "|" + b2.emf_fuel_type
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_end_use + "|" + b3.emf_fuel_type
 
-    baseline_emf_aggregation = pd.concat( [b0, b1, b2, b3])
+    baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3])
 
-    baseline_emf_aggregation["EJ"] = baseline_emf_aggregation["value"] * MMBtu_to_EJ
-    baseline_emf_aggregation["CO2"] = np.nan # define the column for CO2
+    # Aggregation for Emissions|CO2|Energy|Demand|Buildings
+    baseline["emf_base_string"] = "*Final Energy|Buildings"
 
-    # merge on the CO2 intensity of electricity.  This merge will result values
-    # for all rows.  After the merge we need to set the value for
-    # CO2_intensity_of_electricity to 1 for emf_fuel_type <> "Electricity" so
-    # that column multiplication can be used later.
-    baseline_emf_aggregation =\
-            baseline_emf_aggregation\
-            .merge(coeffs_emm, on = ["region", "year"])
+    b0 = baseline\
+            .groupby(["region", "emf_base_string", "year"])\
+            .agg(value = ("CO2", "sum"))
 
-    baseline_emf_aggregation.loc[baseline_emf_aggregation.emf_fuel_type == "Electricity", "CO2_intensity_of_electricity"] = 1.00
+    b1 = baseline\
+            .groupby(["region", "emf_base_string", "emf_direct_indirect_fuel", "year"])\
+            .agg(value = ("CO2", "sum"))
 
-    # CO2 values are:
-    baseline_emf_aggregation["CO2"] = \
-            baseline_emf_aggregation.EJ *\
-            baseline_emf_aggregation.CO2_intensity_of_electricity *\
-            baseline_emf_aggregation.emf_CO2_conversion_factor
+    b2 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "year"])\
+            .agg(value = ("CO2", "sum"))
 
-    # wide version
+    b3 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "emf_direct_indirect_fuel", "year"])\
+            .agg(value = ("CO2", "sum"))
+
+    b4 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_direct_indirect_fuel", "year"])\
+            .agg(value = ("CO2", "sum"))
+
+    b0.reset_index(inplace = True)
+    b1.reset_index(inplace = True)
+    b2.reset_index(inplace = True)
+    b3.reset_index(inplace = True)
+    b4.reset_index(inplace = True)
+
+    b0["emf_string"] = b0.region + b0.emf_base_string
+    b1["emf_string"] = b1.region + b1.emf_base_string + "|" + b1.emf_direct_indirect_fuel
+    b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class
+    b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_direct_indirect_fuel
+    b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b3.emf_direct_indirect_fuel
+
+    baseline_CO2_aggregation = pd.concat( [b0, b1, b2, b3, b4])
+
+    # one set, long and wide
+    baseline_EJ_aggregation.rename(columns = {"EJ" : "value"}, inplace = True)
+    baseline_CO2_aggregation.rename(columns = {"CO2" : "value"}, inplace = True)
+
+    baseline_emf_aggregation = pd.concat( [baseline_EJ_aggregation, baseline_CO2_aggregation])
     baseline_emf_aggregation_wide = baseline_emf_aggregation.copy(deep = True)
 
     baseline_emf_aggregation_wide.year =\
@@ -644,7 +687,7 @@ if __name__ == "__main__":
             baseline_emf_aggregation_wide.pivot_table(
                     index = ["emf_string"],
                     columns = ["year"],
-                    values = ["CO2"]
+                    values = ["value"]
                     )
 
     baseline_emf_aggregation_wide.columns = baseline_emf_aggregation_wide.columns.droplevel(0)
