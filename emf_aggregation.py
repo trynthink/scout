@@ -600,7 +600,7 @@ if __name__ == "__main__":
             .agg(value = ("value", "sum"))
 
     b3 = baseline\
-            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "end_use", "emf_fuel_type", "year"])\
+            .groupby(["region", "emf_CO2_conversion_factor", "emf_base_string", "building_class", "emf_end_use", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
 
     b0.reset_index(inplace = True)
@@ -611,7 +611,7 @@ if __name__ == "__main__":
     b0["emf_string"] = b0.region + b0.emf_base_string
     b1["emf_string"] = b1.region + b1.emf_base_string + "|" + b1.emf_fuel_type
     b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class + "|" + b2.emf_fuel_type
-    b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.end_use + "|" + b3.emf_fuel_type
+    b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_end_use + "|" + b3.emf_fuel_type
 
     baseline_emf_aggregation = pd.concat( [b0, b1, b2, b3])
 
