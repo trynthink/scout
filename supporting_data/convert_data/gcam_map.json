@@ -73,24 +73,32 @@
       "ASHP",
       "GSHP",
       "central AC",
-      "room AC"
+      "room AC",
+      "cooling", 
+      "electricity"
     ],
     "gas cooling": [
       "gas_eng-driven_RTAC",
       "gas_chiller",
       "res_type_gasHP-cool",
-      "gas_eng-driven_RTHP-cool"
+      "gas_eng-driven_RTHP-cool",
+      "cooling",
+      "natural gas"
     ],
     "electric furnace": [
       "electric_res-heat",
       "elec_boiler",
-      "resistance heat"
+      "resistance heat",
+      "heating",
+      "electricity"
     ],
     "electric heat pump": [
       "rooftop_ASHP-heat",
       "comm_GSHP-heat",
       "ASHP",
-      "GSHP"
+      "GSHP",
+      "heating",
+      "electricity"
     ],
     "gas furnace": [
       "gas_eng-driven_RTHP-heat",
@@ -98,10 +106,15 @@
       "gas_boiler",
       "gas_furnace",
       "boiler (NG)",
-      "furnace (NG)"
+      "furnace (NG)",
+      "heating",
+      "natural gas"
     ],
     "gas heat pump": [
-      "NGHP"
+      "NGHP",
+      "heating",
+      "cooling",
+      "natural gas"
     ],
     "fuel furnace": [
       "oil_boiler",
@@ -110,50 +123,83 @@
       "furnace (distillate)",
       "furnace (LPG)",
       "furnace (kerosene)",
-      "resistance"
+      "resistance",
+      "heating",
+      "other fuel",
+      "distillate"
     ],
     "wood furnace": [
-      "stove (wood)"
+      "stove (wood)",
+      "heating",
+      "other fuel"
     ],
     "secondary heating": [
       "secondary heater",
       "secondary heater (wood)",
       "secondary heater (coal)",
       "secondary heater (kerosene)",
-      "secondary heater (LPG)"
+      "secondary heater (LPG)",
+      "secondary heating",
+      "electricity",
+      "natural gas",
+      "other fuel",
+      "distillate"
     ],
-    "electric heat pump water heater": ["HP water heater"],
+    "electric heat pump water heater": [
+      "HP water heater",
+      "water heating",
+      "electricity"],
     "electric resistance water heater": [
       "Solar water heater",
       "elec_booster_water_heater",
       "elec_water_heater",
       "electric WH",
-      "solar WH"
+      "solar WH",
+      "water heating",
+      "electricity"
     ],
     "gas water heater": [
+      null,
       "gas water heater",
       "gas instantaneous_WH",
       "gas_booster_WH",
-      "natural gas",
-      "water heating"
+      "water heating",
+      "natural gas"
     ],
     "fuel water heater": [
+      null,
       "oil water heater",
-      "distillate", "other fuel", "water heating"],
-    "electric range": ["electric_range_oven_24x24_griddle"],
-    "gas range": ["gas_range_oven_24x24_griddle"],
-    "electric oven": ["electricity", "cooking"],
-    "gas oven": ["natural gas", "cooking"],
+      "water heating",
+      "distillate",
+      "other fuel"],
+    "electric range": [
+      "electric_range_oven_24x24_griddle",
+      "cooking",
+      "electricity"],
+    "gas range": [
+      "gas_range_oven_24x24_griddle",
+      "cooking",
+      "natural gas"],
+    "electric oven": [
+      null,
+      "cooking",
+      "electricity"],
+    "gas oven": [
+      null,
+      "cooking",
+      "natural gas"],
     "office equipment": [
-      "electricity",
       "PCs",
-      "non-PC office equipment"
+      "non-PC office equipment",
+      "electricity"
     ],
     "resid computers": [
       "desktop PC",
       "laptop PC",
       "monitors",
-      "network equipment"
+      "network equipment",
+      "computers",
+      "electricity"
     ],
     "incandescent": [
       "100W A19 Incandescent",
@@ -168,7 +214,9 @@
       "reflector (incandescent)",
       "reflector (halogen)",
       "external (incandescent)",
-      "external (high pressure sodium)"
+      "external (high pressure sodium)",
+      "lighting",
+      "electricity"
     ],
     "fluorescent": [
       "100W Equivalent CFL Bare Spiral",
@@ -181,7 +229,9 @@
       "reflector (CFL)",
       "external (CFL)",
       "linear fluorescent (T-8)",
-      "linear fluorescent (T-12)"
+      "linear fluorescent (T-12)",
+      "lighting",
+      "electricity"
     ],
     "solid state": [
       "100W Equivalent LED A Lamp",
@@ -190,9 +240,12 @@
       "general service (LED)",
       "reflector (LED)",
       "linear fluorescent (LED)",
-      "external (LED)"
+      "external (LED)",
+      "lighting",
+      "electricity"
     ],
     "electricity": [
+      null,
       "distribution transformers",
       "security systems",
       "elevators",
@@ -228,9 +281,12 @@
       "video game consoles",
       "electricity",
       "fans and pumps",
-      "ceiling fan"
+      "ceiling fan",
+      "other",
+      "electricity"
     ],
     "refrigeration": [
+      null,
       "Commercial Ice Machines",
       "Commercial Reach-In Freezers",
       "Commercial Reach-In Refrigerators",
@@ -238,18 +294,39 @@
       "Commercial Supermarket Display Cases",
       "Commercial Walk-In Freezers",
       "Commercial Walk-In Refrigerators",
-      "electricity",
-      "refrigeration"
+      "refrigeration",
+      "electricity"
     ],
     "ventilation": [
       "CAV_Vent",
-      "VAV_Vent"
+      "VAV_Vent",
+      "ventilation",
+      "electricity"
     ],
-    "clothes washer": ["clothes washing"],
-    "dishwasher": ["dishwasher"],
-    "freezer": ["freezers"],
-    "refrigerator": ["refrigeration"],
-    "clothes dryer": ["natural gas", "electricity", "drying"],
-    "other appliances": ["other appliances"]
+    "clothes washer": [
+      "clothes washing",
+      "other",
+      "electricity"],
+    "dishwasher": [
+      "dishwasher",
+      "other",
+      "electricity"],
+    "freezer": [
+      "freezers",
+      "other",
+      "electricity"],
+    "refrigerator": [
+      "refrigeration",
+      "electricity"],
+    "clothes dryer": [
+      null,
+      "drying",
+      "natural gas",
+      "electricity"],
+    "other appliances": [
+      "other appliances",
+      "natural gas",
+      "distillate",
+      "other fuel"]
   }
 }
