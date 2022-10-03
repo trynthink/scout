@@ -10,20 +10,63 @@ from plots_utilities import ECM_RESULTS
 #ecm_results_1 = ECM_RESULTS("./results/ecm_results_1-1.json").mas_by_category
 #ecm_results_2 = ECM_RESULTS("./results/ecm_results_2.json").mas_by_category
 #ecm_results_3 = ECM_RESULTS("./results/ecm_results_3-1.json").mas_by_category
-
+#
 #ecm_results_1["file"] = "ecm_results_1"
 #ecm_results_2["file"] = "ecm_results_2"
 #ecm_results_3["file"] = "ecm_results_3"
-
+#
 #ecm_results = pd.concat([ecm_results_1, ecm_results_2, ecm_results_3])
- 
+# 
 #ecm_results_1.info()
 #ecm_results_2.info()
 #ecm_results_3.info()
 #ecm_results
+#
+##ecm_results.groupby(["file"]).count()
+#
+#
+#ecm_results = \
+#    ecm_results\
+#    .merge(
+#            right = building_type_to_class,
+#            how = "left",
+#            on = "building_type"
+#            )
+#
+#ecm_results[
+#        (ecm_results.impact == "Avoided CO\u2082 Emissions (MMTons)") &
+#        (ecm_results.year == 2050) & 
+#        (ecm_results.building_class == "Commercial") &
+#        (ecm_results.value.notna())
+#        ]\
+#        .groupby(["file", "region"])\
+#        .count()
+#
+#        .agg({"value" : "sum"})
+#    
+#a1 = ecm_results\
+#        [(ecm_results.impact == "Avoided CO\u2082 Emissions (MMTons)") &
+#         (ecm_results.building_class == "Commercial")
+#        ]\
+#        .groupby(["file", "region", "year"])\
+#        .agg(value = ("value", "sum"))
+#
+#a1
+#a1.reset_index(inplace = True)
+#
+#a1.year = a1.year.apply(str) # this is needed so the column names post pivot are strings
+#
+#a1 = a1.pivot_table(
+#                    index = ["file", "region"],
+#                    columns = ["year"],
+#                    values = ["value"]
+#                    )
+#
+#a1.columns = a1.columns.droplevel(0)
+#a1.reset_index(inplace = True)
+#
+#a1
 
-#ecm_results.groupby(["file"]).count()
-    
 
 ################################################################################
 # mappings between ECM results and EMF aggregtaions
@@ -518,8 +561,8 @@ if __name__ == "__main__":
 
     # build the full emf_string
     a0["emf_string"] = a0.region + a0.emf_base_string
-    a1["emf_string"] = a0.region + a1.emf_base_string + "|" + a1.building_class
-    a2["emf_string"] = a0.region + a2.emf_base_string + "|" + a2.building_class + "|" + a2.emf_end_use
+    a1["emf_string"] = a1.region + a1.emf_base_string + "|" + a1.building_class
+    a2["emf_string"] = a2.region + a2.emf_base_string + "|" + a2.building_class + "|" + a2.emf_end_use
 
     a3_0["emf_string"] = a3_0.region + a3_0.emf_base_string + "|" + a3_0.emf_direct_indirect_fuel
     a3_1["emf_string"] = a3_1.region + a3_1.emf_base_string + "|" + a3_1.building_class + "|" + a3_1.emf_direct_indirect_fuel
