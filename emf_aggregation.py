@@ -752,6 +752,10 @@ if __name__ == "__main__":
             .agg(value = ("CO2", "sum"))
 
     b4 = baseline\
+            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "year"])\
+            .agg(value = ("CO2", "sum"))
+
+    b5 = baseline\
             .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("CO2", "sum"))
 
@@ -760,14 +764,16 @@ if __name__ == "__main__":
     b2.reset_index(inplace = True)
     b3.reset_index(inplace = True)
     b4.reset_index(inplace = True)
+    b5.reset_index(inplace = True)
 
     b0["emf_string"] = b0.region + b0.emf_base_string
     b1["emf_string"] = b1.region + b1.emf_base_string + "|" + b1.emf_direct_indirect_fuel
     b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_direct_indirect_fuel
-    b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b3.emf_direct_indirect_fuel
+    b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use
+    b5["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b3.emf_direct_indirect_fuel
 
-    baseline_CO2_aggregation = pd.concat( [b0, b1, b2, b3, b4])
+    baseline_CO2_aggregation = pd.concat( [b0, b1, b2, b3, b4, b5])
 
     # one set, long and wide
     baseline_EJ_aggregation.rename(columns = {"EJ" : "value"}, inplace = True)
