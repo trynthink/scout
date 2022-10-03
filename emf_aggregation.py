@@ -7,15 +7,23 @@ from plots_utilities import ECM_PREP
 from plots_utilities import ECM_RESULTS
 
 # dev work
-# ecm_results_1 = ECM_RESULTS("./results/ecm_results_1-1.json").mas_by_category
-# ecm_results_2 = ECM_RESULTS("./results/ecm_results_2.json").mas_by_category
-# ecm_results_3 = ECM_RESULTS("./results/ecm_results_3-1.json").mas_by_category
-# ecm_results = pd.concat([ecm_results_1, ecm_results_2, ecm_results_3])
-# 
-# ecm_results_1.info()
-# ecm_results_2.info()
-# ecm_results_3.info()
-# ecm_results
+#ecm_results_1 = ECM_RESULTS("./results/ecm_results_1-1.json").mas_by_category
+#ecm_results_2 = ECM_RESULTS("./results/ecm_results_2.json").mas_by_category
+#ecm_results_3 = ECM_RESULTS("./results/ecm_results_3-1.json").mas_by_category
+
+#ecm_results_1["file"] = "ecm_results_1"
+#ecm_results_2["file"] = "ecm_results_2"
+#ecm_results_3["file"] = "ecm_results_3"
+
+#ecm_results = pd.concat([ecm_results_1, ecm_results_2, ecm_results_3])
+ 
+#ecm_results_1.info()
+#ecm_results_2.info()
+#ecm_results_3.info()
+#ecm_results
+
+#ecm_results.groupby(["file"]).count()
+    
 
 ################################################################################
 # mappings between ECM results and EMF aggregtaions
@@ -553,13 +561,58 @@ if __name__ == "__main__":
     ecm_results_emf_aggregation_wide.reset_index(inplace = True, drop = False)
     
     print("outputing EMF aggrgations:")
-    print("  " + emf_output_path + "/ecm_results_emf_aggregation.csv")
-    ecm_results_emf_aggregation.to_csv(
-            path_or_buf = emf_output_path + "/ecm_results_emf_aggregation.csv"
+    print("  " + emf_output_path + "/ecm_results_1-1_emf_aggregation.csv")
+    ecm_results_emf_aggregation[
+            ecm_results_emf_aggregation.file == ecm_results_1_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation.csv"
             )
-    print("  " + emf_output_path + "/ecm_results_emf_aggregation_wide.csv")
-    ecm_results_emf_aggregation_wide.to_csv(
-            path_or_buf = emf_output_path + "/ecm_results_emf_aggregation_wide.csv"
+
+    print("  " + emf_output_path + "/ecm_results_2_emf_aggregation.csv")
+    ecm_results_emf_aggregation[
+            ecm_results_emf_aggregation.file == ecm_results_2_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation.csv"
+            )
+
+    print("  " + emf_output_path + "/ecm_results_3-1_emf_aggregation.csv")
+    ecm_results_emf_aggregation[
+            ecm_results_emf_aggregation.file == ecm_results_3_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation.csv"
+            )
+
+    print("  " + emf_output_path + "/ecm_results_1-1_emf_aggregation_wide.csv")
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_1_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation_wide.csv"
+            )
+    
+    print("  " + emf_output_path + "/ecm_results_2_emf_aggregation_wide.csv")
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_2_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation_wide.csv"
+            )
+
+    print("  " + emf_output_path + "/ecm_results_2-1_emf_aggregation_wide.csv")
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_2_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation_wide.csv"
             )
 
     ###########################################################################
