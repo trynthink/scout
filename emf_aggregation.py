@@ -771,7 +771,7 @@ if __name__ == "__main__":
     b2["emf_string"] = b2.region + b2.emf_base_string + "|" + b2.building_class
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_direct_indirect_fuel
     b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use
-    b5["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b3.emf_direct_indirect_fuel
+    b5["emf_string"] = b5.region + b5.emf_base_string + "|" + b5.building_class + "|" + b5.emf_end_use + "|" + b5.emf_direct_indirect_fuel
 
     baseline_CO2_aggregation = pd.concat( [b0, b1, b2, b3, b4, b5])
 
