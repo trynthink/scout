@@ -7,25 +7,15 @@ from plots_utilities import ECM_PREP
 from plots_utilities import ECM_RESULTS
 
 # dev work
-# ecm_results_v1 = ECM_RESULTS("./results/ecm_results_v1.json").mas_by_category
-# ecm_results_v2 = ECM_RESULTS("./results/ecm_results_v2.json").mas_by_category
-# ecm_results_v3 = ECM_RESULTS("./results/ecm_results_v3.json").mas_by_category
-# ecm_results_v4 = ECM_RESULTS("./results/ecm_results_v4.json").mas_by_category
-# ecm_results_v5 = ECM_RESULTS("./results/ecm_results_v5.json").mas_by_category
-# ecm_results_v6 = ECM_RESULTS("./results/ecm_results_v6.json").mas_by_category
-
-# ecm_results_v1.columns
-# ecm_results_v2.columns
-# ecm_results_v3.columns
-# ecm_results_v4.columns
-# ecm_results_v5.columns
-# ecm_results_v6.columns
-
-# set(ecm_results_v3.building_type)
-
-
-# set(ecm_results_v4.split_fuel)
-# {'Biomass', 'Propane', 'Electric', 'Natural Gas', None, 'Distillate/Other'}
+# ecm_results_1 = ECM_RESULTS("./results/ecm_results_1-1.json").mas_by_category
+# ecm_results_2 = ECM_RESULTS("./results/ecm_results_2.json").mas_by_category
+# ecm_results_3 = ECM_RESULTS("./results/ecm_results_3-1.json").mas_by_category
+# ecm_results = pd.concat([ecm_results_1, ecm_results_2, ecm_results_3])
+# 
+# ecm_results_1.info()
+# ecm_results_2.info()
+# ecm_results_3.info()
+# ecm_results
 
 ################################################################################
 # mappings between ECM results and EMF aggregtaions
@@ -204,8 +194,6 @@ help_usage = "Usage: emf_aggregation.py [options]"
 help_options = """
 Options:
   -h --help          Print this help and exit
-  --ecm_prep=FILE    Path to a ecm_prep.json FILE, the results of ecm_prep.py
-  --ecm_results=FILE Path to a ecm_results.json FILE, the results of run.py
 """
 
 if __name__ == "__main__":
@@ -218,10 +206,12 @@ if __name__ == "__main__":
         sys.exit(2)
 
     # set default values for command line arguments
-    ecm_prep_path    = "./supporting_data/ecm_prep.json"
-    ecm_results_path = "./results/ecm_results.json"
-    baseline_path    = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm"
-    emf_output_path  = "./emf_output"
+    ecm_results_1_path     = "./results/ecm_results_1-1.json"
+    ecm_results_2_path     = "./results/ecm_results_2.json"
+    ecm_results_3_path     = "./results/ecm_results_3-1.json"
+    baseline_path          = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm"
+    emf_output_path        = "./emf_output"
+    conversion_coeffs_path = "./supporting_data/convert_data/emm_region_emissions_prices.json"
 
     if not os.path.exists(emf_output_path):
         os.makedirs(emf_output_path)
@@ -231,16 +221,15 @@ if __name__ == "__main__":
             print(help_usage)
             print(help_options)
             sys.exit()
-        elif opt in ("--ecm_results"):
-            ecm_results_path = arg
-        elif opt in ("--ecm_prep"):
-            ecm_prep_path = arg
 
-    if not os.path.exists(ecm_prep_path):
-        print(f"{ecm_prep_path} can not be reached or does not exist.")
+    if not os.path.exists(ecm_results_1_path):
+        print(f"{ecm_results_1_path} can not be reached or does not exist.")
         sys.exit(1)
-    if not os.path.exists(ecm_results_path):
-        print(f"{ecm_results_path} can not be reached or does not exist.")
+    if not os.path.exists(ecm_results_2_path):
+        print(f"{ecm_results_2_path} can not be reached or does not exist.")
+        sys.exit(1)
+    if not os.path.exists(ecm_results_3_path):
+        print(f"{ecm_results_3_path} can not be reached or does not exist.")
         sys.exit(1)
 
     ############################################################################
@@ -248,14 +237,20 @@ if __name__ == "__main__":
     # print(f"Importing data from {ecm_prep_path}")
     # ecm_prep = ECM_PREP(path = ecm_prep_path)
 
-    print(f"Importing data from {ecm_results_path}")
-    ecm_results = ECM_RESULTS(path = ecm_results_path).mas_by_category
+    print(f"Importing data from {ecm_results_1_path}")
+    ecm_results_1 = ECM_RESULTS(path = ecm_results_1_path).mas_by_category
+
+    print(f"Importing data from {ecm_results_2_path}")
+    ecm_results_2 = ECM_RESULTS(path = ecm_results_2_path).mas_by_category
+
+    print(f"Importing data from {ecm_results_3_path}")
+    ecm_results_3 = ECM_RESULTS(path = ecm_results_3_path).mas_by_category
 
     print(f"Importing data from {baseline_path}")
     baseline = json_to_df(path = baseline_path)
 
     print(f"Importing coversion coeffs_emm")
-    coeffs_emm = json_to_df(path = "./supporting_data/convert_data/emm_region_emissions_prices.json")
+    coeffs_emm = json_to_df(path = conversion_coeffs_path)
 
     ############################################################################
     # Data clean up for baseline
@@ -371,6 +366,12 @@ if __name__ == "__main__":
     # Data clean up for ecm_results
     # reduce rows to only the needed impacts:
     print("Cleaning and pre-processing ecm_results data")
+    ecm_results_1["file"] = ecm_results_1_path
+    ecm_results_2["file"] = ecm_results_2_path
+    ecm_results_3["file"] = ecm_results_3_path
+
+    ecm_results = pd.concat([ecm_results_1, ecm_results_2, ecm_results_3])
+
     ecm_results =\
             ecm_results.merge(emf_base_string, how = "inner", on = "impact")
 
@@ -459,41 +460,41 @@ if __name__ == "__main__":
     # ECM Results aggregations:
     print("aggregating ecm_results to EMF summary")
     a0 = ecm_results\
-            .groupby(["region", "emf_base_string", "year"])\
+            .groupby(["file", "region", "emf_base_string", "year"])\
             .agg(value = ("value", "sum"))
 
     a1 = ecm_results\
-            .groupby(["region", "emf_base_string", "building_class", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "year"])\
             .agg(value = ("value", "sum"))
 
     a2 = ecm_results\
-            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "emf_end_use", "year"])\
             .agg(value = ("value", "sum"))
 
     a3_0 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "emf_direct_indirect_fuel", "year"])\
+            .groupby(["file", "region", "emf_base_string", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
     a3_1 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "emf_direct_indirect_fuel", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
     a3_2 = ecm_results\
             [ecm_results.emf_base_string == "*Emissions|CO2|Energy|Demand|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_direct_indirect_fuel", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "emf_end_use", "emf_direct_indirect_fuel", "year"])\
             .agg(value = ("value", "sum"))
 
     a4_0 = ecm_results\
             [ecm_results.emf_base_string == "*Final Energy|Buildings"]\
-            .groupby(["region", "emf_base_string", "emf_fuel_type", "year"])\
+            .groupby(["file", "region", "emf_base_string", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
     a4_1 = ecm_results\
             [ecm_results.emf_base_string == "*Final Energy|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
     a4_2 = ecm_results\
             [ecm_results.emf_base_string == "*Final Energy|Buildings"]\
-            .groupby(["region", "emf_base_string", "building_class", "emf_end_use", "emf_fuel_type", "year"])\
+            .groupby(["file", "region", "emf_base_string", "building_class", "emf_end_use", "emf_fuel_type", "year"])\
             .agg(value = ("value", "sum"))
 
     # Aggregation clean up
@@ -522,15 +523,15 @@ if __name__ == "__main__":
 
     # build one data frame with all the aggregations
     ecm_results_emf_aggregation = pd.concat([
-        a0[["emf_string", "year", "value"]],
-        a1[["emf_string", "year", "value"]],
-        a2[["emf_string", "year", "value"]],
-        a3_0[["emf_string", "year", "value"]],
-        a3_1[["emf_string", "year", "value"]],
-        a3_2[["emf_string", "year", "value"]],
-        a4_0[["emf_string", "year", "value"]],
-        a4_1[["emf_string", "year", "value"]],
-        a4_2[["emf_string", "year", "value"]]
+        a0[["file", "emf_string", "year", "value"]],
+        a1[["file", "emf_string", "year", "value"]],
+        a2[["file", "emf_string", "year", "value"]],
+        a3_0[["file", "emf_string", "year", "value"]],
+        a3_1[["file", "emf_string", "year", "value"]],
+        a3_2[["file", "emf_string", "year", "value"]],
+        a4_0[["file", "emf_string", "year", "value"]],
+        a4_1[["file", "emf_string", "year", "value"]],
+        a4_2[["file", "emf_string", "year", "value"]]
         ])
 
     # create a wide version of the ecm_results_emf_aggregation
@@ -541,7 +542,7 @@ if __name__ == "__main__":
 
     ecm_results_emf_aggregation_wide =\
             ecm_results_emf_aggregation_wide.pivot_table(
-                    index = ["emf_string"],
+                    index = ["file", "emf_string"],
                     columns = ["year"],
                     values = ["value"]
                     )
@@ -550,7 +551,6 @@ if __name__ == "__main__":
 
     ecm_results_emf_aggregation.reset_index(inplace = True, drop = True)
     ecm_results_emf_aggregation_wide.reset_index(inplace = True, drop = False)
-
     
     print("outputing EMF aggrgations:")
     print("  " + emf_output_path + "/ecm_results_emf_aggregation.csv")
