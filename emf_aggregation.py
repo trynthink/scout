@@ -736,7 +736,7 @@ if __name__ == "__main__":
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_fuel_type
     b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b4.emf_fuel_type
 
-    baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3])
+    baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3, b4] )
 
     # Aggregation for Emissions|CO2|Energy|Demand|Buildings
     baseline["emf_base_string"] = "*Emissions|CO2|Energy|Demand|Buildings"
