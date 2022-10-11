@@ -184,8 +184,8 @@ class UsefulVars(object):
             the building sector categories used in summarizing measure outputs.
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
-        out_break_fuels (OrderedDict): Maps measure fuel type names to the
-            fuel categories used in summarizing measure outputs.
+        out_break_fuels (OrderedDict): Maps measure fuel types to fuel type
+            categories used in summarizing measure outputs.
         regions (str): Regions to use in geographically breaking out the data.
         region_inout_namepairs (dict): Input/output region name pairs.
         common_cost_yr (str) = Common year for all cost calculations.
