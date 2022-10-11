@@ -520,77 +520,62 @@ In this example, the supporting CSV file path is |html-filepath| ./ecm_definitio
 * *Net Load Version*. This column indicates the one or two representative `EIA Electricity Market Module (EMM)`_ net utility system load `profiles`_ for the given climate zone that determine energy flexibility measure characteristics (e.g., targeted shed/shift periods) for that climate zone; this distinction is only relevant to flexibility measures. :numref:`tsv-nl-tab` summarizes default periods of net peak and low system demand under the `AEO Low Renewable Cost` side case for each ASHRAE climate zone in the summer (S) and winter (W); the "Version" column of :numref:`tsv-nl-tab` indicates cases where two system load profiles are used to define these peak/low demand periods for a given climate zone.
 
 .. _tsv-nl-tab:
-.. table:: Net peak and low system demand periods by ASHRAE climate zone in winter (W) and summer (S), using data from the `AEO Low Renewable Cost` side case for the year 2050.
+.. table:: Net peak and low system demand periods by ASHRAE climate zone in winter (W) and summer (S), using data from the `AEO 2022 Low Renewable Cost` side case for the year 2050.
 
    +---------+---------+----------+----------+---------+---------------+----------------+
    | Climate | Version | EMM Reg. | Peak (W) | Peak (S)| Low (W)       | Low (S)        |
    +=========+=========+==========+==========+=========+===============+================+
-   | 2A      | 1       | FRCC     | 4-8PM    | 4-8PM   | 10AM-3PM      | 8AM-1PM        |
+   | 2A      | 1       | FRCC     | 4-8PM    | 4-8PM   | 10AM-3PM      | 8AM-12PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 2A      | 2       | MISS     | 5-9PM    | 4-8PM   | 10AM-3PM      | 9AM-2PM        |
+   | 2A      | 2       | MISS     | 5-9PM    | 4-8PM   | 11AM-3PM      | 9AM-2PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 2B      | 1       | SRSG     | 4-8PM    | 3-7PM   | 9AM-3PM       | 3AM-12PM       |
+   | 2B      | 1       | SRSG     | 6-10PM   | 4-8PM   | 10AM-3PM      | 8AM-2PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 3A      | 1       | SRSE     | 4-8PM    | 4-8PM   | 10AM-3PM      | 10AM-1PM       |
+   | 3A      | 1       | SRSE     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-1PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 3A      | 2       | TRE      | 5-9PM    | 4-8PM   | 10AM-4PM      | 9AM-1PM        |
+   | 3A      | 2       | TRE      | 7-11PM   | 5-9PM   | 11AM-4PM      | 10AM-1PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 3B      | 1       | CASO     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-2PM       |
+   | 3B      | 1       | CASO     | 6-10PM   | 6-10PM  | 11AM-2PM      | 11AM-2PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 3B      | 2       | BASN     | 4-8PM    | 5-9PM   | 10AM-3PM      | 12AM-3PM       |
+   | 3B      | 2       | BASN     | 4-8PM    | 4-8PM   | 10AM-3PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 3C      | 1       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   | 3C      | 1       | CANO     | 4-8PM    | 6-10PM  | 11AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4A      | 1       | PJME     | 3-7PM    | 4-8PM   | 10AM-3PM      | 2AM-2PM        |
+   | 4A      | 1       | PJME     | 4-8PM    | 4-8PM   | 10AM-4PM      | 2AM-2PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4A      | 2       | SRCE     | 4-8PM    | 4-8PM   | 11AM-2PM      | 10AM-2PM       |
+   | 4A      | 2       | SRCE     | 4-8PM    | 4-8PM   | 11AM-2PM      | 9AM-1PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4B      | 1       | SRSG     | 4-8PM    | 3-7PM   | 9AM-3PM       | 3AM-12PM       |
+   | 4B      | 1       | SRSG     | 6-10PM   | 4-8PM   | 10AM-3PM      | 8AM-2PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4B      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   | 4B      | 2       | CANO     | 4-8PM    | 6-10PM  | 11AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4C      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
-   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
-   |         |         |          |          |         | 10PM-12AM     |                |
+   | 4C      | 1       | NWPP     | 4-8PM    | 4-8PM   | 10AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 4C      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   | 4C      | 2       | CANO     | 4-8PM    | 6-10PM  | 11AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 5A      | 1       | PJMW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 12-7AM         |
-   |         |         |          |          |         | 9AM-4PM, |br| |                |
-   |         |         |          |          |         | 10PM-12AM     |                |
+   | 5A      | 1       | PJMW     | 5-9PM    | 5-9PM   | 9AM-4PM       | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 5A      | 2       | MISE     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-3PM       |
+   | 5A      | 2       | MISE     | 4-8PM    | 6-10PM  | 11AM-4PM      | 10AM-3PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 5B      | 1       | RMRG     | 3-7PM    | 3-7PM   | 9AM-3PM       | 12-6AM, |br|   |
-   |         |         |          |          |         |               | 7AM-12PM, |br| |
-   |         |         |          |          |         |               | 11PM-12AM      |
+   | 5B      | 1       | RMRG     | 4-8PM    | 4-8PM   | 9AM-3PM       | 8-11AM         |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 5B      | 2       | CANO     | 4-8PM    | 5-9PM   | 11AM-2PM      | 9AM-3PM        |
+   | 5B      | 2       | CANO     | 4-8PM    | 6-10PM  | 11AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 5C      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
-   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
-   |         |         |          |          |         | 10PM-12AM     |                |
+   | 5C      | 1       | NWPP     | 4-8PM    | 4-8PM   | 10AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 6A      | 1       | MISW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 1-6AM, |br|    |
-   |         |         |          |          |         | 11AM-3PM, |br||                |
-   |         |         |          |          |         | 11PM-12AM     |                |
+   | 6A      | 1       | MISW     | 4-8PM    | 5-9PM   | 2-6AM, |br|   | 1-6AM, |br|    |
+   |         |         |          |          |         |               | 12-1PM         |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 6A      | 2       | ISNE     | 3-7PM    | 4-8PM   | 4-5AM, |br|   | 12AM-1PM       |
-   |         |         |          |          |         | 9AM-3PM       |                |
+   | 6A      | 2       | ISNE     | 4-8PM    | 4-8PM   | 9AM-3PM       | 9AM-1PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 6B      | 1       | NWPP     | 3-7PM    | 4-8PM   | 12-6AM, |br|  | 12AM-12PM, |br||
-   |         |         |          |          |         | 10AM-3PM |br| | 10PM-12AM      |
-   |         |         |          |          |         | 10PM-12AM     |                |
+   | 6B      | 1       | NWPP     | 4-8PM    | 4-8PM   | 10AM-2PM      | 9AM-3PM        |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 6B      | 2       | CASO     | 4-8PM    | 4-8PM   | 11AM-3PM      | 10AM-2PM       |
+   | 6B      | 2       | CASO     | 6-10PM   | 6-10PM  | 11AM-2PM      | 11AM-2PM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 7       | 1       | MISW     | 4-8PM    | 4-8PM   | 12-7AM, |br|  | 1-6AM, |br|    |
-   |         |         |          |          |         | 11AM-3PM, |br||                |
-   |         |         |          |          |         | 11PM-12AM     |                |
+   | 7       | 1       | MISW     | 4-8PM    | 5-9PM   | 2-6AM, |br|   | 1-6AM, |br|    |
+   |         |         |          |          |         |               | 12-1PM         |
    +---------+---------+----------+----------+---------+---------------+----------------+
-   | 7       | 2       | RMRG     | 3-7PM    | 3-7PM   | 9AM-3PM       | 12-6AM, |br|   |
-   |         |         |          |          |         |               | 7AM-12PM, |br| |
-   |         |         |          |          |         |               | 11PM-12AM      |
+   | 7       | 2       | RMRG     | 4-8PM    | 4-8PM   | 9AM-3PM       | 8AM-11AM       |
    +---------+---------+----------+----------+---------+---------------+----------------+
 
 
@@ -664,7 +649,7 @@ A commercial load shedding and shifting ECM is :ref:`available for download <ecm
 .. _EIA Electricity Market Module (EMM): https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m068(2018).pdf
 .. _ResStock: https://resstock.readthedocs.io/en/latest/
 .. _DOE Commercial Prototypes: https://www.energycodes.gov/development/commercial/prototype_models
-.. _profiles: https://drive.google.com/file/d/1PNp47uEneuhREx3-AIwPXufXDNpkrZCp/view?usp=sharing
+.. _profiles: https://drive.google.com/file/d/1gUQqqgV7F3_1wIoU0d_qRdsE3ExfFwpn/view?usp=sharing
 
 .. _ecm-features-shorthand:
 

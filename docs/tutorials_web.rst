@@ -444,7 +444,7 @@ Once all steps of the Baseline Energy Calculator have been completed, click the 
     Initial results may cleared by clicking the "Reset" button or updated by clicking the "Calculate" button again.
 
 
-.. _Landing Page: https://scout.energy.gov/home.html
+.. _Landing Page: https://scout.energy.gov/
 .. _Welcome Page: http://scout-bto.readthedocs.io/en/latest/
 .. _ECM Summaries: https://scout.energy.gov/ecms.html
 .. _Analysis Results: https://scout.energy.gov/energy.html
