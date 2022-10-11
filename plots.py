@@ -91,37 +91,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Filter and order the year range
     years = sorted([yr for yr in years if (yr >= start_yr & yr <= end_yr)])
 
-    # Set list of possible climate zones and associated colors/legend entries
-    # for aggregate savings and cost effectiveness plots
+    # Set region legend names
+    czones_out = list(handyvars.out_break_czones.keys())
 
-    # Set various region names lists
-    aia_reg_names = ["AIA CZ1", "AIA CZ2", "AIA CZ3", "AIA CZ4", "AIA CZ5"]
-    emm_reg_names_detail = [
-        'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-        'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-        'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-        'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-    emm_reg_names = [
-        'Northwest', 'Great Basin', 'California', 'Rocky Mountains',
-        'Upper Midwest', 'Lower Midwest', 'Lakes/Mid-Atl.', 'Texas',
-        'Southwest', 'Southeast', 'Northeast']
-    # Exclude AK and HI for now
-    state_names_detail = [
-        'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-        'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-        'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-        'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-        'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
-    state_names = [
-      'New England', 'Mid Atlantic', 'East North Central',
-      'West North Central', 'South Atlantic', 'East South Central',
-      'West South Central', 'Mountain', 'Pacific']
-
-    # Check for AIA regional breakouts; if not there, check for EMM regional
-    # breakouts; if not there, assume state breakouts
+    # Use region information to create flags for certain graphical settings
+    # to be used later on in plotting
     if regions == "AIA":
-        # Set region legend names
-        czones_out = aia_reg_names
         # Set alternate region flags
         emm_flag = False
         emm_det_flag = False
@@ -131,24 +106,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
         # Set region legend names
         if compete_results_agg["Output Resolution"] == "detail" or \
                 "reg" in compete_results_agg["Output Resolution"]:
-            czones_out = emm_reg_names_detail
             emm_det_flag = True
         else:
-            czones_out = emm_reg_names
             emm_det_flag = False
         # Set alternate region flags
         emm_flag = True
         state_flag = False
         state_det_flag = False
     elif regions == "State":
-        # Set region legend names
-        if compete_results_agg["Output Resolution"] == "detail" or \
-                "reg" in compete_results_agg["Output Resolution"]:
-            czones_out = state_names_detail
-            # state_det_flag = True
-        else:
-            czones_out = state_names
-            # state_det_flag = False
         # Set alternate region flags
         emm_flag = False
         emm_det_flag = False
@@ -167,32 +132,23 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
     # Set list of possible building classes and associated colors for aggregate
     # savings plot
+    bclasses_out_agg = list(handyvars.out_break_bldgtypes.keys())
+    # Set list of possible building classes and associated colors for cost
+    # effectiveness plot
     if compete_results_agg["Output Resolution"] == "detail" or \
             "bldg" in compete_results_agg["Output Resolution"]:
-        bclasses_out_agg = [
-            'Single Family Homes', 'Multi Family Homes',
-            'Hospitals', 'Large Offices', 'Small/Medium Offices',
-            'Retail', 'Hospitality', 'Education', 'Assembly/Other',
-            'Warehouses']
         bclasses_out_finmets = [
             ['Single Family Homes', 'Multi Family Homes'],
             ['Hospitals', 'Large Offices', 'Small/Medium Offices',
              'Retail', 'Hospitality', 'Education', 'Assembly/Other',
              'Warehouses']]
     else:
-        bclasses_out_agg = ['Residential (New)', 'Residential (Existing)',
-                            'Commercial (New)', 'Commercial (Existing)']
         bclasses_out_finmets = [
             ['Residential (New)', 'Residential (Existing)'],
             ['Commercial (New)', 'Commercial (Existing)']]
 
     # Set list of possible fuel types for data aggregation
-    if compete_results_agg["Output Resolution"] == "detail" or \
-            "fuel" in compete_results_agg["Output Resolution"]:
-        ftypes_out = ['Electric', 'Natural Gas',
-                      'Propane', 'Distillate/Other', 'Biomass']
-    else:
-        ftypes_out = ['Electric', 'Non-Electric']
+    ftypes_out = list(handyvars.out_break_fuels.keys())
 
     cmb = plt.get_cmap("tab20", len(bclasses_out_agg))
     bclasses_out_agg_col = [
@@ -204,10 +160,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     bclasses_out_finmets_lgnd = ['Residential', 'Commercial']
     # Set list of possible end uses and associated colors/legend entries for
     # aggregate savings plot
-    euses_out_agg = ['Heating (Equip.)', 'Cooling (Equip.)', 'Heating (Env.)',
-                     'Cooling (Env.)', 'Ventilation', 'Lighting',
-                     'Water Heating', 'Refrigeration', 'Cooking',
-                     'Electronics', 'Other']
+    euses_out_agg = list(handyvars.out_break_enduses.keys())
     cme = plt.get_cmap("tab20", len(euses_out_agg))
     euses_out_agg_col = [
         mpl.colors.rgb2hex(cme(i)) for i in range(cme.N)]
@@ -861,9 +814,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                         # proceeding down to the building class
                                         # level of the dict
                                         czone = results_agg[0, 0][levone]
-                                        # Reduce the dict to the building class
-                                        r_agg_temp = \
-                                            results_database_agg[czone]
+                                        # If region is valid, reduce the
+                                        # dict to the building class; otherwise
+                                        # proceed to next region
+                                        try:
+                                            r_agg_temp = \
+                                                results_database_agg[czone]
+                                        except KeyError:
+                                            continue
 
                                         # Loop through all building classes
                                         for levtwo in range(len(
@@ -872,14 +830,16 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                             # use in proceeding down to the
                                             # end use level of the dict
                                             bldg = results_agg[1, 0][levtwo]
-                                            # Reduce the dict to the end use
-                                            # level
+                                            # If the region/building type are
+                                            # valid, reduce the dict to the end
+                                            # use level; otherwise proceed to
+                                            # the next building type
                                             try:
                                                 r_agg_temp = \
                                                     results_database_agg[
                                                         czone][bldg]
                                             except KeyError:
-                                                r_agg_temp = ""
+                                                continue
                                             # Loop through all end uses
                                             for levthree in range(len(
                                                     results_agg[2, 0])):
@@ -897,14 +857,17 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                     euse = ("Computers and "
                                                             "Electronics")
 
-                                                # Reduce the dict to the level
-                                                # of the retrieved data values
+                                                # If the region/building type/
+                                                # end use are valid, reduce the
+                                                # dict to the final level;
+                                                # otherwise proceed to
+                                                # the next end use
                                                 try:
                                                     r_agg_temp = \
                                                         results_database_agg[
                                                             czone][bldg][euse]
                                                 except KeyError:
-                                                    r_agg_temp = ""
+                                                    continue
 
                                                 # If data values exist, add
                                                 # them to the ECM's
