@@ -2160,7 +2160,7 @@ class Measure(object):
                             path.join(base_dir, *handyfiles.tsv_shape_data,
                                       csv_shape_file_name)) + ". "
                         "Find the latest measure savings shape data here: "
-                        "https://doi.org/10.5281/zenodo.7041426, files "
+                        "https://doi.org/10.5281/zenodo.4602369, files "
                         "'Latest_Com_Shapes.zip' and 'Latest_Res_Shapes.zip'")
 
                 # Set shorthand for custom savings shape data
