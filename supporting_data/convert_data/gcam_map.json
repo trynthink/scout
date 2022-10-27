@@ -244,7 +244,7 @@
       "lighting",
       "electricity"
     ],
-    "electricity": [
+    "mels": [
       null,
       "distribution transformers",
       "security systems",
@@ -279,7 +279,6 @@
       "DVD",
       "home theater and audio",
       "video game consoles",
-      "electricity",
       "fans and pumps",
       "ceiling fan",
       "other",
@@ -327,6 +326,14 @@
       "other appliances",
       "natural gas",
       "distillate",
-      "other fuel"]
+      "other fuel"],
+    "non-building": [
+      "water services",
+      "other",
+      "electricity",
+      "natural gas",
+      "distillate",
+      "other fuel"
+    ]
   }
 }
