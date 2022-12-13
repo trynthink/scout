@@ -32,7 +32,7 @@ jobs:
     # Specify python versions to run
     strategy:
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9]
+        python: ['3.8', '3.9', '3.10']
 
     steps:
       - name: Get contents from tip of branch on push

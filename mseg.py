@@ -409,20 +409,20 @@ def nrg_stock_select(data, sel):
     # Multiple end uses can be provided, but try first to see if only
     # one end use is provided; if not, select data for all of the
     # end uses given
-    try:
+    if type(sel[0][0]) is not tuple:
         data_sel = data_sel[numpy.all(
             [data_sel['ENDUSE'] == sel[0][0]], axis=0)]
-    except ValueError:
+    else:
         data_sel = data_sel[numpy.hstack([numpy.where(
             data_sel['ENDUSE'] == i) for i in sel[0][0]]).flatten()]
 
     # Multiple fuel types can be provided, but try first to see if only
     # one fuel type is provided and if not, use a different approach to
     # select data for all of the fuel types indicated
-    try:
+    if type(sel[0][3]) is not tuple:
         data_sel = data_sel[numpy.all(
             [data_sel['FUEL'] == sel[0][3]], axis=0)]
-    except ValueError:
+    else:
         data_sel = data_sel[numpy.hstack([numpy.where(
             data_sel['FUEL'] == i) for i in sel[0][3]]).flatten()]
 
