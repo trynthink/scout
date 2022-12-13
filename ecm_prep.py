@@ -2703,7 +2703,7 @@ class Measure(object):
             # information to that of the current microsegment
             if bldg_sect in self.handyvars.retro_rate.keys():
                 # Lighting, water heating microsegments
-                if mskeys[4] in self.handyvars.retro_rate.keys():
+                if mskeys[4] in self.handyvars.retro_rate[bldg_sect].keys():
                     retro_rate_mseg = self.handyvars.retro_rate[
                         bldg_sect][mskeys[4]]
                 # HVAC or envelope microsegments
@@ -2717,7 +2717,7 @@ class Measure(object):
                         # All envelope tech. except windows
                         try:
                             retro_rate_mseg = self.handyvars.retro_rate[
-                                bldg_sect][mskeys[-1]]
+                                bldg_sect][mskeys[-2]]
                         # Windows require special handling b/c windows
                         # microsegment tech. is broken into conduction/solar
                         except KeyError:
@@ -7341,10 +7341,13 @@ class Measure(object):
 
         # Initialize the portion of microsegment already captured by the
         # efficient measure as 0, the cumulative portion of the microsegment
-        # already competed by the current year as 0, and a flag for whether
-        # full saturation with competed measures has not been achieved as True
+        # already competed by the current year as 0, the cumulative portion
+        # of a fuel switching microsegment already converted to a HP by current
+        # year as 0, and a flag for whether full saturation with competed
+        # measures has not been achieved as True
         meas_cum_frac = 0
         comp_cum_frac = 0
+        stock_total_hp_convert_frac = 0
         turnover_cap_not_reached = True
 
         # Initialize flag for whether measure is on the market in a given year
@@ -7863,12 +7866,21 @@ class Measure(object):
                         retro_convert = retro_frac * hp_rate[yr]
                         # Remaining retrofits
                         retro_remain = retro_frac * (1 - hp_rate[yr])
-                    # Frac. total stock that converted to HP in year
-                    annual_hp_convert_frac = (new_frac + repl_frac) * \
-                        hp_rate[yr] + retro_convert
-                    # Frac. total stock that remains with base fuel in year
-                    annual_hp_remain_frac = (new_frac + repl_frac) * (
-                        1 - hp_rate[yr]) + retro_remain
+
+                    # If full conversion has not yet been achieved, calculate
+                    # annual conversion fraction on the basis of external
+                    # rate; otherwise, assume all units are converted
+                    if stock_total_hp_convert_frac != 1:
+                        # Frac. total stock that converted to HP in year
+                        annual_hp_convert_frac = (new_frac + repl_frac) * \
+                            hp_rate[yr] + retro_convert
+                        # Frac. total stock that remains with base fuel in year
+                        annual_hp_remain_frac = (new_frac + repl_frac) * (
+                            1 - hp_rate[yr]) + retro_remain
+                    else:
+                        annual_hp_convert_frac = \
+                            new_frac + repl_frac + retro_convert
+                        annual_hp_remain_frac = 0
 
                 # Find the annual stock that is converted to the HP measure
                 stock_comp_hp_convert[yr] = \
@@ -7908,57 +7920,25 @@ class Measure(object):
                         "electricity" in mskeys):
                     # Cumulative fraction converted to HPs
                     diffuse_frac = stock_total_hp_convert_frac
-                    # Fraction of total converted HPs competed in current
-                    # year
-
-                    # If full cumulative conversion was not yet achieved, set
-                    # to the fraction of total converted stock that was
+                    # Fraction of total converted stock that was
                     # converted in the current year
-                    if diffuse_frac != 1:
-                        if stock_total_hp_convert[yr] != 0:
-                            comp_frac_diffuse = stock_comp_hp_convert[yr] / \
-                                stock_total_hp_convert[yr]
-                        else:
-                            comp_frac_diffuse = 0
-                    # If full cumulative conversion was achieved
-                    elif adopt_scheme != "Technical potential":
-                        # Achieved in the current year; set to the fraction of
-                        # total converted stock that was converted in the
-                        # current year; if no additional stock was converted
-                        # (current year not great than previou), set to zero
-                        if yr == self.handyvars.aeo_years[0]:
-                            comp_frac_diffuse = 1
-                        elif (stock_total_hp_convert[str(int(yr) - 1)] <
-                                stock_total_hp_convert[yr]):
-                            comp_frac_diffuse = (
-                                stock_total_hp_convert[yr] -
-                                stock_total_hp_convert[str(int(yr) - 1)]) / \
-                                stock_total_hp_convert[yr]
-                        # Achieved in a previous year; set to zero
-                        else:
-                            comp_frac_diffuse = 0
+                    if stock_total_hp_convert[yr] != 0:
+                        comp_frac_diffuse = stock_comp_hp_convert[yr] / \
+                            stock_total_hp_convert[yr]
                     else:
-                        comp_frac_diffuse = 1
+                        comp_frac_diffuse = 0
                 # Case where the measure's microsegment is being eroded
                 # by the pre-determined conversion to HPs (e.g. gas efficiency)
                 else:
                     # Cumulative fraction remaining after conversion to HPs
                     diffuse_frac = (1 - stock_total_hp_convert_frac)
-                    # Fraction of total mseg remaining /w base fuel competed in
-                    # current year
-
-                    # If full cumulative conversion was not yet achieved, set
-                    # to the fraction of total remaining stock that was
+                    # Fraction of total remaining stock that was
                     # retained in the current year
-                    if diffuse_frac != 0:
-                        if (stock_total_sbmkt[yr] -
-                                stock_total_hp_convert[yr]) != 0:
-                            comp_frac_diffuse = stock_comp_hp_remain[yr] / (
-                                stock_total_sbmkt[yr] -
-                                stock_total_hp_convert[yr])
-                        else:
-                            comp_frac_diffuse = 0
-                    # If full cumulative conversion was achieved, set to zero
+                    if (stock_total_sbmkt[yr] -
+                            stock_total_hp_convert[yr]) != 0:
+                        comp_frac_diffuse = stock_comp_hp_remain[yr] / (
+                            stock_total_sbmkt[yr] -
+                            stock_total_hp_convert[yr])
                     else:
                         comp_frac_diffuse = 0
             # All other measure diffusion cases
