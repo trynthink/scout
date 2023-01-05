@@ -177,6 +177,7 @@ emf_end_uses =\
             , 'refrigeration'             : "Appliances"  # baseline
             , 'secondary heating'         : "Heating"     # baseline
             , 'TVs'                       : "Other"       # baseline
+            , 'unspecified'               : "Other"       # baseline
             , 'ventilation'               : "Heating"     # baseline
             , 'water heating'             : "Appliances"  # baseline
             }.items(),
@@ -229,6 +230,7 @@ building_type_to_class =\
             , "mercantile/service" : "Commercial"
             , "warehouse"          : "Commercial"
             , "other"              : "Commercial"
+            , "unspecified"        : "Commercial"
             , "single family home" : "Residential"
             , "multi family home"  : "Residential"
             , "mobile home"        : "Residential"
