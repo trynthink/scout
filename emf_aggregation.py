@@ -1,4 +1,5 @@
-import sys, getopt
+import sys
+import getopt
 import os.path
 import numpy as np
 import pandas as pd
@@ -69,7 +70,7 @@ from plots_utilities import ECM_RESULTS
 
 
 ################################################################################
-# mappings between ECM results and EMF aggregtaions
+# mappings between ECM results and EMF aggregations
 emf_base_string =\
     pd.DataFrame(data = {
         "Avoided CO\u2082 Emissions (MMTons)" : "*Emissions|CO2|Energy|Demand|Buildings",
@@ -79,7 +80,7 @@ emf_base_string =\
         )
 
 # Unit conversions.
-# The value column is in MMBtu and needs to be in EJ (extajuls)
+# The value column is in MMBtu and needs to be in EJ (exajoules)
 MMBtu_to_EJ           = 1.05505585262e-9
 EJ_to_quad            = 0.9478
 pound_to_mt           = 0.000453592
@@ -103,7 +104,7 @@ emf_fuel_types =\
         pd.DataFrame(data = {
               ("Natural Gas"      , "Gas"             , EJ_to_mt_co2_gas)
             , ("natural gas"      , "Gas"             , EJ_to_mt_co2_gas)
-            , ("Propane"          , "Gas_lpg"         , EJ_to_mt_co2_propane)
+            , ("Propane"          , "Oil"             , EJ_to_mt_co2_propane)
             , ("Distillate/Other" , "Oil"             , EJ_to_mt_co2_oil)
             , ("distillate"       , "Oil"             , EJ_to_mt_co2_oil)
             , ("Biomass"          , "Biomass Solids"  , EJ_to_mt_co2_oil)
@@ -117,8 +118,8 @@ emf_fuel_types =\
 
 emf_other_fuel_types =\
         pd.DataFrame(data = {
-              ("other fuel" , "heating"           , "furnance (LPG)"               , "Oil"            , EJ_to_mt_co2_propane)
-            , ("other fuel" , "heating"           , "furnance (kerosene)"          , "Oil"            , EJ_to_mt_co2_kerosene)
+              ("other fuel" , "heating"           , "furnace (LPG)"                , "Oil"            , EJ_to_mt_co2_propane)
+            , ("other fuel" , "heating"           , "furnace (kerosene)"           , "Oil"            , EJ_to_mt_co2_kerosene)
             , ("other fuel" , "heating"           , "stove (wood)"                 , "Biomass Solids" , EJ_to_mt_co2_bio)
             , ("other fuel" , "secondary heating" , "secondary heater (wood)"      , "Biomass Solids" , EJ_to_mt_co2_bio)
             , ("other fuel" , "secondary heating" , "secondary heater (coal)"      , "Biomass Solids" , EJ_to_mt_co2_bio)
@@ -260,7 +261,7 @@ if __name__ == "__main__":
     ecm_results_1_path     = "./results/ecm_results_1-1.json"
     ecm_results_2_path     = "./results/ecm_results_2.json"
     ecm_results_3_path     = "./results/ecm_results_3-1.json"
-    baseline_path          = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm"
+    baseline_path          = "./supporting_data/stock_energy_tech_data/mseg_res_com_emm.gz"
     emf_output_path        = "./emf_output"
     conversion_coeffs_path = "./supporting_data/convert_data/emm_region_emissions_prices.json"
 
@@ -412,6 +413,15 @@ if __name__ == "__main__":
 
     baseline.value = baseline.value.apply(float)
     baseline.year  = baseline.year.apply(int)
+
+    # Remove demand values, which duplicate supply values and thus
+    # should be excluded from any totals
+    baseline = baseline[baseline['supply_demand'] != 'demand']
+    baseline.drop('supply_demand', axis=1, inplace=True)
+
+    # Remove stock values, which are not needed for these calculations
+    baseline = baseline[baseline['stock_energy'] != 'stock']
+    baseline.drop('stock_energy', axis=1, inplace=True)
 
     ############################################################################
     # Data clean up for ecm_results
@@ -610,7 +620,7 @@ if __name__ == "__main__":
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation.csv"
+                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation.csv", index=False
             )
 
     print("  " + emf_output_path + "/ecm_results_2_emf_aggregation.csv")
@@ -619,7 +629,7 @@ if __name__ == "__main__":
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation.csv"
+                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation.csv", index=False
             )
 
     print("  " + emf_output_path + "/ecm_results_3-1_emf_aggregation.csv")
@@ -628,7 +638,7 @@ if __name__ == "__main__":
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation.csv"
+                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation.csv", index=False
             )
 
     print("  " + emf_output_path + "/ecm_results_1-1_emf_aggregation_wide.csv")
@@ -637,7 +647,7 @@ if __name__ == "__main__":
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation_wide.csv"
+                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation_wide.csv", index=False
             )
     
     print("  " + emf_output_path + "/ecm_results_2_emf_aggregation_wide.csv")
@@ -646,16 +656,16 @@ if __name__ == "__main__":
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation_wide.csv"
+                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation_wide.csv", index=False
             )
 
-    print("  " + emf_output_path + "/ecm_results_2-1_emf_aggregation_wide.csv")
+    print("  " + emf_output_path + "/ecm_results_3-1_emf_aggregation_wide.csv")
     ecm_results_emf_aggregation_wide[
-            ecm_results_emf_aggregation_wide.file == ecm_results_2_path
+            ecm_results_emf_aggregation_wide.file == ecm_results_3_path
             ]\
             .drop(columns = ["file"])\
             .to_csv(
-                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation_wide.csv"
+                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation_wide.csv", index=False
             )
 
     ###########################################################################
@@ -687,12 +697,18 @@ if __name__ == "__main__":
             right_on = "scout_split_fuel"
             )
 
-    # merge on the CO2 intensity of electricity.  This merge will result values
+    # Drop columns no longer needed after merges or created by merges
+    to_drop = ['building_type', 'fuel_type', 'end_use', 'technology_type',
+       'scout_end_use', 'scout_end_use_x', 'scout_end_use_y',
+       'scout_split_fuel_x', 'scout_split_fuel_y', 'scout_technology_type']
+    baseline.drop(to_drop, axis=1, inplace=True)
+
+    # Merge on the CO2 intensity of electricity. This merge will result values
     # for all rows.  After the merge we need to set the value for
     # CO2_intensity_of_electricity to 1 for emf_fuel_type <> "Electricity" so
     # that column multiplication can be used later.
     baseline = baseline.merge(coeffs_emm, on = ["region", "year"])
-    baseline.loc[baseline.emf_fuel_type == "Electricity", "CO2_intensity_of_electricity"] = 1.00
+    baseline.loc[baseline.emf_fuel_type != "Electricity", "CO2_intensity_of_electricity"] = 1.0
 
     baseline["EJ"] = baseline["value"] * MMBtu_to_EJ
 
@@ -736,7 +752,7 @@ if __name__ == "__main__":
     b3["emf_string"] = b3.region + b3.emf_base_string + "|" + b3.building_class + "|" + b3.emf_fuel_type
     b4["emf_string"] = b4.region + b4.emf_base_string + "|" + b4.building_class + "|" + b4.emf_end_use + "|" + b4.emf_fuel_type
 
-    baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3, b4] )
+    baseline_EJ_aggregation = pd.concat( [b0, b1, b2, b3, b4])
 
     # Aggregation for Emissions|CO2|Energy|Demand|Buildings
     baseline["emf_base_string"] = "*Emissions|CO2|Energy|Demand|Buildings"
@@ -805,10 +821,84 @@ if __name__ == "__main__":
 
     print("Write out baseline aggregation:" +  emf_output_path + "/baseline_emf_aggregation.csv")
     baseline_emf_aggregation.to_csv(
-            path_or_buf = emf_output_path + "/baseline_emf_aggregation.csv"
+            path_or_buf = emf_output_path + "/baseline_emf_aggregation.csv", index=False
             )
     print("Write out baseline aggregation (wide):" +  emf_output_path + "/baseline_emf_aggregation_wide.csv")
     baseline_emf_aggregation_wide.to_csv(
-            path_or_buf = emf_output_path + "/baseline_emf_aggregation_wide.csv"
+            path_or_buf = emf_output_path + "/baseline_emf_aggregation_wide.csv", index=False
             )
 
+    # restructure columns
+    print('Further restructuring of dataframes')
+
+    # drop year columns not needed (years not on 5 year interval 
+    # between 2020 and 2050)
+    drop_years_l = [str(yr) for yr in range(2019, 2051) if yr%5 != 0]
+    drop_years = [str(yr) for yr in range(2022, 2051) if yr%5 != 0]
+    baseline_emf_aggregation_wide.drop(drop_years_l, axis=1, inplace=True)
+    ecm_results_emf_aggregation_wide.drop(drop_years, axis=1, inplace=True)
+
+    # add model name column
+    # (note that this string will vary and should probably be a required user input)
+    model_name = "Scout v0.8"
+    baseline_emf_aggregation_wide["Model"] = model_name
+    ecm_results_emf_aggregation_wide["Model"] = model_name
+
+    # split emf_string column into the expected format and drop the emf_string column
+    baseline_emf_aggregation_wide[["Region", "Variable"]] = baseline_emf_aggregation_wide["emf_string"].str.split("*", expand=True)
+    baseline_emf_aggregation_wide.drop("emf_string", axis=1, inplace=True)
+    ecm_results_emf_aggregation_wide[["Region", "Variable"]] = ecm_results_emf_aggregation_wide["emf_string"].str.split("*", expand=True)
+    ecm_results_emf_aggregation_wide.drop("emf_string", axis=1, inplace=True)
+
+    # add units column
+    units_map = {"Final Energy": "EJ/yr",
+                 "Emissions": "Mt CO2/yr"}
+    baseline_emf_aggregation_wide["Unit"] = baseline_emf_aggregation_wide.apply(lambda x: units_map[x["Variable"].split("|")[0]], axis=1)
+    ecm_results_emf_aggregation_wide["Unit"] = ecm_results_emf_aggregation_wide.apply(lambda x: units_map[x["Variable"].split("|")[0]], axis=1)
+
+    # define scenario name mapping for EMF 37 based on Scout scenario
+    # codes used in emf_results*.json file names (except for reference
+    # scenario, which is a passthrough of the baseline data)
+    scenario_map = {"ref": "NT.Ref.R2",
+                    "1-1": "0by50.BSG.1.R2",
+                    "3-1": "0by50.BSG.Adv.R2",
+                    "2": "0by50.BSG.2.R2"}
+
+    # add scenario name column
+    baseline_emf_aggregation_wide["Scenario"] = scenario_map["ref"]
+    ecm_results_emf_aggregation_wide["Scenario"] = ecm_results_emf_aggregation_wide.apply(lambda x: scenario_map[x["file"].split("/")[-1][12:].split(".")[0]], axis=1)
+
+    # drop file column
+
+    # re-export files
+    baseline_emf_aggregation_wide.to_csv(
+            path_or_buf = emf_output_path + "/baseline_emf_aggregation_wide_mod.csv", index=False
+            )
+
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_1_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_1-1_emf_aggregation_wide_mod.csv", index=False
+            )
+
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_2_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_2_emf_aggregation_wide_mod.csv", index=False
+            )
+
+    ecm_results_emf_aggregation_wide[
+            ecm_results_emf_aggregation_wide.file == ecm_results_3_path
+            ]\
+            .drop(columns = ["file"])\
+            .to_csv(
+                path_or_buf = emf_output_path + "/ecm_results_3-1_emf_aggregation_wide_mod.csv", index=False
+            )
+
+    ecm_results_emf_aggregation_wide.drop(columns=["file"]).to_csv(
+            path_or_buf = emf_output_path + "/ecm_results_emf_aggregation_wide_cmpl_mod.csv", index=False
+            )
