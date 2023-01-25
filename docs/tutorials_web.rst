@@ -23,6 +23,12 @@ The latest version of the Scout source code is accessed by clicking the "`Source
 
 .. _tuts-2-web:
 
+.. tip::
+     We recommend registering an e-mail address and creating an account so that you can save your ECMs and custom analyses. To create an account, click the "Register" button on the landing page and complete the require fields. 
+
+.. note::
+     To change your username of password, after you are signed in, hover over your username and click "Profile". On this page you will be able to change your username and/or password. 
+
 Tutorial 2: Creating and editing ECMs
 -------------------------------------
 
@@ -232,9 +238,9 @@ Each plot's x axis shows the year range for the projections; the y axis can be t
 Download or edit ECM definitions
 ********************************
 
-To download an ECM definition on the ECM Summaries Page, click the "Download" icon (the down arrow) at the right end of the row for the ECM of interest - this icon is also found at the top right of the detailed drop down window for the ECM. An ECM JSON will be downloaded to your computer; this JSON can be added to the |html-filepath| ./ecm_definitions  |html-fp-end| folder in your Scout directory and used in subsequent analyses.
+To download an ECM definition on the ECM Summaries Page, click the "Download" icon (the down arrow) at the right end of the row for the ECM of interest --- this icon is also found at the top right of the detailed drop down window for the ECM. An ECM JSON will be downloaded to your computer; this JSON can be added to the |html-filepath| ./ecm_definitions  |html-fp-end| folder in your Scout directory and used in subsequent analyses.
 
-To edit the attributes of an ECM on the ECM Summaries Page, click the "Edit" icon (the pencil) at the right right end of the row for the ECM of interest - this icon is also found at the top right of the detailed drop down window for the ECM. 
+To edit the attributes of an ECM on the ECM Summaries Page, click the "Edit" icon (the pencil) at the right right end of the row for the ECM of interest --- this icon is also found at the top right of the detailed drop down window for the ECM. 
 
 An "Edit ECM" form will pop up with fully populated input fields (see :ref:`create-ecm` for additional guidance on these fields). For edits to single ECMs, click through the navigation bar steps on the left side of the form and make changes to the input fields shown in each step; ECM package edits only have one step. When your edits are complete, click the "Generate ECM" button at the bottom right of the screen to download an edited ECM JSON definition; again, this JSON can be added to the |html-filepath| ./ecm_definitions folder |html-fp-end| in your Scout directory and used in subsequent analyses.
 
@@ -263,7 +269,7 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. 4. When prompted to select a file to upload, navigate to the |html-filepath| ./supporting_data |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_prep.json |html-fp-end| - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
 
-..   .. note:: 
+..   note:: 
 ..       Larger files may take several seconds to upload in step 4.
 
 .. Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.   
@@ -279,7 +285,39 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. The results reflect competition between ECMs that apply to the same baseline market(s); ECM competition ensures that no savings impacts are double counted across an ECM portfolio. ECMs are competed on the basis of their capital and operating costs relative to a comparable baseline or ‘business-as-usual’ technology, as described further in :ref:`overview-competition`.
 
-Tutorial 3: Viewing and understanding outputs
+Tutorial 3: Creating new custom analyses
+----------------------------------------
+
+The `ECM Summaries Page`_ also allows you to create new, custom analyses with existing or new ECMs.
+
+Create a new analysis with one or more ECMs from the ECM Summaries page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To conduct a new analysis, first select one or more of the ECM definitions on the `ECM Summaries Page`_ by clicking on the checkboxes next to the ECMs, and then enter a name for your analysis in the "Enter Analysis Name" box at the bottom of the screen. 
+
+Before you click "Start New Analysis," which will no longer be greyed out after you enter a name for your analysis, you will need to pick an analysis calculation method. There are three calculation methods you can choose from depending on whether you are interested in `assessing source or site energy impacts`_: 
+
+1. **Fossil Fuel Equivalence:** One of two approaches for non-combustible source energy accounting, this methodology uses the average heat rate of fossil generators and assigns it as the heat rate for non-combustible renewable energy generation. This value is 9,510 BTU/kWh, or about 35% efficiency, and represents the source energy value of fossil generation that is displaced by renewable energy generation. 
+2. **Captured Energy:** The other approach assumes that the source energy of renewable energy generators is exactly equal to the electricity produced with no energy losses prior to transmission and distribution. It is equal to a heat rate of 3,412 BTU/kWh, or a conversion efficiency of 100%. 
+3. **Site Energy:** This approach assess impacts in terms of site energy rather than in terms of source energy (using one of the other two approaches). 
+
+.. note::
+
+ Neither of the source energy accounting methods is strictly more accurate than the other. Both are a matter of methodological choice related to the specific application. We recommend reviewing this `methodological guidance`_ for more information before making your choice.
+
+After selecting one of these calculation methods, click "Start New Analysis," and a pop-up box will indicate that the analysis has started and is running in the background. To view the analysis queue, hover your mouse over the queue icon where you will see an "Analysis Status" dropdown. Click on this dropdown to open an "Analysis Status" pane that shows your analysis is underway. When it is complete, you will see a new notification appear. The "Analysis Status" pane will now show your analysis has status "Completed".
+
+Using the analysis selection dropdown on the Analysis Results page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On the `Analysis Results Page`_ you can click the dropdown menu to show all completed and in-progress analyses. The pane will show the status, name, calculation method, and run date/time for each analysis. Next to each analysis, you will also see icons that allow you perform operations on the completed analyses: 
+
+- Clicking the green gear icon shows you the list of ECMs included in your analysis. If you wish to run a new analysis using all or a subset of these ECMs, you can use the checkboxes to select or deselect ECMs and then click "Next" to start a new analysis with a modified set of ECMs or with a different calculation method.
+- Clicking on the blue download icon allows you to download in `JSON format`_ raw results from your analysis.
+- Clicking on the blue edit icon allows you to rename the analysis.
+- Clicking on the red delete icon allows you to delete the analysis.
+
+Tutorial 4: Viewing and understanding outputs
 ---------------------------------------------
 
 
@@ -415,7 +453,7 @@ If a probability distribution has been placed on the cost, performance, and/or l
 
 .. _tuts-4-web:
 
-Tutorial 4: Using the Baseline Energy Calculator
+Tutorial 5: Using the Baseline Energy Calculator
 ------------------------------------------------
 
 The `Baseline Energy Calculator`_ allows you to determine the total energy and |CO2| impact potential of an individual ECM or group of ECMs, drawing data from the Energy Information Administration’s `Annual Energy Outlook`_ (AEO).
@@ -424,19 +462,20 @@ The Calculator guides you through four steps to determining the total baseline e
 
 All inputs to the Baseline Energy Calculator form are required unless they are tagged "optional". Refer to red error messages below missing input(s) to ensure that your entries are complete.
 
-1. **Select a projection year.** Click the dropdown menu to select the year for which baseline energy or |CO2| emissions estimates are desired. Note: past years represent historical EIA estimates.
-2. **Select relevant climate zone(s).** Climate zone(s) are selected by checking the appropriate box(es) or by clicking the region(s) of interest on the map. An "All" selection will automatically check all of the climate zone sub-categories. 
+1. **Select an AEO version year.** Click the dropdown menu next to "AEO Year" to select which version of the EIA AEO you would like to use in generating results.
+2. **Select a projection year.** Click the dropdown menu to select the year for which baseline energy or |CO2| emissions estimates are desired. Note: past years represent historical EIA estimates.
+3. **Select relevant climate zone(s).** Climate zone(s) are selected by checking the appropriate box(es) or by clicking the region(s) of interest on the map. An "All" selection will automatically check all of the climate zone sub-categories.
 
   .. note::
 
      Scout currently uses the AIA climate zone breakdowns from `RECS 2009`_ and `CBECS 2003`_.  
 
-3. **Select building type(s).** Building type(s) are selected by checking the appropriate box(es). An "All Residential" or "All Commercial" selection will automatically check all residential and commercial building sub-categories, respectively.
+4. **Select building type(s).** Building type(s) are selected by checking the appropriate box(es). An "All Residential" or "All Commercial" selection will automatically check all residential and commercial building sub-categories, respectively.
 
   .. tip::
    Both residential and commercial building types may be selected simultaneously if you are interested in understanding impact potential across the entire buildings sector. [#]_
 
-4. **Select end use(s) and technology type(s).** End use(s) are selected by clicking the drop down menu bar and checking the appropriate box(es); click the drop down bar again to hide your end use selections and move on to subsequent selections. After most end use selections, a "Fuel Type" input will appear; upon selecting fuel type(s), a final "Technology" input will appear. [#]_
+5. **Select end use(s) and technology type(s).** End use(s) are selected by clicking the drop down menu bar and checking the appropriate box(es); click the drop down bar again to hide your end use selections and move on to subsequent selections. After most end use selections, a "Fuel Type" input will appear; upon selecting fuel type(s), a final "Technology" input will appear. [#]_
 
 Once all steps of the Baseline Energy Calculator have been completed, click the "Calculate" button at the bottom right of the screen to obtain the energy use and associated |CO2| emissions results.
 
@@ -460,6 +499,9 @@ Once all steps of the Baseline Energy Calculator have been completed, click the 
 .. _ENERGY STAR: https://www.energystar.gov/products?s=mega 
 .. _IECC: https://www.iccsafe.org/codes-tech-support/codes/2018-i-codes/iecc/
 .. _ASHRAE 90.1: https://www.ashrae.org/resources--publications/bookstore/standard-90-1
+.. _assessing source or site energy impacts: https://www.energystar.gov/buildings/benchmark/understand_metrics/source_site_difference
+.. _methodological guidance: https://www.energy.gov/sites/prod/files/2016/10/f33/Source%20Energy%20Report%20-%20Final%20-%2010.21.16.pdf
+.. _JSON format: https://scout-bto.readthedocs.io/en/latest/tutorials.html#json-syntax-basics
 .. _Analysis Results Page: https://scout.energy.gov/energy.html
 .. _radar graph: https://datavizcatalogue.com/methods/radar_chart.html
 .. _bar graph: https://datavizcatalogue.com/methods/stacked_bar_graph.html
