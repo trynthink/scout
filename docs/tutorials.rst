@@ -1319,6 +1319,13 @@ Exogenous fuel switching rates
 .. note::
    Currently the ``--exog_hp_rates`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rates`` option, the code will automatically switch the run to EMM regions while warning the user.
 
+Assessment of fugitive emissions
+********************************
+
+``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./supporting_data/convert_data/fugitive_emissions_convert.json |html-fp-end|. When this option is selected, the user will be prompted to select whether they would like to assess fugitive emissions from either of the above sources independently or from both together. For fugitive emissions from equipment refrigerant leakage, the user will be prompted to select whether to assume that measures use market-available refrigerants and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ or to assume that measures use low-GWP refrigerants. 
+
+.. note::
+   Currently the ``--fugitive_emissions`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--fugitive_emissions`` option, the code will automatically switch the run to EMM regions while warning the user.
 
 Persistent relative performance
 *******************************
