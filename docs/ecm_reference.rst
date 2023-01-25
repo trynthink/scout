@@ -313,7 +313,7 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
    * low/high bay: T5 4xF54 HO High Bay, Mercury Vapor, Metal Halide, Sodium Vapor
    * other: LED Integrated Luminaire
 
-* refrigeration: Commercial Beverage Merchandisers, Commercial Compressor Rack Systems, Commercial Condensers, Commercial Ice Machines, Commercial Reach-In Freezers, Commercial Reach-In Refrigerators, Commercial Refrigerated Vending Machines, Commercial Supermarket Display Cases, Commercial Walk-In Freezers, Commercial Walk-In Refrigerators
+* refrigeration: Commercial Beverage Merchandisers, Commercial Ice Machines, Commercial Reach-In Freezers, Commercial Reach-In Refrigerators, Commercial Refrigerated Vending Machines, Commercial Supermarket Display Cases, Commercial Walk-In Freezers, Commercial Walk-In Refrigerators
 
 * cooking
 
