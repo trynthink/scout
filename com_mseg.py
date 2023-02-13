@@ -369,13 +369,20 @@ def sd_mseg_percent(sd_array, sel, yrs):
         tval[idx, ] = np.sum(recfn.structured_to_unstructured(
             entries[yrs], dtype='<f8'), axis=0)
 
-    # If at least one entry in tval is non-zero (tval.any() == True),
+        # Calculate the sum of all the year columns (service demand
+        # values) weighted by the equipment efficiency for each equipment
+        # type and performance level using the same recfn function used
+        # for the service demand array 'tval'
+        tval_pct[idx, ] = np.sum(recfn.structured_to_unstructured(
+            entries[yrs], dtype='<f8')/entries['Eff'][:, np.newaxis], axis=0)
+
+    # If at least one entry in tval_pct is non-zero (tval_pct.any() == True),
     # suppress any divide by zero warnings and calculate the percentage
-    # contribution of each technology by year (since tval is initially
-    # a measure of absolute energy service)
-    if tval.any():
+    # contribution of each technology by year (since tval_pct is initially
+    # a measure of absolute energy service weighted by equipment efficiency)
+    if tval_pct.any():
         with np.errstate(divide='ignore', invalid='ignore'):
-            tval_pct = tval / np.sum(tval, axis=0)
+            tval_pct = tval_pct / np.sum(tval_pct, axis=0)
             tval_pct = np.nan_to_num(tval_pct)  # Replace nan from 0/0 with 0
 
     return (tval, tval_pct, trunc_technames)

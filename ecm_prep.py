@@ -386,7 +386,7 @@ class UsefulVars(object):
         # aeo_min = aeo_yrs["min year"]
         # Set minimum year to current year
         # aeo_min = datetime.today().year
-        aeo_min = 2022
+        aeo_min = 2023
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
