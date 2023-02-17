@@ -8186,14 +8186,16 @@ class Measure(object):
 
             # Only update sector-level shapes for certain years of focus;
             # ensure that load shape information is available for the
-            # update and if not, yield an error message
+            # update and if not, yield an error message. NOTE: divided out by
+            # previously applied TSV factors to avoid double counting of
+            # impacts in the baseline case
             if calc_sect_shapes is True and yr in \
                 self.handyvars.aeo_years_summary and \
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
-                    energy_total[yr] for x in range(8760)]
+                    (energy_total[yr] / tsv_energy_base) for x in range(8760)]
             elif calc_sect_shapes is True and tsv_shapes is None and (
                     mskeys[0] == "primary" and (
                         (mskeys[3] == "electricity") or
