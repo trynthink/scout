@@ -1,5 +1,5 @@
 {
-  "name": "ENERGY STAR Windows v. 6.0",
+  "name": "ENERGY STAR Windows v. 7.0",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -13,7 +13,7 @@
       "windows conduction",
       "windows solar"
     ],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
@@ -22,31 +22,31 @@
       "organization": "ENERGY STAR",
       "year": 2015,
       "pages": 5,
-      "URL": "https://www.energystar.gov/sites/default/files/Windows_Doors_and_Skylights_Program_Requirements%20v6.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ES_Residential_WDS_V7_Final%20Specification%202022.pdf"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "windows conduction": 3.7,
+        "windows conduction": 4.55,
         "windows solar": 0.4
       },
       "AIA_CZ2": {
-        "windows conduction": 3.7,
+        "windows conduction": 4.55,
         "windows solar": 0.4
       },
       "AIA_CZ3": {
-        "windows conduction": 3.33,
+        "windows conduction": 4,
         "windows solar": 0.4
       },
       "AIA_CZ4": {
-        "windows conduction": 3.33,
-        "windows solar": 0.25
+        "windows conduction": 3.57,
+        "windows solar": 0.23
       },
       "AIA_CZ5": {
-        "windows conduction": 2.5,
-        "windows solar": 0.25
+        "windows conduction": 3.125,
+        "windows solar": 0.23
       }
     },
   "energy_efficiency_units": {
@@ -61,7 +61,7 @@
       "organization": "ENERGY STAR",
       "year": 2016,
       "pages": 2,
-      "URL": "https://www.energystar.gov/sites/default/files/Windows_Doors_and_Skylights_Program_Requirements%20v6.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ES_Residential_WDS_V7_Final%20Specification%202022.pdf"
     }
   },
   "installed_cost": 48.4,
