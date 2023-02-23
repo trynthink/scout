@@ -2314,7 +2314,7 @@ class Measure(object):
                                             numpy.isnan(base_l_frac)] = 0
                                     else:
                                         base_l_frac = numpy.zeros_like(base_l)
-                                    
+
                                     # Calculate relative hourly load fractions
                                     # vs. baseline
 
@@ -2323,10 +2323,10 @@ class Measure(object):
                                     rel_chg = numpy.divide(
                                         eff_l, base_l,
                                         out=numpy.ones_like(base_l),
-                                        where=base_l!=0)
+                                        where=base_l != 0)
                                     # Ensure no NaNs in result
                                     rel_chg[numpy.isnan(rel_chg)] = 1
-                                    
+
                                     # Record above values in dict for later use
 
                                     # Net load version key to use in dict
@@ -6142,7 +6142,7 @@ class Measure(object):
                                 mskeys[1]][yr] = ([(
                                     (0.59 + 0.41 * x) if (
                                         cost_energy_meas[yr] *
-                                    (0.59 + 0.41 * x) >= 0) else 0) for
+                                        (0.59 + 0.41 * x) >= 0) else 0) for
                                     x in tsv_data["price"][
                                      "electricity price shapes"][yr][
                                      mskeys[1]]] for n in range(2))
@@ -6659,7 +6659,10 @@ class Measure(object):
                                     "all baseline market segments the "
                                     "measure applies to in ./ecm_definitions/"
                                     "energy_plus_data/savings_shapes.")
-                                custom_hr_save_shape = [0 for x in range(8760)]
+                                custom_hr_save_shape = {
+                                    key: [1 for x in range(8760)] for key in
+                                    ["CSV base frac. annual",
+                                     "CSV relative change"]}
                             # Develop an adjustment from the generic
                             # baseline load shape for the current climate,
                             # building type, and end use combination to the
@@ -6670,7 +6673,7 @@ class Measure(object):
                                 custom_hr_save_shape[
                                     "CSV base frac. annual"][x] /
                                 base_load_hourly[x]) if (
-                                    numpy.isfinite(base_load_hourly[x]) and 
+                                    numpy.isfinite(base_load_hourly[x]) and
                                     base_load_hourly[x] != 0) else 1
                                 for x in range(8760)]
                             # Pull in relative hourly savings fractions to
