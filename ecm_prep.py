@@ -2187,6 +2187,10 @@ class Measure(object):
                     # Restrict shape data to that of the current end use
                     css_dat_eu = css_dat[
                         numpy.in1d(css_dat["End_Use"], eu)]
+                    # Translate "drying" key to "clothes drying" to be
+                    # consistent with what's in tsv_load
+                    if eu_key == "drying":
+                        eu_key = "clothes drying"
                     # Initialize dict under the current end use key
                     css_dict[eu_key] = {}
                     # Find all unique building types and climate zones in
@@ -2260,17 +2264,21 @@ class Measure(object):
                                     len(sys_v) == 1 and sys_v[0] == -1):
                                 sys_v = [1]
                             for sv in sys_v:
-                                v_key = "set " + str(sv)
-                                css_dict[eu_key][bd_key][cz_key][v_key] = \
+                                # Restrict data further to current net load
+                                # shape version
+                                css_dat_eu_bldg_cz_nlv = \
                                     css_dat_eu_bldg_cz[numpy.in1d(
-                                        css_dat_eu_bldg_cz[
-                                            "Net_Load_Version"], sv)][
-                                    "Relative_Savings"]
-                                # Check to ensure that the resultant dict
-                                # value is the expected 8760 elements long; if
+                                            css_dat_eu_bldg_cz[
+                                                "Net_Load_Version"], sv)]
+                                # Set measure and baseline load 8760s
+                                eff_l, base_l = [
+                                    css_dat_eu_bldg_cz_nlv["Measure_Load"],
+                                    css_dat_eu_bldg_cz_nlv["Baseline_Load"]]
+                                # Check to ensure that the resultant load
+                                # data are expected 8760 elements long; if
                                 # not, throw error
-                                if len(css_dict[eu_key][bd_key][cz_key][
-                                        v_key]) != 8760:
+                                if not all([len(x) == 8760 for x in [
+                                        eff_l, base_l]]):
                                     raise ValueError(
                                         "Measure '" + self.name +
                                         "', requires "
@@ -2286,6 +2294,53 @@ class Measure(object):
                                         "measure applies to in "
                                         "./ecm_definitions/energy_plus_data"
                                         "/savings_shapes.")
+                                # Calculate baseline hourly load fractions of
+                                # annual load in CSV (to be used later to scale
+                                # hourly fractions of annual load in tsv_load
+                                # to ensure consistency with baseline from CSV)
+                                # ; also calculate relative hourly load
+                                # scaling fractions vs. baseline (efficient
+                                # over baseline hourly loads, to be applied
+                                # later to baseline hourly load fractions of
+                                # annual load to derive the same for the
+                                # efficient case)
+                                else:
+                                    # Calculate baseline hourly load fractions
+                                    # of annual load
+
+                                    # Annual sum across all hourly loads
+                                    ann_load = sum(base_l)
+                                    # Find hourly fractions of annual load
+                                    if ann_load != 0:
+                                        base_l_frac = base_l / ann_load
+                                        # Ensure no NaNs in result
+                                        base_l_frac[
+                                            numpy.isnan(base_l_frac)] = 0
+                                    else:
+                                        base_l_frac = numpy.zeros_like(base_l)
+
+                                    # Calculate relative hourly load fractions
+                                    # vs. baseline
+
+                                    # Divide efficient by baseline hourly
+                                    # loads to derive hourly change in load
+                                    rel_chg = numpy.divide(
+                                        eff_l, base_l,
+                                        out=numpy.ones_like(base_l),
+                                        where=base_l != 0)
+                                    # Ensure no NaNs in result
+                                    rel_chg[numpy.isnan(rel_chg)] = 1
+
+                                    # Record above values in dict for later use
+
+                                    # Net load version key to use in dict
+                                    v_key = "set " + str(sv)
+                                    # Store CSV hourly baseline fractions and
+                                    # relative change values for later use
+                                    css_dict[eu_key][bd_key][cz_key][v_key] = {
+                                        "CSV base frac. annual": base_l_frac,
+                                        "CSV relative change": rel_chg}
+
                 # Set custom savings shape information to populated dict
                 self.tsv_features["shape"]["custom_annual_savings"] = \
                     css_dict
@@ -5156,7 +5211,8 @@ class Measure(object):
 
                     # Pull TSV scaling fractions and shapes
                     tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
-                        tsv_data, mskeys, bldg_sect, convert_data, opts)
+                        tsv_data, mskeys, bldg_sect, convert_data, opts,
+                        cost_energy_meas)
                 else:
                     tsv_scale_fracs = {
                         "energy": {"baseline": 1, "efficient": 1},
@@ -5902,7 +5958,9 @@ class Measure(object):
         else:
             print("Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
 
-    def gen_tsv_facts(self, tsv_data, mskeys, bldg_sect, cost_conv, opts):
+    def gen_tsv_facts(
+            self, tsv_data, mskeys, bldg_sect, cost_conv, opts,
+            cost_energy_meas):
         """Set annual re-weighting factors and hourly load fractions for TSV.
 
         Args:
@@ -5911,6 +5969,8 @@ class Measure(object):
             bldg_sect (string): Building sector of the current microsegment.
             cost_conv (dict): Conversion factors, EPlus->Scout building types.
             opts (object): Stores user-specified execution options.
+            cost_energy_meas (dict): Annual retail electricity rates for the
+                region the measure applies to.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions annual
@@ -6061,14 +6121,39 @@ class Measure(object):
             else:
                 # Set time-varying electricity price scaling factors for the
                 # EMM region (dict with keys distinguished by year, *CURRENTLY*
-                # every two years beginning in 2018)
+                # every two years beginning in 2018). Assume that
+                # only 41% of the electricity price is subject to scaling based
+                # on historical allocation of fixed vs. variable/volumetric
+                # retail electricity costs in
+                # https://www.nrel.gov/docs/fy22osti/78224.pdf. Check for cases
+                # where multiplication of scaling factor by retail rate will
+                # result in negative prices and force such cases to zero.
                 if self.handyvars.tsv_hourly_price[mskeys[1]] is None:
-                    cost_fact_hourly,  self.handyvars.tsv_hourly_price[
-                        mskeys[1]] = ({yr: tsv_data["price"][
-                            "electricity price shapes"][yr][
-                            mskeys[1]] for yr in tsv_data["price"][
-                            "electricity price shapes"].keys()} for
-                            n in range(2))
+                    cost_fact_hourly, self.handyvars.tsv_hourly_price[
+                        mskeys[1]] = ({} for n in range(2))
+                    # Loop through all years in price shape data and record
+                    # final scaling factors
+                    for yr in tsv_data["price"][
+                            "electricity price shapes"].keys():
+                        # Since scaling factor calculation depends on retail
+                        # energy rates ('cost_energy_meas'), which are only
+                        # available for AEO year range, check for inclusion of
+                        # year from price shape data in AEO range; if not in
+                        # range, set all price scaling factors to 1 for year
+                        if yr in self.handyvars.aeo_years:
+                            cost_fact_hourly[yr], \
+                                self.handyvars.tsv_hourly_price[
+                                mskeys[1]][yr] = ([(
+                                    (0.59 + 0.41 * x) if (
+                                        cost_energy_meas[yr] *
+                                        (0.59 + 0.41 * x) >= 0) else 0) for
+                                    x in tsv_data["price"][
+                                     "electricity price shapes"][yr][
+                                     mskeys[1]]] for n in range(2))
+                        else:
+                            cost_fact_hourly[yr], \
+                                self.handyvars.tsv_hourly_price[
+                                mskeys[1]][yr] = ([1] * 8760 for n in range(2))
                 else:
                     cost_fact_hourly = \
                         self.handyvars.tsv_hourly_price[mskeys[1]]
@@ -6578,18 +6663,38 @@ class Measure(object):
                                     "all baseline market segments the "
                                     "measure applies to in ./ecm_definitions/"
                                     "energy_plus_data/savings_shapes.")
-                                custom_hr_save_shape = [0 for x in range(8760)]
-                            # Reflect custom load savings in efficient load
-                            # shape; screen for NaNs in the CSV
+                                custom_hr_save_shape = {
+                                    key: [1 for x in range(8760)] for key in
+                                    ["CSV base frac. annual",
+                                     "CSV relative change"]}
+                            # Develop an adjustment from the generic
+                            # baseline load shape for the current climate,
+                            # building type, and end use combination to the
+                            # baseline load shape that is specific to the
+                            # measure in question, which the measure load shape
+                            # is calculated relative to in the input CSVs
+                            meas_base_adj = [(
+                                custom_hr_save_shape[
+                                    "CSV base frac. annual"][x] /
+                                base_load_hourly[x]) if (
+                                    numpy.isfinite(base_load_hourly[x]) and
+                                    base_load_hourly[x] != 0) else 1
+                                for x in range(8760)]
+                            # Pull in relative hourly savings fractions to
+                            # apply to baseline loads to get to efficient shape
+                            hr_chg = custom_hr_save_shape[
+                                "CSV relative change"]
+                            # Apply hourly baseline adjustment and relative
+                            # load change for measure to derive efficient shape
                             eff_load_hourly = [(
-                                base_load_hourly[x] +
-                                custom_hr_save_shape[x]) if
-                                numpy.isfinite(custom_hr_save_shape[x]) else
-                                eff_load_hourly[x] for x in range(8760)]
-                            # Ensure all efficient load fractions are greater
-                            # than zero
+                                base_load_hourly[x] * meas_base_adj[x] *
+                                hr_chg[x]) for x in range(8760)]
+                            # Ensure all efficient load fractions are finite
+                            # numbers greater than zero
                             eff_load_hourly = [
-                                eff_load_hourly[x] if eff_load_hourly[x] >= 0
+                                eff_load_hourly[x] if (
+                                    numpy.isfinite(eff_load_hourly[x]) and
+                                    eff_load_hourly[x] >= 0)
                                 else 0 for x in range(8760)]
                         else:
                             # Throw an error if the load reshaping operation
@@ -6882,7 +6987,7 @@ class Measure(object):
         # fossil fuel, set all 8760 baseline values to zero (it is assumed that
         # sector-level load shapes will only be relevant to the electricity
         # system, which will not see a baseline load that is satisfied by
-        # non-electric fuel (fro this perspective, measures that fuel switch
+        # non-electric fuel (from this perspective, measures that fuel switch
         # heating or water heating to electricity add load to the electricity
         # system that wasn't there before)
         if self.fuel_switch_to == "electricity" and \
