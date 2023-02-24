@@ -2187,6 +2187,10 @@ class Measure(object):
                     # Restrict shape data to that of the current end use
                     css_dat_eu = css_dat[
                         numpy.in1d(css_dat["End_Use"], eu)]
+                    # Translate "drying" key to "clothes drying" to be
+                    # consistent with what's in tsv_load
+                    if eu_key == "drying":
+                        eu_key = "clothes drying"
                     # Initialize dict under the current end use key
                     css_dict[eu_key] = {}
                     # Find all unique building types and climate zones in
