@@ -23,9 +23,14 @@
   },
   "energy_efficiency": {
       "cooling": 4.55,
-      "heating": 1.88
+      "heating": 1.88,
+      "secondary heating": 0
     },
-  "energy_efficiency_units": "COP",
+  "energy_efficiency_units": {
+      "cooling": "COP",
+      "heating": "COP",
+      "secondary heating": "relative savings (constant)"
+  },
   "energy_efficiency_source": {
     "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2021 microdata files, available from EIA upon request.",
     "source_data": {
