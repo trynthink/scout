@@ -15,14 +15,14 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "TV": 78,
-      "desktop PC": 90,
-      "laptop PC": 26,
-      "monitors": 51,
+      "desktop PC": 43,
+      "laptop PC": 20,
+      "monitors": 44,
       "set top box": 74
   },  
   "energy_efficiency_units": "kWh/yr",
   "energy_efficiency_source": { 
-      "notes": "Combination of FEMP and ENERGYSTAR product finder sources; FEMP sources use ENERGY STAR column in performance and model assumptions for table; ENERGY STAR product finder data chosen for least efficient certified product in search",
+      "notes": "Combination of FEMP and ENERGYSTAR product finder sources; FEMP sources use ENERGY STAR column in performance and model assumptions for table; ENERGY STAR product finder data chosen for least efficient certified product in search (set top boxes w/ single-room configuration)",
       "source_data": [{
         "title": "Purchasing Energy-Efficient Televisions",
         "author": null,
@@ -53,7 +53,7 @@
         "organization": "U.S. Federal Energy Management Program",
         "year": 2021,
         "pages": null,
-        "URL": "https://www.energystar.gov/productfinder/product/certified-set-top-box/results?formId=949866-17-448-9-779671&scrollTo=532&search_text=&configuration_filter=&product_clean_filter=Cable&enhanced_functionalities_present_isopen=0&markets_filter=United+States&zip_code_filter=&product_types=Select+a+Product+Category&sort_by=single_room_configuration_test_results_total_energy_consumption_kwh_yr&sort_direction=desc&currentZipCode=20045&page_number=0&lastpage=0"
+        "URL": "https://www.energystar.gov/productfinder/product/certified-set-top-boxes/results"
     }]
   },
   "installed_cost": {
