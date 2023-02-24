@@ -6640,62 +6640,63 @@ class Measure(object):
 
                             # Ensure that the resultant custom savings shape
                             # for the current combination of climate zone,
-                            # building type, and end use is not zero elements.
-                            # If the savings shape is zero elements, warn the
-                            # user (in verbose mode) that no savings shape
-                            # data were found for the current climate/building/
-                            # end use combination and that the savings will be
-                            # assumed to be zero.
-                            if len(custom_hr_save_shape) == 0:
+                            # building type, and end use is not zero elements
+                            # or all zeroes in the baseline. If the savings
+                            # shape is zero elements or has an all zeroes
+                            # baseline, warn the user (in verbose mode) that
+                            # no savings shape data were found for the current
+                            # climate/building/end use combination and that the
+                            # savings will be assumed to be zero relative to
+                            # the baseline load.
+                            if len(custom_hr_save_shape) == 0 or sum(
+                                    custom_hr_save_shape[
+                                        "CSV base frac. annual"]) == 0:
                                 verboseprint(
                                     opts.verbose,
                                     "Measure '" + self.name + "', requires "
                                     "custom savings shape data, but none were "
-                                    "found for the combination of climate "
+                                    "found or all values were zero for the "
+                                    "combination of climate "
                                     "zone " + load_fact_climate_key +
                                     " (system load " + mult_sysshp_key_save +
                                     "), building type " +
                                     load_fact_bldg_key + ", and end use " +
                                     eu + ". Assuming savings are zero for "
-                                    " this combination. If this is "
+                                    "this combination. If this is "
                                     "unexpected, check that 8760 hourly "
                                     "savings fractions are available for "
                                     "all baseline market segments the "
                                     "measure applies to in ./ecm_definitions/"
                                     "energy_plus_data/savings_shapes.")
-                                custom_hr_save_shape = {
-                                    key: [1 for x in range(8760)] for key in
-                                    ["CSV base frac. annual",
-                                     "CSV relative change"]}
-                            # Develop an adjustment from the generic
-                            # baseline load shape for the current climate,
-                            # building type, and end use combination to the
-                            # baseline load shape that is specific to the
-                            # measure in question, which the measure load shape
-                            # is calculated relative to in the input CSVs
-                            meas_base_adj = [(
-                                custom_hr_save_shape[
-                                    "CSV base frac. annual"][x] /
-                                base_load_hourly[x]) if (
-                                    numpy.isfinite(base_load_hourly[x]) and
-                                    base_load_hourly[x] != 0) else 1
-                                for x in range(8760)]
-                            # Pull in relative hourly savings fractions to
-                            # apply to baseline loads to get to efficient shape
-                            hr_chg = custom_hr_save_shape[
-                                "CSV relative change"]
-                            # Apply hourly baseline adjustment and relative
-                            # load change for measure to derive efficient shape
-                            eff_load_hourly = [(
-                                base_load_hourly[x] * meas_base_adj[x] *
-                                hr_chg[x]) for x in range(8760)]
-                            # Ensure all efficient load fractions are finite
-                            # numbers greater than zero
-                            eff_load_hourly = [
-                                eff_load_hourly[x] if (
-                                    numpy.isfinite(eff_load_hourly[x]) and
-                                    eff_load_hourly[x] >= 0)
-                                else 0 for x in range(8760)]
+                            else:
+                                # Develop an adjustment from the generic
+                                # baseline load shape for the current climate,
+                                # building type, and end use combination to the
+                                # baseline load shape that is specific to the
+                                # measure in question, which the measure load
+                                # shape is calculated relative to in input CSVs
+                                meas_base_adj = [(
+                                    custom_hr_save_shape[
+                                        "CSV base frac. annual"][x] /
+                                    base_load_hourly[x]) if (
+                                        numpy.isfinite(base_load_hourly[x]) and
+                                        base_load_hourly[x] != 0) else 1
+                                    for x in range(8760)]
+                                # Pull in relative hourly savings fractions to
+                                # apply to baseline to get to efficient shape
+                                hr_chg = custom_hr_save_shape[
+                                    "CSV relative change"]
+                                # Apply hourly baseline adjustment and relative
+                                # load change to derive efficient shape
+                                eff_load_hourly = [(
+                                    base_load_hourly[x] * meas_base_adj[x] *
+                                    hr_chg[x]) for x in range(8760)]
+                                # Ensure all efficient load fractions are
+                                # greater than zero
+                                eff_load_hourly = [
+                                    eff_load_hourly[x] if
+                                    eff_load_hourly[x] >= 0
+                                    else 0 for x in range(8760)]
                         else:
                             # Throw an error if the load reshaping operation
                             # name is invalid
