@@ -23,22 +23,22 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": {
-        "windows conduction": 2.88,
-        "windows solar": 0.36},
-      "AIA_CZ2": {
-        "windows conduction": 2.85,
-        "windows solar": 0.35},
-      "AIA_CZ3": {
-        "windows conduction": 2.64,
-        "windows solar": 0.26},
-      "AIA_CZ4": {
-        "windows conduction": 2.47,
-        "windows solar": 0.25},
-      "AIA_CZ5": {
-        "windows conduction": 2.25,
-        "windows solar": 0.25}
-      },
+    "AIA_CZ1": {
+      "windows conduction": 2.88,
+      "windows solar": 0.36},
+    "AIA_CZ2": {
+      "windows conduction": 2.85,
+      "windows solar": 0.35},
+    "AIA_CZ3": {
+      "windows conduction": 2.64,
+      "windows solar": 0.26},
+    "AIA_CZ4": {
+      "windows conduction": 2.47,
+      "windows solar": 0.25},
+    "AIA_CZ5": {
+      "windows conduction": 2.25,
+      "windows solar": 0.25}
+    },
   "energy_efficiency_units": {
       "windows conduction": "R value",
       "windows solar": "SHGC"
@@ -53,15 +53,15 @@
       "pages": null,
       "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
     },
-  "installed_cost": 56.20,
-  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost": 137.74,
+  "cost_units": "2022$/ft^2 glazing",
   "installed_cost_source": {
-    "notes": "The AEDG commercial window performance recommendation is very similar to the baseline commercial window performance in Scout, thus the same cost is assumed - baseline Scout window is a 3'x4' aluminum window assembly (#B20201066400)",
+    "notes": "The AEDG commercial window performance recommendation is very similar to the baseline commercial window performance in Scout, thus the same cost is assumed",
     "source_data": {
       "title": "Scout Baseline Envelope Cost and Performance Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2016,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -92,9 +92,9 @@
     "timestamp": "Fri Sep 21 2018 16:33:51 EDT"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:30 UTC"
   }
 }

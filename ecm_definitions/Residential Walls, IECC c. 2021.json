@@ -43,15 +43,15 @@
       "URL": null
     }
   },
-  "installed_cost": 8.86,
-  "cost_units": "2016$/ft^2 wall",
+  "installed_cost": 2.76,
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Assume baseline wall cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -66,7 +66,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Residential wood frame wall cavity insulation that meets IECC 2021",
+  "_description": "Residential wood frame exterior continuous insulation that meets IECC 2021",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -74,10 +74,16 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "THu Jan 4 2018 00:00:00 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Mar 9 2021 10:52:54 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:26 UTC"
+  }]
 }

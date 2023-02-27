@@ -17,10 +17,10 @@
   "market_entry_year_source": {
     "notes": "Year in which ENERGY STAR specification went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
-      "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 6.0",
+      "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 7.0",
       "author": null,
       "organization": "ENERGY STAR",
-      "year": 2015,
+      "year": 2022,
       "pages": 5,
       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ES_Residential_WDS_V7_Final%20Specification%202022.pdf"
     }
@@ -54,25 +54,25 @@
       "windows solar": "SHGC"
     },
   "energy_efficiency_source": {
-    "notes": "See table 1; assumes 'Northern' maps to AIA climates 1 and 2, 'North-Central' maps to AIA climates 3, 'South-Central' maps to AIA climate 4, and 'Southern' maps to AIA climate 5",
+    "notes": "See table 1; assumes 'Northern' maps to AIA climate zones 1 and 2, 'North-Central' maps to AIA climate zone 3, 'South-Central' maps to AIA climate zone 4, and 'Southern' maps to AIA climate zone 5",
     "source_data": {
-      "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 6.0",
+      "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 7.0",
       "author": null,
       "organization": "ENERGY STAR",
-      "year": 2016,
-      "pages": 2,
+      "year": 2022,
+      "pages": 5,
       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ES_Residential_WDS_V7_Final%20Specification%202022.pdf"
     }
   },
-  "installed_cost": 48.4,
-  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost": 39.06,
+  "cost_units": "2022$/ft^2 glazing",
   "installed_cost_source": {
     "notes": "Assume baseline window cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -94,7 +94,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Typical size residential double pane window that meets the ENERGY STAR performance standard in 2017",
+  "_description": "Typical size residential double pane window that meets the ENERGY STAR version 7 performance specification",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -102,16 +102,22 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 15:44:05 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 2018 09:21:41 EDT"
   },
-  "_updated_by": {
+  {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Wed Jan 22 2020 11:28:41 MST"
-    }  
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-28 20:24 UTC"
+  }]
 }

@@ -33,14 +33,14 @@
       "URL": null}
     },
   "installed_cost": 0,
-  "cost_units": "2016$/ft^2 wall",
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Based on cost premium-per-% performance improvement implied by residential 'IECC - new' air sealing measure, which shows zero cost premium over baseline infiltration cost of zero",
     "source_data": {
       "title": "Scout Baseline Envelope Cost and Performance Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2016,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -70,10 +70,16 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Fri Nov 16 2018 10:33:49 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Mon Feb 10 2020 12:21:49 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:57 UTC"
+  }]
 }

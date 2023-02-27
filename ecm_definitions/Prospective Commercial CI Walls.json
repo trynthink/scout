@@ -19,8 +19,8 @@
     "notes": "Target performance set assuming 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
     "source_data": null
   },
-  "installed_cost": 1.87,
-  "cost_units": "2016$/ft^2 wall",
+  "installed_cost": 1.44,
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
@@ -43,10 +43,16 @@
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-04 02:15 UTC"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2021-08-23 20:52 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2022-02-13 23:58 UTC"
+  }]
 }

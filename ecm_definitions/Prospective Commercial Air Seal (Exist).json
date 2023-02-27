@@ -19,8 +19,8 @@
     "notes": "Target performance set based on expert knowledge and diminishing returns at higher performance levels",
     "source_data": null
   },
-  "installed_cost": 0.53,
-  "cost_units": "2016$/ft^2 wall",
+  "installed_cost": 1.14,
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
@@ -43,10 +43,16 @@
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-02 18:00 UTC"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2021-08-23 20:45 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-14 00:23 UTC"
+  }]
 }

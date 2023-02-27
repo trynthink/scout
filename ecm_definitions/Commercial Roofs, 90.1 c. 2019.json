@@ -38,15 +38,18 @@
       "pages": null,
       "URL": null}
     },
-  "installed_cost": 6.33,
-  "cost_units": "2016$/ft^2 roof",
+  "installed_cost": {
+    "new": 3.65,
+    "existing": 3.51
+  },
+  "cost_units": "2022$/ft^2 roof",
   "installed_cost_source": {
     "notes": "Assume baseline roof cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -68,7 +71,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Metal commercial roofing that meets the 90.1-2019 performance standard",
+  "_description": "4 in. thick foil-faced polyiso foam board insulation for commercial roof decks that meets the 90.1-2019 performance standard",
   "_notes": "R value for continuous insulation",
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -87,5 +90,11 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.Clarke@nrel.gov",
     "timestamp": "Mon Feb 10 2020 12:57:20 MST"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 20:25 UTC"
   }
 }

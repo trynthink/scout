@@ -38,15 +38,15 @@
       "pages": null,
       "URL": null}
     },
-  "installed_cost": 5.03,
-  "cost_units": "2016$/ft^2 footprint",
+  "installed_cost": 2.88,
+  "cost_units": "2022$/ft^2 footprint",
   "installed_cost_source": {
     "notes": "Assume baseline floor cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -68,7 +68,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Slab on grade commercial floor that meets the IECC performance standard in 2018",
+  "_description": "3 in. thick (R-15) extruded polystyrene (XPS) rigid foam boards that meet the approximate climate zone weighted average code requirement",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -87,6 +87,12 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Fri Jan 24 2020 12:56:01 MST"
+  },
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 20:37 UTC"
   }
 }
 
