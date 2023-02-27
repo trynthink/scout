@@ -38,15 +38,15 @@
       "pages": null,
       "URL": null}
     },
-  "installed_cost": 27.35,
-  "cost_units": "2016$/ft^2 wall",
+  "installed_cost": 1.14,
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Assume baseline wall cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -68,7 +68,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Metal and brick commercial wall assembly that meets the 90.1-2019 performance standard",
+  "_description": "R-15 fiberglass insulation for walls that meets an approximated climate zone average of the 90.1-2019 performance standard",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -76,16 +76,22 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Thu Jan 4 2018 00:00:00 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 2018 15:18:35 EDT"
   },
-  "_updated_by": {
-    "name": "Ardelia CLarke",
+  {
+    "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Fri Jan 24 2020 12:54:35 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 20:22 UTC"
+  }]
 }

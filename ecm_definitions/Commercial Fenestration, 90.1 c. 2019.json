@@ -53,15 +53,15 @@
       "pages": "59-66" ,
       "URL": null}
     },
-  "installed_cost": 56.20,
-  "cost_units": "2016$/ft^2 glazing",
+  "installed_cost": 137.74,
+  "cost_units": "2022$/ft^2 glazing",
   "installed_cost_source": {
     "notes": "Assume baseline fenestration cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -83,7 +83,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Aluminum frame commercial window assembly that meets the ASHRAE performance standard in 2019",
+  "_description": "Commercial window assembly that meets the ASHRAE performance standard in 2019",
   "_notes": null,
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -91,16 +91,22 @@
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Thu Jan 4 2018 00:00:00 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 2018 14:58:38 EDT"
   },
-  "_updated_by": {
+  {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Fri Feb 10 2020 16:28:38 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 20:39 UTC"
+  }]
 }

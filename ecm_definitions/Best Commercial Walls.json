@@ -21,12 +21,12 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 31.5,
-      "AIA_CZ2": 28.5,
-      "AIA_CZ3": 20.9,
-      "AIA_CZ4": 20.5,
-      "AIA_CZ5": 20.5
-      },
+    "AIA_CZ1": 31.5,
+    "AIA_CZ2": 28.5,
+    "AIA_CZ3": 20.9,
+    "AIA_CZ4": 20.5,
+    "AIA_CZ5": 20.5
+  },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "From AEDG design recommendations by climate zone; see calculations in: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=0",
@@ -39,16 +39,17 @@
       "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
     },
   "installed_cost": {
-    "new": 36.95,
-    "existing": 41.75},
-  "cost_units": "2016$/ft^2 wall",
+    "new": 10.74,
+    "existing": 15.54
+  },
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
-    "notes": "Based on cost premium-per-R-value implied by residential 'best' wall measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $1.97/ft^2 wall for an R value improvement of 2.81 in 2017; thus the cost premium to add to the baseline commercial wall cost of $27.35/ft^2 wall is $9.6/ft^2 wall in new buildings ($1.97/ft^2 wall premium / R-2.81 improvement)*(R-13.76 improvement for commercial new walls in AIA CZ1 in 2017) and $14.4/ft^2 wall in existing buildings ($1.97/ft^2 wall premium / R-2.81 improvement)*(R-20.54 improvement for commercial new walls in AIA CZ1 in 2017)",
+    "notes": "Based on cost premium-per-R-value implied by residential 'best' wall measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $1.97/ft^2 wall for an R value improvement of 2.81 in 2017; thus the cost premium to add to the baseline commercial wall cost of $1.14/ft^2 wall is $9.6/ft^2 wall in new buildings ($1.97/ft^2 wall premium / R-2.81 improvement)*(R-13.76 improvement for commercial new walls in AIA CZ1 in 2017) and $14.4/ft^2 wall in existing buildings ($1.97/ft^2 wall premium / R-2.81 improvement)*(R-20.54 improvement for commercial new walls in AIA CZ1 in 2017)",
     "source_data": {
       "title": "Scout Baseline Envelope Cost and Performance Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2016,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -79,9 +80,9 @@
     "timestamp": "Fri Sep 21 2018 16:33:51 EDT"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:51 UTC"
   }
 }

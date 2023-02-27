@@ -33,14 +33,14 @@
       "URL": "https://www.ashrae.org/technical-resources/aedgs/50-percent-aedg-free-download"}
     },
   "installed_cost": 2.22,
-  "cost_units": "2017$/ft^2 wall",
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Based on cost premium-per-% performance improvement implied by residential 'best' air sealing measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $2/ft^2 wall per 90% performance improvement in existing buildings in 2017; thus the cost premium to add to the baseline commercial infiltration cost of $0/ft^2 wall is $2.2/ft^2 wall in existing buildings ($2.00/ft^2 wall premium / 90% improvement)*(99.7% improvement for commercial infiltration in existing buildings in AIA CZ1 in 2017 (1 - 0.004/1.5))",
     "source_data": {
       "title": "Scout Baseline Envelope Cost and Performance Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2016,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
@@ -71,9 +71,9 @@
     "timestamp": "Fri Nov 16 2018 10:28:47 EST"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:30 UTC"
   }
 }

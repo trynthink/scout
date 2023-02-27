@@ -42,8 +42,8 @@
       "pages": 246,
       "URL": null}
     },
-  "installed_cost": 2.14,
-  "cost_units": "2016$/ft^2 roof",
+  "installed_cost": 3.83,
+  "cost_units": "2022$/ft^2 roof",
   "installed_cost_source": {
     "notes": "Assume baseline roof cost from Scout data",
     "source_data": {
@@ -80,10 +80,16 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 18 2018 10:05:42 EDT"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Mar 9 2021 10:20:07 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 21:22 UTC"
+  }]
 }

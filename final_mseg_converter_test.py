@@ -2068,7 +2068,9 @@ class EnvelopeDataUnitTest(CommonUnitTest):
             "ground": {
                 "residential": {
                     "cost": {
-                        "typical": 5.03,
+                        "typical": {
+                            "new": 5.03,
+                            "existing": 8.48},
                         "units": "2016$/ft^2 footprint",
                         "source": "Source G"},
                     "performance": {
@@ -2087,7 +2089,9 @@ class EnvelopeDataUnitTest(CommonUnitTest):
                         "source": "Source H"}},
                 "commercial": {
                     "cost": {
-                        "typical": 5.03,
+                        "typical": {
+                            "new": 5.03,
+                            "existing": 12.23},
                         "units": "2016$/ft^2 footprint",
                         "source": "Source J"},
                     "performance": {
@@ -2496,10 +2500,16 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
                 'source': ('EIA AEO choice model parameters for heating' +
                            ' and cooling equipment')}}},
         {'installed cost': {
-            'typical': {'2009': 0.541731, '2010': 0.541731, '2011': 0.541731,
+            'typical': {
+                'new': {'2009': 0.541731, '2010': 0.541731, '2011': 0.541731,
                         '2012': 0.541731, '2013': 0.541731, '2014': 0.541731,
                         '2015': 0.541731, '2016': 0.541731, '2017': 0.541731,
                         '2018': 0.541731, '2019': 0.541731, '2020': 0.541731},
+                'existing': {'2009': 1.31717, '2010': 1.31717, '2011': 1.31717,
+                             '2012': 1.31717, '2013': 1.31717, '2014': 1.31717,
+                             '2015': 1.31717, '2016': 1.31717, '2017': 1.31717,
+                             '2018': 1.31717, '2019': 1.31717, '2020': 1.31717}
+            },
             'units': '2016$/ft^2 floor',
             'source': 'Source J'},
          'performance': {

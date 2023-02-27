@@ -31,8 +31,8 @@
       "pages": null,
       "URL": ""}
     },
-  "installed_cost": 0.55,
-  "cost_units": "2016$/ft^2 roof",
+  "installed_cost": 0.36,
+  "cost_units": "2022$/ft^2 roof",
   "installed_cost_source": {
     "notes": "Target cost set based on 10 year payback period objective",
     "source_data": null
@@ -62,10 +62,16 @@
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2018-10-04 02:30 UTC"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2021-08-25 21:00 UTC"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-13 23:57 UTC"
+  }]
 }
