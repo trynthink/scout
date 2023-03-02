@@ -340,6 +340,10 @@ class UsefulVars(object):
         regions (str): Regions to use in geographically breaking out the data.
         region_cpl_mapping (str or dict): Maps states to census divisions for
             the case where states are used; otherwise empty string.
+        self.com_RTU_fs_tech (list): Flag heating tech. that pairs with RTU.
+        self.com_nRTU_fs_tech (list): Flag heating tech. that pairs with
+            larger commercial cooling equipment (not RTU).
+        resist_ht_tech (list): Flag for resistance-based heating technology.
         alt_perfcost_brk_map (dict): Mapping factors used to handle alternate
             regional breakouts in measure performance or cost units.
         months (str): Month sequence for accessing time-sensitive data.
@@ -705,6 +709,8 @@ class UsefulVars(object):
         else:
             self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (
                 None for n in range(3))
+        self.resist_ht_tech = [
+                "elec_boiler", "electric_res-heat", "resistance heat"]
 
         # Set valid region names and regional output categories
         if opts.alt_regions in [False, "AIA"]:
@@ -2516,10 +2522,14 @@ class Measure(object):
 
         # Flag the auto-generation of reference case technology analogues for
         # all of the current measure's applicable markets, if applicable –
-        # exclude 'Ref. Case' fuel switching measures, which must be manually
-        # defined
+        # exclude 'Ref. Case' switching of fossil-based heat or resistance heat
+        # under exogenous switching rates, since the competing Ref. Case
+        # analogue will be a min. efficiency HP and this is manually defined
         if (opts.add_typ_eff is True and "Ref. Case" in self.name) and (
-                self.fuel_switch_to is None):
+                not self.handyvars.hp_rates or (
+                    self.fuel_switch_to is None and
+                    all([x not in self.technology["primary"] for x in
+                        self.handyvars.resist_ht_tech]))):
             agen_ref = True
         else:
             agen_ref = ""
