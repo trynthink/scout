@@ -3,7 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "cooling"],
+  "end_use": ["cooling"],
   "fuel_type": "electricity",
   "technology": "all",
   "market_entry_year": 2021,
