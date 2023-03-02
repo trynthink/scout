@@ -2637,8 +2637,9 @@ class Measure(object):
         if (opts.add_typ_eff is True and "Ref. Case" in self.name) and (
                 not self.handyvars.hp_rates or (
                     self.fuel_switch_to is None and
-                    all([x not in self.technology["primary"] for x in
-                        self.handyvars.resist_ht_tech]))):
+                    (self.technology["primary"] is None or
+                     all([x not in self.technology["primary"] for x in
+                          self.handyvars.resist_ht_tech])))):
             agen_ref = True
         else:
             agen_ref = ""
