@@ -3228,6 +3228,11 @@ class Engine(object):
                     # stock (including in years before measure entered market)
                     if delay_entry_adj:
                         cum_compete_stk += adj_stk_trk["competed"]["all"][wyr]
+                        # Ensure cumulative competed stock never exceeds
+                        # base case total stock projection (competed stock
+                        # includes measure-on-measure replacements)
+                        if cum_compete_stk > adj_stk_trk["total"]["all"][yr]:
+                            cum_compete_stk = adj_stk_trk["total"]["all"][yr]
 
                     # If needed, update efficient data adjustment for measures
                     # with delayed market entry; adjustment represents the
