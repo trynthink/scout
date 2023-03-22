@@ -581,7 +581,9 @@ In this example, the supporting CSV file path is |html-filepath| ./ecm_definitio
 
 * *Building Type*. Applicable EnergyPlus building type; currently supported representative building types are:
 
-    * SingleFamilyHome (`ResStock`_)
+    * SF (`ResStock`_ single family prototype)
+    * MF (`ResStock`_ multi family prototype)
+    * MH (`ResStock`_ mobile home prototype)
     * MediumOfficeDetailed or MediumOffice (`DOE Commercial Prototypes`_)
     * LargeOfficeDetailed or LargeOffice (`DOE Commercial Prototypes`_)
     * LargeHotel (`DOE Commercial Prototypes`_)
@@ -601,13 +603,13 @@ In this example, the supporting CSV file path is |html-filepath| ./ecm_definitio
     * plug loads
     * dishwasher
     * clothes washing
-    * clothes drying
+    * drying
     * pool heaters and pumps
     * fans and pumps
     * other
 
-* *Baseline Load*. Load (in kW) for given hour of year, climate zone, net load version, building type, and end use under the baseline case.
-* *Measure Load*. Load (in kW) for given hour of year, climate zone, net load version, building type, and end use after measure application.
+* *Baseline Load*. Load (for residential, average hourly kW per home across all homes sampled in the representative city for the climate zone; for commercial, hourly kW per prototypical building) for given hour of year, climate zone, net load version, building type, and end use under the baseline case.
+* *Measure Load*. Load (for residential, average hourly kW per home across all homes sampled in the representative city for the climate zone; for commercial, hourly kW per prototypical building) for given hour of year, climate zone, net load version, building type, and end use after measure application.
 * *Relative Savings*. Calculated as: (Hourly Measure Load - Hourly Baseline Load) / (Total Annual Baseline Load).
 
 
@@ -648,7 +650,7 @@ A commercial load shedding and shifting ECM is :ref:`available for download <ecm
 .. _ASHRAE 90.1-2016 climate zone: https://www.ashrae.org/File%20Library/Conferences/Specialty%20Conferences/2018%20Building%20Performance%20Analysis%20Conference%20and%20SimBuild/Papers/C008.pdf
 .. _EIA Electricity Market Module (EMM): https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m068(2018).pdf
 .. _ResStock: https://resstock.readthedocs.io/en/latest/
-.. _DOE Commercial Prototypes: https://www.energycodes.gov/development/commercial/prototype_models
+.. _DOE Commercial Prototypes: https://www.energycodes.gov/prototype-building-models#Commercial
 .. _profiles: https://drive.google.com/file/d/1gUQqqgV7F3_1wIoU0d_qRdsE3ExfFwpn/view?usp=sharing
 
 .. _ecm-features-shorthand:

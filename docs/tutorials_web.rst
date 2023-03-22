@@ -21,13 +21,14 @@ At the bottom of the landing page, a section titled "Do more with Scout" points 
 
 The latest version of the Scout source code is accessed by clicking the "`Source Code`_" button at the top right of the Landing Page and all other pages in the web interface.
 
-.. _tuts-2-web:
 
 .. tip::
      We recommend registering an e-mail address and creating an account so that you can save your ECMs and custom analyses. To create an account, click the "Register" button on the landing page and complete the require fields. 
 
 .. note::
      To change your username of password, after you are signed in, hover over your username and click "Profile". On this page you will be able to change your username and/or password. 
+
+.. _tuts-2-web:
 
 Tutorial 2: Creating and editing ECMs
 -------------------------------------
@@ -257,11 +258,11 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
 
-..   **Windows** ::
+  **Windows** ::
 
 ..      py -3 ecm_prep.py
 
-..   **Mac** ::
+  **Mac** ::
 
 ..      python3 ecm_prep.py
 
@@ -269,14 +270,14 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. 4. When prompted to select a file to upload, navigate to the |html-filepath| ./supporting_data |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_prep.json |html-fp-end| - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
 
-..   note:: 
+  note:: 
 ..       Larger files may take several seconds to upload in step 4.
 
 .. Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.   
 
 .. _tuts-3-web:
 
-..Results shown on the `Analysis Results Page`_ correspond to the ECM set from the `ECM Summaries Page`_.
+.. Results shown on the `Analysis Results Page`_ correspond to the ECM set from the `ECM Summaries Page`_.
 
 .. Visualizing a default set of ECM results
 .. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
