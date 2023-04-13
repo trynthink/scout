@@ -1,7 +1,7 @@
-[{"name": "ENERGY STAR Res. ASHP (FS) + Env.",
+[
+ {"name": "ENERGY STAR Res. ASHP (FS) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (FS)",
-    "Other Res. Heating (FS)",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -12,7 +12,6 @@
  {"name": "ENERGY STAR Res. ASHP (FS) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (FS) CC",
-    "Other Res. Heating (FS) CC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -23,7 +22,6 @@
  {"name": "ENERGY STAR Res. ASHP (LFL) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (LFL)",
-    "Other Res. Heating",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -34,7 +32,6 @@
  {"name": "ENERGY STAR Res. ASHP (RST) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (RST)",
-    "Other Res. Heating",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -45,7 +42,6 @@
  {"name": "ENERGY STAR Res. ASHP (LFL) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (LFL) CC",
-    "Other Res. Heating CC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -56,17 +52,6 @@
  {"name": "ENERGY STAR Res. ASHP (RST) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Res. ASHP (RST) CC",
-    "Other Res. Heating CC",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. CAC + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. CAC",
     "Res. Air Sealing (New), IECC c. 2021",
     "Res. Air Sealing (Exist), IECC c. 2021",
     "ENERGY STAR Windows v. 7.0",
@@ -97,7 +82,6 @@
  {"name": "ENERGY STAR Com. ASHP (LFL) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (LFL)",
-    "Other Com. Heating",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -108,7 +92,6 @@
  {"name": "ENERGY STAR Com. ASHP (RST) + Env.",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (RST)",
-    "Other Com. Heating",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -119,7 +102,6 @@
  {"name": "ENERGY STAR Com. ASHP (LFL) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (LFL) CC",
-    "Other Com. Heating CC",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",
@@ -130,17 +112,6 @@
  {"name": "ENERGY STAR Com. ASHP (RST) + Env. CC",
   "contributing_ECMs": [
     "ENERGY STAR Com. ASHP (RST) CC",
-    "Other Com. Heating CC",
-    "Com. Air Sealing (New), 90.1 c. 2019",
-    "Com. Air Sealing (Exist), 90.1 c. 2019",
-    "Commercial Fenestration, 90.1 c. 2019",
-    "Commercial Walls, 90.1 c. 2019",
-    "Commercial Roofs, 90.1 c. 2019",
-    "Commercial Floors, 90.1 c. 2019"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. RTU + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. RTU",
     "Com. Air Sealing (New), 90.1 c. 2019",
     "Com. Air Sealing (Exist), 90.1 c. 2019",
     "Commercial Fenestration, 90.1 c. 2019",

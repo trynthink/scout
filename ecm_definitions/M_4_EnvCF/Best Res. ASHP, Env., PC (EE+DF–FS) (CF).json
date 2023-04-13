@@ -5,11 +5,10 @@
                    "CASO"],
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["cooling", "heating", "secondary heating"],
+  "end_use": ["cooling", "heating"],
   "fuel_type": "all",
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
-                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP",
-                 "all secondary heating"],
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
@@ -43,7 +42,7 @@
         "existing": 11357
       }
   },
-  "cost_units": "2020$/unit",
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
     "source_data": [
@@ -96,8 +95,7 @@
   "market_scaling_fractions": {
     "electricity":{
       "cooling": 0.595,
-      "heating": 0,
-      "secondary heating": 0
+      "heating": 0
     },
     "natural gas": 1,
     "distillate": 1,
@@ -111,8 +109,7 @@
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
       "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
-    },
-    "secondary heating": "Applies to all residential fuel-fired secondary heating; no electric heating is switched by this ECM"
+    }
   },
   "_description": "Envelope-only counterfactual for this measure, non-cold-climate",
   "_notes": null,

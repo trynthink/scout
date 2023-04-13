@@ -24,7 +24,7 @@
     "source_data": null
   },
   "installed_cost": 40.55,
-  "cost_units": "$/kBtu/h heating",
+  "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in cold climate",
     "source_data": null

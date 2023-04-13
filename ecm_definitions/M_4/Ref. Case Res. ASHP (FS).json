@@ -43,24 +43,24 @@
   "installed_cost": {
       "electricity": {
         "new": 5150,
-        "existing": 6150
+        "existing": 9150
       },
       "natural gas": {
         "new": 5150,
-        "existing": 6150
+        "existing": 9150
       }, 
       "distillate": {
         "new": 5150,
-        "existing": 7150
+        "existing": 10150
       },
       "other fuel": {
         "new": 5150,
-        "existing": 7150
+        "existing": 10150
       }
   },
   "cost_units": "2017$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for typical ASHP in 2030, which reflects introduction of min. efficiency standard in 2023; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "notes": "Installed costs for typical ASHP in 2030, which reflects introduction of min. efficiency standard in 2023; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -76,7 +76,14 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2018,
       "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"}
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"},
+      {
+      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
+      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
+      "organization": "Redwood Energy & Menlo Spark",
+      "year": 2021,
+      "pages": 19,
+      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
     ]},
   "product_lifetime": 15.5,
   "product_lifetime_units": "years",

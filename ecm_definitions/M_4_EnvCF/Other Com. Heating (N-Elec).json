@@ -16,7 +16,7 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
   "installed_cost": 0,
-  "cost_units": "$/ft^2 floor",
+  "cost_units": "2017$/ft^2 floor",
   "installed_cost_source": null,
   "product_lifetime": 15,
   "product_lifetime_units": "years",

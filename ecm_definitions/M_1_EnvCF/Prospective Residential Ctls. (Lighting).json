@@ -22,10 +22,10 @@
     "notes": "Provisional goal for the BTO S&C program",
     "source_data": null
   },
-  "installed_cost": 0.5,
+  "installed_cost": 0,
   "cost_units": "$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Provisional goal for the BTO S&C program",
+    "notes": "Provisional goal for the BTO S&C program is 0.5/ft^2 floor; assume HVAC controls deployment already encapsulates cost",
     "source_data": null
   },
   "product_lifetime": 10,
