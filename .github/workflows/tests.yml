@@ -1,5 +1,6 @@
 name: tests
-on: [push]
+on:
+  push:
 jobs:
 
   code-quality-checks:
@@ -49,5 +50,19 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -p '*_test.py'
 
+  check-PR:
+    # Check if there is a PR - allows one main workflow with dependency on previous jobs
+    needs: [code-quality-checks, python-tests]
+    runs-on: ubuntu-latest
+    outputs:
+      PR_status: ${{ steps.PR.outputs.pr_found }}
+    steps:
+      - name: Check if PR
+        uses: 8BitJonny/gh-get-current-pr@2.2.0
+        id: PR
 
-
+  integration-tests:
+    needs: [check-PR]
+    if: needs.check-PR.outputs.PR_status == 'true'
+    uses: ./.github/workflows/integration_tests.yml
+    secrets: inherit
