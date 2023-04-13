@@ -1,0 +1,91 @@
+name: integration-tests
+on: [workflow_call]
+jobs:
+  start-runner:
+    name: Start self-hosted EC2 runner
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ami-0f57c48465f6361a6
+          ec2-instance-type: r5a.4xlarge
+          subnet-id: subnet-a4b769c3
+          security-group-id: sg-06a2ae324a6e68d4d
+          aws-resource-tags: >
+            [
+              {"Key": "Name", "Value": "scout-github-runner"},
+              {"Key": "billingId", "Value": "210109"},
+              {"Key": "org", "Value": "scout"}
+            ]
+
+  run-test:
+    name: Integration Testing
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter
+      - name: Run workflow
+        run: python tests/integration_testing/run_workflow.py
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: ./results/*.json
+      - name: Commit test results
+        run: |
+          branch_name="${{ github.head_ref }}"
+          git pull origin $branch_name
+          cp -r ./results/*.json ./tests/integration_testing/results
+          git add ./tests/integration_testing/*.json
+          if [[ $(git diff --cached --exit-code) ]]; then
+            git config --system user.email "github-action@users.noreply.github.com"
+            git config --system user.name "GitHub Action"
+            git commit -m "Upload test results."
+            echo "Pushing to branch: $branch_name"
+            git push -u origin $branch_name
+          fi
+
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - start-runner # required to get output from the start-runner job
+      -  run-test # required to wait when the main job is done
+    runs-on: ubuntu-latest
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
