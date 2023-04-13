@@ -183,8 +183,8 @@ class UsefulVars(object):
             the building sector categories used in summarizing measure outputs.
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
-        out_break_fuels (OrderedDict): Maps measure fuel types to fuel type
-            categories used in summarizing measure outputs.
+        out_break_fuels (OrderedDict): Maps measure fuel type names to the
+            fuel categories used in summarizing measure outputs.
         regions (str): Regions to use in geographically breaking out the data.
         region_inout_namepairs (dict): Input/output region name pairs.
     """
@@ -296,7 +296,7 @@ class Measure(object):
                     self.fug_e = ["methane", "refrigerants"]
             else:
                 self.fug_e = ""
-        except AttributeError:
+        except (AttributeError, KeyError):
             self.fug_e = ""
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
@@ -622,73 +622,76 @@ class Engine(object):
                 for yr in self.handyvars.aeo_years:
 
                     # Baseline capital cost
-                    stock_base_cost_tot = \
-                        markets_uc["cost"]["stock"]["total"]["baseline"][yr]
+                    stock_base_cost_cmp = \
+                        markets_uc["cost"]["stock"]["competed"]["baseline"][yr]
                     # Measure capital cost
-                    stock_meas_cost_tot = markets_uc["cost"]["stock"][
-                        "total"]["efficient"][yr]
+                    stock_meas_cost_cmp = markets_uc["cost"]["stock"][
+                        "competed"]["efficient"][yr]
                     # Energy savings
-                    esave_tot = \
-                        markets_uc["energy"]["total"]["baseline"][yr] - \
-                        markets_uc["energy"]["total"]["efficient"][yr]
+                    esave_cmp = \
+                        markets_uc["energy"]["competed"]["baseline"][yr] - \
+                        markets_uc["energy"]["competed"]["efficient"][yr]
                     # Carbon savings
-                    csave_tot = \
-                        markets_uc["carbon"]["total"]["baseline"][yr] - \
-                        markets_uc["carbon"]["total"]["efficient"][yr]
+                    csave_cmp = \
+                        markets_uc["carbon"]["competed"]["baseline"][yr] - \
+                        markets_uc["carbon"]["competed"]["efficient"][yr]
+                    # Baseline energy costs
+                    ecost_base_cmp = markets_uc["cost"]["energy"]["competed"][
+                        "baseline"][yr]
+                    # Measure energy cost
+                    ecost_meas_cmp = markets_uc["cost"]["energy"][
+                        "competed"]["efficient"][yr]
+                    # Baseline carbon costs
+                    ccost_base_cmp = markets_uc["cost"]["carbon"]["competed"][
+                        "baseline"][yr]
+                    # Measure carbon cost
+                    ccost_meas_cmp = markets_uc["cost"]["carbon"][
+                        "competed"]["efficient"][yr]
                     # Energy cost savings
-                    ecostsave_tot = markets_uc["cost"]["energy"]["total"][
-                        "baseline"][yr] - markets_uc["cost"]["energy"][
-                        "total"]["efficient"][yr]
+                    ecostsave_cmp = ecost_base_cmp - ecost_meas_cmp
                     # Carbon cost savings
-                    ccostsave_tot = markets_uc["cost"]["carbon"]["total"][
-                        "baseline"][yr] - markets_uc["cost"]["carbon"][
-                        "total"]["efficient"][yr]
+                    ccostsave_cmp = ccost_base_cmp - ccost_meas_cmp
                     # Number of applicable baseline stock units
-                    nunits_tot = \
-                        markets_uc["stock"]["total"]["all"][yr]
+                    nunits_cmp = \
+                        markets_uc["stock"]["competed"]["all"][yr]
                     # Number of applicable stock units capt. by measure
-                    nunits_meas_tot = \
-                        markets_uc["stock"]["total"]["measure"][yr]
+                    nunits_meas_cmp = \
+                        markets_uc["stock"]["competed"]["measure"][yr]
 
                     # Calculate per unit baseline capital cost and incremental
                     # measure capital cost (used in financial metrics
                     # calculations below); set these values to zero for
                     # years in which total number of base/meas units is zero
-                    if nunits_tot != 0 and (
-                        type(nunits_meas_tot) != numpy.ndarray and
-                        nunits_meas_tot >= 1 or
-                            type(nunits_meas_tot) == numpy.ndarray and all(
-                                nunits_meas_tot) >= 1):
+                    if nunits_cmp != 0 and (
+                        type(nunits_meas_cmp) != numpy.ndarray and
+                        nunits_meas_cmp != 0 or
+                            type(nunits_meas_cmp) == numpy.ndarray and all(
+                                nunits_meas_cmp) != 0):
                         # Per unit baseline capital cost; note that these costs
                         # are aggregated as a baseline counterfactual for all
                         # units captured by the measure and therefore must be
                         # normalized by the number of measure-captured units
                         scostbase_unit[yr] = \
-                            stock_base_cost_tot / nunits_meas_tot
+                            stock_base_cost_cmp / nunits_cmp
                         # Per unit measure total capital cost
                         scostmeas_unit[yr] = \
-                            stock_meas_cost_tot / nunits_meas_tot
+                            stock_meas_cost_cmp / nunits_meas_cmp
                         # Per unit measure incremental capital cost
                         scostmeas_delt_unit[yr] = (
                             scostbase_unit[yr] - scostmeas_unit[yr])
                         # Per unit measure energy savings
-                        esave_unit[yr] = esave_tot / nunits_meas_tot
+                        esave_unit[yr] = esave_cmp / nunits_meas_cmp
                         # Per unit measure carbon savings
-                        csave_unit[yr] = csave_tot / nunits_meas_tot
-                        # Per unit measure energy cost savings
-                        ecostsave_unit[yr] = ecostsave_tot / nunits_meas_tot
-                        # Per unit measure carbon cost savings
-                        ccostsave_unit[yr] = ccostsave_tot / nunits_meas_tot
+                        csave_unit[yr] = csave_cmp / nunits_meas_cmp
                         # Per unit measure energy costs
-                        ecost_meas_unit[yr] = (
-                            markets_uc["cost"]["energy"]["total"][
-                                "baseline"][yr] / nunits_tot) - \
-                            ecostsave_unit[yr]
+                        ecost_meas_unit[yr] = ecost_meas_cmp / nunits_meas_cmp
                         # Per unit measure carbon costs
-                        ccost_meas_unit[yr] = (
-                            markets_uc["cost"]["carbon"]["total"][
-                                "baseline"][yr] / nunits_tot) - \
-                            ccostsave_unit[yr]
+                        ccost_meas_unit[yr] = ccost_meas_cmp / nunits_meas_cmp
+                        # Per unit measure energy cost savings
+                        ecostsave_unit[yr] = ecostsave_cmp / nunits_meas_cmp
+                        # Per unit measure carbon cost savings
+                        ccostsave_unit[yr] = ccostsave_cmp / nunits_meas_cmp
+
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
                     life_base = markets_uc["lifetime"]["baseline"][yr]
@@ -710,11 +713,11 @@ class Engine(object):
                     # If the total baseline stock is zero or no measure units
                     # have been captured for a given year, set finance metrics
                     # to 999
-                    if nunits_tot == 0 or (
-                        type(nunits_meas_tot) != numpy.ndarray and
-                        nunits_meas_tot < 1 or
-                            type(nunits_meas_tot) == numpy.ndarray and all(
-                                nunits_meas_tot) < 1):
+                    if nunits_cmp == 0 or (
+                        type(nunits_meas_cmp) != numpy.ndarray and
+                        nunits_meas_cmp == 0 or
+                            type(nunits_meas_cmp) == numpy.ndarray and all(
+                                nunits_meas_cmp) == 0):
                         if yr == self.handyvars.aeo_years[0]:
                             stock_unit_cost_res[yr], \
                                 energy_unit_cost_res[yr], \
@@ -3005,19 +3008,24 @@ class Engine(object):
             # contributing microsegment information back into a string
             # to use in keying in needed stock data
             mseg_key_stk_trk = str(tuple(key_list))
-            # For fuel switching measures with exogenously-specified switching
+            # For HP measures with exogenously-specified switching
             # rates, the heating technology will be specified in contributing
-            # microsegment data with an "-FS" appended; develop an alternate
-            # stock data key to switch to to handle this case
-            key_list[-2] = key_list[-2] + "-FS"
-            mseg_key_stk_trk_alt = str(tuple(key_list))
+            # microsegment data with an "-FS" or "-RST" appended; develop
+            # alternate stock data keys to switch to to handle this case
+            key_list_alt1, key_list_alt2 = (
+                copy.deepcopy(key_list) for n in range(2))
+            key_list_alt1[-2], key_list_alt2[-2] = [
+                (key_list_alt1[-2] + "-FS"), (key_list_alt2[-2] + "-RST")]
+            mseg_key_stk_trk_alt1, mseg_key_stk_trk_alt2 = (
+                str(tuple(key_list_alt1)), str(tuple(key_list_alt2)))
         # Handle all other cases, where stock data will be available for
         # the contributing microsegment to be adjusted as-is
         else:
             # Use contributing microsegment info. as-is to key in stock data
             mseg_key_stk_trk = mseg_key
             # Alternate stock data key does not apply in this case
-            mseg_key_stk_trk_alt = None
+            mseg_key_stk_trk_alt1, mseg_key_stk_trk_alt2 = (
+                None for n in range(2))
 
         # Pull data for stock turnover calculations for the current
         # contributing microsegment, using the data key information from above;
@@ -3025,8 +3033,8 @@ class Engine(object):
         # stock data that will be common to all measures that compete for
         # the microsegment
 
-        # Handle case where data are keyed in with additional "-FS" in the
-        # technology information (use alternate stock data key from above)
+        # Handle case where data are keyed in with additional "-FS" or "-RST"
+        # in the tech. information (use alternate stock data key from above)
         try:
             adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
                 "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
@@ -3034,23 +3042,30 @@ class Engine(object):
             try:
                 adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
                     "mseg_adjust"]["contributing mseg keys and values"][
-                    mseg_key_stk_trk_alt]["stock"]
+                    mseg_key_stk_trk_alt1]["stock"]
             except KeyError:
-                # Handle case where expected microsegment stock data to be
-                # linked to the stock turnover calculations for the current
-                # microsegment is not available; key in stock data with the
-                # current microsegment stock info.
                 try:
                     adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
                         "mseg_adjust"]["contributing mseg keys and values"][
-                        mseg_key]["stock"]
+                        mseg_key_stk_trk_alt2]["stock"]
                 except KeyError:
-                    raise ValueError(
-                        "Stock turnover data could not be keyed in "
-                        "for contributing microsegment " + mseg_key +
-                        " for measure " + m.name + " using the "
-                        "keys " + mseg_key_stk_trk + ", " +
-                        + mseg_key_stk_trk_alt + "," or mseg_key)
+                    # Handle case where expected microsegment stock data to be
+                    # linked to the stock turnover calculations for the current
+                    # microsegment is not available; key in stock data with the
+                    # current microsegment stock info.
+                    try:
+                        adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
+                            "mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            mseg_key]["stock"]
+                    except KeyError:
+                        raise ValueError(
+                            "Stock turnover data could not be keyed in "
+                            "for contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " using the "
+                            "keys " + mseg_key_stk_trk + ", " +
+                            mseg_key_stk_trk_alt1 + ", " +
+                            mseg_key_stk_trk_alt2 + ", or" + mseg_key)
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
