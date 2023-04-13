@@ -29,7 +29,7 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
   "installed_cost": 2756,
-  "cost_units": "2020$/unit",
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Total installed cost is average of low/high 'Add-on Control' values plus installed costs for best HPWH in 2020",
     "source_data": [

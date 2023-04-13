@@ -26,7 +26,7 @@
     "source_data": null
   },
   "installed_cost": 5520.0,
-  "cost_units": "$/unit",
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in non-cold climate; based on comparison with counterfactual heating technology",
     "source_data": null

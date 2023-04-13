@@ -25,7 +25,7 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
   "installed_cost": 0,
-  "cost_units": "2020$/unit",
+  "cost_units": "2017$/unit",
   "installed_cost_source": null,
   "product_lifetime": 7.3,
   "product_lifetime_units": "years",

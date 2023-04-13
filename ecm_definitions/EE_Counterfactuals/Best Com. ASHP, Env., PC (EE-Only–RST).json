@@ -13,8 +13,7 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating", "ventilation"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "electric_res-heat",
-                 "all ventilation"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "wall-window_room_AC", "electric_res-heat", "all ventilation"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in the baseline",
@@ -54,13 +53,9 @@
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": {
-    "rooftop_AC": 0.32, 
-    "res_type_central_AC": 0.32,
-    "wall-window_room_AC": 0.32,
-    "electric_res-heat": 1,
-    "elec_boiler": 1,
-    "CAV_Vent": 0.274,
-    "VAV_Vent": 0.274
+    "cooling": 0.32, 
+    "heating": 1,
+    "ventilation": 0.274
   },
   "market_scaling_fractions_source": [{
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
@@ -68,7 +63,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf)."
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (53,681 sf/ 79,294 sf)."
   },{
       "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
       "author": null,

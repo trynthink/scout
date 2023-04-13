@@ -356,6 +356,8 @@ class UsefulVars(object):
         self.com_nRTU_fs_tech (list): Flag heating tech. that pairs with
             larger commercial cooling equipment (not RTU).
         resist_ht_tech (list): Flag for resistance-based heating technology.
+        minor_hvac_tech (list): Minor/secondary HVAC tech. to remove stock/
+            stock/cost data for when major tech. is also in measure definition.
         alt_perfcost_brk_map (dict): Mapping factors used to handle alternate
             regional breakouts in measure performance or cost units.
         months (str): Month sequence for accessing time-sensitive data.
@@ -486,6 +488,9 @@ class UsefulVars(object):
                 path.join(base_dir, *handyfiles.cpi_data),
                 names=True, delimiter=',',
                 dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+            # Ensure that consumer price date is in expected format
+            if len(self.consumer_price_ind['DATE'][0]) != 10:
+                raise ValueError("CPI date format should be YYYY-MM-DD")
         except ValueError as e:
             raise ValueError(
                 "Error reading in '" +
@@ -738,6 +743,10 @@ class UsefulVars(object):
                 None for n in range(3))
         self.resist_ht_tech = [
                 "elec_boiler", "electric_res-heat", "resistance heat"]
+        self.minor_hvac_tech = [
+                "room AC", "wall-window_room_AC", "secondary heater",
+                "secondary heater (wood)", "secondary heater (coal)",
+                "secondary heater (kerosene)", "secondary heater (LPG)"]
 
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
@@ -2629,7 +2638,7 @@ class Measure(object):
         # Flag the auto-generation of reference case technology analogues for
         # all of the current measure's applicable markets, if applicable –
         # exclude 'Ref. Case' switching of fossil-based heat or resistance heat
-        # under exogenous switching rates, since the competing Ref. Case
+        # to HPs under exogenous switching rates, since the competing Ref. Case
         # analogue will be a min. efficiency HP and this is manually defined
         if (opts.add_typ_eff is True and "Ref. Case" in self.name) and (
                 not self.handyvars.hp_rates or (
@@ -3774,18 +3783,16 @@ class Measure(object):
                 else:
                     hp_rate = None
 
-                # For cases where the measure is switching fuel to a HP
-                # and an external HP conversion rate has been imposed,
-                # and the current mseg applies to fossil fuel (e.g., is
-                # being switched away from), append an '-FS' to the
-                # contributing microsegment tech. information needed for ECM
-                # competition; this will ensure that the mseg is not
-                # directly competed with fossil msegs for other non-FS
-                # measures (e.g., gas efficiency), which is necessary b/c
-                # the overlap between such measures will have already been
-                # accounted for via the HP conversion rate calculations
-                if hp_rate and (self.fuel_switch_to == "electricity" and
-                                "electricity" not in mskeys):
+                # For cases where the measure is switching fossil-based
+                # or resistance heating and associated cooling to a HP and an
+                # external HP conversion rate has been imposed, append an '-FS'
+                # or '-RST' to the contributing microsegment tech. information
+                # needed for ECM competition; this will ensure that the mseg
+                # is only competed with other measures of the same type
+
+                # Cases where measure is converting fossil-based heating and
+                # associated cooling to HP
+                if hp_rate and self.fuel_switch_to == "electricity":
                     contrib_mseg_key = list(contrib_mseg_key)
                     # Tech info. is second to last mseg list element
                     try:
@@ -3793,6 +3800,20 @@ class Measure(object):
                     # Handle Nonetype on technology
                     except TypeError:
                         contrib_mseg_key[-2] = "-FS"
+                    contrib_mseg_key = tuple(contrib_mseg_key)
+                # Cases where measure is converting resistance-based heating
+                # and associated cooling to HP
+                elif hp_rate and any(
+                        [x in self.technology["primary"] for x in
+                         self.handyvars.resist_ht_tech]) and \
+                        "electricity" in mskeys:
+                    contrib_mseg_key = list(contrib_mseg_key)
+                    # Tech info. is second to last mseg list element
+                    try:
+                        contrib_mseg_key[-2] += "-RST"
+                    # Handle Nonetype on technology
+                    except TypeError:
+                        contrib_mseg_key[-2] = "-RST"
                     contrib_mseg_key = tuple(contrib_mseg_key)
 
                 # If sub-market scaling fraction is non-numeric (indicating
@@ -5280,24 +5301,32 @@ class Measure(object):
                             retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base,
                             lkg_fmeth_meas)
 
-                    # Remove double counted stock and stock cost for equipment
+                    # Remove minor HVAC equipment stocks in cases where major
+                    # HVAC tech. is also covered by the measure definition, as
+                    # well as double counted stock and stock cost for equipment
                     # measures that apply to more than one end use that
-                    # includes heating or cooling. In these cases, always
-                    # anchor stock/cost on heating end use tech., provided
-                    # heating is included, because they are generally
-                    # of greatest interest for the stock of measures like
-                    # ASHPs and span fuels (e.g., electric resistance, gas
+                    # includes heating or cooling. In the latter cases, anchor
+                    # stock/cost on on heating end use tech.,
+                    # provided heating is included, because they are
+                    # generally of greatest interest for the stock of measures
+                    # like ASHPs and span fuels (e.g., electric resistance, gas
                     # furnace, oil furnace, etc.). If heating is not covered,
                     # anchor on the cooling end use technologies. This
-                    # adjustment covers heat pump measures as well as HVAC
-                    # controls measures that apply across heating/cooling
-                    # (and possibly other) end uses
-                    if sqft_subst != 1 and len(ms_lists[3]) > 1 and ((
-                        "heating" in ms_lists[3] and
-                        "heating" not in mskeys) or (
-                        "heating" not in ms_lists[3] and
-                        "cooling" in ms_lists[3] and
-                            "cooling" not in mskeys)):
+                    # adjustment covers all measures that apply across
+                    # heating/cooling (and possibly other) end uses
+                    if sqft_subst != 1 and ((
+                        # Multiple techs. including minor HVAC tech.
+                        any([x in mskeys for x in
+                             self.handyvars.minor_hvac_tech]) and not
+                        all([x in self.handyvars.minor_hvac_tech for
+                             x in self.technology["primary"]])) or (
+                        # Multiple end uses
+                        len(ms_lists[3]) > 1 and ((
+                            "heating" in ms_lists[3] and
+                            "heating" not in mskeys) or (
+                            "heating" not in ms_lists[3] and
+                            "cooling" in ms_lists[3] and
+                                "cooling" not in mskeys)))):
                         add_stock_total, add_stock_compete, \
                             add_stock_total_meas, add_stock_compete_meas, \
                             add_stock_cost, add_stock_cost_compete, \
@@ -7237,7 +7266,7 @@ class Measure(object):
         if cost_meas_yr != cost_base_yr:
             # Set full CPI dataset
             cpi = self.handyvars.consumer_price_ind
-            # Find array of rows in CPI dataset associatd with the measure
+            # Find array of rows in CPI dataset associated with the measure
             # cost year
             cpi_row_meas = [x for x in cpi if cost_meas_yr in x['DATE']]
             if len(cpi_row_meas) == 0:
@@ -10473,24 +10502,26 @@ class MeasurePackage(Measure):
                     self.markets[adopt_scheme]["master_mseg"],
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "contributing mseg keys and values"][k])
-
-            # Determine contributing microsegment key chain count for use in
-            # calculating an average baseline and measure lifetime below
-            key_chain_ct_package = len(
-                self.markets[adopt_scheme]["mseg_adjust"][
-                    "contributing mseg keys and values"].keys())
-            # Reduce summed lifetimes across all microsegments that contribute
-            # to the packaged master microsegment by the number of
-            # microsegments that contributed to the sums, to arrive at an
-            # average baseline/measure lifetime for the packaged measure
-            for yr in self.handyvars.aeo_years:
-                self.markets[adopt_scheme]["master_mseg"][
-                    "lifetime"]["baseline"][yr] = \
-                    self.markets[adopt_scheme]["master_mseg"][
-                    "lifetime"]["baseline"][yr] / key_chain_ct_package
+            # Set measures to use in calculating average package lifetimes: all
+            # non add-on equipment measures if non add-ons are part of package,
+            # and otherwise all add-on measures
+            if all([m.measure_type == "add-on" for
+                    m in self.contributing_ECMs_eqp]):
+                life_avg_meas = self.contributing_ECMs_eqp
+            else:
+                life_avg_meas = [m for m in self.contributing_ECMs_eqp if
+                                 m.measure_type != "add-on"]
+            # Average lifetimes
             self.markets[adopt_scheme]["master_mseg"]["lifetime"][
-                "measure"] = self.markets[adopt_scheme][
-                "master_mseg"]["lifetime"]["measure"] / key_chain_ct_package
+                "measure"] = numpy.mean([
+                    m.markets[adopt_scheme]["master_mseg"]["lifetime"][
+                        "measure"] for m in life_avg_meas])
+            self.markets[adopt_scheme]["master_mseg"]["lifetime"][
+                "baseline"] = {
+                    yr: numpy.mean([m.markets[adopt_scheme][
+                        "master_mseg"]["lifetime"]["baseline"][yr]
+                        for m in life_avg_meas])
+                    for yr in self.handyvars.aeo_years}
 
     def add_sectshape_energy(self, cm, sect_shape_init, add_energy,
                              fs_eff_splt_energy, fuel_switch_to):
@@ -10799,11 +10830,6 @@ class MeasurePackage(Measure):
                     base_adj, base_adj, base_adj, base_eff_flag=None,
                     comp_flag=None)
 
-            # Adjust measure lifetime for contributing microsegment such that
-            # when added to package, it averages with the lifetime data for
-            # overlapping measures in the package for the current mseg
-            self.div_keyvals_float(
-                msegs_meas["lifetime"], (len(overlap_meas) + 1))
             # Adjust measure sub-market scaling for contributing microsegment
             # such that when recombined into the package, the maximum
             # sub-market scaling fraction across overlapping measures in

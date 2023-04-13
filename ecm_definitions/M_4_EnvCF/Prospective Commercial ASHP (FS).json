@@ -1,6 +1,6 @@
 {
   "name": "Prospective Commercial ASHP (FS)",
-  "_description": "Ultra-efficient heat pump target, switch fossil-based heating and associated cooling to heat pumps, non-cold climate; include chillers for prospective measure under the assumption that these performance levels can be achieve for large commercial applications",
+  "_description": "Ultra-efficient heat pump target, switch fossil-based heating and associated cooling to heat pumps, non-cold climate",
   "measure_type": "full service",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
@@ -10,7 +10,6 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "all",
   "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
-                 "reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller", 
                  "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
                  "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
                  "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
@@ -29,7 +28,7 @@
     "source_data": null
   },
   "installed_cost": 50.47,
-  "cost_units": "$/kBtu/h heating",
+  "cost_units": "2017$/kBtu/h heating",
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in non-cold climate",
     "source_data": null
@@ -52,7 +51,7 @@
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
     "cooling": 0.68,
-    "heating": 1
+    "heating": 0.73
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
@@ -60,7 +59,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Assume the prospective measure switches all non-electric heating technologies in the definition; cooling fraction excludes cooling in buildings that use electric source of primary heating ((79,294-25,613) sf/ 79,294 sf)."
+      "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
   "_notes": null,
   "_added_by": {

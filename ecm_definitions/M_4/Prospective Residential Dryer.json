@@ -30,7 +30,7 @@
     }
   },
   "installed_cost": 776.21,
-  "cost_units": "$/unit",
+  "cost_units": "2017$/unit",
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year payback period for given performance level",
     "source_data": null

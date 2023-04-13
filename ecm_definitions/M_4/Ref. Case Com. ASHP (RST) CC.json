@@ -7,7 +7,7 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "electric_res-heat"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "elec_boiler", "electric_res-heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",

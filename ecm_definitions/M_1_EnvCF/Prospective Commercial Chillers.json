@@ -24,7 +24,7 @@
     "notes": "Cost that yields a 5 year overall payback period for given performance level",
     "source_data": null
   },
-  "cost_units": "$/kBtu/h cooling",
+  "cost_units": "2017$/kBtu/h cooling",
   "product_lifetime": 20,
   "product_lifetime_units": "years",
   "product_lifetime_source": {

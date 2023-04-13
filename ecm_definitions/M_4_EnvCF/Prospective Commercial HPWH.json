@@ -27,7 +27,7 @@
     }
   },
   "installed_cost": 33.12,
-  "cost_units": "$/kBtu/h water heating",
+  "cost_units": "2017$/kBtu/h water heating",
   "installed_cost_source": {
     "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS HPWH application",
     "source_data": null
