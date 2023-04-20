@@ -51,6 +51,8 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
+    env:
+      MEASURES: "Best Com. Lighting (EE+DF)|Best Com. Air Sealing (New).json"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.10
@@ -61,14 +63,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib
-      - name: download csv shapes
+      - name: Select measure subset
         run: |
-          curl https://zenodo.org/record/7763161/files/Latest_Com_Shapes.zip?download=1 -o ecm_definitions/energyplus_data/savings_shapes/Latest_Com_Shapes.zip
-          curl https://zenodo.org/record/7763161/files/Latest_Res_Shapes.zip?download=1 -o ecm_definitions/energyplus_data/savings_shapes/Latest_Res_Shapes.zip
-          unzip ecm_definitions/energyplus_data/savings_shapes/Latest_Com_Shapes.zip -d ecm_definitions/energyplus_data/savings_shapes
-          unzip ecm_definitions/energyplus_data/savings_shapes/Latest_Res_Shapes.zip -d ecm_definitions/energyplus_data/savings_shapes
-          mv ecm_definitions/energyplus_data/savings_shapes/Latest_Com_Shapes/* ecm_definitions/energyplus_data/savings_shapes
-          mv ecm_definitions/energyplus_data/savings_shapes/Latest_Res_Shapes/* ecm_definitions/energyplus_data/savings_shapes
+          shopt -s extglob
+          cd ecm_definitions/ ; rm !("package_ecms.json"|"Best Com. Lighting (EE+DF).json"|"Best Com. Air Sealing (New).json") ; cd ../
+          echo "[]" > ecm_definitions/package_ecms.json 
+          mv tests/test_files/*.csv ecm_definitions/energyplus_data/savings_shapes/
       - name: run ecm_prep.py
         run: printf 1| python ecm_prep.py --alt_regions      
       - name: run run.py
