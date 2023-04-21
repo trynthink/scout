@@ -1,5 +1,8 @@
 name: tests
-on: [push]
+on:
+  push:
+  pull_request:
+    types: [ synchronize, opened ]
 jobs:
 
   code-quality-checks:
@@ -51,6 +54,7 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     env:
       MEASURES: "Best Com. Lighting (EE+DF)|Best Com. Air Sealing (New).json"
     steps:
