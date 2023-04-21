@@ -1,5 +1,8 @@
 name: tests
-on: [push]
+on:
+  push:
+  pull_request:
+    types: [ synchronize, opened ]
 jobs:
 
   code-quality-checks:
@@ -51,10 +54,13 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     env:
       MEASURES: "Best Com. Lighting (EE+DF)|Best Com. Air Sealing (New).json"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
