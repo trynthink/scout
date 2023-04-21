@@ -90,3 +90,4 @@ jobs:
             git commit -m "Upload test results."
             echo "Pushing to branch: $branch_name"
             git push -u origin $branch_name
+          fi
