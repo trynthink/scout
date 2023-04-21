@@ -58,7 +58,9 @@ jobs:
     env:
       MEASURES: "Best Com. Lighting (EE+DF)|Best Com. Air Sealing (New).json"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ gihub.head_ref }}
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
