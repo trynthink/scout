@@ -73,3 +73,8 @@ jobs:
         run: printf 1| python ecm_prep.py --alt_regions      
       - name: run run.py
         run: python run.py 
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: ./results/*.json
