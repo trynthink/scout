@@ -69,12 +69,24 @@ jobs:
           cd ecm_definitions/ && rm -f !("energyplus_data"|"package_ecms.json"|"Best Res. HPWH (EE+DF–FS).json"|"Best Com. Air Sealing (New).json") && cd ../
           echo "[]" > ecm_definitions/package_ecms.json 
           mv tests/test_files/*.csv ecm_definitions/energyplus_data/savings_shapes/
-      - name: run ecm_prep.py
+      - name: Run ecm_prep.py
         run: printf 1| python ecm_prep.py --alt_regions      
-      - name: run run.py
+      - name: Run run.py
         run: python run.py 
-      - name: upload artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: results
           path: ./results/*.json
+      - name: Commit test results
+        run: |
+          branch_name="${{ github.head_ref }}"
+          git pull origin $branch_name
+          cp -r ./results/*.json ./tests/test_results
+          git add ./tests/test_results/*.json
+          if [[ $(git diff --cached --exit-code) ]]; then
+            git config --global user.email "github-action@users.noreply.github.com"
+            git config --global user.name "GitHub Action"
+            git commit -m "Upload test results."
+            echo "Pushing to branch: $branch_name"
+            git push -u origin $branch_name
