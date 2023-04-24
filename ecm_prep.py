@@ -6,7 +6,7 @@ import json
 from collections import OrderedDict
 from os import listdir, getcwd, stat, path
 from os.path import isfile, join
-from ecm_prep_args import ecm_args
+from ecm_prep_args import ecm_args, fill_user_inputs
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -13359,6 +13359,7 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     opts = ecm_args()
+    opts = fill_user_inputs(opts)
 
     # Set current working directory
     main(opts)

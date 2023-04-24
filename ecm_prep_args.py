@@ -90,7 +90,6 @@ def ecm_args():
                         help="Account for fugitive emissions sources")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args()
-    opts = fill_user_inputs(opts)
 
     return opts
 
