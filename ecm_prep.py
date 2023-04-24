@@ -14,7 +14,6 @@ import gzip
 import pickle
 from functools import reduce  # forward compatibility for Python 3
 import operator
-from argparse import ArgumentParser
 from ast import literal_eval
 import math
 import pandas as pd

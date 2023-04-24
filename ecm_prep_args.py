@@ -1,4 +1,6 @@
 from argparse import ArgumentParser
+import warnings
+
 
 def ecm_args():
     # Handle option user-specified execution arguments
@@ -13,6 +15,9 @@ def ecm_args():
     # Optional flag for non-AIA regional breakdown
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
+    # Optional choice arg for non-AIA regional breakdown
+    parser.add_argument("--alt_regions_option", choices=["EMM", "State", "AIA"],
+                        help="Alternate region breakdown")
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
@@ -87,6 +92,7 @@ def ecm_args():
     opts = parser.parse_args()
 
     return opts
+
 
 def fill_user_inputs(opts):
     # If a user wants to restrict to one adoption scenario, prompt the user to
@@ -332,7 +338,7 @@ def fill_user_inputs(opts):
                 "system load (high renewables case), 3 = total system load "
                 "net renewables (reference case), 4 = total system load "
                 "net renewables (high renewables case): "
-                )
+            )
         else:
             sys_shape = '0'
 
@@ -477,5 +483,5 @@ def fill_user_inputs(opts):
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         opts.pkg_env_costs = input_var
-    
+
     return opts
