@@ -13,6 +13,9 @@ def ecm_args():
     # Optional flag for non-AIA regional breakdown
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
+    # Optional choice arg for non-AIA regional breakdown
+    parser.add_argument("--alt_regions_option", choices=["EMM", "State", "AIA"],
+                    help="Alternate region breakdown")
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
                         help="Flag time sensitive valuation metrics")
