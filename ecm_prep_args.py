@@ -1,8 +1,15 @@
+from __future__ import annotations
 from argparse import ArgumentParser
 import warnings
 
 
-def ecm_args():
+def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
+    """Parse arguments for ecm_prep.py
+
+    Args:
+        args (list): ecm_prep.py input arguments
+    """
+
     # Handle option user-specified execution arguments
     parser = ArgumentParser()
     # Optional flag to calculate site (rather than source) energy outputs
@@ -89,12 +96,12 @@ def ecm_args():
     parser.add_argument("--fugitive_emissions", action="store_true",
                         help="Account for fugitive emissions sources")
     # Object to store all user-specified execution arguments
-    opts = parser.parse_args()
+    opts = parser.parse_args(args)
 
     return opts
 
 
-def fill_user_inputs(opts):
+def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F821
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
     if opts.adopt_scn_restrict is True:
