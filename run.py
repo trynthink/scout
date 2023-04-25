@@ -386,9 +386,9 @@ class Engine(object):
             equivalent site-source) or source (captured energy site-source).
     """
 
-    def __init__(self, handyvars, measure_objects, energy_out, brkout,
-                 report_cfs):
+    def __init__(self, handyvars, opts, measure_objects, energy_out, brkout):
         self.handyvars = handyvars
+        self.opts = opts
         self.measures = measure_objects
         self.output_ecms, self.output_all = (OrderedDict() for n in range(2))
         self.output_all["All ECMs"] = OrderedDict([
@@ -396,7 +396,7 @@ class Engine(object):
         self.output_all["Energy Output Type"] = energy_out
         self.output_all["Output Resolution"] = brkout
         # Initialize competition adjustment fraction dict, if required by user
-        if report_cfs is True:
+        if self.opts.report_cfs is True:
             self.output_ecms_cfs = {}
         else:
             self.output_ecms_cfs = None
@@ -3645,7 +3645,7 @@ class Engine(object):
                     (x[yr] * adj_c) for x in adjlist[6:10]]
 
     def finalize_outputs(
-            self, adopt_scheme, trim_out, trim_yrs, report_stk, report_cfs):
+            self, adopt_scheme, trim_out, trim_yrs):
         """Prepare selected measure outputs to write to a summary JSON file.
 
         Args:
@@ -3653,8 +3653,6 @@ class Engine(object):
                 outputs for.
             trim_out (boolean): Flag for trimmed down results file.
             trim_yrs (list): Optional list of years to focus results on.
-            report_stk (boolean): Flag for stock data reporting.
-            report_cfs (boolean): Flag for reporting comp. scaling fractions.
         """
         # Initialize markets and savings totals across all ECMs
         summary_vals_all_ecms = [{
@@ -3679,7 +3677,7 @@ class Engine(object):
         # the user has chosen to report those data. Structure this variable
         # as a list of two dicts, where the first dict will store total cost
         # data and the second will store incremental cost data
-        if opts.report_stk is True:
+        if self.opts.report_stk is True:
             stk_cost_all_ecms = [{yr: 0 for yr in focus_yrs} for n in range(2)]
         else:
             stk_cost_all_ecms = ""
@@ -3955,7 +3953,7 @@ class Engine(object):
 
             # If competition adjustment fractions must be reported, find/store
             # those data
-            if report_cfs is True:
+            if self.opts.report_cfs is True:
                 # Loop through and pull energy/energy cost/carbon factors
                 for k in ["energy", "cost", "carbon"]:
                     for mt in ["baseline", "efficient", "savings"]:
@@ -4238,7 +4236,7 @@ class Engine(object):
 
             # If a user desires measure market penetration percentages as an
             # output, calculate and report these fractions
-            if opts.mkt_fracs is True:
+            if self.opts.mkt_fracs is True:
                 # Calculate market penetration percentages for the current
                 # measure and scenario; divide post-competition measure stock
                 # by the total stock that the measure could possibly affect
@@ -4267,7 +4265,7 @@ class Engine(object):
                         mkt_fracs_high
             # If a user desires stock data as an output, calculate and report
             # these data for the baseline and measure cases
-            if opts.report_stk is True:
+            if self.opts.report_stk is True:
                 # Determine correct units to use for stock reporting
 
                 # Envelope tech.; use units of ft^2 floor
@@ -4474,7 +4472,7 @@ class Engine(object):
                 summary_vals_all_ecms_f_e[5]
 
         # If necessary, record stock costs across all ECMs
-        if opts.report_stk is True and stk_cost_all_ecms:
+        if self.opts.report_stk is True and stk_cost_all_ecms:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme]["Total Measure Stock Cost ($)"] = \
                 stk_cost_all_ecms[0]
@@ -4571,7 +4569,7 @@ class Engine(object):
         return orig_dict
 
 
-def main(base_dir):
+def main(opts):
     """Import, finalize, and write out measure savings and financial metrics.
 
     Note:
@@ -4579,6 +4577,12 @@ def main(base_dir):
         savings and financial metrics for each measure, and write a summary
         of key results to an output JSON.
     """
+
+    base_dir = getcwd()
+
+    # Set function that only prints message when in verbose mode
+    verboseprint = print if opts.verbose else lambda *a, **k: None
+
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
     # Initialize user opts variable (elements: S-S calculation method;
@@ -4843,8 +4847,7 @@ def main(base_dir):
         print('Data load complete')
 
     # Instantiate an Engine object using active measures list
-    a_run = Engine(handyvars, measures_objlist, energy_out, brkout,
-                   opts.report_cfs)
+    a_run = Engine(handyvars, opts, measures_objlist, energy_out, brkout)
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
@@ -4870,9 +4873,7 @@ def main(base_dir):
         print("Calculations complete")
         print("Finalizing results...", end="", flush=True)
         # Write selected outputs to a summary JSON file for post-processing
-        a_run.finalize_outputs(
-            adopt_scheme, trim_out, trim_yrs, opts.report_stk,
-            opts.report_cfs)
+        a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
         print("Results finalized")
 
     # Notify user that all analysis engine calculations are completed
@@ -5032,11 +5033,7 @@ def main(base_dir):
         run_plot(meas_summary, a_run, handyvars, measures_objlist, regions)
         print("Plotting complete")
 
-
-if __name__ == '__main__':
-    import time
-    start_time = time.time()
-    base_dir = getcwd()
+def parse_args():
     # Handle option user-specified execution arguments
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", dest="verbose",
@@ -5054,9 +5051,14 @@ if __name__ == '__main__':
     parser.add_argument("--report_cfs", action="store_true",
                         help="Report competition adjustment fractions")
     opts = parser.parse_args()
-    # Set function that only prints message when in verbose mode
-    verboseprint = print if opts.verbose else lambda *a, **k: None
-    main(base_dir)
+
+    return opts
+
+if __name__ == '__main__':
+    import time
+    start_time = time.time()
+    opts = parse_args()
+    main(opts)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("--- Runtime: %s (HH:MM:SS.mm) ---" %
