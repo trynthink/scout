@@ -1,7 +1,9 @@
+from __future__ import annotations
 #!/usr/bin/env python3
 import json
 import numpy
 import copy
+import sys
 from numpy.linalg import LinAlgError
 from collections import OrderedDict, defaultdict
 import gzip
@@ -4569,7 +4571,7 @@ class Engine(object):
         return orig_dict
 
 
-def main(opts):
+def main(opts: argparse.NameSpace):
     """Import, finalize, and write out measure savings and financial metrics.
 
     Note:
@@ -5033,7 +5035,13 @@ def main(opts):
         run_plot(meas_summary, a_run, handyvars, measures_objlist, regions)
         print("Plotting complete")
 
-def parse_args():
+def parse_args(args: list) -> argparse.NameSpace:
+    """Parse arguments for run.py
+
+    Args:
+        args (list): run.py input arguments
+    """
+
     # Handle option user-specified execution arguments
     parser = ArgumentParser()
     parser.add_argument("--verbose", action="store_true", dest="verbose",
@@ -5050,15 +5058,16 @@ def parse_args():
     # Optional flag to report competition adjustment fractions
     parser.add_argument("--report_cfs", action="store_true",
                         help="Report competition adjustment fractions")
-    opts = parser.parse_args()
 
+    opts = parser.parse_args(args)
     return opts
 
 if __name__ == '__main__':
     import time
     start_time = time.time()
-    opts = parse_args()
+    opts = parse_args(sys.argv[1:])
     main(opts)
+
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("--- Runtime: %s (HH:MM:SS.mm) ---" %
