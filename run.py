@@ -1,5 +1,5 @@
-from __future__ import annotations
 #!/usr/bin/env python3
+from __future__ import annotations
 import json
 import numpy
 import copy
@@ -4571,7 +4571,7 @@ class Engine(object):
         return orig_dict
 
 
-def main(opts: argparse.NameSpace):
+def main(opts: argparse.NameSpace):  # noqa: F821
     """Import, finalize, and write out measure savings and financial metrics.
 
     Note:
@@ -5035,7 +5035,8 @@ def main(opts: argparse.NameSpace):
         run_plot(meas_summary, a_run, handyvars, measures_objlist, regions)
         print("Plotting complete")
 
-def parse_args(args: list) -> argparse.NameSpace:
+
+def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
     """Parse arguments for run.py
 
     Args:
@@ -5061,6 +5062,7 @@ def parse_args(args: list) -> argparse.NameSpace:
 
     opts = parser.parse_args(args)
     return opts
+
 
 if __name__ == '__main__':
     import time

@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import warnings
 
 
-def ecm_args(args: list) -> argparse.NameSpace:
+def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
     """Parse arguments for ecm_prep.py
 
     Args:
@@ -101,7 +101,7 @@ def ecm_args(args: list) -> argparse.NameSpace:
     return opts
 
 
-def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:
+def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F821
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
     if opts.adopt_scn_restrict is True:

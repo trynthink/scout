@@ -1,5 +1,5 @@
-from __future__ import annotations
 #!/usr/bin/env python3
+from __future__ import annotations
 import numpy
 import re
 import itertools
@@ -12558,7 +12558,7 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
     return tsv_yr_map
 
 
-def main(opts: argparse.NameSpace):
+def main(opts: argparse.NameSpace):  # noqa: F821
     """Import and prepare measure attributes for analysis engine.
 
     Note:

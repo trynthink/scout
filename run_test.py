@@ -15,6 +15,7 @@ import numpy_financial as npf
 
 base_args = run.parse_args([])
 
+
 class CommonTestMeasures(object):
     """Class of common sample measures for tests.
 
@@ -26902,5 +26903,5 @@ def main():
 
 
 if __name__ == "__main__":
-    
+
     main()
