@@ -330,7 +330,9 @@ class UsefulVars(object):
             the building sector categories used in summarizing measure outputs.
         out_break_enduses (OrderedDict): Maps measure end use names to
             the end use categories used in summarizing measure outputs.
-        out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
+        out_break_eus_w_fsplits (List): List of end use categories that
+            would potentially apply across multiple fuels.
+   s     out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
             non-electric fuels (for heating, cooling, WH, and cooking).
         out_break_in (OrderedDict): Breaks out key measure results by
             climate zone, building sector, and end use.
@@ -1231,6 +1233,9 @@ class UsefulVars(object):
             ('Other', [
                 "drying", "ceiling fan", "fans and pumps",
                 "MELs", "other"])])
+        self.out_break_eus_w_fsplits = [
+            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
+            "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
             if opts.detail_brkout in ['1', '4', '6', '7']:
@@ -1263,9 +1268,8 @@ class UsefulVars(object):
             for ind, elem in enumerate(kc):
                 # If fuel splits are desired and applicable for the current
                 # end use breakout, add the fuel splits to the dict vals
-                if len(self.out_break_fuels.keys()) != 0 and (elem in [
-                    "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
-                    "Cooling (Env.)", "Water Heating", "Cooking"]) and \
+                if len(self.out_break_fuels.keys()) != 0 and (
+                        elem in self.out_break_eus_w_fsplits) and \
                         elem not in current_level:
                     current_level[elem] = OrderedDict(
                         [(x, OrderedDict()) for x in
@@ -5477,9 +5481,7 @@ class Measure(object):
                     # non-electric); note – only applicable to end uses that
                     # are at least in part fossil-fired
                     if (len(self.handyvars.out_break_fuels.keys()) != 0) and (
-                        out_eu in ["Heating (Equip.)", "Cooling (Equip.)",
-                                   "Heating (Env.)", "Cooling (Env.)",
-                                   "Water Heating", "Cooking"]):
+                            out_eu in self.handyvars.out_break_eus_w_fsplits):
                         # Flag for detailed fuel type breakout
                         detail = len(self.handyvars.out_break_fuels.keys()) > 2
                         # Establish breakout of fuel type that is being
@@ -11807,9 +11809,8 @@ class MeasurePackage(Measure):
         # If applicable, establish fuel type breakout (electric vs.
         # non-electric); note – only applicable to end uses that
         # are at least in part fossil-fired
-        if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
-            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
-                "Cooling (Env.)", "Water Heating", "Cooking"]:
+        if len(self.handyvars.out_break_fuels.keys()) != 0 and (
+                out_eu in self.handyvars.out_break_eus_w_fsplits):
             # Flag for detailed fuel type breakout
             detail = len(self.handyvars.out_break_fuels.keys()) > 2
             # Establish breakout of fuel type that is being
@@ -13389,7 +13390,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 "out_break_czones": handyvars.out_break_czones,
                 "out_break_bldg_types": handyvars.out_break_bldgtypes,
                 "out_break_enduses": handyvars.out_break_enduses,
-                "out_break_fuels": handyvars.out_break_fuels
+                "out_break_fuels": handyvars.out_break_fuels,
+                "out_break_eus_w_fsplits": handyvars.out_break_eus_w_fsplits
             }
             json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
     else:
