@@ -1232,7 +1232,7 @@ class UsefulVars(object):
                 "MELs", "other"])])
         self.out_enduse_fuel_split = [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
-                "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
+            "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
             if opts.detail_brkout in ['1', '4', '6', '7']:
