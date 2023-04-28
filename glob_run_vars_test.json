@@ -106,5 +106,14 @@
       "other"
     ]
   },
-  "out_break_fuels": {}
+  "out_break_fuels": {},
+  "out_break_eus_w_fsplits": [
+    "Heating (Equip.)",
+    "Cooling (Equip.)",
+    "Heating (Env.)",
+    "Cooling (Env.)",
+    "Water Heating",
+    "Cooking",
+    "Other"
+  ]
 }
