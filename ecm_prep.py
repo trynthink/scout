@@ -8,7 +8,7 @@ import sys
 from collections import OrderedDict
 from os import listdir, getcwd, stat, path
 from os.path import isfile, join
-from ecm_prep_args import ecm_args, fill_user_inputs
+from ecm_prep_args import ecm_args
 import copy
 import warnings
 from urllib.parse import urlparse
