@@ -69,12 +69,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter
-      - name: Select measure subset
-        run: |
-          shopt -s extglob
-          cd ecm_definitions/ && rm -f !("energyplus_data"|"package_ecms.json"|"Best Res. HPWH (EE+DF–FS).json"|"Best Com. Air Sealing (New).json") && cd ../
-          echo "[]" > ecm_definitions/package_ecms.json 
-          mv tests/test_files/*.csv ecm_definitions/energyplus_data/savings_shapes/
       - name: Run ecm_prep.py
         run: printf 1| python ecm_prep.py --alt_regions      
       - name: Run run.py
