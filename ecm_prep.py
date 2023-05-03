@@ -8,7 +8,7 @@ import sys
 from collections import OrderedDict
 from os import listdir, getcwd, stat, path
 from os.path import isfile, join
-from ecm_prep_args import ecm_args, fill_user_inputs
+from ecm_prep_args import ecm_args
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -12571,6 +12571,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         opts (argparse.NameSpace): argparse object containing the argument
         attributes
     """
+
+    # Set current working directory
     base_dir = getcwd()
 
     # Custom format all warning messages (ignore everything but
@@ -13361,9 +13363,7 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     opts = ecm_args(sys.argv[1:])
-    opts = fill_user_inputs(opts)
 
-    # Set current working directory
     main(opts)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)

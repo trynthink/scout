@@ -97,11 +97,21 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
                         help="Account for fugitive emissions sources")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args(args)
+    opts = fill_user_inputs(opts)
 
     return opts
 
 
 def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F821
+    """Request additional user inputs through command line prompts and store them
+
+    Args:
+        opts (argparse.NameSpace): object in which to store user responses
+
+    Returns:
+        argparse.NameSpace: opts variable with user inputs added
+    """
+
     # If a user wants to restrict to one adoption scenario, prompt the user to
     # select that scenario
     if opts.adopt_scn_restrict is True:

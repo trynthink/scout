@@ -16155,8 +16155,6 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
 
     @classmethod
     def setUpClass(cls):
-
-        print("$#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         """Define objects/variables for use across all class functions."""
         base_dir = os.getcwd()
         handyfiles = run.UsefulInputFiles(energy_out=[
@@ -26896,12 +26894,8 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
 # test files)
 def main():
     """Trigger default behavior of running all test fixtures in the file."""
-    # runner = unittest.TextTestRunner()
-    # itersuite = unittest.TestLoader().loadTestsFromTestCase(MyTestClass)
-    # runner.run(itersuite)
-    # # unittest.main(argv=[''])
+    unittest.main()
 
 
 if __name__ == "__main__":
-
     main()
