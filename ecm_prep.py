@@ -13361,7 +13361,6 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     opts = ecm_args(sys.argv[1:])
-    opts = fill_user_inputs(opts)
 
     # Set current working directory
     main(opts)

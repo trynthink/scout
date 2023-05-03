@@ -97,6 +97,7 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
                         help="Account for fugitive emissions sources")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args(args)
+    opts = fill_user_inputs(opts)
 
     return opts
 
