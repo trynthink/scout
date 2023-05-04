@@ -61,6 +61,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
@@ -69,8 +71,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter
-      - name: Collect Workflow Telemetry
-        uses: runforesight/workflow-telemetry-action@v1
       - name: Remove faulty ecm (TEMPORARY)
         run: rm "ecm_definitions/Best Res. Pool Pump (EE+DF).json"
       - name: Run ecm_prep.py
