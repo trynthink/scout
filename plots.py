@@ -1663,7 +1663,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
         for i in range(len(xlsx_var_name_list)):
             xlsx_var_name_list[i].to_excel(
                 writer, sheet_name=file_names_ecms[i], index=False)
-        writer.save()
+        writer.close()
 
 
 if __name__ == '__main__':
