@@ -4918,14 +4918,6 @@ class Measure(object):
                     opts.fugitive_emissions[0] in ['1', '3'] and (
                         opts.alt_regions != "State" and
                         mskeys[3] == "natural gas"):
-                    # Prepare leakage rate sensitivity variable based on
-                    # input options
-                    if opts.fugitive_emissions[1] == '1':
-                        lkg_rate_scenario = "Low"
-                    elif opts.fugitive_emissions[1] == '2':
-                        lkg_rate_scenario = "Mid"
-                    else:
-                        lkg_rate_scenario = "High"
                     # Prepare fractions needed to map state-resolved
                     # fugitive methane data to current region
                     try:
@@ -4940,12 +4932,10 @@ class Measure(object):
                     # Apply mapping fractions to develop methane leakage rate
                     try:
                         lkg_rate = sum([self.handyvars.fug_emissions[
-                            "methane"]["total_leakage_rate"][
-                                lkg_rate_scenario][state] *
+                            "methane"]["total_leakage_rate"][state] *
                             reg_weight[state] for state in
                             self.handyvars.fug_emissions[
-                            "methane"]["total_leakage_rate"][
-                                lkg_rate_scenario].keys()])
+                            "methane"]["total_leakage_rate"].keys()])
                     except (KeyError):
                         raise ValueError(
                             "Inconsistent state keys "
@@ -4966,8 +4956,7 @@ class Measure(object):
                         mskeys[3] == "natural gas":
                     # Directly pull methane leakage rate for current state
                     lkg_rate = self.handyvars.fug_emissions[
-                        "methane"]["total_leakage_rate"][
-                            lkg_rate_scenario][mskeys[1]]
+                        "methane"]["total_leakage_rate"][mskeys[1]]
                     # Handle case where measure is switching away from
                     # a baseline case with methane leakage to a non-gas tech.
                     # without such leakage
@@ -8150,35 +8139,16 @@ class Measure(object):
             if f_refr_assess:
                 # Baseline tech. unit-level refrigerant emissions
                 if f_refr["baseline"][0] is not None:
-                    # Case where user assumes typical refrigerants do not phase
-                    # out
-                    if opts.fugitive_emissions[1] == '1':
-                        # Find key to use in pulling global warming potential
-                        # value for the typical baseline tech. refrigerant
-                        if (type(f_refr["baseline"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_b = f_refr["baseline"][0][
-                                "typ_refrigerant"][[
-                                    y for y in f_refr["baseline"][0][
-                                        "typ_refrigerant"].keys()][0]]
-                        else:
-                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
-                    # Case where user assumes typical refrigerants have phase-
-                    # out years
-                    elif opts.fugitive_emissions[1] in ['2', '3']:
-                        # Find key to use in pulling global warming potential
-                        # value for the typical baseline tech. refrigerant;
-                        # typical refrigerants may be stored as a dict keyed in
-                        # by year
-                        if (type(f_refr["baseline"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_b = f_refr["baseline"][0][
-                                "typ_refrigerant"][
-                                [y for y in f_refr["baseline"][0][
-                                    "typ_refrigerant"].keys() if
-                                    int(yr) >= int(y)][-1]]
-                        else:
-                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                    # Find key to use in pulling global warming potential
+                    # value for the typical baseline tech. refrigerant; typical
+                    # refrigerants may be stored as a dict keyed in by year
+                    if type(f_refr["baseline"][0]["typ_refrigerant"]) == dict:
+                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"][[
+                            y for y in f_refr["baseline"][0][
+                                "typ_refrigerant"].keys() if
+                            int(yr) >= int(y)][-1]]
+                    else:
+                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
                     # Use key above to pull baseline tech. refrigerant GWP
                     try:
                         base_gwp_yr = self.handyvars.fug_emissions[
@@ -8194,7 +8164,7 @@ class Measure(object):
                 # Measure tech. unit-level refrigerant emissions
                 if f_refr["efficient"][0] is not None:
                     # Case where user assumes measure uses low GWP refrigerant
-                    if opts.fugitive_emissions[1] == '3':
+                    if opts.fugitive_emissions[1] == '2':
                         # Low GWP refrigerant may be specified as a measure
                         # attribute; first try to pull from this attribute
                         try:
@@ -8238,21 +8208,7 @@ class Measure(object):
                             else:
                                 r_key_e = f_refr["efficient"][0][
                                     "low_gwp_refrigerant"]
-                    # Case where user assumes typical refrigerants do
-                    # not phase out
-                    elif opts.fugitive_emissions[1] == '1':
-                        # Find key to use in pulling global warming potential
-                        # value for the typical baseline tech. refrigerant
-                        if (type(f_refr["efficient"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_e = f_refr["efficient"][0][
-                                "typ_refrigerant"][[
-                                    y for y in f_refr["efficient"][0][
-                                        "typ_refrigerant"].keys()][0]]
-                        else:
-                            r_key_e = f_refr["efficient"][0]["typ_refrigerant"]
-                    # Case where user assumes typical refrigerants have phase-
-                    # out years
+                    # Case where user assumes measure uses typical refrigerant
                     else:
                         # Typical refrigerants may be stored as a dict keyed
                         # in by year
@@ -8261,11 +8217,11 @@ class Measure(object):
                             r_key_e = f_refr["efficient"][0][
                                 "typ_refrigerant"][
                                 [y for y in f_refr["efficient"][0][
-                                    "typ_refrigerant"].keys() if
-                                    int(yr) >= int(y)][-1]]
+                                  "typ_refrigerant"].keys() if
+                                 int(yr) >= int(y)][-1]]
                         else:
                             r_key_e = \
-                                f_refr["efficient"][0]["typ_refrigerant"]
+                                f_refr["efficient"][0]["low_gwp_refrigerant"]
                     # Use key above to pull measure refrigerant GWP
                     try:
                         meas_gwp_yr = self.handyvars.fug_emissions[
@@ -8278,6 +8234,7 @@ class Measure(object):
                             "fugitive_emissions_convert.json")
                 else:
                     meas_gwp_yr = ""
+
                 # Calculate per unit baseline and measure refrigerant
                 # emissions; calculation is:
                 # ((typ. unit charge (kg) * typ. unit leakage (%) +
@@ -12706,7 +12663,7 @@ def main(base_dir):
     # whether to use typical refrigerants (including representation of expected
     # phase-out years) or user-defined low-GWP refrigerants, as applicable
     if opts and opts.fugitive_emissions is True:
-        input_var = [0, None, None]
+        input_var = [0, None]
         # Determine which fugitive emissions setting to use
         while input_var[0] not in ['1', '2', '3']:
             input_var[0] = input(
@@ -12721,26 +12678,13 @@ def main(base_dir):
         # In cases where refrigerant emissions are being assessed,
         # determine assumptions about typical vs. low-GWP refrigerants
         if input_var[0] != '1':
-            while input_var[1] not in ['1', '2', '3']:
+            while input_var[1] not in ['1', '2']:
                 input_var[1] = input(
-                    "\nEnter 1 to assume measures use typical refrigerants "
-                    "\nwithout representation of their phase-out years,\nor 2 "
-                    "to include representation of their phase-out years,\nor "
-                    "3 to assume measures use low-GWP refrigerants\n "
-                    "immediately: ")
-                if input_var[1] not in ['1', '2', '3']:
-                    print('Please try again. Enter either 1, 2, or 3. '
-                          'Use ctrl-c to exit.')
-        # In cases where methane emissions are being assessed,
-        # determine assumptions about methane leakage rates
-        if input_var[0] != '2':
-            while input_var[2] not in ['1', '2', '3']:
-                input_var[2] = input(
-                    "\nEnter 1 to assume lower bound methane leakage rates "
-                    "\nor 2 to assume middle bound methane leakage rates, "
-                    "\nor 3 to upper bound methane leakage rates\n ")
-                if input_var[2] not in ['1', '2', '3']:
-                    print('Please try again. Enter either 1, 2, or 3. '
+                    "\nEnter 1 to assume measures use typical refrigerants, "
+                    "including representation of their phase-out years,\nor 2 "
+                    "to assume measures use low-GWP refrigerants: ")
+                if input_var[1] not in ['1', '2']:
+                    print('Please try again. Enter either 1 or 2. '
                           'Use ctrl-c to exit.')
         opts.fugitive_emissions = input_var
 
