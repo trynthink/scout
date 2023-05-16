@@ -55,8 +55,6 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    env:
-      MEASURES: "Best Com. Lighting (EE+DF)|Best Com. Air Sealing (New).json"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -69,8 +67,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter
-      - name: Remove faulty ecm (TEMPORARY)
-        run: rm "ecm_definitions/Best Res. Pool Pump (EE+DF).json"
+      - name: Select measure subset
+        run: |
+          shopt -s extglob
+          cd ecm_definitions/ && rm -f !("energyplus_data"|"package_ecms.json"|"Best Res. HPWH (EE+DF–FS).json"|"Best Com. Air Sealing (New).json") && cd ../
+          echo "[]" > ecm_definitions/package_ecms.json 
       - name: Run workflow
         run: python tests/integration_testing/run_workflow.py
       - name: Upload artifacts
