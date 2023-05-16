@@ -24,22 +24,22 @@
     "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
     "source_data": null
   },
-  "installed_cost": 50.47,
-  "cost_units": "$/kBtu/h heating",
+  "installed_cost": 61,
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in non-cold climate",
+    "notes": "Cost that yields a 5 year overall payback period for given performance level and market entry year based on FS application in non-cold climate",
     "source_data": null
   },
-  "product_lifetime": 23,
+  "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Lifetime for 2020 'typical' commercial gas furnace",
+    "notes": "Lifetime for 2030 'typical' commercial RTHP",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       }
   },
@@ -55,5 +55,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
   },
-  "_updated_by": null
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon May 22 12:01:00 EDT 2023"
+  }]
 }

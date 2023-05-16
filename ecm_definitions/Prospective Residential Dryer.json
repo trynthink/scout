@@ -29,22 +29,22 @@
       "pages": 77
     }
   },
-  "installed_cost": 776.21,
-  "cost_units": "$/unit",
+  "installed_cost": 908,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Cost that yields a 5 year payback period for given performance level",
+    "notes": "Cost that yields a 5 year payback period for given performance level and market entry year",
     "source_data": null
   },
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential electric dryer",
+    "notes": "Average of lifetimes for 2030 'typical' residential electric dryer",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 79,
+      "year": 2023,
+      "pages": 97,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       }
   },
@@ -60,5 +60,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Thu May 19 11:46:56 EDT 2022"
   },
-    "_updated_by": null
+    "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon May 22 12:01:00 EDT 2023"
+  }]
 }

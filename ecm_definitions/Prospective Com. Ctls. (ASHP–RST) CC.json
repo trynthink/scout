@@ -10,9 +10,7 @@
   "structure_type": "all",
   "end_use": ["cooling", "heating", "ventilation"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
-                 "reciprocating_chiller", "centrifugal_chiller", "scroll_chiller", "screw_chiller",
-                 "elec_boiler", "electric_res-heat", "all ventilation"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "wall-window_room_AC", "electric_res-heat", "all ventilation"],
   "market_entry_year": 2030,
   "market_entry_year_source": {
     "notes": "Targeted year of breakthrough technology market entry",
@@ -41,17 +39,9 @@
   "market_exit_year_source": null,
   "fuel_switch_to": null,
   "market_scaling_fractions": {
-    "rooftop_AC": 0.32, 
-    "res_type_central_AC": 0.32,
-    "wall-window_room_AC": 0.32,
-    "reciprocating_chiller": 0.32,
-    "centrifugal_chiller": 0.32,
-    "scroll_chiller": 0.32,
-    "screw_chiller": 0.32,
-    "electric_res-heat": 1,
-    "elec_boiler": 1,
-    "CAV_Vent": 0.3765,
-    "VAV_Vent": 0.3765
+    "cooling": 0.32, 
+    "heating": 1,
+    "ventilation": 0.274
   },
   "market_scaling_fractions_source": [{
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
@@ -59,7 +49,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf)."
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (53,681 sf/ 79,294 sf)."
   },
   {
       "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
@@ -67,7 +57,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
-      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-HP electric boiler/resistance for heating (30,157 sf/80,078 sf)."
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-HP electric boiler/resistance for heating (30,157 sf/80,078 sf) AND which do not use a chiller for cooling (57,645 sf / 79,294 sf)."
   }],
   "_notes": null,
   "_added_by": {

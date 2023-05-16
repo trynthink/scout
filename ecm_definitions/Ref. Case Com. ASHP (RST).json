@@ -1,13 +1,14 @@
 {
-  "name": "ENERGY STAR Com. ASHP (RST) CC",
-  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate, replace resistance",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
-                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "name": "Ref. Case Com. ASHP (RST)",
+  "_description": "Typical size light commercial rooftop HP unit with reference case performance (counterfactual), non-cold-climate",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
-  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "wall-window_room_AC", "electric_res-heat"],
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC", "elec_boiler", "electric_res-heat"],
   "market_entry_year": 2021,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
@@ -18,7 +19,7 @@
   "energy_efficiency": 3.4,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
+    "notes": "Reflect performance level of 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
@@ -56,8 +57,11 @@
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": {
-    "cooling": 0.32, 
-    "heating": 1
+    "rooftop_AC": 0.32, 
+    "res_type_central_AC": 0.32,
+    "wall-window_room_AC": 0.32,
+    "electric_res-heat": 1,
+    "elec_boiler": 1
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
@@ -65,34 +69,13 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2015,
       "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (53,681 sf/ 79,294 sf)."
+      "fraction_derivation": "Cooling fraction excludes cooling in buildings that use non-electric source of primary heating (25,613 sf/ 79,294 sf)."
   },
   "_notes": null,
-  "_added_by": {
+  "_added_by":  {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2016-11-16 20:57:11 EST"
-  },
-  "_updated_by": [{
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Laboratory",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
-  },{
-    "name": "Ardelia Clarke",
-    "organization": "National Renewable Energy Laboratory",
-    "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 17 12:15:37 MST 2020"
-  },{
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
-  },{
-    "name": "Jared Langevin",
-    "organization": "Lawrence Berkeley National Lab",
-    "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
-  }]
+    "timestamp": "Thu Mar  2 06:23:29 EST 2023"
+  }
 }

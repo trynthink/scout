@@ -23,22 +23,22 @@
     "notes": "Most aggressive performance level expected to be achievable via breakthrough R&D",
     "source_data": null
   },
-  "installed_cost": 6223.0,
-  "cost_units": "$/unit",
+  "installed_cost": 7235,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS application in cold climate; based on comparison with counterfactual heating technology",
+    "notes": "Cost that yields a 5 year overall payback period for given performance level and market entry year based on FS application in cold climate; based on comparison with counterfactual heating technology",
     "source_data": null
   },
-  "product_lifetime": 22,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential NG furnace",
+    "notes": "Median of average lifetimes for 2030 'typical' residential ASHP",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 8,
+      "year": 2023,
+      "pages": 39,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       }
   },
@@ -54,5 +54,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Thu May 19 11:46:56 EDT 2022"
   },
-    "_updated_by": null
+    "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon May 22 12:01:00 EDT 2023"
+  }]
 }
