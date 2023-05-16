@@ -1,11 +1,10 @@
 from pathlib import Path
 import sys
-
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from scout import ecm_prep
-from scout.ecm_prep_args import ecm_args
-from scout import run
+from scout import ecm_prep  # noqa: E402
+from scout.ecm_prep_args import ecm_args  # noqa: E402
+from scout import run  # noqa: E402
 
 
 def run_workflow():

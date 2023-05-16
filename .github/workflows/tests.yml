@@ -83,8 +83,8 @@ jobs:
         run: |
           branch_name="${{ github.head_ref }}"
           git pull origin $branch_name
-          cp -r ./results/*.json ./tests/test_results
-          git add ./tests/test_results/*.json
+          cp -r ./results/*.json ./tests/integration_testing
+          git add ./tests/integration_testing/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
             git config --global user.email "github-action@users.noreply.github.com"
             git config --global user.name "GitHub Action"
