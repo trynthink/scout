@@ -480,6 +480,8 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             grid_decarb=False)
         handyfiles.glob_vars = "glob_run_vars_test.json"
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
+        # Hardcode adjustments to common cost year to 1
+        cls.handyvars.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
         cls.sample_measure_com = CommonTestMeasures().sample_measure5
         cls.test_adopt_scheme = 'Technical potential'

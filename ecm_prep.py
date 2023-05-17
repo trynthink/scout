@@ -7095,6 +7095,14 @@ class Measure(object):
         # Establish measure and baseline cost year
         cost_meas_yr, cost_base_yr = \
             cost_meas_units_unpack.group(1), cost_base_units_unpack.group(1)
+        # Where there is no measure or base cost year given in units, assume
+        # current year (which will be the first in the model time horizon)
+        if not cost_meas_yr:
+            cost_meas_yr = self.handyvars.aeo_years[0]
+            cost_meas_units = cost_meas_yr + cost_meas_units
+        if not cost_base_yr:
+            cost_base_yr = self.handyvars.aeo_years[0]
+            cost_base_units = cost_base_yr + cost_base_units
         # Establish measure and baseline cost units (excluding cost year)
         cost_meas_noyr, cost_base_noyr = \
             cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)
@@ -7274,17 +7282,24 @@ class Measure(object):
             cpi = self.handyvars.consumer_price_ind
             # Find array of rows in CPI dataset associated with the measure
             # cost year
-            cpi_row_meas = [x for x in cpi if cost_meas_yr in x['DATE']]
+            cpi_row_meas = [x[1] for x in cpi if cost_meas_yr in x['DATE']]
+            # Average across all rows for a year, or if year wasn't found,
+            # choose the latest available row in the data
             if len(cpi_row_meas) == 0:
-                cpi_row_meas = cpi
+                cpi_row_meas = cpi[-1][1]
+            else:
+                cpi_row_meas = numpy.mean(cpi_row_meas)
             # Find array of rows in CPI dataset associated with the baseline
             # cost year
-            cpi_row_base = [x for x in cpi if cost_base_yr in x['DATE']]
+            cpi_row_base = [x[1] for x in cpi if cost_base_yr in x['DATE']]
+            # Average across all rows for a year, or if year wasn't found,
+            # choose the latest available row in the data
             if len(cpi_row_base) == 0:
-                cpi_row_base = cpi
-            # Calculate year conversion using last row in each array
-            # (representing the latest CPI value listed for each year)
-            convert_yr = cpi_row_base[-1][1] / cpi_row_meas[-1][1]
+                cpi_row_base = cpi[-1][1]
+            else:
+                cpi_row_base = numpy.mean(cpi_row_base)
+            # Calculate year conversion ratio
+            convert_yr = cpi_row_base / cpi_row_meas
         else:
             convert_yr = 1
 
