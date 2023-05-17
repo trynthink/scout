@@ -14,6 +14,7 @@ import math
 from argparse import ArgumentParser
 import numpy_financial as npf
 from plots import run_plot
+from datetime import datetime
 
 
 class UsefulInputFiles(object):
@@ -31,6 +32,7 @@ class UsefulInputFiles(object):
         meas_engine_out_ecms (tuple): Individual measure output summaries.
         meas_engine_out_agg (tuple): Portfolio output summaries.
         comp_fracs_out (tuple): Competition adjustment fractions (if required)
+        cpi_data (tuple). Consumer Price Index (CPI) data.
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
     """
@@ -45,6 +47,7 @@ class UsefulInputFiles(object):
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
         self.comp_fracs_out = ("results", "comp_fracs.json")
+        self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -187,6 +190,9 @@ class UsefulVars(object):
             fuel categories used in summarizing measure outputs.
         regions (str): Regions to use in geographically breaking out the data.
         region_inout_namepairs (dict): Input/output region name pairs.
+        common_cost_yr (str) = Common year for all cost calculations.
+        cost_convert (dict) = Conversions between cost year for various cost
+            metrics (stock, energy, carbon) and common cost year.
     """
 
     def __init__(self, base_dir, handyfiles):
@@ -249,6 +255,53 @@ class UsefulVars(object):
                 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
                 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
                 'WY']]}
+        # Import CPI data to use in cost conversions
+        try:
+            cpi = numpy.genfromtxt(
+                path.join(base_dir, *handyfiles.cpi_data),
+                names=True, delimiter=',',
+                dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+            # Ensure that consumer price date is in expected format
+            if len(cpi['DATE'][0]) != 10:
+                raise ValueError("CPI date format should be YYYY-MM-DD")
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in '" +
+                handyfiles.cpi_data + "': " + str(e)) from None
+        # Years of the baseline stock cost, energy cost, and carbon cost data
+        # *** Note: could eventually be pulled from baseline data files
+        # rather than hardcoded ***
+        cost_yrs = {"stock": "2017", "energy": "2021", "carbon": "2020"}
+        # Desired common cost year; use year previous to current one to
+        # ensure that full year of CPI data is available for averaging
+        self.common_cost_yr = str(datetime.today().year - 1)
+        # Initialize dict of conversions to reach common cost basis
+        self.cost_convert = {key: None for key in cost_yrs.keys()}
+        # Find array of rows in CPI dataset associated with current year
+        cpi_row_cmn = [
+            x[1] for x in cpi if self.common_cost_yr in x['DATE']]
+        # If year is not found in CPI data, default to last available
+        # CPI index value in the dataset; otherwise, average across all
+        # values for that year
+        if len(cpi_row_cmn) == 0:
+            cpi_row_cmn = cpi[-1][1]
+        else:
+            cpi_row_cmn = numpy.mean(cpi_row_cmn)
+        # Loop through each metric and develop conversions of costs between
+        # year of costs for given metric and common cost year developed above
+        for metr in cost_yrs.keys():
+            # Find array of rows in CPI dataset associated with the metric
+            # cost year
+            cpi_row_metr = [x[1] for x in cpi if cost_yrs[metr] in x['DATE']]
+            # If year is not found in CPI data, default to last
+            # available CPI index value in the dataset; otherwise, average
+            # across all values for that year
+            if len(cpi_row_metr) == 0:
+                cpi_row_metr = cpi[-1][1]
+            else:
+                cpi_row_metr = numpy.mean(cpi_row_metr)
+            # Calculate ratio of metric year CPI index to common year CPI index
+            self.cost_convert[metr] = cpi_row_cmn / cpi_row_metr
 
 
 class Measure(object):
@@ -542,15 +595,20 @@ class Engine(object):
                 csave_tot[yr] = \
                     markets_save["carbon"]["total"]["baseline"][yr] - \
                     markets_save["carbon"]["total"]["efficient"][yr]
-                scostsave_tot[yr] = \
-                    markets_save["cost"]["stock"]["total"]["baseline"][yr] - \
+                # Note: convert stock, energy, and carbon costs to common
+                # year dollars
+                scostsave_tot[yr] = (
+                    markets_save["cost"]["stock"]["total"]["baseline"][yr] -
                     markets_save["cost"]["stock"]["total"]["efficient"][yr]
-                ecostsave_tot[yr] = \
-                    markets_save["cost"]["energy"]["total"]["baseline"][yr] - \
+                    ) * self.handyvars.cost_convert["stock"]
+                ecostsave_tot[yr] = (
+                    markets_save["cost"]["energy"]["total"]["baseline"][yr] -
                     markets_save["cost"]["energy"]["total"]["efficient"][yr]
-                ccostsave_tot[yr] = \
-                    markets_save["cost"]["carbon"]["total"]["baseline"][yr] - \
+                    ) * self.handyvars.cost_convert["energy"]
+                ccostsave_tot[yr] = (
+                    markets_save["cost"]["carbon"]["total"]["baseline"][yr] -
                     markets_save["cost"]["carbon"]["total"]["efficient"][yr]
+                    ) * self.handyvars.cost_convert["carbon"]
                 # Calculate fugitive methane emissions savings if applicable
                 if meth_save_tot:
                     meth_save_tot[yr] = \
@@ -672,11 +730,13 @@ class Engine(object):
                         # are aggregated as a baseline counterfactual for all
                         # units captured by the measure and therefore must be
                         # normalized by the number of measure-captured units
-                        scostbase_unit[yr] = \
-                            stock_base_cost_cmp / nunits_cmp
+                        scostbase_unit[yr] = (
+                            stock_base_cost_cmp / nunits_cmp) * \
+                            self.handyvars.cost_convert["stock"]
                         # Per unit measure total capital cost
-                        scostmeas_unit[yr] = \
-                            stock_meas_cost_cmp / nunits_meas_cmp
+                        scostmeas_unit[yr] = (
+                            stock_meas_cost_cmp / nunits_meas_cmp) * \
+                            self.handyvars.cost_convert["stock"]
                         # Per unit measure incremental capital cost
                         scostmeas_delt_unit[yr] = (
                             scostbase_unit[yr] - scostmeas_unit[yr])
@@ -685,13 +745,21 @@ class Engine(object):
                         # Per unit measure carbon savings
                         csave_unit[yr] = csave_cmp / nunits_meas_cmp
                         # Per unit measure energy costs
-                        ecost_meas_unit[yr] = ecost_meas_cmp / nunits_meas_cmp
+                        ecost_meas_unit[yr] = (
+                            ecost_meas_cmp / nunits_meas_cmp) * \
+                            self.handyvars.cost_convert["energy"]
                         # Per unit measure carbon costs
-                        ccost_meas_unit[yr] = ccost_meas_cmp / nunits_meas_cmp
+                        ccost_meas_unit[yr] = (
+                            ccost_meas_cmp / nunits_meas_cmp) * \
+                            self.handyvars.cost_convert["carbon"]
                         # Per unit measure energy cost savings
-                        ecostsave_unit[yr] = ecostsave_cmp / nunits_meas_cmp
+                        ecostsave_unit[yr] = (
+                            ecostsave_cmp / nunits_meas_cmp) * \
+                            self.handyvars.cost_convert["energy"]
                         # Per unit measure carbon cost savings
-                        ccostsave_unit[yr] = ccostsave_cmp / nunits_meas_cmp
+                        ccostsave_unit[yr] = (
+                            ccostsave_cmp / nunits_meas_cmp) * \
+                            self.handyvars.cost_convert["carbon"]
 
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
@@ -3701,8 +3769,14 @@ class Engine(object):
         # data and the second will store incremental cost data
         if self.opts.report_stk is True:
             stk_cost_all_ecms = [{yr: 0 for yr in focus_yrs} for n in range(2)]
+            # Set stock cost units (common to all ECMs)
+            stk_cost_key_tot, stk_cost_key_inc = [
+                x + self.handyvars.common_cost_yr + "$)" for
+                x in ["Total Measure Stock Cost (",
+                      "Incremental Measure Stock Cost ("]]
         else:
-            stk_cost_all_ecms = ""
+            stk_cost_all_ecms, stk_cost_key_tot, stk_cost_key_inc = (
+                "" for n in range(3))
         # Loop through all measures and populate above dict of summary outputs
         for m in self.measures:
             # Set competed measure markets and savings and financial metrics
@@ -4370,11 +4444,10 @@ class Engine(object):
                     adopt_scheme][meas_stk_key] = stk_meas_avg
                 # Set the average measure stock cost output
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme]["Total Measure Stock Cost ($)"] = \
-                    stk_cost_meas_avg
+                    adopt_scheme][stk_cost_key_tot] = stk_cost_meas_avg
                 # Set the average measure incremental stock cost output
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme]["Incremental Measure Stock Cost ($)"] = {
+                    adopt_scheme][stk_cost_key_inc] = {
                         yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
                         for yr in focus_yrs}
                 # Update stock cost data across all ECMs with data for
@@ -4387,32 +4460,32 @@ class Engine(object):
                         stk_cost_meas_avg[yr] - stk_cost_base[yr])
                 # Set low/high measure stock outputs (as applicable)
                 if stk_meas_avg != stk_meas_low:
-                    meas_stk_key_low = meas_stk_key + " (low)"
-                    meas_stk_key_high = meas_stk_key + " (high)"
+                    meas_stk_key_low, stk_cost_key_tot_low, \
+                        stk_cost_key_inc_low = [x + " (low)" for x in [
+                            meas_stk_key, stk_cost_key_tot, stk_cost_key_inc]]
+                    meas_stk_key_high, stk_cost_key_tot_high, \
+                        stk_cost_key_inc_high = [x + " (high)" for x in [
+                            meas_stk_key, stk_cost_key_tot, stk_cost_key_inc]]
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][meas_stk_key_low] = stk_meas_low
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme][meas_stk_key_high] = stk_meas_high
                     # Set the low measure stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                            "Total Measure Stock Cost ($) (low)"] = \
+                        adopt_scheme][stk_cost_key_tot_low] = \
                         stk_meas_low
                     # Set the low measure incremental stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                            "Incremental Measure Stock Cost ($) (low)"] = {
+                        adopt_scheme][stk_cost_key_inc_low] = {
                         yr: (stk_cost_meas_low[yr] - stk_cost_base[yr])
                         for yr in focus_yrs}
                     # Set the high measure stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                            "Total Measure Stock Cost ($) (high)"] = \
+                        adopt_scheme][stk_cost_key_tot_high] = \
                         stk_cost_meas_high
                     # Set the high measure incremental stock cost output
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                            "Incremental Measure Stock Cost ($) (high)"] = {
+                        adopt_scheme][stk_cost_key_inc_high] = {
                         yr: (stk_cost_meas_high[yr] - stk_meas_high[yr])
                         for yr in focus_yrs}
 
@@ -4498,10 +4571,10 @@ class Engine(object):
         # If necessary, record stock costs across all ECMs
         if self.opts.report_stk is True and stk_cost_all_ecms:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]["Total Measure Stock Cost ($)"] = \
+                adopt_scheme][stk_cost_key_tot] = \
                 stk_cost_all_ecms[0]
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]["Incremental Measure Stock Cost ($)"] = \
+                adopt_scheme][stk_cost_key_inc] = \
                 stk_cost_all_ecms[1]
 
         # Record low/high estimates on efficient markets across all ECMs, if
