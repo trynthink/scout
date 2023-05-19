@@ -862,8 +862,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                         # level of the dict
                                         czone = results_agg[0, 0][levone]
                                         # Reduce the dict to the building class
-                                        r_agg_temp = \
-                                            results_database_agg[czone]
+                                        try:
+                                            r_agg_temp = \
+                                                results_database_agg[czone]
+                                        except KeyError:
+                                            continue
 
                                         # Loop through all building classes
                                         for levtwo in range(len(
@@ -879,7 +882,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                     results_database_agg[
                                                         czone][bldg]
                                             except KeyError:
-                                                r_agg_temp = ""
+                                                continue
                                             # Loop through all end uses
                                             for levthree in range(len(
                                                     results_agg[2, 0])):
@@ -904,7 +907,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                         results_database_agg[
                                                             czone][bldg][euse]
                                                 except KeyError:
-                                                    r_agg_temp = ""
+                                                    continue
 
                                                 # If data values exist, add
                                                 # them to the ECM's
