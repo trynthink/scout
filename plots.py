@@ -814,9 +814,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                         # proceeding down to the building class
                                         # level of the dict
                                         czone = results_agg[0, 0][levone]
-                                        # If region is valid, reduce the
-                                        # dict to the building class; otherwise
-                                        # proceed to next region
+                                        # Reduce the dict to the building class
                                         try:
                                             r_agg_temp = \
                                                 results_database_agg[czone]

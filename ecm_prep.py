@@ -4321,51 +4321,61 @@ class Measure(object):
                             cost_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
 
+                # Handle special case of commercial heat pumps, where costs
+                # may be specified in $/kBtu/h heating or cooling but the
+                # measure will apply to both heating and cooling
+                # microsegments and possibly also ventilation
+                # microsegments; in this case, set the measure cost units
+                # to the baseline cost units (while preserving year for
+                # each set of units), under the assumption that costs are
+                # identical per unit heating vs. per unit cooling, and that
+                # costs will be anchored on the measure's heating
+                # microsegment(s) (see comment beginning 'Remove double
+                # counted stock and stock cost...')
+                if any([x in cost_units for x in [
+                       '$/kBtu/h heating', '$/kBtu/h cooling']]):
+                    if mskeys[4] in ["heating", "cooling"] or (
+                        mskeys[4] == "ventilation" and any([
+                            x in ms_lists[3] for x in [
+                            "heating", "cooling"]])):
+                        # Separate measure and baseline cost units into
+                        # the year vs. everything else
+                        cost_meas_units_unpack, cost_base_units_unpack = [
+                            re.search(r'(\d*)(.*)', x) for x in [
+                                cost_units, cost_base_units]]
+                        # Measure units preserve measure cost year but
+                        # otherwise switch to baseline cost units
+                        cost_units = cost_meas_units_unpack.group(1) + \
+                            cost_base_units_unpack.group(2)
+                    else:
+                        raise ValueError(
+                            "Cost units of '" + cost_units +
+                            "' are incompatible with definition of "
+                            "measure '" + self.name +
+                            "'; check definition")
+
                 # Convert user-defined measure cost units to align with
                 # baseline cost units, given input cost conversion data
                 if mskeys[0] == "primary" and cost_base_units != cost_units:
-                    # Handle special case of commercial heat pumps, where costs
-                    # may be specified in $/kBtu/h heating or cooling but the
-                    # measure will apply to both heating and cooling
-                    # microsegments and possibly also ventilation
-                    # microsegments; in this case, set the measure cost units
-                    # to the baseline cost units without further translation of
-                    # cost values, under the assumption that costs are
-                    # identical per unit heating vs. per unit cooling, and
-                    # that costs will be anchored on the measure's heating
-                    # microsegment(s) (see comment beginning 'Remove double
-                    # counted stock and stock cost...')
-                    if any([x in cost_units for x in [
-                           '$/kBtu/h heating', '$/kBtu/h cooling']]):
-                        if mskeys[4] in ["heating", "cooling"] or (
-                            mskeys[4] == "ventilation" and any([
-                                x in ms_lists[3] for x in [
-                                "heating", "cooling"]])):
-                            cost_units = cost_base_units
-                        else:
-                            raise ValueError(
-                                "Cost units of '" + cost_units +
-                                "' are incompatible with definition of "
-                                "measure '" + self.name +
-                                "'; check definition")
-                    else:
-                        # Case where measure cost has not yet been recast
-                        # across AEO years
-                        if not isinstance(cost_meas, dict):
-                            cost_meas, cost_units = self.convert_costs(
+                    # Case where measure cost has not yet been recast
+                    # across AEO years
+                    if not isinstance(cost_meas, dict):
+                        cost_meas, cost_units, cost_base_units = \
+                            self.convert_costs(
                                 convert_data, bldg_sect, mskeys, cost_meas,
                                 cost_units, cost_base_units, opts.verbose)
-                        # Case where measure cost has been recast across AEO
-                        # years
-                        else:
-                            # Loop through all AEO years by which measure cost
-                            # data are broken out and make the conversion
-                            for yr in self.handyvars.aeo_years:
-                                cost_meas[yr], cost_units = self.convert_costs(
+                    # Case where measure cost has been recast across AEO
+                    # years
+                    else:
+                        # Loop through all AEO years by which measure cost
+                        # data are broken out and make the conversion
+                        for yr in self.handyvars.aeo_years:
+                            cost_meas[yr], cost_units, cost_base_units = \
+                                self.convert_costs(
                                     convert_data, bldg_sect, mskeys,
                                     cost_meas[yr], cost_units, cost_base_units,
                                     opts.verbose)
-                        cost_converts += 1
+                    cost_converts += 1
 
                 # Handle special case where residential cost units in $/ft^2
                 # floor must be converted to a per household basis for
@@ -7107,10 +7117,12 @@ class Measure(object):
         # current year (which will be the first in the model time horizon)
         if not cost_meas_yr:
             cost_meas_yr = self.handyvars.aeo_years[0]
-            cost_meas_units = cost_meas_yr + cost_meas_units
         if not cost_base_yr:
             cost_base_yr = self.handyvars.aeo_years[0]
-            cost_base_units = cost_base_yr + cost_base_units
+            # Ensure that final baseline units include year addition
+            cost_base_units_fin = cost_base_yr + cost_base_units
+        else:
+            cost_base_units_fin = cost_base_units
         # Establish measure and baseline cost units (excluding cost year)
         cost_meas_noyr, cost_base_noyr = \
             cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)
@@ -7333,7 +7345,7 @@ class Measure(object):
             cost_meas_units_fin = cost_base_yr + cost_meas_noyr
 
         # Case where cost conversion has succeeded
-        if cost_meas_units_fin == cost_base_units or res_sf_unit is True:
+        if cost_meas_units_fin == cost_base_units_fin or res_sf_unit is True:
             # If in verbose mode, notify user of cost conversion details
             if verbose:
                 # Set base user message
@@ -7363,9 +7375,9 @@ class Measure(object):
             raise ValueError(
                 "ECM '" + self.name + "' cost units '" +
                 str(cost_meas_units_fin) + "' not equal to base units '" +
-                str(cost_base_units) + "'")
+                str(cost_base_units_fin) + "'")
 
-        return cost_meas_fin, cost_meas_units_fin
+        return cost_meas_fin, cost_meas_units_fin, cost_base_units_fin
 
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
