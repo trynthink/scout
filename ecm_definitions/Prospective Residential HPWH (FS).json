@@ -13,35 +13,35 @@
     "notes": "Targeted year of breakthrough technology market entry",
     "source_data": null
   },
-  "energy_efficiency": 3.55,
+  "energy_efficiency": 3.73,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "Based on highest level of performance projected by EIA",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 58,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "installed_cost": 2266.27,
-  "cost_units": "2017$/unit",
-  "installed_cost_source": {
-    "notes": "Cost that yields a 5 year overall payback period for given performance level based on FS HPWH application",
-    "source_data": null
-  },
-  "product_lifetime": 13,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "Median of average lifetimes for 2020 'typical' residential HPWH",
+    "notes": "Based on highest level of performance projected by EIA in 2030",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 58,
+      "year": 2023,
+      "pages": 65,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "installed_cost": 2694,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Cost that yields a 5 year overall payback period for given performance level and market entry year",
+    "source_data": null
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Median of average lifetimes for 2030 'typical' residential HPWH",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       }
   },
@@ -58,5 +58,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Thu May 19 11:46:56 EDT 2022"
   },
-    "_updated_by": null
+    "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon May 22 12:01:00 EDT 2023"
+  }]
 }
