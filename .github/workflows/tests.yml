@@ -49,3 +49,8 @@ jobs:
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib
       - name: Run tests
         run: python -m unittest discover -p '*_test.py'
+
+  integration-tests:
+    needs: [code-quality-checks, python-tests]
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/integration_tests.yml
