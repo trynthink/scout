@@ -1,5 +1,5 @@
+name: integration-tests
 on:
-  push:
   pull_request:
       types: [ synchronize, opened ]
   workflow_run:
