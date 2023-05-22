@@ -52,5 +52,11 @@ jobs:
 
   integration-tests:
     needs: [code-quality-checks, python-tests]
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/integration_tests.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR
+        uses: 8BitJonny/gh-get-current-pr@2.2.0
+        id: PR
+      - name: Run Integration Testing
+        if: steps.PR.outputs.pr_found == 'true'
+        uses: ./.github/workflows/integration_tests.yml
