@@ -4352,19 +4352,21 @@ class Measure(object):
                     # Case where measure cost has not yet been recast
                     # across AEO years
                     if not isinstance(cost_meas, dict):
-                        cost_meas, cost_units = self.convert_costs(
-                            convert_data, bldg_sect, mskeys, cost_meas,
-                            cost_units, cost_base_units, opts.verbose)
+                        cost_meas, cost_units, cost_base_units = \
+                            self.convert_costs(
+                                convert_data, bldg_sect, mskeys, cost_meas,
+                                cost_units, cost_base_units, opts.verbose)
                     # Case where measure cost has been recast across AEO
                     # years
                     else:
                         # Loop through all AEO years by which measure cost
                         # data are broken out and make the conversion
                         for yr in self.handyvars.aeo_years:
-                            cost_meas[yr], cost_units = self.convert_costs(
-                                convert_data, bldg_sect, mskeys,
-                                cost_meas[yr], cost_units, cost_base_units,
-                                opts.verbose)
+                            cost_meas[yr], cost_units, cost_base_units = \
+                                self.convert_costs(
+                                    convert_data, bldg_sect, mskeys,
+                                    cost_meas[yr], cost_units, cost_base_units,
+                                    opts.verbose)
                     cost_converts += 1
 
                 # Handle special case where residential cost units in $/ft^2
@@ -7107,10 +7109,12 @@ class Measure(object):
         # current year (which will be the first in the model time horizon)
         if not cost_meas_yr:
             cost_meas_yr = self.handyvars.aeo_years[0]
-            cost_meas_units = cost_meas_yr + cost_meas_units
         if not cost_base_yr:
             cost_base_yr = self.handyvars.aeo_years[0]
-            cost_base_units = cost_base_yr + cost_base_units
+            # Ensure that final baseline units include year addition
+            cost_base_units_fin = cost_base_yr + cost_base_units
+        else:
+            cost_base_units_fin = cost_base_units
         # Establish measure and baseline cost units (excluding cost year)
         cost_meas_noyr, cost_base_noyr = \
             cost_meas_units_unpack.group(2), cost_base_units_unpack.group(2)
@@ -7333,7 +7337,7 @@ class Measure(object):
             cost_meas_units_fin = cost_base_yr + cost_meas_noyr
 
         # Case where cost conversion has succeeded
-        if cost_meas_units_fin == cost_base_units or res_sf_unit is True:
+        if cost_meas_units_fin == cost_base_units_fin or res_sf_unit is True:
             # If in verbose mode, notify user of cost conversion details
             if verbose:
                 # Set base user message
@@ -7363,9 +7367,9 @@ class Measure(object):
             raise ValueError(
                 "ECM '" + self.name + "' cost units '" +
                 str(cost_meas_units_fin) + "' not equal to base units '" +
-                str(cost_base_units) + "'")
+                str(cost_base_units_fin) + "'")
 
-        return cost_meas_fin, cost_meas_units_fin
+        return cost_meas_fin, cost_meas_units_fin, cost_base_units_fin
 
     def partition_microsegment(
             self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
