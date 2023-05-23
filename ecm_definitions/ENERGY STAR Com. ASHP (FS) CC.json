@@ -10,64 +10,64 @@
                  "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
                  "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
                  "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.4,
+  "energy_efficiency": 3.5,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
+    "notes": "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column.",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 141.2,
-  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost": 172,
+  "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
+    "notes": "ENERGY STAR V. 4.0 installed cost in 2023 divided by typical capacity (90 kBtu/h cooling).",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical lifetime in 2030",
+    "notes": "Typical lifetime in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "cooling": 0.68,
-    "heating": 0.73
+    "cooling": 0.62,
+    "heating": 0.68
   },
   "market_scaling_fractions_source": {
-      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Heating fraction reflects portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings)."
   },
   "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate",
   "_notes": null,
@@ -92,5 +92,10 @@
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 30 12:37:52 PDT 2023"
   }]
 }

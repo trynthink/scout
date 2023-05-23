@@ -6,15 +6,15 @@
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate"],
   "technology": "all",
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 126,
+      "year": 2023,
+      "pages": 154,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "market_exit_year": null,
@@ -22,44 +22,44 @@
   "energy_efficiency": 3.9,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Typical HPWH COP in 2017 (high efficiency not available)",
+    "notes": "Typical HPWH COP in 2022 (high efficiency not available)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 126,
+      "year": 2023,
+      "pages": 154,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "installed_cost": 298.64,
-  "cost_units": "2017$/kBtu/h water heating",
+  "installed_cost": 351,
+  "cost_units": "2022$/kBtu/h water heating",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2017 divided by output capacity of 170.607 kBtu/h (50kW)",
+    "notes": "Typical installed cost in 2022 divided by output capacity of 171 kBtu/h (50kW)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 126,
+      "year": 2023,
+      "pages": 154,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "High efficiency average lifetime in 2017",
+    "notes": "High efficiency average lifetime in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 126,
+      "year": 2023,
+      "pages": 154,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Highest efficiency commercial heat pump water heater in 2017",
+  "_description": "Highest efficiency commercial heat pump water heater in 2022 ('Typical' in EIA data)",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -67,9 +67,9 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Sep 17 10:00:42 EDT 2018"},
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy.lbl.gov",
+    "timestamp": "Mon May 22 2023 04:04:19 PDT"
   }
 }

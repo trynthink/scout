@@ -6,7 +6,7 @@
   "end_use": "other",
   "fuel_type": "electricity",
   "technology": ["pool heaters", "pool pumps"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
     "source_data": {
@@ -25,12 +25,12 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
   "installed_cost": 0,
-  "cost_units": "2017$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": null,
   "product_lifetime": 7.3,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average life of ESTAR Connected pool pump",
+    "notes": "Average life of ENERGY STAR Connected pool pump",
     "source_data": {
      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
       "author": "Nubbe et al. 2020",
