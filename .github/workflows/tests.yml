@@ -60,10 +60,8 @@ jobs:
       - name: Check if PR
         uses: 8BitJonny/gh-get-current-pr@2.2.0
         id: PR
-        # with:
-        #   github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
 
   integration-tests:
     needs: [check-PR]
-    # if: needs.check-PR.outputs.PR_status == 'true'
+    if: needs.check-PR.outputs.PR_status == 'true'
     uses: ./.github/workflows/integration_tests.yml
