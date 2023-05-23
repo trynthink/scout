@@ -8,52 +8,52 @@
   "technology": ["Commercial Reach-In Freezers", "Commercial Reach-In Refrigerators",
                  "Commercial Supermarket Display Cases", "Commercial Walk-In Freezers",
                  "Commercial Walk-In Refrigerators"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": [89, 105],
+      "year": 2022,
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "Commercial Reach-In Freezers": 2.4,
-    "Commercial Reach-In Refrigerators": 5.4,
-    "Commercial Supermarket Display Cases": 3.85,
-    "Commercial Walk-In Freezers": 2.7,
-    "Commercial Walk-In Refrigerators": 3.5},
+    "Commercial Reach-In Freezers": 2.7,
+    "Commercial Reach-In Refrigerators": 7.4,
+    "Commercial Supermarket Display Cases": 3.3,
+    "Commercial Walk-In Freezers": 3.2,
+    "Commercial Walk-In Refrigerators": 7.1},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "'Best' performance for the relevant technology in the Scout baseline technology characteristics data for food sales building type in AIA_CZ1 and the year 2017 (derived from KTEK.xml EIA file)",
+    "notes": "'Best' performance for the relevant technology in the Scout baseline technology characteristics data for food sales building type in AIA_CZ1 and the year 2022 (based on the ktekx.xlsx AEO 2023 file, 2022 High category)",
     "source_data": {
       "title": "Scout - Baseline Cost, Performance, and Lifetime Data ('cpl_res_com_cz.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }},
   "installed_cost": {
-    "Commercial Reach-In Freezers": 933,
-    "Commercial Reach-In Refrigerators": 1326,
-    "Commercial Supermarket Display Cases": 675,
-    "Commercial Walk-In Freezers": 1090,
-    "Commercial Walk-In Refrigerators": 715},
-  "cost_units": "2017$/kBtu/h refrigeration",
+    "Commercial Reach-In Freezers": 1024,
+    "Commercial Reach-In Refrigerators": 1654,
+    "Commercial Supermarket Display Cases": 1070,
+    "Commercial Walk-In Freezers": 1096,
+    "Commercial Walk-In Refrigerators": 675},
+  "cost_units": "2022$/kBtu/h refrigeration",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency refrigeration units in 2017",
+    "notes": "Total installed cost for high efficiency refrigeration units in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": [89, 105],
+      "year": 2023,
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
@@ -65,13 +65,13 @@
     "Commercial Walk-In Refrigerators": 10},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetimes for high efficiency refrigeration units in 2017 (use average compressor life where broken out)",
+    "notes": "Average lifetimes for high efficiency refrigeration units in 2022 (use average compressor life where broken out)",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": [89, 105],
+      "year": 2023,
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
@@ -79,7 +79,7 @@
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "Highest efficiency major category commercial refrigeration units in 2017",
+  "_description": "Highest efficiency major category commercial refrigeration units in 2022",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -88,9 +88,9 @@
     "timestamp": "Fri Sep 21 17:26:18 EDT 2018"
   },
   "_updated_by": {
-    "name": null,
-    "organization": null,
-    "email": null,
-    "timestamp": null
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy.lbl.gov",
+    "timestamp": "Tue May 30 2023 10:40:19 PDT"
   }
 }
