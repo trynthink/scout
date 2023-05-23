@@ -6,72 +6,78 @@
   "end_use": "water heating",
   "fuel_type": "distillate",
   "technology": null,
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 54,
+      "year": 2023,
+      "pages": 59,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0.64,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "Standard efficiency level in 2017",
+    "notes": "Standard efficiency level in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 54,
+      "year": 2023,
+      "pages": 59,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
-  "installed_cost": 2400,
-  "cost_units": "2017$/unit",
+  "installed_cost": 3335,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Median of standard installed cost range in 2017",
+    "notes": "Average of standard installed cost range in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 54,
+      "year": 2023,
+      "pages": 59,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
-  "product_lifetime": 13,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median standard average lifetime in 2017",
+    "notes": "Average lifetime in 2022, rounded down from 15.5 years",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 54,
+      "year": 2023,
+      "pages": 59,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "Performance guideline-equivalent oil-fired water heater in 2017",
-  "_notes": " ", 
+  "_description": "Performance guideline-equivalent oil-fired water heater in 2022",
+  "_notes": null, 
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 2018 13:39:55 EDT"
   },
-  "_updated_by": {
+  {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 23 2020 21:37:55 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Tue May 23 04:27:00 UTC"
+  }]
 }

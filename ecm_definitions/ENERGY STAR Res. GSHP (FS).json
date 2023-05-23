@@ -1,0 +1,122 @@
+{
+  "name": "ENERGY STAR Res. GSHP (FS)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "all",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null}},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "heating": 3.6,
+    "cooling": 5},
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "2022 ENERGY STAR v3.2 performance level residential ground-source heat pumps; COP = EER/3.41214 ",
+    "source_data":  {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "installed_cost": {
+      "electricity": {
+        "new": 0,
+        "existing": 0
+      },
+      "natural gas": {
+        "new": 19000,
+        "existing": 23000
+      }, 
+      "distillate": {
+        "new": 19000,
+        "existing": 24000
+      },
+      "other fuel": {
+        "new": 19000,
+        "existing": 24000
+      }
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low and high total installed costs for ENERGY STAR v3.2 GSHPs in 2022; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+      {
+      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2018,
+      "pages": 8,
+      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+      },
+      {
+      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
+      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
+      "organization": "Redwood Energy & Menlo Spark",
+      "year": 2021,
+      "pages": 19,
+      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
+    ]},
+  "product_lifetime": 14,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low and high average lifetime values for GSHPs in 2022, rounded down from 14.5",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "electricity": {
+      "cooling": 0.68,
+      "heating": 0
+    },
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
+    "cooling": {
+      "title": "RECS 2020 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."}},
+  "_description": "ENERGY STAR v3.2 residential closed loop ground source heat pump in 2022, switching from other heating fuels",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 22 2023 21:20:00 UTC"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null}
+}
