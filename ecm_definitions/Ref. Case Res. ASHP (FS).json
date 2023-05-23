@@ -1,6 +1,5 @@
 {
   "name": "Ref. Case Res. ASHP (FS)",
-  "_description": "Standard size residential air source heat pump with reference case performance (counterfactual), non-cold-climate",
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],
@@ -10,25 +9,33 @@
   "fuel_type": "all",
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.63,
-      "heating": 2.58
+      "cooling": 4.41,
+      "heating": 2.59
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Typical air source heat pump performance in 2030, which reflects introduction of min. efficiency standard in 2023; conversion from original standard: COP = SEER / 3.412 (see second EIA source).",
+    "notes": "Current minimum efficiency air source heat pump performance in 2030; conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see second EIA source); split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)",
     "source_data": [
       {
-       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-       "author": null,
-       "organization": "U.S. Energy Information Administration",
-       "year": 2018,
-       "pages": 29,
-       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Draft PDS-01, MINHERS Addendum 71, SEER2/HSPF2 Conversions",
+        "author": null,
+        "organization": "RESNET",
+        "year": 2022,
+        "pages": 2,
+        "URL": "https://www.resnet.us/about/standards/minhers/draft-pds-01-minhers-addendum-71-seer2-hspf2-conversions/"
       },
       {
         "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
@@ -42,32 +49,32 @@
   },
   "installed_cost": {
       "electricity": {
-        "new": 5150,
-        "existing": 9150
+        "new": 6810,
+        "existing": 9810
       },
       "natural gas": {
-        "new": 5150,
-        "existing": 9150
+        "new": 6810,
+        "existing": 10810
       }, 
       "distillate": {
-        "new": 5150,
-        "existing": 10150
+        "new": 6810,
+        "existing": 11810
       },
       "other fuel": {
-        "new": 5150,
-        "existing": 10150
+        "new": 6810,
+        "existing": 11810
       }
   },
-  "cost_units": "2017$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for typical ASHP in 2030, which reflects introduction of min. efficiency standard in 2023; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
+    "notes": "Installed costs for minimum standard split-system ASHP; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
     "source_data": [
       {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 29,
+      "year": 2023,
+      "pages": 39,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
@@ -85,23 +92,23 @@
       "pages": 19,
       "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
     ]},
-  "product_lifetime": 15.5,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average typical ASHP lifetime in in 2030, which reflects introduction of min. efficiency standard in 2023",
+    "notes": "Average lifetime of minimum standard ASHP in 2023, rounded down from 15.3 years",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 29,
+      "year": 2023,
+      "pages": 39,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
-      "cooling": 0.595,
+    "electricity": {
+      "cooling": 0.68,
       "heating": 0
     },
     "natural gas": 1,
@@ -110,19 +117,26 @@
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
     "cooling": {
-      "title": "RECS 2015 Microdata",
+      "title": "RECS 2020 Microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
-      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
     }
   },
+  "_description": "Standard size residential air source heat pump with reference case performance (counterfactual), non-cold-climate",
   "_notes": null,
   "_added_by":  {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },
+  "_updated_by":  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Tue May 23 2023 15:45:00 UTC"
   }
 }

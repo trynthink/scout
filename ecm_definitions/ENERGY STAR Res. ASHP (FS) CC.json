@@ -8,16 +8,16 @@
   "fuel_type": "all",
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
-    "notes": "Standard goes into effect in 2023, but assume equipment is already on the market that meets the spec.",
+    "notes": "Standard and corresponding ENERGY STAR spec goes into effect in 2023",
     "source_data": {
-      "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.0",
+      "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.1",
       "author": null,
       "organization": "U.S. Environmental Protection Agency",
-      "year": 2021,
+      "year": 2022,
       "pages": 4,
-      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.0%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20and%20Partner%20Commitments.pdf"
+      "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.1%20CACHP%20Final%20Specification%20and%20Partner%20Commitments%20%28Rev.%20January%20%202022%29_0.pdf"
     }
   },
   "market_exit_year": null,
@@ -28,15 +28,23 @@
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Split system (see table 3); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+    "notes": "Non-ducted split system (see Table 3 in EPA source); conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source); split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)",
     "source_data": [
       {
-        "title": "ENERGY STAR Program Requirements for Central Air-Conditioners and Heat Pumps, v6",
+        "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.1",
         "author": null,
         "organization": "U.S. Environmental Protection Agency",
-        "year": 2021,
+        "year": 2022,
         "pages": 4,
-        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.0%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20and%20Partner%20Commitments.pdf"
+        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Version%206.1%20CACHP%20Final%20Specification%20and%20Partner%20Commitments%20%28Rev.%20January%20%202022%29_0.pdf"
+      },
+      {
+        "title": "Draft PDS-01, MINHERS Addendum 71, SEER2/HSPF2 Conversions",
+        "author": null,
+        "organization": "RESNET",
+        "year": 2022,
+        "pages": 2,
+        "URL": "https://www.resnet.us/about/standards/minhers/draft-pds-01-minhers-addendum-71-seer2-hspf2-conversions/"
       },
       {
         "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
@@ -49,68 +57,68 @@
     ]
   },
   "installed_cost": {
-      "electricity": {
-        "new": 0,
-        "existing": 0
-      },
-      "natural gas": {
-        "new": 6100,
-        "existing": 10100
-      }, 
-      "distillate": {
-        "new": 6100,
-        "existing": 11100
-      },
-      "other fuel": {
-        "new": 6100,
-        "existing": 11100
-      }
+    "electricity": {
+      "new": 0,
+      "existing": 0
+    },
+    "natural gas": {
+      "new": 6940,
+      "existing": 10940
+    }, 
+    "distillate": {
+      "new": 6940,
+      "existing": 11940
+    },
+    "other fuel": {
+      "new": 6940,
+      "existing": 11940
+    }
   },
-  "cost_units": "2017$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for best ASHP in 2017, to account for bump to new ESTAR performance spec level; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
+    "notes": "Total installed cost for ENERGY STAR ASHPs in 2023; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
     "source_data": [
       {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
-      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+        "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": 8,
+        "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
       },
       {
-      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
-      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
-      "organization": "Redwood Energy & Menlo Spark",
-      "year": 2021,
-      "pages": 19,
-      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
+        "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
+        "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
+        "organization": "Redwood Energy & Menlo Spark",
+        "year": 2021,
+        "pages": 19,
+        "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
     ]},
-  "product_lifetime": 15.5,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average ENERGY STAR lifetime in 2017",
+    "notes": "Average ENERGY STAR equipment lifetime in 2023, rounded down from 15.3",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 29,
+      "year": 2023,
+      "pages": 39,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "electricity":{
-      "cooling": 0.595,
+    "electricity": {
+      "cooling": 0.68,
       "heating": 0
     },
     "natural gas": 1,
@@ -119,15 +127,15 @@
   "market_scaling_fractions_source": {
     "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
     "cooling": {
-      "title": "RECS 2015 Microdata",
+      "title": "RECS 2020 Microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015/index.php?view=microdata",
-      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with fuel-fired heating system (45,241,958)."
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
     }
   },
-  "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance standard, cold-climate",
+  "_description": "Standard size residential non-ducted air source heat pump that meets the ENERGY STAR performance standard, cold-climate",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
@@ -158,6 +166,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Sep 15 09:43:04 EDT 2021"
-
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 22 2023 22:15:00 UTC"
   }]
 }
