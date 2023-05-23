@@ -3859,52 +3859,10 @@ class Engine(object):
             # initial values will be adjusted by breakout fractions below.
             # If user desires pared down outputs, only report savings values.
             if trim_out is False:
-                # Determine correct units to use for stock reporting
-
-                # Envelope tech.; use units of ft^2 floor
-                if "demand" in m.technology_type["primary"]:
-                    if any([x in m.bldg_type for x in [
-                        "single family home", "multi family home",
-                            "mobile home"]]):
-                        stk_units = "(# homes served)"
-                    else:
-                        stk_units = "(ft^2 floor served)"
-                # Non-envelope residential tech.; use equipment units
-                elif any([x in m.bldg_type for x in [
-                    "single family home", "multi family home",
-                        "mobile home"]]):
-                    stk_units = "(units equipment)"
-                # Non-envelope commercial tech.; units vary by end use
-                else:
-                    # If measure affects heating, units are always in terms
-                    # of heating service
-                    if "heating" in m.end_use["primary"]:
-                        stk_units = "(TBtu heating served)"
-                    # If measure affects cooling but does not affect heating,
-                    # units are always in terms of cooling service
-                    elif "cooling" in m.end_use["primary"]:
-                        stk_units = "(TBtu cooling served)"
-                    elif "lighting" in m.end_use["primary"]:
-                        stk_units = "(giga-lm-years served)"
-                    elif "ventilation" in m.end_use["primary"]:
-                        stk_units = "(giga-CFM-years served)"
-                    elif any([x in m.end_use["primary"] for x in [
-                            "water heating", "refrigeration", "cooking"]]):
-                        # Find end use name
-                        eu = [x for x in [
-                            "water heating", "refrigeration", "cooking"]
-                            if x in m.end_use["primary"]][0]
-                        stk_units = "(TBtu " + eu + " served)"
-                    # Computers and other equipment in units of ft^2 floor
-                    else:
-                        stk_units = "(ft^2 floor served)"
-
                 self.output_ecms[m.name]["Markets and Savings (Overall)"][
                     adopt_scheme], self.output_ecms[m.name][
                         "Markets and Savings (by Category)"][
                         adopt_scheme] = (OrderedDict([
-                            (("Baseline Stock " + stk_units), stk_base_avg),
-                            (("Measure Stock " + stk_units), stk_eff_avg),
                             ("Baseline Energy Use (MMBtu)", energy_base_avg),
                             ("Efficient Energy Use (MMBtu)", energy_eff_avg),
                             ("Baseline CO2 Emissions (MMTons)".translate(sub),
@@ -3926,6 +3884,59 @@ class Engine(object):
                             ("CO2 Cost Savings (USD)".
                                 translate(sub), carb_costsave_avg)]) for
                             n in range(2))
+                # Determine stock units, if necessary
+                if opts.report_stk is True:
+                    # Determine correct units to use for stock reporting
+                    # Envelope tech.; use units of ft^2 floor
+                    if "demand" in m.technology_type["primary"]:
+                        if any([x in m.bldg_type for x in [
+                            "single family home", "multi family home",
+                                "mobile home"]]):
+                            stk_units = "(# homes served)"
+                        else:
+                            stk_units = "(ft^2 floor served)"
+                    # Non-envelope residential tech.; use equipment units
+                    elif any([x in m.bldg_type for x in [
+                        "single family home", "multi family home",
+                            "mobile home"]]):
+                        stk_units = "(units equipment)"
+                    # Non-envelope commercial tech.; units vary by end use
+                    else:
+                        # If measure affects heating, units are always in terms
+                        # of heating service
+                        if "heating" in m.end_use["primary"]:
+                            stk_units = "(TBtu heating served)"
+                        # If measure affects cooling but does not affect
+                        # heating, units are always in terms of cooling service
+                        elif "cooling" in m.end_use["primary"]:
+                            stk_units = "(TBtu cooling served)"
+                        elif "lighting" in m.end_use["primary"]:
+                            stk_units = "(giga-lm-years served)"
+                        elif "ventilation" in m.end_use["primary"]:
+                            stk_units = "(giga-CFM-years served)"
+                        elif any([x in m.end_use["primary"] for x in [
+                                "water heating", "refrigeration", "cooking"]]):
+                            # Find end use name
+                            eu = [x for x in [
+                                "water heating", "refrigeration", "cooking"]
+                                if x in m.end_use["primary"]][0]
+                            stk_units = "(TBtu " + eu + " served)"
+                        # Computers and other equipment in units of ft^2 floor
+                        else:
+                            stk_units = "(ft^2 floor served)"
+                    # Finalize baseline and measure stock keys/units
+                    base_stk_key, meas_stk_key = [(x + stk_units) for x in [
+                        "Baseline Stock ", "Measure Stock "]]
+                    # Add baseline and measure stock data to markets and
+                    # savings dicts initialized above
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][base_stk_key], self.output_ecms[m.name][
+                            "Markets and Savings (by Category)"][adopt_scheme][
+                            base_stk_key] = (stk_base_avg for n in range(2))
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][meas_stk_key], self.output_ecms[m.name][
+                            "Markets and Savings (by Category)"][adopt_scheme][
+                            meas_stk_key] = (stk_eff_avg for n in range(2))
 
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
@@ -3960,19 +3971,21 @@ class Engine(object):
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
                 mkt_base_keys = [
-                    ("Baseline Stock " + stk_units),
                     "Baseline Energy Use (MMBtu)",
                     "Baseline CO2 Emissions (MMTons)".translate(sub),
                     "Baseline Energy Cost (USD)",
                     "Baseline CO2 Cost (USD)".translate(sub)]
-                # Record list of efficient variable names for use in finalizing
-                # output breakouts below
+                # Record list of efficient variable names for use in
+                # finalizing output breakouts below
                 mkt_eff_keys = [
-                    ("Measure Stock " + stk_units),
                     "Efficient Energy Use (MMBtu)",
                     "Efficient CO2 Emissions (MMTons)".translate(sub),
                     "Efficient Energy Cost (USD)",
                     "Efficient CO2 Cost (USD)".translate(sub)]
+                # Add baseline/efficient keys for stock reporting, if needed
+                if opts.report_stk is True:
+                    mkt_base_keys.append(base_stk_key)
+                    mkt_eff_keys.append(meas_stk_key)
                 # Record list of savings variable names for use in finalizing
                 # output breakouts below
                 save_keys = [
@@ -4150,17 +4163,6 @@ class Engine(object):
             # the measure (all post-competition); this yields fractions to use
             # in apportioning energy, carbon, and cost results by category
 
-            # Stock
-            # Calculate baseline stock fractions by output breakout category
-            frac_base_stk = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "stock"]["baseline"], stk_base_avg, focus_yrs,
-                divide=True)
-            # Calculate efficient stock fractions by output breakout category
-            frac_eff_stk = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "stock"]["efficient"], stk_eff_avg, focus_yrs,
-                divide=True)
             # Energy
             # Calculate baseline energy fractions by output breakout category
             frac_base_energy = self.out_break_walk(
@@ -4196,6 +4198,38 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "carbon"]["efficient"], carb_eff_avg, focus_yrs,
                 divide=True)
+            # Add stock breakouts if desired
+            if any([x is True for x in [opts.mkt_fracs, opts.report_stk]]):
+                if opts.report_stk is True:
+                    # Calculate baseline stock fractions by breakout category
+                    frac_base_stk = self.out_break_walk(
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                            "stock"]["baseline"], stk_base_avg, focus_yrs,
+                        divide=True)
+                # Case with market penetration fractions/breakouts; copy
+                # measure stock totals to avoid manipulation via "frac_eff_stk"
+                # calculation
+                if all([x is True for x in [opts.mkt_fracs, opts.report_stk]]):
+                    eff_stk = copy.deepcopy(m.markets[adopt_scheme][
+                        "competed"]["mseg_out_break"]["stock"]["efficient"])
+                else:
+                    eff_stk = m.markets[adopt_scheme][
+                        "competed"]["mseg_out_break"]["stock"]["efficient"]
+                if opts.report_stk is True:
+                    # Calculate efficient stock fractions by breakout category
+                    frac_eff_stk = self.out_break_walk(
+                        m.markets[adopt_scheme]["competed"][
+                            "mseg_out_break"]["stock"]["efficient"],
+                        stk_eff_avg, focus_yrs, divide=True)
+                if opts.mkt_fracs is True:
+                    # Calculate market penetration percentages for the current
+                    # measure and scenario by output breakout category; divide
+                    # post-competition measure stock by the total stock that
+                    # the measure could possibly affect (before competition)
+                    frac_mkt_stk = self.out_break_walk(
+                        eff_stk, m.markets[adopt_scheme]["uncompeted"][
+                            "master_mseg"]["stock"]["total"]["all"],
+                        focus_yrs, divide=True, mkt_frac=True)
 
             # Create shorthand variable for results by breakout category
             mkt_save_brk = self.output_ecms[m.name][
@@ -4204,7 +4238,7 @@ class Engine(object):
             # loop through below in finalizing baseline/efficient breakouts
             mkt_keys = mkt_base_keys + mkt_eff_keys
             # Apply output breakout fractions to total baseline and efficient
-            # energy, carbon, and cost results initialized above
+            # stock, energy, carbon, and cost results initialized above
             for k in mkt_keys:
                 # Apply baseline partitioning fractions to baseline values
                 if "Baseline" in k:
@@ -4252,19 +4286,24 @@ class Engine(object):
                             focus_yrs, divide=False)
             # Assess final output breakouts of savings as the difference
             # between finalized baseline and efficient breakouts from above.
-            # Note: account for the fact that save_keys has one less variable
-            # (stock) than the baseline and efficient keys used to pull data
             for ind_k, k in enumerate(save_keys):
+                # Account for the fact that when stock reporting is used,
+                # save_keys has one less variable (stock) than the baseline and
+                # efficient keys used to pull data
+                if opts.report_stk is True:
+                    ind_adj = ind_k + 1
+                else:
+                    ind_adj = ind_k
                 # Copy baseline breakouts dict to use in establishing the
                 # structure of the final savings output breakouts dict
                 orig_dict_struct = copy.deepcopy(
-                    mkt_save_brk[mkt_base_keys[(ind_k+1)]])
+                    mkt_save_brk[mkt_base_keys[ind_adj]])
                 # Loop through all nested levels of the dict above; when
                 # reaching terminal nodes, finalize savings values as
                 # difference between finalized baseline and efficient results
                 mkt_save_brk[k] = self.out_break_walk_subtr(
-                    orig_dict_struct, mkt_save_brk[mkt_base_keys[(ind_k+1)]],
-                    mkt_save_brk[mkt_eff_keys[(ind_k+1)]], focus_yrs)
+                    orig_dict_struct, mkt_save_brk[mkt_base_keys[ind_adj]],
+                    mkt_save_brk[mkt_eff_keys[ind_adj]], focus_yrs)
 
             # Record low and high estimates on markets, if available and
             # user has not specified trimmed output
@@ -4376,10 +4415,15 @@ class Engine(object):
                     self.output_ecms[m.name]["Markets and Savings (Overall)"][
                         adopt_scheme]["Stock Penetration (high) (%)"] = \
                         mkt_fracs_high
+                # Report market penetration percentages for detailed breakouts;
+                # the dict with these is calculated above
+                self.output_ecms[m.name]["Markets and Savings (by Category)"][
+                    adopt_scheme]["Stock Penetration (%)"] = frac_mkt_stk
             # If a user desires stock data as an output, calculate and report
             # these data for the baseline and measure cases
             if opts.report_stk is True:
-                # Set baseline and measure stock keys, including units
+                # Set baseline and measure stock keys, including units that
+                # are calculated above
                 base_stk_uc_key, base_stk_c_key, meas_stk_key = [
                     x + stk_units for x in [
                         "Baseline Stock (Uncompeted)",
@@ -4580,7 +4624,8 @@ class Engine(object):
             mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
                 carb_cost_eff_all_high
 
-    def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide):
+    def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide,
+                       mkt_frac=False):
         """Partition measure results by climate, building sector, and end use.
 
         Args:
@@ -4591,6 +4636,9 @@ class Engine(object):
             focus_yrs (list): Optional years of focus within overall yr. range
             divide (boolean): Optional flag to divide terminal values instead
                 of multiplying them (the default option).
+            mkt_frac (boolean): Optional flag to convert terminal values to
+                percentages for market penetration percentages (the default
+                option is False)
 
         Returns:
             Measure baseline or efficient results partitioned by climate,
@@ -4598,7 +4646,8 @@ class Engine(object):
         """
         for (k, i) in sorted(adjust_dict.items()):
             if isinstance(i, dict) and len(i.keys()) > 0:
-                self.out_break_walk(i, adjust_vals, focus_yrs, divide)
+                self.out_break_walk(i, adjust_vals, focus_yrs, divide,
+                                    mkt_frac)
             elif isinstance(i, dict):
                 del adjust_dict[k]
             elif k in focus_yrs:
@@ -4610,6 +4659,8 @@ class Engine(object):
                 else:
                     if adjust_vals[k] != 0:
                         adjust_dict[k] = adjust_dict[k] / adjust_vals[k]
+                        if mkt_frac is True:
+                            adjust_dict[k] = round(adjust_dict[k] * 100, 1)
                     else:
                         adjust_dict[k] = 0
             else:
