@@ -65,6 +65,5 @@ jobs:
 
   integration-tests:
     needs: [check-PR]
-    runs-on: ubuntu-latest
     # if: needs.check-PR.outputs.PR_status == 'true'
     uses: ./.github/workflows/integration_tests.yml
