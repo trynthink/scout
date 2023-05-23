@@ -1,0 +1,118 @@
+{
+  "name": "Commercial Fenestration, 90.1 c. 2022",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": [
+      "windows conduction",
+      "windows solar"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "ASHRAE Standard 90.1-2022",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2022,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "AIA_CZ1": {
+        "windows conduction": 2.99,
+        "windows solar": 0.38},
+      "AIA_CZ2": {
+        "windows conduction": 2.78,
+        "windows solar": 0.38},
+      "AIA_CZ3": {
+        "windows conduction": 2.78,
+        "windows solar": 0.36},
+      "AIA_CZ4": {
+        "windows conduction": 2.45,
+        "windows solar": 0.27},
+      "AIA_CZ5": {
+        "windows conduction": 2.25,
+        "windows solar": 0.25}
+      },
+  "energy_efficiency_units": {
+      "windows conduction": "R value",
+      "windows solar": "SHGC"
+    },
+  "energy_efficiency_source": {
+    "notes": "Based on assumptions and limited to ASHRAE Standard 90.1 climate zones 1-8 as shown in the ASHRAE to AIA climate zone conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5-1 through Table 5.5-8 for fixed vertical fenestration",
+      "author": null,
+      "organization": "ASHRAE",
+      "year": 2022,
+      "pages": "49-56" ,
+      "URL": null}
+    },
+  "installed_cost": 137.74,
+  "cost_units": "2022$/ft^2 glazing",
+  "installed_cost_source": {
+    "notes": "Assume baseline fenestration cost from Scout data",
+    "source_data": {
+      "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2023,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 25,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumes midpoint of lifetime for aluminum and wood window assemblies",
+    "source_data": {
+      "title": "Study of the Life Expectancy of Home Components",
+      "author": null,
+      "organization": "National Association of Homebuilders",
+      "year": 2007,
+      "pages": 15,
+      "URL": "http://stevesmallman.com/wp-content/uploads/2013/05/NAHB-Lifetimes.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_description": "Commercial window assembly that meets the ASHRAE performance standard in 2019",
+  "_notes": null,
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "U.S. Department of Energy",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Thu Jan 4 2018 00:00:00 EST"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 2018 14:58:38 EDT"
+  },
+  {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Fri Feb 10 2020 16:28:38 MST"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-12 20:39 UTC"
+  },
+  {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 30 21:52:53 PDT 2023"
+  }]
+}

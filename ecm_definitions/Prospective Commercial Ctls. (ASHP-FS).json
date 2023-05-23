@@ -43,25 +43,18 @@
   "market_exit_year_source": null,
   "fuel_switch_to": "electricity",
   "market_scaling_fractions": {
-    "cooling": 0.68,
-    "heating": 0.73,
-    "ventilation": 0.49 
+    "cooling": 0.62,
+    "heating": 0.68,
+    "ventilation": 0.42 
   },
-  "market_scaling_fractions_source": [{
-      "title": "CBECS 2012 - Table B30 -  Cooling energy sources, number of buildings and floorspace",
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/pdf/b30.pdf",
-      "fraction_derivation": "Heating fraction excludes electric heating and non-electric heating in floorspace where cooling is served by a chiller or district chilled water (21,649 sf out of 79294 sf cooled), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (25,613 sf/ 79,294 sf)."
-  },{
-      "title": "CBECS 2012 - Table B29 - Primary space-heating energy sources, floorspace",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
-      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use non-electric heating (53,873 sf/80,078 sf) AND which do not use a chiller for cooling (57,645 sf / 79,294 sf)."
-  }],
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Heating fraction excludes portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is multiplication of two previous fractions (e.g., ventilation in buildings where cooling is not served by chiller and heating is non-electric)."
+  },
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

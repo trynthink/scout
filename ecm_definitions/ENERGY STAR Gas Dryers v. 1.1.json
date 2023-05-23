@@ -29,16 +29,16 @@
        "year": 2015,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
-  "installed_cost": 770,
-  "cost_units": "2017$/unit",
+  "installed_cost": 870,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "High installed cost in 2017",
+    "notes": "High installed cost in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Clothes Dryer (Gas)",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 80,
+      "year": 2023,
+      "pages": 98,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "product_lifetime": 13,
@@ -49,31 +49,37 @@
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A: Clothes Dryer (Gas)",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 80,
+      "year": 2023,
+      "pages": 98,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "ENERGY STAR gas dryer in 2017",
+  "_description": "ENERGY STAR gas dryer in 2022",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "U.S. Department of Energy",
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Tue Dec 19 2017 00:00:00 EST"},
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 2018 10:12:01 EDT"
   },
-  "_updated_by": {
+  {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Thu Jan 16 2020 16:05:01 MST"
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Wed May 17 2023 04:35 UTC"
+  }]
 }
