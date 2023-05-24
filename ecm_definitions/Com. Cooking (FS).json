@@ -6,7 +6,7 @@
   "end_use": ["cooking"],
   "fuel_type": ["natural gas"],
   "technology": "all",
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
     "source_data": null},
@@ -15,8 +15,8 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
-  "installed_cost": 87.27,
-  "cost_units": "2017$/kBtu/h cooking",
+  "installed_cost": 87.6,
+  "cost_units": "2022$/kBtu/h cooking",
   "installed_cost_source": {
     "notes": "Based on typical EIA reference case values for commercial NG cooking",
     "source_data": {
@@ -36,8 +36,8 @@
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 137,
+      "year": 2023,
+      "pages": 168,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -52,5 +52,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Thu Nov 18 14:55:00 EST 2021"
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Mon May 22 23:27:13 PDT 2023"
   }
 }
