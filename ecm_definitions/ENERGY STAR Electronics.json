@@ -6,7 +6,7 @@
   "end_use": ["TVs", "computers"],
   "fuel_type": "electricity",
   "technology": ["TV", "desktop PC", "laptop PC", "monitors", "set top box"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null
@@ -45,7 +45,7 @@
         "organization": "U.S. Federal Energy Management Program",
         "year": 2021,
         "pages": null,
-        "URL": "https://www.energy.gov/eere/femp/purchasing-energy-efficient-displays-and-monitors"
+        "URL": "https://www.energy.gov/femp/purchasing-energy-efficient-displays-and-monitors"
     },
     {
         "title": "ENERGY STAR Product Finder - Set Top Box",
@@ -115,5 +115,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Apr 21 09:37:47 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 23 21:09:49 PDT 2023"
   }
 }
