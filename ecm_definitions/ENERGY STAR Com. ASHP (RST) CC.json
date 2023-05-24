@@ -15,7 +15,7 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.4,
+  "energy_efficiency": 3.5,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
@@ -23,11 +23,11 @@
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 141.2,
+  "installed_cost": 172,
   "cost_units": "2017$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
@@ -35,8 +35,8 @@
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -48,8 +48,8 @@
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -98,6 +98,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Tue May 23 21:08:53 PDT 2023"
+    "timestamp": "Wed May 24 09:39:15 PDT 2023"
   }]
 }

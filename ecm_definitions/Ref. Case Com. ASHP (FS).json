@@ -19,28 +19,28 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.5,
+  "energy_efficiency": 3.4,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Reflect performance level of 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
+    "notes": "Reflect performance level of 2023 new standard.",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 139,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 282,
+  "installed_cost": 165,
   "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "New Standard installed cost and retail equipment cost in 2023 divided by typical capacity (90 kBtu/h cooling), which is reflected in the 2023 column.",
+    "notes": "New Standard installed cost and retail equipment cost in 2023 divided by typical capacity (90 kBtu/h cooling).",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2022,
-      "pages": 139,
+      "year": 2023,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -53,7 +53,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 139,
+      "pages": 140,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
