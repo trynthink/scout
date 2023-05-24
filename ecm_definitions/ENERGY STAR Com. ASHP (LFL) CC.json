@@ -8,48 +8,48 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
     "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 3.4,
+  "energy_efficiency": 3.5,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Assume ENERGY STAR standard is bumped to match 2023 minimum efficiency standard, which is reflected in the 2030 column of EIA projections",
+    "notes": "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column.",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 141.2,
-  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost": 172,
+  "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Typical installed cost in 2030 divided by typical capacity (90 kBtu/h cooling); 2030 reflects implementation of standard in 2023",
+    "notes": "ENERGY STAR V. 4.0 installed cost in 2023 divided by typical capacity (90 kBtu/h cooling).",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical lifetime in 2030",
+    "notes": "Typical lifetime in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -84,5 +84,10 @@
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Sat May 20 23:58:13 PDT 2023"
   }]
 }
