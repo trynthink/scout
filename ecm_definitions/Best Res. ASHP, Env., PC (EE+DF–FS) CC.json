@@ -8,7 +8,7 @@
   "fuel_type": "all",
   "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
                  "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
     "source_data": null
@@ -20,86 +20,55 @@
       "custom_annual_savings": "P3b_Best_envelope_thermostat_ASHP_DR_thermostat.csv"
     }
   },
-  "energy_efficiency": {
-      "cooling": 4.55,
-      "heating": 1.88},
-  "energy_efficiency_units": "COP",
-  "energy_efficiency_source": {
-    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical ASHPs, GSHPs, and electric resistance + central AC. ASHPs and central AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2021 microdata files, available from EIA upon request.",
-    "source_data": {
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": {
+    "electricity": 8910,
+    "natural gas": 9910, 
+    "distillate": 10010,
+    "other fuel": 10010
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'ENERGY STAR Connected Thermostat' values inflation-adjusted from April 2020 to April 2022 plus installed costs for the best ASHP in 2023; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; add service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report",
+    "source_data": [
+      {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,
         "organization": "U.S. Energy Information Administration",
         "year": 2018,
-        "pages": [21, 26, 29, 33],
+        "pages": 29,
         "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
-  "installed_cost": {
-      "electricity": {
-        "new": 0,
-        "existing": 0
       },
-      "natural gas": {
-        "new": 6357,
-        "existing": 10357
-      }, 
-      "distillate": {
-        "new": 6357,
-        "existing": 11357
-      },
-      "other fuel": {
-        "new": 6357,
-        "existing": 11357
-      }
-  },
-  "cost_units": "2017$/unit",
-  "installed_cost_source": {
-    "notes": "Total installed cost is average of low/high 'ESTAR Connected Thermostat' values plus installed costs for best ASHP in 2020; attribute cost to heating unit replacement, with no cost for associated cooling capabilities; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
-    "source_data": [
       {
+        "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+        "author": "Nubbe et al. 2020",
+        "organization": "Guidehouse Inc.",
+        "year": 2020,
+        "pages": 17,
+        "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
+      },
+      {
+        "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": 8,
+        "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+      }
+    ]},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average ENERGY STAR equipment lifetime in 2023, rounded down from 15.3",
+    "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 29,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
-      "author": "Nubbe et al. 2020",
-      "organization": "Guidehouse Inc.",
-      "year": 2020,
-      "pages": 17,
-      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
-      {
-      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
-      },
-      {
-      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
-      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
-      "organization": "Redwood Energy & Menlo Spark",
-      "year": 2021,
-      "pages": 19,
-      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
-    ]},
-  "product_lifetime": 15.5,
-  "product_lifetime_units": "years",
-  "product_lifetime_source": {
-    "notes": "Average of low & high values for 'Average Life (yrs.)'",
-    "source_data": {
-      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
-      "author": "Nubbe et al. 2020",
-      "organization": "Guidehouse Inc.",
-      "year": 2020,
-      "pages": 19,
-      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
-    }
+      "year": 2023,
+      "pages": 39,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
@@ -134,6 +103,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Mon May 22 2023 22:53:00 UTC"
+    "timestamp": "Wed May 24 2023 18:04:00 UTC"
   }
 }

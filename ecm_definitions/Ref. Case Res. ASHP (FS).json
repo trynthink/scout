@@ -14,9 +14,9 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.41,
-      "heating": 2.59
-    },
+    "cooling": 4.41,
+    "heating": 2.59
+  },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
     "notes": "Current minimum efficiency air source heat pump performance in 2030; conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see second EIA source); split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)",
@@ -48,49 +48,51 @@
     ]
   },
   "installed_cost": {
-      "electricity": {
-        "new": 6810,
-        "existing": 9810
-      },
-      "natural gas": {
-        "new": 6810,
-        "existing": 10810
-      }, 
-      "distillate": {
-        "new": 6810,
-        "existing": 11810
-      },
-      "other fuel": {
-        "new": 6810,
-        "existing": 11810
-      }
+    "electricity": {
+      "new": 6810,
+      "existing": 13110
+    },
+    "natural gas": {
+      "new": 6810,
+      "existing": 14110
+    }, 
+    "distillate": {
+      "new": 6810,
+      "existing": 15110
+    },
+    "other fuel": {
+      "new": 6810,
+      "existing": 15110
+    }
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Installed costs for minimum standard split-system ASHP; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
+    "notes": "Installed costs for minimum standard split-system ASHP; added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $6300 as the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in NV5 report.",
     "source_data": [
       {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": 39,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
-      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"},
+        "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": 8,
+        "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+      },
       {
-      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
-      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
-      "organization": "Redwood Energy & Menlo Spark",
-      "year": 2021,
-      "pages": 19,
-      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+        "organization": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "table": 4,
+        "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
     ]},
   "product_lifetime": 15,
   "product_lifetime_units": "years",
@@ -137,6 +139,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Tue May 23 2023 15:45:00 UTC"
+    "timestamp": "Wed May 24 2023 17:13:00 UTC"
   }
 }

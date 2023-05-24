@@ -64,20 +64,20 @@
     },
     "natural gas": {
       "new": 6940,
-      "existing": 10940
+      "existing": 14240
     }, 
     "distillate": {
       "new": 6940,
-      "existing": 11940
+      "existing": 14240
     },
     "other fuel": {
       "new": 6940,
-      "existing": 11940
+      "existing": 15240
     }
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost for ENERGY STAR ASHPs in 2023; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $3K for new circuit breaker panel based on Redwood Energy report.",
+    "notes": "Total installed cost for ENERGY STAR ASHPs in 2023; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $6300 as the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in NV5 report.",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -88,20 +88,21 @@
         "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
-      "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 8,
-      "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
+        "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2018,
+        "pages": 8,
+        "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
       },
       {
-      "title": "A Pocket Guide to All-Electric Retrofits of Single-Family Homes",
-      "author": "Sean Armstrong, Emily Higbee, Dylan Anderson, Diane Bailey, Tom Kabat",
-      "organization": "Redwood Energy & Menlo Spark",
-      "year": 2021,
-      "pages": 19,
-      "URL": "https://redwoodenergy.net/wp-content/uploads/2021/02/Pocket-Guide-to-All-Electric-Retrofits-of-Single-Family-Homes.pdf"}
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+        "organization": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "table": 4,
+        "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
     ]},
   "product_lifetime": 15,
   "product_lifetime_units": "years",
@@ -172,6 +173,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Mon May 22 2023 22:25:00 UTC"
+    "timestamp": "Wed May 24 2023 17:04:00 UTC"
   }]
 }
