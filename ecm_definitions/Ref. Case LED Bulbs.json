@@ -14,7 +14,7 @@
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 131,
+  "energy_efficiency": 87.4,
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
     "notes": "General service LED performance in 2023 in Scout baseline cost, performance, and lifetime data",
@@ -28,7 +28,7 @@
     }
   },
   "installed_cost": 3,
-  "cost_units": "2017$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
     "notes": "General service LED cost in 2023 in Scout baseline cost, performance, and lifetime data",
     "source_data": {
@@ -39,10 +39,10 @@
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }},
-  "product_lifetime": 46,
+  "product_lifetime": 13.7,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "General service LED lifetime in 2023 in Scout baseline cost, performance, and lifetime data, translated to 3 hours per day use (multiply by 8)",
+    "notes": "General service LED lifetime in 2023 in Scout baseline cost, performance, and lifetime data",
     "source_data": {
       "title": "Scout baseline cost, performance, and lifetime data",
       "author": null,
@@ -68,6 +68,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Tue May 23 2023 04:52:00 UTC"
+    "timestamp": "Tue May 23 2023 23:30:00 UTC"
   }
 }
