@@ -31,8 +31,8 @@
       "pages": 154,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
-  "installed_cost": 293.62,
-  "cost_units": "2017$/kBtu/h water heating",
+  "installed_cost": 351,
+  "cost_units": "2022$/kBtu/h water heating",
   "installed_cost_source": {
     "notes": "Typical installed cost in 2022 divided by output capacity of 171 kBtu/h (50kW)",
     "source_data": {

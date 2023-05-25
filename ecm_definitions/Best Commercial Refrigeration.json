@@ -40,12 +40,12 @@
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }},
   "installed_cost": {
-    "Commercial Reach-In Freezers": 857.75,
-    "Commercial Reach-In Refrigerators": 1385.45,
-    "Commercial Supermarket Display Cases": 896.28,
-    "Commercial Walk-In Freezers": 918.06,
-    "Commercial Walk-In Refrigerators": 565.41},
-  "cost_units": "2017$/kBtu/h refrigeration",
+    "Commercial Reach-In Freezers": 1024,
+    "Commercial Reach-In Refrigerators": 1654,
+    "Commercial Supermarket Display Cases": 1070,
+    "Commercial Walk-In Freezers": 1096,
+    "Commercial Walk-In Refrigerators": 675},
+  "cost_units": "2022$/kBtu/h refrigeration",
   "installed_cost_source": {
     "notes": "Total installed cost for high efficiency refrigeration units in 2022",
     "source_data": {

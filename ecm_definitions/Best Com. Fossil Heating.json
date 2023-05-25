@@ -53,11 +53,11 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
   },
   "installed_cost": {
-      "gas_furnace": 8.64,
-      "oil_furnace": 28.08,
-      "gas_boiler": 57.83,
-      "oil_boiler": 65.87},
-  "cost_units": "2017$/kBtu/h heating",
+      "gas_furnace": 10.32,
+      "oil_furnace": 34,
+      "gas_boiler": 69.04,
+      "oil_boiler": 78.64},
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
     "notes": "High installed cost in 2023 (or 2022 when unavailable) divided by high input capacity",
     "source_data": [{
