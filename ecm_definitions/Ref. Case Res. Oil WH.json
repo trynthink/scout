@@ -1,5 +1,5 @@
 { 
-  "name": "Residential Oil WH, 90.1 c. 2019",
+  "name": "Ref. Case Res. Oil WH",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -78,6 +78,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Tue May 23 04:27:00 UTC"
+    "timestamp": "Thu May 25 2023 18:50:00 UTC"
   }]
 }
