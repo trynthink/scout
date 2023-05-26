@@ -1,19 +1,19 @@
 {
-  "name": "Commercial Walls, 90.1 c. 2019",
+  "name": "Commercial Roofs, 90.1 c. 2022",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": ["heating", "cooling"],
   "fuel_type": "all",
-  "technology": "wall",
-  "market_entry_year": 2021,
+  "technology": "roof",
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2019",
+      "title": "ASHRAE Standard 90.1-2022",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2019,
+      "year": 2022,
       "pages": null,
       "URL": null
     }
@@ -21,27 +21,30 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 25.31,
-      "AIA_CZ2": 22.97,
-      "AIA_CZ3": 20.60,
-      "AIA_CZ4": 18.43,
-      "AIA_CZ5": 16.82
+      "AIA_CZ1": 5.4,
+      "AIA_CZ2": 5.3,
+      "AIA_CZ3": 5.3,
+      "AIA_CZ4": 4.55,
+      "AIA_CZ5": 4.32
       },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Based on assumptions and 90.1 climate to AIA climate conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
+    "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2019",
+      "title": "ASHRAE Standard 90.1-2022",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2019,
-      "pages": null,
+      "year": 2022,
+      "pages": "49-56",
       "URL": null}
     },
-  "installed_cost": 1.14,
-  "cost_units": "2022$/ft^2 wall",
+  "installed_cost": {
+    "new": 3.65,
+    "existing": 3.51
+  },
+  "cost_units": "2022$/ft^2 roof",
   "installed_cost_source": {
-    "notes": "Assume baseline wall cost from Scout data",
+    "notes": "Assume baseline roof cost from Scout data",
     "source_data": {
       "title": "Scout - Baseline Envelope and MELs Cost, Performance, and Lifetime Data ('cpl_envelope_mels.json')",
       "author": null,
@@ -51,25 +54,25 @@
       "URL": "https://github.com/trynthink/scout/blob/master/cpl_envelope_mels.json"
     }
   },
-  "product_lifetime": 100,
+  "product_lifetime": 30,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Assumed equal to the lifetime of the building",
+    "notes": "Typical least cost commercial roof service life",
     "source_data": {
-      "title": null,
-      "author": null,
-      "organization": null,
-      "year": null,
-      "pages": null,
-      "URL": null
+      "title": "Life-Cycle Costs of Commercial Roof Systems",
+      "author": "Coffelt et al.",
+      "organization": "Carnegie Mellon University",
+      "year": 2010,
+      "pages": [29, 36],
+      "URL": "http://www.cmu.edu/gdi/docs/life-cycle-costs.pdf"
     }
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
-  "_description": "R-15 fiberglass insulation for walls that meets an approximated climate zone average of the 90.1-2019 performance standard",
-  "_notes": null,
+  "_description": "4 in. thick foil-faced polyiso foam board insulation for commercial roof decks that meets the 90.1-2019 performance standard",
+  "_notes": "R value for continuous insulation",
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "U.S. Department of Energy",
@@ -80,18 +83,24 @@
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "Tue Sep 25 2018 15:18:35 EDT"
+    "timestamp": "Tue Sep 25 2018 15:18:20 EDT"
   },
   {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
-    "email": "ardelia.clarke@nrel.gov",
-    "timestamp": "Fri Jan 24 2020 12:54:35 MST"
+    "email": "ardelia.Clarke@nrel.gov",
+    "timestamp": "Mon Feb 10 2020 12:57:20 MST"
   },
   {
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2023-02-12 20:22 UTC"
+    "timestamp": "2023-02-12 20:25 UTC"
+  },
+  {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 23 19:01:54 PDT 2023"
   }]
 }

@@ -1,6 +1,6 @@
 {
-  "name": "Com. Fossil Heating, 90.1 c. 2019 (2030)",
-  "_description": "Fossil-based boilers and furnaces for commercial buildings that meet the ASHRAE 90.1-2019 standard; market entry year set for packaging with prospective measures",
+  "name": "Com. Fossil Heating, 90.1 c. 2022 (2030)",
+  "_description": "Fossil-based boilers and furnaces for commercial buildings that meet the ASHRAE 90.1-2022 standard; market entry year set for packaging with prospective measures",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -19,11 +19,43 @@
   "energy_efficiency_source": {
     "notes": "Assume reference case characteristics",
     "source_data": null},
-  "installed_cost": 0,
-  "cost_units": "2017$/kBtu/h heating",
+  "installed_cost": {
+      "gas_furnace": 13,
+      "oil_furnace": 38,
+      "gas_boiler": 56,
+      "oil_boiler": 58},
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "Assume reference case characteristics",
-    "source_data": null},
+    "notes": "Typical average lifetime in 2023",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": 109,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": 112,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": 119,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": 122,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
+  },
   "product_lifetime": {
       "gas_furnace": 23,
       "oil_furnace": 23,
@@ -31,36 +63,35 @@
       "oil_boiler": 25},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical average lifetime in 2017",
+    "notes": "Typical average lifetime in 2023",
     "source_data": [{
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
+      "year": 2022,
+      "pages": 109,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
     {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
+      "year": 2022,
+      "pages": 112,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
     {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
+      "year": 2022,
+      "pages": 119,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
     {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
+      "year": 2022,
+      "pages": 122,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-
   },
   "measure_type": "add-on",
   "fuel_switch_to": null,
@@ -73,5 +104,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Fri Nov  5 06:16:38 EDT 2021"
   },
-  "_updated_by": null
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 23 21:07:42 PDT 2023"
+  }
 }

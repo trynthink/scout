@@ -8,16 +8,26 @@
   "fuel_type": "electricity",
   "technology": ["reciprocating_chiller", "centrifugal_chiller", "scroll_chiller",
                  "screw_chiller", "all ventilation"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
-  "installed_cost": 0,
-  "cost_units": "2017$/kBtu/h cooling",
-  "installed_cost_source": null,
+  "installed_cost": 87.8,
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "Average installed costs for high efficiency chillers in 2022",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [125, 133],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
   "product_lifetime": {
       "reciprocating_chiller": 20,
       "centrifugal_chiller": 25,
@@ -27,13 +37,13 @@
       "VAV_Vent": 20},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetimes for high efficiency chillers in 2017",
+    "notes": "Average lifetimes for high efficiency chillers in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": [102, 109],
+      "year": 2023,
+      "pages": [125, 133],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -58,5 +68,11 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
-  }
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Sun May 21 01:09:30 PDT 2023"
+  }  
 }
