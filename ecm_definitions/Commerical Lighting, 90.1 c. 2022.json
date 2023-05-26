@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Lighting, 90.1 c. 2019",
+  "name": "Commercial Lighting, 90.1 c. 2022",
   "_description": "Incremental lighting energy savings and added costs from switching between BAU commercial code in 2021 (assume 90.1-2013) and current code (90.1-2019)",
   "tsv_features": null,
   "climate_zone": "all",
@@ -8,7 +8,7 @@
   "end_use": "lighting",
   "fuel_type": "electricity",
   "technology": "all",
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -16,12 +16,12 @@
     "assembly": 0.3,
     "education": 0.2,
     "food sales": 0,
-    "food service": 0.2,
+    "food service": 0.3,
     "health care": 0.1,
     "lodging": 0.2,
     "large office": 0.2,
-    "small office": 0.2,
-    "mercantile/service": 0.2,
+    "small office": 0.1,
+    "mercantile/service": 0.3,
     "warehouse": 0.3,
     "other": 0.2
   },
@@ -37,29 +37,29 @@
       "pages": null,
       "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"},
     {
-      "title": "Standard 90.1-2019 – Energy Standard for Buildings Except Low-Rise Residential Buildings",
+      "title": "Standard 90.1-2022 – Energy Standard for Buildings Except Low-Rise Residential Buildings",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2016,
+      "year": 2022,
       "pages": null,
       "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"}
   ]},
   "installed_cost": {
-    "assembly": 2,
-    "education": 2,
+    "assembly": 2.3,
+    "education": 2.3,
     "food sales": 0,
-    "food service": 1.2,
-    "health care": 2,
-    "lodging": 0.7,
-    "large office": 1.8,
-    "small office": 1.8,
-    "mercantile/service": 1.2,
-    "warehouse": 2,
-    "other": 1.8
+    "food service": 1.4,
+    "health care": 2.3,
+    "lodging": 0.78,
+    "large office": 2.14,
+    "small office": 2.14,
+    "mercantile/service": 1.42,
+    "warehouse": 2.3,
+    "other": 2.1
   },
-  "cost_units": "2020$/ft^2 floor",
+  "cost_units": "2022$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Assumes incremental cost between 90.1-2013 and 90.1-2019 would be similar to that of 90.1-2016 and 90.1-2019; see full calculations at https://docs.google.com/spreadsheets/d/1tZHWcn0I0UGFjCTFRHccs_OGH5-WXufgDz5tN_TbHTc/edit?usp=sharing",
+    "notes": "Assumes incremental cost between 90.1-2013 and 90.1-2022 would be similar to that of 90.1-2016 and 90.1-2022; see full calculations at https://docs.google.com/spreadsheets/d/1tZHWcn0I0UGFjCTFRHccs_OGH5-WXufgDz5tN_TbHTc/edit?usp=sharing",
     "source data": {
       "title": "National Cost-Effectiveness of ANSI/ASHRAE/IES Standard 90.1-2019",
       "author": null,
@@ -92,5 +92,11 @@
     "organization": "Lawrence Berkeley National Lab",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Thu Oct 14 12:07:45 EDT 2021"
-  }
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 23 18:59:31 PDT 2023"
+  }  
 }

@@ -1,5 +1,5 @@
 {
-  "name": "Commercial Fenestration, 90.1 c. 2019",
+  "name": "Commercial Fenestration, 90.1 c. 2022",
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -8,35 +8,35 @@
   "technology": [
       "windows conduction",
       "windows solar"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Year in which standard went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": {
-      "title": "2018 International Energy Conservation Code",
+      "title": "ASHRAE Standard 90.1-2022",
       "author": null,
-      "organization": "International Code Council",
-      "year": 2018,
+      "organization": "ASHRAE",
+      "year": 2022,
       "pages": null,
-      "URL": "https://codes.iccsafe.org/public/document/iecc2018"
+      "URL": null
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "windows conduction": 2.98,
+        "windows conduction": 0.53,
         "windows solar": 0.38},
       "AIA_CZ2": {
-        "windows conduction": 2.78,
+        "windows conduction": 0.49,
         "windows solar": 0.38},
       "AIA_CZ3": {
-        "windows conduction": 2.78,
+        "windows conduction": 0.49,
         "windows solar": 0.36},
       "AIA_CZ4": {
-        "windows conduction": 2.45,
+        "windows conduction": 0.43,
         "windows solar": 0.27},
       "AIA_CZ5": {
-        "windows conduction": 2.25,
+        "windows conduction": 0.4,
         "windows solar": 0.25}
       },
   "energy_efficiency_units": {
@@ -46,11 +46,11 @@
   "energy_efficiency_source": {
     "notes": "Based on assumptions and limited to ASHRAE Standard 90.1 climate zones 1-8 as shown in the ASHRAE to AIA climate zone conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ANSI/ASHRAE/IES Standard 90.1-2019: Table 5.5-1 through Table 5.5-8 for fixed vertical fenestration",
+      "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5-1 through Table 5.5-8 for fixed vertical fenestration",
       "author": null,
       "organization": "ASHRAE",
-      "year": 2019,
-      "pages": "59-66" ,
+      "year": 2022,
+      "pages": "49-56" ,
       "URL": null}
     },
   "installed_cost": 137.74,
@@ -108,5 +108,11 @@
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
     "timestamp": "2023-02-12 20:39 UTC"
+  },
+  {
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 23 19:00:31 PDT 2023"
   }]
 }
