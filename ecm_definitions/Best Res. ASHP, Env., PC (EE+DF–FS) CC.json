@@ -20,9 +20,21 @@
       "custom_annual_savings": "P3b_Best_envelope_thermostat_ASHP_DR_thermostat.csv"
     }
   },
-  "energy_efficiency": 0,
-  "energy_efficiency_units": "relative savings (constant)",
-  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "energy_efficiency": {
+      "cooling": 4.48,
+      "heating": 1.77},
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations in 2023 of heating and cooling efficiencies (COP) for typical ASHPs (4.48 cool/2.52 heat), GSHPs (5 cool/3.6 heat), and electric resistance + central AC (4.43 cool/1 heat). New/replacement sales numbers drawn from AEO 2023 microdata files (~43% resistance/~53% ASHP/~4% GSHP), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounuted for via the savings shape data in `tsv_features`.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [23, 28, 39, 45],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
   "installed_cost": {
     "electricity": 8910,
     "natural gas": 9910, 
@@ -37,8 +49,8 @@
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,
         "organization": "U.S. Energy Information Administration",
-        "year": 2018,
-        "pages": 29,
+        "year": 2023,
+        "pages": 39,
         "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
       },
       {
