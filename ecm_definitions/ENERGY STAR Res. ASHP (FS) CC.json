@@ -133,7 +133,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
       "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
-      "fraction_derivation": "Central AC multiple of 59.5% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
+      "fraction_derivation": "Central AC multiple of 68% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
     }
   },
   "_description": "Standard size residential non-ducted air source heat pump that meets the ENERGY STAR performance standard, cold-climate",

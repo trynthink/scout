@@ -79,7 +79,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
       "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
-      "fraction_derivation": "Central AC multiple of 40.5% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with electric heating system (Main space heating fuel = electricity = 5) 3,949 homes."
+      "fraction_derivation": "Central AC multiple of 32% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with electric heating system (Main space heating fuel = electricity = 5) 3,949 homes."
     },
     "resistance heat": "Applies to all homes with electric resistance furnaces (the resistance heat tech. is indicative of a forced air electric furnace in the EIA data)"
   },

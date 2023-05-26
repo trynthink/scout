@@ -43,16 +43,16 @@
   "market_exit_year_source": null,
   "fuel_switch_to": null,
   "market_scaling_fractions": {
-    "central AC": 0.405,
+    "central AC": 0.32,
     "resistance heat": 1},
   "market_scaling_fractions_source": {
     "central AC": {
-      "title": "RECS 2015 - Table HC6.1",
+      "title": "RECS 2020 Microdata",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/residential/data/2015",
-      "fraction_derivation": "Central AC multiple of 40.5% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling in the sample is 76,090,522, and then filtered for homes with electric heating system (76,090,522 - 45,241,958 fuel-fired systems)."
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 32% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with electric heating system (Main space heating fuel = electricity = 5) 3,949 homes."
     },
     "resistance heat": "Applies to all homes with electric resistance furnaces (the resistance heat tech. is indicative of a forced air electric furnace in the EIA data)"
   },
