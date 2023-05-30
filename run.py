@@ -5055,6 +5055,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     czgrp = set([cz for m in meas_summary
                  if m["name"] in active_meas_all and m["remove"] is False
                  for cz in m['climate_zone']])
+    czgrp = sorted(czgrp)
     btgrp = [bt for m in meas_summary
              if m["name"] in active_meas_all and m["remove"] is False
              for bt in m['bldg_type']]
@@ -5062,7 +5063,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # are provided for these building types
     btgrp = set([bt for bt in btgrp
                  if bt not in ['mobile home', 'multi family home']])
-
+    btgrp = sorted(btgrp)
     # Set up recursively extensible empty dict to populate with onsite
     # generation data
     def variable_depth_dict(): return defaultdict(variable_depth_dict)
@@ -5134,6 +5135,18 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Add onsite generation data as additional measure-level data
     # written with ECM results output
     a_run.output_ecms['On-site Generation'] = osg_temp
+
+    # Recursively navigate dictionary and round values
+    def round_values(data, precision):
+        if isinstance(data, dict):
+            for k, v in data.items():
+                data[k] = round_values(v, precision)
+        elif isinstance(data, float):
+            data = round(data, precision)
+        return data
+
+    a_run.output_ecms = round_values(a_run.output_ecms, 6)
+    a_run.output_all = round_values(a_run.output_all, 6)
 
     # Write summary outputs for individual measures to a JSON
     with open(path.join(
