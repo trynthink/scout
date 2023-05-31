@@ -21,10 +21,10 @@
       "year": 2020,
       "pages": 88,
       "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}},
-  "installed_cost": 0.1375,
+  "installed_cost": 0.13275,
   "cost_units": "2022$/ft^2 floor",
   "installed_cost_source": {
-    "notes": "Average of 'Total Cost (2020)' values for 'Tier 1 APS' ($23.5/unit), converted from $/unit to $/ft^2 floor assuming 1:1 ratio of APS:Occupant and 200 ft^2 floor/occupant, using large office reference case (498K sf, 2490 occupants, $58515 total cost per building)",
+    "notes": "Average of 'Total Cost (2022)' values for 'Tier 1 APS' ($26.55/unit), converted from $/unit to $/ft^2 floor assuming 1:1 ratio of APS:Occupant and 200 ft^2 floor/occupant, using large office reference case (498K sf, 2490 occupants, $66109.5 total cost per building)",
     "source_data": [
     {
       "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
@@ -70,6 +70,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Tue May 23 18:59:12 PDT 2023"
+    "timestamp": "Tue May 30 21:53:41 PDT 2023"
   }  
 }

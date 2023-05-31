@@ -26,7 +26,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
   "installed_cost": 172,
@@ -38,7 +38,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -51,7 +51,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -96,6 +96,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Sat May 20 23:33:13 PDT 2023"
+    "timestamp": "Tue May 30 12:37:52 PDT 2023"
   }]
 }
