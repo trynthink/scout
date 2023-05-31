@@ -21,17 +21,17 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "AIA_CZ1": 2.97,
-      "AIA_CZ2": 2.6,
-      "AIA_CZ3": 2.6,
-      "AIA_CZ4": 1.94,
-      "AIA_CZ5": 1.71
+      "AIA_CZ1": 17.02,
+      "AIA_CZ2": 14.61,
+      "AIA_CZ3": 14.58,
+      "AIA_CZ4": 10.79,
+      "AIA_CZ5": 6.83
     },
   "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
     "notes": "Based on assumptions and ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ-Z7HK0-ec/edit#gid=1968005613",
     "source_data": {
-      "title": "ASHRAE Standard 90.1-2022",
+      "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5-1 through Table 5.5-8 for mass floors",
       "author": null,
       "organization": "ASHRAE",
       "year": 2022,
@@ -98,7 +98,7 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Tue May 23 19:02:25 PDT 2023"
+    "timestamp": "Tue May 30 21:53:28 PDT 2023"
   }]
 }
 

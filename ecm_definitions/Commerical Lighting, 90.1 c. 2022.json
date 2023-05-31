@@ -1,6 +1,6 @@
 {
   "name": "Commercial Lighting, 90.1 c. 2022",
-  "_description": "Incremental lighting energy savings and added costs from switching between BAU commercial code in 2021 (assume 90.1-2013) and current code (90.1-2019)",
+  "_description": "Incremental lighting energy savings and added costs from switching between BAU commercial code in 2021 (assume 90.1-2013) and current code (90.1-2022)",
   "tsv_features": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
@@ -45,23 +45,23 @@
       "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"}
   ]},
   "installed_cost": {
-    "assembly": 2.3,
-    "education": 2.3,
+    "assembly": 2.22,
+    "education": 2.22,
     "food sales": 0,
-    "food service": 1.4,
-    "health care": 2.3,
-    "lodging": 0.78,
-    "large office": 2.14,
-    "small office": 2.14,
-    "mercantile/service": 1.42,
-    "warehouse": 2.3,
-    "other": 2.1
+    "food service": 1.37,
+    "health care": 2.22,
+    "lodging": 0.75,
+    "large office": 2.06,
+    "small office": 2.06,
+    "mercantile/service": 1.37,
+    "warehouse": 2.22,
+    "other": 2.06
   },
   "cost_units": "2022$/ft^2 floor",
   "installed_cost_source": {
     "notes": "Assumes incremental cost between 90.1-2013 and 90.1-2022 would be similar to that of 90.1-2016 and 90.1-2022; see full calculations at https://docs.google.com/spreadsheets/d/1tZHWcn0I0UGFjCTFRHccs_OGH5-WXufgDz5tN_TbHTc/edit?usp=sharing",
     "source data": {
-      "title": "National Cost-Effectiveness of ANSI/ASHRAE/IES Standard 90.1-2019",
+      "title": "National Cost-Effectiveness of ANSI/ASHRAE/IES Standard 90.1-2022",
       "author": null,
       "organization": "Pacific Northwest National Laboratory",
       "year": 2018,
@@ -97,6 +97,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Tue May 23 18:59:31 PDT 2023"
+    "timestamp": "Tue May 30 21:53:55 PDT 2023"
   }  
 }

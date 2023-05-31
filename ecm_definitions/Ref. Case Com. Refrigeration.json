@@ -11,39 +11,22 @@
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": [91, 105],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
-    }
+    "source_data": null
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
-  "installed_cost": 1103.8,
+  "installed_cost": 0,
   "cost_units": "2022$/kBtu/h refrigeration",
-  "installed_cost_source": {
-    "notes": "Average installed costs for high efficiency refrigeration in 2022",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": [91, 105],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
-  },
+  "installed_cost_source": null,
   "product_lifetime": {
-    "Commercial Reach-In Freezers": 10,
-    "Commercial Reach-In Refrigerators": 10,
     "Commercial Supermarket Display Cases": 10,
-    "Commercial Walk-In Freezers": 10,
-    "Commercial Walk-In Refrigerators": 10},
+    "Commercial Reach-In Refrigerators": 10,    
+    "Commercial Reach-In Freezers": 10,
+    "Commercial Walk-In Refrigerators": 10,
+    "Commercial Walk-In Freezers": 10},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
     "notes": "Average lifetimes for high efficiency refrigeration units in 2022 (use average compressor life where broken out)",
@@ -52,7 +35,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": [91, 105],
+      "pages": [91, 94, 97, 100, 104],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
@@ -72,6 +55,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Sun May 21 01:27:00 PDT 2023"
+    "timestamp": "Tue May 30 22:19:00 PDT 2023"
   }  
 }

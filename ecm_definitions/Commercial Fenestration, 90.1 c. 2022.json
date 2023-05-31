@@ -24,19 +24,19 @@
   "market_exit_year_source": null,
   "energy_efficiency": {
       "AIA_CZ1": {
-        "windows conduction": 0.53,
+        "windows conduction": 2.99,
         "windows solar": 0.38},
       "AIA_CZ2": {
-        "windows conduction": 0.49,
+        "windows conduction": 2.78,
         "windows solar": 0.38},
       "AIA_CZ3": {
-        "windows conduction": 0.49,
+        "windows conduction": 2.78,
         "windows solar": 0.36},
       "AIA_CZ4": {
-        "windows conduction": 0.43,
+        "windows conduction": 2.45,
         "windows solar": 0.27},
       "AIA_CZ5": {
-        "windows conduction": 0.4,
+        "windows conduction": 2.25,
         "windows solar": 0.25}
       },
   "energy_efficiency_units": {
@@ -113,6 +113,6 @@
     "name": "Handi Chandra Putra",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "Tue May 23 19:00:31 PDT 2023"
+    "timestamp": "Tue May 30 21:52:53 PDT 2023"
   }]
 }

@@ -25,11 +25,11 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }]},
-  "installed_cost": 141.2,
-  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost": 165,
+  "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
     "notes": "New standard installed cost in 2023 divided by typical capacity (90 kBtu/h cooling)",
     "source_data": {
@@ -37,20 +37,20 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical lifetime in 2030",
+    "notes": "New standard lifetime in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 140,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
