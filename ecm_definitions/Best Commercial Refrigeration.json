@@ -16,26 +16,26 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2022,
-      "pages": [91, 107],
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "Commercial Reach-In Freezers": 2.4,
-    "Commercial Reach-In Refrigerators": 5.4,
-    "Commercial Supermarket Display Cases": 3.85,
-    "Commercial Walk-In Freezers": 2.7,
-    "Commercial Walk-In Refrigerators": 3.5},
+    "Commercial Reach-In Freezers": 2.7,
+    "Commercial Reach-In Refrigerators": 7.4,
+    "Commercial Supermarket Display Cases": 3.3,
+    "Commercial Walk-In Freezers": 3.2,
+    "Commercial Walk-In Refrigerators": 7.1},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "'Best' performance for the relevant technology in the Scout baseline technology characteristics data for food sales building type in AIA_CZ1 and the year 2017 (derived from KTEK.xml EIA file)",
+    "notes": "'Best' performance for the relevant technology in the Scout baseline technology characteristics data for food sales building type in AIA_CZ1 and the year 2022 (based on the ktekx.xlsx AEO 2023 file, 2022 High category)",
     "source_data": {
       "title": "Scout - Baseline Cost, Performance, and Lifetime Data ('cpl_res_com_cz.json')",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2018,
+      "year": 2023,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }},
@@ -53,7 +53,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": [91, 107],
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
@@ -71,7 +71,7 @@
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": [91, 107],
+      "pages": [98, 95, 92, 105, 101],
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
@@ -91,6 +91,6 @@
     "name": "Aven Satre-Meloy",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "asatremeloy.lbl.gov",
-    "timestamp": "Mon May 22 2023 04:16:19 PDT"
+    "timestamp": "Tue May 30 2023 10:40:19 PDT"
   }
 }

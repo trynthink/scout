@@ -14,7 +14,7 @@
   "end_use": ["cooling", "heating", "ventilation"],
   "fuel_type": "electricity",
   "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat", "all ventilation"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in the baseline",
     "source_data": null
@@ -24,29 +24,29 @@
   "energy_efficiency": 0,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
-  "installed_cost": 178.33,
-  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost": 210,
+  "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
+    "notes": "Total installed cost for high efficiency RTHP in 2023 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetimes for high efficiency RTU in 2017",
+    "notes": "Average lifetimes for high efficiency RTU in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -86,5 +86,10 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Tue May 30 10:17:29 PDT 2023"
   }]
 }
