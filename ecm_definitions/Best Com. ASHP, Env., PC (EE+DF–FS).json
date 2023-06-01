@@ -17,7 +17,7 @@
                  "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
                  "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
                  "all ventilation"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
     "source_data": null
@@ -25,8 +25,8 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "cooling": 4.13,
-      "heating": 2.32,
+      "cooling": 3.9,
+      "heating": 2.2,
       "ventilation": 0
   },
   "energy_efficiency_units": {
@@ -35,7 +35,7 @@
       "ventilation": "relative savings (constant)"
   },
   "energy_efficiency_source": {
-    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2021 microdata files, available from EIA upon request.",
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2023 microdata files, available from EIA upon request.",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -47,29 +47,29 @@
       }
     ]
     },
-  "installed_cost": 178.33,
-  "cost_units": "2017$/kBtu/h cooling",
+  "installed_cost": 210,
+  "cost_units": "2022$/kBtu/h cooling",
   "installed_cost_source": {
-    "notes": "Total installed cost for high efficiency RTHP in 2017 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
+    "notes": "Total installed cost for high efficiency RTHP in 2023 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "product_lifetime": 21,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average lifetimes for high efficiency RTU in 2017",
+    "notes": "Average lifetimes for high efficiency RTU in 2023",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 116,
+      "year": 2023,
+      "pages": 139,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -96,10 +96,15 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Apr  7 05:37:30 EDT 2021"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Wed Mar 9 12:17:29 EST 2022"
-  }
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Tue May 30 10:17:29 PDT 2023"
+  }]
 }
