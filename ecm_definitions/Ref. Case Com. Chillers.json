@@ -41,22 +41,22 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
       "pages": [119, 121],
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }]
   },
   "measure_type": "add-on",
   "fuel_switch_to": null,
   "market_scaling_fractions": {
     "cooling": 1,
-    "ventilation": 0.34
+    "ventilation": 0.32
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2015,
-      "URL": "https://www.eia.gov/consumption/commercial/data/2012/bc/cfm/b29.php",
-      "fraction_derivation": "Ventilation fraction is portion of ventilation consumption in commercial buildings (728 TBtus / 2,167 TBtus)."
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation consumption in commercial buildings where building cooling is served by a central chiller (230 TBtus / 728 TBtus)."
   },
   "_description": "Counterfactual chillers measure, no savings vs. reference case",
   "_notes": null,

@@ -78,7 +78,7 @@
   "market_scaling_fractions": {
     "cooling": 0.62,
     "heating": 0.68,
-    "ventilation": 0.42 
+    "ventilation": 0.48 
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
@@ -86,7 +86,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2022,
       "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
-      "fraction_derivation": "Heating fraction excludes portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is multiplication of two previous fractions (e.g., ventilation in buildings where cooling is not served by chiller and heating is non-electric)."
+      "fraction_derivation": "Heating fraction excludes portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is portion of ventilation in buildings where cooling is not served by chiller 1 - (230 TBtus / 728 TBtus) and heating is non-electric (516 TBtus / 728 TBtus))."
   },
   "_description": "Switch to typical size light commercial rooftop HP unit that meets the best available performance level in 2017, adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types, non-cold-climate",
   "_notes": null,

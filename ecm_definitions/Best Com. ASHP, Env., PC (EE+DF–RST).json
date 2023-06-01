@@ -55,7 +55,7 @@
   "market_scaling_fractions": {
     "cooling": 0.38,
     "heating": 1,
-    "ventilation": 0.26
+    "ventilation": 0.20
   },
   "market_scaling_fractions_source": {
       "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
@@ -63,7 +63,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2022,
       "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
-      "fraction_derivation": "Cooling fraction reflects share of primary heating that is electric (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is portion of buildings where cooling is not served by chiller (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings) multiplied by portion where heating is electric (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings)."
+      "fraction_derivation": "Cooling fraction reflects share of primary heating that is electric (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is portion of ventilation in buildings where cooling is not served by chiller 1-(230 TBtus / 728 TBtus) and heating is electric 1-(516 TBtus / 728 TBtus)."
   },
   "_notes": "Measure Definition and Status Google spreadsheet contains calculations for combining RTU and commercial envelope measures and converting units",
   "_added_by": {
