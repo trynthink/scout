@@ -8,7 +8,7 @@
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
   "technology": ["resistance heat", "central AC"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
@@ -18,7 +18,7 @@
     },
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Current minimum efficiency air source heat pump performance in 2030; conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see second EIA source); split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)",
+    "notes": "Current minimum efficiency air source heat pump performance in 2023; conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see second EIA source); split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",

@@ -1,8 +1,8 @@
 { 
-  "name": "ENERGY STAR Res. HPWH (FS)",
+  "name": "ENERGY STAR Res. HPWH (FS) New",
   "climate_zone": "all",
   "bldg_type": "all residential",
-  "structure_type": "all",
+  "structure_type": "new",
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
@@ -10,27 +10,25 @@
   "market_entry_year_source": {
     "notes": "Year specification went into effect; updated to current year to avoid retroactive savings effects.",
     "source_data": {
-       "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
-       "author": "ENERGY STAR",
-       "organization": "U.S. Environmental Protection Agency",
-       "year": 2023,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+      "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+      "author": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2023,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": {
-      "new": 3.30,
-      "existing": 2.20},
+  "energy_efficiency": 3.30,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "Assume integrated 240V HPWH in new homes and integrated 120V, 15A in existing homes to avoid panel upgrade, consistent with costs",
+    "notes": "Integrated 240V HPWH",
     "source_data": {
-       "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
-       "author": "ENERGY STAR",
-       "organization": "U.S. Environmental Protection Agency",
-       "year": 2023,
-       "table": 1,
-       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+      "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+      "author": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2023,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
   "installed_cost": 1550,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
@@ -41,7 +39,7 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
       "pages": 65,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"    }},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -52,13 +50,12 @@
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
       "pages": 65,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }},
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
-  "_description": "ENERGY STAR electric storage heat pump water heater in 2022",
+  "_description": "ENERGY STAR electric storage heat pump water heater in 2022, new construction",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
@@ -81,6 +78,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Fri May 19 2023 23:20 UTC"
+    "timestamp": "Fri Jun 02 2023 06:55 UTC"
   }]
 }
