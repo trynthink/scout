@@ -2033,8 +2033,18 @@ class Engine(object):
                 # adjust based on segment of current microsegment that was
                 # removed from competition
                 for var in ["energy", "cost", "carbon"]:
-                    # Update baseline and efficient results
-                    for var_sub in ["baseline", "efficient"]:
+                    # Update baseline and efficient results for the baseline
+                    # fuel in a non-fuel-switching case and baseline results
+                    # only for a fuel switching case (efficient results for
+                    # the baseline fuel will be zero in this case and do not
+                    # require further adjustment)
+                    if adj_out_break["switched fuel"][var][
+                            "efficient"] is not None:
+                        vs_list = ["baseline"]
+                    else:
+                        vs_list = ["baseline", "efficient"]
+
+                    for var_sub in vs_list:
                         # Select correct fuel split data
                         if var_sub != "baseline":
                             fs_eff_splt_var = adj_out_break[
@@ -2456,8 +2466,19 @@ class Engine(object):
                     # adjust based on segment of current microsegment that was
                     # removed from competition
                     for var in ["energy", "cost", "carbon"]:
-                        # Update baseline and efficient results
-                        for var_sub in ["baseline", "efficient"]:
+                        # Update baseline and efficient results for the
+                        # baseline fuel in a non-fuel-switching case and
+                        # baseline results only for a fuel switching case
+                        # (efficient results for the baseline fuel will be
+                        # zero in this case and do not require further
+                        # adjustment)
+                        if adj_out_break["switched fuel"][var][
+                                "efficient"] is not None:
+                            vs_list = ["baseline"]
+                        else:
+                            vs_list = ["baseline", "efficient"]
+
+                        for var_sub in vs_list:
                             # Set appropriate post-competition adjustment frac.
                             if var_sub == "baseline":
                                 adj_frac_t = adj_frac_base
@@ -3491,8 +3512,16 @@ class Engine(object):
         # fraction; adjust based on segment of current microsegment that was
         # removed from competition
         for var in ["energy", "cost", "carbon"]:
-            # Update baseline and efficient results
-            for var_sub in ["baseline", "efficient"]:
+            # Update baseline and efficient results for the baseline fuel in
+            # a non-fuel-switching case and baseline results only for a
+            # fuel switching case (efficient results for the baseline fuel
+            # will be zero in this case and do not require further adjustment)
+            if adj_out_break["switched fuel"][var]["efficient"] is not None:
+                vs_list = ["baseline"]
+            else:
+                vs_list = ["baseline", "efficient"]
+
+            for var_sub in vs_list:
                 # Adjustment fraction is unique to baseline/efficient results
                 if var_sub == "baseline":
                     adj_t = adj_t_b[var]
