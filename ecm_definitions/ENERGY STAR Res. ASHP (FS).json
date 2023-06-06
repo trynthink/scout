@@ -64,20 +64,20 @@
     },
     "natural gas": {
       "new": 6940,
-      "existing": 14240
+      "existing": 13940
     }, 
     "distillate": {
       "new": 6940,
-      "existing": 14240
+      "existing": 14915
     },
     "other fuel": {
       "new": 6940,
-      "existing": 15240
+      "existing": 14915
     }
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Total installed cost for ENERGY STAR ASHPs in 2023; for existing buildings, added service costs of $1K for natural gas and $2K for distillate/other assigned based on EIA report, and added costs of $6300 as the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in NV5 report.",
+    "notes": "Total installed cost for ENERGY STAR ASHPs in 2023. For existing buildings, added costs of $6300 are the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in the NV5 report, a new circuit cost of 700 $2022 using the upper bound (assuming a high amperage 240V circuit is required for the HVAC system) from the NV5 report, and additional tank removal costs of 800 2014$ (975 2022$) are applied for distillate and propane based on the 2015 EIA report, updating the cost from April 2014 to April 2022.",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -91,8 +91,8 @@
         "title": "Residential End Uses: Area 2: Incremental Installed Costs for Efficiency Upgrades",
         "author": null,
         "organization": "U.S. Energy Information Administration",
-        "year": 2018,
-        "pages": 8,
+        "year": 2015,
+        "pages": 11,
         "URL": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
       },
       {
@@ -173,6 +173,6 @@
     "name": "Chioke Harris",
     "organization": "National Renewable Energy Laboratory",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "Wed May 24 2023 17:04:00 UTC"
+    "timestamp": "Tue Jun 06 2023 06:15:00 UTC"
   }]
 }
