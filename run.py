@@ -1960,8 +1960,18 @@ class Engine(object):
                 # adjust based on segment of current microsegment that was
                 # removed from competition
                 for var in ["energy", "cost", "carbon"]:
-                    # Update baseline and efficient results
-                    for var_sub in ["baseline", "efficient"]:
+                    # Update baseline and efficient results for the baseline
+                    # fuel in a non-fuel-switching case and baseline results
+                    # only for a fuel switching case (efficient results for
+                    # the baseline fuel will be zero in this case and do not
+                    # require further adjustment)
+                    if adj_out_break["switched fuel"][var][
+                            "efficient"] is not None:
+                        vs_list = ["baseline"]
+                    else:
+                        vs_list = ["baseline", "efficient"]
+
+                    for var_sub in vs_list:
                         # Select correct fuel split data
                         if var_sub != "baseline":
                             fs_eff_splt_var = adj_out_break[
@@ -2383,8 +2393,19 @@ class Engine(object):
                     # adjust based on segment of current microsegment that was
                     # removed from competition
                     for var in ["energy", "cost", "carbon"]:
-                        # Update baseline and efficient results
-                        for var_sub in ["baseline", "efficient"]:
+                        # Update baseline and efficient results for the
+                        # baseline fuel in a non-fuel-switching case and
+                        # baseline results only for a fuel switching case
+                        # (efficient results for the baseline fuel will be
+                        # zero in this case and do not require further
+                        # adjustment)
+                        if adj_out_break["switched fuel"][var][
+                                "efficient"] is not None:
+                            vs_list = ["baseline"]
+                        else:
+                            vs_list = ["baseline", "efficient"]
+
+                        for var_sub in vs_list:
                             # Set appropriate post-competition adjustment frac.
                             if var_sub == "baseline":
                                 adj_frac_t = adj_frac_base
@@ -3424,43 +3445,52 @@ class Engine(object):
         # fraction; adjust based on segment of current microsegment that was
         # removed from competition
         for var in ["stock", "energy", "cost", "carbon"]:
-            # Update baseline and efficient results
-            for var_sub in ["baseline", "efficient"]:
-                # Adjustment fraction is unique to baseline/efficient results
-                if var_sub == "baseline":
-                    adj_t = adj_t_b[var]
-                else:
-                    adj_t = adj_t_e[var]
+            # Update baseline and efficient results for the baseline fuel in
+            # a non-fuel-switching case and baseline results only for a
+            # fuel switching case (efficient results for the baseline fuel
+            # will be zero in this case and do not require further adjustment)
+            if adj_out_break["switched fuel"][var]["efficient"] is not None:
+                vs_list = ["baseline"]
+            else:
+                vs_list = ["baseline", "efficient"]
 
-                # Select correct fuel split data; for baseline case, all
-                # fuel remains with baseline fuel
-                if var != "stock" and var_sub != "baseline":
-                    fs_eff_splt_var = adj_out_break[
-                        "efficient fuel splits"][var][yr]
-                else:
-                    fs_eff_splt_var = 1
-
-                # Handle extra key on the adjusted microsegment data for the
-                # cost variables ("energy")
-                if var == "cost":
-                    adj_out_break["base fuel"][var][var_sub][yr] = \
-                        adj_out_break["base fuel"][var][var_sub][yr] - (
-                        adj[var]["energy"]["total"][var_sub][yr]) * (
-                        1 - adj_t) * fs_eff_splt_var
-                else:
-                    # Keys for pulling baseline and efficient-case data
-                    # are different for the stock variable
-                    if var == "stock":
-                        if var_sub == "baseline":
-                            adj_key = "all"
-                        else:
-                            adj_key = "measure"
+            for var_sub in vs_list:
+                    # Adjustment fraction unique to baseline/efficient results
+                    if var_sub == "baseline":
+                        adj_t = adj_t_b[var]
                     else:
-                        adj_key = var_sub
-                    adj_out_break["base fuel"][var][var_sub][yr] = \
-                        adj_out_break["base fuel"][var][var_sub][yr] - (
-                        adj[var]["total"][adj_key][yr]) * (
+                        adj_t = adj_t_e[var]
+
+                    # Select correct fuel split data; for baseline case, all
+                    # fuel remains with baseline fuel
+                    if var != "stock" and var_sub != "baseline":
+                        fs_eff_splt_var = adj_out_break[
+                            "efficient fuel splits"][var][yr]
+                    else:
+                        fs_eff_splt_var = 1
+
+                    # Handle extra key on the adjusted microsegment data for
+                    # cost variables ("energy")
+                    if var == "cost":
+                        adj_out_break["base fuel"][var][var_sub][yr] = \
+                            adj_out_break["base fuel"][var][var_sub][yr] - (
+                            adj[var]["energy"]["total"][var_sub][yr]) * (
                             1 - adj_t) * fs_eff_splt_var
+                    else:
+                        # Keys for pulling baseline and efficient-case data
+                        # are different for the stock variable
+                        if var == "stock":
+                            if var_sub == "baseline":
+                                adj_key = "all"
+                            else:
+                                adj_key = "measure"
+                        else:
+                            adj_key = var_sub
+                        adj_out_break["base fuel"][var][var_sub][yr] = \
+                            adj_out_break["base fuel"][var][
+                                var_sub][yr] - (
+                            adj[var]["total"][adj_key][yr]) * (
+                                1 - adj_t) * fs_eff_splt_var
 
             # Update savings results for energy/carbon/cost
             # Handle extra key on the adjusted microsegment data for the cost
@@ -3473,7 +3503,7 @@ class Engine(object):
                         adj[var]["energy"]["total"]["efficient"][yr] * (
                             1 - adj_t_e[var]) * adj_out_break[
                             "efficient fuel splits"][var][yr]))
-            elif var != "stock":  # no stk breakout data
+            elif var != "stock":  # no stk savings breakout data
                 adj_out_break["base fuel"][var]["savings"][yr] = \
                     adj_out_break["base fuel"][var]["savings"][yr] - ((
                         adj[var]["total"]["baseline"][yr] * (
@@ -3696,13 +3726,6 @@ class Engine(object):
             report_stk (boolean): Flag for stock data reporting.
             report_cfs (boolean): Flag for reporting comp. scaling fractions.
         """
-        # Initialize markets and savings totals across all ECMs
-        summary_vals_all_ecms = [{
-            yr: 0 for yr in self.handyvars.aeo_years} for n in range(12)]
-        # Initialize fugitive markets and savings totals across all ECMs
-        # as None (re-initialized below in case where fugitive emissions are
-        # assessed)
-        summary_vals_all_ecms_f_e = None
         # Set up subscript translator for carbon variable strings
         sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         # If user has specified a reduced results file size, check for whether
@@ -3712,8 +3735,16 @@ class Engine(object):
         else:
             focus_yrs = self.handyvars.aeo_years
         # Initialize markets and savings totals across all ECMs
+        
+        # Set total number of variables to be reported across all ECMs
+        n_vars_all = 14
+        # Initialize summary variable values at zero
         summary_vals_all_ecms = [{
-            yr: 0 for yr in focus_yrs} for n in range(12)]
+            yr: 0 for yr in focus_yrs} for n in range(n_vars_all)]
+        # Initialize fugitive markets and savings totals across all ECMs
+        # as None (re-initialized below in case where fugitive emissions are
+        # assessed)
+        summary_vals_all_ecms_f_e = None
         # Initialize variable that aggregates total and incremental
         # stock cost for deploying measures across all measures, provided
         # the user has chosen to report those data. Structure this variable
@@ -3766,7 +3797,7 @@ class Engine(object):
             # Add ECM markets and savings totals to totals across all ECMs
             summary_vals_all_ecms = [{
                 yr: summary_vals_all_ecms[v][yr] + summary_vals[v][yr] for
-                yr in focus_yrs} for v in range(0, 12)]
+                yr in focus_yrs} for v in range(0, n_vars_all)]
 
             # If fugitive emissions are being assessed for the measure,
             # initialize a summary list for those data
@@ -4515,24 +4546,27 @@ class Engine(object):
         # these values will be the same)
 
         # Mean of outputs across all ECMs
-        energy_base_all_avg, carb_base_all_avg, energy_cost_base_all_avg, \
-            carb_cost_base_all_avg, energy_eff_all_avg, carb_eff_all_avg, \
+        stock_base_all_avg, energy_base_all_avg, carb_base_all_avg, \
+            energy_cost_base_all_avg, carb_cost_base_all_avg, \
+            stock_eff_all_avg, energy_eff_all_avg, carb_eff_all_avg, \
             energy_cost_eff_all_avg, carb_cost_eff_all_avg, \
             energy_save_all_avg, energy_costsave_all_avg, carb_save_all_avg, \
             carb_costsave_all_avg = [{
                 k: numpy.mean(v) for k, v in z.items()} for
                 z in summary_vals_all_ecms]
         # 5th percentile of outputs across all ECMs
-        energy_base_all_low, carb_base_all_low, energy_cost_base_all_low, \
-            carb_cost_base_all_low, energy_eff_all_low, carb_eff_all_low, \
+        stock_base_all_low, energy_base_all_low, carb_base_all_low, \
+            energy_cost_base_all_low, carb_cost_base_all_low, \
+            stock_eff_all_low, energy_eff_all_low, carb_eff_all_low, \
             energy_cost_eff_all_low, carb_cost_eff_all_low, \
             energy_save_all_low, energy_costsave_all_low, carb_save_all_low, \
             carb_costsave_all_low = [{
                 k: numpy.percentile(v, 5) for k, v in z.items()} for
                 z in summary_vals_all_ecms]
         # 95th percentile of outputs across all ECMs
-        energy_base_all_high, carb_base_all_high, energy_cost_base_all_high, \
-            carb_cost_base_all_high, energy_eff_all_high, carb_eff_all_high, \
+        stock_base_all_high, energy_base_all_high, carb_base_all_high, \
+            energy_cost_base_all_high, carb_cost_base_all_high, \
+            stock_eff_all_high, energy_eff_all_high, carb_eff_all_high, \
             energy_cost_eff_all_high, carb_cost_eff_all_high, \
             energy_save_all_high, energy_costsave_all_high, \
             carb_save_all_high, carb_costsave_all_high = [{
@@ -4660,7 +4694,7 @@ class Engine(object):
                     if adjust_vals[k] != 0:
                         adjust_dict[k] = adjust_dict[k] / adjust_vals[k]
                         if mkt_frac is True:
-                            adjust_dict[k] = round(adjust_dict[k] * 100, 1)
+                            adjust_dict[k] = adjust_dict[k] * 100
                     else:
                         adjust_dict[k] = 0
             else:

@@ -10996,12 +10996,6 @@ class MeasurePackage(Measure):
                             {yr: 0 for yr in self.handyvars.aeo_years}
                         for n in range(2)]
 
-            # Adjust stock data to be consistent with the
-            # energy-based baseline adjustment fractions calculated above
-            self.adj_pkg_mseg_keyvals(
-                msegs_meas["stock"], base_adj, base_adj, base_adj,
-                base_eff_flag=None, comp_flag=None)
-
             # If necessary, adjust fugitive emissions data
 
             # Methane data adjusted consistent with energy data adjustment
