@@ -209,6 +209,7 @@ class UsefulVars(object):
         self.out_break_bldgtypes = gvars["out_break_bldg_types"]
         self.out_break_enduses = gvars["out_break_enduses"]
         self.out_break_fuels = gvars["out_break_fuels"]
+        self.out_break_eus_w_fsplits = gvars["out_break_eus_w_fsplits"]
         # Set commercial time prefs and region in/out name pairs as unique
         # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
@@ -2652,9 +2653,8 @@ class Engine(object):
                 out_eu = "Lighting"
 
         # If applicable, establish fuel type breakout
-        if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in [
-            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
-                "Cooling (Env.)", "Water Heating", "Cooking"]:
+        if len(self.handyvars.out_break_fuels.keys()) != 0 and out_eu in \
+                self.handyvars.out_break_eus_w_fsplits:
             # Flag for detailed fuel type breakout
             detail = len(self.handyvars.out_break_fuels.keys()) > 2
             # Establish breakout of fuel type that is being
@@ -4368,7 +4368,9 @@ class Engine(object):
                 mkt_fracs = {yr: round(
                     ((mkts["stock"]["total"]["measure"][yr] / m.markets[
                       adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
-                      "total"]["all"][yr]) * 100), 1) for
+                      "total"]["all"][yr]) * 100), 1) if m.markets[
+                      adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
+                      "total"]["all"][yr] != 0 else 0 for
                     yr in focus_yrs}
                 # Calculate average and low/high penetration fractions
                 mkt_fracs_avg = {
