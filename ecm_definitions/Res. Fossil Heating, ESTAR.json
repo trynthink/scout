@@ -103,34 +103,13 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
   },
   "product_lifetime": {
-    "AIA_CZ1": {
-      "boiler (NG)": 25,
-      "furnace (NG)": 21.5,
-      "boiler (distillate)": 23,
-      "furnace (distillate)": 26.5},
-    "AIA_CZ2": {
-      "boiler (NG)": 25,
-      "furnace (NG)": 21.5,
-      "boiler (distillate)": 23,
-      "furnace (distillate)": 26.5},
-    "AIA_CZ3": {
-      "boiler (NG)": 25,
-      "furnace (NG)": 21.5,
-      "boiler (distillate)": 23,
-      "furnace (distillate)": 26.5}, 
-    "AIA_CZ4": {
-      "boiler (NG)": 25,
-      "furnace (NG)": 20.5,
-      "boiler (distillate)": 23,
-      "furnace (distillate)": 26.5},
-    "AIA_CZ5": {
-      "boiler (NG)": 25,
-      "furnace (NG)": 20.5,
-      "boiler (distillate)": 23,
-      "furnace (distillate)": 26.5}},
+    "boiler (NG)": 25,
+    "furnace (NG)": 21,
+    "boiler (distillate)": 23,
+    "furnace (distillate)": 26.5},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "ENERGY STAR lifetime (or average of low and high lifetime) in 2022; 'North' corresponds to AIA CZ 1–3",
+    "notes": "ENERGY STAR lifetime (or average of low and high lifetime) in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,

@@ -18,8 +18,7 @@
     "desktop PC": 43,
     "laptop PC": 20,
     "monitors": 44,
-    "set top box": 74,
-    "OTT streaming devices": 30.5
+    "set top box": 74
   },  
   "energy_efficiency_units": "kWh/yr",
   "energy_efficiency_source": { 
@@ -66,7 +65,7 @@
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "TVs/PCs based on Amazon searches of lowest-cost ENERGY STAR products (with at least 8 GB RAM for PCs; 42-inch screen for TVs); monitors/set top boxes based on Scout baseline data 2023 costr",
+    "notes": "TVs/PCs based on Amazon searches of lowest-cost ENERGY STAR products (with at least 8 GB RAM for PCs; 42-inch screen for TVs); monitors/set top boxes based on Scout baseline data 2023 cost",
     "source_data": {
       "title": "Amazon",
       "author": null,

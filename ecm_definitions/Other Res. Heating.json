@@ -3,7 +3,7 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "secondary heating"],
+  "end_use": ["secondary heating"],
   "fuel_type": ["electricity"],
   "technology": ["all secondary heating"],
   "market_entry_year": 2023,
