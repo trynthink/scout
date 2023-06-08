@@ -62,9 +62,9 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
                         help=("Accomodates exogenous forcing of fuel "
                               "switching conversion rates"))
     # Optional flag that will set baseline electricity emissions intensities to
-    # be consistent with the GridSIM Reference Case (rather than AEO)
-    parser.add_argument("--gs_ref_carb", action="store_true",
-                        help=("Use GridSIM Reference Case electricity "
+    # be consistent with the Standard Scenarios Mid Case (rather than AEO)
+    parser.add_argument("--alt_ref_carb", action="store_true",
+                        help=("Use Standard Scenarios Mid Case electricity "
                               "emissions intensities"))
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",

@@ -126,7 +126,9 @@ class UsefulInputFiles(object):
             # a grid decarbonization scenario is used
             if opts.grid_decarb is not False:
                 # Set either an extreme or moderate grid decarbonization case,
-                # depending on what the user selected
+                # depending on what the user selected; extreme is based on
+                # Standard Scenarios 100x2035, moderate is based on Standard
+                # Scenarios 95x2050
                 if opts.grid_decarb[0] == "1":
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
@@ -138,9 +140,10 @@ class UsefulInputFiles(object):
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
                 if opts.grid_decarb[1] == "1":
-                    # Case where GridSIM Reference Case is used to set
-                    # baseline emissions factors (vs. AEO)
-                    if opts.gs_ref_carb is True:
+                    # Case where Standard Scenarios Mid Case (with tax credit
+                    # phaseout) is used to set baseline emissions factors (vs.
+                    # AEO)
+                    if opts.alt_ref_carb is True:
                         self.ss_data_altreg_nonfs = (
                             "supporting_data", "convert_data",
                             "emm_region_emissions_prices-gsref.json")
@@ -153,9 +156,9 @@ class UsefulInputFiles(object):
                 else:
                     self.ss_data_altreg_nonfs = None
             else:
-                # Case where GridSIM Reference Case is used to set
-                # baseline emissions factors (vs. AEO)
-                if opts.gs_ref_carb is True:
+                # Case where Standard Scenarios Mid Case (with tax credit
+                # phaseout is used to set baseline emissions factors (vs. AEO)
+                if opts.alt_ref_carb is True:
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-gsref.json")
@@ -231,9 +234,9 @@ class UsefulInputFiles(object):
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
             if opts.grid_decarb[1] == "1":
-                # Case where GridSIM Reference Case is used to set
-                # baseline emissions factors (vs. AEO)
-                if opts.gs_ref_carb is True:
+                # Case where Standard Scenarios Mid Case (with tax credit
+                # phaseout)is used to set baseline emissions factors (vs. AEO)
+                if opts.alt_ref_carb is True:
                     self.ss_data_nonfs = (
                         "supporting_data", "convert_data",
                         "site_source_co2_conversions-gsref.json")
@@ -256,9 +259,9 @@ class UsefulInputFiles(object):
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-ce.json")
             else:
-                # Case where GridSIM Reference Case is used to set
-                # baseline emissions factors (vs. AEO)
-                if opts.gs_ref_carb is True:
+                # Case where Standard Scenarios Mid Case (with tax credit
+                # phaseout) is used to set baseline emissions factors (vs. AEO)
+                if opts.alt_ref_carb is True:
                     self.ss_data = ("supporting_data", "convert_data",
                                     "site_source_co2_conversions-gsref.json")
                 else:
