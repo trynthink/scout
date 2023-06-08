@@ -1,0 +1,95 @@
+{
+  "name": "Best Com. ASHP, Env., PC (EE+DF–LFL)",
+  "_description": "Typical size light commercial rooftop HP unit that meets the best available performance level in 2017, adjust heating/cooling set point down/up to shed peak period electricity use, pair with passive thermal energy storage and envelope/HVAC equipment efficiency generally corresponding to AEDG 50% guideline across building types, non-cold-climate, like-for-like",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "DR_EE_HVAC_PreCool_Envelope.csv"
+    }
+  },
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating", "ventilation"],
+  "fuel_type": "electricity",
+  "technology": ["rooftop_ASHP-cool", "rooftop_ASHP-heat", "all ventilation"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in the baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": 210,
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "Total installed cost for high efficiency RTHP in 2023 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for high efficiency RTU in 2023",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": {
+    "cooling": 1,
+    "heating": 1,
+    "ventilation": 0.14},
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Ventilation fraction is portion of ventilation in commercial buildings that use HP for heating (102 TBtus / 728 TBtus)."
+  },
+  "_notes": "Measure Definition and Status Google spreadsheet contains calculations for combining RTU and commercial envelope measures and converting units",
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 10 12:00:36 EDT 2019"
+  },
+  "_updated_by": [{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 17:33:36 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Tue May 30 10:17:29 PDT 2023"
+  }]
+}

@@ -1,0 +1,115 @@
+{
+  "name": "Best Com. ASHP, Env., PC (EE+DF–FS) (CF)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "EE_Envelope_All.csv"
+    }
+  },
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating", "ventilation"],
+  "fuel_type": "all",
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
+                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
+                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
+                 "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                 "all ventilation"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+      "cooling": 3.9,
+      "heating": 2.2,
+      "ventilation": 0
+  },
+  "energy_efficiency_units": {
+      "cooling": "BTU out/BTU in",
+      "heating": "BTU out/BTU in",
+      "ventilation": "relative savings (constant)"
+  },
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations of heating and cooling efficiencies for typical rooftop HPs, rooftop AC + resistance (performance based on electric boiler data), and GSHPs. Rooftop HPs/AC reflect min. standard to come into effect in 2023, represented in the 2030 column; all else is based on 2020. New/replacement sales numbers drawn from AEO 2023 microdata files, available from EIA upon request.",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [117, 135, 139, 141],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+    ]
+    },
+  "installed_cost": 210,
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "Total installed cost for high efficiency RTHP in 2023 divided by typical output capacity (90 kBtu/h); assumes no additional costs for load shifting capabilities",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for high efficiency RTU in 2023",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": {
+    "cooling": 0.62,
+    "heating": 0.68,
+    "ventilation": 0.48 
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Heating fraction excludes portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is portion of ventilation in buildings where cooling is not served by chiller 1 - (230 TBtus / 728 TBtus) and heating is non-electric (516 TBtus / 728 TBtus))."
+  },
+  "_description": "Envelope-only counterfactual for this measure",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Apr  7 05:37:30 EDT 2021"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Tue May 30 10:17:29 PDT 2023"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 09:45:09 EDT 2023"
+  }]
+}
