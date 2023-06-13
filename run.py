@@ -133,7 +133,7 @@ class UsefulInputFiles(object):
         # conversions to select
         if grid_decarb is not False:
             self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-decarb.json")
+                            "site_source_co2_conversions-100by2035.json")
         elif energy_out[0] == "captured":
             self.ss_data = ("supporting_data", "convert_data",
                             "site_source_co2_conversions-ce.json")
@@ -146,7 +146,7 @@ class UsefulInputFiles(object):
             if grid_decarb is not False:
                 self.elec_price_co2 = (
                     "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-decarb.json")
+                    "emm_region_emissions_prices-100by2035.json")
             else:
                 self.elec_price_co2 = (
                     "supporting_data", "convert_data",
@@ -159,7 +159,7 @@ class UsefulInputFiles(object):
             if grid_decarb is not False:
                 self.elec_price_co2 = (
                     "supporting_data", "convert_data",
-                    "site_source_co2_conversions-decarb.json")
+                    "site_source_co2_conversions-100by2035.json")
             else:
                 if energy_out[0] == 'captured':
                     self.elec_price_co2 = (
