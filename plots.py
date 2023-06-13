@@ -1110,7 +1110,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
                 # Set limits of y axis for plot based on min. and
                 # max. values in data
-                ylims = pretty(min_val-0.05*max_val, max_val+0.05*max_val, 10)
+                try:
+                    ylims = pretty(
+                        min_val-0.05*max_val, max_val+0.05*max_val, 10)
+                except FloatingPointError:
+                    continue
                 axa.set_ylim(
                     min(ylims)-(0.1*max(ylims)), max(ylims)+(0.1*max(ylims)))
 
