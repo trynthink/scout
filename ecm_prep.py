@@ -242,9 +242,11 @@ class UsefulInputFiles(object):
                     self.ss_data_nonfs = ("supporting_data", "convert_data",
                                           "site_source_co2_conversions.json")
                 self.tsv_cost_data_nonfs = (
-                    "supporting_data", "tsv_data", "tsv_cost.json")
+                    "supporting_data", "tsv_data",
+                    "tsv_cost-MidCaseTCExp.json")
                 self.tsv_carbon_data_nonfs = (
-                    "supporting_data", "tsv_data", "tsv_carbon.json")
+                    "supporting_data", "tsv_data",
+                    "tsv_carbon-MidCaseTCExp.json")
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures after grid decarbonization
             else:
@@ -267,9 +269,9 @@ class UsefulInputFiles(object):
                     self.ss_data = ("supporting_data", "convert_data",
                                     "site_source_co2_conversions.json")
             self.tsv_cost_data = (
-                "supporting_data", "tsv_data", "tsv_cost.json")
+                "supporting_data", "tsv_data", "tsv_cost-MidCaseTCExp.json")
             self.tsv_carbon_data = (
-                "supporting_data", "tsv_data", "tsv_carbon.json")
+                "supporting_data", "tsv_data", "tsv_carbon-MidCaseTCExp.json")
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
         self.tsv_load_data = (
@@ -1089,7 +1091,8 @@ class UsefulVars(object):
                                 'office UPS', 'data center UPS',
                                 'security systems',
                                 'distribution transformers',
-                                'non-road electric vehicles'
+                                'non-road electric vehicles',
+                                'water services', 'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -1127,10 +1130,12 @@ class UsefulVars(object):
                             'heating': [
                                 'gas_eng-driven_RTHP-heat',
                                 'res_type_gasHP-heat', 'gas_boiler',
-                                'gas_furnace']},
+                                'gas_furnace'],
+                            'other': [None]},
                         "distillate": {
                             'water heating': ['oil_water_heater'],
-                            'heating': ['oil_boiler', 'oil_furnace']}},
+                            'heating': ['oil_boiler', 'oil_furnace'],
+                            'other': [None]}},
                     "demand": [
                         'roof', 'ground', 'lighting gain',
                         'windows conduction', 'equipment gain',
@@ -2649,7 +2654,8 @@ class Measure(object):
         # exclude 'Ref. Case' switching of fossil-based heat or resistance heat
         # to HPs under exogenous switching rates, since the competing Ref. Case
         # analogue will be a min. efficiency HP and this is manually defined
-        if (opts.add_typ_eff is True and "Min. Eff." in self.name) and (
+        if (opts.add_typ_eff is True and any([
+            x in self.name for x in ["Ref. Case", "Min. Eff."]])) and (
                 not self.handyvars.hp_rates or (
                     self.fuel_switch_to is None and
                     (self.technology["primary"] is None or
