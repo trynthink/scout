@@ -1102,7 +1102,7 @@ class Engine(object):
             irr_e = npf.irr(cashflows_s_delt + cashflows_e_delt)
             if not math.isfinite(irr_e):
                 raise (ValueError)
-        except ValueError:
+        except (ValueError, LinAlgError):
             irr_e = 999
         try:
             payback_e = self.payback(cashflows_s_delt + cashflows_e_delt)
@@ -1114,7 +1114,7 @@ class Engine(object):
                 cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
             if not math.isfinite(irr_ec):
                 raise (ValueError)
-        except ValueError:
+        except (ValueError, LinAlgError):
             irr_ec = 999
         try:
             payback_ec = \
