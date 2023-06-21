@@ -30,14 +30,14 @@
     "notes": "Based on comparison of lighting power densities in Table 9.5.1.; see full calculations at https://docs.google.com/spreadsheets/d/1tZHWcn0I0UGFjCTFRHccs_OGH5-WXufgDz5tN_TbHTc/edit?usp=sharing",
     "source_data": [
     {
-      "title": "Standard 90.1-2013 – Energy Standard for Buildings Except Low-Rise Residential Buildings",
+      "title": "Standard 90.1-2013 - Energy Standard for Buildings Except Low-Rise Residential Buildings",
       "author": null,
       "organization": "ASHRAE",
       "year": 2016,
       "pages": null,
       "URL": "https://www.ashrae.org/technical-resources/bookstore/standard-90-1"},
     {
-      "title": "Standard 90.1-2022 – Energy Standard for Buildings Except Low-Rise Residential Buildings",
+      "title": "Standard 90.1-2022 - Energy Standard for Buildings Except Low-Rise Residential Buildings",
       "author": null,
       "organization": "ASHRAE",
       "year": 2022,
@@ -49,7 +49,7 @@
   "installed_cost_source": {
     "notes": "Uses typical 2022 cost for 4 ft. T8 F28 high efficiency and high output in 2 lamp system w/ occupancy sensor",
     "source data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
@@ -63,7 +63,7 @@
   "product_lifetime_source": {
     "notes": "Uses typical 2022 lifetime (lamp life divided by operating hours) for 4 ft. T8 F28 high efficiency and high output in 2 lamp system w/ occupancy sensor",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies – Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
       "author": null,
       "organization": "U.S. Energy Information Administration",
       "year": 2023,
