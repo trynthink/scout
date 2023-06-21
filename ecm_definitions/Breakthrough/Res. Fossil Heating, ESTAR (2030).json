@@ -47,7 +47,7 @@
       "furnace (distillate)": 0.85}},
   "energy_efficiency_units": "AFUE",
   "energy_efficiency_source": {
-    "notes": "ENERGY STAR efficiency specification; 'North' for NG furnaces corresponds to AIA CZ 1–3",
+    "notes": "ENERGY STAR efficiency specification; 'North' for NG furnaces corresponds to AIA CZ 1-3",
     "source_data": [{
       "title": "ENERGY STAR Program Requirements - Product Specification for Boilers Version 3.0",
       "author": null,
@@ -93,7 +93,7 @@
       "furnace (distillate)": 5150}},
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "ENERGY STAR total installed cost (or average of low and high costs) in 2022; 'North' for NG furnaces corresponds to AIA CZ 1–3",
+    "notes": "ENERGY STAR total installed cost (or average of low and high costs) in 2022; 'North' for NG furnaces corresponds to AIA CZ 1-3",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
       "author": null,

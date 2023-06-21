@@ -82,7 +82,7 @@
  {"name": "Prosp. Res. ASHP (LFL) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Residential ASHP (LFL)",
-    "Prospective Residential Ctls. (ASHP–LFL)",
+    "Prospective Residential Ctls. (ASHP-LFL)",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
     "Prospective Residential Air Seal (Exist)",
@@ -92,7 +92,7 @@
  {"name": "Prosp. Res. ASHP (RST) + Env. + Ctls.",
   "contributing_ECMs": [
     "Prospective Residential ASHP (RST)",
-    "Prospective Residential Ctls. (ASHP–RST)",
+    "Prospective Residential Ctls. (ASHP-RST)",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
     "Prospective Residential Air Seal (Exist)",
@@ -102,7 +102,7 @@
  {"name": "Prosp. Res. ASHP (LFL) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Residential ASHP (LFL) CC",
-    "Prospective Res. Ctls. (ASHP–LFL) CC",
+    "Prospective Res. Ctls. (ASHP-LFL) CC",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
     "Prospective Residential Air Seal (Exist)",
@@ -112,7 +112,7 @@
  {"name": "Prosp. Res. ASHP (RST) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Residential ASHP (RST) CC",
-    "Prospective Res. Ctls. (ASHP–RST) CC",
+    "Prospective Res. Ctls. (ASHP-RST) CC",
     "Prospective Residential Windows",
     "Prospective Residential Air Seal (New)",
     "Prospective Residential Air Seal (Exist)",
@@ -201,7 +201,7 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Com. ASHP (LFL) + Env. + Ctls.",
   "contributing_ECMs": [
-    "Prospective Commercial ASHP (LFL)", "Prospective Commercial Ctls. (ASHP–LFL)",
+    "Prospective Commercial ASHP (LFL)", "Prospective Commercial Ctls. (ASHP-LFL)",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
     "Prospective Commercial Windows",
@@ -210,7 +210,7 @@
   "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
  {"name": "Prosp. Com. ASHP (RST) + Env. + Ctls.",
   "contributing_ECMs": [
-    "Prospective Commercial ASHP (RST)", "Prospective Commercial Ctls. (ASHP–RST)",
+    "Prospective Commercial ASHP (RST)", "Prospective Commercial Ctls. (ASHP-RST)",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
     "Prospective Commercial Windows",
@@ -220,7 +220,7 @@
  {"name": "Prosp. Com. ASHP (LFL) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (LFL) CC",
-    "Prospective Com. Ctls. (ASHP–LFL) CC",
+    "Prospective Com. Ctls. (ASHP-LFL) CC",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
     "Prospective Commercial Windows",
@@ -230,7 +230,7 @@
  {"name": "Prosp. Com. ASHP (RST) + Env. + Ctls. CC",
   "contributing_ECMs": [
     "Prospective Commercial ASHP (RST) CC",
-    "Prospective Com. Ctls. (ASHP–RST) CC",
+    "Prospective Com. Ctls. (ASHP-RST) CC",
     "Prospective Commercial Air Seal (New)",
     "Prospective Commercial Air Seal (Exist)",
     "Prospective Commercial Windows",
