@@ -1112,7 +1112,7 @@ class Engine(object):
                 cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
             if not math.isfinite(irr_ec):
                 raise (ValueError)
-        except ValueError:
+        except (ValueError, LinAlgError):
             irr_ec = 999
         try:
             payback_ec = \

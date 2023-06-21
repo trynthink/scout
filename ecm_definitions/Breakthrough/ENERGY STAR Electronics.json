@@ -5,7 +5,7 @@
   "structure_type": "all",
   "end_use": ["TVs", "computers"],
   "fuel_type": "electricity",
-  "technology": ["TV", "desktop PC", "laptop PC", "monitors", "set top box", "OTT streaming devices"],
+  "technology": ["TV", "desktop PC", "laptop PC", "monitors", "set top box"],
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical measure penetration is captured in baseline",
