@@ -1,4 +1,4 @@
--Hour of Year,Climate Zone,Net Load Version,Building Type,End Use,Baseline Load,Measure Load,Relative Savings
+﻿Hour of Year,Climate Zone,Net Load Version,Building Type,End Use,Baseline Load,Measure Load,Relative Savings
 1,2A,1,MediumOffice,heating,0.00E+00,0.00E+00,0.00E+00
 2,2A,1,MediumOffice,heating,0.00E+00,0.00E+00,0.00E+00
 3,2A,1,MediumOffice,heating,0.00E+00,0.00E+00,0.00E+00
