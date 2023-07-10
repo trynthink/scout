@@ -29,51 +29,57 @@
        "year": 2017,
        "table": 1,
        "URL": "https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Final%20Version%201.1%20Clothes%20Dryers%20Specification%20-%20Program%20Commitment%20Criteria%20and%20Eligibility%20Criteria_0.pdf"}]},
-  "installed_cost": 655,
-  "cost_units": "2017$/unit",
+  "installed_cost": 710,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Total average ENERGY STAR installed cost across typical and high performance dryer in 2017",
+    "notes": "Total average ENERGY STAR installed cost across typical and high performance dryer in 2022",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 79,
+      "year": 2023,
+      "pages": 97,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "product_lifetime": 13,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Median of average ENERGY STAR life for typical and high performance dryer in 2017",
+    "notes": "Median of average ENERGY STAR life for typical and high performance dryer in 2022",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 79,
+      "year": 2023,
+      "pages": 97,
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }},
   "measure_type": "full service",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
-  "_description": "ENERGY STAR dryer in 2017",
+  "_description": "ENERGY STAR dryer in 2022",
   "_notes": " ", 
   "_added_by": {
     "name": "Valerie Nubbe",
     "organization": "BTO",
     "email": "valerie.nubbe@ee.doe.gov",
     "timestamp": "Dec. 19, 2017"},
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 25 09:48:47 EDT 2018"
   },
-  "_updated_by": {
+  {
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 15:54:47 MST 2020"  
-  }
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Fri May 19 2023 23:10 UTC"  
+  }]
 }

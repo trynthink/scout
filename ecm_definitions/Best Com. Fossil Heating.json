@@ -7,7 +7,7 @@
   "end_use": "heating",
   "fuel_type": ["natural gas", "distillate"],
   "technology": ["gas_furnace", "oil_furnace", "gas_boiler", "oil_boiler"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Year in which guideline went into effect, updated to current year to avoid retroactive savings effects.",
     "source_data": null
@@ -15,79 +15,38 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-      "gas_furnace": 0.95,
+      "gas_furnace": 0.81,
       "oil_furnace": 0.85,
       "gas_boiler": 0.99,
       "oil_boiler": 0.97},
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "High performance in 2020 (or 2017 where not available)",
-    "source_data": [{
+    "notes": "High performance in 2023 (or 2022 where not available)",
+    "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-  },
+      "year": 2023,
+      "pages": [109, 112, 119, 122],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf",
+      "Notes": "p. 110: Condensing commercial furnaces, which can achieve up to 95% thermal efficiency, were previously introduced to the market but are not currently available due to cost and reliability concerns."}
+    },
   "installed_cost": {
-      "gas_furnace": 9.875,
-      "oil_furnace": 16.875,
-      "gas_boiler": 58.4375,
-      "oil_boiler": 66.5625},
-  "cost_units": "2017$/kBtu/h heating",
+      "gas_furnace": 10.32,
+      "oil_furnace": 34,
+      "gas_boiler": 69.04,
+      "oil_boiler": 78.64},
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": "High installed cost in 2020 (or 2017 when unavailable) divided by high input capacity",
-    "source_data": [{
+    "notes": "High installed cost in 2023 (or 2022 when unavailable) divided by high input capacity",
+    "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-  },
+      "year": 2023,
+      "pages": [109, 112, 119, 122],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+    },
   "product_lifetime": {
       "gas_furnace": 23,
       "oil_furnace": 23,
@@ -95,37 +54,15 @@
       "oil_boiler": 25},
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Typical average lifetime in 2017",
-    "source_data": [{
+    "notes": "Typical average lifetime in 2023",
+    "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": null,
       "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 90,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 92,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 98,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"},
-    {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": null,
-      "organization": "U.S. Energy Information Administration",
-      "year": 2018,
-      "pages": 100,
-      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}]
-
-  },
+      "year": 2023,
+      "pages": [109, 112, 119, 122],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+    },
   "measure_type": "full service",
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
@@ -136,5 +73,10 @@
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
-  }
+  },
+  "_updated_by": {
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "asatremeloy.lbl.gov",
+    "timestamp": "Tue May 30 2023 03:45:19 PDT"}
 }

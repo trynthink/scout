@@ -10,44 +10,44 @@
       "general service (incandescent)",
       "general service (LED)"
     ],
-  "market_entry_year": 2022,
+  "market_entry_year": 2023,
   "market_entry_year_source": null,
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": 87.4,
   "energy_efficiency_units": "lm/W",
   "energy_efficiency_source": {
-    "notes": "General service LED performance in 2022 in Scout baseline cost, performance, and lifetime data",
+    "notes": "General service LED performance in 2023 in Scout baseline cost, performance, and lifetime data",
     "source_data": {
-      "title": "Scout baseline cost, pperformance, and lifetime data",
+      "title": "Scout baseline cost, performance, and lifetime data",
       "author": null,
       "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
-      "year": 2021,
+      "year": 2022,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }
   },
-  "installed_cost": 1.24,
-  "cost_units": "2017$/unit",
+  "installed_cost": 3,
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "General service LED cost in 2022 in Scout baseline cost, performance, and lifetime data",
+    "notes": "General service LED cost in 2023 in Scout baseline cost, performance, and lifetime data",
     "source_data": {
-      "title": "Scout baseline cost, pperformance, and lifetime data",
+      "title": "Scout baseline cost, performance, and lifetime data",
       "author": null,
       "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
-      "year": 2021,
+      "year": 2022,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }},
   "product_lifetime": 13.7,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "General service LED lifetime in 2022 in Scout baseline cost, performance, and lifetime data, translated to 3 hours per day use (multiply by 8)",
+    "notes": "General service LED lifetime in 2023 in Scout baseline cost, performance, and lifetime data",
     "source_data": {
-      "title": "Scout baseline cost, pperformance, and lifetime data",
+      "title": "Scout baseline cost, performance, and lifetime data",
       "author": null,
       "organization": "U.S. Department of Energy Building Technologies Office (BTO)",
-      "year": 2021,
+      "year": 2022,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }
@@ -64,5 +64,10 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Jan 10 09:20:09 EST 2022"
   },
-  "_updated_by": null
+  "_updated_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Tue May 23 2023 23:30:00 UTC"
+  }
 }

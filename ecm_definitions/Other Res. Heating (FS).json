@@ -1,14 +1,12 @@
 { 
   "name": "Other Res. Heating (FS)",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                   "CASO"],
+  "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["heating", "secondary heating"],
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": ["stove (wood)", "all secondary heating"],
-  "market_entry_year": 2021,
+  "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
     "source_data": null},
@@ -18,7 +16,7 @@
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": null,
   "installed_cost": 0,
-  "cost_units": "$/unit",
+  "cost_units": "2022$/unit",
   "installed_cost_source": null,
   "product_lifetime": 21.5,
   "product_lifetime_units": "years",
@@ -28,7 +26,7 @@
       "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
       "author": null,
       "organization": "U.S. Department of Energy",
-      "year": 2021,
+      "year": 2022,
       "pages": null,
       "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
     }
@@ -37,12 +35,18 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
-  "_description": "Reference case residential heating tech. not covered by other measures to pair with envelope (no savings, no incremental cost)",
-  "_notes": " ", 
+  "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
+  "_notes": null, 
   "_added_by": {
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Tue Sep 14 15:09:37 EDT 2021"
-  }
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 12:31:13 EDT 2023"
+  }]
 }
