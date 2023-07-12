@@ -339,7 +339,7 @@ class UsefulVars(object):
             the end use categories used in summarizing measure outputs.
         out_break_eus_w_fsplits (List): List of end use categories that
             would potentially apply across multiple fuels.
-   s     out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
+        out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
             non-electric fuels (for heating, cooling, WH, and cooking).
         out_break_in (OrderedDict): Breaks out key measure results by
             climate zone, building sector, and end use.
@@ -351,6 +351,9 @@ class UsefulVars(object):
             in cases where the conversion is expected (e.g., EER to COP).
         sf_to_house (dict): Stores information for mapping stock units in
             sf to number of households, as applicable.
+        com_eqp_eus_nostk (list): Flags commercial equipment end uses for
+            which no service demand data (which are used to represent com.
+            "stock") are available and square footage should be used for stock.
         res_lts_per_home (list): RECS 2015 Table HC5.1 number of lights per
             household, by building type, used to get from $/home to $/bulb
         cconv_tech_mltstage_map (dict): Maps measure cost units to cost
@@ -1312,6 +1315,8 @@ class UsefulVars(object):
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
             "SEF": {"UEF": 1}}
         self.sf_to_house = {}
+        self.com_eqp_eus_nostk = [
+            "PCs", "non-PC office equipment", "MELs", "other"]
         self.res_lts_per_home = {
             "single family home": 36,
             "multi family home": 15,
@@ -2639,10 +2644,6 @@ class Measure(object):
         sbmkt_source_invalid, sbmkt_url_invalid, sbmkt_derive_invalid = (
             0 for n in range(3))
 
-        # Initialize variable indicating use of ft^2 floor area as microsegment
-        # stock
-        sqft_subst = 0
-
         # Establish a flag for a commercial lighting case where the user has
         # not specified secondary end use effects on heating and cooling.  In
         # this case, secondary effects are added automatically by adjusting
@@ -2782,6 +2783,20 @@ class Measure(object):
             ms_iterable_second, ms_lists_second = self.create_keychain(
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
+
+        # Set variable indicating use of ft^2 floor area as microsegment
+        # stock. This is used for envelope microsegments ("demand" technology
+        # type) or for certain commercial equipment end uses for which
+        # service demand data (which are used as "stock") do not exist
+        if "demand" in self.technology_type["primary"] or (all(
+            [x not in [
+                "single family home", "mobile home", "multi family home"] for
+                x in self.bldg_type]) and all([
+                x in self.handyvars.com_eqp_eus_nostk for x in
+                self.end_use["primary"]])):
+            sqft_subst = 1
+        else:
+            sqft_subst = 0
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
@@ -3675,11 +3690,11 @@ class Measure(object):
                 if mskeys[0] == "primary":
                     valid_keys += 1
                     valid_keys_stk_energy += 1
-                    # Flag use of ft^2 floor area as stock when number of stock
-                    # units is unavailable (applicable to residential envelope
-                    # and all commercial technologies)
-                    if mseg["stock"] == "NA":
-                        sqft_subst = 1
+                    # Flag missing stock data, as applicable
+                    if mseg["stock"] == "NA" and sqft_subst != 1:
+                        no_stk_mseg = True
+                    else:
+                        no_stk_mseg = ""
 
                 # If applicable, determine the rate of conversion from baseline
                 # equipment to heat pumps (including fuel switching cases and
@@ -4491,8 +4506,9 @@ class Measure(object):
                             "'; check definition")
 
                 # Convert user-defined measure cost units to align with
-                # baseline cost units, given input cost conversion data
-                if mskeys[0] == "primary" and cost_base_units != cost_units:
+                # baseline units, given input stock and cost conversion data
+                if mskeys[0] == "primary" and not no_stk_mseg and \
+                        cost_base_units != cost_units:
                     # Case where measure cost has not yet been recast
                     # across AEO years
                     if not isinstance(cost_meas, dict):
@@ -4610,14 +4626,14 @@ class Measure(object):
                     rel_perf = {yr: 1 for yr in self.handyvars.aeo_years}
                 # For all other measures, determine relative performance after
                 # checking for consistent baseline/measure performance and cost
-                # units; make an exception for cases where performance is
-                # specified in 'relative savings' units (no explicit check of
-                # baseline units needed in this case)
+                # units, as applicable; make an exception for cases where
+                # performance is specified in 'relative savings' units (no
+                # explicit check of baseline units needed in this case)
                 elif (perf_units == 'relative savings (constant)' or (
                     isinstance(perf_units, list) and perf_units[0] ==
                     'relative savings (dynamic)') or
                     perf_base_units == perf_units) and (
-                    mskeys[0] == "secondary" or
+                    mskeys[0] == "secondary" or no_stk_mseg or
                         cost_base_units == cost_units):
 
                     # Relative performance calculation depends on whether the
@@ -5107,7 +5123,9 @@ class Measure(object):
                 # Update total stock, energy use, and carbon emissions for the
                 # current contributing microsegment. Note that secondary
                 # microsegments make no contribution to the stock calculation,
-                # as they only affect energy/carbon and associated costs.
+                # as they only affect energy/carbon and associated costs, and
+                # that in instances where no stock data have been pulled,
+                # stocks should be set to zero.
 
                 # Total stock
                 if mskeys[0] == 'secondary':
@@ -5133,11 +5151,14 @@ class Measure(object):
                             key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
-                else:
+                elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
                         key: val * new_existing_frac[key] for key, val in
                         mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
+                else:  # If no stock data exist, set stock to zero
+                    add_stock = {
+                        key: 0 for key in self.handyvars.aeo_years}
 
                 # If the baseline technology is a heat pump in the residential
                 # sector, account for the fact that EIA divides all heat pump
@@ -7616,7 +7637,7 @@ class Measure(object):
                 # components)
                 if (cost_meas_noyr in self.handyvars.cconv_bybldg_units or
                         isinstance(self.installed_cost, dict)):
-                    user_message += " for '" + mskeys[2] + "'"
+                    user_message += " for building type '" + mskeys[2] + "'"
 
                 # Print user message
                 print(user_message)
@@ -7878,8 +7899,11 @@ class Measure(object):
         # demand served; cost and (if applicable) refrigerant charge
         # values are in units of hourly service capacity; to multiply the
         # former by the latter, a conversion factor is needed to translate
-        # stock from unit service demand to unit service capacity
-        if bldg_sect == "commercial" and sqft_subst != 1:
+        # stock from unit service demand to unit service capacity. Note that
+        # this conversion is set to one in the case where no stock (service
+        # demand) data could be pulled for the given equipment type/end use.
+        if bldg_sect == "commercial" and sqft_subst != 1 and (
+                mskeys[4] not in self.handyvars.com_eqp_eus_nostk):
             # Use try/except to handle missing capacity factor data
             try:
                 # Set appropriate capacity factor (TBtu delivered service
