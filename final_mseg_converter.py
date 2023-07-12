@@ -568,7 +568,8 @@ def env_cpl_data_handler(
         A dict with installed cost, performance, and lifetime data
         applicable to the microsegment and envelope component specified
         by key_list, as well as units and source information for those
-        data. All costs should have the units 2016$/ft^2 floor.
+        data. All costs should have the units YYYY$/ft^2 floor, where
+        YYYY is the year from which the data were obtained.
         These data are returned only if applicable for the envelope
         component that appears in key_list, and not for cases such as
         "people gain" for which there is no corresponding product that
@@ -645,22 +646,40 @@ def env_cpl_data_handler(
 
         # Obtain and record the cost data in the preallocated dict,
         # starting with cases where the cost units require conversion
-        # to be on the desired common basis of '2016$/ft^2 floor'
-        if orig_cost_units and orig_cost_units != '2016$/ft^2 floor':
+        # to be on the desired common basis of 'YYYY$/ft^2 floor'
+        if orig_cost_units and orig_cost_units[4:] != '$/ft^2 floor':
             # Extract the current cost value
             orig_cost = specific_cpl_data['cost']['typical']
 
-            # Use the cost conversion function to obtain the costs
-            # for the current envelope component
-            adj_cost, adj_cost_units = cost_converter(orig_cost,
-                                                      orig_cost_units,
-                                                      bldg_class, bldg_type,
-                                                      cost_convert)
+            # Handle the case where a single cost is provided or multiple
+            # costs are provided in a dict structure
+            if isinstance(orig_cost, dict):
+                the_cost['typical'] = {}  # Preallocate 'typical' key
+                for k, orig_cost_elem in orig_cost.items():
+                    # Use the cost conversion function to obtain the costs
+                    # for the current envelope component
+                    adj_cost, adj_cost_units = cost_converter(orig_cost_elem,
+                                                              orig_cost_units,
+                                                              bldg_class,
+                                                              bldg_type,
+                                                              cost_convert)
+                    # Add the cost information to the corresponding dict
+                    # extending the cost values for each year
+                    the_cost['typical'][k] = {str(yr): adj_cost for yr in years}
+            else:
+                # Use the cost conversion function to obtain the costs
+                # for the current envelope component
+                adj_cost, adj_cost_units = cost_converter(orig_cost,
+                                                          orig_cost_units,
+                                                          bldg_class,
+                                                          bldg_type,
+                                                          cost_convert)
 
-            # Add the cost information to the appropriate dict,
-            # constructing the cost data itself into a structure with
-            # a value reported for each year
-            the_cost['typical'] = {str(yr): adj_cost for yr in years}
+                # Add the cost information to the appropriate dict,
+                # constructing the cost data itself into a structure with
+                # a value reported for each year
+                the_cost['typical'] = {str(yr): adj_cost for yr in years}
+
             the_cost['units'] = adj_cost_units
             the_cost['source'] = specific_cpl_data['cost']['source']
 
@@ -668,9 +687,19 @@ def env_cpl_data_handler(
         # is no need for conversion, shift the data to a per year
         # basis but carry over the units and source information
         elif orig_cost_units:
-            the_cost['typical'] = {str(yr):
-                                   specific_cpl_data['cost']['typical']
-                                   for yr in years}
+            # Extract the current cost value
+            orig_cost = specific_cpl_data['cost']['typical']
+
+            # Handle the case where a single cost is provided or multiple
+            # costs are provided in a dict structure
+            if isinstance(orig_cost, dict):
+                the_cost['typical'] = {}  # Preallocate 'typical' key
+                for k, orig_cost_elem in orig_cost.items():
+                    the_cost['typical'][k] = {str(yr): orig_cost_elem
+                                              for yr in years}
+            else:
+                the_cost['typical'] = {str(yr): orig_cost
+                                       for yr in years}
             the_cost['units'] = orig_cost_units
             the_cost['source'] = specific_cpl_data['cost']['source']
 
@@ -1191,7 +1220,7 @@ def cost_converter(cost, units, bldg_class, bldg_type, conversions):
     # If the units following the above conversion are still not the
     # final desired units on a per square foot floor area basis,
     # call this function again
-    if adj_cost_units != '2016$/ft^2 floor':
+    if adj_cost_units != the_year + '$/ft^2 floor':
         adj_cost, adj_cost_units = cost_converter(adj_cost,
                                                   adj_cost_units,
                                                   bldg_class,

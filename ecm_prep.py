@@ -4019,10 +4019,16 @@ class Measure(object):
                         # Set baseline performance units
                         perf_base_units = base_cpl["performance"]["units"]
 
-                        # Set baseline cost and cost units
-                        cost_base, cost_base_units = \
-                            [base_cpl["installed cost"]["typical"],
-                             base_cpl["installed cost"]["units"]]
+                        # Set baseline cost; try for case where cost is given
+                        # separately for new and existing vintage, otherwise
+                        # use the same values for both vintages
+                        try:
+                            cost_base = base_cpl["installed cost"]["typical"][
+                                mskeys[-1]]
+                        except KeyError:
+                            cost_base = base_cpl["installed cost"]["typical"]
+                        # Set baseline cost units
+                        cost_base_units = base_cpl["installed cost"]["units"]
 
                         # Set baseline lifetime
                         life_base = base_cpl["lifetime"]["average"]
