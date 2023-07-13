@@ -5076,13 +5076,23 @@ class Measure(object):
                                     or "cooling" not in mskeys:
                                 tech_name_chk_b = copy.deepcopy(
                                     tech_name_chk_e)
-                                # Given like-for-like HP replacement, do not
-                                # set flag to zero out baseline refrigerant
-                                # emissions (since they occur in baseline too)
-                                if mskeys[-2] is not None and \
-                                        "HP" in mskeys[-2]:
-                                    zero_b_r_flag, zero_m_r_flag = (
-                                        False for n in range(2))
+                                # Given like-for-like HP replacement, anchor
+                                # baseline and measure refrigerant emissions
+                                # on the cooling end use and set flag to zero
+                                # out baseline and measure refrigerant
+                                # emissions for the heating end use
+                                # (to avoid double counting of refrigerants
+                                # since HP stock units are processed for each
+                                # of the heating and cooling end uses)
+                                if (mskeys[-2] is not None and
+                                        "HP" in mskeys[-2]):
+                                    if mskeys[4] == "cooling":
+                                        zero_b_r_flag, zero_m_r_flag = (
+                                            False for n in range(2))
+                                    else:
+                                        zero_b_r_flag, zero_m_r_flag = (
+                                            True for n in range(2))
+
                                 # Given switch to HP from another baseline
                                 # heating technology, set flag to zero out
                                 # baseline refrigerant emissions (since they
@@ -5135,28 +5145,33 @@ class Measure(object):
                                 zero_m_r_flag = False
                         # In all other cases, assume measure tech. follows
                         # baseline tech., accounting for special handling of
-                        # commercial HP name (this handles a case where a
-                        # measure applies to a HP but hasn't been flagged as a
-                        # HP measure above based on its name)
+                        # like-for-like HP replacements to avoid double
+                        # counting across heating and cooling stock (this
+                        # handles a case where a measure applies to a HP but
+                        # hasn't been flagged as a HP measure above based on
+                        # its name)
                         else:
-                            if bldg_name_chk == "residential":
-                                tech_name_chk_b = mskeys[-2]
-                            else:
-                                # Commercial heat pump refrigerant data are
-                                # organized around cooling mode; ensure that
-                                # efficient HP segments applying to heating are
-                                # keyed to pull in data
-                                if mskeys[-2] is not None and \
-                                        "GSHP" in mskeys[-2]:
-                                    tech_name_chk_b = "comm_GSHP-cool"
-                                elif mskeys[-2] is not None and \
-                                        "ASHP" in mskeys[-2]:
-                                    tech_name_chk_b = "rooftop_ASHP-cool"
+                            tech_name_chk_b, tech_name_chk_e = (
+                                mskeys[-2] for n in range(2))
+                            # Given like-for-like HP replacement, anchor
+                            # baseline and measure refrigerant emissions
+                            # on the cooling end use and set flag to zero
+                            # out baseline and measure refrigerant
+                            # emissions for the heating end use
+                            # (to avoid double counting of refrigerants
+                            # since HP stock units are processed for each
+                            # of the heating and cooling end uses)
+                            if (mskeys[-2] is not None and
+                                    "HP" in mskeys[-2]):
+                                if mskeys[4] == "cooling":
+                                    zero_b_r_flag, zero_m_r_flag = (
+                                        False for n in range(2))
                                 else:
-                                    tech_name_chk_b = mskeys[-2]
-                            tech_name_chk_e = copy.deepcopy(tech_name_chk_b)
-                            zero_b_r_flag, zero_m_r_flag = (
-                                False for n in range(2))
+                                    zero_b_r_flag, zero_m_r_flag = (
+                                        True for n in range(2))
+                            else:
+                                zero_b_r_flag, zero_m_r_flag = (
+                                    False for n in range(2))
                     # Refrigeration measure; special handling needed
                     # for commercial
                     elif mskeys[4] == "refrigeration":
