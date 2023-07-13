@@ -11957,14 +11957,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
                 "Technical potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Technical potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
             # Extend for max. adoption potential breakouts
             cls.measures_all[ind].markets[
                 "Max adoption potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Max adoption potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
         cls.measures_demand = cls.measures_all[0:2]
         cls.measures_supply = cls.measures_all[2:5]
@@ -12118,14 +12118,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
                 "Technical potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Technical potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
             # Extend for max. adoption potential breakouts
             cls.measures_all_dist[ind].markets[
                 "Max adoption potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Max adoption potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
         cls.measures_demand_dist = cls.measures_all_dist[0:2]
         cls.measures_supply_dist = cls.measures_all_dist[2:5]
@@ -22421,14 +22421,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
                 "Technical potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Technical potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
             # Extend for max. adoption potential breakouts
             cls.measures_all[ind].markets[
                 "Max adoption potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Max adoption potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
         cls.measures_secondary = [cls.measures_all[1]]
         # Instantiate engine object based on above measures
@@ -22587,14 +22587,14 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
                 "Technical potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Technical potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
             # Extend for max. adoption potential breakouts
             cls.measures_all_dist[ind].markets[
                 "Max adoption potential"]["competed"]["mseg_out_break"] = {
                 key: copy.deepcopy(m.markets["Max adoption potential"][
                     "competed"]["mseg_out_break"])
-                for key in ["energy", "carbon", "cost"]
+                for key in ["stock", "energy", "carbon", "cost"]
             }
         cls.measures_secondary_dist = [cls.measures_all_dist[1]]
         cls.a_run_dist = run.Engine(
