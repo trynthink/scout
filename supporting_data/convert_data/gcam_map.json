@@ -1,0 +1,339 @@
+{
+  "bldg": {
+    "resid": [
+      "single family home",
+      "multi family home",
+      "mobile home"
+    ],
+    "comm": [
+      "assembly",
+      "education",
+      "food sales",
+      "food service",
+      "health care",
+      "lodging",
+      "large office",
+      "small office",
+      "mercantile/service",
+      "warehouse",
+      "other"
+    ]
+  },
+  "fuel": {
+    "electricity": [
+      "electricity"
+    ],
+    "gas": [
+      "natural gas"
+    ],
+    "refined liquids": [
+      "distillate",
+      "other fuel"
+    ],
+    "biomass" : [
+      "other fuel"
+    ]
+  },
+  "end_use": {
+    "heating": [
+      "heating",
+      "secondary heating"
+    ],
+    "cooling": ["cooling"],
+    "refrigeration": ["refrigeration"],
+    "cooking": ["cooking"],
+    "lighting": ["lighting"],
+    "ventilation": ["ventilation"],
+    "computers": ["computers"],
+    "hot water": ["water heating"],
+    "office": [
+      "PCs",
+      "non-PC office equipment"
+    ],
+    "clothes dryers": ["drying"],
+    "other": [
+      "ceiling fan",
+      "TVs",
+      "MELs",
+      "other"
+    ]
+  },
+  "tech": {
+    "air conditioning": [
+      "rooftop_AC",
+      "scroll_chiller",
+      "res_type_central_AC",
+      "reciprocating_chiller",
+      "comm_GSHP-cool",
+      "centrifugal_chiller",
+      "rooftop_ASHP-cool",
+      "air-source heat pump",
+      "wall-window_room_AC",
+      "screw_chiller",
+      "ASHP",
+      "GSHP",
+      "central AC",
+      "room AC",
+      "cooling", 
+      "electricity"
+    ],
+    "gas cooling": [
+      "gas_eng-driven_RTAC",
+      "gas_chiller",
+      "res_type_gasHP-cool",
+      "gas_eng-driven_RTHP-cool",
+      "cooling",
+      "natural gas"
+    ],
+    "electric furnace": [
+      "electric_res-heat",
+      "elec_boiler",
+      "resistance heat",
+      "heating",
+      "electricity"
+    ],
+    "electric heat pump": [
+      "rooftop_ASHP-heat",
+      "comm_GSHP-heat",
+      "ASHP",
+      "GSHP",
+      "heating",
+      "electricity"
+    ],
+    "gas furnace": [
+      "gas_eng-driven_RTHP-heat",
+      "res_type_gasHP-heat",
+      "gas_boiler",
+      "gas_furnace",
+      "boiler (NG)",
+      "furnace (NG)",
+      "heating",
+      "natural gas"
+    ],
+    "gas heat pump": [
+      "NGHP",
+      "heating",
+      "cooling",
+      "natural gas"
+    ],
+    "fuel furnace": [
+      "oil_boiler",
+      "oil_furnace",
+      "boiler (distillate)",
+      "furnace (distillate)",
+      "furnace (LPG)",
+      "furnace (kerosene)",
+      "resistance",
+      "heating",
+      "other fuel",
+      "distillate"
+    ],
+    "wood furnace": [
+      "stove (wood)",
+      "heating",
+      "other fuel"
+    ],
+    "secondary heating": [
+      "secondary heater",
+      "secondary heater (wood)",
+      "secondary heater (coal)",
+      "secondary heater (kerosene)",
+      "secondary heater (LPG)",
+      "secondary heating",
+      "electricity",
+      "natural gas",
+      "other fuel",
+      "distillate"
+    ],
+    "electric heat pump water heater": [
+      "HP water heater",
+      "water heating",
+      "electricity"],
+    "electric resistance water heater": [
+      "Solar water heater",
+      "elec_booster_water_heater",
+      "elec_water_heater",
+      "electric WH",
+      "solar WH",
+      "water heating",
+      "electricity"
+    ],
+    "gas water heater": [
+      null,
+      "gas water heater",
+      "gas instantaneous_WH",
+      "gas_booster_WH",
+      "water heating",
+      "natural gas"
+    ],
+    "fuel water heater": [
+      null,
+      "oil water heater",
+      "water heating",
+      "distillate",
+      "other fuel"],
+    "electric range": [
+      "electric_range_oven_24x24_griddle",
+      "cooking",
+      "electricity"],
+    "gas range": [
+      "gas_range_oven_24x24_griddle",
+      "cooking",
+      "natural gas"],
+    "electric oven": [
+      null,
+      "cooking",
+      "electricity"],
+    "gas oven": [
+      null,
+      "cooking",
+      "natural gas"],
+    "office equipment": [
+      "PCs",
+      "non-PC office equipment",
+      "electricity"
+    ],
+    "resid computers": [
+      "desktop PC",
+      "laptop PC",
+      "monitors",
+      "network equipment",
+      "computers",
+      "electricity"
+    ],
+    "incandescent": [
+      "100W A19 Incandescent",
+      "100W Equivalent A19 Halogen",
+      "Halogen Infrared Reflector (HIR) PAR38",
+      "Halogen PAR38",
+      "T5 4xF54 HO High Bay",
+      "Mercury Vapor",
+      "Metal Halide",
+      "Sodium Vapor",
+      "general service (incandescent)",
+      "reflector (incandescent)",
+      "reflector (halogen)",
+      "external (incandescent)",
+      "external (high pressure sodium)",
+      "lighting",
+      "electricity"
+    ],
+    "fluorescent": [
+      "100W Equivalent CFL Bare Spiral",
+      "T5 F28",
+      "T8 F28",
+      "T8 F32",
+      "T8 F59",
+      "T8 F96",
+      "general service (CFL)",
+      "reflector (CFL)",
+      "external (CFL)",
+      "linear fluorescent (T-8)",
+      "linear fluorescent (T-12)",
+      "lighting",
+      "electricity"
+    ],
+    "solid state": [
+      "100W Equivalent LED A Lamp",
+      "LED PAR38",
+      "LED Integrated Luminaire",
+      "general service (LED)",
+      "reflector (LED)",
+      "linear fluorescent (LED)",
+      "external (LED)",
+      "lighting",
+      "electricity"
+    ],
+    "mels": [
+      null,
+      "distribution transformers",
+      "security systems",
+      "elevators",
+      "escalators",
+      "non-road electric vehicles",
+      "coffee brewers",
+      "kitchen ventilation",
+      "laundry",
+      "lab fridges and freezers",
+      "fume hoods",
+      "medical imaging",
+      "large video boards",
+      "IT equipment",
+      "office UPS",
+      "data center UPS",
+      "shredders",
+      "private branch exchanges",
+      "voice-over-IP telecom",
+      "water services",
+      "rechargeables",
+      "coffee maker",
+      "dehumidifier",
+      "electric other",
+      "microwave",
+      "pool heaters and pumps",
+      "security system",
+      "portable electric spas",
+      "wine coolers",
+      "TV",
+      "set top box",
+      "DVD",
+      "home theater and audio",
+      "video game consoles",
+      "fans and pumps",
+      "ceiling fan",
+      "other",
+      "electricity"
+    ],
+    "refrigeration": [
+      null,
+      "Commercial Ice Machines",
+      "Commercial Reach-In Freezers",
+      "Commercial Reach-In Refrigerators",
+      "Commercial Refrigerated Vending Machines",
+      "Commercial Supermarket Display Cases",
+      "Commercial Walk-In Freezers",
+      "Commercial Walk-In Refrigerators",
+      "refrigeration",
+      "electricity"
+    ],
+    "ventilation": [
+      "CAV_Vent",
+      "VAV_Vent",
+      "ventilation",
+      "electricity"
+    ],
+    "clothes washer": [
+      "clothes washing",
+      "other",
+      "electricity"],
+    "dishwasher": [
+      "dishwasher",
+      "other",
+      "electricity"],
+    "freezer": [
+      "freezers",
+      "other",
+      "electricity"],
+    "refrigerator": [
+      "refrigeration",
+      "electricity"],
+    "clothes dryer": [
+      null,
+      "drying",
+      "natural gas",
+      "electricity"],
+    "other appliances": [
+      "other appliances",
+      "natural gas",
+      "distillate",
+      "other fuel"],
+    "non-building": [
+      "water services",
+      "other",
+      "electricity",
+      "natural gas",
+      "distillate",
+      "other fuel"
+    ]
+  }
+}
