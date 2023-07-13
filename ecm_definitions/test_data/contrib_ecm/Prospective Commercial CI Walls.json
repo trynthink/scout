@@ -1,0 +1,58 @@
+{
+  "name": "Prospective Commercial CI Walls",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "wall",
+  "market_entry_year": 2040,
+  "market_entry_year_source": {
+    "notes": "Target technology market entry year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 40,
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Target performance set assuming 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
+    "source_data": null
+  },
+  "installed_cost": 1.44,
+  "cost_units": "2022$/ft^2 wall",
+  "installed_cost_source": {
+    "notes": "Target cost set based on 10 year payback period objective",
+    "source_data": null
+  },
+  "product_lifetime": 50,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "",
+    "source_data": null
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Target for continuous wall insulation outboard of the frame for commercial buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-10-04 02:15 UTC"
+  },
+  "_updated_by": [{
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2021-08-23 20:52 UTC"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2022-02-13 23:58 UTC"
+  }]
+}

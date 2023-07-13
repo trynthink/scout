@@ -1,0 +1,113 @@
+{
+  "name": "Best Com. Lighting (EE+DF)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "DR_EE_Lighting.csv"
+    }
+  },
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
+    "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED Integrated Luminaire", "LED PAR38", "Mercury Vapor", "Metal Halide", 
+    "Sodium Vapor", "T5 4xF54 HO High Bay", "T5 F28", "T8 F28", "T8 F32", "T8 F59", "T8 F96"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": {
+    "100W A19 Incandescent": 132.83,
+    "100W Equivalent A19 Halogen": 131.32,
+    "100W Equivalent CFL Bare Spiral": 117.03,
+    "100W Equivalent LED A Lamp": 121.46,
+    "Halogen Infrared Reflector (HIR) PAR38": 130.32,
+    "Halogen PAR38": 110.86,
+    "LED PAR38": 95.63,
+    "T5 F28": 72.49,
+    "T8 F28": 53.84,
+    "T8 F32": 63.13,
+    "T8 F59": 53.48,
+    "T8 F96": 52.27,
+    "T5 4xF54 HO High Bay": 45.83,
+    "Mercury Vapor": 56.91,
+    "Metal Halide": 57.35,
+    "Sodium Vapor": 59.81,
+    "LED Integrated Luminaire": 53.12},
+  "cost_units": "2022$/1000 lm",
+  "installed_cost_source": {
+    "notes": "'High' or (if no 'High' value 'Typical') LED installed cost levels in 2022 for appropriate type of luminaire added to cost of commercial lighting connected controls (use lowest projected costs from 2050)",
+    "source_data": [
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": [48, 49, 50, 51, 55, 54, 56, 61, 60, 59, 69, 70, 84, 75, 76, 77, 72],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"},
+    {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 78,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"}
+  ]},
+  "product_lifetime": {
+    "100W A19 Incandescent": 0.2,
+    "100W Equivalent A19 Halogen": 0.25,
+    "100W Equivalent CFL Bare Spiral": 2.11,
+    "100W Equivalent LED A Lamp": 5.07,
+    "Halogen Infrared Reflector (HIR) PAR38": 0.74,
+    "Halogen PAR38": 0.35,
+    "LED PAR38": 5.07,
+    "T5 F28": 9.45,
+    "T8 F28": 16.44,
+    "T8 F32": 13.7,
+    "T8 F59": 7.83,
+    "T8 F96": 9.78,
+    "T5 4xF54 HO High Bay": 6.19,
+    "Mercury Vapor": 6.51,
+    "Metal Halide": 3.99,
+    "Sodium Vapor": 6.64,
+    "LED Integrated Luminaire": 29.15},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Best available LED lifetime levels in 2022 for appropriate type of luminaire; divide lamp life by annual operating hours",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [48, 49, 50, 51, 55, 54, 56, 61, 60, 59, 69, 70, 84, 75, 76, 77, 72],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "tech_switch_to": "LED",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Adjust lighting levels down to shed peak period electricity use, in parallel with installing efficient lighting equipment generally corresponding to the AEDG 50% guideline",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 10 12:05:15 EDT 2019"
+  },
+  "_updated_by": [{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 17:33:36 EDT 2021"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Wed May 31 04:00:36 PST 2023"
+  }]
+}

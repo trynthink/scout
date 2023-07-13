@@ -1,0 +1,74 @@
+{
+  "name": "Prospective Residential Ctls. (ASHP-FS)",
+  "_description": "Advanced controls to package with residential ASHP replacing fossil-based HVAC, non-cold climate",
+  "measure_type": "add-on",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": [
+    "single family home",
+    "multi family home"
+  ],
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": "all",
+  "technology": ["central AC", "boiler (NG)", "furnace (NG)", "boiler (distillate)",
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.3,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Provisional goal for the BTO S&C program",
+    "source_data": null
+  },
+  "installed_cost": 0.5,
+  "cost_units": "$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Provisional goal for the BTO S&C program",
+    "source_data": null
+  },
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Consistent with typical lifetime of supporting sensing hardware",
+    "source_data": null
+  },
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "ASHP",
+  "market_scaling_fractions": {
+    "electricity": {
+      "cooling": 0.68,
+      "heating": 0
+    },
+    "natural gas": 1,
+    "distillate": 1,
+    "other fuel": 1},
+  "market_scaling_fractions_source": {
+    "heating": "Applies to all residential fuel-fired heating; no electric heating is switched by this ECM",
+    "cooling": {
+      "title": "RECS 2020 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 68% was determined as a proportion of total homes with a ducted cooling system where heating is done using any non-electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with non-electric heating system (Main space heating fuel != electricity = 5) 12,211-3,949 homes."
+    }
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 24 09:20:21 EDT 2021"
+  },
+  "_updated_by": null
+}
