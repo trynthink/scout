@@ -23,6 +23,7 @@ rs*.txt
 # Scout-generated JSON databases #s
 ##################################
 
+msegs_emm_gcam_alt.json
 ecm_results.json
 agg_results.json
 comp_fracs.json
