@@ -2523,6 +2523,12 @@ class Measure(object):
                                 "baseline": copy.deepcopy(init_refr),
                                 "efficient": copy.deepcopy(init_refr)}}}
 
+            # Add stock breakouts
+            self.markets[adopt_scheme][
+                "mseg_out_break"]["stock"] = {
+                    key: copy.deepcopy(self.handyvars.out_break_in) for key in
+                    ["baseline", "efficient"]}
+
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
         """Fill in measure performance with EnergyPlus simulation results.
@@ -6023,30 +6029,41 @@ class Measure(object):
 
                     # Given the contributing microsegment's applicable climate
                     # zone, building type, and end use categories, add the
-                    # microsegment's energy/ecost/carbon baseline, efficient
-                    # energy/ecost/carbon, and energy/ecost/carbon savings val.
-                    # to the appropriate leaf node of the dictionary used to
-                    # store measure output breakout information. * Note: the
-                    # values in this dictionary will be normalized in run.py by
-                    # the measure's energy/ecost/carbon baseline, efficient
-                    # energy/ecost/carbon, and energy/ecost/carbon savings
-                    # totals (post-competition) to yield the fractions of
-                    # measure energy, carbon, and cost markets/savings that are
-                    # attributable to each climate zone, building type, and
-                    # end use that the measure applies to
+                    # microsegment's stock/energy/ecost/carbon baseline,
+                    # efficient stock/energy/ecost/carbon, and
+                    # energy/ecost/carbon savings values to the appropriate
+                    # leaf node of the dictionary used to store measure output
+                    # breakout information. * Note: the values in this
+                    # dictionary will be normalized in run.py by the measure's
+                    # stock/energy/ecost/carbon baseline, efficient
+                    # stock/energy/ecost/carbon, and stock/energy/ecost/carbon
+                    # savings totals (post-competition) to yield the fractions
+                    # of measure stock, energy, carbon, and cost
+                    # markets/savings that are attributable to each
+                    # climate zone, building type, and end use that the
+                    # measure applies to. Note that savings breakouts are not
+                    # provided for stock data as "savings" is not meaningful
+                    # in this context.
                     try:
                         # Create a shorthand for baseline and efficient
-                        # energy/carbon/cost data to add to the breakout dict
-                        base_data = [add_energy_total, add_energy_cost,
-                                     add_carb_total]
-                        eff_data = [add_energy_total_eff, add_energy_cost_eff,
-                                    add_carb_total_eff]
+                        # stock/energy/carbon/cost data to add to the breakout
+                        # dict
+                        base_data = [add_stock_total, add_energy_total,
+                                     add_energy_cost, add_carb_total]
+                        eff_data = [add_stock_total_meas, add_energy_total_eff,
+                                    add_energy_cost_eff, add_carb_total_eff]
                         # For a fuel switching case where the user desires that
                         # the outputs be split by fuel, create shorthands for
-                        # any efficient energy/carbon/cost that remains with
-                        # the baseline fuel
+                        # any efficient-case stock/energy/carbon/cost that
+                        # remains with the baseline fuel
                         if self.fuel_switch_to is not None and out_fuel_save:
-                            eff_data_fs = [add_fs_energy_eff_remain,
+                            # No measure-captured stock remains with existing
+                            # fuel under fuel switching
+                            add_fs_stk_eff_remain = {
+                                yr: 0 for yr in self.handyvars.aeo_years
+                            }
+                            eff_data_fs = [add_fs_stk_eff_remain,
+                                           add_fs_energy_eff_remain,
                                            add_fs_energy_cost_eff_remain,
                                            add_fs_carb_eff_remain]
                             # Record the efficient energy that has not yet fuel
@@ -6070,9 +6087,8 @@ class Measure(object):
                             try:
                                 for yr in self.handyvars.aeo_years:
                                     for ind, key in enumerate([
-                                            "energy", "cost", "carbon"]):
-                                        # Baseline; add in baseline data
-                                        # as-is
+                                            "stock", "energy", "cost",
+                                            "carbon"]):
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "baseline"][out_cz][out_bldg][
@@ -6092,27 +6108,32 @@ class Measure(object):
                                                 "efficient"][out_cz][out_bldg][
                                                 out_eu][out_fuel_save][yr] += \
                                                 eff_data[ind][yr]
-                                            self.markets[adopt_scheme][
-                                                "mseg_out_break"][key][
-                                                "savings"][out_cz][out_bldg][
-                                                out_eu][out_fuel_save][yr] += (
-                                                    base_data[ind][yr] -
-                                                    eff_data[ind][yr])
+                                            if key != "stock":  # no stk save
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "savings"][out_cz][
+                                                    out_bldg][
+                                                    out_eu][out_fuel_save][
+                                                    yr] += (
+                                                        base_data[ind][yr] -
+                                                        eff_data[ind][yr])
                                         else:
                                             self.markets[adopt_scheme][
                                                 "mseg_out_break"][key][
                                                 "efficient"][out_cz][out_bldg][
                                                 out_eu][out_fuel_save][yr] += \
                                                 eff_data_fs[ind][yr]
-                                            self.markets[adopt_scheme][
-                                                "mseg_out_break"][key][
-                                                "savings"][out_cz][out_bldg][
-                                                out_eu][out_fuel_save][yr] += (
-                                                    base_data[ind][yr] -
-                                                    eff_data_fs[ind][yr])
+                                            if key != "stock":  # no stk save
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "savings"][out_cz][
+                                                    out_bldg][out_eu][
+                                                    out_fuel_save][yr] += (
+                                                        base_data[ind][yr] -
+                                                        eff_data_fs[ind][yr])
                             except KeyError:
                                 for ind, key in enumerate([
-                                        "energy", "cost", "carbon"]):
+                                        "stock", "energy", "cost", "carbon"]):
                                     # Baseline; add in baseline data
                                     # as-is
                                     self.markets[adopt_scheme][
@@ -6135,13 +6156,15 @@ class Measure(object):
                                             out_eu][out_fuel_save] = {
                                                 yr: eff_data[ind][yr] for
                                                 yr in self.handyvars.aeo_years}
-                                        self.markets[adopt_scheme][
-                                            "mseg_out_break"][key][
-                                            "savings"][out_cz][out_bldg][
-                                                out_eu][out_fuel_save] = {
-                                                yr: (base_data[ind][yr] -
-                                                     eff_data[ind][yr]) for
-                                                yr in self.handyvars.aeo_years}
+                                        if key != "stock":  # no stk save
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "savings"][out_cz][out_bldg][
+                                                    out_eu][out_fuel_save] = {
+                                                    yr: (base_data[ind][yr] -
+                                                         eff_data[ind][yr]) for
+                                                    yr in
+                                                    self.handyvars.aeo_years}
                                     else:
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
@@ -6149,13 +6172,15 @@ class Measure(object):
                                             out_eu][out_fuel_save] = {
                                                 yr: eff_data_fs[ind][yr] for
                                                 yr in self.handyvars.aeo_years}
-                                        self.markets[adopt_scheme][
-                                            "mseg_out_break"][key][
-                                            "savings"][out_cz][out_bldg][
-                                                out_eu][out_fuel_save] = {
-                                                yr: (base_data[ind][yr] -
-                                                     eff_data_fs[ind][yr]) for
-                                                yr in self.handyvars.aeo_years}
+                                        if key != "stock":  # no stk save
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "savings"][out_cz][out_bldg][
+                                                    out_eu][out_fuel_save] = {
+                                                    yr: (base_data[ind][yr] -
+                                                         eff_data_fs[ind][yr])
+                                                    for yr in
+                                                    self.handyvars.aeo_years}
                             # In a fuel switching case, update results for
                             # the fuel being switched/added to
                             if out_fuel_gain:
@@ -6165,7 +6190,8 @@ class Measure(object):
                                 try:
                                     for yr in self.handyvars.aeo_years:
                                         for ind, key in enumerate([
-                                                "energy", "cost", "carbon"]):
+                                                "stock", "energy", "cost",
+                                                "carbon"]):
                                             # Note: no need to add to baseline
                                             # for fuel being switched to,
                                             # which remains zero
@@ -6176,21 +6202,35 @@ class Measure(object):
                                             # fuel are added to the switched to
                                             # fuel and represented as negative
                                             # savings for the switched to fuel
-                                            self.markets[adopt_scheme][
-                                                "mseg_out_break"][key][
-                                                "efficient"][out_cz][out_bldg][
-                                                out_eu][out_fuel_gain][yr] += \
-                                                (eff_data[ind][yr] -
-                                                 eff_data_fs[ind][yr])
-                                            self.markets[adopt_scheme][
-                                                "mseg_out_break"][key][
-                                                "savings"][out_cz][out_bldg][
-                                                out_eu][out_fuel_gain][yr] -= (
-                                                    eff_data[ind][yr] -
-                                                    eff_data_fs[ind][yr])
+                                            if key != "stock":  # no stk save
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "efficient"][out_cz][
+                                                    out_bldg][
+                                                    out_eu][
+                                                    out_fuel_gain][yr] += \
+                                                    (eff_data[ind][yr] -
+                                                     eff_data_fs[ind][yr])
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "savings"][out_cz][
+                                                    out_bldg][
+                                                    out_eu][out_fuel_gain][
+                                                    yr] -= (
+                                                        eff_data[ind][yr] -
+                                                        eff_data_fs[ind][yr])
+                                            else:
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "efficient"][out_cz][
+                                                    out_bldg][
+                                                    out_eu][
+                                                    out_fuel_gain][yr] += \
+                                                    eff_data[ind][yr]
                                 except KeyError:
                                     for ind, key in enumerate([
-                                            "energy", "cost", "carbon"]):
+                                            "stock", "energy", "cost",
+                                            "carbon"]):
                                         # Baseline for the fuel being switched
                                         # to is initialized as zero
                                         self.markets[adopt_scheme][
@@ -6205,20 +6245,31 @@ class Measure(object):
                                         # fuel are added to the switched to
                                         # fuel and represented as negative
                                         # savings for the switched to fuel
-                                        self.markets[adopt_scheme][
-                                            "mseg_out_break"][key][
-                                            "efficient"][out_cz][out_bldg][
-                                            out_eu][out_fuel_gain] = {
-                                                yr: (eff_data[ind][yr] -
-                                                     eff_data_fs[ind][yr]) for
-                                                yr in self.handyvars.aeo_years}
-                                        self.markets[adopt_scheme][
-                                            "mseg_out_break"][key][
-                                            "savings"][out_cz][out_bldg][
+                                        if key != "stock":  # no stk save
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "efficient"][out_cz][out_bldg][
                                                 out_eu][out_fuel_gain] = {
-                                                yr: -(eff_data[ind][yr] -
-                                                      eff_data_fs[ind][yr]) for
-                                                yr in self.handyvars.aeo_years}
+                                                    yr: (eff_data[ind][yr] -
+                                                         eff_data_fs[ind][yr])
+                                                    for yr in
+                                                    self.handyvars.aeo_years}
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "savings"][out_cz][out_bldg][
+                                                    out_eu][out_fuel_gain] = {
+                                                    yr: -(eff_data[ind][yr] -
+                                                          eff_data_fs[ind][yr])
+                                                    for yr in
+                                                    self.handyvars.aeo_years}
+                                        else:
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "efficient"][out_cz][out_bldg][
+                                                out_eu][out_fuel_gain] = {
+                                                    yr: eff_data[ind][yr]
+                                                    for yr in
+                                                    self.handyvars.aeo_years}
                         else:
                             # Handle case where results for the current region,
                             # bldg., end use, and fuel have not yet been
@@ -6226,7 +6277,8 @@ class Measure(object):
                             try:
                                 for yr in self.handyvars.aeo_years:
                                     for ind, key in enumerate([
-                                            "energy", "cost", "carbon"]):
+                                            "stock", "energy", "cost",
+                                            "carbon"]):
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "baseline"][out_cz][out_bldg][
@@ -6235,15 +6287,16 @@ class Measure(object):
                                             "mseg_out_break"][key][
                                             "efficient"][out_cz][out_bldg][
                                             out_eu][yr] += eff_data[ind][yr]
-                                        self.markets[adopt_scheme][
-                                            "mseg_out_break"][key][
-                                            "savings"][out_cz][out_bldg][
-                                            out_eu][yr] += (
-                                                base_data[ind][yr] -
-                                                eff_data[ind][yr])
+                                        if key != "stock":  # no stk save
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "savings"][out_cz][out_bldg][
+                                                out_eu][yr] += (
+                                                    base_data[ind][yr] -
+                                                    eff_data[ind][yr])
                             except KeyError:
                                 for ind, key in enumerate([
-                                        "energy", "cost", "carbon"]):
+                                        "stock", "energy", "cost", "carbon"]):
                                     self.markets[adopt_scheme][
                                         "mseg_out_break"][key]["baseline"][
                                         out_cz][out_bldg][out_eu] = {
@@ -6254,12 +6307,13 @@ class Measure(object):
                                         out_cz][out_bldg][out_eu] = {
                                             yr: eff_data[ind][yr] for
                                             yr in self.handyvars.aeo_years}
-                                    self.markets[adopt_scheme][
-                                        "mseg_out_break"][key]["savings"][
-                                        out_cz][out_bldg][out_eu] = {
-                                            yr: (base_data[ind][yr] -
-                                                 eff_data[ind][yr]) for
-                                            yr in self.handyvars.aeo_years}
+                                    if key != "stock":  # no stk save
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key]["savings"][
+                                            out_cz][out_bldg][out_eu] = {
+                                                yr: (base_data[ind][yr] -
+                                                     eff_data[ind][yr]) for
+                                                yr in self.handyvars.aeo_years}
 
                     # Yield warning if current contributing microsegment cannot
                     # be mapped to an output breakout category
@@ -10815,6 +10869,11 @@ class MeasurePackage(Measure):
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]}}
+            # Add stock breakouts
+            self.markets[adopt_scheme][
+                "mseg_out_break"]["stock"] = {
+                    key: copy.deepcopy(self.handyvars.out_break_in) for key in
+                    ["baseline", "efficient"]}
 
             # Add fugitive emissions key to output dict if fugitive
             # emissions option is set
@@ -11126,14 +11185,18 @@ class MeasurePackage(Measure):
                         msegs_pkg_fin[cm] = self.add_keyvals(
                             msegs_pkg_fin[cm], msegs_meas_fin[cm])
                 # Generate a dictionary including data on how much of the
-                # packaged measure's baseline energy/carbon/cost is attributed
-                # to each of the output climate zones, building types, and end
-                # uses it applies to
-                for v in ["energy", "carbon", "cost"]:
-                    for s in ["baseline", "efficient", "savings"]:
+                # packaged measure's baseline stock/energy/carbon/cost is
+                # attributed to each of the output climate zones, building
+                # types, and end uses it applies to
+                for v in ["stock", "energy", "carbon", "cost"]:
+                    for s in ["baseline", "efficient"]:
                         self.merge_out_break(self.markets[adopt_scheme][
                             "mseg_out_break"][v][s],
                             mseg_out_break_fin[v][s])
+                    if v != "stock":  # no stk save breakout
+                        self.merge_out_break(self.markets[adopt_scheme][
+                            "mseg_out_break"][v]["savings"],
+                            mseg_out_break_fin[v]["savings"])
 
                 # Adjust individual measure's contributing sector shape
                 # information to account for overlaps with other measures in
@@ -11430,11 +11493,11 @@ class MeasurePackage(Measure):
             base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
                 msegs_meas_init, cm_key, adopt_scheme,
                 name_meas, htcl_key_match, overlap_meas)
-            # Adjust energy, carbon, and energy/carbon cost data based on
-            # savings contribution of the measure and overlapping measure(s)
-            # in this contributing microsegment, as well as the relative
-            # performance of the overlapping measure(s)
-            for k in ["energy", "carbon"]:
+            # Adjust stock, energy, carbon, and energy/carbon cost data
+            # based on savings contribution of the measure and overlapping
+            # measure(s) in this contributing microsegment, as well as the
+            # relative performance of the overlapping measure(s)
+            for k in ["stock", "energy", "carbon"]:
                 # Make adjustments to energy/carbon/cost microsegments
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
                     tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
@@ -11473,12 +11536,6 @@ class MeasurePackage(Measure):
                         msegs_meas["cost"]["stock"]["competed"]["baseline"] = [
                             {yr: 0 for yr in self.handyvars.aeo_years}
                         for n in range(2)]
-
-            # Adjust stock data to be consistent with the
-            # energy-based baseline adjustment fractions calculated above
-            self.adj_pkg_mseg_keyvals(
-                msegs_meas["stock"], base_adj, base_adj, base_adj,
-                base_eff_flag=None, comp_flag=None)
 
             # If necessary, adjust fugitive emissions data
 
@@ -12200,17 +12257,26 @@ class MeasurePackage(Measure):
             tot_eff_orig_ecost, tot_save_orig_ecost = ('' for n in range(6))
         # Create shorthand for stock/energy/carbon/lifetime msegs data
         mseg_adj = msegs_meas[k]
-        # Create shorthand for cost data
-        mseg_cost_adj = msegs_meas["cost"][k]
-        # Total baseline energy/carbon
-        tot_base_orig = copy.deepcopy(mseg_adj["total"]["baseline"])
-        # Total efficient energy/carbon
-        tot_eff_orig = copy.deepcopy(mseg_adj["total"]["efficient"])
-        # Total energy/carbon savings
-        tot_save_orig = {yr: (
-            copy.deepcopy(mseg_adj["total"]["baseline"][yr]) -
-            copy.deepcopy(mseg_adj["total"]["efficient"][yr]))
-            for yr in self.handyvars.aeo_years}
+        if k == "stock":
+            # Total baseline stock
+            tot_base_orig = copy.deepcopy(mseg_adj["total"]["all"])
+            # Total efficient stock
+            tot_eff_orig = copy.deepcopy(mseg_adj["total"]["measure"])
+            # Stock costs do not require adjustment b/c they are additive
+            # (not overlapping)
+            mseg_cost_adj = None
+        else:
+            # Create shorthand for energy/carbon cost data
+            mseg_cost_adj = msegs_meas["cost"][k]
+            # Total baseline stock
+            tot_base_orig = copy.deepcopy(mseg_adj["total"]["baseline"])
+            # Total efficient energy/carbon
+            tot_eff_orig = copy.deepcopy(mseg_adj["total"]["efficient"])
+            # Total energy/carbon savings
+            tot_save_orig = {yr: (
+                copy.deepcopy(mseg_adj["total"]["baseline"][yr]) -
+                copy.deepcopy(mseg_adj["total"]["efficient"][yr]))
+                for yr in self.handyvars.aeo_years}
         # Record total energy cost data before adjustment
         if k == "energy" and mseg_cost_adj:
             # Total baseline energy cost
@@ -12225,9 +12291,14 @@ class MeasurePackage(Measure):
                 copy.deepcopy(mseg_cost_adj["total"]["efficient"][yr]))
                 for yr in self.handyvars.aeo_years}
         # Adjust msegs using base/efficient adjustment fractions
-        self.adj_pkg_mseg_keyvals(
-            mseg_adj, base_adj, eff_adj, eff_adj_c, base_eff_flag=None,
-            comp_flag=None)
+        if k == "stock":
+            self.adj_pkg_mseg_keyvals(
+                mseg_adj, base_adj, base_adj, base_adj, base_eff_flag=None,
+                comp_flag=None)
+        else:
+            self.adj_pkg_mseg_keyvals(
+                mseg_adj, base_adj, eff_adj, eff_adj_c, base_eff_flag=None,
+                comp_flag=None)
         # If applicable, adjust energy/carbon cost msegs
         if mseg_cost_adj:
             self.adj_pkg_mseg_keyvals(
@@ -12378,9 +12449,14 @@ class MeasurePackage(Measure):
             out_fuel_save, out_fuel_gain = ("" for n in range(2))
 
         # Shorthands for data used to adjust original output breakouts
-        base_orig, eff_orig, save_orig, base_adj, eff_adj = [
-            tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
-                "total"]["baseline"], msegs_ecarb["total"]["efficient"]]
+        if k == "stock":
+            base_orig, eff_orig, save_orig, base_adj, eff_adj = [
+                tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
+                    "total"]["all"], msegs_ecarb["total"]["measure"]]
+        else:
+            base_orig, eff_orig, save_orig, base_adj, eff_adj = [
+                tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
+                    "total"]["baseline"], msegs_ecarb["total"]["efficient"]]
         # If necessary, shorthands for data used to adjust original cost output
         if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                             tot_save_orig_ecost]]):
@@ -12394,17 +12470,20 @@ class MeasurePackage(Measure):
         # Fuel switching case
         if out_fuel_save and out_fuel_gain:
             # Pull the fraction of efficient-case energy/carbon that remains w/
-            # the original fuel in each year for the contributing measure/mseg
-            fs_eff_splt_var = {
-                yr: (fs_eff_splt[k][0][yr] / fs_eff_splt[k][1][yr]) if
-                fs_eff_splt[k][1][yr] != 0 else 1
-                for yr in self.handyvars.aeo_years}
-            # Energy/carbon; original fuel
+            # the original fuel in each year for the contributing measure/mseg.
+            # Note: none of the measure-captured stock reported in the
+            # efficient case remains w/ original fuel by definition
+            if k != "stock":
+                fs_eff_splt_var = {
+                    yr: (fs_eff_splt[k][0][yr] / fs_eff_splt[k][1][yr]) if
+                    fs_eff_splt[k][1][yr] != 0 else 1
+                    for yr in self.handyvars.aeo_years}
+            else:
+                fs_eff_splt_var = {yr: 0 for yr in self.handyvars.aeo_years}
+            # Stock/energy/carbon; original fuel
             mseg_out_break_adj[k]["baseline"][
                 out_cz][out_bldg][out_eu][out_fuel_save], \
                 mseg_out_break_adj[k]["efficient"][
-                    out_cz][out_bldg][out_eu][out_fuel_save], \
-                mseg_out_break_adj[k]["savings"][
                     out_cz][out_bldg][out_eu][out_fuel_save] = [
                 # Remove adjusted baseline
                 {yr: mseg_out_break_adj[k]["baseline"][
@@ -12415,35 +12494,40 @@ class MeasurePackage(Measure):
                 {yr: mseg_out_break_adj[k]["efficient"][
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr] for
-                 yr in self.handyvars.aeo_years},
+                 yr in self.handyvars.aeo_years}]
+            # No savings breakouts for stock variable
+            if k != "stock":
                 # Savings is difference between adjusted baseline and efficient
                 # and is subtracted from existing savings for baseline fuel (
                 # e.g., savings becomes less positive)
-                {yr: mseg_out_break_adj[k]["savings"][
-                    out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                mseg_out_break_adj[k]["savings"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["savings"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         (base_orig[yr] - base_adj[yr]) -
                         (eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr]) for
-                 yr in self.handyvars.aeo_years}]
-            # Energy/carbon; switched to fuel
+                    yr in self.handyvars.aeo_years}
+            # Stock/energy/carbon; switched to fuel
+            # Note: Baseline case remains zero (no baseline before switch)
+            # Remove adjusted efficient case that switched from base fuel
             mseg_out_break_adj[k]["efficient"][
-                out_cz][out_bldg][out_eu][out_fuel_gain], \
-                mseg_out_break_adj[k]["savings"][
-                    out_cz][out_bldg][out_eu][out_fuel_gain] = [
-                # Note: Baseline case remains zero (no baseline before switch)
-
-                # Remove adjusted efficient case that switched from base fuel
-                {yr: mseg_out_break_adj[k]["efficient"][
+                out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                yr: mseg_out_break_adj[k]["efficient"][
                     out_cz][out_bldg][out_eu][out_fuel_gain][yr] - ((
                         eff_orig[yr] - eff_adj[yr]) * (
                         1 - fs_eff_splt_var[yr]))
-                 for yr in self.handyvars.aeo_years},
+                for yr in self.handyvars.aeo_years}
+            # No savings breakouts for stock variable
+            if k != "stock":
                 # Adjusted efficient is added to the existing savings for
                 # baseline fuel (e.g., savings becomes less negative)
-                {yr: mseg_out_break_adj[k]["savings"][
-                    out_cz][out_bldg][out_eu][out_fuel_gain][yr] + ((
-                        eff_orig[yr] - eff_adj[yr]) * (
-                        1 - fs_eff_splt_var[yr]))
-                 for yr in self.handyvars.aeo_years}]
+                mseg_out_break_adj[k]["savings"][
+                    out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                    yr: mseg_out_break_adj[k]["savings"][
+                        out_cz][out_bldg][out_eu][out_fuel_gain][yr] + ((
+                            eff_orig[yr] - eff_adj[yr]) * (
+                            1 - fs_eff_splt_var[yr]))
+                    for yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
@@ -12505,12 +12589,10 @@ class MeasurePackage(Measure):
                      yr in self.handyvars.aeo_years}]
         # Fuel splits without fuel switching
         elif out_fuel_save:
-            # Energy/carbon
+            # Stock/energy/carbon
             mseg_out_break_adj[k]["baseline"][
                 out_cz][out_bldg][out_eu][out_fuel_save], \
                 mseg_out_break_adj[k]["efficient"][
-                    out_cz][out_bldg][out_eu][out_fuel_save], \
-                mseg_out_break_adj[k]["savings"][
                     out_cz][out_bldg][out_eu][out_fuel_save] = [
                 # Remove adjusted baseline
                 {yr: mseg_out_break_adj[k]["baseline"][
@@ -12521,13 +12603,17 @@ class MeasurePackage(Measure):
                 {yr: mseg_out_break_adj[k]["efficient"][
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         eff_orig[yr] - eff_adj[yr]) for
-                 yr in self.handyvars.aeo_years},
+                 yr in self.handyvars.aeo_years}]
+            # No savings breakouts for stock variable
+            if k != "stock":
                 # Adjusted savings is difference between adjusted
                 # baseline/efficient
-                {yr: mseg_out_break_adj[k]["savings"][
-                    out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
-                    save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
-                 yr in self.handyvars.aeo_years}]
+                mseg_out_break_adj[k]["savings"][
+                        out_cz][out_bldg][out_eu][out_fuel_save] = {
+                        yr: mseg_out_break_adj[k]["savings"][
+                            out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
+                        yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
@@ -12556,10 +12642,10 @@ class MeasurePackage(Measure):
                      yr in self.handyvars.aeo_years}]
         # All other cases
         else:
-            # Energy/carbon
+            # Stock/energy/carbon
             mseg_out_break_adj[k]["baseline"][out_cz][out_bldg][out_eu], \
-                mseg_out_break_adj[k]["efficient"][out_cz][out_bldg][out_eu], \
-                mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu] = [
+                mseg_out_break_adj[k][
+                    "efficient"][out_cz][out_bldg][out_eu] = [
                 # Remove adjusted baseline
                 {yr: mseg_out_break_adj[k]["baseline"][
                     out_cz][out_bldg][out_eu][yr] - (
@@ -12569,13 +12655,16 @@ class MeasurePackage(Measure):
                 {yr: mseg_out_break_adj[k]["efficient"][
                     out_cz][out_bldg][out_eu][yr] - (
                         eff_orig[yr] - eff_adj[yr]) for
-                 yr in self.handyvars.aeo_years},
+                 yr in self.handyvars.aeo_years}]
+            # No savings breakouts for stock variable
+            if k != "stock":
                 # Adjusted savings is difference between adjusted
                 # baseline/efficient
-                {yr: mseg_out_break_adj[k]["savings"][
-                    out_cz][out_bldg][out_eu][yr] - (
-                    save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
-                 yr in self.handyvars.aeo_years}]
+                mseg_out_break_adj[k]["savings"][out_cz][out_bldg][out_eu] = {
+                    yr: mseg_out_break_adj[k]["savings"][
+                        out_cz][out_bldg][out_eu][yr] - (
+                        save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
+                    yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
