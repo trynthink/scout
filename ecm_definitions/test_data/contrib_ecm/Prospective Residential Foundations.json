@@ -1,0 +1,58 @@
+{
+  "name": "Prospective Residential Foundations",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating", "secondary heating", "cooling"],
+  "fuel_type": "all",
+  "technology": "ground",
+  "market_entry_year": 2040,
+  "market_entry_year_source": {
+    "notes": "Target technology market entry year",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 30,
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "Target performance set assuming 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
+    "source_data": null
+  },
+  "installed_cost": 0.7,
+  "cost_units": "2022$/ft^2 footprint",
+  "installed_cost_source": {
+    "notes": "Target cost set based on 10 year payback period objective",
+    "source_data": null
+  },
+  "product_lifetime": 50,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Foundation continuous insulation might remain in the ground much longer than the indicated lifetime, but the lifetime is intended to indicate the period over which there should be no degradation in performance",
+    "source_data": null
+  },
+  "measure_type": "add-on",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Residential foundation continuous insulation target, including retrofit of existing buildings",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2018-10-04 02:30 UTC"
+  },
+  "_updated_by": [{
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2020-02-23 21:00 UTC"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "2023-02-14 00:16 UTC"
+  }]
+}

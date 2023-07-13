@@ -1,0 +1,72 @@
+{
+  "name": "Prospective Com. Ctls. (ASHP-RST) CC",
+  "_description": "Advanced controls to package with commercial ASHP replacing resistance, cold climate",
+  "measure_type": "add-on",
+  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
+                   "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
+  "bldg_type": [
+    "large office", "small office", "education", "food service",
+    "mercantile/service"],
+  "structure_type": "all",
+  "end_use": ["cooling", "heating", "ventilation"],
+  "fuel_type": "electricity",
+  "technology": ["rooftop_AC", "res_type_central_AC", "elec_boiler", "wall-window_room_AC", "electric_res-heat", "all ventilation"],
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.3,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": "Provisional goal for the BTO S&C program",
+    "source_data": null
+  },
+  "installed_cost": 1.0,
+  "cost_units": "$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": "Provisional goal for the BTO S&C program",
+    "source_data": null
+  },
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Consistent with typical lifetime of supporting sensing hardware",
+    "source_data": null
+  },
+  "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
+  "market_scaling_fractions": {
+    "cooling": 0.38,
+    "heating": 1,
+    "ventilation": 0.26
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Cooling fraction reflects share of primary heating that is electric (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings); ventilation fraction is portion of buildings where cooling is not served by chiller (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings) multiplied by portion where heating is electric (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings)."
+  },
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 24 09:23:11 EDT 2021"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Mar 9 12:17:29 EST 2022"
+  }]
+}

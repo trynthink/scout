@@ -1,0 +1,83 @@
+{
+  "name": "Best Res. GSHP (RST)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": ["resistance heat", "central AC"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null}},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": {
+    "heating": 4.5,
+    "cooling": 6.45},
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": "2022 'high' performance level residential ground-source heat pumps; COP = EER/3.41214 ",
+    "source_data":  {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "installed_cost": 20055,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Average of low and high total installed costs for best GSHP in 2022",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "product_lifetime": 14,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of low and high average lifetime values for GSHPs in 2022, rounded down from 14.5",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 45,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "tech_switch_to": "GSHP",
+  "market_scaling_fractions": {
+    "central AC": 0.32,
+    "resistance heat": 1},
+  "market_scaling_fractions_source": {
+    "central AC": {
+      "title": "RECS 2020 Microdata",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "URL": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata",
+      "fraction_derivation": "Central AC multiple of 32% was determined as the proportion of total homes with a ducted cooling system where heating is done using any electric heating energy source. Total homes with ducted cooling (main air conditioning equipment type = central AC = 1) in the sample is 12,211 homes, and then filtered for homes with electric heating system (Main space heating fuel = electricity = 5) 3,949 homes."},
+    "resistance heat": "Applies to all homes with electric resistance furnaces (the resistance heat tech. is indicative of a forced air electric furnace in the EIA data)"},
+  "_description": "Highest efficiency residential closed loop ground source heat pump in 2022, replacing electric resistance heating",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon May 22 2023 18:50:00 UTC"},
+  "_updated_by": {
+    "name": null,
+    "organization": null,
+    "email": null,
+    "timestamp": null}
+}
