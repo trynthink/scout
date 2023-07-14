@@ -2870,34 +2870,34 @@ class Engine(object):
                         m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                             var][var_sub][out_cz][out_bldg][out_eu][
                             out_fuel_save]
-            # Case with fuel switching
-            if out_fuel_gain:
-                # Adjust stock/energy/carbon/cost data
-                for var_sub in var_list:
-                    adj_out_break["switched fuel"][var][var_sub] = \
-                        m.markets[adopt_scheme]["competed"][
-                            "mseg_out_break"][var][var_sub][out_cz][
-                            out_bldg][out_eu][out_fuel_gain]
-                if var != "stock":
-                    # Set previously stored fuel splits for efficient case
-                    # results (e.g., the efficient case may reflect some
-                    # energy/carb/cost that remains with the baseline fuel
-                    # type and thus is not applicable to the adjustment of
-                    # the fuel being switched to)
-                    fs_eff_splt = m.eff_fs_splt[adopt_scheme][mseg_key]
-                    # Pull the fraction of efficient-case energy/cost/
-                    # carbon that remains w/ the original fuel in each year
-                    # for the contributing measure/mseg
+                # Case with fuel switching
+                if out_fuel_gain:
+                    # Adjust stock/energy/carbon/cost data
+                    for var_sub in var_list:
+                        adj_out_break["switched fuel"][var][var_sub] = \
+                            m.markets[adopt_scheme]["competed"][
+                                "mseg_out_break"][var][var_sub][out_cz][
+                                out_bldg][out_eu][out_fuel_gain]
+                    if var != "stock":
+                        # Set previously stored fuel splits for efficient case
+                        # results (e.g., the efficient case may reflect some
+                        # energy/carb/cost that remains with the baseline fuel
+                        # type and thus is not applicable to the adjustment of
+                        # the fuel being switched to)
+                        fs_eff_splt = m.eff_fs_splt[adopt_scheme][mseg_key]
+                        # Pull the fraction of efficient-case energy/cost/
+                        # carbon that remains w/ the original fuel in each year
+                        # for the contributing measure/mseg
+                        adj_out_break["efficient fuel splits"][var] = {
+                            yr: (fs_eff_splt[var][0][yr] /
+                                 fs_eff_splt[var][1][yr]) if
+                            fs_eff_splt[var][1][yr] != 0 else 1
+                            for yr in self.handyvars.aeo_years}
+                else:
+                    # All efficient stock/energy/cost/carbon remains with
+                    # original base fuel type if there is no fuel switching
                     adj_out_break["efficient fuel splits"][var] = {
-                        yr: (fs_eff_splt[var][0][yr] /
-                             fs_eff_splt[var][1][yr]) if
-                        fs_eff_splt[var][1][yr] != 0 else 1
-                        for yr in self.handyvars.aeo_years}
-            else:
-                # All efficient stock/energy/cost/carbon remains with
-                # original base fuel type if there is no fuel switching
-                adj_out_break["efficient fuel splits"][var] = {
-                    yr: 1 for yr in self.handyvars.aeo_years}
+                        yr: 1 for yr in self.handyvars.aeo_years}
         # Case where output breakouts are not split by fuel
         else:
             # Adjust stock/energy/carbon/cost data
