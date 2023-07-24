@@ -63,7 +63,7 @@ jobs:
         run: |
           branch_name="${{ github.head_ref }}"
           git pull origin $branch_name
-          cp -r ./results/*.json ./tests/integration_testing
+          cp -r ./results/*.json ./tests/integration_testing/results
           git add ./tests/integration_testing/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
             git config --system user.email "github-action@users.noreply.github.com"
