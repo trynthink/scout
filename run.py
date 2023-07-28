@@ -208,7 +208,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, base_dir, handyfiles, gcam_out):
+    def __init__(self, base_dir, handyfiles, gcam_out, brkout):
         # Pull in global variable settings from ecm_prep
         with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
             try:
@@ -228,11 +228,45 @@ class UsefulVars(object):
         # Set GCAM-specific versions of segment-to-breakout category mapping
         # variables conditional on --gcam_out option settings
         if gcam_out is True:
-            self.out_break_bldgtypes_gcam = {
-                'Residential (New)': ["resid"],
-                'Residential (Existing)': ["resid"],
-                'Commercial (New)': ["comm"],
-                'Commercial (Existing)': ["comm"]}
+            # Ensure that detailed Scout fuel type breakouts were used when
+            # preparing measures if the user requires GCAM fuel type outputs
+            if brkout != "detail" and "fuel" not in brkout:
+                raise ValueError(
+                    "Detailed fuel type breakouts are required to support "
+                    "'gcam_out' reporting option, but were not used in the "
+                    "preparation of the current measures via ecm_prep. "
+                    "Rerun ecm_prep with the 'split_fuel' AND 'detail_brkout' "
+                    "command line options and select a detailed fuel type "
+                    "breakout when prompted.")
+            else:
+                self.out_break_fuels_gcam = {
+                    "Electric": ["electricity"],
+                    "Natural Gas": ["gas"],
+                    "Propane": ["propane"],
+                    "Distillate/Other": ["refined liquids"],
+                    "Biomass": ["biomass"]}
+            # Account for multiple potential Scout building type breakouts
+            # when mapping to GCAM building types
+            if brkout == "detail" or "bldg" in brkout:
+                self.out_break_bldgtypes_gcam = {
+                    'Single Family Homes': ["resid"],
+                    'Multi Family Homes': ["resid"],
+                    'Hospitals': ["comm"],
+                    'Large Offices': ["comm"],
+                    'Small/Medium Offices': ["comm"],
+                    'Retail': ["comm"],
+                    'Hospitality': ["comm"],
+                    'Education': ["comm"],
+                    'Assembly/Other': ["comm"],
+                    'Warehouses': ["comm"]}
+            else:
+                self.out_break_bldgtypes_gcam = {
+                    'Residential (New)': ["resid"],
+                    'Residential (Existing)': ["resid"],
+                    'Commercial (New)': ["comm"],
+                    'Commercial (Existing)': ["comm"]}
+            # Scout end uses are only broken out one way (no detailed breakout
+            # alternatives, as for fuel and building types)
             self.out_break_enduses_gcam = {
                 'Heating (Equip.)': ["heating"],
                 'Cooling (Equip.)': ["cooling"],
@@ -245,12 +279,7 @@ class UsefulVars(object):
                 'Computers and Electronics': ["office", "computers"],
                 'Other': ["other", "dishwashers", "clothes washers",
                           "clothes dryers", "furnace fans"]}
-            self.out_break_fuels_gcam = {
-                "Electric": ["electricity"],
-                "Natural Gas": ["gas"],
-                "Propane": ["propane"],
-                "Distillate/Other": ["refined liquids"],
-                "Biomass": ["biomass"]}
+
         # Set commercial time prefs and region in/out name pairs as unique
         # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
@@ -4050,8 +4079,9 @@ class Engine(object):
                             ("CO2 Cost Savings (USD)".
                                 translate(sub), carb_costsave_avg)]) for
                             n in range(2))
-                # Determine stock units, if necessary
-                if opts.report_stk is True:
+                # Determine stock units, if necessary (for the Scout stock
+                # reporting option and/or for mapping to GCAM data format)
+                if opts.report_stk is True or opts.gcam_out is True:
                     # Determine correct units to use for stock reporting
                     # Envelope tech.; use units of ft^2 floor
                     if "demand" in m.technology_type["primary"]:
@@ -4103,6 +4133,8 @@ class Engine(object):
                         adopt_scheme][meas_stk_key], self.output_ecms[m.name][
                             "Markets and Savings (by Category)"][adopt_scheme][
                             meas_stk_key] = (stk_eff_avg for n in range(2))
+                else:
+                    stk_units = None
 
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
@@ -5176,34 +5208,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # and AIA regions and a baseline grid scenario)
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
-    # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out)
-
-    # If a user desires trimmed down results, collect information about whether
-    # they want to restrict to certain years of focus
-    if opts.trim_results is True:
-        # Flag trimmed results format
-        trim_out = True
-        trim_yrs = []
-        while trim_yrs is not False and ((len(trim_yrs) == 0) or any([
-            x < int(handyvars.aeo_years[0]) or x > int(handyvars.aeo_years[-1])
-                for x in trim_yrs])):
-            # Initialize focus year range input
-            trim_yrs_init = input(
-                "Enter years of focus for the outputs, with a space in "
-                "between each (or hit return to use all years): ")
-            # Finalize focus year range input; if not provided, assume False
-            if trim_yrs_init:
-                trim_yrs = list(map(int, trim_yrs_init.split()))
-                if any([x < int(handyvars.aeo_years[0]) or
-                        x > int(handyvars.aeo_years[-1]) for x in trim_yrs]):
-                    print('Please try again. Enter focus years between '
-                          + handyvars.aeo_years[0] + ' and ' +
-                          handyvars.aeo_years[-1])
-            else:
-                trim_yrs = False
-    else:
-        trim_out, trim_yrs = (False for n in range(2))
 
     # Import measure files
     with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
@@ -5245,10 +5249,67 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                           "and that all active measure names match those " +
                           "found in the 'name' field for corresponding " +
                           "measure definitions in ./ecm_definitions"))
+    # Further check to ensure that no active measures are tagged for removal
+    meas_summary_restrict = [
+        m for m in meas_summary if m["name"] in active_meas_all and
+        m["remove"] is False]
+    if len(meas_summary_restrict) == 0:
+        raise ValueError(
+            "Active measures were found but all tagged for removal.")
+
+    # Set a flag for detailed breakouts
+    if (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and
+            meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True):
+        brkout = "detail"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '2':
+        brkout = "detail_reg"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '3':
+        brkout = "detail_bldg"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '4':
+        brkout = "detail_fuel"
+    elif (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '5' or (
+            meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and
+            meas_summary_restrict[0]["usr_opts"]["split_fuel"] is not True)):
+        brkout = "detail_reg_bldg"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '6':
+        brkout = "detail_reg_fuel"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '7':
+        brkout = "detail_bldg_fuel"
     else:
-        measures_objlist = [
-            Measure(handyvars, **m) for m in meas_summary if
-            m["name"] in active_meas_all and m["remove"] is False]
+        brkout = "basic"
+
+    # Instantiate useful variables object
+    handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out, brkout)
+
+    # If a user desires trimmed down results, collect information about whether
+    # they want to restrict to certain years of focus
+    if opts.trim_results is True:
+        # Flag trimmed results format
+        trim_out = True
+        trim_yrs = []
+        while trim_yrs is not False and ((len(trim_yrs) == 0) or any([
+            x < int(handyvars.aeo_years[0]) or x > int(handyvars.aeo_years[-1])
+                for x in trim_yrs])):
+            # Initialize focus year range input
+            trim_yrs_init = input(
+                "Enter years of focus for the outputs, with a space in "
+                "between each (or hit return to use all years): ")
+            # Finalize focus year range input; if not provided, assume False
+            if trim_yrs_init:
+                trim_yrs = list(map(int, trim_yrs_init.split()))
+                if any([x < int(handyvars.aeo_years[0]) or
+                        x > int(handyvars.aeo_years[-1]) for x in trim_yrs]):
+                    print('Please try again. Enter focus years between '
+                          + handyvars.aeo_years[0] + ' and ' +
+                          handyvars.aeo_years[-1])
+            else:
+                trim_yrs = False
+    else:
+        trim_out, trim_yrs = (False for n in range(2))
+
+    # Instantiate active measure objects
+    measures_objlist = [
+        Measure(handyvars, **m) for m in meas_summary_restrict]
 
     # Check to ensure that all active/valid measure definitions used consistent
     # user option settings
@@ -5271,24 +5332,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             "To address this issue, delete the file "
             "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
             "with desired command line options.")
-
-    # Set a flag for detailed building types
-    if measures_objlist[0].usr_opts["detail_brkout"] == '1':
-        brkout = "detail"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '2':
-        brkout = "detail_reg"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '3':
-        brkout = "detail_bldg"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '4':
-        brkout = "detail_fuel"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '5':
-        brkout = "detail_reg_bldg"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '6':
-        brkout = "detail_reg_fuel"
-    elif measures_objlist[0].usr_opts["detail_brkout"] == '7':
-        brkout = "detail_bldg_fuel"
-    else:
-        brkout = "basic"
 
     # Set a flag for the type of user option desired (site, source-fossil
     # fuel equivalent, source-captured energy)
@@ -5361,7 +5404,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out)
+        handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out, brkout)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
