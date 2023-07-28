@@ -2265,19 +2265,18 @@ class Measure(object):
                             bd_key = bd
                         if type(bd_key) != str:
                             bd_key = str(bd_key)
-                        # Account for possible use of StandAlone naming in
-                        # savings shape CSV, vs. Standalone naming in Scout's
-                        # baseline load shapes file
+                        # Account for possible use of "StandAlone" naming in
+                        # savings shape CSV, vs. expected "Standalone"
                         if bd_key == "RetailStandAlone":
                             bd_key = "RetailStandalone"
-                        # Account for possible use of MediumOffice naming
-                        # in savings shape CSV, vs. MediumOfficeDetailed in
-                        # Scout's baseline load shapes file
+                        # Account for possible use of "MediumOffice" naming
+                        # in savings shape CSV, vs. expected
+                        # "MediumOfficeDetailed"
                         elif bd_key == "MediumOffice":
                             bd_key = "MediumOfficeDetailed"
-                        # Account for possible use of MediumOffice naming
-                        # in savings shape CSV, vs. MediumOfficeDetailed in
-                        # Scout's baseline load shapes file
+                        # Account for possible use of "LargeOffice" naming
+                        # in savings shape CSV, vs. expected
+                        # "LargeOfficeDetailed""
                         elif bd_key == "LargeOffice":
                             bd_key = "LargeOfficeDetailed"
                         # Initialize dict under the current end use and
@@ -6547,9 +6546,6 @@ class Measure(object):
                         # Computers and TVs map to plug loads load shape
                         elif mskeys[4] in ["computers", "TVs"]:
                             eu = "plug loads"
-                        # Ceiling fan maps to cooling load shape
-                        elif mskeys[4] == "ceiling fan":
-                            eu = "cooling"
                         # Clothes drying technology maps to clothes drying
                         elif mskeys[4] == "drying":
                             eu = "clothes drying"
@@ -6561,15 +6557,22 @@ class Measure(object):
                             # Clothes washing tech. maps to clothes washing
                             elif mskeys[5] == "clothes washing":
                                 eu = "clothes washing"
-                            # Pool heaters/pumps map to pool heaters/pumps
-                            elif mskeys[5] in ["pool heaters", "pool pumps"]:
-                                eu = "pool heaters and pumps"
+                            # Pool heaters maps to pool heaters
+                            elif mskeys[5] == "pool heaters":
+                                eu = "pool heaters"
+                            # Pool pumps map to pool pumps
+                            elif mskeys[5] == "pool pumps":
+                                eu = "pool pumps"
                             # Freezers map to refrigeration
                             elif mskeys[5] == "freezers":
                                 eu = "refrigeration"
-                            # All other other maps to other
+                            # Portable electric spas (e.g. hot tubs) map
+                            # to portable electric spas
+                            elif mskeys[5] == "portable electric spas":
+                                eu = "portable electric spas"
+                            # All other maps to other
                             else:
-                                eu = "other"
+                                eu = "plug loads"
                         # In all other cases, error
                         else:
                             raise KeyError(
@@ -6577,14 +6580,11 @@ class Measure(object):
                                 "mapped to any baseline load shape in the "
                                 "Scout database: " + str(mskeys))
                     elif bldg_sect == "commercial":
-                        # For commercial PCs/non-PC office equipment, use the
-                        # load shape for plug loads
-                        if mskeys[4] in ["PCs", "non-PC office equipment"]:
+                        # For commercial PCs/non-PC office equipment and MELs,
+                        # use the load shape for plug loads
+                        if mskeys[4] in ["PCs", "non-PC office equipment",
+                                         "MELs", "cooking"]:
                             eu = "plug loads"
-                        # For commercial MELs end uses, use the generic 'other'
-                        # load shape
-                        elif mskeys[4] == "MELs":
-                            eu = "other"
                         # In all other cases, error
                         else:
                             raise KeyError(
@@ -6869,22 +6869,73 @@ class Measure(object):
         for bldg in eplus_bldg_wts.keys():
             # Find the appropriate key in the load shape information for the
             # current EnergyPlus building type
-            load_fact_bldg_key = [
-                    x for x in load_fact.keys() if (bldg in load_fact[x][
+            try:
+                load_fact_bldg_key = [
+                        x for x in load_fact.keys() if (bldg in load_fact[x][
+                            "represented building types"] or load_fact[x][
+                            "represented building types"] == "all")][0]
+            except IndexError:
+                # Check for possible naming inconsistency between certain
+                # building type names used in baseline load data vs. expected
+                # reference case building type names
+                if bldg in [
+                    "RetailStandalone", "MediumOfficeDetailed",
+                        "LargeOfficeDetailed"]:
+                    # Account for possible use of StandAlone naming in
+                    # baseline load shapes file (vs. expected 'Standalone')
+                    if bldg == "RetailStandalone":
+                        bldg_adj = "RetailStandAlone"
+                    # Account for possible use of MediumOffice naming
+                    # in in baseline load shapes file (vs. expected
+                    # 'MediumOfficeDetailed')
+                    elif bldg == "MediumOffice":
+                        bldg_adj = "MediumOfficeDetailed"
+                    # Account for possible use of LargeOffice naming
+                    # in in baseline load shapes file (vs. expected
+                    # 'LargeOfficeDetailed')
+                    elif bldg == "LargeOffice":
+                        bldg_adj = "LargeOfficeDetailed"
+                    else:
+                        bldg_adj = None
+                        raise ValueError(
+                            "No representative baseline load shape data "
+                            "available for building type '" + bldg +
+                            "'. Check './supporting_data/tsv_data/tsv_load.gz "
+                            "to ensure that this building type name is "
+                            "correctly listed under 'represented building "
+                            "types key")
+                # Redo search for appropriate bldg key in load shape data
+                load_fact_bldg_key = [
+                    x for x in load_fact.keys() if (bldg_adj in load_fact[x][
                         "represented building types"] or load_fact[x][
                         "represented building types"] == "all")][0]
 
-            # Ensure that all applicable ASHRAE climate zones are represented
-            # in the keys for time sensitive metrics data; if a zone is not
-            # represented, remove it from the weighting and renormalize weights
-            ash_cz_wts = [
-                [x[0], x[1]] for x in ash_cz_wts if x[0] in
-                self.handyvars.tsv_climate_regions]
-            # Ensure that ASHRAE climate zone weightings sum to 1
-            ash_cz_renorm = sum([x[1] for x in ash_cz_wts])
-            if round(ash_cz_renorm, 2) != 1:
-                ash_cz_wts = [[x[0], (x[1] / ash_cz_renorm)] for
-                              x in ash_cz_wts]
+            # Calculations for TSV metric outputs and/or any measures with
+            # time sensitive valuation features are based on data with ASHRAE
+            # climate zone breakouts, which must be mapped into the EMM
+            # region breakouts of the Scout microsegments. In these cases,
+            # find list of applicable ASHRAE regions and weights for mapping
+            # into the EMM region of the current microsegment, then implement
+            # the mapping via for loop below. In cases where TSV metrics
+            # or measure features are not present, set the list to a single
+            # region of "None" with weight of 1 (effectively avoiding mapping)
+            if opts.tsv_metrics is not False or len(
+                    tsv_adjustments.keys()) != 0:
+                # Ensure that all applicable ASHRAE climate zones are
+                # represented in the keys for time sensitive metrics data; if
+                # a zone is not represented, remove it from the weighting and
+                # renormalize weights
+                ash_cz_wts = [
+                    [x[0], x[1]] for x in ash_cz_wts if x[0] in
+                    self.handyvars.tsv_climate_regions]
+                # Ensure that ASHRAE climate zone weightings sum to 1
+                ash_cz_renorm = sum([x[1] for x in ash_cz_wts])
+                if round(ash_cz_renorm, 2) != 1:
+                    ash_cz_wts = [[x[0], (x[1] / ash_cz_renorm)] for
+                                  x in ash_cz_wts]
+            else:
+                ash_cz_wts = [[None, 1]]
+
             # Loop through all ASHRAE/IECC climate zones (which load profiles
             # are broken out by) that map to the current EMM region
             for cz in ash_cz_wts:
@@ -6893,11 +6944,11 @@ class Measure(object):
                 load_fact_climate_key = cz[0]
                 # Flag for cases where multiple sets of system load shape
                 # information are germane to the current climate zone
-                if type(self.handyvars.cz_emm_map[cz[0]]) == int:
+                if cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == int:
                     mult_sysshp = False
                     mult_sysshp_key_metrics, mult_sysshp_key_save = (
                         "set 1" for n in range(2))
-                elif type(self.handyvars.cz_emm_map[cz[0]]) == dict:
+                elif cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == dict:
                     mult_sysshp = True
                     # Given multiple possible system load shape data
                     # sets, find the key for the set that is representative
@@ -6909,15 +6960,20 @@ class Measure(object):
                         y[0] for y in self.handyvars.cz_emm_map[cz[0]].items()
                         if self.handyvars.emm_name_num_map[mskeys[1]]
                         in y[1][1]][0] for n in range(2))
+                elif not cz[0]:  # Case with no TSV mapping from ASH -> EMM
+                    mult_sysshp, mult_sysshp_key_metrics, \
+                        mult_sysshp_key_save = (None for n in range(3))
                 else:
                     raise ValueError(
                         "Unable to determine representative utility system "
                         "load data for climate " + cz[0])
 
                 # Set the weighting factor to map the current EPlus building
-                # and ASHRAE/IECC climate to Scout building and EMM region,
+                # and ASHRAE climate (which measure savings shapes may
+                # be broken out by) to Scout building and EMM region,
                 # and set the appropriate baseline load shape (8760 hourly
-                # fractions of annual load)
+                # fractions of annual load, broken out by EPlus building type
+                # and EMM region)
                 # Set the weighting factor; note EPlus/Scout building types map
                 # 1:1 for residential and thus no building type weighting is
                 # necessary here
@@ -6928,14 +6984,24 @@ class Measure(object):
 
                 # Set the baseline load shape
 
-                # Handle case where the load shape is not broken out by
-                # climate zone
+                # Handle case where the baseline load shape is not broken out
+                # by EMM region
                 try:
                     base_load_hourly = load_fact[
-                        load_fact_bldg_key]["load shape"][cz[0]]
+                        load_fact_bldg_key]["load shape"][mskeys[1]]
                 except (KeyError, TypeError):
                     base_load_hourly = load_fact[
                         load_fact_bldg_key]["load shape"]
+                # Ensure that retrieved baseline load data are expected length
+                if len(base_load_hourly) != 8760:
+                    raise ValueError(
+                        "Baseline load data are of unexpected length " +
+                        "(" + str(len(base_load_hourly)) + " elements) for " +
+                        "end use " + mskeys[4] + ", EPlus building type " +
+                        bldg + ", and EMM region " + mskeys[1] + ". Check "
+                        "file ./supporting_data/tsv_data/tsv_load.gz to "
+                        "ensure that 8760 data values are available for this "
+                        "microsegment")
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = copy.deepcopy(base_load_hourly)
