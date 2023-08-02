@@ -201,8 +201,8 @@ class CommonUnitTest(unittest.TestCase):
     # Throughout, the following cases should be tested
     # [9, 10, 1, 2, 'GRND'] - DEMAND
     # [1, 5, 2, 1, 'PEOPLE'] - DEMAND
-    # [4, 6, 10, 1, 3] - MEL
-    # [5, 4, 10, 1, 7] - MEL
+    # [4, 6, 10, 1, 11] - MEL
+    # [5, 4, 10, 1, 2] - MEL
     # [2, 1, 2, 1] - SD
     # [8, 2, 3, 2] - SD
     # [4, 7, 6, 1] - (NEW) SD
@@ -245,12 +245,12 @@ class CommonUnitTest(unittest.TestCase):
         (1,  5, 2, 1, 30,  0.083, 'EndUseConsump'),
         (1,  5, 2, 1, 31,  0.081, 'EndUseConsump'),
         (1,  5, 2, 1, 32,  0.078, 'EndUseConsump'),
-        (4,  6, 3, 1, 30,  0.101, 'MiscElConsump'),
-        (4,  6, 3, 1, 31,  0.103, 'MiscElConsump'),
-        (4,  6, 3, 1, 32,  0.106, 'MiscElConsump'),
-        (5,  4, 7, 1, 30,  1.475, 'MiscElConsump'),
-        (5,  4, 7, 1, 31,  1.484, 'MiscElConsump'),
-        (5,  4, 7, 1, 32,  1.492, 'MiscElConsump'),
+        (4,  6, 11, 1, 30,  0.101, 'MiscElConsump'),
+        (4,  6, 11, 1, 31,  0.103, 'MiscElConsump'),
+        (4,  6, 11, 1, 32,  0.106, 'MiscElConsump'),
+        (5,  4, 2, 1, 30,  1.475, 'MiscElConsump'),
+        (5,  4, 2, 1, 31,  1.484, 'MiscElConsump'),
+        (5,  4, 2, 1, 32,  1.492, 'MiscElConsump'),
         (2,  1, 2, 1, 30,  2.430, 'EndUseConsump'),
         (2,  1, 2, 1, 31,  2.399, 'EndUseConsump'),
         (2,  1, 2, 1, 32,  2.360, 'EndUseConsump'),
@@ -691,8 +691,8 @@ class CommonUnitTest(unittest.TestCase):
     # Define list outputs from the key conversion function
     sample_keys_converted = [[9, 10, 1, 2, 'GRND'],
                              [1, 5, 2, 1, 'PEOPLE'],
-                             [4, 6, 10, 1, 3],
-                             [5, 4, 10, 1, 7],
+                             [4, 6, 10, 1, 11],
+                             [5, 4, 10, 1, 2],
                              [2, 1, 2, 1],
                              [8, 2, 3, 2],
                              [4, 7, 6, 1],

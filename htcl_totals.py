@@ -103,7 +103,7 @@ class UsefulInputFiles(object):
                       "site_source_co2_conversions.json")
         self.ss_fp_decarb = (
             "supporting_data", "convert_data",
-            "site_source_co2_conversions-decarb.json")
+            "site_source_co2_conversions-100by2035.json")
         self.ss_fp_ce = ("supporting_data", "convert_data",
                          "site_source_co2_conversions-ce.json")
         self.metadata = "metadata.json"
