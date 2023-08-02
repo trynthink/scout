@@ -113,26 +113,51 @@ class CommercialTranslationDicts(object):
                            'unspecified': 11
                            }
 
+        # self.mels_techdict = {'distribution transformers': 1,
+        #                       'security systems': 2,
+        #                       'elevators': 3,
+        #                       'escalators': 4,
+        #                       'non-road electric vehicles': 5,
+        #                       'coffee brewers': 6,
+        #                       'kitchen ventilation': 7,
+        #                       'laundry': 8,
+        #                       'lab fridges and freezers': 9,
+        #                       'fume hoods': 10,
+        #                       'medical imaging': 11,
+        #                       'large video boards': 12,
+        #                       'IT equipment': 13,
+        #                       'office UPS': 14,
+        #                       'data center UPS': 15,
+        #                       'shredders': 16,
+        #                       'private branch exchanges': 17,
+        #                       'voice-over-IP telecom': 18,
+        #                       'water services': 19,  # non-building
+        #                       'telecom systems': 20  # non-building
+        #                       }
+
         self.mels_techdict = {'distribution transformers': 1,
-                              'security systems': 2,
-                              'elevators': 3,
-                              'escalators': 4,
-                              'non-road electric vehicles': 5,
-                              'coffee brewers': 6,
-                              'kitchen ventilation': 7,
-                              'laundry': 8,
-                              'lab fridges and freezers': 9,
-                              'fume hoods': 10,
-                              'medical imaging': 11,
-                              'large video boards': 12,
+                              'kitchen ventilation': 2,
+                              'security systems': 3,
+                              'lab fridges and freezers': 4,
+                              'medical imaging': 5,
+                              'large video boards': 6,
+                              'coffee brewers': 7,
+                              'non-road electric vehicles': 8,
+                              'fume hoods': 9,
+                              'laundry': 10,
+                              'elevators': 11,
+                              'escalators': 12,
                               'IT equipment': 13,
                               'office UPS': 14,
                               'data center UPS': 15,
                               'shredders': 16,
                               'private branch exchanges': 17,
                               'voice-over-IP telecom': 18,
-                              'water services': 19,  # non-building
-                              'telecom systems': 20  # non-building
+                              'point-of-sale systems': 19,
+                              'warehouse robots': 20,
+                              'televisions': 21,
+                              'water services': 22,  # non-building
+                              'telecom systems': 23  # non-building
                               }
 
         self.fueldict = {'electricity': 1,
