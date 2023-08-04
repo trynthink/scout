@@ -21,44 +21,49 @@ logging.basicConfig(
 
 
 def run_workflow() -> None:
-    """Runs the full Scout workflow profiling ecm_prep.py and run.py seperately
-    """
+    """Runs the full Scout workflow profiling ecm_prep.py and run.py seperately"""
 
     results_dir = Path(__file__).parent / "results"
-    
+
     # Run ecm_prep.py
     opts = ecm_args(["--alt_regions_option", "EMM"])
     run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
-    
+
     # Run run.py
     opts = run.parse_args([])
     run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
-    
-def run_with_profiler(func: Callable[[argparse.Namespace], None], args: argparse.Namespace, output_file: pathlib.Path) -> None:
+
+
+def run_with_profiler(
+    func: Callable[[argparse.Namespace], None],  # noqa: F821
+    args: argparse.Namespace,  # noqa: F821
+    output_file: pathlib.Path,  # noqa: F821
+) -> None:
     """Runs a function wrapped in a profiler using the cProfile library
 
     Args:
-        func (Callable[[argparse.Namespace], None]): A function that takes argsparse.Namespace arguments
+        func (Callable[[argparse.Namespace], None]): A function that takes argsparse.Namespace args
         args (argparse.Namespace): The arguments to the function
-        output_file (pathlib.Path): .csv filepath to write profiling stats 
+        output_file (pathlib.Path): .csv filepath to write profiling stats
     """
     pr = cProfile.Profile()
     pr.enable()
     func(args)
     pr.disable()
     write_profile_stats(pr, output_file)
-    
-def write_profile_stats(pr: cProfile.Profile, filepath: pathlib.Path) -> None:
+
+
+def write_profile_stats(pr: cProfile.Profile, filepath: pathlib.Path) -> None:  # noqa: F821
     """Writes profile stats and stores a .csv file
 
     Args:
         pr (cProfile.Profile): Profile instance that has previously been enabled (pr.enable())
-        filepath (pathlib.Path): .csv filepath to write profiling stats 
+        filepath (pathlib.Path): .csv filepath to write profiling stats
     """
-    
+
     # Capture io stream
     result = io.StringIO()
-    pstats.Stats(pr, stream=result).sort_stats('cumulative').print_stats()
+    pstats.Stats(pr, stream=result).sort_stats("cumulative").print_stats()
     result = result.getvalue()
 
     # Parse stats and write to csv

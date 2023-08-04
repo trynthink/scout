@@ -46,23 +46,35 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter yappi
-      - name: Run workflow
-        run: python tests/integration_testing/run_workflow.py
+          pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter psrecord     
+      - name: Run and profile workflow
+        run: |
+          branch_name="${{ github.head_ref }}"
+          if [[ $branch_name == 'refs/heads/master' ]]; then
+            psrecord --log memory_log.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py"
+            (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_ecm_prep.csv
+            mv memory_log.txt ./tests/integration_testing/results/
+          else
+            python tests/integration_testing/run_workflow.py
+          fi
+          mv ./results/*.json ./tests/integration_testing/results/
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: results
-          path: ./results/*.json
+          path: ./tests/integration_testing/results/
       - name: Commit test results
         run: |
           branch_name="${{ github.head_ref }}"
           git pull origin $branch_name
-          cp -r ./results/*.json ./tests/integration_testing/results
-          git add ./tests/integration_testing/*.json
+          git config --system user.email "github-action@users.noreply.github.com"
+          git config --system user.name "GitHub Action"
+
+          if [[ $branch_name == 'refs/heads/master' ]]; then
+            git add ./tests/integration_testing/results/*.csv
+          fi
+          git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
-            git config --system user.email "github-action@users.noreply.github.com"
-            git config --system user.name "GitHub Action"
             git commit -m "Upload test results."
             echo "Pushing to branch: $branch_name"
             git push -u origin $branch_name
