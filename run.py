@@ -4811,18 +4811,13 @@ class Engine(object):
                         seg_m = copy.deepcopy(list(seg_b))
                         # Set appropriate fuel (switching to HP, so electric)
                         seg_m[2] = "electricity"
-                        # Heat pumps in GCAM are always on the heating
-                        # end use, despite spanning both cooling/heating;
-                        # cooling end uses reset to heating
-                        if seg_m[3] == "cooling":
-                            seg_m[3] = "heating"
                         # Set appropriate switched to technology, on the basis
                         # of end use
                         # Water heating
                         if seg_m[3] == "hot water":
                             seg_m[4] = "electric heat pump water heater"
                         # Heating and cooling
-                        if seg_m[3] in ["heating", "cooling"]:
+                        if seg_m[3] == "heating":
                             seg_m[4] = "electric heat pump"
                         # Residential cooking
                         if seg_m[1] == "resid" and seg_m[3] == "cooking":
