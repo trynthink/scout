@@ -67,7 +67,6 @@
       "comm_GSHP-cool",
       "centrifugal_chiller",
       "rooftop_ASHP-cool",
-      "air-source heat pump",
       "wall-window_room_AC",
       "screw_chiller",
       "ASHP",
@@ -160,15 +159,15 @@
     ],
     "gas water heater": [
       null,
-      "gas water heater",
-      "gas instantaneous_WH",
+      "gas_water_heater",
+      "gas_instantaneous_WH",
       "gas_booster_WH",
       "water heating",
       "natural gas"
     ],
     "fuel water heater": [
       null,
-      "oil water heater",
+      "oil_water_heater",
       "water heating",
       "distillate",
       "other fuel"],
