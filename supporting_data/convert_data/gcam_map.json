@@ -71,10 +71,12 @@
       "screw_chiller",
       "ASHP",
       "GSHP",
+      "NGHP",
       "central AC",
       "room AC",
       "cooling", 
-      "electricity"
+      "electricity",
+      "natural gas"
     ],
     "gas cooling": [
       "gas_eng-driven_RTAC",
@@ -110,9 +112,7 @@
       "natural gas"
     ],
     "gas heat pump": [
-      "NGHP",
       "heating",
-      "cooling",
       "natural gas"
     ],
     "fuel furnace": [
