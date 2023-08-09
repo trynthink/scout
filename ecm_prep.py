@@ -150,7 +150,7 @@ class UsefulInputFiles(object):
                     else:
                         self.ss_data_altreg_nonfs = (
                             "supporting_data", "convert_data",
-                            "emm_region_emissions_prices-updated.json")
+                            "emm_region_emissions_prices.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures after grid decarbonization
                 else:
@@ -165,7 +165,7 @@ class UsefulInputFiles(object):
                 else:
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
-                        "emm_region_emissions_prices-updated.json")
+                        "emm_region_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
         elif opts.alt_regions == 'State':
             self.msegs_in = ("supporting_data", "stock_energy_tech_data",
@@ -184,7 +184,7 @@ class UsefulInputFiles(object):
                                  "scenario (" + opts.alt_regions + ")")
             else:
                 self.ss_data_altreg = ("supporting_data", "convert_data",
-                                       "state_emissions_prices-updated.json")
+                                       "state_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
         else:
             raise ValueError(

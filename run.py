@@ -150,11 +150,11 @@ class UsefulInputFiles(object):
             else:
                 self.elec_price_co2 = (
                     "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-updated.json")
+                    "emm_region_emissions_prices.json")
         elif regions == 'State':
             self.elec_price_co2 = (
                 "supporting_data", "convert_data",
-                "state_emissions_prices-updated.json")
+                "state_emissions_prices.json")
         else:
             if grid_decarb is not False:
                 self.elec_price_co2 = (
