@@ -16,7 +16,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Start EC2 runner
         id: start-ec2-runner
-        uses: aspeake/ec2-github-runner@main
+        uses: machulav/ec2-github-runner@v2
         with:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
@@ -68,7 +68,7 @@ jobs:
           if [[ $(git diff --cached --exit-code) ]]; then
             git config --system user.email "github-action@users.noreply.github.com"
             git config --system user.name "GitHub Action"
-            git commit -m "Upload test results."
+            git commit -m "Upload results files from CI build"
             echo "Pushing to branch: $branch_name"
             git push -u origin $branch_name
           fi
@@ -88,7 +88,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Stop EC2 runner
-        uses: aspeake/ec2-github-runner@main
+        uses: machulav/ec2-github-runner@v2
         with:
           mode: stop
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
