@@ -64,6 +64,6 @@ jobs:
 
   integration-tests:
     needs: [check-PR]
-    if: needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master'
+    if: needs.check-PR.outputs.PR_status == 'true'
     uses: ./.github/workflows/integration_tests.yml
     secrets: inherit
