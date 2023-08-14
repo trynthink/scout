@@ -5137,15 +5137,15 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     a_run.output_ecms['On-site Generation'] = osg_temp
 
     # Recursively navigate dictionary and round values
-    def round_values(data, precision):
+    def round_values(data, precision, mult=1):
         if isinstance(data, dict):
             for k, v in data.items():
                 data[k] = round_values(v, precision)
         elif isinstance(data, float):
-            data = round(data, precision)
+            data = round(data, precision)*mult
         return data
 
-    a_run.output_ecms = round_values(a_run.output_ecms, 6)
+    a_run.output_ecms = round_values(a_run.output_ecms, 6, mult=2)
     a_run.output_all = round_values(a_run.output_all, 6)
 
     # Write summary outputs for individual measures to a JSON
