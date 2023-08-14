@@ -11,7 +11,7 @@ from scout import run  # noqa: E402
 def run_workflow():
     # Run ecm_prep.py
     opts = ecm_args(
-        ["--split_fuel", "--add_typ_eff", "--rp_persist", "--alt_regions_option", "EMM"]
+        ["--add_typ_eff", "--rp_persist", "--alt_regions_option", "EMM"]
     )
     ecm_prep.main(opts)
 
