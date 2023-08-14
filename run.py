@@ -5145,8 +5145,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             data = round(data, precision)*mult
         return data
 
-    a_run.output_ecms = round_values(a_run.output_ecms, 6, mult=2)
-    a_run.output_all = round_values(a_run.output_all, 6)
+    a_run.output_ecms = round_values(a_run.output_ecms, 6)
+    a_run.output_all = round_values(a_run.output_all, 6, mult=2)
 
     # Write summary outputs for individual measures to a JSON
     with open(path.join(
