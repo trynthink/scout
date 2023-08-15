@@ -211,7 +211,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, base_dir, handyfiles, gcam_out, brkout):
+    def __init__(self, base_dir, handyfiles, gcam_out, brkout, regions):
         # Pull in global variable settings from ecm_prep
         with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
             try:
@@ -233,18 +233,21 @@ class UsefulVars(object):
         # Set GCAM-specific versions of segment-to-breakout category mapping
         # variables conditional on --gcam_out option settings
         if gcam_out is True:
-            # Ensure that detailed Scout fuel type breakouts were used when
-            # preparing measures if the user requires GCAM fuel type outputs
-            if brkout != "detail" and "fuel" not in brkout:
+            # Ensure that detailed Scout EMM region and fuel type breakouts
+            # were used when preparing measures if the user requires GCAM fuel
+            # type outputs
+            if regions != "EMM" or (
+                    brkout != "detail" and any([
+                    x not in brkout for x in ["fuel", "reg"]])):
                 raise ValueError(
-                    "Detailed fuel type breakouts are required to support "
-                    "'gcam_out' reporting option, but were not used in the "
-                    "preparation of the current measures via ecm_prep. "
+                    "Detailed region and fuel type breakouts are required to "
+                    "support 'gcam_out' reporting option, but were not used "
+                    "in the preparation of the current measures via ecm_prep. "
                     "Rerun ecm_prep with the 'split_fuel' AND 'detail_brkout' "
-                    "command line options and select a detailed fuel type "
-                    "breakout when prompted.")
-            else:
-                self.out_break_fuels_gcam = {
+                    "command line options and select a detailed fuel and "
+                    "region type breakout when prompted.")
+            # Set fuel type mapping
+            self.out_break_fuels_gcam = {
                     "Electric": ["electricity"],
                     "Natural Gas": ["gas"],
                     "Propane": ["propane"],
@@ -4722,22 +4725,37 @@ class Engine(object):
                 for scout_seg in ms_iterable_init:
                     # Prepare list of segment data to append to GCAM segments
                     try:
+                        # Set building type information for use in constructing
+                        # segments below
+                        bldg = [
+                            x[0] for x in self.gcam_map["bldg"].items()
+                            if scout_seg[1] in x[1]][0]
+                        # Set region, building type, end use, and tech info.
+                        # for the current segment
                         append_to_gcam = [
                             scout_seg[0],   # region (no mapping needed)
-                            [x[0] for x in
-                                self.gcam_map["bldg"].items()
-                                if scout_seg[1] in x[1]][0],  # bldg
+                            bldg,  # bldg type (set above)
                             [x[0] for x in
                                 self.gcam_map["fuel"].items()
                                 if scout_seg[2] in x[1]][0],  # fuel
                             [x[0] for x in
-                                self.gcam_map["end_use"].items() if
-                                scout_seg[3] in x[1]][0],  # eu
+                                self.gcam_map["end_use"].items() if (
+                                    scout_seg[3] in x[1] and (
+                                        all([b not in x[1] for b in
+                                             self.gcam_map["bldg"].keys()]) or
+                                        (any([b in x[1] for b in self.gcam_map[
+                                            "bldg"].keys()]) and bldg in x[1]))
+                                    )][0],  # eu/bldg
                             [x[0] for x in
-                                self.gcam_map["tech"].items()
-                                if (scout_seg[4] in x[1] and
+                                self.gcam_map["tech"].items() if (
+                                    scout_seg[4] in x[1] and
                                     scout_seg[3] in x[1] and
-                                    scout_seg[2] in x[1])][0]]  # tech/eu/fuel
+                                    scout_seg[2] in x[1] and (
+                                        all([b not in x[1] for b in
+                                            self.gcam_map["bldg"].keys()]) or
+                                        (any([b in x[1] for b in self.gcam_map[
+                                            "bldg"].keys()]) and bldg in x[1]))
+                                    )][0]]  # tech/eu/fuel/bldg
                     # Exclude case where no valid mapping is found
                     except IndexError:
                         continue
@@ -4766,6 +4784,11 @@ class Engine(object):
                     if append_to_gcam[3] == 'other' and append_to_gcam[4] \
                             in ['dishwasher', 'clothes washer', 'freezer']:
                         append_to_gcam[3] = append_to_gcam[4] + 's'
+                    # At the technology level, shortern keys including
+                    # "electricity" to simply "electricity" to match
+                    # convention in GCAM baseline segment data
+                    if "electricity" in append_to_gcam[4]:
+                        append_to_gcam[4] = "electricity"
                     # Append final list to gcam segments
                     gcam_segs.append(append_to_gcam)
                 # Handle/remove any duplicate segments
@@ -4847,9 +4870,11 @@ class Engine(object):
                     # switched to segments and pull/update GCAM reference case
                     # energy and (if applicable) stock data
                     for ind, s in enumerate(seg):
+                        # Shorthand for current EMM region
+                        reg = s[0]
                         # Pull energy savings from Scout breakouts, summing
                         # across new/existing building vintages
-                        esave = dict()
+                        esave, esave_bldg = (dict() for n in range(2))
                         try:
                             # When looping through the baseline segment
                             # first element), record the breakout
@@ -4857,12 +4882,14 @@ class Engine(object):
                             # double counted
                             if not seg_m or (seg_m and ind == 0):
                                 # Case where breakouts denote savings in mseg
-                                brkout = str([s[0], bldg_map[ind], eu_map[ind],
-                                              fuel_map[ind], "(Savings)"])
+                                brkout = str([
+                                    reg, bldg_map[ind], eu_map[ind],
+                                    fuel_map[ind], "(Savings)"])
                             else:
                                 # Case where breakouts denote additions to mseg
-                                brkout = str([s[0], bldg_map[ind], eu_map[ind],
-                                              fuel_map[ind], "(Additions)"])
+                                brkout = str([
+                                    reg, bldg_map[ind], eu_map[ind],
+                                    fuel_map[ind], "(Additions)"])
 
                             # Continue with update if looping through a
                             # segment that reflects a combination of
@@ -4871,55 +4898,89 @@ class Engine(object):
                             # already been pulled
                             if all([y != brkout for y in brkout_track]):
                                 for bldg in bldg_map[ind]:
+                                    # Ensure that data for the current
+                                    # combinations of region, building,
+                                    # end use, and (if applicable) fuel
+                                    # type breakouts exist at all before
+                                    # proceeding
+                                    try:
+                                        # Use first year for test
+                                        y1 = self.handyvars.aeo_years[0]
+                                        # Test
+                                        mkt_save_brk['Energy Savings (MMBtu)'][
+                                            reg][bldg][eu_map[ind]][
+                                            fuel_map[ind]][y1]
+                                    except KeyError:
+                                        try:
+                                            mkt_save_brk[
+                                                'Energy Savings (MMBtu)'][
+                                                reg][bldg][eu_map[ind]][y1]
+                                        except KeyError:
+                                            continue
+                                    # Proceed with pulling breakout data
+
+                                    # Energy savings (baseline - efficient)
                                     if not seg_m:
                                         try:
-                                            esave[bldg] = {
+                                            esave_bldg[bldg] = {
                                                 yr: mkt_save_brk[
                                                     'Energy Savings (MMBtu)'][
-                                                    s[0]][bldg][eu_map[ind]][
+                                                    reg][bldg][eu_map[ind]][
                                                     fuel_map[ind]][yr]
                                                 for yr in
                                                 self.handyvars.aeo_years}
                                         except KeyError:  # EU w/ no fuel splts
-                                            esave[bldg] = {
+                                            esave_bldg[bldg] = {
                                                 yr: mkt_save_brk[
                                                     'Energy Savings (MMBtu)'][
-                                                    s[0]][bldg][eu_map[ind]][
+                                                    reg][bldg][eu_map[ind]][
                                                     yr]
                                                 for yr in
                                                 self.handyvars.aeo_years}
+                                    # Energy savings in baseline segment
                                     elif seg_m and ind == 0:
                                         try:
-                                            esave[bldg] = {yr: mkt_save_brk[
-                                                'Baseline Energy Use (MMBtu)']
-                                                [s[0]][bldg][eu_map[ind]][
-                                                fuel_map[ind]][yr] for yr in
-                                                self.handyvars.aeo_years}
+                                            esave_bldg[bldg] = {
+                                                yr: mkt_save_brk[
+                                                    'Baseline Energy Use '
+                                                    '(MMBtu)']
+                                                [reg][bldg][eu_map[ind]][
+                                                    fuel_map[ind]][yr] for
+                                                yr in self.handyvars.aeo_years}
                                         except KeyError:  # EU w/ no fuel splts
-                                            esave[bldg] = {yr: mkt_save_brk[
-                                                'Baseline Energy Use (MMBtu)']
-                                                [s[0]][bldg][eu_map[ind]][yr]
+                                            esave_bldg[bldg] = {
+                                                yr: mkt_save_brk[
+                                                    'Baseline Energy Use '
+                                                    '(MMBtu)']
+                                                [reg][bldg][eu_map[ind]][yr]
                                                 for yr in
                                                 self.handyvars.aeo_years}
                                     # Energy additions in switched to segment
                                     else:
                                         try:
-                                            esave[bldg] = {yr: -mkt_save_brk[
-                                                'Efficient Energy Use (MMBtu)']
-                                                [s[0]][bldg][eu_map[ind]][
-                                                fuel_map[ind]][yr] for yr in
-                                                self.handyvars.aeo_years}
+                                            esave_bldg[bldg] = {
+                                                yr: -mkt_save_brk[
+                                                    'Efficient Energy Use '
+                                                    '(MMBtu)']
+                                                [reg][bldg][eu_map[ind]][
+                                                    fuel_map[ind]][yr] for
+                                                yr in self.handyvars.aeo_years}
                                         except KeyError:  # EU w/ no fuel splts
-                                            esave[bldg] = {yr: -mkt_save_brk[
-                                                'Efficient Energy Use (MMBtu)']
-                                                [s[0]][bldg][eu_map[ind]][yr]
+                                            esave_bldg[bldg] = {
+                                                yr: -mkt_save_brk[
+                                                    'Efficient Energy Use '
+                                                    '(MMBtu)']
+                                                [reg][bldg][eu_map[ind]][yr]
                                                 for yr in
                                                 self.handyvars.aeo_years}
-                                # Add "(New)" and "(Existing)" energy savings
-                                # dictionaries together
-                                esave = {k: esave[bldg_map[ind][0]][k] +
-                                         esave[bldg_map[ind][1]][k]
-                                         for k in self.handyvars.aeo_years}
+                                # Add energy savings dictionaries together
+                                # across building types
+                                esave = {
+                                    yr: sum([
+                                        esave_bldg[b_key][yr]
+                                        for b_key in esave_bldg.keys()])
+                                    for yr in self.handyvars.aeo_years}
+
                                 # For a switching case (as indicated by having
                                 # both baseline segment data 'seg_b' and
                                 # measure segment data 'seg_m'), remove measure
@@ -4931,65 +4992,89 @@ class Engine(object):
                                     # type (New and Existing); stock
                                     # additions will show up as positive
                                     # and subtractions as negative here
-                                    stk_delt = dict()
+                                    stk_delt, stk_delt_bldg = (
+                                        dict() for n in range(2))
                                     for bldg in bldg_map[ind]:
+                                        # Ensure that data for the current
+                                        # combinations of region, building,
+                                        # end use, and (if applicable) fuel
+                                        # type breakouts exist at all before
+                                        # proceeding
+                                        try:
+                                            # Use first year for test
+                                            y1 = self.handyvars.aeo_years[0]
+                                            # Test
+                                            mkt_save_brk[(
+                                                "Baseline Stock " +
+                                                stk_units)][reg][bldg][
+                                                eu_map[ind]][fuel_map[ind]][y1]
+                                        except KeyError:
+                                            try:
+                                                mkt_save_brk[(
+                                                    "Baseline Stock " +
+                                                    stk_units)][reg][bldg][
+                                                    eu_map[ind]][y1]
+                                            except KeyError:
+                                                continue
                                         # Looping through baseline segment
                                         # (ind == 0); remove baseline stock,
                                         # which is being switched away
                                         # from the baseline to the measure seg.
                                         if ind == 0:
                                             try:
-                                                stk_delt[bldg] = {
+                                                stk_delt_bldg[bldg] = {
                                                     yr: -mkt_save_brk[(
                                                         "Baseline Stock " +
-                                                        stk_units)][s[0]][
+                                                        stk_units)][reg][
                                                         bldg][eu_map[ind]][
                                                         fuel_map[ind]][yr]
                                                     for yr in
                                                     self.handyvars.aeo_years}
                                             except KeyError:  # no fuel splts
-                                                stk_delt[bldg] = {
+                                                stk_delt_bldg[bldg] = {
                                                     yr: -mkt_save_brk[(
                                                         "Baseline Stock " +
-                                                        stk_units)][s[0]][
+                                                        stk_units)][reg][
                                                         bldg][eu_map[ind]][yr]
                                                     for yr in
                                                     self.handyvars.aeo_years}
+
                                         # Looping through measure segment
                                         # (ind == 1); add measure-captured
                                         # stock, which is being switched
                                         # to the measure segment
                                         else:
                                             try:
-                                                stk_delt[bldg] = {
+                                                stk_delt_bldg[bldg] = {
                                                     yr: mkt_save_brk[(
                                                         "Measure Stock " +
-                                                        stk_units)][s[0]][
+                                                        stk_units)][reg][
                                                         bldg][eu_map[ind]][
                                                         fuel_map[ind]][yr]
                                                     for yr in
                                                     self.handyvars.aeo_years}
                                             except KeyError:  # no fuel splts
-                                                stk_delt[bldg] = {
+                                                stk_delt_bldg[bldg] = {
                                                     yr: mkt_save_brk[(
                                                         "Measure Stock " +
-                                                        stk_units)][s[0]][
+                                                        stk_units)][reg][
                                                         bldg][eu_map[ind]][yr]
                                                     for yr in
                                                     self.handyvars.aeo_years}
-                                    # Add "(New)" and "(Existing)" stock data
-                                    # dictionaries together
+                                    # Add stock data across building types
                                     stk_delt = {
-                                        k: stk_delt[bldg_map[ind][0]][k] +
-                                        stk_delt[bldg_map[ind][1]][k] for k
-                                        in self.handyvars.aeo_years}
+                                        yr: sum([stk_delt_bldg[b_key][yr]
+                                                 for b_key in
+                                                 stk_delt_bldg.keys()])
+                                        for yr in self.handyvars.aeo_years}
                                 else:
                                     stk_delt = ""
+
                                 # Given that energy and (if applicable) stock
                                 # data were retrieved for mseg, proceed with
                                 # finalizing tracking info. and reporting data
-                                if len(esave) != 0 and (
-                                        not seg_m or (seg_m and stk_delt)):
+                                if len(esave) != 0 and (not seg_m or (
+                                        seg_m and len(stk_delt) != 0)):
                                     # Apply retrieved energy/stock data to GCAM
                                     # reporting data
 
@@ -4997,27 +5082,27 @@ class Engine(object):
                                     # above) from appropriate GCAM reference
                                     # "energy" data for segment by year
                                     for k in self.handyvars.aeo_years:
-                                        self.gcam_in[s[0]][s[1]][s[2]][s[3]][
+                                        self.gcam_in[reg][s[1]][s[2]][s[3]][
                                             s[4]]['energy'][k] -= esave[k]
                                         # Ensure that energy is never decreased
                                         # below zero
-                                        if self.gcam_in[s[0]][s[1]][s[2]][
+                                        if self.gcam_in[reg][s[1]][s[2]][
                                                 s[3]][s[4]]['energy'][k] < 0:
-                                            self.gcam_in[s[0]][s[1]][s[2]][
+                                            self.gcam_in[reg][s[1]][s[2]][
                                                 s[3]][s[4]]['energy'][k] = 0
                                         if stk_delt:
                                             # Add difference in stock to
                                             # appropriate GCAM reference
                                             # "stock" data by year
-                                            self.gcam_in[s[0]][s[1]][s[2]][
+                                            self.gcam_in[reg][s[1]][s[2]][
                                                 s[3]][s[4]]['stock'][k] += \
                                                 stk_delt[k]
                                             # Ensure that stock is never
                                             # decreased below zero
-                                            if self.gcam_in[s[0]][s[1]][s[2]][
+                                            if self.gcam_in[reg][s[1]][s[2]][
                                                     s[3]][s[4]][
                                                     'stock'][k] < 0:
-                                                self.gcam_in[s[0]][s[1]][s[2]][
+                                                self.gcam_in[reg][s[1]][s[2]][
                                                     s[3]][s[4]]['stock'][k] = 0
                                     # Add current savings breakout info. to
                                     # tracking of which breakout data have
@@ -5025,9 +5110,9 @@ class Engine(object):
                                     # counting
                                     brkout_track.append(brkout)
                             else:
-                                break
+                                continue
                         except KeyError:
-                            break
+                            continue
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
@@ -5313,8 +5398,18 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     else:
         brkout = "basic"
 
+    # Set a flag for geographical breakout (currently possible to breakout
+    # by AIA climate zone, NEMS EMM region, or state).
+    if meas_summary_restrict[0]["usr_opts"]["alt_regions"] == "EMM":
+        regions = "EMM"
+    elif meas_summary_restrict[0]["usr_opts"]["alt_regions"] == "State":
+        regions = "State"
+    else:  # Otherwise, set regional breakdown to AIA climate zones
+        regions = "AIA"
+
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out, brkout)
+    handyvars = UsefulVars(
+        base_dir, handyfiles, opts.gcam_out, brkout, regions)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -5411,15 +5506,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     else:
         energy_out[1:] = ("NA" for n in range(len(energy_out) - 1))
 
-    # Set a flag for geographical breakout (currently possible to breakout
-    # by AIA climate zone, NEMS EMM region, or state).
-    if measures_objlist[0].usr_opts["alt_regions"] == "EMM":
-        regions = "EMM"
-    elif measures_objlist[0].usr_opts["alt_regions"] == "State":
-        regions = "State"
-    else:  # Otherwise, set regional breakdown to AIA climate zones
-        regions = "AIA"
-
     # Set a flag for the assumption of a high grid decarbonization case on
     # the supply-side, which is relevant to site-source conversion factors
     # and the selection of heating/cooling totals for use in adjusting
@@ -5439,7 +5525,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(base_dir, handyfiles, opts.gcam_out, brkout)
+        handyvars = UsefulVars(
+            base_dir, handyfiles, opts.gcam_out, brkout, regions)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
