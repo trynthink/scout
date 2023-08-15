@@ -39,6 +39,147 @@ def pretty(low, high, n):
     return numpy.arange(miny, maxy+0.5*d, d)
 
 
+def generate_filenames(scenario, base_dir, folder_name, file_name):
+    scenario_dir = 'tech_potential' if \
+                   scenario == "Technical potential" else 'max_adopt_potential'
+    return path.join(base_dir, 'results', 'plots', scenario_dir,
+                     folder_name, file_name)
+
+
+def generate_results(shape, fill_value):
+    results = numpy.full(shape, fill_value, dtype=object)
+    return results
+
+
+def build_xlsx_data(index_range, col_names):
+    return pd.DataFrame(columns=col_names,index=index_range)
+
+
+def process_results_agg(results_agg, results_database_agg,
+                        years, yr, ftypes_out):
+    # Find the amount of the ECM's energy, carbon, or cost savings that can be
+    # attributed to each of the three aggregate savings filtering variables
+    # (climate zone, building class, end use) and add those savings to the
+    # aggregated total for each filter variable across all ECMs; exclude the
+    # 'All ECMs' case (filter variable breakdowns are not calculated
+    # for this case)
+
+    # Loop through the three variables used to filter aggregated savings,
+    # each represented by a row in the 'results_agg' matrix
+
+    # Set the name categories associated with the given savings filter variable
+    # (e.g., 'Residential (New)', 'Residential (Existing)', etc. for
+    # building class)
+    for fv_idx, fv_opts in enumerate(results_agg[:, 0]):
+        # Initialize a vector used to store the ECM's energy, carbon, or cost
+        # savings that are attributable to the given filter variable; this
+        # vector must be as long as the number of category names for the
+        # filter variable, so a savings total can be stored for each category
+        add_val = numpy.zeros(len(fv_opts))
+        # Retrieve the savings data for the ECM that is attributable to each
+        # filter variable name category. The data are stored in a three-level
+        # nested dict with climate zone at the top level, building class at the
+        # middle level, and end use at the bottom level. All three of these
+        # levels must be looped through to retrieve the savings data.
+
+        # Loop through all climate zones
+        for levone, czone in enumerate(results_agg[0, 0]):
+            # Set the climate zone name to use in proceeding down to the
+            # building class level of the dict
+            if czone not in results_database_agg:
+                continue
+            # Loop through all building classes
+            for levtwo, bldg in enumerate(results_agg[1, 0]):
+                # Set the building class name to
+                # use in proceeding down to the
+                # end use level of the dict
+                if bldg not in results_database_agg[czone]:
+                    continue
+                # Set the end use name to use in retrieving data values
+                for levthree, euse in enumerate(results_agg[2, 0]):
+                    # Reset the predefined 'Electronics' end use name
+                    # (short for later use in plot legends) to the longer
+                    # 'Computers and Electronics' name used in the dict
+                    if euse == "Electronics":
+                        euse = "Computers and Electronics"
+
+                    if euse not in results_database_agg[czone][bldg]:
+                        continue
+                    # If the region/building type/ end use are valid,
+                    # reduce the dict to the final level; otherwise proceed to
+                    # the next end use
+                    r_agg_temp = results_database_agg[czone][bldg][euse]
+                    # If data values exist, add them to the ECM's energy/
+                    # carbon/cost savings-by-filter variable vector initialized
+                    # above
+                    if len(r_agg_temp) != 0:
+                        # Determine which index to use in adding the
+                        # retrieved data to the ECM's energy/carbon/cost
+                        # savings-by-filter variable vector
+                        index = levone if fv_idx == 0 else\
+                                levtwo if fv_idx == 1 else levthree
+
+                        matching_years = [x for x in r_agg_temp.keys() if
+                                          str(years[yr]) in x]
+                        if matching_years:
+                            add_val[index] += sum(r_agg_temp[year] for
+                                                  year in matching_years)
+                        else:
+                            for fuel in ftypes_out:
+                                if fuel in r_agg_temp:
+                                    add_val[index] += sum(r_agg_temp[fuel][
+                                        str(years[yr])] for year in r_agg_temp[
+                                        fuel])
+        # Add ECM's savings-by-filter variable vector data to the aggregated
+        # total for each filter variable across all ECMs
+        for fvo_idx, fvo in enumerate(fv_opts):
+            results_agg[fv_idx, 1][fvo_idx][yr] += add_val[fvo_idx]
+
+
+def handle_fin_metrics(fm, fin_metrics, results_database_finmets, years,
+                       yr, results_finmets, m):
+    unit_translate_finmet = 100 if fin_metrics[fm] == "IRR (%)" else 1
+    results_finmets[(m-1), fm] = \
+        results_database_finmets[fin_metrics[fm]][
+        str(years[yr])] * unit_translate_finmet
+    if results_finmets[(m-1), fm] == 99900:
+        results_finmets[(m-1), fm] = 999
+
+
+def handle_building_classes(results_database_filters, bclasses_out_finmets,
+                            results_finmets, m, bclasses_out_finmets_shp):
+    bldg = results_database_filters['Applicable Building Classes']
+    bldg_match = numpy.empty((len(bclasses_out_finmets) * len(
+        bclasses_out_finmets[0])), dtype=object)
+
+    for b in range(len(bclasses_out_finmets)):
+        if sum([item in bclasses_out_finmets[b] for item in bldg]) > 0:
+            bldg_match[b] = b
+
+    if pd.Series(bldg_match).nunique() > 1:
+        results_finmets[(m-1), 6] = "^"
+    else:
+        results_finmets[(m-1), 6] = \
+            bclasses_out_finmets_shp[[
+                x for x in list(pd.Series(bldg_match)) if x is not None][0]]
+
+
+def handle_end_uses(results_database_filters, euses_out_finmets,
+                    results_finmets, m, euses_out_finmets_col):
+    euse = results_database_filters['Applicable End Uses']
+    euse_match = numpy.empty(len(euses_out_finmets), dtype=object)
+
+    for e in range(len(euses_out_finmets)):
+        if sum([item in euses_out_finmets[e] for item in euse]) > 0:
+            euse_match[e] = e
+
+    if pd.Series(euse_match).nunique() > 1:
+        results_finmets[(m-1), 7] = "#7f7f7f"
+    else:
+        results_finmets[(m-1), 7] = euses_out_finmets_col[[x for x in list(
+            pd.Series(euse_match)) if x is not None][0]]
+
+
 def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Set base directory
     base_dir = getcwd()
@@ -79,10 +220,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     if "PHC" in meas_names[1]:
         snap_yr = '2020'
         snap_yr_set = ['2020']
-        if "low" in meas_names[1]:
-            phc_flag = 'low'
-        else:
-            phc_flag = 'high'
+        phc_flag = 'low' if "low" in meas_names[1] else 'high'
     else:
         snap_yr = '2050'
         snap_yr_set = ['2030', '2050']
@@ -94,8 +232,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Set region legend names
     czones_out = list(handyvars.out_break_czones.keys())
 
-    # Use region information to create flags for certain graphical settings
-    # to be used later on in plotting
     if regions == "AIA":
         # Set alternate region flags
         emm_flag = False
@@ -104,12 +240,8 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
         state_det_flag = False
     elif regions == "EMM":
         # Set region legend names
-        if compete_results_agg["Output Resolution"] == "detail" or \
-                "reg" in compete_results_agg["Output Resolution"]:
-            emm_det_flag = True
-        else:
-            emm_det_flag = False
-        # Set alternate region flags
+        emm_det_flag = \
+            compete_results_agg["Output Resolution"] in ["detail", "reg"]
         emm_flag = True
         state_flag = False
         state_det_flag = False
@@ -127,12 +259,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     clr = plt.get_cmap("tab20").colors
     cmc = mpl.colors.LinearSegmentedColormap.from_list(
         'tab20_c', clr, len(czones_out))
-    czones_out_col = [
-        mpl.colors.rgb2hex(cmc(i)) for i in range(cmc.N)]
+    czones_out_col = [mpl.colors.rgb2hex(cmc(i)) for i in range(cmc.N)]
 
     # Set list of possible building classes and associated colors for aggregate
     # savings plot
     bclasses_out_agg = list(handyvars.out_break_bldgtypes.keys())
+
     # Set list of possible building classes and associated colors for cost
     # effectiveness plot
     if compete_results_agg["Output Resolution"] == "detail" or \
@@ -149,10 +281,8 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
     # Set list of possible fuel types for data aggregation
     ftypes_out = list(handyvars.out_break_fuels.keys())
-
     cmb = plt.get_cmap("tab20", len(bclasses_out_agg))
-    bclasses_out_agg_col = [
-        mpl.colors.rgb2hex(cmb(i)) for i in range(cmb.N)]
+    bclasses_out_agg_col = [mpl.colors.rgb2hex(cmb(i)) for i in range(cmb.N)]
     # Set list of possible building classes and associated shapes/legend
     # entries for cost effectiveness plot
 
@@ -162,8 +292,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # aggregate savings plot
     euses_out_agg = list(handyvars.out_break_enduses.keys())
     cme = plt.get_cmap("tab20", len(euses_out_agg))
-    euses_out_agg_col = [
-        mpl.colors.rgb2hex(cme(i)) for i in range(cme.N)]
+    euses_out_agg_col = [mpl.colors.rgb2hex(cme(i)) for i in range(cme.N)]
 
     # Set list of possible end use names from the raw data and associated
     # colors/legend entries for cost effectiveness plot
@@ -174,8 +303,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                          ['Water Heating'], ['Refrigeration'], ['Cooking'],
                          ['Computers and Electronics'], ['Other']]
     cmef = plt.get_cmap("tab20", len(euses_out_finmets))
-    euses_out_finmets_col = [
-        mpl.colors.rgb2hex(cmef(i)) for i in range(cmef.N)]
+    euses_out_finmets_col = [mpl.colors.rgb2hex(cmef(i)) for i in range(cmef.N)]
     euses_out_finmets_lgnd = ['HVAC', 'Envelope', 'Lighting', 'Water Heating',
                               'Refrigeration', 'Cooking', 'Electronics',
                               'Other']
@@ -261,7 +389,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Set colors for uncompeted baseline, efficient and low/high results
     plot_col_uc_base = "#999999"
     plot_col_uc_eff = "#cccccc"
-    # plot_col_uc_lowhigh = "#e5e5e5"
 
     # Set variable names to use in accessing all uncompeted energy, carbon,
     # and cost results from JSON data
@@ -361,34 +488,34 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     xlsx_names_finmets = ["IRR (%)," + snap_yr, "Payback (years)," +
                           snap_yr, "CCE ($/MMBtu saved)," +
                           snap_yr, "CCC ($/tCO2 avoided)," + snap_yr]
-
+    # Color maps for technical potential plots and others
+    color_mappings = {
+        "Technical potential": {
+            "plot_col_c_base": "#191970", "plot_col_c_eff": "#87cefa"},
+        "Max adoption potential": {
+            "plot_col_c_base": "#cd0000", "plot_col_c_eff": "#ffc0cb"}
+    }
     # Loop through all adoption scenarios
-    for a in range(len(adopt_scenarios)):
-        # a = 1 # Max adoption potential
+    for scenario in adopt_scenarios:
         # Set plot colors for competed baseline, efficient, and low/high
         # results (varies by adoption scenario); also set Excel summary data
         # file name for adoption scenario
-        if adopt_scenarios[a] == "Technical potential":
-            # Set plot colors
-            plot_col_c_base = "#191970"
-            plot_col_c_eff = "#87cefa"
+        color_info = color_mappings.get(
+            scenario, color_mappings["Max adoption potential"])
+        plot_col_c_base = color_info["plot_col_c_base"]
+        plot_col_c_eff = color_info["plot_col_c_eff"]
+
+        if scenario == "Technical potential":
             # Set Excel summary data file name
-            xlsx_file_name = \
-                path.join(base_dir, 'results', 'plots', 'tech_potential',
-                          "Summary_Data-TP.xlsx")
+            xlsx_file_name = generate_filenames(
+                scenario, base_dir, "", "Summary_Data-TP.xlsx")
         else:
-            # Set plot colors
-            plot_col_c_base = "#cd0000"
-            plot_col_c_eff = "#ffc0cb"
             # Set Excel summary data file name
-            xlsx_file_name = \
-                path.join(base_dir, 'results', 'plots',
-                          'max_adopt_potential',
-                          "Summary_Data-MAP.xlsx")
+            xlsx_file_name = generate_filenames(
+                scenario, base_dir, "", "Summary_Data-MAP.xlsx")
         # Preallocate list for variable names to be used later to export data
         # to xlsx-formatted Excel files
         xlsx_var_name_list = list()
-
         # Loop through all plotting variables
         for v in range(len(var_names_uncompete)):
             # Finalize column names for the annual total energy, carbon,
@@ -410,39 +537,28 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # simulation settings), bldg. types (depends on simulation
             # settings), and end uses (11), and competed and uncompeted
             # baseline/efficient results for each ECM
-            xlsx_data = pd.DataFrame(columns=col_names_xlsx,
-                                     index=range(3 + len(czones_out) +
-                                                 len(bclasses_out_agg) + 11 +
-                                                 len(meas_names) * 4))
+            xlsx_data = build_xlsx_data(range(3 + len(czones_out) + len(
+                        bclasses_out_agg) + 11 + len(meas_names) * 4),
+                        col_names_xlsx)
 
-            # Set a factor to convert the results data to final plotting units
-            # for given variable (quads for energy, Mt for CO2,
-            # and billion $ for cost)
-            if ((var_names_uncompete[v] == "energy") or
-                    (var_names_uncompete[v] == "cost")):
-                # converts energy from MBtu -> quads or cost from $ -> billion$
-                unit_translate = 1/1000000000
-                # Layer on a second conversion factor to handle cases where
-                # alternate EMM regions are used (energy goes to TWh and/or TSV
-                # metrics are used (energy goes to GW/GWh, cost goes
-                # to million $))
-                if var_names_uncompete[v] == "energy":
-                    unit_translate = unit_translate * e_conv_emm_st
-                elif var_names_uncompete[v] == "cost":
-                    unit_translate = unit_translate * cs_conv_emm
-            else:
-                # CO2 results data are already imported in Mt units
-                unit_translate = 1
-                # Layer on a second conversion factor to handle cases where
-                # TSV metrics are used (carbon goes to thousand metric tons)
-                unit_translate = unit_translate * c_conv_emm
+            # converts energy from MBtu -> quads or cost from $ -> billion$
+            unit_translate = 1/1000000000 if \
+                var_names_uncompete[v] in ["energy", "cost"] else 1
+            # Layer on a second conversion factor to handle cases where
+            # alternate EMM regions are used (energy goes to TWh and/or TSV
+            # metrics are used (energy goes to GW/GWh, cost goes
+            # to million $))
+            # Layer on a second conversion factor to handle cases where
+            # TSV metrics are used (carbon goes to thousand metric tons)     
+            unit_translate *= e_conv_emm_st if \
+                var_names_uncompete[v] == "energy" else \
+                cs_conv_emm if var_names_uncompete[v] == "cost" else c_conv_emm
 
             # Initialize a matrix for storing individual ECM energy, carbon,
             # or cost totals (3 rows accommodate mean, low,
             # and high totals values; 4 columns accommodate 2 outputs
             # (baseline and efficient) x 2 adoption scenarios)
-
-            results = numpy.empty((3, len(comp_schemes) * 2), dtype=object)
+            results = generate_results((3, len(comp_schemes) * 2), '')
 
             # Initialize a matrix for storing aggregated ECM savings results
             # (3 rows accommodate 3 filtering variables (climate zone,
@@ -457,7 +573,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # savings data and line colors
             # Initialize end use names, annual by-end use aggregated savings
             # data and line colors
-            results_agg = numpy.empty((3, 3), dtype=object)
+            results_agg = generate_results((3, 3), '')
             results_agg[0, 0:3] = [czones_out, [[0] * len(years)
                                    for _ in range(len(czones_out))],
                                    czones_out_col]
@@ -467,52 +583,28 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             results_agg[2, 0:3] = [euses_out_agg, [[0] * len(years)
                                    for _ in range(len(euses_out_agg))],
                                    euses_out_agg_col]
-
             # Initialize a matrix for storing individual ECM financial metrics/
             # savings and filter variable data
             # meas_names is missing 'On-site Generation'
-            results_finmets = \
-                numpy.empty((len(meas_names_no_all), len(fin_metrics) + 4),
-                            dtype=object)
-
+            results_finmets = generate_results((len(meas_names_no_all),
+                                                len(fin_metrics) + 4), '')
             # Initialize uncertainty flag for the adoption scenario
             uncertainty = False
-            # Set the file name for the plot based on the adoption scenario
-            # and plotting variable
-            if adopt_scenarios[a] == 'Technical potential':
-                # ECM energy, carbon, and cost totals
-                plot_file_name_ecms = path.join(
-                    base_dir, 'results', 'plots',
-                    'tech_potential', results_folder_names[v],
-                    file_names_ecms[v] + '-TP')
-                # Aggregate energy, carbon, and cost savings
-                plot_file_name_agg = path.join(
-                    base_dir, 'results', 'plots', 'tech_potential',
-                    results_folder_names[v], plot_names_agg[v] + '-TP')
-                # ECM cost effectiveness
-                plot_file_name_finmets = path.join(
-                    base_dir, 'results', 'plots', 'tech_potential',
-                    results_folder_names[v], plot_names_finmets[v] + '-TP.pdf')
-            else:
-                # ECM energy, carbon, and cost totals
-                plot_file_name_ecms = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], file_names_ecms[v] + '-MAP')
-                # Aggregate energy, carbon, and cost savings
-                plot_file_name_agg = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], plot_names_agg[v] + '-MAP')
-                # ECM cost effectiveness
-                plot_file_name_finmets = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], plot_names_finmets[v] +
-                    '-MAP.pdf')
+
+            plot_file_name_ecms = \
+                generate_filenames(scenario, base_dir, results_folder_names[v],
+                                   file_names_ecms[v] + '-TP')
+            plot_file_name_agg = \
+                generate_filenames(scenario, base_dir, results_folder_names[v],
+                                   plot_names_agg[v] + '-TP')
+            plot_file_name_finmets = \
+                generate_filenames(scenario, base_dir, results_folder_names[v],
+                                   plot_names_finmets[v] + '-TP.pdf')
 
             # Determine number of rows for individual ECM plots
             row = math.ceil(len(meas_names) / 4)
             # Initialize individual ECM plots
             fig, axas = plt.subplots(row, 4, figsize=(20, row * 4.5))
-
             # Remove plots for any unused cells in the plotting matrix
             # Find number of blank plots in last row
             blnks = (row * 4 - len(meas_names))
@@ -523,7 +615,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                     axas[-1, rmv_ind].axis('off')
                 else:
                     axas[rmv_ind].axis('off')
-
             # Loop through all ECMs
             # for m in range(len(meas_names)):  # 0..66 the R version 1..66
             for (axa, m) in zip(fig.axes, range(len(meas_names))):
@@ -552,24 +643,19 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                 # Add measure name to Excel sheet
                 xlsx_data.iloc[row_ind_start:(row_ind_start + 4), 0] = \
                     meas_names[m]
-
-                # Set applicable climate zones, end uses, and building classes
-                # for ECM and add to Excel worksheet data frame
                 if meas_names[m] == "All ECMs":
                     czones = ''
                     bldg_types = ''
                     end_uses = ''
                 else:
-                    czones = ', '.join([str(elem) for elem in (
-                        compete_results[1][meas_names[m]][
-                            'Filter Variables']['Applicable Regions'])])
-                    bldg_types = ', '.join([str(elem) for elem in (
-                        compete_results[1][meas_names[m]][
-                            'Filter Variables'][
-                            'Applicable Building Classes'])])
-                    end_uses = ', '.join([str(elem) for elem in (
-                        compete_results[1][meas_names[m]][
-                            'Filter Variables']['Applicable End Uses'])])
+                    filter_vars = compete_results[1][meas_names[m]][
+                                  'Filter Variables']
+                    czones = ', '.join(map(str, filter_vars[
+                                  'Applicable Regions']))
+                    bldg_types = ', '.join(map(str, filter_vars[
+                                  'Applicable Building Classes']))
+                    end_uses = ', '.join(map(str, filter_vars[
+                                  'Applicable End Uses']))
 
                 xlsx_data.iloc[row_ind_start:(row_ind_start + 4), 2] = czones
                 xlsx_data.iloc[row_ind_start:(row_ind_start + 4), 3] = \
@@ -581,6 +667,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                 # will fit easily within each plot region
                 if end_uses.count(',') > 1:
                     end_uses = "Multiple"
+
                 # Find the index for accessing the item in the list of
                 # uncompeted results that corresponds to energy, carbon,
                 # or cost total data for the current ECM.
@@ -593,70 +680,63 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
                 # Set the appropriate database of ECM financial metrics data
                 # (used across both competition schemes)
-                if meas_names[m] == "All ECMs":
-                    results_database_finmets = numpy.nan
-                else:
-                    results_database_finmets = compete_results[1][
-                        meas_names[m]]['Financial Metrics']
-
-                # Loop through all competition schemes
+                results_database_finmets = numpy.nan if \
+                    meas_names[m] == "All ECMs" else \
+                    compete_results[1][meas_names[m]]['Financial Metrics']
+                # Set matrix for temporarily storing finalized baseline
+                # and efficient results
+                r_temp = numpy.empty((7, len(years)), dtype=object)
                 for cp in range(len(comp_schemes)):
+                    comp_scheme = comp_schemes[cp]
                     # Add name of results scenario (baseline/efficient +
                     # competed/uncompeted) to Excel worksheet data frame
-                    xlsx_data.iloc[
-                        (row_ind_start + (cp)*2):
-                        (row_ind_start + (cp)*2 + 2), 1] = [
-                            "Baseline " + comp_schemes[cp],
-                            "Efficient " + comp_schemes[cp]]
-                    # xlsx_data.iloc[(row_ind_start + cp + 2), 1] = \
-                    #     "Efficient " + comp_schemes[cp]
-                    # Set matrix for temporarily storing finalized baseline
-                    # and efficient results
-                    r_temp = numpy.empty((6, len(years)), dtype=object)
-                    # Find data for uncompeted energy, carbon, and/or cost;
-                    # exclude the 'All ECMs' case
-                    # (only competed data may be summed across all ECMs)
-                    if comp_schemes[cp] == "uncompeted" and \
+                    xlsx_data_slice = slice(row_ind_start + cp * 2,
+                                            row_ind_start + cp * 2 + 2)
+                    xlsx_data.iloc[xlsx_data_slice, 1] = \
+                        ["Baseline " + comp_scheme, "Efficient " + comp_scheme]
+
+                    # r_temp = numpy.empty((6, len(years)), dtype=object)
+
+                    if comp_scheme == "uncompeted" and \
                        meas_names[m] != "All ECMs":
                         # Set the appropriate database of uncompeted energy,
                         # carbon, or cost totals (access keys vary based on
                         # plotted variable)
                         if var_names_uncompete[v] != "cost":
                             results_database = uncompete_results[uc_name_ind][
-                                'markets'][adopt_scenarios[a]]['uncompeted'][
+                                'markets'][scenario]['uncompeted'][
                                 'master_mseg'][var_names_uncompete[v]]['total']
                         else:
                             results_database = uncompete_results[uc_name_ind][
-                                'markets'][adopt_scenarios[a]]['uncompeted'][
+                                'markets'][scenario]['uncompeted'][
                                 'master_mseg'][var_names_uncompete[v]][
                                 'energy']['total']
                         # Order the uncompeted ECM energy, carbon, or cost
                         # totals by year and determine low/high
                         # bounds on each total value (if applicable)
                         for yr in range(len(years)):
+                            year_str = str(years[yr])
                             r_temp[0:3, yr] = results_database['baseline'][
-                                              str(years[yr])]
+                                                year_str]
                             # Set mean, low, and high values for case with
                             # ECM input/output uncertainty
+                            results_efficient = results_database['efficient'][
+                                                    year_str]
                             if len([results_database['efficient'][
-                                    str(years[0])]]) > 1:
+                                                    str(years[0])]]) > 1:
                                 # Take mean of list of values from uncompeted
                                 # results
-                                r_temp[3, yr] = numpy.mean(results_database[
-                                    'efficient'][str(years[yr])])
+                                r_temp[3, yr] = numpy.mean(results_efficient)
                                 # Take 5th/95th percentiles of list of values
                                 # from uncompeted results
                                 r_temp[4:6, yr] = numpy.quantile(
-                                    results_database['efficient'][
-                                        str(years[yr])], [0.05, 0.95])
+                                    results_efficient, [0.05, 0.95])
                                 uncertainty = True
                                 # Set mean, low, and high values for case
                                 # without ECM input/output uncertainty
                                 # (all values equal to mean value)
                             else:
-                                r_temp[3:6, yr] = results_database[
-                                    'efficient'][str(years[yr])]
-
+                                r_temp[3:6, yr] = results_efficient
                     # Find data for competed energy, carbon, and/or cost
                     else:
                         # Set the appropriate database of ECM competed energy,
@@ -664,13 +744,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                         if meas_names[m] == "All ECMs":
                             results_database = compete_results[0][
                                 meas_names[m]][
-                                    'Markets and Savings (Overall)'][
-                                    adopt_scenarios[a]]
+                                'Markets and Savings (Overall)'][scenario]
                         else:
                             results_database = compete_results[1][
                                 meas_names[m]][
-                                    'Markets and Savings (Overall)'][
-                                    adopt_scenarios[a]]
+                                'Markets and Savings (Overall)'][scenario]
                         # Set the appropriate database of ECM competed energy,
                         # carbon, or cost totals broken down by climate zone,
                         # building class, and end use; exclude the 'All ECMs'
@@ -683,7 +761,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                             results_database_agg = compete_results[1][
                                 meas_names[m]][
                                 'Markets and Savings (by Category)'][
-                                adopt_scenarios[a]][var_names_compete_save[v]]
+                                scenario][var_names_compete_save[v]]
                             # Set the appropriate database of ECM data for
                             # categorizing cost effectiveness outcomes
                             # based on climate zone, building type, and end use
@@ -694,17 +772,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                         # year and determine low/high bounds
                         # on each total value (if applicable)`
                         for yr in range(len(years)):
-                            base_uncertain_check = numpy.column_stack(
-                                ([any(b in s for b in ['Baseline'])
-                                    for s in list(results_database.keys())],
-                                    [any(b in s for b in ['low'])
-                                        for s in list(results_database.keys())]
-                                 )
-                            )
-                            if (numpy.array((numpy.where(
-                                    base_uncertain_check[:, 0] &
-                                    base_uncertain_check[:, 1] is True))
-                                            ).size) > 0:
+                            base_uncertain_check = numpy.column_stack((
+                                [any('Baseline' in s
+                                     for s in results_database.keys())],
+                                [any('low' in s for s
+                                     in results_database.keys())]
+                            ))
+                            if numpy.any(base_uncertain_check[:, 0] &
+                               base_uncertain_check[:, 1]):
                                 # Take mean value output directly from competed
                                 # results
                                 r_temp[1, yr] = results_database[
@@ -729,20 +804,20 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                 # Take 'low' value output directly from
                                 # competed results (represents 5th percentile)
                                 r_temp[0:3, yr] = results_database[
-                                    var_names_compete_base_m[v]][str(
-                                        years[yr])]
+                                    var_names_compete_base_m[v]][
+                                    str(years[yr])]
 
                             # Set mean, low, and high values for case with ECM
                             # input/output uncertainty
-                            eff_uncertain_check = numpy.column_stack(
-                                ([any(b in s for b in ['Efficient'])
-                                    for s in list(results_database.keys())],
-                                    [any(b in s for b in ['low'])
-                                     for s in list(results_database.keys())]))
-                            if (numpy.array((numpy.where(
-                               eff_uncertain_check[:, 0] &
-                               eff_uncertain_check[:, 1:2] is True))
-                                        ).size) > 0:
+                            eff_uncertain_check = numpy.column_stack((
+                                [any('Efficient' in s
+                                     for s in results_database.keys())],
+                                [any('low' in s
+                                     for s in results_database.keys())]
+                            ))
+
+                            if numpy.any(eff_uncertain_check[:, 0] &
+                                         eff_uncertain_check[:, 1]):
                                 # Take mean value output directly from competed
                                 # results
                                 r_temp[4, yr] = results_database[
@@ -767,7 +842,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                 r_temp[3:6, yr] = results_database[
                                     var_names_compete_eff_m[v]][str(
                                         years[yr])]
-
                             # Find the amount of the ECM's energy, carbon, or
                             # cost savings that can be attributed to each of
                             # the three aggregate savings filtering variables
@@ -777,262 +851,31 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                             # 'All ECMs' case (filter variable breakdowns are
                             # not calculated for this case)
                             if meas_names[m] != "All ECMs":
-                                # Loop through the three variables used to
-                                # filter aggregated savings, each represented
-                                # by a row in the 'results_agg' matrix
-                                for fv in range(results_agg.shape[0]):
-                                    # Set the name categories associated with
-                                    # the given savings filter variable (
-                                    # e.g., 'Residential (New)',
-                                    # 'Residential (Existing)', etc. for
-                                    # building class)
-                                    fv_opts = results_agg[fv, 0]
-
-                                    # Initialize a vector used to store the
-                                    # ECM's energy, carbon, or cost savings
-                                    # that are attributable to the given filter
-                                    # variable; this vector must be as long as
-                                    # the number of category names for the
-                                    # filter variable, so a savings total can
-                                    # be stored for each category
-                                    add_val = numpy.zeros(len(fv_opts))
-
-                                    # Retrieve the savings data for the ECM
-                                    # that is attributable to each filter
-                                    # variable name category. The data are
-                                    # stored in a three-level nested dict with
-                                    # climate zone at the top level, building
-                                    # class at the middle level, and end use at
-                                    # the bottom level. All three of these
-                                    # levels must be looped through to retrieve
-                                    # the savings data.
-
-                                    # Loop through all climate zones
-                                    for levone in range(len(
-                                            results_agg[0, 0])):
-                                        # Set the climate zone name to use in
-                                        # proceeding down to the building class
-                                        # level of the dict
-                                        czone = results_agg[0, 0][levone]
-                                        # If region is valid, reduce the
-                                        # dict to the building class; otherwise
-                                        # proceed to next region
-                                        try:
-                                            r_agg_temp = \
-                                                results_database_agg[czone]
-                                        except KeyError:
-                                            continue
-                                        # Loop through all building classes
-                                        for levtwo in range(len(
-                                                results_agg[1, 0])):
-                                            # Set the building class name to
-                                            # use in proceeding down to the
-                                            # end use level of the dict
-                                            bldg = results_agg[1, 0][levtwo]
-                                            # If the region/building type are
-                                            # valid, reduce the dict to the end
-                                            # use level; otherwise proceed to
-                                            # the next building type
-                                            try:
-                                                r_agg_temp = \
-                                                    results_database_agg[
-                                                        czone][bldg]
-                                            except KeyError:
-                                                continue
-                                            # Loop through all end uses
-                                            for levthree in range(len(
-                                                    results_agg[2, 0])):
-                                                # Set the end use name to use
-                                                # in retrieving data values
-                                                euse = results_agg[2, 0][
-                                                    levthree]
-                                                # Reset the predefined
-                                                # 'Electronics' end use name
-                                                # (short for later use in plot
-                                                # legends) to the longer
-                                                # 'Computers and Electronics'
-                                                # name used in the dict
-                                                if euse == "Electronics":
-                                                    euse = ("Computers and "
-                                                            "Electronics")
-
-                                                # If the region/building type/
-                                                # end use are valid, reduce the
-                                                # dict to the final level;
-                                                # otherwise proceed to
-                                                # the next end use
-                                                try:
-                                                    r_agg_temp = \
-                                                        results_database_agg[
-                                                            czone][bldg][euse]
-                                                except KeyError:
-                                                    continue
-
-                                                # If data values exist, add
-                                                # them to the ECM's
-                                                # energy/carbon/cost
-                                                # savings-by-filter variable
-                                                # vector initialized above
-
-                                                if len(r_agg_temp) != 0:
-
-                                                    # Determine which index to
-                                                    # use in adding the
-                                                    # retrieved data to
-                                                    # the ECM's energy/carbon/
-                                                    # cost savings-by-filter
-                                                    # variable vector
-                                                    if fv == 0:
-                                                        index = levone
-                                                    elif fv == 1:
-                                                        index = levtwo
-                                                    else:
-                                                        index = levthree
-                                                    # Add retrieved data to
-                                                    # ECM's savings-by-filter
-                                                    # variable vector; handle
-                                                    # case where end use
-                                                    # savings are further split
-                                                    # out by fuel type
-
-                                                    if any([
-                                                        str(years[yr]) in x
-                                                        for x in list(
-                                                            r_agg_temp.keys())]
-                                                           ):
-                                                        add_val[index] = \
-                                                            add_val[index] + \
-                                                            r_agg_temp[
-                                                            str(years[yr])]
-                                                    else:
-                                                        for fuel in ftypes_out:
-                                                            if fuel in (
-                                                                r_agg_temp.
-                                                                    keys()):
-                                                                add_val[
-                                                                    index] = \
-                                                                    add_val[
-                                                                    index] + \
-                                                                    r_agg_temp[
-                                                                    fuel][str(
-                                                                        years[
-                                                                            yr]
-                                                                            )]
-
-                                    # Add ECM's savings-by-filter variable
-                                    # vector data to the aggregated total for
-                                    # each filter variable across all ECMs
-                                    for fvo in range(len(fv_opts)):
-                                        results_agg[fv, 1][fvo][yr] = \
-                                            results_agg[fv, 1][fvo][yr] + \
-                                            add_val[fvo]
-
-                                # If cycling through the year in which
-                                # snapshots of ECM cost effectiveness are taken
-                                # retrieve the ECM's competed financial
-                                # metrics, savings, and filter variable data
-                                # needed to develop those snapshots for the
-                                # cost effectiveness plots
+                                process_results_agg(
+                                    results_agg, results_database_agg, years,
+                                    yr, ftypes_out)
                                 if str(years[yr]) == snap_yr:
-                                    # Retrieve ECM competed portfolio-level
-                                    # and consumer-level financial metrics data
                                     for fm in range(len(fin_metrics)):
-                                        # Multiply IRR fractions in JSON data
-                                        # by 100 to convert to final % units
-                                        if fin_metrics[fm] == "IRR (%)":
-                                            unit_translate_finmet = 100
-                                        else:
-                                            unit_translate_finmet = 1
-
-                                        # Consumer-level data are NOT keyed by
-                                        # adoption scenario
-                                        results_finmets[(m-1), fm] = \
-                                            results_database_finmets[
-                                            fin_metrics[fm]][str(years[yr])] *\
-                                            unit_translate_finmet
-
-                                        # Replace all 99900 values with 999 (
-                                        # proxy for NaN)
-                                        if results_finmets[(m-1), fm] == 99900:
-                                            results_finmets[(m-1), fm] = 999
-
-                                    # Write ECM cost effectiveness metrics data
-                                    # to XLSX sheet
+                                        handle_fin_metrics(
+                                            fm, fin_metrics,
+                                            results_database_finmets, years,
+                                            yr, results_finmets, m)
                                     xlsx_data.iloc[row_ind_start:(
                                         row_ind_start + 4), 5:(5 + len(
                                             plot_title_labels_finmets))] = \
                                         results_finmets[(m-1), 0:4]
-
-                                    # Retrieve, ECM energy, carbon, or cost
-                                    # savings data, convert to final units
                                     results_finmets[(m-1), len(fin_metrics)] =\
                                         results_database[
                                         var_names_compete_save[v]][
                                         str(years[yr])] * unit_translate
-
-                                    # Determine the outline color, shape, and
-                                    # fill color parameters needed to
-                                    # distinguish ECM points on the cost
-                                    # effectiveness plots by their climate
-                                    # zone, building type, and end use
-                                    # categories
-
-                                    # Set ECM's applicable building type
-                                    bldg = results_database_filters[
-                                        'Applicable Building Classes']
-                                    # Match applicable building classes to
-                                    # building type names used in plotting
-
-                                    bldg_match = numpy.empty((len(
-                                        bclasses_out_finmets) * len(
-                                        bclasses_out_finmets[0])),
-                                        dtype=object)
-
-                                    for b in range(len(bclasses_out_finmets)):
-                                        if sum([item in bclasses_out_finmets[b]
-                                                for item in bldg]) > 0:
-                                            bldg_match[b] = b
-
-                                    if pd.Series(bldg_match).nunique() > 1:
-                                        results_finmets[(m-1), 6] = "^"
-                                    else:
-                                        results_finmets[(m-1), 6] = \
-                                            bclasses_out_finmets_shp[
-                                            [x for x in list(pd.Series(
-                                                bldg_match)) if x is not None][
-                                                0]]
-
-                                    # Determine appropriate ECM point fill
-                                    # color for applicable end uses
-                                    # Set ECM's applicable end uses
-                                    euse = results_database_filters[
-                                        'Applicable End Uses']
-                                    # Match applicable end uses to end use
-                                    # names used in plotting
-
-                                    euse_match = numpy.empty(len(
-                                        euses_out_finmets), dtype=object)
-
-                                    for e in range(len(euses_out_finmets)):
-                                        if sum([item in euses_out_finmets[e]
-                                                for item in euse]) > 0:
-                                            euse_match[e] = e
-
-                                    # If more than one end use name was
-                                    # matched, set the point fill color to
-                                    # gray, representative of 'Multiple'
-                                    # applicable end uses; otherwise set
-                                    # to the point fill color appropriate for
-                                    # the matched end use
-                                    if pd.Series(euse_match).nunique() > 1:
-                                        results_finmets[(m-1), 7] = "#7f7f7f"
-                                    else:
-                                        results_finmets[(m-1), 7] = \
-                                            euses_out_finmets_col[[
-                                                x for x in list(
-                                                    pd.Series(euse_match)
-                                                ) if x is not None][0]]
-
+                                    handle_building_classes(
+                                        results_database_filters,
+                                        bclasses_out_finmets, results_finmets,
+                                        m, bclasses_out_finmets_shp)
+                                    handle_end_uses(
+                                        results_database_filters,
+                                        euses_out_finmets, results_finmets, m,
+                                        euses_out_finmets_col)
                     # Set the column start and stop indexes to use in updating
                     # the matrix of ECM energy, carbon or cost totals
                     col_ind_start = ((cp)*(len(comp_schemes)))
@@ -1070,14 +913,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                     [] if x is numpy.NaN else x for x in [results[1, 3]]][0]]
                 eff_c_h = [y * unit_translate for y in [
                     [] if x is numpy.NaN else x for x in [results[2, 3]]][0]]
-
                 # Add annual ECM energy, carbon, or cost totals to XLSX
                 # worksheet data frame
                 xlsx_data.iloc[row_ind_start:(row_ind_start + 4),
                                (5 + (len(plot_title_labels_finmets))):len(
                                 xlsx_data.columns)] = \
                     [base_uc, eff_uc_m, base_c_m, eff_c_m]
-
                 # Find the min. and max. values in the ECM energy, carbon, or
                 # cost totals data to be plotted
                 min_val = numpy.amin(
@@ -1087,7 +928,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                 max_val = numpy.amax(
                     [*base_uc, *base_c_m, *base_c_l, *base_c_h, *eff_uc_m,
                      *eff_uc_l, *eff_uc_h, *eff_c_m, *eff_c_l, *eff_c_h])
-
                 # Determine legend parameters based on whether uncertainty is
                 # present in totals
                 if uncertainty is True:
@@ -1107,7 +947,6 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                          "w/ Measure(s) (Uncompeted)",
                          "Ref. Case (Competed)",
                          "w/ Measure(s) (Competed)"]
-
                 # Set limits of y axis for plot based on min. and
                 # max. values in data
                 try:
@@ -1142,12 +981,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
                 # Add x and y axis labels
                 axa.set_xlabel("Year")
-                axa.set_xlim(2018, 2052)  # hardcode year range
+                axa.set_xlim(2018, 2052)  
                 axa.set_ylabel(plot_axis_labels_ecm[v])
 
                 # Annotate total savings in a snapshot years for the 'All ECMs'
                 # case; otherwise, annotate the applicable ECM end uses
-
                 if meas_names[m] == "All ECMs":
                     # Annotate the plot with snapshot year total savings figure
                     # Find x and y values for annotation
@@ -1182,15 +1020,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                              verticalalignment='top',
                              color='#7f7f7f',
                              transform=axa.transAxes)
-
-                # Add plot title
                 axa.set_title(meas_names[m])
                 axa.set_axis_on()
-
             # Generate individual ECM plot figure
             plt.tight_layout()
-            plt.savefig(plot_file_name_ecms + "-byECM.pdf",
-                        bbox_inches='tight')
+            plt.savefig(plot_file_name_ecms + "-byECM.pdf",bbox_inches='tight')
             ###################################################################
 
             # Plot annual and cumulative energy, carbon, and cost savings
@@ -1660,7 +1494,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # 'All ECMs' results, which are not meaningful)
             xlsx_var_name_list.append(xlsx_data.iloc[2:xlsx_data.shape[0],
                                       0:len(xlsx_data.columns)])
-        # Write out Excel results
+
         writer = pd.ExcelWriter(
             xlsx_file_name, engine='xlsxwriter')
         for i in range(len(xlsx_var_name_list)):
