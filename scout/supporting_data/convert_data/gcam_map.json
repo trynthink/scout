@@ -40,7 +40,8 @@
       "secondary heating"
     ],
     "cooling": ["cooling"],
-    "refrigeration": ["refrigeration"],
+    "refrigeration": ["refrigeration", "comm"],
+    "refrigerators": ["refrigeration", "resid"],
     "cooking": ["cooking"],
     "lighting": ["lighting"],
     "ventilation": ["ventilation"],
@@ -56,7 +57,8 @@
       "TVs",
       "MELs",
       "other"
-    ]
+    ],
+    "furnace fans": ["fans and pumps"]
   },
   "tech": {
     "air conditioning": [
@@ -145,10 +147,12 @@
       "distillate"
     ],
     "electric heat pump water heater": [
+      null,
       "HP water heater",
       "water heating",
       "electricity"],
     "electric resistance water heater": [
+      null,
       "Solar water heater",
       "elec_booster_water_heater",
       "elec_water_heater",
@@ -188,6 +192,7 @@
       "cooking",
       "natural gas"],
     "office equipment": [
+      null,
       "PCs",
       "non-PC office equipment",
       "electricity"
@@ -243,8 +248,51 @@
       "lighting",
       "electricity"
     ],
-    "mels": [
+    "refrigeration": [
       null,
+      "Commercial Beverage Merchandisers",
+      "Commercial Ice Machines",
+      "Commercial Reach-In Freezers",
+      "Commercial Reach-In Refrigerators",
+      "Commercial Refrigerated Vending Machines",
+      "Commercial Supermarket Display Cases",
+      "Commercial Walk-In Freezers",
+      "Commercial Walk-In Refrigerators",
+      "refrigeration",
+      "electricity",
+      "comm"
+    ],
+    "ventilation": [
+      "CAV_Vent",
+      "VAV_Vent",
+      "ventilation",
+      "electricity"
+    ],
+    "clothes washer": [
+      "clothes washing",
+      "other",
+      "electricity"],
+    "dishwasher": [
+      "dishwasher",
+      "other",
+      "electricity"],
+    "freezer": [
+      "freezers",
+      "other",
+      "electricity"],
+    "refrigerator": [
+      null,
+      "refrigeration",
+      "electricity",
+      "resid"],
+    "clothes dryer": [
+      null,
+      "drying",
+      "natural gas",
+      "electricity"],
+    "electricity misc": [
+      null,
+      "water services",
       "distribution transformers",
       "security systems",
       "elevators",
@@ -269,7 +317,8 @@
       "dehumidifier",
       "electric other",
       "microwave",
-      "pool heaters and pumps",
+      "pool heaters",
+      "pool pumps",
       "security system",
       "portable electric spas",
       "wine coolers",
@@ -281,56 +330,19 @@
       "fans and pumps",
       "ceiling fan",
       "other",
+      "MELs",
       "electricity"
     ],
-    "refrigeration": [
+    "electricity fans": [
       null,
-      "Commercial Ice Machines",
-      "Commercial Reach-In Freezers",
-      "Commercial Reach-In Refrigerators",
-      "Commercial Refrigerated Vending Machines",
-      "Commercial Supermarket Display Cases",
-      "Commercial Walk-In Freezers",
-      "Commercial Walk-In Refrigerators",
-      "refrigeration",
+      "furnace fans",
       "electricity"
     ],
-    "ventilation": [
-      "CAV_Vent",
-      "VAV_Vent",
-      "ventilation",
-      "electricity"
-    ],
-    "clothes washer": [
-      "clothes washing",
-      "other",
-      "electricity"],
-    "dishwasher": [
-      "dishwasher",
-      "other",
-      "electricity"],
-    "freezer": [
-      "freezers",
-      "other",
-      "electricity"],
-    "refrigerator": [
-      "refrigeration",
-      "electricity"],
-    "clothes dryer": [
-      null,
-      "drying",
-      "natural gas",
-      "electricity"],
-    "other appliances": [
+    "gas": [
       "other appliances",
-      "natural gas",
-      "distillate",
-      "other fuel"],
-    "non-building": [
-      "water services",
-      "other",
-      "electricity",
-      "natural gas",
+      "natural gas"],
+    "refined liquids": [
+      "other appliances",
       "distillate",
       "other fuel"
     ]
