@@ -324,7 +324,7 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * non-PC office equipment
 
-* MELs: elevators, escalators, coffee brewers, kitchen ventilation, laundry, lab fridges and freezers, fume hoods, medical imaging, large video boards, shredders, private branch exchanges, voice-over-IP telecom, IT equipment, office UPS, data center UPS, security systems, distribution transformers, non-road electric vehicles
+* MELs: distribution transformers, kitchen ventilation, security systems, lab fridges and freezers, medical imaging, large video boards, coffee brewers, non-road electric vehicles, fume hoods, laundry, elevators, escalators, IT equipment, office UPS, data center UPS, shredders, private branch exchanges, voice-over-IP telecom, point-of-sale systems, warehouse robots, televisions
 
 **Commercial -- Demand**
 
