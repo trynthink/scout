@@ -5140,7 +5140,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     def round_values(data, precision, mult=1):
         if isinstance(data, dict):
             for k, v in data.items():
-                data[k] = round_values(v, precision)
+                data[k] = round_values(v, precision, mult)
         elif isinstance(data, float):
             data = round(data, precision)*mult
         return data
