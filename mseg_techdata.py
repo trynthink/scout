@@ -428,6 +428,16 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
             # lighting technology in the EIA files
             match_list_typ_perfcost = []
             match_list_best_perfcost = []
+            # Initialize matched row lists for incentives data, which span
+            # the full range of technology levels for a given technology type
+            match_list_incent_perfcost = []
+            # Flag whether typical and best technology rows have already
+            # been found for a given technology type
+            typ_row_found, best_row_found = ("" for n in range(2))
+            # Track the tech name in the best row to handle cases where
+            # multiple technology configurations and "best" rows exist
+            best_row_tech_nm = []
+
             # Loop through the EIA non-lighting technology performance, cost,
             # and consumer choice data array, searching for a match with the
             # desired technology
@@ -472,6 +482,10 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                         # variants for filtering (bottom freezer, side freezer,
                         # top freezer)
                         if tech_dict_key == "refrigeration":
+                            # Set number of tech. configurations for later
+                            # use in determining whether all 'best' rows have
+                            # been parsed (for use in pulling incentives data)
+                            tech_configs = 3
                             typ_filter_name = "(" + filter_info[2][0] + "|" + \
                                 filter_info[2][1] + "|" + \
                                 filter_info[2][2] + ")"
@@ -483,6 +497,10 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                         # technology configuration variants for filtering
                         # (chest, upright and top-loading, front-loading)
                         else:
+                            # Set number of tech. configurations for later
+                            # use in determining whether all 'best' rows have
+                            # been parsed (for use in pulling incentives data)
+                            tech_configs = 2
                             typ_filter_name = "(" + filter_info[2][0] + "|" + \
                                 filter_info[2][1] + ")"
                             best_filter_name = "(" + filter_info[3][0] + \
@@ -492,6 +510,10 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                     # Determine performance/cost/consumer choice filtering
                     # names and performance units for case b) in comment above
                     elif isinstance(filter_info[2], list):
+                        # Set number of tech. configurations for later
+                        # use in determining whether all 'best' rows have
+                        # been parsed (for use in pulling incentives data)
+                        tech_configs = 1
                         # Filter names determined by fuel type (electricity,
                         # natural gas, and distillate/"other")
                         if fuel_type == "electricity":
@@ -538,6 +560,10 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                     # and performance units for a non-lighting technology with
                     # only one configuration/fuel type
                     else:
+                        # Set number of tech. configurations for later
+                        # use in determining whether all 'best' rows have
+                        # been parsed (for use in pulling incentives data)
+                        tech_configs = 1
                         typ_filter_name = filter_info[2]
                         best_filter_name = filter_info[3]
                         # Update performance units for technologies with only
@@ -571,28 +597,54 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                     match_best = re.search(comparefrom_best, compareto,
                                            re.IGNORECASE)
 
-                    # If there was a match for the "typical" performance, cost,
-                    # and consumer choice cases, append the row to the match
-                    # lists initialized for non-lighting technologies above.
-                    # Do the same if there was a match for the "best"
-                    # performance, cost, and consumer choice case
+                    # Row match/append for the "typical" technology perf. tier
                     if match_typ:
                         match_list_typ_perfcost.append(row)
+                        match_list_incent_perfcost.append(row)
+                        # Flag typical row match
+                        typ_row_found = True
+                    # Row match/append for the "best" technology perf. tier
                     if match_best:
                         match_list_best_perfcost.append(row)
+                        # Avoid duplication of rows when typical and best
+                        # tech. names are the same
+                        if typ_filter_name != best_filter_name:
+                            match_list_incent_perfcost.append(row)
+                        # Add 'best' tech. name to list that tracks the
+                        # number of best rows found with distinct tech.
+                        # names (handles multiple tech. name configurations)
+                        if row["NAME"] not in best_row_tech_nm:
+                            best_row_tech_nm.append(row["NAME"])
+                        # If the number of unique tech. names in 'best' rows
+                        # matches the number of tech. configurations, flag
+                        # that 'best' rows have been found
+                        if len(best_row_tech_nm) == tech_configs:
+                            best_row_found = True
+                    # Row match/append for all other incentive performance
+                    # tiers (only relevant to pulling incentives data)
+                    if (not match_typ and not match_best) and typ_row_found \
+                            and not best_row_found:
+                        match_list_incent_perfcost.append(row)
+                    # If all the data have been pulled for the current tech.,
+                    # discontinue the search
+                    elif (not match_typ and not match_best) and all([
+                            x for x in [typ_row_found, best_row_found]]):
+                        break
 
             # After search through EIA non-lighting technology performance/cost
             # and consumer choice array is complete:
 
-            # If the matched "typical" and "best" performance, cost, and
-            # consumer choice parameter lists are populated, convert them back
-            # to numpy arrays for later operations; otherwise, yield an error
-            if len(match_list_typ_perfcost) > 0 and \
-               len(match_list_best_perfcost) > 0:
-                match_list_typ_perfcost = numpy.array(
-                    match_list_typ_perfcost, dtype=eia_nlt_cp.dtype)
-                match_list_best_perfcost = numpy.array(
-                    match_list_best_perfcost, dtype=eia_nlt_cp.dtype)
+            # If the matched typical, best, and incentives lists are all
+            # populated, convert them back to numpy arrays for later
+            # operations; otherwise, yield an error
+            if all([len(x) > 0 for x in [
+                    match_list_typ_perfcost, match_list_best_perfcost,
+                    match_list_incent_perfcost]]):
+                match_list_typ_perfcost, match_list_best_perfcost, \
+                    match_list_incent_perfcost = [numpy.array(
+                        x, dtype=eia_nlt_cp.dtype) for x in [
+                        match_list_typ_perfcost, match_list_best_perfcost,
+                        match_list_incent_perfcost]]
             else:
                 raise ValueError("No EIA performance/cost data match for" +
                                  " non-lighting technology!")
@@ -603,10 +655,12 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
             # the array to be consistent with the "mseg.py" microsegment
             # projection years (i.e., {"2009": XXX, "2010": XXX, etc.}) using
             # the "fill_years_nlt" function
-            [perf_typ, cost_typ, b1, b2] = fill_years_nlt(
+            [perf_typ, cost_typ, b1, b2] = fill_years_nlt_typ_best(
                 match_list_typ_perfcost, project_dict, tech_dict_key)
-            [perf_best, cost_best, b1_best, b2_best] = fill_years_nlt(
+            [perf_best, cost_best, b1_best, b2_best] = fill_years_nlt_typ_best(
                 match_list_best_perfcost, project_dict, tech_dict_key)
+            incentives = fill_years_nlt_incent(
+                match_list_incent_perfcost, project_dict, tech_dict_key)
 
             # Initialize a count of the number of matched lifetime data rows
             life_match_ct = 0
@@ -742,8 +796,9 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
             # array to be consistent with the "mseg.py" microsegment projection
             # years (i.e., {"2009": XXX, "2010": XXX, etc.}) using the
             # "fill_years_lt" function
-            [perf_typ, cost_typ, life_avg, b1, b2] = fill_years_lt(
+            [perf_typ, cost_typ, life_avg, b1, b2] = fill_years_lt_typ_best(
                 match_list, project_dict)
+            incentives = fill_years_lt_incent(match_list, project_dict)
 
             # No "best" technology performance or cost data are available from
             # EIA for lighting technologies, so set these variables to zero.
@@ -781,12 +836,23 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
         # cost, lifetime, and consumer choice information for the given
         # technology if 'demand' not in leaf_node_keys:
         # Update performance information
-        data_dict["performance"] = {"typical": perf_typ, "best": perf_best,
-                                    "units": perf_units, "source": perf_source}
+        data_dict["performance"] = {
+            "typical": perf_typ, "best": perf_best,
+            "units": perf_units, "source": perf_source}
+        # Add note to sourcing info. about handling of HP costs in the EIA data
+        if "HP" in tech_dict_key:
+            cost_source += (
+                " (NOTE EIA convention of dividing HP costs for existing "
+                "buildings by 2 while putting all HP costs for new "
+                "construction under the heating end use)")
         # Update cost information
-        data_dict["installed cost"] = {"typical": cost_typ, "best": cost_best,
-                                       "units": "2017$/unit",
-                                       "source": cost_source}
+        data_dict["installed cost"] = {
+            "before incentives": {
+                "typical": cost_typ, "best": cost_best, "units": "2017$/unit",
+                "source": cost_source},
+            "incentives": {
+                "by performance tier": incentives,
+                "performance units": perf_units}}
         # Update lifetime information
         data_dict["lifetime"] = {"average": life_avg, "range": life_range,
                                  "units": "years", "source": life_source}
@@ -806,14 +872,15 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
     return data_dict
 
 
-def fill_years_nlt(match_list, project_dict, tech_dict_key):
+def fill_years_nlt_typ_best(match_list, project_dict, tech_dict_key):
     """ Reconstruct EIA performance, cost, and consumer choice parameter
     projections for non-lighting technologies into a list of dicts containing
     information for each projection year for microsegments in 'mseg.py'"""
     # For the special non-lighting technology cases of refrigeration and
-    # freezers, any given year will have multiple technology configurations.
-    # The next few lines average the performance and cost figures across those
-    # configurations to yield just one number for each year
+    # freezers and clothes washing, any given year will have multiple
+    # technology configurations. The next few lines average the performance
+    # and cost figures across those configurations to yield just one number
+    # for each year
     if tech_dict_key in ["refrigeration", "freezers", "clothes washing"]:
 
         # Register number of refrigerator/freezer/clothes washing technology
@@ -844,12 +911,13 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
                     numpy.average(
                     match_list[match_list_inds]["INST_COST"]),
                     numpy.average(
+                    match_list[match_list_inds]["RETAIL_COST"]),
+                    numpy.average(
                     match_list[match_list_inds]["EFF_CHOICE_P1"]),
                     numpy.average(
                     match_list[match_list_inds]["EFF_CHOICE_P2"])))
             else:
                 raise ValueError('Technology sub-type year bins inconsistent!')
-
         # Once all the averaged figures are available, reconstruct this
         # information into a numpy array with named columns for later use
         # (* NOTE: it may be possible to perform the above averaging on the
@@ -859,22 +927,63 @@ def fill_years_nlt(match_list, project_dict, tech_dict_key):
                                  dtype=[("START_EQUIP_YR", "<i8"),
                                         ("BASE_EFF", "<f8"),
                                         ("INST_COST", "<f8"),
+                                        ("RETAIL_COST", "<f8"),
                                         ("EFF_CHOICE_P1", "<f8"),
                                         ("EFF_CHOICE_P2", "<f8")])
-    # Update performance information for projection years
-    perf = stitch(match_list, project_dict, "BASE_EFF")
-    # Update cost information for projection years
-    cost = stitch(match_list, project_dict, "INST_COST")
-    # Update consumer choice parameters for projection years
-    b1 = stitch(match_list, project_dict, "EFF_CHOICE_P1")
-    b2 = stitch(match_list, project_dict, "EFF_CHOICE_P2")
 
-    # Return updated EIA performance, cost, and consumer choice information for
-    # non-lighting technologies
+    # Update performance information for projection years
+    perf = stitch(
+        match_list, project_dict, "BASE_EFF", incent_flag=False)
+    # Update cost information for projection years; split by new vs. existing
+    cost_n = stitch(match_list, project_dict, "RETAIL_COST", incent_flag=False)
+    cost_e = stitch(match_list, project_dict, "INST_COST", incent_flag=False)
+    cost = {"new": cost_n, "existing": cost_e}
+    # Update consumer choice parameters for projection years
+    b1 = stitch(match_list, project_dict, "EFF_CHOICE_P1", incent_flag=False)
+    b2 = stitch(match_list, project_dict, "EFF_CHOICE_P2", incent_flag=False)
+
     return [perf, cost, b1, b2]
 
 
-def fill_years_lt(match_list, project_dict):
+def fill_years_nlt_incent(match_list, project_dict, tech_dict_key):
+    """ Reconstruct EIA technology incentive information for non-lighting
+    technologies into a dict containing information for each
+    projection year for microsegments in 'mseg.py'"""
+
+    # Find performance levels to attach to incentives
+    perf = stitch(match_list, project_dict, "BASE_EFF", incent_flag=True)
+    # Find federal new incentives
+    fed_new = stitch(match_list, project_dict, "FD_NEW_SUB", incent_flag=True)
+    # Find federal existing incentives
+    fed_exist = stitch(
+        match_list, project_dict, "FD_REPL_SUB", incent_flag=True)
+    # Find non-federal new incentives
+    nf_new = stitch(match_list, project_dict, "NF_NEW_SUB", incent_flag=True)
+    # Find non-federal existing incentives
+    nf_exist = stitch(
+        match_list, project_dict, "NF_REPL_SUB", incent_flag=True)
+    # Sum federal/non-federal new incentives
+    incent_new = {
+        yr: [x + y for x, y in zip(fed_new[yr], nf_new[yr])]
+        for yr in fed_new.keys()}
+    # Sum federal/non-federal existing incentives
+    incent_exist = {
+        yr: [x + y for x, y in zip(fed_exist[yr], nf_exist[yr])]
+        for yr in fed_exist.keys()}
+    # Combine everything together in an output dict
+    output = {
+        "new": {
+            yr: [[x, y] for x, y in zip(perf[yr], incent_new[yr])] for
+            yr in perf.keys()},
+        "existing": {
+            yr: [[x, y] for x, y in zip(perf[yr], incent_exist[yr])] for
+            yr in perf.keys()}}
+
+    # Return updated EIA incentives information for non-lighting technologies
+    return output
+
+
+def fill_years_lt_typ_best(match_list, project_dict):
     """ Reconstruct EIA performance, cost, and lifetime projections for
     lighting technologies into a list of dicts containing information for each
     projection year used for microsegments in "mseg.py" """
@@ -883,35 +992,82 @@ def fill_years_lt(match_list, project_dict):
     match_list = match_list[numpy.where(match_list["LIFE_HRS"] != 9999)]
 
     # Update performance information for projection years
-    perf = stitch(match_list, project_dict, "BASE_EFF")
+    perf = stitch(match_list, project_dict, "BASE_EFF", incent_flag=False)
     # Update cost information for projection years
-    cost = stitch(match_list, project_dict, "INST_COST")
+    cost = stitch(match_list, project_dict, "INST_COST", incent_flag=False)
     # Update lifetime information for projection years
-    life = stitch(match_list, project_dict, "LIFE_HRS")
+    life = stitch(match_list, project_dict, "LIFE_HRS", incent_flag=False)
     # Convert lighting lifetimes from hours to years
     for yr in life.keys():
         life[yr] = life[yr] / 8760
     # Update technology choice beta parameter 1 for projection years
-    b1 = stitch(match_list, project_dict, "Beta_1")
+    b1 = stitch(match_list, project_dict, "Beta_1", incent_flag=False)
     # Update technology choice beta parameter 2 for projection years
-    b2 = stitch(match_list, project_dict, "Beta_2")
+    b2 = stitch(match_list, project_dict, "Beta_2", incent_flag=False)
 
     # Return updated EIA performance, cost, lifetime, and technology choice
     # information for lighting technologies
     return [perf, cost, life, b1, b2]
 
 
-def stitch(input_array, project_dict, col_name):
-    """ Given EIA performance, cost, and lifetime projections for a technology
-    between a series of time periods (i.e. 2010-2014, 2014-2020, 2020-2040),
-    reconstruct this information in a dict with annual keys across the
+def fill_years_lt_incent(match_list, project_dict):
+    """ Reconstruct EIA performance, cost, and lifetime projections for
+    lighting technologies into a list of dicts containing information for each
+    projection year used for microsegments in "mseg.py" """
+
+    # Filter out any rows where 9999 is found in lighting life column (invalid)
+    match_list = match_list[numpy.where(match_list["LIFE_HRS"] != 9999)]
+
+    # Find performance levels to attach to incentives
+    perf = stitch(match_list, project_dict, "BASE_EFF", incent_flag=True)
+    # Set the lighting column names with incentives info. to loop through
+    lgt_ee_incent_cols = [
+        "EE_Sub1", "EE_Sub2", "EE_Sub3", "EE_Sub4", "EE_Sub5",
+        "EE_Sub6", "EE_Sub7", "EE_Sub8", "EE_Sub9"]
+    # Loop through all lighting incentives columns and add together incentives
+    for ind_i, ee_i_col in enumerate(lgt_ee_incent_cols):
+        # Initialize dict with incentives split by years for first column
+        if ind_i == 0:
+            incent_sums = stitch(
+                match_list, project_dict, ee_i_col, incent_flag=True)
+        # Add to dict with subsequent incentives columns
+        else:
+            incent_sums_add = stitch(
+                match_list, project_dict, ee_i_col, incent_flag=True)
+            # Loop through all years and add incentives for the year
+            for yr in project_dict.keys():
+                incent_sums[yr] = [x + y for x, y in zip(
+                    incent_sums[yr], incent_sums_add[yr])]
+    # Pull together performance and incentives information into output dict
+    output = {
+        yr: [[x, y] for x, y in zip(perf[yr], incent_sums[yr])] for
+        yr in perf.keys()}
+
+    # Return updated EIA incentives information for lighting technologies
+    return output
+
+
+def stitch(input_array, project_dict, col_name, incent_flag):
+    """ Given EIA performance, cost, lifetime, or incentives projections for a
+    technology between a series of time periods (i.e. 2010-2014, 2014-2020,
+    2020-2040), reconstruct this information in a dict with annual keys across
     modeling time horizon used in "mseg.py" (i.e. {"2009": XXX, "2010": XXX,
     ..., "2040": XXX}) """
 
-    # Initialize output dict which will contain EIA performance, cost,
+    # If stitching together incentives information (which can include multiple
+    # technology tiers), determine the number of tiers to loop through.
+    # Otherwise set to a single tier to loop through (e.g., typical or best).
+    # Also initialize output dict which will contain EIA performance, cost,
     # or lifetime information continuous across each year of the
-    # modeling time horizon
-    output_dict = {}
+    # modeling time horizon. This dict will have list values for incentives
+    # information, given multiple technology performance tiers; otherwise,
+    # for typical/best cost/performance/lifetime info. it will be single floats
+    if incent_flag is True:
+        incent_tiers = sorted(numpy.unique(input_array["NAME"]))
+        output_dict = {yr: [] for yr in project_dict.keys()}
+    else:
+        incent_tiers = ["NA"]
+        output_dict = {yr: None for yr in project_dict.keys()}
 
     # Initialize a previous year value indicator to be used
     # in cases where the input array does not contain information
@@ -921,49 +1077,91 @@ def stitch(input_array, project_dict, col_name):
     # Loop through each year of the projection and fill in information
     # from the appropriate row and column from the input array
     for (yr_ind, yr) in enumerate(sorted(project_dict.keys())):
-        # Reduce the input array to only the row concerning the year being
-        # looped through (if this year exists in the "START_EQUIP_YR" column)
-        array_reduce = input_array[input_array["START_EQUIP_YR"] == int(yr)]
-        # If a unique row has been discovered for the looped year, draw output
-        # information from column in that row keyed by col_name input; if
-        # there are multiple rows that match the looped year, yield an error
-        if array_reduce.shape[0] > 0:
-            if array_reduce.shape[0] == 1:
-                output_dict[yr] = float(array_reduce[col_name])
-            else:
-                raise ValueError("Multiple identical years in filtered array!")
-        # If no row has been discovered for the looped year and we are not in
-        # the first year of the loop, set output information to that of the
-        # previously looped year
-        elif yr_ind != 0:
-            output_dict[yr] = prev_yr_val
-        # If no row has been discovered for the looped year and we are in the
-        # first year of the loop, set output information to that of the row
-        # with a "START_EQUIP_YR" that is closest to the looped year
-        else:
-            # Find the row(s) where the absolute difference between the loop
-            # year and value for the "START_EQUIP_YR" column is smallest
-            array_close_ind = numpy.where(abs(int(yr) -
-                                          input_array["START_EQUIP_YR"].astype(int)) ==
-                                          min(abs(int(yr) -
-                                              input_array["START_EQUIP_YR"].astype(int))))[0]
-
-            # If only one row has been found above, draw output information
-            # from the column in that row keyed by col_name input
-            if len(array_close_ind) == 1:
-                output_dict[yr] = float(input_array[array_close_ind][col_name])
-            # If multiple rows have been found above and each has a unique year
-            # value, draw output information from the column in the first of
-            # these rows keyed by col_name input; if multiple rows have been
-            # found with the same year value, yield an error
-            else:
-                if len(array_close_ind) > 1 and \
-                   len(numpy.unique(array_close_ind)) == len(array_close_ind):
-                    output_dict[yr] = float(
-                        input_array[array_close_ind][0][col_name])
+        # Loop through all technology tiers (multiple tiers for incentives)
+        for t_ind, t_name in enumerate(incent_tiers):
+            # Reduce the input array to only the row concerning the year being
+            # looped through (if year exists in the "START_EQUIP_YR" column)
+            array_reduce = input_array[
+                (input_array["START_EQUIP_YR"] == int(yr))]
+            # Further reduce information to current tech. tier if applicable
+            # for incentives data
+            if incent_flag is True:
+                array_reduce = array_reduce[(array_reduce["NAME"] == t_name)]
+            # If a unique row has been discovered for looped year, draw output
+            # information from column in that row keyed by col_name input; if
+            # there are multiple rows that match the looped year, check for
+            # incentives updating case (in which this is expected) yield error
+            if array_reduce.shape[0] > 0:
+                if array_reduce.shape[0] == 1:
+                    # For incentives info., append to list, otherwise set float
+                    if incent_flag is True:
+                        output_dict[yr].append(float(array_reduce[col_name]))
+                    else:
+                        output_dict[yr] = float(array_reduce[col_name])
                 else:
-                    raise ValueError("Multiple identical years in filtered" +
-                                     " array!")
+                    raise ValueError(
+                        "Multiple identical years in filtered array!")
+            # If no row has been discovered for looped year and we are not in
+            # the first year of the loop, set output information to that of the
+            # previously looped year
+            elif yr_ind != 0:
+                # For incentives info., append to list, otherwise set float
+                if incent_flag is True:
+                    output_dict[yr].append(prev_yr_val[t_ind])
+                else:
+                    output_dict[yr] = prev_yr_val
+            # If no row has been discovered for looped year and we are in the
+            # first year of the loop, set output information to that of the row
+            # with a "START_EQUIP_YR" that is closest to the looped year
+            else:
+                # Find the row(s) where absolute difference between the loop
+                # year and value for the "START_EQUIP_YR" column is smallest
+
+                # For incentives info., further restrict information to current
+                # tech. tier
+                if incent_flag is True:
+                    array_close_ind = numpy.where((
+                        abs(int(yr) - input_array[
+                            "START_EQUIP_YR"].astype(int)) ==
+                        min(abs(int(yr) - input_array[
+                            "START_EQUIP_YR"].astype(int)))) &
+                        (input_array["NAME"] == t_name))[0]
+                else:
+                    array_close_ind = numpy.where(
+                        abs(int(yr) - input_array[
+                            "START_EQUIP_YR"].astype(int)) ==
+                        min(abs(int(yr) - input_array[
+                            "START_EQUIP_YR"].astype(int))))[0]
+
+                # If only one row has been found above, draw output information
+                # from the column in that row keyed by col_name input
+                if len(array_close_ind) == 1:
+                    # For incentives info., append to list, otherwise set float
+                    if incent_flag is True:
+                        output_dict[yr].append(float(
+                            input_array[array_close_ind][col_name]))
+                    else:
+                        output_dict[yr] = float(
+                            input_array[array_close_ind][col_name])
+                # If multiple rows have been found above and each has unique yr
+                # value, draw output information from column in the first of
+                # these rows keyed by col_name input; if multiple rows were
+                # found with the same year value, check for incentives updating
+                # case (in which this is expected) and otherwise yield error
+                else:
+                    if len(array_close_ind) > 1 and (
+                            len(numpy.unique(array_close_ind)) ==
+                            len(array_close_ind)):
+                        # For incentives info., append to list, otherwise float
+                        if incent_flag is True:
+                            output_dict[yr].append(float(
+                                input_array[array_close_ind][0][col_name]))
+                        else:
+                            output_dict[yr] = float(
+                                input_array[array_close_ind][0][col_name])
+                    else:
+                        raise ValueError(
+                            "Multiple identical years in filtered array!")
 
         # Update previous year value indicator to the output information for
         # the current loop
