@@ -337,7 +337,8 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
         # an unmodified zero in certain building and fuel type combinations
         if k == k2 and not (
             cpl and (
-                (k == 'other' and not isinstance(i, dict)) or k == 'unspecified')):
+                (k == 'other' and not isinstance(i, dict)) or
+                k == 'unspecified')):
             # Identify appropriate census division to custom region
             # conversion weighting factor array as a function of building
             # type; k and k2 correspond to the current top level/parent key,
@@ -405,17 +406,30 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
                     # as a list and must be reprocessed using a list
                     # comprehension (or comparable looping approach)
                     if isinstance(base_dict[k], list):
-                        base_dict[k] = [z * convert_fact for z
-                                        in base_dict[k]]
+                        try:
+                            base_dict[k] = [z * convert_fact for z
+                                            in base_dict[k]]
+                        except TypeError:  # one level deeper (incentives data)
+                            for k_s in range(len(base_dict[k])):
+                                base_dict[k][k_s] = [
+                                    z_s * convert_fact for z_s
+                                    in base_dict[k][k_s]]
                     else:
                         base_dict[k] = base_dict[k] * convert_fact
                 else:
                     if isinstance(base_dict[k], list):
-                        base_dict[k] = [sum(y) for y
-                                        in zip(base_dict[k],
-                                        [z * convert_fact for z
-                                         in add_dict[k2]])]
-
+                        try:
+                            base_dict[k] = [sum(y) for y
+                                            in zip(base_dict[k],
+                                            [z * convert_fact for z
+                                             in add_dict[k2]])]
+                        except TypeError:  # one level deeper (incentives data)
+                            for k_s in range(len(base_dict[k])):
+                                base_dict[k][k_s] = [
+                                    sum(y_s) for y_s in zip(
+                                        base_dict[k][k_s], [
+                                            z_s * convert_fact for z_s
+                                            in add_dict[k2][k_s]])]
                     else:
                         base_dict[k] = (base_dict[k] +
                                         add_dict[k2] * convert_fact)
@@ -665,7 +679,8 @@ def env_cpl_data_handler(
                                                               cost_convert)
                     # Add the cost information to the corresponding dict
                     # extending the cost values for each year
-                    the_cost['typical'][k] = {str(yr): adj_cost for yr in years}
+                    the_cost['typical'][k] = {
+                        str(yr): adj_cost for yr in years}
             else:
                 # Use the cost conversion function to obtain the costs
                 # for the current envelope component
