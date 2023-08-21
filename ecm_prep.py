@@ -20,7 +20,6 @@ from ast import literal_eval
 import math
 import pandas as pd
 from datetime import datetime
-import argparse
 
 
 class MyEncoder(json.JSONEncoder):
