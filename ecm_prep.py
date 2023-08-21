@@ -20,6 +20,7 @@ from ast import literal_eval
 import math
 import pandas as pd
 from datetime import datetime
+import argparse
 
 
 class MyEncoder(json.JSONEncoder):
@@ -2004,6 +2005,7 @@ class Measure(object):
             efficient case results for fuel switching measures.
         handyvars (object): Global variables useful across class methods.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
+        tech_switch_to (str, None): Technology switch to flag.
         technology_type (string): Flag for supply- or demand-side technology.
         yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
@@ -2084,7 +2086,11 @@ class Measure(object):
             # If no 'retro_rate' attribute was given for the ECM, use default
             # retrofit rate value
             self.retro_rate = self.handyvars.retro_rate
-
+        # Check for technology switching attribute, and if not there set None
+        try:
+            self.tech_switch_to
+        except AttributeError:
+            self.tech_switch_to = None
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -2789,6 +2795,45 @@ class Measure(object):
             else:
                 bldg_sect = "commercial"
 
+            # Develop "switched to" microsegment information for measures
+            # that change to a different technology from the baseline
+            if all([x is not None for x in [
+                    self.fuel_switch_to, self.tech_switch_to]]):
+                # Handle tech. switch from same fuel (e.g., resistance to HP);
+                # in this case, fuel remains same as baseline mseg info.
+                if self.fuel_switch_to is None:
+                    mskeys_swtch_fuel = mskeys[3]
+                else:
+                    mskeys_swtch_fuel = self.fuel_switch_to
+                # Anticipate a cases where users may be confused about which
+                # technology to set `tech_switch_to` to b/c the EIA technology
+                # is either None or (as with HPWH) there is no specific
+                # EIA technology for the technology being switched to
+                if bldg_sect == "residential":
+                    if mskeys[4] in ["cooking", "drying"]:
+                        mskeys_swtch_tech = None
+                    elif mskeys[4] in ["water heating"]:
+                        mskeys_swtch_tech = "electric WH"
+                    else:
+                        mskeys_swtch_tech = self.tech_switch_to
+                else:
+                    mskeys_swtch_tech = self.tech_switch_to
+                # Produce "switched to" microsegment information
+                if "supply" in mskeys:
+                    # primary/secondary, region, bldg, fuel, end use, tech
+                    # type (supply/demand), tech, new/existing
+                    mskeys_swtch = [
+                        mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
+                        mskeys[4], mskeys[5], mskeys_swtch_tech, mskeys[7]]
+                else:
+                    # primary/secondary, region, bldg, fuel, end use, tech,
+                    # new/existing
+                    mskeys_swtch = [
+                        mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
+                        mskeys[4], mskeys_swtch_tech, mskeys[6]]
+            else:
+                mskeys_swtch = ""
+
             # Check whether early retrofit rates are specified at the
             # component (microsegment) level; if so, restrict early retrofit
             # information to that of the current microsegment
@@ -2841,8 +2886,9 @@ class Measure(object):
             # and sub-market scaling fractions/sources if: a) For loop through
             # all measure mseg key chains is in first iteration, b) A switch
             # has been made from updating "primary" microsegment info. to
-            # updating "secondary" microsegment info. (relevant to cost/
-            # lifetime units only), c) Any of performance/cost/lifetime units
+            # updating "secondary" microsegment, from one end use to another,
+            # or from one building vintage to another (relevant to cost
+            # units only), c) Any of performance/cost/lifetime units
             # is a dict which must be parsed further to reach the final value.
             # * Note: cost/lifetime/sub-market information is not updated for
             # "secondary" microsegments, which do not pertain to these
@@ -2872,7 +2918,8 @@ class Measure(object):
                 if (sqft_subst == 1 or "$/ft^2 floor" in self.cost_units) or \
                     ind == 0 or ((
                         ms_iterable[ind][0] != ms_iterable[ind - 1][0]) or (
-                        ms_iterable[ind][4] != ms_iterable[ind - 1][4])) \
+                        ms_iterable[ind][4] != ms_iterable[ind - 1][4]) or (
+                        ms_iterable[ind][-1] != ms_iterable[ind - 1][-1])) \
                    or isinstance(self.installed_cost, dict):
                     cost_meas = self.installed_cost
                 # Set lifetime attribute to initial value
@@ -3174,6 +3221,11 @@ class Measure(object):
             # footage, and new building fraction variables for the baseline
             # microsegment associated with the current key chain
             base_cpl = msegs_cpl
+            # Initialize same data for "switched to" mseg, if applicable
+            if mskeys_swtch:
+                base_cpl_swtch = base_cpl
+            else:
+                base_cpl_swtch = ""
             mseg = msegs
             mseg_sqft_stock = msegs
             new_constr = {"annual new": {}, "total new": {},
@@ -3193,19 +3245,19 @@ class Measure(object):
                 # current microsegment to the census division it belongs to,
                 # to enable retrieval of the cost/performance/lifetime data
                 if (i == 1) and self.handyvars.region_cpl_mapping:
-                    mskeys_cpl_map = [
+                    reg_cpl_map = [
                         x[0] for x in
                         self.handyvars.region_cpl_mapping.items() if
                         mskeys[1] in x[1]][0]
                     # Mapping should yield single string for census division
-                    if not isinstance(mskeys_cpl_map, str):
+                    if not isinstance(reg_cpl_map, str):
                         raise ValueError("State " + mskeys[1] +
                                          " could not be mapped to a census "
                                          "division for the purpose of "
                                          "retrieving baseline cost, "
                                          "performance, and lifetime data")
                 else:
-                    mskeys_cpl_map = ''
+                    reg_cpl_map = ''
 
                 # Check whether baseline microsegment cost/performance/lifetime
                 # data are in dict format and current key is in dict keys; if
@@ -3218,7 +3270,7 @@ class Measure(object):
                 # used in the stock_energy market data
                 if (isinstance(base_cpl, dict) and (
                     (mskeys[i] in base_cpl.keys()) or (
-                     mskeys_cpl_map and mskeys_cpl_map in base_cpl.keys())) or
+                     reg_cpl_map and reg_cpl_map in base_cpl.keys())) or
                     mskeys[i] in [
                         "primary", "secondary", "new", "existing", None]):
                     # Skip over "primary", "secondary", "new", and "existing"
@@ -3226,21 +3278,32 @@ class Measure(object):
                     # information (this information is not broken out by these
                     # categories)
                     if mskeys[i] not in [
-                            "primary", "secondary", "new", "existing", None]:
+                            "primary", "secondary", "new", "existing"]:
 
                         # Restrict base cost/performance/lifetime dict to key
                         # chain info.
-                        if mskeys_cpl_map:
-                            base_cpl = base_cpl[mskeys_cpl_map]
+                        if reg_cpl_map:  # Handle region mapping
+                            base_cpl = base_cpl[reg_cpl_map]
+                            # Use same mapping for "switched to" data if
+                            # applicable
+                            if base_cpl_swtch:
+                                base_cpl_swtch = \
+                                    base_cpl_swtch[reg_cpl_map]
                         else:
-                            base_cpl = base_cpl[mskeys[i]]
+                            if mskeys[i] is not None:  # Handle 'None' tech.
+                                base_cpl = base_cpl[mskeys[i]]
+                            # Do the same for "switched to" data if applicable
+                            if base_cpl_swtch and mskeys_swtch[i] is not None:
+                                base_cpl_swtch = \
+                                    base_cpl_swtch[mskeys_swtch[i]]
 
-                        # Restrict stock/energy dict to key chain info.
-                        mseg = mseg[mskeys[i]]
+                        if mskeys[i] is not None:
+                            # Restrict stock/energy dict to key chain info.
+                            mseg = mseg[mskeys[i]]
 
-                        # Restrict ft^2 floor area dict to key chain info.
-                        if i < 3:  # Note: ft^2 floor area broken out 2 levels
-                            mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
+                            # Restrict ft^2 floor area dict to key chain info.
+                            if i < 3:  # Note: ft^2 fl. broken out 2 levels
+                                mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
 
                     # Handle a superfluous 'undefined' key in the ECM
                     # cost, performance, and lifetime fields that is generated
@@ -4006,16 +4069,63 @@ class Measure(object):
                         # Set baseline performance units
                         perf_base_units = base_cpl["performance"]["units"]
 
-                        # Set baseline cost; try for case where cost is given
-                        # separately for new and existing vintage, otherwise
-                        # use the same values for both vintages
-                        try:
-                            cost_base = base_cpl["installed cost"]["typical"][
-                                mskeys[-1]]
-                        except KeyError:
-                            cost_base = base_cpl["installed cost"]["typical"]
+                        # Check for incentives information in costs; in this
+                        # case, costs before incentives are under a sub-key
+                        # and incentives under another sub-key
+
+                        # Pull out typical cost data before incentives
+                        if "incentives" in base_cpl["installed cost"].keys():
+                            # Set baseline costs before incentives dict
+                            cost_base_init = base_cpl["installed cost"][
+                                "before incentives"]
+                            # Pull out baseline incentives data
+                            cost_incentives = base_cpl["installed cost"][
+                                "incentives"]["by performance tier"]
+                            # Further restrict incentives by new or existing,
+                            # if applicable
+                            if mskeys[-1] in cost_incentives.keys():
+                                cost_incentives = cost_incentives[mskeys[-1]]
+                            # Set performance units for base mseg incentives
+                            incentives_units_base = base_cpl["installed cost"][
+                                "incentives"]["performance units"]
+                            # Set incentives for "switched to" mseg if needed
+                            if base_cpl_swtch:
+                                # Pull out measure incentives data
+                                cost_incentives_meas = base_cpl_swtch[
+                                    "installed cost"]["incentives"][
+                                    "by performance tier"]
+                                # Further restrict incentives by new or
+                                # existing, if applicable
+                                if mskeys_swtch[-1] in \
+                                        cost_incentives_meas.keys():
+                                    cost_incentives_meas = \
+                                        cost_incentives_meas[mskeys[-1]]
+                                # Set performance units for measure mseg
+                                # incentives
+                                incentives_units_meas = base_cpl_swtch[
+                                    "installed cost"]["incentives"][
+                                    "performance units"]
+                            else:
+                                cost_incentives_meas, incentives_units_meas = (
+                                    "" for n in range(2))
+                        else:
+                            # Set baseline costs
+                            cost_base_init = base_cpl["installed cost"]
+                            # No incentives data
+                            cost_incentives, cost_incentives_meas, \
+                                incentives_units_base, \
+                                incentives_units_meas = (
+                                    "" for n in range(4))
+
+                        # In some cases, typical cost data will be split
+                        # further by new vs. existing keys; handle accordingly
+                        # and finalize costs (before incentives)
+                        if mskeys[-1] in cost_base_init["typical"].keys():
+                            cost_base = cost_base_init["typical"][mskeys[-1]]
+                        else:
+                            cost_base = cost_base_init["typical"]
                         # Set baseline cost units
-                        cost_base_units = base_cpl["installed cost"]["units"]
+                        cost_base_units = cost_base_init["units"]
 
                         # Set baseline lifetime
                         life_base = base_cpl["lifetime"]["average"]
@@ -4123,6 +4233,10 @@ class Measure(object):
                                          yr in self.handyvars.aeo_years}
                             # Set baseline performance units to measure units
                             perf_base_units = perf_units
+                            # Set baseline mseg incentive performance units
+                            # to measure units, if applicable
+                            if incentives_units_base:
+                                incentives_units_base = perf_units
                             # Warn the user of the value/units conversions
                             if mskeys[-2] is not None and \
                                     mskeys[-2] not in cpl_warn:
@@ -4150,10 +4264,15 @@ class Measure(object):
 
                         # If the baseline technology is a heat pump in the
                         # residential sector, account for the fact that EIA
-                        # divides all heat pump costs by 2 when separately
-                        # considered across the heating and cooling services
+                        # divides all existing heat pump costs by 2 when
+                        # separately considered across the heating and cooling
+                        # services. For new construction, EIA puts the full
+                        # cost in heating and zeroes out cooling (as we also
+                        # do above)
                         if bldg_sect == "residential" and (
-                                mskeys[-2] is not None and "HP" in mskeys[-2]):
+                                mskeys[-1] == "existing" and
+                                (mskeys[-2] is not None and
+                                 "HP" in mskeys[-2])):
                             # Multiply heat pump baseline cost units by 2
                             # to account for EIA heat pump cost handling
                             cost_base = {yr: cost_base[yr] * 2 for yr in
@@ -4186,6 +4305,10 @@ class Measure(object):
                         # valid cost/performance/lifetime data
                         valid_keys_cpl += 1
                     except (TypeError, ValueError):
+                        # No incentives data
+                        cost_incentives, cost_incentives_meas, \
+                            incentives_units_base, incentives_units_meas = (
+                                "" for n in range(4))
                         # In cases with missing baseline technology cost,
                         # performance, or lifetime data where the user
                         # specifies the measure as an 'add-on' type or
@@ -4330,6 +4453,9 @@ class Measure(object):
                         {yr: x for yr in self.handyvars.aeo_years} for x in [
                             cost_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
+                    cost_incentives, cost_incentives_meas, \
+                        incentives_units_base, incentives_units_meas = (
+                            "" for n in range(4))
 
                 # Handle special case of commercial heat pumps, where costs
                 # may be specified in $/kBtu/h heating or cooling but the
@@ -4693,6 +4819,117 @@ class Measure(object):
                         if not isinstance(cost_meas, dict):
                             cost_meas = {yr: cost_meas for yr in
                                          self.handyvars.aeo_years}
+                    # If incentives data were found, apply them to
+                    # baseline and measures tech. costs on the basis of their
+                    # performance levels
+                    if cost_incentives:
+                        # First check to ensure performance units for
+                        # incentives data are consistent with those of
+                        # measure and baseline tech.; if not, incentives
+                        # should not be applied
+                        if all([x == incentives_units_base and (
+                            not incentives_units_meas or (
+                                incentives_units_meas and
+                                x == incentives_units_meas))
+                                for x in [perf_base_units, perf_units]]):
+                            # Initialize incentives multipliers as 1
+                            mlt_b, mlt_m = (1 for n in range(2))
+                            # Multiply any existing residential HP heating
+                            # incentives by 2 while zeroing out existing
+                            # residential HP cooling incentives to correct for
+                            # EIA convention of splitting incentives between
+                            # the two (Scout puts all costs in heating)
+                            if bldg_sect == "residential" and \
+                                    mskeys[-1] == "existing":
+                                # Baseline mseg incentives multiplier
+                                if mskeys[-2] is not None and \
+                                        "HP" in mskeys[-2]:
+                                    if mskeys[4] == "heating":
+                                        mlt_b = 2
+                                    else:
+                                        mlt_b = 0
+                                # Measure "switch to" mseg incentives
+                                # multiplier (if applicable)
+                                if mskeys_swtch and \
+                                        mskeys_swtch[-2] is not None and \
+                                        "HP" in mskeys_swtch[-2]:
+                                    if mskeys_swtch[4] == "heating":
+                                        mlt_m = 2
+                                    else:
+                                        mlt_m = 0
+
+                            # Loop through all years and find/apply incentives
+                            for yr in self.handyvars.aeo_years:
+                                # Handle inverted performance units (lower
+                                # is better performance/more incentives)
+                                if perf_base_units not in \
+                                        self.handyvars.inverted_relperf_list:
+                                    # Performance levels greater/equal to
+                                    # minimum (e.g., COP) get the incentive
+
+                                    # Handle case where measure switches from
+                                    # baseline segment (and thus uses different
+                                    # incentives information)
+                                    if not cost_incentives_meas:
+                                        base_val_yr, meas_val_yr = ([
+                                            x[1] * mlt_b for x in
+                                            cost_incentives[yr] if y >= x[0]]
+                                            for y in [
+                                                perf_base[yr], perf_meas])
+                                    else:
+                                        base_val_yr = [
+                                            x[1] * mlt_b for x in
+                                            cost_incentives[yr] if
+                                            perf_base[yr] >= x[0]]
+                                        meas_val_yr = [
+                                            x[1] * mlt_m for x in
+                                            cost_incentives_meas[yr]
+                                            if perf_meas >= x[0]]
+                                else:
+                                    # Performance levels less than/equal to
+                                    # maximum (e.g. kwh/yr) get the incentive
+
+                                    # Handle case where measure switches from
+                                    # baseline segment (and thus uses different
+                                    # incentives information)
+                                    if not cost_incentives_meas:
+                                        base_val_yr, meas_val_yr = (
+                                            [x[1] * mlt_b for x in
+                                             cost_incentives[yr] if y <= x[0]]
+                                            for y in [
+                                                perf_base[yr], perf_meas])
+                                    else:
+                                        base_val_yr = [
+                                            x[1] * mlt_b for x in
+                                            cost_incentives[yr]
+                                            if perf_base[yr] <= x[0]]
+                                        meas_val_yr = [
+                                            x[1] * mlt_m for x in
+                                            cost_incentives_meas[yr]
+                                            if perf_meas <= x[0]]
+                                # Apply the largest retrieved incentive level
+                                # to baseline and measure installed costs
+                                if len(base_val_yr) > 0:
+                                    cost_base[yr] -= max(base_val_yr)
+                                if len(meas_val_yr) > 0:
+                                    cost_meas[yr] -= max(meas_val_yr)
+                        else:
+                            # For warning message, set measure units of
+                            # None (indicating no measure incentives units
+                            # that are distinct from baseline incentive units)
+                            # to those of the baseline for clarity
+                            if not incentives_units_meas:
+                                incentives_units_warn = incentives_units_base
+                            warnings.warn(
+                                "Incentives found for mseg " +
+                                str(mskeys) + " but cannot be applied "
+                                "due to inconsistent performance units: "
+                                "(base = " + perf_base_units + "; "
+                                "measure = " + perf_units + "; base "
+                                "incentives = " + incentives_units_base + "; "
+                                "measure incentives = " +
+                                incentives_units_warn + ")")
+                            pass
                 else:
                     raise KeyError(
                         "Invalid performance or cost units for ECM '" +
@@ -5016,8 +5253,11 @@ class Measure(object):
                     if mskeys[4] in ["heating", "cooling", "secondary heating",
                                      "water heating"]:
                         # Flag for HP measure (requires special handling)
-                        hp_flag = any([x in self.name for x in [
-                            "HP", "heat pump", "Heat Pump"]])
+                        hp_flag = ((
+                            self.tech_switch_to is not None and
+                            "HP" in self.tech_switch_to) or any([
+                                x in self.name for x in [
+                                    "HP", "heat pump", "Heat Pump"]]))
 
                         # Measure is HP for heating/cooling
                         if hp_flag and mskeys[4] in [
@@ -10148,6 +10388,8 @@ class MeasurePackage(Measure):
         technology (list): Applicable technologies for package.
         technology_type (dict): Applicable technology types (supply/demand) for
             package.
+        fuel_switch_to (str, None): Fuel switch to flag.
+        tech_switch_to (str, None): Technology switch to flag.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a package's master market microsegments (stock,
                energy, carbon, cost),
@@ -10234,11 +10476,12 @@ class MeasurePackage(Measure):
         #         "ECM '" + self.name + "' name must be <= 40 characters")
         self.benefits = bens
         self.remove = False
-        # Set energy outputs and fuel switching properties to that of the
+        # Set energy outputs and fuel/tech switching properties to that of the
         # first equipment measure; consistency in these properties across
         # measures in the package was checked for above
         self.usr_opts = self.contributing_ECMs_eqp[0].usr_opts
         self.fuel_switch_to = self.contributing_ECMs_eqp[0].fuel_switch_to
+        self.tech_switch_to = self.contributing_ECMs_eqp[0].tech_switch_to
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
