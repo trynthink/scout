@@ -5085,11 +5085,14 @@ class Engine(object):
                                         self.gcam_in[reg][s[1]][s[2]][s[3]][
                                             s[4]]['energy'][k] -= esave[k]
                                         # Ensure that energy is never decreased
-                                        # below zero
+                                        # below zero (indicates mapping issue)
                                         if self.gcam_in[reg][s[1]][s[2]][
-                                                s[3]][s[4]]['energy'][k] < 0:
-                                            self.gcam_in[reg][s[1]][s[2]][
-                                                s[3]][s[4]]['energy'][k] = 0
+                                                s[3]][s[4]]['energy'][k] < -1:
+                                            raise ValueError(
+                                                "Energy is less than zero"
+                                                " for measure " + m.name +
+                                                " and segment " + str(s) +
+                                                " (breakout: " + brkout + ")")
                                         if stk_delt:
                                             # Add difference in stock to
                                             # appropriate GCAM reference
@@ -5098,12 +5101,17 @@ class Engine(object):
                                                 s[3]][s[4]]['stock'][k] += \
                                                 stk_delt[k]
                                             # Ensure that stock is never
-                                            # decreased below zero
+                                            # decreased below zero (indicates
+                                            # mapping issue)
                                             if self.gcam_in[reg][s[1]][s[2]][
                                                     s[3]][s[4]][
-                                                    'stock'][k] < 0:
-                                                self.gcam_in[reg][s[1]][s[2]][
-                                                    s[3]][s[4]]['stock'][k] = 0
+                                                    'stock'][k] < -1:
+                                                raise ValueError(
+                                                    "Stock is less than zero"
+                                                    " for measure " + m.name +
+                                                    " and segment " + str(s) +
+                                                    " (breakout: " + brkout +
+                                                    ")")
                                     # Add current savings breakout info. to
                                     # tracking of which breakout data have
                                     # already been pulled to avoid double
