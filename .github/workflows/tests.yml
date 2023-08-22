@@ -48,7 +48,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
       - name: Run tests
-        run: python -m unittest discover -p '*_test.py'
+        run: python -m unittest discover -p '*_test.py' tests/
 
   check-PR:
     # Check if there is a PR - allows one main workflow with dependency on previous jobs
