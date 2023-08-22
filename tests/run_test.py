@@ -266,6 +266,10 @@ class CommonTestMeasures(object):
                     "mseg_out_break": {}}}}
 
 
+class Constants(object):
+    GLOB_VARS_PATH = "tests/glob_run_vars_test.json"
+
+
 class CommonMethods(object):
     """Define common methods for use in all tests below."""
 
@@ -326,7 +330,7 @@ class CommonMethods(object):
                         " are not of the same type")
 
 
-class TestMeasureInit(unittest.TestCase):
+class TestMeasureInit(unittest.TestCase, Constants):
     """Ensure that measure attributes are correctly initiated.
 
     Attributes:
@@ -341,7 +345,7 @@ class TestMeasureInit(unittest.TestCase):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
@@ -354,7 +358,7 @@ class TestMeasureInit(unittest.TestCase):
                 self.attribute_dict[key], self.sample_measure[key])
 
 
-class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
+class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
     """Test operation of 'out_break_walk' function.
 
     Verify that function properly applies a climate zone/building
@@ -375,7 +379,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
@@ -424,7 +428,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods):
         self.dict_check(dict1, dict2)
 
 
-class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
+class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     """Test the operation of the 'calc_savings_metrics' function.
 
     Verify that measure master microsegment inputs yield expected savings
@@ -479,7 +483,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Hardcode adjustments to common cost year to 1
         cls.handyvars.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
@@ -1415,7 +1419,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods):
             0].financial_metrics, self.ok_out_dist4[2])
 
 
-class MetricUpdateTest(unittest.TestCase, CommonMethods):
+class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     """Test the operation of the 'metrics_update' function.
 
     Verify that cashflow inputs generate expected prioritization metric
@@ -1451,7 +1455,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
@@ -1494,7 +1498,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods):
                 self.assertEqual(function_output[ind], x)
 
 
-class PaybackTest(unittest.TestCase):
+class PaybackTest(unittest.TestCase, Constants):
     """Test the operation of the 'payback' function.
 
     Verify cashflow input generates expected payback output.
@@ -1515,7 +1519,7 @@ class PaybackTest(unittest.TestCase):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
@@ -1535,7 +1539,7 @@ class PaybackTest(unittest.TestCase):
                                    self.ok_out[idx], places=2)
 
 
-class ResCompeteTest(unittest.TestCase, CommonMethods):
+class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     """Test 'compete_res_primary,' and 'htcl_adj'.
 
     Verify that 'compete_res_primary' correctly calculates primary market
@@ -1602,7 +1606,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
@@ -16102,7 +16106,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
                     "competed"]["master_mseg"])
 
 
-class ComCompeteTest(unittest.TestCase, CommonMethods):
+class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
     """Test 'compete_com_primary' and 'secondary_adj' functions.
 
     Verify that 'compete_com_primary' correctly calculates primary market
@@ -16162,7 +16166,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
@@ -26626,7 +26630,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
                     "competed"]["mseg_out_break"]["energy"])
 
 
-class NumpyConversionTest(unittest.TestCase, CommonMethods):
+class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
     """Test the operation of the 'convert_to_numpy' function.
 
     Verify that the function converts terminal/leaf node lists in a dict to
@@ -26644,7 +26648,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         cls.sample_measure = {
             "market_entry_year": None,
@@ -26679,7 +26683,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods):
                         tested_data["key 2"]], [numpy.ndarray, int, float])]))
 
 
-class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
+class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
     """Test the operation of the 'find_added_sbmkt_fracs' function.
 
     Verify that the function correctly adds to competed ECM market shares to
@@ -26703,7 +26707,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods):
         handyfiles = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
-        handyfiles.glob_vars = "glob_run_vars_test.json"
+        handyfiles.glob_vars = Constants.GLOB_VARS_PATH
         cls.handyvars = run.UsefulVars(base_dir, handyfiles)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
