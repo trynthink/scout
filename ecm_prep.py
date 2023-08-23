@@ -6165,7 +6165,8 @@ class Measure(object):
                     # the resultant error differently for res./com.
                     if bldg_sect == "residential":
                         # Secondary heating maps to heating load shape
-                        if mskeys[4] == "secondary heating":
+                        if mskeys[4] in [
+                                "secondary heating", "fans and pumps"]:
                             eu = "heating"
                         # Computers and TVs map to plug loads load shape
                         elif mskeys[4] in ["computers", "TVs"]:
@@ -6177,7 +6178,7 @@ class Measure(object):
                         elif mskeys[4] == "drying":
                             eu = "clothes drying"
                         # Other end use maps to various load shapes
-                        elif mskeys[4] == "other":
+                        elif mskeys[4] in ["other"]:
                             # Dishwasher technology maps to dishwasher
                             if mskeys[5] == "dishwasher":
                                 eu = "dishwasher"
@@ -6204,9 +6205,9 @@ class Measure(object):
                         # load shape for plug loads
                         if mskeys[4] in ["PCs", "non-PC office equipment"]:
                             eu = "plug loads"
-                        # For commercial MELs end uses, use the generic 'other'
-                        # load shape
-                        elif mskeys[4] == "MELs":
+                        # For commercial MELs and cooking end uses, use the
+                        # generic 'other' load shape
+                        elif mskeys[4] in ["MELs", "cooking"]:
                             eu = "other"
                         # In all other cases, error
                         else:
