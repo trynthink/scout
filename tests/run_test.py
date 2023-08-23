@@ -10,7 +10,6 @@ import unittest
 import numpy
 import copy
 import itertools
-import os
 import numpy_financial as npf
 from pathlib import Path
 
@@ -274,7 +273,7 @@ class Constants(object):
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)
     HANDYFILES.glob_vars = GLOB_VARS_PATH
-    
+
 
 class CommonMethods(object):
     """Define common methods for use in all tests below."""
@@ -347,7 +346,7 @@ class TestMeasureInit(unittest.TestCase, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        
+
         handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
