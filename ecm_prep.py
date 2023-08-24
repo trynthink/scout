@@ -6406,7 +6406,8 @@ class Measure(object):
                     # If there is no load shape for the current end use, handle
                     # the resultant error differently for res./com.
                     if bldg_sect == "residential":
-                        # Secondary heating maps to heating load shape
+                        # Secondary heating and fans/pumps map to heating
+                        # load shape
                         if mskeys[4] in [
                                 "secondary heating", "fans and pumps"]:
                             eu = "heating"
