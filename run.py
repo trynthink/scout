@@ -4303,11 +4303,11 @@ class Engine(object):
                                     except KeyError:
                                         try:
                                             dat_c_ms_add, dat_uc_ms_add = [{
-                                                yr: sum([d[x][yr] if yr in
-                                                         d[x].keys() else 0 for
-                                                         x in ["Electric",
-                                                               "Non-Electric"]
-                                                         ])
+                                                yr: sum([
+                                                    d[x][yr] if yr in
+                                                    d[x].keys() else 0 for
+                                                    x in self.handyvars.
+                                                    out_break_fuels.keys()])
                                                 for yr in focus_yrs} for d in [
                                                     dat_c_ms, dat_uc_ms]]
                                             # Competed totals
@@ -4325,7 +4325,7 @@ class Engine(object):
                             # for meas/metric/case/region
                             self.output_ecms_cfs[m.name][k][mt][reg] = {
                                 yr: (tot_c[yr] / tot_uc[yr]) if
-                                tot_uc[yr] != 0 else 1 for yr in focus_yrs}
+                                tot_uc[yr] != 0 else 0 for yr in focus_yrs}
                             # Check for and if possible handle energy/carbon/
                             # cost competition fractions that are not between
                             # 0 and 1
