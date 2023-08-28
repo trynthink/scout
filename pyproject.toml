@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+# include = ["scout"]
+namespaces = false
+
+[project]
+name = "scout"
+readme = "README.md"
+version = "0.8.2"
+authors = [
+  { name="Chioke Harris", email="chioke.harris@nrel.gov" },
+  { name="Jared Langevin", email="jared.langevin@lbl.gov" },
+]
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+dependencies = [
+    "pandas >= 2.0",
+    "numpy >= 1.16",
+    "scipy",
+    "requests",
+    "numpy-financial",
+    "xlsxwriter",
+    "matplotlib"
+]
