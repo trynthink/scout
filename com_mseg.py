@@ -693,11 +693,23 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db,
     return json_db
 
 
-def dtype_eval(entry):
-    """ Takes as input an entry from a standard line (row) of a text
-    or CSV file and determines its type (only string, float, or
-    integer), returning the specified type, which can be added to a
-    list to be used in creating a numpy structured array of the data """
+def dtype_eval(entry, prev_dtype=None):
+    """Determine data type for a single value
+
+    This function takes as an input an entry from a standard line (row)
+    of a text or CSV file and determines its type (only string, float,
+    or integer), returning the specified type, which can be added to a
+    list to be used in creating a numpy structured array of the data.
+
+    Args:
+        entry (str): String corresponding to a single cell (row, column)
+            in the data file being scanned.
+        prev_dtype (str): Previously identified data type for the
+            values in the same column.
+
+    Returns:
+        Data type string definition for 'entry.'
+    """
 
     # Strip leading and trailing spaces off of string
     entry = entry.strip()
@@ -711,24 +723,21 @@ def dtype_eval(entry):
     else:
         dtype = 'i4'
 
+    # Prevent float dtype set for the current column from reverting to int
+    if prev_dtype == 'f8' and dtype == 'i4':
+        dtype = 'f8'
+
     return dtype
 
 
 def dtype_array(data_file_path, delim_char=',', hl=None):
     """Use the first two lines (generally) of a file to assess the data type.
 
-    Using the csv module, read the first two lines of a text data file
+    Using the csv module, read the header line of a text data file
     or, if specified, the first and third lines after skipping the
-    header lines specified by variable 'hl'. These two lines are used
-    to determine the column names and data types for each column, and
-    are then converted into a list of tuples that can be used to
-    specify the dtype parameter of a numpy structured array.
-
-    This function expects that the data file provided has a header
-    row, and works only when the data in the first row (after the
-    header) is exemplary of the type of data in the entirety of each
-    column. Columns with data of varying types will not always be
-    handled properly by this function.
+    header lines specified by variable 'hl'; read all subsequent lines.
+    Use the first line to set the column names and the subsequent lines
+    to determine the data type for each column.
 
     Args:
         data_file_path (str): The full path to the data file to be imported.
@@ -746,9 +755,22 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
 
-        # This use of csv.reader assumes that the default setting of
-        # quotechar '"' is appropriate
-        filecont = csv.reader(thefile, delimiter=delim_char)
+        # Read the text file, handling two cases: (1) a file with
+        # NULL bytes and (2) a file with no NULL bytes. In the former
+        # case, the loop inside csv.reader is used to detect NULL
+        # characters and act appropriately (by removing them prior to
+        # converting to a csv.reader object) if they are encountered.
+        # The skipinitialspace option ensures proper reading of
+        # double-quoted text strings in the AEO data that have the
+        # delimiter inside them (e.g., cooking equipment descriptions).
+        if '\0' in open(data_file_path).read():  # NULL bytes detected
+            filecont = csv.reader((x.replace('\0', '') for x in thefile),
+                                  delimiter=delim_char, skipinitialspace=True,
+                                  escapechar='\\')
+        else:  # No NULL bytes, proceed normally
+            filecont = csv.reader(thefile,
+                                  delimiter=delim_char, skipinitialspace=True,
+                                  escapechar='\\')
 
         # Skip the specified number of extraneous leading lines in
         # the file that do not include the column headers
@@ -769,6 +791,13 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # Determine dtype using the second line of the file (since the
         # first line is a header row)
         dtypes = [dtype_eval(col) for col in next(filecont)]
+
+        # Scan the rest of the file in case there are floating point
+        # precision values not in the first row that would otherwise
+        # be incorrectly typed as integers
+        for row in filecont:
+            if len(dtypes) == len(row):
+                dtypes = [dtype_eval(col, dtypes[idx]) for idx, col in enumerate(row)]
 
         # Combine data types and header names into list of tuples
         comb_dtypes = list(zip(header_names, dtypes))
