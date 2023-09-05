@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+from argparse import ArgumentParser
 import io
 import sys
 import logging
@@ -20,18 +21,20 @@ logging.basicConfig(
 )
 
 
-def run_workflow() -> None:
+def run_workflow(run_step: str = None) -> None:
     """Runs the full Scout workflow profiling ecm_prep.py and run.py seperately"""
 
     results_dir = Path(__file__).parent / "results"
 
     # Run ecm_prep.py
-    opts = ecm_args(["--alt_regions_option", "EMM"])
-    run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
+    if run_step == 'ecm_prep' or run_step is None:
+        opts = ecm_args(["--add_typ_eff", "--rp_persist", "--alt_regions_option", "EMM"])
+        run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
 
     # Run run.py
-    opts = run.parse_args([])
-    run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
+    if run_step == 'run' or run_step is None:
+        opts = run.parse_args([])
+        run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
 
 
 def run_with_profiler(
@@ -80,4 +83,8 @@ def write_profile_stats(pr: cProfile.Profile, filepath: pathlib.Path) -> None:  
 
 
 if __name__ == "__main__":
-    run_workflow()
+    parser = ArgumentParser()
+    parser.add_argument("--run_step", choices=["ecm_prep", "run"], required=False,
+                        help="Specify which step to run")
+    opts = parser.parse_args()
+    run_workflow(run_step=opts.run_step)

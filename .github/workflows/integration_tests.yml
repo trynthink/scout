@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.ref }}
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -49,11 +49,14 @@ jobs:
           pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter psrecord     
       - name: Run and profile workflow
         run: |
-          branch_name="${{ github.head_ref }}"
+          branch_name="${{ github.ref }}"
           if [[ $branch_name == 'refs/heads/master' ]]; then
-            psrecord --log memory_log.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py"
-            (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_ecm_prep.csv
-            mv memory_log.txt ./tests/integration_testing/results/
+            steps=("ecm_prep" "run")
+            for step in "${steps[@]}"; do
+              psrecord --log memory_log_${step}.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py --run_step $step"
+              (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_${step}.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_${step}.csv
+              mv memory_log_${step}.txt ./tests/integration_testing/results/
+            done
           else
             python tests/integration_testing/run_workflow.py
           fi
@@ -65,17 +68,13 @@ jobs:
           path: ./tests/integration_testing/results/
       - name: Commit test results
         run: |
-          branch_name="${{ github.head_ref }}"
+          branch_name="${{ github.ref }}"
           git pull origin $branch_name
-          git config --system user.email "github-action@users.noreply.github.com"
-          git config --system user.name "GitHub Action"
-
-          if [[ $branch_name == 'refs/heads/master' ]]; then
-            git add ./tests/integration_testing/results/*.csv
-          fi
           git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
-            git commit -m "Upload test results."
+            git config --system user.email "github-action@users.noreply.github.com"
+            git config --system user.name "GitHub Action"
+            git commit -m "Upload results files from CI build"
             echo "Pushing to branch: $branch_name"
             git push -u origin $branch_name
           fi
