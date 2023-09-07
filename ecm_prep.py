@@ -6164,17 +6164,13 @@ class Measure(object):
                     # If there is no load shape for the current end use, handle
                     # the resultant error differently for res./com.
                     if bldg_sect == "residential":
-                        # Secondary heating and fans/pumps map to heating
-                        # load shape
+                        # Secondary heating maps to heating load shape
                         if mskeys[4] in [
-                                "secondary heating", "fans and pumps"]:
+                                "secondary heating"]:
                             eu = "heating"
                         # Computers and TVs map to plug loads load shape
                         elif mskeys[4] in ["computers", "TVs"]:
                             eu = "plug loads"
-                        # Ceiling fan maps to cooling load shape
-                        elif mskeys[4] == "ceiling fan":
-                            eu = "cooling"
                         # Clothes drying technology maps to clothes drying
                         elif mskeys[4] == "drying":
                             eu = "clothes drying"
@@ -6186,15 +6182,22 @@ class Measure(object):
                             # Clothes washing tech. maps to clothes washing
                             elif mskeys[5] == "clothes washing":
                                 eu = "clothes washing"
-                            # Pool heaters/pumps map to pool heaters/pumps
-                            elif mskeys[5] in ["pool heaters", "pool pumps"]:
-                                eu = "pool heaters and pumps"
+                            # Pool heaters maps to pool heaters
+                            elif mskeys[5] in ["pool heaters"]:
+                                eu = "pool heaters"
+                            # Pool pumps map to pool pumps
+                            elif mskeys[5] in ["pool pumps"]:
+                                eu = "pool pumps"
                             # Freezers map to refrigeration
                             elif mskeys[5] == "freezers":
                                 eu = "refrigeration"
-                            # All other other maps to other
+                            # Portable electric spas (e.g. hot tubs) map
+                            # to portable electric spas
+                            elif mskeys[5] == "portable electric spas":
+                                eu = "portable electric spas"
+                            # All other maps to other
                             else:
-                                eu = "other"
+                                eu = "plug loads"
                         # In all other cases, error
                         else:
                             raise KeyError(
@@ -6202,14 +6205,11 @@ class Measure(object):
                                 "mapped to any baseline load shape in the "
                                 "Scout database: " + str(mskeys))
                     elif bldg_sect == "commercial":
-                        # For commercial PCs/non-PC office equipment, use the
-                        # load shape for plug loads
-                        if mskeys[4] in ["PCs", "non-PC office equipment"]:
+                        # For commercial PCs/non-PC office equipment and MELs,
+                        # use the load shape for plug loads
+                        if mskeys[4] in ["PCs", "non-PC office equipment",
+                                         "MELs", "cooking"]:
                             eu = "plug loads"
-                        # For commercial MELs and cooking end uses, use the
-                        # generic 'other' load shape
-                        elif mskeys[4] in ["MELs", "cooking"]:
-                            eu = "other"
                         # In all other cases, error
                         else:
                             raise KeyError(
