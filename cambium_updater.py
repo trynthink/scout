@@ -57,6 +57,7 @@ import glob
 import os
 import json
 import gzip
+import re
 
 
 class UsefulInputFiles(object):
@@ -200,7 +201,6 @@ def import_ba_emm_mapping():
     mapping['EMM_2020'] = mapping.apply(
         lambda x: 'BASN' if x['EMM_2020'] == 'BASIN' else x['EMM_2020'],
         axis=1)
-
     return mapping
 
 
@@ -219,17 +219,19 @@ def cambium_data_import(cambium_base_dir, year, scenario):
     """
     # create list of files
     files = glob.glob(os.path.join(
-        cambium_base_dir, year, scenario, "*20*.csv"))
+        cambium_base_dir, year, scenario, "*202*.csv"))
     # create df from multiple CSVs in working directory and assign new 'ba'
     # column to appropriate file name; parse dates with datetime
     ba_df = pd.concat(
         map(lambda file: pd.read_csv(
             file, parse_dates=['timestamp', 'timestamp_local'],
-            header=5).assign(ba=file.split('_')[3]), files))
+            header=5).assign(
+                # extract "pXX" from file name and assign to ba
+                ba=re.search(r'p\d+', file).group()), files))
     return ba_df
 
 
-def annual_factors_updater(df, scenario, ss, geography):
+def annual_factors_updater(df, ss, geography):
     """Update annual CO2 emissions intensities in either national or
        EMM region supporting data files using Cambium data for a given
        scenario.
@@ -301,15 +303,16 @@ def annual_factors_updater(df, scenario, ss, geography):
             ['EMM_2020', 'year'])[['co2_avg_enduse_mt_twh']].mean(
             ).reset_index()
         # Set index as year and convert to datetime
-        df_reg.set_index('year', inplace=True)
-        df_reg.index = pd.to_datetime(df_reg.index, format='%Y')
+        df_reg.set_index(pd.to_datetime(df_reg['year'], format='%Y'),
+                         inplace=True)
         # Group by EMM region and resample annually with linear interpolation
         df_resamp = df_reg.groupby(
             'EMM_2020').resample(
             'Y').mean().interpolate(
             method='linear').reset_index(
             level=0).assign(
-                year=lambda x: x.index.year.astype(str)).reset_index(drop=True)
+                year=lambda x: x.index.year.astype(str)).reset_index(
+                    drop=True)
         # Create dictionary of year:value pairs for each EMM region
         co2_dict = {n: dict(zip(grp.loc[n].index, (grp.loc[n].values.flat)))
                     for n, grp in df_resamp.drop(
@@ -399,24 +402,24 @@ def hourly_factors_updater(df, scenario, year, metric):
     # Create documentation header for json files
     dict_to_write = {}
     metrics_notes = {'cost':
-                     'Values represent hourly total cost \
-                        values (sum of energy, capacity, \
-                        operating reserve, and policy costs).\
-                        Values are first averaged across all\
-                        Cambium BA areas that comprise a given\
-                        EMM region and then are normalized by\
-                        the annual average total cost for that\
-                        EMM region.',
+                     'Values represent hourly total cost '
+                     'values (sum of energy, capacity, '
+                     'operating reserve, and policy costs).'
+                     'Values are first averaged across all '
+                     'Cambium BA areas that comprise a given '
+                     'EMM region and then are normalized by '
+                     'the annual average total cost for that '
+                     'EMM region.',
                      'carbon':
-                     'Values represent the hourly average\
-                        CO2 emissions rate of the generation\
-                        that is allocated to an EMM region’s\
-                        end-use load. This metric includes\
-                        the effects of imported and exported\
-                        power. Values are first averaged across\
-                        all Cambium BA areas that comprise a\
-                        given EMM region and then are normalized\
-                        by the annual average co2 rate for that EMM region.'}
+                     'Values represent the hourly average '
+                     'CO2 emissions rate of the generatio '
+                     'that is allocated to an EMM region’s '
+                     'end-use load. This metric includes '
+                     'the effects of imported and exported '
+                     'power. Values are first averaged across '
+                     'all Cambium BA areas that comprise a '
+                     'given EMM region and then are normalized '
+                     'by the annual average co2 rate for that EMM region.'}
     # For loop to pull scaling factors for each year and EMM region
     for y in data_years:
         for r in emm_regions:
@@ -433,14 +436,14 @@ def hourly_factors_updater(df, scenario, year, metric):
                 print('Invalid metric entered.')
         dict_results[y] = dict_emm
         dict_emm = dict.fromkeys(emm_regions)
-    dict_to_write['Source Data'] = {'Title': 'Cambium data for Standard\
-                                    Scenarios',
+    dict_to_write['Source Data'] = {'Title': 'Cambium data for Standard '
+                                    'Scenarios',
                                     'Year': year,
                                     'Updated to Scenario': scenario,
-                                    'author': 'Gagnon, Pieter; Cowiestoll,\
-                                        Brady; Schwarz, Marty',
-                                    'organization': 'National Renewable\
-                                        Energy Laboratory',
+                                    'author': 'Gagnon, Pieter; Cowiestoll, '
+                                    'Brady; Schwarz, Marty',
+                                    'organization': 'National Renewable '
+                                    'Energy Laboratory',
                                     'link': 'https://cambium.nrel.gov/',
                                     'notes': metrics_notes[metric]}
     if metric == 'cost':
@@ -520,7 +523,7 @@ def main():
         print('Updating national annual emissions intensities data...')
         # Update national annual CO2 emissions intensities for annual data for
         # a given Cambium scenario
-        ss_updated = annual_factors_updater(df, scenario, ss_nat, 'National')
+        ss_updated = annual_factors_updater(df, ss_nat, 'National')
         # Update year and Cambium case keys in dictionary to reflect
         # data updates
         ss_updated['updated_to_cambium_case'] = scenario
@@ -540,7 +543,7 @@ def main():
             ss_reg = json.load(js)
         # Update EMM region annual CO2 emissions intensities for annual data
         # for a given Cambium scenario
-        ss_updated = annual_factors_updater(df, scenario, ss_reg, 'Regional')
+        ss_updated = annual_factors_updater(df, ss_reg, 'Regional')
         # Update year and Cambium case keys in dictionary to reflect
         # data updates
         ss_updated['updated_to_cambium_case'] = scenario
@@ -643,7 +646,7 @@ def main():
             if geography == "National":
                 # Update national annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario
-                ss_updated = annual_factors_updater(df, scenario, ss_nat,
+                ss_updated = annual_factors_updater(df, ss_nat,
                                                     'National')
                 # Update year and Cambium case keys in dictionary to reflect
                 # data updates
@@ -672,7 +675,7 @@ def main():
                     ss_reg = json.load(js)
                 # Update EMM region annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario
-                ss_updated = annual_factors_updater(df, scenario, ss_reg,
+                ss_updated = annual_factors_updater(df, ss_reg,
                                                     'Regional')
                 # Update year and Cambium case keys in dictionary to reflect
                 # data updates
