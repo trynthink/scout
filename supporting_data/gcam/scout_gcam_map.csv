@@ -1,0 +1,62 @@
+building_type,gcam_supplysector,gcam_subsector,gcam_tech,scout_enduse,scout_fuel,scout_tech
+comm,cooking,electricity,electric range,cooking,electricity,electric_range_oven_24x24_griddle
+comm,cooking,gas,gas range,cooking,natural gas,gas_range_oven_24x24_griddle
+comm,cooling,electricity,air conditioning,cooling,electricity,"rooftop_AC, scroll_chiller, res_type_central_AC, reciprocating_chiller, comm_GSHP-cool, centrifugal_chiller, rooftop_ASHP-cool, air-source heat pump, wall-window_room_AC, screw_chiller"
+comm,cooling,gas,gas cooling,cooling,natural gas,"gas_eng-driven_RTAC, gas_chiller, res_type_gasHP-cool, gas_eng-driven_RTHP-cool"
+comm,heating,refined liquids,fuel furnace,heating,distillate,"oil_boiler, oil_furnace"
+comm,heating,electricity,electric furnace,heating,electricity,"electric_res-heat, elec_boiler"
+comm,heating,electricity,electric heat pump,heating,electricity,"rooftop_ASHP-heat, comm_GSHP-heat"
+comm,heating,gas,gas furnace,heating,natural gas,"gas_eng-driven_RTHP-heat, res_type_gasHP-heat, gas_boiler, gas_furnace"
+comm,lighting,electricity,lighting,lighting,electricity,"100W Equivalent CFL Bare Spiral, T5 F28, T8 F28, T8 F32, T8 F59, T8 F96"
+comm,lighting,electricity,lighting,lighting,electricity,"100W A19 Incandescent, 100W Equivalent A19 Halogen, Halogen Infrared Reflector (HIR) PAR38, Halogen PAR38, T5 4xF54 HO High Bay, Mercury Vapor, Metal Halide, Sodium Vapor"
+comm,lighting,electricity,lighting,lighting,electricity,"100W Equivalent LED A Lamp, LED PAR38, LED Integrated Luminaire"
+comm,other,electricity,electricity,MELs,electricity,"elevators, escalators, coffee brewers, kitchen ventilation, laundry, lab fridges and freezers, fume hoods, medical imaging, large video boards, shredders, private branch exchanges, voice-over-IP telecom, IT equipment, office UPS, data center UPS, security systems, distribution transformers, non-road electric vehicles, telecom systems, water services, other"
+comm,other,gas,gas,other,natural gas,NA
+comm,other,refined liquids,refined liquids,other,distillate,NA
+comm,office,electricity,office equipment,"PCs, non-PC office equipment",electricity,NA
+comm,refrigeration,electricity,refrigeration,refrigeration,electricity,"Commercial Beverage Merchandisers, Commercial Ice Machines, Commercial Reach-In Freezers, Commercial Reach-In Refrigerators, Commercial Refrigerated Vending Machines, Commercial Supermarket Display Cases, Commercial Walk-In Freezers, Commercial Walk-In Refrigerators"
+comm,ventilation,electricity,ventilation,ventilation,electricity,"CAV_Vent, VAV_Vent"
+comm,hot water,refined liquids,fuel water heater,water heating,distillate,oil_water_heater
+comm,hot water,electricity,electric heat pump water heater,water heating,electricity,HP water heater
+comm,hot water,electricity,electric resistance water heater,water heating,electricity,"elec_booster_water_heater, elec_water_heater, Solar water heater"
+comm,hot water,gas,gas water heater,water heating,natural gas,"gas_water_heater, gas_instantaneous_WH, gas_booster_WH"
+resid,other,electricity,electricity,ceiling fan,electricity,NA
+resid,computers,electricity,resid computers,computers,electricity,"desktop PC, laptop PC, network equipment, monitors"
+resid,computers,electricity,resid other electricity,computers,electricity,"TV, set top box, DVD, home theatre and audio, video game consoles"
+resid,cooking,electricity,electric oven,cooking,electricity,NA
+resid,cooking,gas,gas oven,cooking,natural gas,NA
+resid,cooking,refined liquids,refined liquids,cooking,other fuel,NA
+resid,cooling,electricity,air conditioning,cooling,electricity,"room AC, ASHP, GSHP, central AC"
+resid,cooling,gas,air conditioning,cooling,natural gas,NGHP
+resid,clothes dryers,electricity,clothes dryer,drying,electricity,NA
+resid,clothes dryers,gas,clothes dryer,drying,natural gas,NA
+resid,furnace fans,electricity,electricity,fans and pumps,electricity,fans and pumps
+resid,heating,refined liquids,fuel furnace,heating,"distillate, other fuel","boiler (distillate), furnace (distillate), furnace (LPG), furnace (kerosene)"
+resid,heating,electricity,electric furnace,heating,electricity,resistance heat
+resid,heating,electricity,electric heat pump,heating,electricity,"ASHP, GSHP"
+resid,heating,gas,gas furnace,heating,natural gas,NGHP
+resid,heating,gas,gas furnace,heating,natural gas,"boiler (NG), furnace (NG)"
+resid,heating,biomass,wood furnace,heating,other fuel,stove (wood)
+resid,heating,refined liquids,fuel furnace,heating,other fuel,resistance
+resid,lighting,electricity,lighting,lighting,electricity,"general service (CFL), reflector (CFL), external (CFL), linear fluorescent (T-8), linear fluorescent (T-12)"
+resid,lighting,electricity,lighting,lighting,electricity,"general service (incandescent), reflector (incandescent), reflector (halogen), external (incandescent), external (high pressure sodium)"
+resid,lighting,electricity,lighting,lighting,electricity,"general service (LED), reflector (LED), linear fluorescent (LED), external (LED)"
+resid,other,refined liquids,refined liquids,other,"distillate, other fuel",other appliances
+resid,clothes washers,electricity,clothes washer,other,electricity,clothes washing
+resid,dishwashers,electricity,dishwasher,other,electricity,dishwasher
+resid,freezers,electricity,freezer,other,electricity,freezers
+resid,other,electricity,electricity,other,electricity,"rechargeables, coffee maker, dehumidifier, electric other, microwave, pool heaters, pool pumps, security system, portable electric spas, wine coolers, small kitchen appliances, smartphones, smart speakers, tablets"
+resid,other,gas,gas,other,natural gas,other appliances
+resid,refrigerators,electricity,refrigerator,refrigeration,electricity,NA
+resid,heating,refined liquids,fuel furnace,secondary heating,distillate,secondary heater
+resid,heating,electricity,electric furnace,secondary heating,electricity,secondary heater
+resid,heating,gas,gas furnace,secondary heating,natural gas,secondary heater
+resid,heating,biomass,wood furnace,secondary heating,other fuel,secondary heater (wood)
+resid,heating,refined liquids,fuel furnace,secondary heating,other fuel,"secondary heater (coal), secondary heater (kerosene), secondary heater (LPG)"
+resid,other,electricity,electricity,TVs,electricity,"home theater and audio, set top box, video game consoles, DVD, TV, OTT streaming devices"
+resid,hot water,refined liquids,fuel water heater,water heating,"distillate, other fuel",NA
+resid,hot water,electricity,electric heat pump water heater,water heating,electricity,NA
+resid,hot water,electricity,electric resistance water heater,water heating,electricity,"electric WH, solar WH"
+resid,hot water,gas,gas water heater,water heating,natural gas,NA
+comm,onsite generation,electricity,comm onsite,onsite generation,electricity,NA
+resid,onsite generation,electricity,resid onsite,onsite generation,electricity,NA
