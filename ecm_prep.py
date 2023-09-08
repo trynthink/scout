@@ -105,7 +105,7 @@ class UsefulInputFiles(object):
             # self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
             #                      "cpl_res_com_cz_2017.json")
             self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_cz.json")
+                                 "cpl_res_com_cz.gz")
             self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
                                  "IECC_AIA_ColSums.txt")
             self.state_aia_map = ("supporting_data", "convert_data", "geo_map",
@@ -13352,7 +13352,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Import baseline microsegments
         if opts.alt_regions in ['EMM', 'State']:  # Extract EMM/state files
             bjszip = path.join(base_dir, *handyfiles.msegs_in)
-            # bjszip = path.splitext(bjs)[0] + '.gz'
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs = json.loads(zip_ref.read().decode('utf-8'))
         else:
@@ -13364,20 +13363,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         "Error reading in '" +
                         handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        if opts.alt_regions in ['EMM', 'State']:  # Extract EMM/state files
-            bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
-            # bjszip = path.splitext(bjs)[0] + '.gz'
-            with gzip.GzipFile(bjszip, 'r') as zip_ref:
-                msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
-        else:
-            with open(
-                    path.join(base_dir, *handyfiles.msegs_cpl_in), 'r') as bjs:
-                try:
-                    msegs_cpl = json.load(bjs)
-                except ValueError as e:
-                    raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.msegs_cpl_in + "': " + str(e)) from None
+        bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
+        with gzip.GzipFile(bjszip, 'r') as zip_ref:
+            msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
         # Import measure cost unit conversion data
         with open(path.join(base_dir, *handyfiles.cost_convert_in), 'r') as cc:
             try:

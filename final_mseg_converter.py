@@ -1507,9 +1507,8 @@ def main():
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
         json.dump(result, jso, indent=2)
-        # Compress CPL EMM or Cdiv file
-        if handyvars.json_out in [
-                'cpl_res_com_emm.json', 'cpl_res_com_cdiv.json']:
+        # Compress CPL file
+        if handyvars.json_out.startswith('cpl'):
             zip_out_cpl = handyvars.json_out.split('.')[0] + '.gz'
             with gzip.GzipFile(zip_out_cpl, 'w') as fout_cpl:
                 fout_cpl.write(json.dumps(result).encode('utf-8'))
