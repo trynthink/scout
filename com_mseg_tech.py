@@ -10,6 +10,7 @@ import re
 import warnings
 import json
 import csv
+import itertools as it
 from os import getcwd, path
 
 
@@ -56,7 +57,7 @@ class UsefulVars(object):
 
         self.cpl_data_skip_lines = 68
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
-                                'life', 'y1', 'y2', 'technology name']
+                                'c3', 'life', 'y1', 'y2', 'technology name']
 
         self.tpp_data_skip_lines = 100
         self.tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
@@ -319,7 +320,7 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             appears in single_tech_array
         sd_names (list): Strings describing the service demand data, with
             each entry in the list corresponding to that row in sd_array
-        years (list): The range of years of interest, each as YYYY
+        years (list): The range of years of interest, each as YYYY integers
         flag (str): String that should be either 'cost' or 'performance'
             to indicate the type of data the function is processing and
             will return
@@ -447,6 +448,74 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
                   'best': dict(zip(map(str, years), val_max))}
 
     return final_dict, non_matching_tech_names
+
+
+def incentive_extractor(single_tech_array, years):
+    """Produces a dict of cost incentives for a single technology.
+
+    From a numpy structured array of data for a single technology
+    with several rows corresponding to different performance levels,
+    this function converts the reported cost incentive quantities for
+    all of the performance levels for that technology. The incentive
+    quantities by performance level are reported for each year in the
+    years vector, which specifies the range of years over which the
+    final data are to be output to the cost/performance/lifetime JSON.
+
+    Args:
+        single_tech_array (numpy.ndarray): Structured array of EIA
+            technology characteristics data reduced to the various
+            performance levels (if applicable) for a single technology
+            (e.g., 'VAV_Vent' or 'comm_GSHP-heat')
+        years (list): The range of years of interest, each as YYYY integers
+
+    Returns:
+        A dict with keys for each year and values containing a nested
+        list of incentives by performance level in the format
+        [[performance level, incentive quantity], ...]
+    """
+
+    # Store the number of rows (different performance levels) in
+    # single_tech_array and the number of years in the desired
+    # range for the final data
+    n_entries = np.shape(single_tech_array)[0]
+    n_years = len(years)
+
+    # Preallocate arrays for the technology cost or performance
+    # and service demand data
+    incentive = np.zeros([n_entries, n_years])
+    perf = np.zeros([n_entries, n_years])
+
+    for idx, row in enumerate(single_tech_array):
+        # Determine the starting and ending column indices for the
+        # desired data (cost or performance) related to the
+        # technology associated with this row
+        idx_st = row['y1'] - min(years)
+
+        # Calculate end index using the smaller of either the last year
+        # of 'years' or the final year of availability for that technology
+        idx_en = min(max(years), row['y2']) - min(years) + 1
+
+        # If the indices calculated above are in range, record the data
+        # incentive and performance levels in the calculated location(s)
+        if idx_en > 0:
+            if idx_st < 0:
+                idx_st = 0
+            incentive[idx, idx_st:idx_en] = row['c3']
+            perf[idx, idx_st:idx_en] = row['eff']
+
+    # For each year, construct a nested list of performance level and
+    # incentive quantity lists for all non-zero performance levels
+    # (performance levels with zero incentives are included)
+    final_dict = dict.fromkeys(map(str, years))
+    for yr in range(0, n_years):
+        # Construct nested list of performance level and incentive value pairs
+        incent_nl = [[perf[i, yr], incentive[i, yr]] for i in range(0, n_entries)
+                     if perf[i, yr] != 0]
+        # Remove duplicates from nested list and set as value for year key
+        # https://stackoverflow.com/questions/2213923/removing-duplicates-from-a-list-of-lists
+        final_dict[str(years[yr])] = list(k for k, _ in it.groupby(sorted(incent_nl)))
+
+    return final_dict
 
 
 def life_extractor(single_tech_array, years):
@@ -790,6 +859,9 @@ def mseg_technology_handler(
         the_cost['units'] = cost_yr + eu_cost_units
         the_cost['source'] = 'EIA AEO'
 
+        # Extract the cost incentive values by performance level
+        the_incentives = incentive_extractor(single_tech_data, years)
+
         # Extract the performance data, restructure into the appropriate
         # dict format, and append the units and data source
         the_perf, _ = cost_perf_extractor(
@@ -809,9 +881,14 @@ def mseg_technology_handler(
         # Following the format used for the residential data, combine
         # the cost, performance, and lifetime data for the technology
         # identified by the variable 'tech' into a single dict
-        tech_data_dict = {'installed cost': the_cost,
-                          'performance': the_perf,
-                          'lifetime': the_life}
+        tech_data_dict = {
+            'installed cost': {
+                'before incentives': the_cost,
+                'incentives': {
+                    'by performance tier': the_incentives,
+                    'performance units': the_performance_units}},
+            'performance': the_perf,
+            'lifetime': the_life}
 
         # Add the data for this technology to the master dict for the
         # entire microsegment (limit the technology name length to
