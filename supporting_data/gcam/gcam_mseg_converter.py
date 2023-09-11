@@ -191,7 +191,7 @@ def generate_step2():
     unzip_gz_file(f'{fdir}/{fname}.gz', f'{fdir}/{fname}.json')
     f = open(f'{fdir}/{fname}.json')
     scout_data = json.load(f)
-    mapdf = pd.read_csv("../convert_data/gcam_map.json")
+    mapdf = pd.read_csv("scout_gcam_map.csv")
     gcam_data = {}
     for em in scout_data:
         for bt in scout_data[em]:
