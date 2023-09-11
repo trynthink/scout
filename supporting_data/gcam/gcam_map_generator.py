@@ -36,6 +36,17 @@ def move_none_to_start(d):
     return d
 
 
+def remove_key_by_level(dictionary, keys, level):
+    if level == 1:
+        if keys[0] in dictionary:
+            del dictionary[keys[0]]
+    else:
+        if keys[0] in dictionary:
+            dictionary[keys[0]] = remove_key_by_level(
+                dictionary[keys[0]], keys[1:], level - 1)
+    return dictionary
+    
+
 def process_mapping(df, col1, col2, additional_processing=None):
     """Process mapping as basis"""
     if additional_processing:
@@ -69,6 +80,12 @@ def main():
     fuel_mapping_json = process_mapping(df, 'gcam_subsector', 'scout_fuel')
     eu_mapping_json = process_mapping(
         df, 'gcam_supplysector', 'scout_enduse', eu_additional_processing(df))
+    eu_mapping_json = remove_key_by_level(
+        eu_mapping_json, ['clothes washers'], 1)
+    eu_mapping_json = remove_key_by_level(
+            eu_mapping_json, ['dishwashers'], 1)
+    eu_mapping_json = remove_key_by_level(
+            eu_mapping_json, ['onsite generation'], 1)    
     tech_mapping_json = process_mapping(
         df, 'gcam_tech', 'scout_tech', tech_additional_processing(df))
 
