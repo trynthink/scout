@@ -4098,36 +4098,52 @@ class Measure(object):
                             # Set baseline costs before incentives dict
                             cost_base_init = base_cpl["installed cost"][
                                 "before incentives"]
-                            # Pull out baseline incentives data
-                            cost_incentives = base_cpl["installed cost"][
-                                "incentives"]["by performance tier"]
-                            # Further restrict incentives by new or existing,
-                            # if applicable
-                            if mskeys[-1] in cost_incentives.keys():
-                                cost_incentives = cost_incentives[mskeys[-1]]
-                            # Set performance units for base mseg incentives
-                            incentives_units_base = base_cpl["installed cost"][
-                                "incentives"]["performance units"]
-                            # Set incentives for "switched to" mseg if needed
-                            if base_cpl_swtch:
-                                # Pull out measure incentives data
-                                cost_incentives_meas = base_cpl_swtch[
-                                    "installed cost"]["incentives"][
-                                    "by performance tier"]
+                            # Ensure that add-on measures (e.g., controls)
+                            # are not assigned incentives that are meant
+                            # for equipment replacements to which the add-ons
+                            # are attached
+                            if self.measure_type != "add-on":
+                                # Pull out baseline incentives data
+                                cost_incentives = base_cpl["installed cost"][
+                                    "incentives"]["by performance tier"]
                                 # Further restrict incentives by new or
                                 # existing, if applicable
-                                if mskeys_swtch[-1] in \
-                                        cost_incentives_meas.keys():
-                                    cost_incentives_meas = \
-                                        cost_incentives_meas[mskeys[-1]]
-                                # Set performance units for measure mseg
-                                # incentives
-                                incentives_units_meas = base_cpl_swtch[
-                                    "installed cost"]["incentives"][
-                                    "performance units"]
+                                if mskeys[-1] in cost_incentives.keys():
+                                    cost_incentives = \
+                                        cost_incentives[mskeys[-1]]
+                                # Set perf. units for base mseg incentives
+                                incentives_units_base = base_cpl[
+                                    "installed cost"][
+                                        "incentives"]["performance units"]
+                                # Set incentives for "switched to" mseg if
+                                # needed
+                                if base_cpl_swtch:
+                                    # Pull out measure incentives data
+                                    cost_incentives_meas = base_cpl_swtch[
+                                        "installed cost"]["incentives"][
+                                        "by performance tier"]
+                                    # Further restrict incentives by new or
+                                    # existing, if applicable
+                                    if mskeys_swtch[-1] in \
+                                            cost_incentives_meas.keys():
+                                        cost_incentives_meas = \
+                                            cost_incentives_meas[mskeys[-1]]
+                                    # Set performance units for measure mseg
+                                    # incentives
+                                    incentives_units_meas = base_cpl_swtch[
+                                        "installed cost"]["incentives"][
+                                        "performance units"]
+                                else:
+                                    cost_incentives_meas, \
+                                        incentives_units_meas = (
+                                            "" for n in range(2))
                             else:
-                                cost_incentives_meas, incentives_units_meas = (
-                                    "" for n in range(2))
+                                # No incentives assigned to add-on measures
+                                # in either the baseline or the measure
+                                cost_incentives, cost_incentives_meas, \
+                                    incentives_units_base, \
+                                    incentives_units_meas = (
+                                        "" for n in range(4))
                         else:
                             # Set baseline costs
                             cost_base_init = base_cpl["installed cost"]
