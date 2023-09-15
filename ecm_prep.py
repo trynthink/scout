@@ -1311,6 +1311,7 @@ class UsefulVars(object):
         # Note: EF handling for ECMs written before scout v0.5 (AEO 2019)
         self.tech_units_map = {
             "COP": {"AFUE": 1, "EER": 0.2930712},
+            "EER": {"COP": 3.412},
             "AFUE": {"COP": 1}, "UEF": {"SEF": 1},
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
             "SEF": {"UEF": 1}}
@@ -2797,8 +2798,8 @@ class Measure(object):
         else:
             sqft_subst = 0
 
-        # Initialize lists of warnings
-        warn_list = []
+        # Initialize lists of warnings and list of suppressed incentives data
+        warn_list, suppress_incent = ([] for n in range(2))
 
         # Initialize flag for whether loop through previous microsegment
         # has modified original measure costs/units when pulling incentives
@@ -2825,6 +2826,14 @@ class Measure(object):
                     mskeys_swtch_fuel = mskeys[3]
                 else:
                     mskeys_swtch_fuel = self.fuel_switch_to
+                # Handle switching of secondary heating to ASHP heating
+                # (switched from info. has secondary heating as end use, but
+                # switched to info. needs heating end use to pull ASHP data)
+                if mskeys[4] == "secondary heating":
+                    mskeys_swtch_eu = "heating"
+                else:
+                    mskeys_swtch_eu = mskeys[4]
+
                 # Handle potentially erroneous/inconsistent user tech
                 # switching inputs to the degree possible
                 if bldg_sect == "residential":
@@ -2837,7 +2846,7 @@ class Measure(object):
                         else:
                             mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
-                    elif mskeys[4] in ["water heating"]:
+                    elif mskeys[4] == "water heating":
                         mskeys_swtch_tech = "electric WH"
                     # Cooking and drying
                     elif mskeys[4] in ["cooking", "drying"]:
@@ -2862,10 +2871,10 @@ class Measure(object):
                         else:
                             mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
-                    elif mskeys[4] in ["water heating"]:
+                    elif mskeys[4] == "water heating":
                         mskeys_swtch_tech = "HP water heater"
                     # Cooking
-                    elif mskeys[4] in ["cooking"]:
+                    elif mskeys[4] == "cooking":
                         mskeys_swtch_tech = \
                             "electric_range_oven_24x24_griddle"
                     else:
@@ -2878,13 +2887,14 @@ class Measure(object):
                     # type (supply/demand), tech, new/existing
                     mskeys_swtch = [
                         mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
-                        mskeys[4], mskeys[5], mskeys_swtch_tech, mskeys[7]]
+                        mskeys_swtch_eu, mskeys[5], mskeys_swtch_tech,
+                        mskeys[7]]
                 else:
                     # primary/secondary, region, bldg, fuel, end use, tech,
                     # new/existing
                     mskeys_swtch = [
                         mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
-                        mskeys[4], mskeys_swtch_tech, mskeys[6]]
+                        mskeys_swtch_eu, mskeys_swtch_tech, mskeys[6]]
             else:
                 mskeys_swtch = ""
 
@@ -3363,12 +3373,13 @@ class Measure(object):
                                         base_cpl_swtch[mskeys_swtch[i]]
                                 except KeyError:
                                     raise KeyError(
-                                        "Provided key of " + mskeys_swtch[i] +
-                                        "invalid for pulling base tech data. "
-                                        "Check 'fuel_switch_to' and "
-                                        "'tech_switch_to' fields in measure "
-                                        "definition to ensure names are "
-                                        "consistent with those here: "
+                                        "Provided keys of " +
+                                        str(mskeys_swtch) +
+                                        " invalid for pulling switched to "
+                                        "tech data. Check 'fuel_switch_to' "
+                                        "and 'tech_switch_to' fields in "
+                                        "measure definition to ensure names "
+                                        "are consistent with those here: "
                                         "https://scout-bto.readthedocs.io/"
                                         "en/latest/ecm_reference."
                                         "html#technology")
@@ -4172,7 +4183,7 @@ class Measure(object):
                                     cost_incentives = \
                                         cost_incentives[mskeys[-1]]
                                 # Set perf. units for base mseg incentives
-                                incentives_units_base = base_cpl[
+                                i_units_base = base_cpl[
                                     "installed cost"][
                                         "incentives"]["performance units"]
                                 # Set incentives for "switched to" mseg if
@@ -4190,27 +4201,27 @@ class Measure(object):
                                             cost_incentives_meas[mskeys[-1]]
                                     # Set performance units for measure mseg
                                     # incentives
-                                    incentives_units_meas = base_cpl_swtch[
+                                    i_units_meas = base_cpl_swtch[
                                         "installed cost"]["incentives"][
                                         "performance units"]
                                 else:
                                     cost_incentives_meas, \
-                                        incentives_units_meas = (
+                                        i_units_meas = (
                                             "" for n in range(2))
                             else:
                                 # No incentives assigned to add-on measures
                                 # in either the baseline or the measure
                                 cost_incentives, cost_incentives_meas, \
-                                    incentives_units_base, \
-                                    incentives_units_meas = (
+                                    i_units_base, \
+                                    i_units_meas = (
                                         "" for n in range(4))
                         else:
                             # Set baseline costs
                             cost_base_init = base_cpl["installed cost"]
                             # No incentives data
                             cost_incentives, cost_incentives_meas, \
-                                incentives_units_base, \
-                                incentives_units_meas = (
+                                i_units_base, \
+                                i_units_meas = (
                                     "" for n in range(4))
 
                         # In some cases, typical cost data will be split
@@ -4331,8 +4342,8 @@ class Measure(object):
                             perf_base_units = perf_units
                             # Set baseline mseg incentive performance units
                             # to measure units, if applicable
-                            if incentives_units_base:
-                                incentives_units_base = perf_units
+                            if i_units_base:
+                                i_units_base = perf_units
                             # Warn the user of the value/units conversions
                             if mskeys[-2] is not None and \
                                     mskeys[-2] not in cpl_warn:
@@ -4403,7 +4414,7 @@ class Measure(object):
                     except (TypeError, ValueError):
                         # No incentives data
                         cost_incentives, cost_incentives_meas, \
-                            incentives_units_base, incentives_units_meas = (
+                            i_units_base, i_units_meas = (
                                 "" for n in range(4))
                         # In cases with missing baseline technology cost,
                         # performance, or lifetime data where the user
@@ -4550,8 +4561,7 @@ class Measure(object):
                             cost_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
                     cost_incentives, cost_incentives_meas, \
-                        incentives_units_base, incentives_units_meas = (
-                            "" for n in range(4))
+                        i_units_base, i_units_meas = ("" for n in range(4))
 
                 # Handle special case of commercial heat pumps, where costs
                 # may be specified in $/kBtu/h heating or cooling but the
@@ -4920,15 +4930,44 @@ class Measure(object):
                     # baseline and measures tech. costs on the basis of their
                     # performance levels
                     if cost_incentives:
-                        # First check to ensure performance units for
-                        # incentives data are consistent with those of
-                        # measure and baseline tech.; if not, incentives
-                        # should not be applied
-                        if all([x == incentives_units_base and (
-                            not incentives_units_meas or (
-                                incentives_units_meas and
-                                x == incentives_units_meas))
-                                for x in [perf_base_units, perf_units]]):
+                        # Check for and attempt to address inconsistencies
+                        # between the performance units attached to baseline
+                        # and measure cost incentives and the performance units
+                        # attached to the baseline/measure equipment data
+
+                        # Set the baseline/measure performance units to
+                        # check incentives performance units against
+                        i_unit_chk = [perf_base_units, perf_units]
+                        # Initialize list of unit conversion factors to
+                        # be applied below to address inconsistencies
+                        i_unit_cnv = [None for n in range(2)]
+                        # Loop through baseline/measure units and attempt
+                        # to pull factors to address inconsistencies
+                        for ind_u, i_unit in enumerate([
+                                i_units_base, i_units_meas]):
+                            # No inconsistency; set conversion factor to 1
+                            if not i_unit or (i_unit == i_unit_chk[ind_u]):
+                                i_unit_cnv[ind_u] = 1
+                            # Inconsistency that can be address via units
+                            # conversion
+                            elif i_unit != i_unit_chk[ind_u] and i_unit in \
+                                    self.handyvars.tech_units_map.keys():
+                                # Find units conversion factor
+                                i_unit_cnv[ind_u] = \
+                                    self.handyvars.tech_units_map[
+                                    i_unit][i_unit_chk[ind_u]]
+                                # Set incentive performance units to those
+                                # of the baseline/measure performance units
+                                # being checked against
+                                i_unit = i_unit_chk
+                        # Set final baseline and measure incentives units
+                        # conversions to be applied to incentives data below
+                        cnv_b, cnv_m = [i_unit_cnv[0], i_unit_cnv[1]]
+
+                        # Check to ensure that performance units for
+                        # incentives are harmonized, and if not, do not
+                        # apply incentives/issue warning
+                        if all([x is not None for x in [cnv_b, cnv_m]]): 
                             # Initialize incentives multipliers as 1
                             mlt_b, mlt_m = (1 for n in range(2))
                             # Multiply any existing residential HP heating
@@ -4969,17 +5008,17 @@ class Measure(object):
                                     # incentives information)
                                     if not cost_incentives_meas:
                                         base_val_yr, meas_val_yr = ([
-                                            x[1] * mlt_b for x in
+                                            x[1] * mlt_b * cnv_b for x in
                                             cost_incentives[yr] if y >= x[0]]
                                             for y in [
                                                 perf_base[yr], perf_meas])
                                     else:
                                         base_val_yr = [
-                                            x[1] * mlt_b for x in
+                                            x[1] * mlt_b * cnv_b for x in
                                             cost_incentives[yr] if
                                             perf_base[yr] >= x[0]]
                                         meas_val_yr = [
-                                            x[1] * mlt_m for x in
+                                            x[1] * mlt_m * cnv_m for x in
                                             cost_incentives_meas[yr]
                                             if perf_meas >= x[0]]
                                 else:
@@ -4991,17 +5030,17 @@ class Measure(object):
                                     # incentives information)
                                     if not cost_incentives_meas:
                                         base_val_yr, meas_val_yr = (
-                                            [x[1] * mlt_b for x in
+                                            [x[1] * mlt_b * cnv_b for x in
                                              cost_incentives[yr] if y <= x[0]]
                                             for y in [
                                                 perf_base[yr], perf_meas])
                                     else:
                                         base_val_yr = [
-                                            x[1] * mlt_b for x in
+                                            x[1] * mlt_b * cnv_b for x in
                                             cost_incentives[yr]
                                             if perf_base[yr] <= x[0]]
                                         meas_val_yr = [
-                                            x[1] * mlt_m for x in
+                                            x[1] * mlt_m * cnv_m for x in
                                             cost_incentives_meas[yr]
                                             if perf_meas <= x[0]]
                                 # Apply the largest retrieved incentive level
@@ -5020,23 +5059,8 @@ class Measure(object):
                                         cost_meas[yr] = 0
                                     meas_incent_flag = True
                         else:
-                            # For warning message, set measure units of
-                            # None (indicating no measure incentives units
-                            # that are distinct from baseline incentive units)
-                            # to those of the baseline for clarity
-                            if not incentives_units_meas:
-                                incentives_units_warn = incentives_units_base
-                            else:
-                                incentives_units_warn = incentives_units_meas
-                            warnings.warn(
-                                "Incentives found for mseg " +
-                                str(mskeys) + " but cannot be applied "
-                                "due to inconsistent performance units: "
-                                "(base = " + perf_base_units + "; "
-                                "measure = " + perf_units + "; base "
-                                "incentives = " + incentives_units_base + "; "
-                                "measure incentives = " +
-                                incentives_units_warn + ")")
+                            # Record suppression of incentives application
+                            suppress_incent.append(mskeys)
                             pass
                 else:
                     raise KeyError(
@@ -6301,6 +6325,16 @@ class Measure(object):
         if len(warn_list) > 0:
             for warn in list(set(warn_list)):
                 print(warn)
+        # Print suppressed incentives warning
+        if len(suppress_incent) > 0:
+            warnings.warn("Incentives found for measure '" + self.name +
+                          "' markets but cannot be applied due to "
+                          "performance units for incentives that are "
+                          "inconsistent with the baseline or measure "
+                          "equipment performance units. Check that measure "
+                          "uses standard performance units recommended here: "
+                          "https://scout-bto.readthedocs.io/en/latest/"
+                          "ecm_reference.html#energy-efficiency-units")
         # Further normalize a measure's lifetime and stock information (where
         # the latter is based on square footage) to the number of microsegments
         # that contribute to the measure's overall master microsegment and
