@@ -65,6 +65,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "HPWH",
   "_notes": " ", 
   "_added_by": {
     "name": "Jared Langevin",

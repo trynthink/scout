@@ -64,6 +64,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "electric cooking",
   "_description": "Reference case natural gas residential cooking technology to be switched to electricity",
   "_notes": " ", 
   "_added_by": {
