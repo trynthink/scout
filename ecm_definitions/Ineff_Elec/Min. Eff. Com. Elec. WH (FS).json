@@ -53,6 +53,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "HPWH",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
   "_notes": null,

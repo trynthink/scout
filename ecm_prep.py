@@ -2818,8 +2818,11 @@ class Measure(object):
                 bldg_sect = "commercial"
 
             # Develop "switched to" microsegment information for measures
-            # that change to a different technology from the baseline
-            if self.tech_switch_to is not None:
+            # that change to a different technology from the baseline;
+            # screen out ventilation segments, which are sometimes attached
+            # to commercial measures that fuel switch or switch from resistance
+            # heating to HPs but are not assumed to switch ventilation tech.
+            if self.tech_switch_to is not None and mskeys[4] != "ventilation":
                 # Handle tech. switch from same fuel (e.g., resistance to HP);
                 # in this case, fuel remains same as baseline mseg info.
                 if self.fuel_switch_to is None:
@@ -4967,7 +4970,7 @@ class Measure(object):
                         # Check to ensure that performance units for
                         # incentives are harmonized, and if not, do not
                         # apply incentives/issue warning
-                        if all([x is not None for x in [cnv_b, cnv_m]]): 
+                        if all([x is not None for x in [cnv_b, cnv_m]]):
                             # Initialize incentives multipliers as 1
                             mlt_b, mlt_m = (1 for n in range(2))
                             # Multiply any existing residential HP heating

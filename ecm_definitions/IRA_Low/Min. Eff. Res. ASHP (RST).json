@@ -70,6 +70,7 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": {
     "central AC": 0.32,
     "resistance heat": 1},
