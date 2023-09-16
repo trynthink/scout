@@ -55,6 +55,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": {
     "rooftop_AC": 0.38, 
     "res_type_central_AC": 0.38,
