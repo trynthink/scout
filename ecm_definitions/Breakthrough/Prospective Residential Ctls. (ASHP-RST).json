@@ -43,6 +43,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": {
     "central AC": 0.32,
     "resistance heat": 1},

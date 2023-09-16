@@ -49,6 +49,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "GSHP",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "_notes": null,

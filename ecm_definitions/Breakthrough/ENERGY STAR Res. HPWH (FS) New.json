@@ -55,6 +55,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "GSHP",
   "_description": "ENERGY STAR electric storage heat pump water heater in 2022, new construction",
   "_notes": " ", 
   "_added_by": {

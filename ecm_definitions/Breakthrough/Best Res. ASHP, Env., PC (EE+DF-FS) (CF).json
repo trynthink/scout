@@ -105,6 +105,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": {
     "electricity": {
       "cooling": 0.68,

@@ -13408,9 +13408,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     if not meas_dict["tech_switch_to"] and (
                             meas_dict["fuel_switch_to"] is not None or (
                             any([x in handyvars.resist_ht_tech for x in
-                                 meas_dict["technology"]]) and any([
-                                    x in meas_dict["name"] for x in [
-                                        "HP", "heat pump", "Heat Pump"]]))):
+                                 (meas_dict["technology"] if
+                                  meas_dict["technology"] is not None else
+                                    [None])]) and any(
+                            [x in meas_dict["name"] for x in [
+                            "HP", "heat pump", "Heat Pump"]]))):
                         # Print missing tech switch info. warning
                         raise ValueError(
                             "Measure is missing expected technology switching "
