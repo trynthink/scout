@@ -92,6 +92,7 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
+  "tech_switch_to": "GSHP",
   "market_scaling_fractions": {
     "electricity": {
       "cooling": 0.68,
