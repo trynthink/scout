@@ -39,7 +39,7 @@ def contains_str(string_list, substring):
     return False
 
 
-def process_data(scout_data, gcam_data, scout_keys, gcam_keys):  
+def process_data(scout_data, gcam_data, scout_keys, gcam_keys):
     for yr, value in scout_data.items():
         if not isinstance(value, (int, float)):
             continue
