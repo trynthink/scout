@@ -57,6 +57,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "HPWH",
   "_description": "ENERGY STAR electric storage heat pump water heater in 2022",
   "_notes": " ", 
   "_added_by": {

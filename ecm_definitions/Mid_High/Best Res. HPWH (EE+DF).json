@@ -59,6 +59,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "HPWH",
   "_description": "Highest efficiency residential heat pump water heater in 2017, operated with DR-responsive cycling",
   "_notes": null, 
   "_added_by": {
