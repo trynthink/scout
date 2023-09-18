@@ -31,10 +31,11 @@ def calculate_total_stocks(data):
                             for yr in data[em][bt][ft][eu][tc]['stock']:
                                 value = data[em][bt][ft][eu][tc]['stock'][yr]
                                 eu_sh = 'secondary heating'
-                                if(bool(all_stocks.get(em)) and
-                                   bool(all_stocks[em].get(bt)) and
-                                   bool(all_stocks[em][bt].get(eu_sh)) and
-                                   bool(all_stocks[em][bt][eu_sh].get(yr))):
+                                if (bool(all_stocks.get(em)) and
+                                    bool(all_stocks[em].get(bt)) and
+                                    bool(all_stocks[em][bt].get(eu_sh)) and
+                                        bool(
+                                        all_stocks[em][bt][eu_sh].get(yr))):
                                     old_value = all_stocks[em][bt][eu_sh][yr]
                                     value = old_value + value
                                 nested_set(all_stocks, [
@@ -44,10 +45,11 @@ def calculate_total_stocks(data):
                                 for yr in data[em][bt][ft][eu][tc]['stock']:
                                     value = \
                                         data[em][bt][ft][eu][tc]['stock'][yr]
-                                    if(bool(all_stocks.get(em)) and
-                                       bool(all_stocks[em].get(bt)) and
-                                       bool(all_stocks[em][bt].get(eu)) and
-                                       bool(all_stocks[em][bt][eu].get(yr))):
+                                    if (bool(all_stocks.get(em)) and
+                                        bool(all_stocks[em].get(bt)) and
+                                        bool(all_stocks[em][bt].get(eu)) and
+                                            bool(
+                                            all_stocks[em][bt][eu].get(yr))):
                                         old_value = all_stocks[em][bt][eu][yr]
                                         value = old_value + value
                                     nested_set(all_stocks, [
@@ -57,7 +59,7 @@ def calculate_total_stocks(data):
     return all_stocks
 
 
-def get_gcam_emm(data,all_stocks):
+def get_gcam_emm(data, all_stocks):
     # get uec and sd_share data in emm region
     gcam_emm = {}
     for em in data:
@@ -80,7 +82,7 @@ def get_gcam_emm(data,all_stocks):
                                     uec_value = energy / stock
                                 else:
                                     uec_value = 0
-                                    if uec_value_t != 0: 
+                                    if uec_value_t != 0:
                                         uec_value = uec_value_t
                                 nested_set(gcam_emm, [em, bt, ft, eu, tc,
                                            'stock', yr], stock)
@@ -168,8 +170,8 @@ def remap_uec_sdshr(inFile_str, outFile_str):
                                         var_years = list(gcam_emm[em_t][bt][
                                             ft][eu][tc][varstr].keys())
                                         emm_yr_val_t = 0
-                                        if(yr in var_years):
-                                            emm_val =  gcam_emm[em_t][bt][ft][
+                                        if (yr in var_years):
+                                            emm_val = gcam_emm[em_t][bt][ft][
                                                 eu][tc][varstr][yr]
                                             emm_yr_val_t = mult * emm_val
                                         emm_yr_val += emm_yr_val_t
