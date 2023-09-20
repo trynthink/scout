@@ -957,7 +957,8 @@ class UsefulVars(object):
                 "commercial": [
                     "assembly", "education", "food sales", "food service",
                     "health care", "lodging", "large office", "small office",
-                    "mercantile/service", "warehouse", "other"]},
+                    "mercantile/service", "warehouse", "other",
+                    "unspecified"]},
             "structure_type": ["new", "existing"],
             "fuel_type": {
                 "residential": [
@@ -985,10 +986,12 @@ class UsefulVars(object):
                         'ventilation', 'water heating', 'cooling',
                         'heating', 'refrigeration', 'MELs',
                         'non-PC office equipment', 'PCs', 'lighting',
-                        'cooking'],
+                        'cooking', "unspecified"],
                     "natural gas": [
-                        'cooling', 'water heating', 'cooking', 'heating'],
-                    "distillate": ['water heating', 'heating']}},
+                        'cooling', 'water heating', 'cooking', 'heating',
+                        'other', 'unspecified'],
+                    "distillate": [
+                        'water heating', 'heating', 'other', 'unspecified']}},
             "technology": {
                 "residential": {
                     "supply": {
@@ -1124,7 +1127,8 @@ class UsefulVars(object):
                             'cooking': [
                                 'electric_range_oven_24x24_griddle'],
                             'PCs': [None],
-                            'non-PC office equipment': [None]},
+                            'non-PC office equipment': [None],
+                            'unspecified': [None]},
                         "natural gas": {
                             'cooling': [
                                 'gas_eng-driven_RTAC', 'gas_chiller',
@@ -1139,11 +1143,13 @@ class UsefulVars(object):
                                 'gas_eng-driven_RTHP-heat',
                                 'res_type_gasHP-heat', 'gas_boiler',
                                 'gas_furnace'],
-                            'other': [None]},
+                            'other': [None],
+                            'unspecified': [None]},
                         "distillate": {
                             'water heating': ['oil_water_heater'],
                             'heating': ['oil_boiler', 'oil_furnace'],
-                            'other': [None]}},
+                            'other': [None],
+                            'unspecified': [None]}},
                     "demand": [
                         'roof', 'ground', 'lighting gain',
                         'windows conduction', 'equipment gain',
@@ -1213,7 +1219,8 @@ class UsefulVars(object):
                 ('Hospitality', [
                     'new', 'existing', 'lodging', 'food service']),
                 ('Education', ['new', 'existing', 'education']),
-                ('Assembly/Other', ['new', 'existing', 'assembly', 'other']),
+                ('Assembly/Other', [
+                    'new', 'existing', 'assembly', 'other', 'unspecified']),
                 ('Warehouses', ['new', 'existing', 'warehouse'])])
         else:
             self.out_break_bldgtypes = OrderedDict([
@@ -1227,12 +1234,12 @@ class UsefulVars(object):
                     'new', 'assembly', 'education', 'food sales',
                     'food service', 'health care', 'mercantile/service',
                     'lodging', 'large office', 'small office', 'warehouse',
-                    'other']),
+                    'other', 'unspecified']),
                 ('Commercial (Existing)', [
                     'existing', 'assembly', 'education', 'food sales',
                     'food service', 'health care', 'mercantile/service',
                     'lodging', 'large office', 'small office', 'warehouse',
-                    'other'])])
+                    'other', 'unspecified'])])
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
@@ -1247,7 +1254,7 @@ class UsefulVars(object):
                 "PCs", "non-PC office equipment", "TVs", "computers"]),
             ('Other', [
                 "drying", "ceiling fan", "fans and pumps",
-                "MELs", "other"])])
+                "MELs", "other", "unspecified"])])
         self.out_break_eus_w_fsplits = [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
             "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
@@ -1788,7 +1795,8 @@ class EPlusMapDicts(object):
                 "RetailStripmall": 0.47},
             "warehouse": {
                 "Warehouse": 1},
-            "other": None}
+            "other": None,
+            "unspecified": None}
         self.fuel = {
             'electricity': 'electricity',
             'natural gas': 'gas',
@@ -2807,6 +2815,12 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for ind, mskeys in enumerate(ms_iterable):
+            # Move to next key chain for 'unspecified' building type and 'new'
+            # vintage; there are no new/existing floor space data for this
+            # building type and all data are pulled into 'existing' key chains.
+            if mskeys[2] == "unspecified" and "new" in mskeys:
+                continue
+
             # Set building sector for the current microsegment
             if mskeys[2] in [
                     "single family home", "mobile home", "multi family home"]:
@@ -5133,13 +5147,16 @@ class Measure(object):
                                     key: self.handyvars.deflt_choice[1] for
                                     key in self.handyvars.aeo_years}}
                 else:
-                    # Update new building construction information
-                    for yr in self.handyvars.aeo_years:
-                        # Find new and total square footage for current year
-                        new_constr["annual new"][yr] = \
-                            mseg_sqft_stock["new square footage"][yr]
-                        new_constr["total"][yr] = \
-                            mseg_sqft_stock["total square footage"][yr]
+                    # Note: unspecified building type does not have any
+                    # square footage data for new/existing splits
+                    if mskeys[2] != "unspecified":
+                        # Update new building construction information
+                        for yr in self.handyvars.aeo_years:
+                            # Find new and total square footage for current yr.
+                            new_constr["annual new"][yr] = \
+                                mseg_sqft_stock["new square footage"][yr]
+                            new_constr["total"][yr] = \
+                                mseg_sqft_stock["total square footage"][yr]
 
                     # Update technology choice parameters needed to choose
                     # between multiple efficient technology options that
@@ -5183,29 +5200,35 @@ class Measure(object):
                 # Find fraction of total new buildings in each year.
                 # Note: in each year, this fraction is calculated by summing
                 # the annual new building/floor space figures for all
-                # preceding years
-                for yr in self.handyvars.aeo_years:
-                    # Find cumulative total of new building/floor space stock
-                    if yr == self.handyvars.aeo_years[0]:
-                        new_constr["total new"][yr] = \
-                            new_constr["annual new"][yr]
-                    else:
-                        # Handle case where data for previous year are
-                        # unavailable; set to current year's data
-                        try:
-                            new_constr["total new"][yr] = \
-                                new_constr["annual new"][yr] + \
-                                new_constr["total new"][str(int(yr) - 1)]
-                        except KeyError:
+                # preceding years. Handle unspecified case, where no such
+                # floor space data exist (put all data under existing msegs)
+                if mskeys[2] != "unspecified":
+                    for yr in self.handyvars.aeo_years:
+                        # Find cumulative total of new building/floor space
+                        if yr == self.handyvars.aeo_years[0]:
                             new_constr["total new"][yr] = \
                                 new_constr["annual new"][yr]
-                    # Calculate new vs. existing fraction of stock
-                    if new_constr["total new"][yr] <= new_constr["total"][yr]:
-                        new_constr["new fraction"][yr] = \
-                            new_constr["total new"][yr] / \
-                            new_constr["total"][yr]
-                    else:
-                        new_constr["new fraction"][yr] = 1
+                        else:
+                            # Handle case where data for previous year are
+                            # unavailable; set to current year's data
+                            try:
+                                new_constr["total new"][yr] = \
+                                    new_constr["annual new"][yr] + \
+                                    new_constr["total new"][str(int(yr) - 1)]
+                            except KeyError:
+                                new_constr["total new"][yr] = \
+                                    new_constr["annual new"][yr]
+                        # Calculate new vs. existing fraction of stock
+                        if new_constr["total new"][yr] <= new_constr[
+                                "total"][yr]:
+                            new_constr["new fraction"][yr] = \
+                                new_constr["total new"][yr] / \
+                                new_constr["total"][yr]
+                        else:
+                            new_constr["new fraction"][yr] = 1
+                else:
+                    new_constr["new fraction"] = {
+                        yr: 0 for yr in self.handyvars.aeo_years}
 
                 # Determine the fraction to use in scaling down the stock,
                 # energy, and carbon microsegments to the applicable structure
@@ -8044,9 +8067,11 @@ class Measure(object):
         # values are in units of hourly service capacity; to multiply the
         # former by the latter, a conversion factor is needed to translate
         # stock from unit service demand to unit service capacity. Note that
-        # this conversion is set to one in the case where no stock (service
-        # demand) data could be pulled for the given equipment type/end use.
-        if bldg_sect == "commercial" and sqft_subst != 1 and (
+        # this conversion is set to 1 in the case where no stock (service
+        # demand) data could be pulled for the given equipment type/end use/
+        # building type.
+        if (bldg_sect == "commercial" and mskeys[2] != "unspecified") and \
+                sqft_subst != 1 and (
                 mskeys[4] not in self.handyvars.com_eqp_eus_nostk):
             # Use try/except to handle missing capacity factor data
             try:
