@@ -84,7 +84,7 @@ Building type
 
 **Residential:** single family home, multi family home, mobile home; all residential
 
-**Commercial:** assembly, education, food sales, food service, health care, lodging, large office, small office, mercantile/service, warehouse, other; all commercial
+**Commercial:** assembly, education, food sales, food service, health care, lodging, large office, small office, mercantile/service, warehouse, other, unspecified; all commercial
 
 .. note::
 
@@ -189,6 +189,11 @@ The end use names appear verbatim in the first column of the tables for resident
 | :superscript:`*`        |      X      |             |            |
 +-------------------------+-------------+-------------+------------+
 | MELs :superscript:`*`   |      X      |             |            |
++-------------------------+-------------+-------------+------------+
+| other :superscript:`*`  |             |      X      |      X     |
++-------------------------+-------------+-------------+------------+
+| unspecified             |             |             |            |
+| :superscript:`*`        |      X      |      X      |      X     |
 +-------------------------+-------------+-------------+------------+
 | all                     |      X      |      X      |      X     |
 +-------------------------+-------------+-------------+------------+
@@ -320,11 +325,15 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
    * electricity: electric_range_oven_24x24_griddle
    * natural gas: gas_range_oven_24x24_griddle
 
-* PCs
+* PCs: ``null``
 
-* non-PC office equipment
+* non-PC office equipment: ``null``
 
-* MELs: distribution transformers, kitchen ventilation, security systems, lab fridges and freezers, medical imaging, large video boards, coffee brewers, non-road electric vehicles, fume hoods, laundry, elevators, escalators, IT equipment, office UPS, data center UPS, shredders, private branch exchanges, voice-over-IP telecom, point-of-sale systems, warehouse robots, televisions
+* MELs: distribution transformers, kitchen ventilation, security systems, lab fridges and freezers, medical imaging, large video boards, coffee brewers, non-road electric vehicles, fume hoods, laundry, elevators, escalators, IT equipment, office UPS, data center UPS, shredders, private branch exchanges, voice-over-IP telecom, point-of-sale systems, warehouse robots, televisions, water services, telecom systems, other 
+
+* other: ``null``
+
+* unspecified: ``null``
 
 **Commercial -- Demand**
 
@@ -434,16 +443,12 @@ Installed cost units
 
    * Ventilation ($/1000 CFM)
    * Lighting ($/1000 lm)
-   * Cooking ($/ft^2 floor)
-   * Heating, cooling, water heating, and refrigeration ($/kBtu/h service, e.g., $/kBtu/h heating)
-   * PCs ($/ft^2 floor)
+   * Heating, cooling, water heating, cooking, and refrigeration ($/kBtu/h service, e.g., $/kBtu/h heating)
    * All other equipment ($/ft^2 floor)
 
 **Residential and Commercial -- Sensors and Controls (Supply)**
 
-   * Sensor networks ($/node)
-   * Occupant-centered controls ($/occupant)
-   * All other controls ECMs ($/ft^2 floor)
+   * All sensors and controls ECMs ($/ft^2 floor)
 
 **Residential and Commercial -- Envelope Components (Demand)**
 
@@ -1022,12 +1027,27 @@ fuel_switch_to
 
 * **Parents:** root
 * **Children:** none
-* **Type:** string, list
+* **Type:** string
 
-If the ECM is intended to replace comparable building components that use one of multiple fuel types, such as both electric and natural gas water heaters, this field should identify the fuel type of the technology described by the ECM. The fuel type should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the value of :ref:`json-fuel_type` is a single fuel type that matches the technology described by the ECM, this field can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
+If the ECM replaces a comparable baseline technology or technologies that are served by a different fuel type, this field should identify the fuel type that the ECM switches to. The switched to fuel type name should match exactly with one of the :ref:`fuel types <ecm-baseline_fuel-type>` listed in the :ref:`ecm-def-reference`. If the ECM fuel type matches that of the comparable baseline technology, this field can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
 
    {...
     "fuel_switch_to": "natural gas",
+    ...}
+
+.. _json-tech_switch_to:
+
+tech_switch_to
+~~~~~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** none
+* **Type:** string
+
+If the ECM technology differs from that of the comparable baseline technology it replaces, this field should identify the technology that the ECM switches to. The switched to technology name should match one of those shown in the table in :numref:`tech-switch-tab`. If the ECM technology is a like-for-like replacement of the baseline technology, this field can be given as ``null``. Additional information regarding the use of this field is available in the :ref:`ecm-features-multiple-fuel-types` section. ::
+
+   {...
+    "tech_switch_to": "ASHP",
     ...}
 
 .. _json-market_scaling_fractions:

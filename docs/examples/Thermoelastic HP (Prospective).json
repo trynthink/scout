@@ -1,7 +1,7 @@
 {
   "name": "Thermoelastic HP",
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": "all",
   "structure_type": "all",
   "end_use": ["cooling", "heating"],
   "fuel_type": "electricity",
@@ -56,6 +56,7 @@
       "URL": "https://www.eia.gov/forecasts/aeo/nems/documentation/residential/pdf/m067(2014).pdf"}]},
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "_description": null,

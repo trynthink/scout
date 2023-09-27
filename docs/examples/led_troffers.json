@@ -55,6 +55,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "LED",
   "_description": "LED troffers for commercial modular dropped ceiling grids that are a replacement for the entire troffer luminaire for linear fluorescent bulbs, not a retrofit kit or linear LED bulbs that slot into existing troffers.",
   "_notes": "Energy performance is specified for the luminaire, not the base lamp.",
   "_added_by": {

@@ -39,17 +39,11 @@
       "pages": [2, 43],
       "URL": "https://www.researchgate.net/publication/260135187_A_Review_of_Wireless_Sensor_Network_Enabled_Building_Energy_Management_Systems"
       }]},
-  "installed_cost": 300,
-  "cost_units": "2016$/node",
+  "installed_cost": 0.5,
+  "cost_units": "2016$/ft^2 floor",
   "installed_cost_source":{
-    "notes": "BTO Prioritization Tool analysis assuming 10% overall energy savings and 1 year payback threshold",
-    "source_data": {
-      "title": "A Tool to Prioritize Energy Efficiency Investments",
-      "author": "Farese et al.",
-      "organization": "National Renewable Energy Laboratory",
-      "year": 2012,
-      "pages": null,
-      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+    "notes": "Example",
+    "source_data": null},
   "product_lifetime": 10,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
