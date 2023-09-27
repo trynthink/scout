@@ -268,12 +268,13 @@ LED troffers would replace existing troffers that use linear fluorescent bulbs, 
     "measure_type": "full service",
     ...}
 
-If the ECM is intended to supplant technologies with multiple fuel types, those fuel types are specified in the :ref:`json-fuel_type` value, and the fuel type of the ECM itself is specified in the :ref:`json-fuel_switch_to` field. This field is explained further, with illustrative examples in the :ref:`ecm-features-multiple-fuel-types` section. When not applicable, this field should be given the value ``null``.
+If the ECM is intended to replace baseline technologies of a different technology and/or fuel type, the technologies and fuel types that it switches away from are specified in the :ref:`json-technology` and :ref:`json-fuel_type` fields, respectively, and the technology and fuel type that the ECM switches to are specified in the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` fields, respectively. These fields are explained further, with illustrative examples in the :ref:`ecm-features-multiple-fuel-types` section. When not applicable, the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` fields should be given the value ``null``.
 
-All lighting uses only electricity, so this option is not relevant to LED troffers. ::
+The LED troffers ECM switches away from linear fluorescent bulbs but does not switch fuels. ::
 
    {...
     "fuel_switch_to": null,
+    "tech_switch_to": "LED",
      ...}
 
 If the ECM applies to only a portion of the energy use in an applicable baseline market, even after specifying the particular end use, fuel type, and technologies that are relevant, a scaling value can be added to the ECM definition to specify what fraction of the applicable baseline market is truly applicable to that ECM.
@@ -325,6 +326,68 @@ Additional ECM features
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 There are many ways in which an ECM definition can be augmented, beyond the basic example already presented, to more fully characterize a technology. The subsequent sections explain how to implement the myriad options available to add more detail and complexity to your ECMs. Links to download example ECMs that illustrate the feature described are included in each section.
+
+.. _ecm-features-multiple-fuel-types:
+
+Technology and/or fuel switching
+********************************
+
+.. _ecm-download-multiple-fuel-types:
+
+:download:`Example <examples/Residential Thermoelectric HPWH (Prospective).json>` -- Heat Pump Water Heater (:ref:`Details <ecm-example-multiple-fuel-types>`)
+
+Some ECMs switch a comparable baseline technology to a different technology and/or fuel type. Air or ground source heat pumps, for example, can replace the service of fossil-fired heating systems (different fuel, different technology), or these heat pumps can replace the service of electric resistance baseboard heaters or furnaces (same fuel, different technology). The same goes for heat pump water heaters and for electric ranges and dryers. The :ref:`json-tech_switch_to` field, used in conjunction with the :ref:`json-technology` field and the :ref:`json-fuel_type` and :ref:`json-fuel_switch_to` fields in the baseline market, enables an ECM to replace the service of a different baseline technology and/or fuel type.
+
+To configure such ECMs, the :ref:`json-technology` and :ref:`json-fuel_type` fields should be populated with a list of the technologies and fuel types that, for the applicable end uses, are replaced by the ECM technology. If the ECM is able to replace all technologies for a given fuel type and end use, the :ref:`json-technology` field can be specified using the ``"all"`` :ref:`shorthand value <ecm-features-shorthand>`. The :ref:`json-tech_switch_to` field should be set to the most appropriate value for the ECM from :numref:`tech-switch-tab`, while the :ref:`json-fuel_switch_to` field should be set to ECM fuel type being switched to.
+
+.. _tech-switch-tab:
+.. table:: Technology switch to values for various ECM types.
+
+   +----------------------------+------------------------+
+   | ECM Technology Switched To | JSON Value             |
+   +============================+========================+
+   | Air source heat pump       | ``"ASHP"``             |
+   +----------------------------+------------------------+
+   | Ground source heat pump    | ``"GSHP"``             |
+   +----------------------------+------------------------+
+   | Heat pump water heater     | ``"HPWH"``             |
+   +----------------------------+------------------------+
+   | Electric cooking           | ``"Electric cooking"`` |
+   +----------------------------+------------------------+
+   | Electric drying            | ``"Electric drying"``  |
+   +----------------------------+------------------------+
+   | LED                        | ``"LED"``              |
+   +----------------------------+------------------------+
+
+For example, an air source heat pump ECM could replace the service of fossil-fired furnaces paired with central air conditioners. ::
+
+   {...
+    "fuel_type": ["natural gas", "distillate", "electricity"],
+    ...
+    "technology": ["furnace (NG)", "furnace (distillate)", "central AC"],
+    ...
+    "fuel_switch_to": "electricity",
+    "tech_switch_to": "ASHP",
+    ...}
+
+Alternatively, an air source heat pump ECM could replace the service of electric resistance furnaces paired with central air conditioning. ::
+
+   {...
+    "fuel_type": ["electricity"],
+    ...
+    "technology": ["resistance heat", "central AC"],
+    ...
+    "fuel_switch_to": null,
+    "tech_switch_to": "ASHP",
+    ...}
+
+.. note::
+   The |html-filepath| ecm_prep.py\ |html-fp-end| module checks for and expects :ref:`json-tech_switch_to` information for all fuel switching and LED measures ("LED", "solid state", "Solid State", or "SSL" in name), as well as for heat pump measures ("HP", "heat pump", or "Heat Pump" in name) that apply to electric resistance heating or water heating technologies in the baseline. The |html-filepath| ecm_prep.py\ |html-fp-end| execution will error if this expected information is missing. If a measure meeting those criteria is not intended to represent technology switching, the user can suppress this check by setting the measure's :ref:`json-tech_switch_to` to value ``null``.
+
+
+.. _ecm-example-multiple-fuel-types:
+
+A residential heat pump water heater is :ref:`available to download <ecm-download-multiple-fuel-types>` to illustrate the setup of the :ref:`json-tech_switch_to`, :ref:`json-fuel_switch_to`, :ref:`json-technology`, and :ref:`json-fuel_type` fields to denote, for this particular example, an electric water heater that can replace water heaters of fossil-fired fuel types.
 
 .. _ecm-features-tsv:
 
@@ -829,7 +892,7 @@ In the fourth example, where the energy efficiency is specified by climate zone 
     "energy_efficiency_units": {
       "heating": "COP",
       "cooling": "COP",
-      "water heating": "EF"},
+      "water heating": "UEF"},
     ...}
 
 .. While all of the examples shown use absolute units, :ref:`relative savings values <ecm-features-relative-savings>`, :ref:`EnergyPlus energy efficiency data <ecm-features-energyplus>` (for commercial buildings), and :ref:`probability distributions <ecm-features-distributions>` can also be used with detailed input specifications. If an ECM can be described using one or more :ref:`shorthand terms <ecm-features-shorthand>`, these strings can be used as keys for a detailed input specification; this ability is particularly helpful when using the "all residential" and/or "all commercial" building type shorthand strings.
@@ -895,7 +958,7 @@ If appropriate for a given ECM, absolute and relative units can also be mixed in
 
 .. _ecm-example-relative-savings:
 
-An occupant-centered controls ECM :ref:`available for download <ecm-download-relative-savings>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`shorthand terms <ecm-features-shorthand>`, :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
+An occupant-centered controls ECM :ref:`available for download <ecm-download-relative-savings>`, like all controls ECMs, uses relative savings units. It also illustrates several other features discussed in this section, including :ref:`detailed input specification <ecm-features-detailed-input>`, and the :ref:`add-on measure type <ecm-features-measure-type>`.
 
 
 .. ecm-features-energyplus: (CONVERT BACK TO SECTION REFERENCE TAG)
@@ -1010,32 +1073,6 @@ For these technologies, several of the fields of the ECM must be configured slig
 A plug-and-play sensors ECM is :ref:`available to download <ecm-download-measure-type>` to illustrate the use of the "add-on" ECM type.
 
 .. <<< DOWNLOADABLE EXAMPLE >>> ADD A DAYLIGHTING ECM? (Daylighting needs market scaling fraction to reduce to lighting in the perimeter zone of buildings?)
-
-
-.. _ecm-features-multiple-fuel-types:
-
-Multiple fuel types
-*******************
-
-.. _ecm-download-multiple-fuel-types:
-
-:download:`Example <examples/Residential Thermoelectric HPWH (Prospective).json>` -- Thermoelectric Heat Pump Water Heater (:ref:`Details <ecm-example-multiple-fuel-types>`)
-
-Some technologies, especially those that serve multiple end uses, might yield much greater energy savings if they are permitted to supplant technologies with different fuel types. Heat pumps, for example, can provide heating and cooling using a single fuel type (typically electricity), but could replace an HVAC system that uses different fuels for heating and cooling. The :ref:`json-fuel_switch_to` field, used in conjunction with the :ref:`json-fuel_type` field in the baseline market enables ECMs that serve multiple end uses and could replace technologies with various fuel types.
-
-To configure these ECMs, the :ref:`json-fuel_type` field should be populated with a list of the fuel types that, for the applicable end uses, are able to be supplanted by the technology described by the ECM. The :ref:`json-fuel_switch_to` field should be set to the string for the fuel type of the technology itself. For example, an ECM that describes a natural gas-fired heat pump might be able to replace technologies that use electricity, natural gas, or distillate fuels. ::
-
-   {...
-    "fuel_type": ["electricity", "natural gas", "distillate"],
-    ...
-    "fuel_switch_to": "natural gas",
-    ...}
-
-If all of the fuel types apply, the :ref:`json-fuel_type` field can be specified using the ``"all"`` :ref:`shorthand value <ecm-features-shorthand>`.
-
-.. _ecm-example-multiple-fuel-types:
-
-A residential thermoelectric heat pump water heater is :ref:`available to download <ecm-download-multiple-fuel-types>` to illustrate the setup of the :ref:`json-fuel_type` and :ref:`json-fuel_switch_to` fields to denote, for this particular example, an electric water heater that can replace water heaters of all fuel types.
 
 .. _ecm-features-retro-rate:
 
@@ -1310,13 +1347,13 @@ Alternate Reference Case grid forecast
 ``--gs_ref_carb`` uses the Reference Case grid forecast from the The Brattle Group's `GridSIM modeling tool`_ to determine baseline grid emissions intensities, rather than the default `AEO Reference Case`_ forecast of these emissions intensities.
 
 
-Exogenous fuel switching rates
-******************************
+Exogenous heat pump switching rates
+***********************************
 
-``--exog_hp_rates`` imposes externally determined rates of fuel switching from fossil-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./supporting_data/convert_data/hp_convert_rates |html-fp-end|. When this option is selected, users will be prompted to select from one of four scenarios of fuel switching rates; the scenarios were developed by Guidehouse as benchmarks for the U.S Department of Energy's `E3HP Initiative`_. Users will also be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology.
+``--exog_hp_rates`` imposes externally determined rates of technology and/or fuel switching from fossil- or resistance-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./supporting_data/convert_data/hp_convert_rates |html-fp-end|. When this option is selected, users will be prompted to select from one of four scenarios of switching rates; the scenarios were developed by Guidehouse as benchmarks for the U.S Department of Energy's `E3HP Initiative`_. Users will also be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use.
 
 .. note::
-   In the absence of the ``--exog_hp_rates`` option, rates of fuel switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
+   In the absence of the ``--exog_hp_rates`` option, rates of switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
 
 .. note::
    Currently the ``--exog_hp_rates`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rates`` option, the code will automatically switch the run to EMM regions while warning the user.
@@ -1342,13 +1379,20 @@ Fuel splits
 Add Reference Case measures
 ***************************
 
-``--add_typ_eff`` automatically prepares `AEO Reference Case`_ analogues to any equipment measures representing ENERGY STAR, IECC, and/or 90.1 performance levels in the Scout analysis (as identified by those measures' :ref:`json-name` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute), and are otherwise identical to the ENERGY STAR, IECC, and/or 90.1 measures in the analysis. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
+``--add_typ_eff`` automatically prepares `AEO Reference Case`_ analogues to any equipment measures representing ENERGY STAR, IECC, and/or 90.1 performance levels in the Scout analysis (as identified by those measures' :ref:`json-name` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute). They are otherwise identical to the ENERGY STAR, IECC, and/or 90.1 measures in the analysis in their baseline market characteristics. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
+
+.. note::
+   The ``--add_typ_eff`` option includes special handling of measures that switch equipment and/or fuel types, as determined via the measures' :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes (and see :ref:`ecm-features-multiple-fuel-types`). When exogenous heat pump switching rates are used (see ``--exog_hp_rates`` option above), Reference Case analogues will not be prepared at all for these measures. When exogenous switching rates are not used, Reference Case analogues will be prepared with the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes reset to ``null`` such that the analogues represent the baseline technology and fuel type (in the measure's :ref:`json-technology` and :ref:`json-fuel_type` attributes.)
+
+   In these measure switching cases, Reference Case analogue measures that switch equipment and/or fuel types may be manually defined with typical cost, performance, and lifetime characteristics for the relevant technology class from the `EIA Reference Case technology documentation`_.
+
+   Reference Case analogues are also not automatically prepared for measures that pertain only to windows or envelope components.
+
 
 .. note::
    All Reference Case analogue measures will include the string "Ref. Case" in their reported name, so that these measures are readily flagged in data post-processing.
 
-.. note::
-   Reference Case analogues will not be prepared for measures that involve fuel switching (as determined via the measures' :ref:`json-fuel_switch_to` attribute), since Reference Case analogues for such measures may not be pulled on the basis of the measures' :ref:`json-technology` attribute. In such cases, Reference Case analogue measures may be manually defined with typical cost, performance, and lifetime characteristics for the relevant technology class from the `EIA Reference Case technology documentation`_. Reference Case analogues are also not automatically prepared for measures that pertain only to windows or envelope components.
+
 
 
 Raise technology performance floor

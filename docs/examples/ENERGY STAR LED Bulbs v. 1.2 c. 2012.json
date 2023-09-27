@@ -68,6 +68,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "LED",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
   "_description": "Typical wattage residential LED bulbs that meet the ENERGY STAR performance standard in 2015",

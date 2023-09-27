@@ -1093,17 +1093,19 @@ class UsefulVars(object):
                                 'Commercial Walk-In Freezers',
                                 'Commercial Walk-In Refrigerators'],
                             'MELs': [
-                                'elevators', 'escalators', 'coffee brewers',
-                                'kitchen ventilation', 'laundry',
-                                'lab fridges and freezers', 'fume hoods',
-                                'medical imaging', 'large video boards',
-                                'shredders', 'private branch exchanges',
-                                'voice-over-IP telecom', 'IT equipment',
-                                'office UPS', 'data center UPS',
-                                'security systems',
                                 'distribution transformers',
-                                'non-road electric vehicles',
-                                'water services', 'telecom systems', 'other'
+                                'kitchen ventilation', 'security systems',
+                                'lab fridges and freezers',
+                                'medical imaging', 'large video boards',
+                                'coffee brewers', 'non-road electric vehicles',
+                                'fume hoods', 'laundry', 'elevators',
+                                'escalators', 'IT equipment', 'office UPS',
+                                'data center UPS', 'shredders',
+                                'private branch exchanges',
+                                'voice-over-IP telecom',
+                                'point-of-sale systems', 'warehouse robots',
+                                'televisions',  'water services',
+                                'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -2076,28 +2078,29 @@ class Measure(object):
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
-            self.retro_rate[self.handyvars.aeo_years[0]]
+            self.retro_rate
+            # If retrofit rate is set to None, use global retrofit rate value
+            if self.retro_rate is None:
+                self.retro_rate = self.handyvars.retro_rate
+            # Extend retrofit rate point value across all years
+            elif type(self.retro_rate) is float:
+                self.retro_rate = {
+                    yr: self.retro_rate for yr in self.handyvars.aeo_years}
             # Accommodate retrofit rate input as a probability distribution
-            if type(self.retro_rate[self.handyvars.aeo_years[0]]) is list and \
-                isinstance(
-                    self.retro_rate[self.handyvars.aeo_years[0]][0], str):
+            elif type(self.retro_rate) is list and isinstance(
+                    self.retro_rate[0], str):
                 # Sample measure retrofit rate values
                 self.retro_rate = {
                     yr: self.rand_list_gen(
-                        self.retro_rate[yr], self.handyvars.nsamples) for yr in
+                        self.retro_rate, self.handyvars.nsamples) for yr in
                     self.handyvars.aeo_years}
-            # Raise error in case where distribution is incorrectly specified
-            elif type(self.retro_rate[self.handyvars.aeo_years[0]]) is list:
+            # Raise error in case where input is incorrectly specified
+            else:
                 raise ValueError(
-                    "ECM " + self.name + " 'retro_rate' distribution must " +
+                    "ECM " + self.name + " 'retro_rate' must be float or "
+                    "if specified as a distribution must " +
                     "be formatted as [<distribution name> (string), " +
                     "<distribution parameters> (floats)]")
-            # If retrofit rate is set to None, use default retrofit rate value
-            elif self.retro_rate is None:
-                self.retro_rate = self.handyvars.retro_rate
-            # Do nothing in case where retrofit rate is specified as normal
-            else:
-                pass
         except AttributeError:
             # If no 'retro_rate' attribute was given for the ECM, use default
             # retrofit rate value
@@ -2789,19 +2792,20 @@ class Measure(object):
                 "secondary")
             ms_iterable.extend(ms_iterable_second)
 
-        # Set variable indicating use of ft^2 floor area as microsegment
-        # stock. This is used for envelope microsegments ("demand" technology
-        # type) or for certain commercial equipment end uses for which
-        # service demand data (which are used as "stock") do not exist
+        # Set flag for use of ft^2 floor area as microsegment stock. This is
+        # used for envelope microsegments ("demand" technology type) or for
+        # certain commercial equipment end uses for which service demand data
+        # (which are used as "stock") do not exist. Note that unspecified
+        # commercial building type has no square footage data
         if "demand" in self.technology_type["primary"] or (all(
             [x not in [
                 "single family home", "mobile home", "multi family home"] for
                 x in self.bldg_type]) and all([
                 x in self.handyvars.com_eqp_eus_nostk for x in
                 self.end_use["primary"]])):
-            sqft_subst = 1
+            sqft_subst_flag = True
         else:
-            sqft_subst = 0
+            sqft_subst_flag = ""
 
         # Initialize lists of warnings and list of suppressed incentives data
         warn_list, suppress_incent = ([] for n in range(2))
@@ -2820,6 +2824,14 @@ class Measure(object):
             # building type and all data are pulled into 'existing' key chains.
             if mskeys[2] == "unspecified" and "new" in mskeys:
                 continue
+            # Set indicator for use of ft^2 floor area as stock for the
+            # currently looped through microsegment; suppress use of square
+            # footage as stock for 'unspecified' commercial building type,
+            # which lacks square footage data
+            if sqft_subst_flag and "unspecified" not in mskeys:
+                sqft_subst = 1
+            else:
+                sqft_subst = 0
 
             # Set building sector for the current microsegment
             if mskeys[2] in [
@@ -2833,7 +2845,8 @@ class Measure(object):
             # screen out ventilation segments, which are sometimes attached
             # to commercial measures that fuel switch or switch from resistance
             # heating to HPs but are not assumed to switch ventilation tech.
-            if self.tech_switch_to is not None and mskeys[4] != "ventilation":
+            if self.tech_switch_to not in [None, "NA"] and (
+                    "secondary" not in mskeys and mskeys[4] != "ventilation"):
                 # Handle tech. switch from same fuel (e.g., resistance to HP);
                 # in this case, fuel remains same as baseline mseg info.
                 if self.fuel_switch_to is None:
@@ -2865,6 +2878,17 @@ class Measure(object):
                     # Cooking and drying
                     elif mskeys[4] in ["cooking", "drying"]:
                         mskeys_swtch_tech = None
+                    # Lighting - switch to comparable LED product based
+                    # on lighting class in baseline
+                    elif mskeys[4] == "lighting":
+                        if "general" in mskeys[-2]:
+                            mskeys_swtch_tech = "general service (LED)"
+                        elif "reflector" in mskeys[-2]:
+                            mskeys_swtch_tech = "reflector (LED)"
+                        elif "linear" in mskeys[-2]:
+                            mskeys_swtch_tech = "linear fluorescent (LED)"
+                        else:
+                            mskeys_swtch_tech = "external (LED)"
                     else:
                         mskeys_swtch_tech = self.tech_switch_to
                 elif bldg_sect == "commercial":
@@ -2891,6 +2915,15 @@ class Measure(object):
                     elif mskeys[4] == "cooking":
                         mskeys_swtch_tech = \
                             "electric_range_oven_24x24_griddle"
+                    # Lighting - switch to comparable LED product based
+                    # on lighting class in baseline
+                    elif mskeys[4] == "lighting":
+                        if "100W" in mskeys[-2]:
+                            mskeys_swtch_tech = "100W Equivalent LED A Lamp"
+                        elif "PAR38" in mskeys[-2]:
+                            mskeys_swtch_tech = "LED PAR38"
+                        else:
+                            mskeys_swtch_tech = "LED Integrated Luminaire"
                     else:
                         mskeys_swtch_tech = self.tech_switch_to
                 else:
@@ -2915,27 +2948,25 @@ class Measure(object):
             # Check whether early retrofit rates are specified at the
             # component (microsegment) level; if so, restrict early retrofit
             # information to that of the current microsegment
-            if bldg_sect in self.handyvars.retro_rate.keys():
+            if bldg_sect in self.retro_rate.keys():
                 # Lighting, water heating microsegments
-                if mskeys[4] in self.handyvars.retro_rate[bldg_sect].keys():
-                    retro_rate_mseg = self.handyvars.retro_rate[
-                        bldg_sect][mskeys[4]]
+                if mskeys[4] in self.retro_rate[bldg_sect].keys():
+                    retro_rate_mseg = self.retro_rate[bldg_sect][mskeys[4]]
                 # HVAC or envelope microsegments
                 elif mskeys[4] in ["heating", "cooling"]:
                     # HVAC equipment microsegment ("supply" tech. type)
                     if "supply" in mskeys:
-                        retro_rate_mseg = self.handyvars.retro_rate[
-                            bldg_sect]["HVAC"]
+                        retro_rate_mseg = self.retro_rate[bldg_sect]["HVAC"]
                     # Envelope microsegment ("demand" tech. type)
                     else:
                         # All envelope tech. except windows
                         try:
-                            retro_rate_mseg = self.handyvars.retro_rate[
+                            retro_rate_mseg = self.retro_rate[
                                 bldg_sect][mskeys[-2]]
                         # Windows require special handling b/c windows
                         # microsegment tech. is broken into conduction/solar
                         except KeyError:
-                            retro_rate_mseg = self.handyvars.retro_rate[
+                            retro_rate_mseg = self.retro_rate[
                                 bldg_sect]["windows"]
                 # All other microsegments – set early retrofit rate to zero
                 else:
@@ -2944,7 +2975,7 @@ class Measure(object):
             # If early retrofit rates are not specified at the component
             # (microsegment) level, no further operations are needed
             else:
-                retro_rate_mseg = self.handyvars.retro_rate
+                retro_rate_mseg = self.retro_rate
 
             # Adjust the key chain to be used in registering contributing
             # microsegment information for cases where 'windows solar'
@@ -3387,7 +3418,8 @@ class Measure(object):
                                         base_cpl_swtch[mskeys_swtch[i]]
                                 except KeyError:
                                     raise KeyError(
-                                        "Provided keys of " +
+                                        "Provided microsegment keys for "
+                                        "measure '" + self.name + "'' of " +
                                         str(mskeys_swtch) +
                                         " invalid for pulling switched to "
                                         "tech data. Check 'fuel_switch_to' "
@@ -3396,7 +3428,11 @@ class Measure(object):
                                         "are consistent with those here: "
                                         "https://scout-bto.readthedocs.io/"
                                         "en/latest/ecm_reference."
-                                        "html#technology")
+                                        "html#technology. Currently these "
+                                        "fields are set to " +
+                                        str(self.fuel_switch_to) + " and " +
+                                        str(self.tech_switch_to) +
+                                        ", respectively")
 
                         if mskeys[i] is not None:
                             # Restrict stock/energy dict to key chain info.
@@ -8769,7 +8805,10 @@ class Measure(object):
                 # baseline unit refrigerant emissions (used below to
                 # calculate total efficient refrigerant emissions relative
                 # to total baseline refrigerant emissions)
-                rel_frefr_yr = meas_f_r_unit_yr / base_f_r_unit_yr
+                try:
+                    rel_frefr_yr = meas_f_r_unit_yr / base_f_r_unit_yr
+                except ZeroDivisionError:  # Handle zero refrigerant data
+                    rel_frefr_yr = 1
             else:
                 base_f_r_unit_yr, base_f_r_unit_overall, \
                     base_f_r_unit_capt = ("" for n in range(3))
@@ -9076,7 +9115,10 @@ class Measure(object):
             # stock in the current year to total previously captured
             # measure stock across all previous years
             else:
-                if stock_total_meas[yr] != 0:
+                if ((type(stock_total_meas[yr]) != numpy.ndarray and
+                     stock_total_meas[yr] != 0) or (
+                    type(stock_total_meas[yr]) == numpy.ndarray and
+                        all(stock_total_meas[yr]) != 0)):
                     to_m_stk = (
                         stock_compete_meas[yr] / stock_total_meas[yr])
                 else:
@@ -13272,25 +13314,28 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     # available, if needed; otherwise throw a warning
                     # about this measure
 
-                    # Check for tech. switch attribute, if not there set None
+                    # Check for tech. switch attribute, if not there set NA
                     try:
                         meas_dict["tech_switch_to"]
                     except KeyError:
-                        meas_dict["tech_switch_to"] = None
+                        meas_dict["tech_switch_to"] = "NA"
                     # If tech switching information is None unexpectedly
-                    # (e.g., for a measure that switches fuels or from
-                    # resistance-based tech. to HPs), prompt the user to
-                    # provide this information and rerun
-                    if not meas_dict["tech_switch_to"] and (
+                    # (e.g., for a measure that switches fuels, or from
+                    # resistance-based tech. to HPs, or to LEDs), prompt user
+                    # to provide this information and rerun
+                    if meas_dict["tech_switch_to"] == "NA" and (
                             meas_dict["fuel_switch_to"] is not None or (
                                 any([x in meas_dict["name"] for x in [
-                                    "HP", "heat pump", "Heat Pump"]]) and (
+                                    "LED", "solid state",
+                                    "Solid State", "SSL"]]) or
+                                (any([x in meas_dict["name"] for x in [
+                                        "HP", "heat pump", "Heat Pump"]]) and (
                                     meas_dict["technology"] is not None and
                                     (any([
                                         x in handyvars.resist_ht_wh_tech for
                                         x in meas_dict["technology"]]) or
                                      meas_dict["technology"] in
-                                     handyvars.resist_ht_wh_tech)))):
+                                     handyvars.resist_ht_wh_tech))))):
                         # Print missing tech switch info. warning
                         raise ValueError(
                             "Measure is missing expected technology switching "
@@ -13301,7 +13346,13 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                             "'tech_switch_to': 'GSHP' (switch to GSHP)\n"
                             "'tech_switch_to': 'HPWH' (switch to HPWH)\n"
                             "'tech_switch_to': 'electric cooking' "
-                            "(switch to electric cooking)")
+                            "(switch to electric cooking)\n"
+                            "'tech_switch_to': 'electric drying' "
+                            "(switch to electric drying)\n"
+                            "'tech_switch_to': 'LEDs' "
+                            "(switch to LED lighting)\n"
+                            " Alternatively, set 'tech_switch_to' to null "
+                            "if no tech switching is meant to be represented")
                     else:
                         tech_swtch = meas_dict["tech_switch_to"]
 
@@ -13421,10 +13472,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         # FS rates, reset typical/BAU analogue FS to None (
                         # e.g., such that for an ASHP FS measure, a typical/
                         # BAU fossil-based heating analogue is created
-                        # for later competition with that FS measure)
+                        # for later competition with that FS measure). Also
+                        # ensure that no tech switching is specified for
+                        # consistency w/ fuel_switch_to
                         if (meas_dict["fuel_switch_to"] is not None and
                                 opts.exog_hp_rates is False):
-                            new_meas["fuel_switch_to"] = None
+                            new_meas["fuel_switch_to"], \
+                                new_meas["tech_switch_to"] = (
+                                    None for n in range(2))
                         # Append the copied measure to list of measure
                         # definitions to update
                         meas_toprep_indiv.append(new_meas)

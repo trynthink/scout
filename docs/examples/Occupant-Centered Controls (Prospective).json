@@ -1,9 +1,9 @@
 {
   "name": "Occupant-Centered Controls (Prospective)",
   "climate_zone": "all",
-  "bldg_type": ["all residential", "assembly", "education", "large office", "small office", "health care", "lodging"],
+  "bldg_type": ["assembly", "education", "large office", "small office", "health care", "lodging"],
   "structure_type": "all",
-  "end_use": ["heating", "cooling", "ventilation", "lighting", "computers", "PCs"],
+  "end_use": ["heating", "cooling", "ventilation", "lighting", "PCs"],
   "fuel_type": "all",
   "technology": "all",
   "market_entry_year": 2025,
@@ -13,10 +13,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "energy_efficiency": {
-    "all residential": {
-      "heating": 0.35, "cooling": 0.35, "lighting": 0.45, "computers": 0.80},
-    "all commercial": {
-      "heating": 0.35, "cooling": 0.35, "ventilation": 0.35, "lighting": 0.45, "PCs": 0.80}},
+      "heating": 0.35, "cooling": 0.35, "ventilation": 0.35, "lighting": 0.45, "PCs": 0.80},
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
     "note": "Based on typical relative savings range of 10%-40% (lighting/HVAC) and 50%-90% (PCs)",
@@ -49,19 +46,11 @@
       "pages": [536, 548],
       "URL": "https://www.researchgate.net/publication/269576957_A_knowledge_based_approach_for_selecting_energy-aware_and_comfort-driven_HVAC_temperature_set_points"}
       ]},
-  "installed_cost": {
-    "all residential": 20,
-    "all commercial": 40},
-  "cost_units": "2016$/occupant",
+  "installed_cost": 0.5,
+  "cost_units": "2016$/ft^2 floor",
   "installed_cost_source":{
-    "notes": "BTO Prioritization Tool analysis assuming 35% HVAC savings, 45% lighting energy savings, 80% PCs savings, and 1 year payback threshold",
-    "source_data": {
-      "title": "A Tool to Prioritize Energy Efficiency Investments",
-      "author": "Farese et al.",
-      "organization": "National Renewable Energy Laboratory",
-      "year": 2012,
-      "pages": null,
-      "URL": "http://www.nrel.gov/docs/fy12osti/54799.pdf"}},
+    "notes": "Example",
+    "source_data": null},
   "product_lifetime": 10,
   "product_lifetime_units": "years",
   "product_lifetime_source": {

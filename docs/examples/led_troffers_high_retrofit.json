@@ -55,6 +55,7 @@
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "LED",
   "retro_rate": 0.1,
   "retro_rate_source": {
     "notes": "Hypothetical retrofit rate, not tied to a specific source",
