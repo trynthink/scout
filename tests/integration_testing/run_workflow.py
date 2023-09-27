@@ -21,20 +21,33 @@ logging.basicConfig(
 )
 
 
-def run_workflow(run_step: str = None) -> None:
-    """Runs the full Scout workflow profiling ecm_prep.py and run.py seperately"""
+def run_workflow(run_step: str = None, with_profiler: bool = False) -> None:
+    """Runs Scout workflow steps with optional profiling
+
+    Args:
+        run_step (str, optional): Specify which step to run {ecm_prep, run}, if None
+                                  then both run. Defaults to None.
+        with_profiler (Bool, optional): Run workfow step(s) with profiler to track
+                                        compute time and peak memory. Defaults to False.
+    """
 
     results_dir = Path(__file__).parent / "results"
 
     # Run ecm_prep.py
-    if run_step == 'ecm_prep' or run_step is None:
+    if run_step == "ecm_prep" or run_step is None:
         opts = ecm_args(["--add_typ_eff", "--rp_persist", "--alt_regions_option", "EMM"])
-        run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
+        if with_profiler:
+            run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
+        else:
+            ecm_prep.main(opts)
 
     # Run run.py
-    if run_step == 'run' or run_step is None:
+    if run_step == "run" or run_step is None:
         opts = run.parse_args([])
-        run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
+        if with_profiler:
+            run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
+        else:
+            run.main(opts)
 
 
 def run_with_profiler(
@@ -42,13 +55,14 @@ def run_with_profiler(
     args: argparse.Namespace,  # noqa: F821
     output_file: pathlib.Path,  # noqa: F821
 ) -> None:
-    """Runs a function wrapped in a profiler using the cProfile library
+    """Runs a function wrapped in a profiler using the cProfile library, writes profile stats
 
     Args:
         func (Callable[[argparse.Namespace], None]): A function that takes argsparse.Namespace args
         args (argparse.Namespace): The arguments to the function
         output_file (pathlib.Path): .csv filepath to write profiling stats
     """
+
     pr = cProfile.Profile()
     pr.enable()
     func(args)
@@ -84,7 +98,14 @@ def write_profile_stats(pr: cProfile.Profile, filepath: pathlib.Path) -> None:  
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--run_step", choices=["ecm_prep", "run"], required=False,
-                        help="Specify which step to run")
+    parser.add_argument(
+        "--run_step", choices=["ecm_prep", "run"], required=False, help="Specify which step to run"
+    )
+    parser.add_argument(
+        "--with_profiler",
+        action="store_true",
+        required=False,
+        help="Run workflow step(s) with profiler",
+    )
     opts = parser.parse_args()
-    run_workflow(run_step=opts.run_step)
+    run_workflow(run_step=opts.run_step, with_profiler=opts.with_profiler)
