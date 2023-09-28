@@ -5113,8 +5113,9 @@ class Measure(object):
                 # initialize a variable used to track the total lighting
                 # energy for the microsegment's climate zone, building
                 # type, and structure type
-                if mskeys[4] == "lighting" and self.end_use[
-                        "secondary"] != [None]:
+                if mskeys[4] == "lighting" and (
+                        not opts or opts.no_scnd_lgt is not True) and \
+                        self.end_use["secondary"] is not None:
                     # Initialize total lighting energy
                     energy_total_scnd = True
                 else:
@@ -9738,9 +9739,12 @@ class Measure(object):
             # If terminal node energy data has been reached, add energy
             # data to the total energy use variable
             elif k == "energy":
-                for yr in self.handyvars.aeo_years:
-                    energy_tot[yr] += dict1["energy"][yr] * \
-                        vint_frac[yr] * ss_conv[yr]
+                try:  # Handle blank lighting incandescent energy dicts
+                    for yr in self.handyvars.aeo_years:
+                        energy_tot[yr] += dict1["energy"][yr] * \
+                            vint_frac[yr] * ss_conv[yr]
+                except KeyError:
+                    pass
             # Raise error if no energy data are available
             else:
                 raise ValueError(

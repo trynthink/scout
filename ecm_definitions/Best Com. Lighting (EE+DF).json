@@ -88,6 +88,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "LED",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "_description": "Adjust lighting levels down to shed peak period electricity use, in parallel with installing efficient lighting equipment generally corresponding to the AEDG 50% guideline",
