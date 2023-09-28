@@ -5059,10 +5059,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     btgrp = [bt for m in meas_summary
              if m["name"] in active_meas_all and m["remove"] is False
              for bt in m['bldg_type']]
-    # Drop multi family and mobile homes; no onsite generation data
-    # are provided for these building types
-    btgrp = set([bt for bt in btgrp
-                 if bt not in ['mobile home', 'multi family home']])
+    # Drop multi family and mobile homes, along with commercial unspecified
+    # building type; no onsite generation data provided for these bldg. types
+    btgrp = set([
+        bt for bt in btgrp if bt not in [
+            'mobile home', 'multi family home', 'unspecified']])
     btgrp = sorted(btgrp)
     # Set up recursively extensible empty dict to populate with onsite
     # generation data

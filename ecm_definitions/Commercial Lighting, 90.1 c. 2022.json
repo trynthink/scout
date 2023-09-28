@@ -23,7 +23,8 @@
     "small office": 0.1,
     "mercantile/service": 0.3,
     "warehouse": 0.3,
-    "other": 0.2
+    "other": 0.2,
+    "unspecified": 0.2
   },
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
@@ -73,6 +74,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "LED",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "_notes": null,

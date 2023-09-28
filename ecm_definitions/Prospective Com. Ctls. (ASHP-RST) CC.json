@@ -38,6 +38,7 @@
   "market_exit_year": null,
   "market_exit_year_source": null,
   "fuel_switch_to": null,
+  "tech_switch_to": "ASHP",
   "market_scaling_fractions": {
     "cooling": 0.38,
     "heating": 1,
