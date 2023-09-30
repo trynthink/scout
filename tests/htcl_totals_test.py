@@ -3,7 +3,7 @@
 """ Tests for running the htcl_totals.py routine """
 
 # Import code to be tested
-import htcl_totals
+from scout import htcl_totals
 
 # Import needed packages
 import unittest

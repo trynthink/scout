@@ -3,7 +3,7 @@
 """ Tests for commercial microsegment data processing code """
 
 # Import code to be tested
-import com_mseg as cm
+from scout import com_mseg as cm
 
 # Import needed packages
 import unittest

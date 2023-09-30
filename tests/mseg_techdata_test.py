@@ -3,7 +3,7 @@
 """ Tests for processing microsegment cost, performance, and lifetime data """
 
 # Import code to be tested
-import mseg_techdata
+from scout import mseg_techdata
 
 # Import needed packages
 import unittest

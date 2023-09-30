@@ -3,7 +3,7 @@
 """ Tests for processing microsegment data """
 
 # Import code to be tested
-import mseg as rm
+from scout import mseg as rm
 
 # Import needed packages
 import unittest

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Import code to be tested
-import mseg_meta as mm
+from scout import mseg_meta as mm
 
 # Import needed packages
 import unittest

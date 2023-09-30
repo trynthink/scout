@@ -3,7 +3,7 @@
 """ Tests for running the engine """
 
 # Import code to be tested
-import run
+from scout import run
 
 # Import needed packages
 import unittest
