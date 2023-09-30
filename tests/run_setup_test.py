@@ -2,8 +2,7 @@
 
 """Tests for the run_setup python module
 """
-
-import run_setup
+from scout import run_setup
 
 import unittest
 from unittest.mock import patch, mock_open
@@ -377,7 +376,8 @@ class ECMListKeywordSelectionUpdatingTest(CommonUnitTest):
 
     # Test a standard case for processing and updating an active and
     # inactive list of ECMs based on keywords given by the user
-    @patch('run_setup.user_input_ecm_kw', side_effect=[
+
+    @patch('scout.run_setup.user_input_ecm_kw', side_effect=[
         ['ENERGY STAR'], ['Prospective']])
     def test_ecm_list_updating(self, input):
         # Active list for the given keywords
@@ -414,9 +414,9 @@ class ECMListKeywordSelectionUpdatingTest(CommonUnitTest):
     # Test a case for processing and updating an active and inactive
     # list of ECMs based on keywords where the ECMs selected by both
     # sets of keywords will have one or more conflicts to resolve
-    @patch('run_setup.user_input_ecm_kw', side_effect=[
+    @patch('scout.run_setup.user_input_ecm_kw', side_effect=[
         ['Prospective', 'ENERGY STAR', 'Novel'], ['Low-cost']])
-    @patch('run_setup.fix_ecm_move_conflicts', side_effect=[
+    @patch('scout.run_setup.fix_ecm_move_conflicts', side_effect=[
         ['Novel Electric Clothes Dryer, Low-cost'],
         ['low-cost energy star refrigerator v.3.0']])
     def test_ecm_list_update_with_conflicting_moves(self, patch_fix, patch_kw):
@@ -455,7 +455,7 @@ class ECMListKeywordSelectionUpdatingTest(CommonUnitTest):
     # the two prompts and leaves the other prompt blank (note that
     # the blank entry by the user should be patched to this function
     # as an empty list, not an empty string or nothing at all)
-    @patch('run_setup.user_input_ecm_kw', side_effect=[['Prospective'], []])
+    @patch('scout.run_setup.user_input_ecm_kw', side_effect=[['Prospective'], []])
     def test_ecm_list_update_with_only_one_move(self, input):
         # Active list for the given keywords
         self.expected_active = [

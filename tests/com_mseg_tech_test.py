@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Import code to be tested
-import com_mseg_tech as cmt
+from scout import com_mseg_tech as cmt
 
 # Import packages
 import unittest

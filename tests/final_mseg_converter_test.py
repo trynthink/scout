@@ -4,10 +4,10 @@
 """
 
 # Import code to be tested
-import final_mseg_converter as fmc
+from scout import final_mseg_converter as fmc
 
 # Import code with translation dicts
-import com_mseg as cm
+from scout import com_mseg as cm
 
 # Import needed packages
 import unittest
