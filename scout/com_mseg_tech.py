@@ -11,7 +11,7 @@ import warnings
 import json
 import csv
 import itertools as it
-from os import getcwd, path
+from scout.constants import FilePaths as fp
 
 
 class EIAData(object):
@@ -51,9 +51,9 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = 'cpl_res_cdiv.json'
-        self.json_out = 'cpl_res_com_cdiv.json'
-        self.aeo_metadata = 'metadata.json'
+        self.json_in = fp.INPUTS / 'cpl_res_cdiv.json'
+        self.json_out = fp.INPUTS / 'cpl_res_com_cdiv.json'
+        self.aeo_metadata = fp.METADATA_PATH
 
         self.cpl_data_skip_lines = 68
         self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
@@ -72,10 +72,7 @@ class UsefulVars(object):
             "refrigeration": 7}
 
         # Set base directory
-        base_dir = getcwd()
-        with open(path.join(
-                base_dir, "supporting_data", "convert_data",
-                "ecm_cost_convert.json"), 'r') as cc:
+        with open(fp.CONVERT_DATA / "ecm_cost_convert.json", 'r') as cc:
             try:
                 self.cconv = json.load(cc)
             except ValueError as e:
@@ -1177,8 +1174,7 @@ def main():
 
     # Import empty microsegments JSON file and traverse database structure
     try:
-        with open(handyvars.json_in, 'r') as jsi, open(
-             handyvars.json_out, 'w') as jso:
+        with open(handyvars.json_in, 'r') as jsi, open(handyvars.json_out, 'w') as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure

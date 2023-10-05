@@ -6,6 +6,7 @@ import json
 import argparse
 import csv
 from scout import mseg_techdata as rmt
+from scout.constants import FilePaths as fp
 
 
 class EIAData(object):
@@ -48,10 +49,10 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = 'microsegments.json'
-        self.json_out = 'mseg_res_cdiv.json'
-        self.res_tloads = 'Res_TLoads_Final.txt'
-        self.aeo_metadata = 'metadata.json'
+        self.json_in = fp.INPUTS / 'microsegments.json'
+        self.json_out = fp.INPUTS / 'mseg_res_cdiv.json'
+        self.res_tloads = fp.THERMAL_LOADS / 'Res_TLoads_Final.txt'
+        self.aeo_metadata = fp.METADATA_PATH
         self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
         self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
 

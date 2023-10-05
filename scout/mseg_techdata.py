@@ -5,6 +5,7 @@ import numpy
 import json
 import argparse
 from scout import mseg
+from scout.constants import FilePaths as fp
 
 
 class EIAData(object):
@@ -36,9 +37,9 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = 'microsegments.json'
-        self.json_out = 'cpl_res_cdiv.json'
-        self.aeo_metadata = 'metadata.json'
+        self.json_in = fp.INPUTS / 'microsegments.json'
+        self.json_out = fp.INPUTS / 'cpl_res_cdiv.json'
+        self.aeo_metadata = fp.METADATA_PATH
 
 
 # Pre-specify the numpy field names to be used in importing the EIA

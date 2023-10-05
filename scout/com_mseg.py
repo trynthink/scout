@@ -6,6 +6,7 @@ import re
 import csv
 import json
 import io
+from scout.constants import FilePaths as fp
 
 
 class EIAData(object):
@@ -36,10 +37,10 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = 'mseg_res_cdiv.json'
-        self.json_out = 'mseg_res_com_cdiv.json'
-        self.com_tloads = 'Com_TLoads_Final.txt'
-        self.aeo_metadata = 'metadata.json'
+        self.json_in = fp.INPUTS / 'mseg_res_cdiv.json'
+        self.json_out = fp.INPUTS / 'mseg_res_com_cdiv.json'
+        self.com_tloads = fp.THERMAL_LOADS / 'Com_TLoads_Final.txt'
+        self.aeo_metadata = fp.METADATA_PATH
         self.pivot_year = 1989
 
 

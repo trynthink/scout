@@ -31,8 +31,8 @@ import functools as ft
 import math
 import gzip
 import pandas as pd
-from scout import com_mseg as cm
-from scout import mseg
+from scout import mseg, com_mseg as cm
+from scout.constants import FilePaths as fp
 
 
 class UsefulVars(object):
@@ -93,16 +93,15 @@ class UsefulVars(object):
 
     def __init__(self, geo_break):
         """Initialize class attributes."""
-        self.addl_cpl_data = 'cpl_envelope_mels.json'
-        self.conv_factors = ('supporting_data/convert_data/'
-                             'ecm_cost_convert.json')
-        self.aeo_metadata = 'metadata.json'
+        self.addl_cpl_data = fp.CONVERT_DATA / 'cpl_envelope_mels.json'
+        self.conv_factors = (fp.CONVERT_DATA / 'ecm_cost_convert.json')
+        self.aeo_metadata = fp.METADATA_PATH
         self.geo_break = geo_break
 
     def configure_for_energy_square_footage_stock_data(self):
         """Reconfigure stock and energy data to custom region."""
         # Set input JSON
-        self.json_in = 'mseg_res_com_cdiv.json'
+        self.json_in = fp.INPUTS / 'mseg_res_com_cdiv.json'
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
@@ -186,7 +185,7 @@ class UsefulVars(object):
     def configure_for_cost_performance_lifetime_data(self):
         """Reconfigure cost, performance, and life data to custom region."""
         # Set input JSON
-        self.json_in = 'cpl_res_com_cdiv.json'
+        self.json_in = fp.INPUTS / 'cpl_res_com_cdiv.json'
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions)
         if self.geo_break == '1':
