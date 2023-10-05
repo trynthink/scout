@@ -13,8 +13,10 @@ from ast import literal_eval
 import math
 from argparse import ArgumentParser
 import numpy_financial as npf
+from pathlib import Path
 from datetime import datetime
 from scout.plots import run_plot
+from scout.constants import FilePaths as fp
 
 
 class UsefulInputFiles(object):
@@ -38,11 +40,10 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
-        self.glob_vars = "glob_run_vars.json"
-        self.meas_summary_data = \
-            ("supporting_data", "ecm_prep.json")
-        self.meas_compete_data = ("supporting_data", "ecm_competition_data")
-        self.meas_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
+        self.glob_vars = fp.INPUTS / "glob_run_vars.json"
+        self.meas_summary_data = Path.cwd() / "supporting_data" / "ecm_prep.json"
+        self.meas_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
+        self.meas_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
@@ -197,12 +198,11 @@ class UsefulVars(object):
 
     def __init__(self, base_dir, handyfiles):
         # Pull in global variable settings from ecm_prep
-        with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
+        with open(handyfiles.glob_vars, 'r') as gv:
             try:
                 gvars = json.load(gv)
             except ValueError:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.glob_vars + "'")
+                raise ValueError(f"Error reading in '{handyfiles.glob_vars}'")
         self.adopt_schemes = gvars["adopt_schemes"]
         self.retro_rate = gvars["retro_rate"]
         self.aeo_years = gvars["aeo_years"]
@@ -4760,13 +4760,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         trim_out, trim_yrs = (False for n in range(2))
 
     # Import measure files
-    with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
+    with open(handyfiles.meas_summary_data, 'r') as mjs:
         try:
             meas_summary = json.load(mjs)
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" + handyfiles.meas_summary_data +
-                "': " + str(e)) from None
+                f"Error reading in '{handyfiles.meas_summary_data}': {str(e)}") from None
 
     # Import list of all unique active measures
     with open(path.join(base_dir, handyfiles.active_measures), 'r') as am:
@@ -4929,20 +4928,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Assemble file name for measure competition data
         meas_file_name = m.name + ".pkl.gz"
         # Assemble folder path for measure competition data
-        comp_folder_name = path.join(*handyfiles.meas_compete_data)
-        with gzip.open(path.join(
-                base_dir, comp_folder_name, meas_file_name), 'r') as zp:
+        comp_folder_name = handyfiles.meas_compete_data
+        with gzip.open(comp_folder_name / meas_file_name, 'r') as zp:
             try:
                 meas_comp_data = pickle.load(zp)
             except Exception as e:
                 raise Exception(
-                    "Error reading in competition data of " +
-                    "ECM '" + m.name + "': " + str(e)) from None
+                    f"Error reading in competition data of ECM '{m.name}': {str(e)}") from None
         # Assemble folder path for measure efficient fuel split data
-        fs_splt_folder_name = path.join(*handyfiles.meas_eff_fs_splt_data)
+        fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
         try:
-            with gzip.open(path.join(
-                    base_dir, fs_splt_folder_name, meas_file_name), 'r') as zp:
+            with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
                 meas_eff_fs_data = pickle.load(zp)
         except FileNotFoundError:
             meas_eff_fs_data = None

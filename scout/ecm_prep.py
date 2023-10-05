@@ -18,9 +18,11 @@ import operator
 from ast import literal_eval
 import math
 import pandas as pd
+from pathlib import Path
 from datetime import datetime
 import argparse
 from scout.ecm_prep_args import ecm_args
+from scout.constants import FilePaths as fp
 
 
 class MyEncoder(json.JSONEncoder):
@@ -54,8 +56,7 @@ class UsefulInputFiles(object):
         cbecs_sf_byvint (tuple): Commercial sq.ft. by vintage data.
         indiv_ecms (tuple): Individual ECM JSON definitions folder.
         ecm_packages (tuple): Measure package data.
-        ecm_prep (tuple): Prepared measure attributes data for use in the
-            analysis engine.
+        ecm_prep (tuple): Prepared measure attributes data for use in the analysis engine.
         ecm_prep_env_cf (tuple): Prepared envelope/HVAC package measure
             attributes data with effects of HVAC removed (isolate envelope).
         ecm_prep_shapes (tuple): Prepared measure sector shapes data.
@@ -97,32 +98,24 @@ class UsefulInputFiles(object):
     def __init__(self, opts):
         if opts.alt_regions in [False, 'AIA']:
             # UNCOMMENT WITH ISSUE 188
-            # self.msegs_in = ("supporting_data", "stock_energy_tech_data",
+            # self.msegs_in = (fp.STOCK_ENERGY /
             #                  "mseg_res_com_cz_2017.json")
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_cz.json")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             # UNCOMMENT WITH ISSUE 188
-            # self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
+            # self.msegs_cpl_in = (fp.STOCK_ENERGY /
             #                      "cpl_res_com_cz_2017.json")
-            self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_cz.gz")
-            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
-                                 "IECC_AIA_ColSums.txt")
-            self.state_aia_map = ("supporting_data", "convert_data", "geo_map",
-                                  "AIA_State_RowSums.txt")
+            self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
+            self.iecc_reg_map = (
+                fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt")
+            self.state_aia_map = (
+                fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt")
         elif opts.alt_regions == 'EMM':
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.gz")
-            self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_emm.gz")
-            self.ash_emm_map = ("supporting_data", "convert_data", "geo_map",
-                                "ASH_EMM_ColSums.txt")
-            self.aia_altreg_map = ("supporting_data", "convert_data",
-                                   "geo_map", "AIA_EMM_ColSums.txt")
-            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
-                                 "IECC_EMM_ColSums.txt")
-            self.state_emm_map = ("supporting_data", "convert_data", "geo_map",
-                                  "EMM_State_RowSums.txt")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
+            self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
+            self.ash_emm_map = fp.CONVERT_DATA / "geo_map" / "ASH_EMM_ColSums.txt"
+            self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_EMM_ColSums.txt"
+            self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_EMM_ColSums.txt"
+            self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
             # Toggle EMM emissions and price data based on whether or not
             # a grid decarbonization scenario is used
             if opts.grid_decarb is not False:
@@ -132,11 +125,11 @@ class UsefulInputFiles(object):
                 # Scenarios 95x2050
                 if opts.grid_decarb[0] == "1":
                     self.ss_data_altreg = (
-                        "supporting_data", "convert_data",
+                        fp.CONVERT_DATA /
                         "emm_region_emissions_prices-100by2035.json")
                 else:
                     self.ss_data_altreg = (
-                        "supporting_data", "convert_data",
+                        fp.CONVERT_DATA /
                         "emm_region_emissions_prices-95by2050.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
@@ -146,11 +139,11 @@ class UsefulInputFiles(object):
                     # AEO)
                     if opts.alt_ref_carb is True:
                         self.ss_data_altreg_nonfs = (
-                            "supporting_data", "convert_data",
+                            fp.CONVERT_DATA /
                             "emm_region_emissions_prices-MidCaseTCExp.json")
                     else:
                         self.ss_data_altreg_nonfs = (
-                            "supporting_data", "convert_data",
+                            fp.CONVERT_DATA /
                             "emm_region_emissions_prices.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures after grid decarbonization
@@ -161,22 +154,18 @@ class UsefulInputFiles(object):
                 # phaseout is used to set baseline emissions factors (vs. AEO)
                 if opts.alt_ref_carb is True:
                     self.ss_data_altreg = (
-                        "supporting_data", "convert_data",
+                        fp.CONVERT_DATA /
                         "emm_region_emissions_prices-MidCaseTCExp.json")
                 else:
                     self.ss_data_altreg = (
-                        "supporting_data", "convert_data",
+                        fp.CONVERT_DATA /
                         "emm_region_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
         elif opts.alt_regions == 'State':
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_state.gz")
-            self.msegs_cpl_in = ("supporting_data", "stock_energy_tech_data",
-                                 "cpl_res_com_cdiv.gz")
-            self.aia_altreg_map = ("supporting_data", "convert_data",
-                                   "geo_map", "AIA_State_ColSums.txt")
-            self.iecc_reg_map = ("supporting_data", "convert_data", "geo_map",
-                                 "IECC_State_ColSums.txt")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
+            self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
+            self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
+            self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
             # Ensure that state-level regions are not being used alongside
             # a high grid decarbonization scenario (incompatible currently)
             if opts.grid_decarb is not False:
@@ -184,54 +173,46 @@ class UsefulInputFiles(object):
                                  "use with alternate grid decarbonization "
                                  "scenario (" + opts.alt_regions + ")")
             else:
-                self.ss_data_altreg = ("supporting_data", "convert_data",
+                self.ss_data_altreg = (fp.CONVERT_DATA /
                                        "state_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
 
-        self.metadata = "metadata.json"
-        self.glob_vars = "glob_run_vars.json"
+        self.metadata = fp.METADATA_PATH
+        self.glob_vars = fp.INPUTS / "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
         # self.metadata = "metadata_2017.json"
-        self.cost_convert_in = ("supporting_data", "convert_data",
-                                "ecm_cost_convert.json")
-        self.cap_facts = ("supporting_data", "convert_data",
-                          "cap_facts.json")
-        self.cbecs_sf_byvint = \
-            ("supporting_data", "convert_data", "cbecs_sf_byvintage.json")
-        self.indiv_ecms = "ecm_definitions"
-        self.ecm_packages = ("ecm_definitions", "package_ecms.json")
-        self.ecm_prep = ("supporting_data", "ecm_prep.json")
-        self.ecm_prep_env_cf = ("supporting_data", "ecm_prep_env_cf.json")
-        self.ecm_prep_shapes = (
-            "supporting_data", "ecm_prep_shapes.json")
+        self.cost_convert_in = fp.CONVERT_DATA / "ecm_cost_convert.json"
+        self.cap_facts = fp.CONVERT_DATA / "cap_facts.json"
+        self.cbecs_sf_byvint = fp.CONVERT_DATA / "cbecs_sf_byvintage.json"
+        self.indiv_ecms = fp.ECM_DEF
+        self.ecm_packages = fp.ECM_DEF / "package_ecms.json"
+        self.ecm_prep = Path.cwd() / "supporting_data" / "ecm_prep.json"
+        self.ecm_prep_env_cf = fp.SUPPORTING_DATA / "ecm_prep_env_cf.json"
+        self.ecm_prep_shapes = fp.SUPPORTING_DATA / "ecm_prep_shapes.json"
         self.ecm_prep_env_cf_shapes = (
-            "supporting_data", "ecm_prep_env_cf_shapes.json")
-        self.ecm_compete_data = ("supporting_data", "ecm_competition_data")
-        self.ecm_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
+            fp.SUPPORTING_DATA / "ecm_prep_env_cf_shapes.json")
+        self.ecm_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
+        self.ecm_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
         self.run_setup = "run_setup.json"
-        self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
+        self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
         if opts.grid_decarb is not False:
             # Set either an extreme or moderate grid decarbonization case,
             # depending on what the user selected
             if opts.grid_decarb[0] == "1":
-                self.ss_data = ("supporting_data", "convert_data",
-                                "site_source_co2_conversions-100by2035.json")
-                self.tsv_cost_data = ("supporting_data", "tsv_data",
-                                      "tsv_cost-100by2035.json")
-                self.tsv_carbon_data = ("supporting_data", "tsv_data",
-                                        "tsv_carbon-100by2035.json")
+                self.ss_data = (
+                    fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json")
+                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-100by2035.json"
+                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-100by2035.json"
             else:
-                self.ss_data = ("supporting_data", "convert_data",
-                                "site_source_co2_conversions-95by2050.json")
-                self.tsv_cost_data = ("supporting_data", "tsv_data",
-                                      "tsv_cost-95by2050.json")
-                self.tsv_carbon_data = ("supporting_data", "tsv_data",
-                                        "tsv_carbon-95by2050.json")
+                self.ss_data = (
+                    fp.CONVERT_DATA / "site_source_co2_conversions-95by2050.json")
+                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-95by2050.json"
+                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-95by2050.json"
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
             if opts.grid_decarb[1] == "1":
@@ -239,17 +220,13 @@ class UsefulInputFiles(object):
                 # phaseout)is used to set baseline emissions factors (vs. AEO)
                 if opts.alt_ref_carb is True:
                     self.ss_data_nonfs = (
-                        "supporting_data", "convert_data",
+                        fp.CONVERT_DATA /
                         "site_source_co2_conversions-MidCaseTCExp.json")
                 else:
-                    self.ss_data_nonfs = ("supporting_data", "convert_data",
-                                          "site_source_co2_conversions.json")
-                self.tsv_cost_data_nonfs = (
-                    "supporting_data", "tsv_data",
-                    "tsv_cost-MidCaseTCExp.json")
-                self.tsv_carbon_data_nonfs = (
-                    "supporting_data", "tsv_data",
-                    "tsv_carbon-MidCaseTCExp.json")
+                    self.ss_data_nonfs = (
+                        fp.CONVERT_DATA / "site_source_co2_conversions.json")
+                self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
+                self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures after grid decarbonization
             else:
@@ -259,42 +236,31 @@ class UsefulInputFiles(object):
             # Use the user-specified captured energy method flag to determine
             # which site-source conversions file to select
             if opts.captured_energy is True:
-                self.ss_data = ("supporting_data", "convert_data",
-                                "site_source_co2_conversions-ce.json")
+                self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
             else:
                 # Case where Standard Scenarios Mid Case (with tax credit
                 # phaseout) is used to set baseline emissions factors (vs. AEO)
                 if opts.alt_ref_carb is True:
-                    self.ss_data = ("supporting_data", "convert_data",
-                                    "site_source_co2_conversions-"
-                                    "MidCaseTCExp.json")
+                    self.ss_data = (
+                        fp.CONVERT_DATA /
+                        "site_source_co2_conversions-MidCaseTCExp.json")
                 else:
-                    self.ss_data = ("supporting_data", "convert_data",
-                                    "site_source_co2_conversions.json")
-            self.tsv_cost_data = (
-                "supporting_data", "tsv_data", "tsv_cost-MidCaseTCExp.json")
-            self.tsv_carbon_data = (
-                "supporting_data", "tsv_data", "tsv_carbon-MidCaseTCExp.json")
+                    self.ss_data = (
+                        fp.CONVERT_DATA / "site_source_co2_conversions.json")
+            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
+            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
-        self.tsv_load_data = (
-            "supporting_data", "tsv_data", "tsv_load.json")
+        self.tsv_load_data = fp.TSV_DATA / "tsv_load.json"
         self.tsv_shape_data = (
-            "ecm_definitions", "energyplus_data", "savings_shapes")
-        self.tsv_metrics_data_tot_ref = (
-            "supporting_data", "tsv_data", "tsv_hrs_tot_ref.csv")
-        self.tsv_metrics_data_net_ref = (
-            "supporting_data", "tsv_data", "tsv_hrs_net_ref.csv")
-        self.tsv_metrics_data_tot_hr = (
-            "supporting_data", "tsv_data", "tsv_hrs_tot_hr.csv")
-        self.tsv_metrics_data_net_hr = (
-            "supporting_data", "tsv_data", "tsv_hrs_net_hr.csv")
-        self.health_data = (
-            "supporting_data", "convert_data", "epa_costs.csv")
-        self.hp_convert_rates = ("supporting_data", "convert_data",
-                                 "hp_convert_rates.json")
-        self.fug_emissions_dat = ("supporting_data", "convert_data",
-                                  "fugitive_emissions_convert.json")
+            fp.ECM_DEF / "energyplus_data" / "savings_shapes")
+        self.tsv_metrics_data_tot_ref = fp.TSV_DATA / "tsv_hrs_tot_ref.csv"
+        self.tsv_metrics_data_net_ref = fp.TSV_DATA / "tsv_hrs_net_ref.csv"
+        self.tsv_metrics_data_tot_hr = fp.TSV_DATA / "tsv_hrs_tot_hr.csv"
+        self.tsv_metrics_data_net_hr = fp.TSV_DATA / "tsv_hrs_net_hr.csv"
+        self.health_data = fp.CONVERT_DATA / "epa_costs.csv"
+        self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
+        self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
 
 
 class UsefulVars(object):
@@ -409,13 +375,11 @@ class UsefulVars(object):
         self.nsamples = 100
         self.regions = opts.alt_regions
         # Load metadata including AEO year range
-        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+        with open(handyfiles.metadata, 'r') as aeo_yrs:
             try:
                 aeo_yrs = json.load(aeo_yrs)
             except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.metadata + "': " + str(e)) from None
+                raise ValueError(f"Error reading in '{handyfiles.metadata}': {str(e)}") from None
         # Set minimum modeling year to current year
         aeo_min = datetime.today().year
         # Set maximum modeling year
@@ -498,7 +462,7 @@ class UsefulVars(object):
             'www.navigantresearch.com']
         try:
             self.consumer_price_ind = numpy.genfromtxt(
-                path.join(base_dir, *handyfiles.cpi_data),
+                handyfiles.cpi_data,
                 names=True, delimiter=',',
                 dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
             # Ensure that consumer price date is in expected format
@@ -506,17 +470,15 @@ class UsefulVars(object):
                 raise ValueError("CPI date format should be YYYY-MM-DD")
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.cpi_data + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
         # Read in commercial equipment capacity factors
-        with open(path.join(base_dir, *handyfiles.cap_facts), 'r') as cpfc:
+        with open(handyfiles.cap_facts, 'r') as cpfc:
             try:
                 self.cap_facts = json.load(cpfc)
             except ValueError:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.cap_facts + "'")
+                raise ValueError(f"Error reading in '{handyfiles.cap_facts}'")
         # Read in national-level site-source, emissions, and costs data
-        with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
+        with open(handyfiles.ss_data, 'r') as ss:
             try:
                 cost_ss_carb = json.load(ss)
             except ValueError as e:
@@ -528,8 +490,7 @@ class UsefulVars(object):
         # case, if desired by the user
         if handyfiles.ss_data_nonfs is not None:
             # Read in national-level site-source, emissions, and costs data
-            with open(path.join(
-                    base_dir, *handyfiles.ss_data_nonfs), 'r') as ss:
+            with open(handyfiles.ss_data_nonfs, 'r') as ss:
                 try:
                     cost_ss_carb_nonfs = json.load(ss)
                 except ValueError as e:
@@ -550,8 +511,7 @@ class UsefulVars(object):
         # data) or not (use national data)
         if self.regions in ["EMM", "State"]:
             # Read in EMM- or state-specific emissions factors and price data
-            with open(path.join(base_dir,
-                                *handyfiles.ss_data_altreg), 'r') as ss:
+            with open(handyfiles.ss_data_altreg, 'r') as ss:
                 try:
                     cost_ss_carb_altreg = json.load(ss)
                 except ValueError as e:
@@ -564,16 +524,12 @@ class UsefulVars(object):
             if handyfiles.ss_data_altreg_nonfs is not None:
                 # Read in EMM- or state-specific emissions factors and price
                 # data
-                with open(path.join(
-                        base_dir,
-                        *handyfiles.ss_data_altreg_nonfs), 'r') as ss:
+                with open(*handyfiles.ss_data_altreg_nonfs, 'r') as ss:
                     try:
                         cost_ss_carb_altreg_nonfs = json.load(ss)
                     except ValueError:
                         raise ValueError(
-                            "Error reading in '" +
-                            path.join(base_dir,
-                                      *handyfiles.ss_data_altreg_nonfs) + "'")
+                            f"Error reading in '{handyfiles.ss_data_altreg_nonfs}'")
             else:
                 cost_ss_carb_altreg_nonfs = None
             # Initialize CO2 intensities based on electricity intensities by
@@ -710,13 +666,11 @@ class UsefulVars(object):
                     for key in self.aeo_years}}}
         # Load external data on conversion rates for HP measures
         if opts.exog_hp_rates is not False:
-            with open(path.join(
-                    base_dir, *handyfiles.hp_convert_rates), 'r') as fs_r:
+            with open(handyfiles.hp_convert_rates, 'r') as fs_r:
                 try:
                     self.hp_rates = json.load(fs_r)
                 except ValueError:
-                    print("Error reading in '" +
-                          handyfiles.hp_convert_rates + "'")
+                    print(f"Error reading in 'f{handyfiles.hp_convert_rates}'")
             # Set a priori assumptions about which non-elec-HP heating/cooling
             # technologies in commercial buildings are part of an RTU config.
             # vs. not; this is necessary to choose the appropriate exogenous
@@ -766,14 +720,11 @@ class UsefulVars(object):
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
         if opts.fugitive_emissions is not False:
-            with open(path.join(
-                    base_dir, *handyfiles.fug_emissions_dat),
-                    'r') as fs_r:
+            with open(handyfiles.fug_emissions_dat, 'r') as fs_r:
                 try:
                     self.fug_emissions = json.load(fs_r)
                 except ValueError:
-                    print("Error reading in '" +
-                          handyfiles.fug_emissions_dat + "'")
+                    print(f"Error reading in '{handyfiles.fug_emissions_dat}'")
         else:
             self.fug_emissions = None
 
@@ -790,13 +741,12 @@ class UsefulVars(object):
             # IECC -> AIA mapping
             try:
                 iecc_reg_map = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.iecc_reg_map),
+                    handyfiles.iecc_reg_map,
                     names=True, delimiter='\t', dtype=(
                         ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.iecc_reg_map + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_reg_map, "levels": str([
@@ -807,13 +757,11 @@ class UsefulVars(object):
                     opts.fugitive_emissions[0] in ['1', '3']:
                 try:
                     self.fugitive_emissions_map = numpy.genfromtxt(
-                        path.join(base_dir, *handyfiles.state_aia_map),
-                        names=True, delimiter='\t', dtype=(
-                            ['<U25'] * 1 + ['<f8'] * 51))
+                        handyfiles.state_aia_map, names=True,
+                        delimiter='\t', dtype=(['<U25'] * 1 + ['<f8'] * 51))
                 except ValueError as e:
                     raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.state_aia_map + "': " + str(e)) from None
+                        f"Error reading in '{handyfiles.state_aia_map}': {str(e)}") from None
             else:
                 self.fugitive_emissions_map = None
             # HP conversion rates unsupported for AIA regional breakouts
@@ -828,13 +776,11 @@ class UsefulVars(object):
                 self.region_cpl_mapping = ''
                 try:
                     self.ash_emm_map = numpy.genfromtxt(
-                        path.join(base_dir, *handyfiles.ash_emm_map),
-                        names=True, delimiter='\t', dtype=(
-                            ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                        handyfiles.ash_emm_map, names=True, delimiter='\t',
+                        dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
                 except ValueError as e:
                     raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.ash_emm_map + "': " + str(e)) from None
+                        f"Error reading in '{handyfiles.ash_emm_map}': {str(e)}") from None
                 # If applicable, pull regional mapping needed to read in
                 # HP conversion rate data for certain measures/microsegments
                 if self.hp_rates:
@@ -858,14 +804,11 @@ class UsefulVars(object):
                         opts.fugitive_emissions[0] in ['1', '3']:
                     try:
                         self.fugitive_emissions_map = numpy.genfromtxt(
-                            path.join(base_dir, *handyfiles.state_emm_map),
-                            names=True, delimiter='\t', dtype=(
-                                ['<U25'] * 1 + ['<f8'] * 51))
+                            handyfiles.state_emm_map, names=True,
+                            delimiter='\t', dtype=(['<U25'] * 1 + ['<f8'] * 51))
                     except ValueError as e:
                         raise ValueError(
-                            "Error reading in '" +
-                            handyfiles.state_emm_map + "': " +
-                            str(e)) from None
+                            f"Error reading in '{handyfiles.state_emm_map}': {str(e)}") from None
                 else:
                     self.fugitive_emissions_map = None
             else:
@@ -923,23 +866,19 @@ class UsefulVars(object):
                     len_reg = len(valid_regions)
                 # Read in the data
                 aia_altreg_map = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.aia_altreg_map),
-                    names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * len_reg))
+                    handyfiles.aia_altreg_map, names=True, delimiter='\t',
+                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
             except ValueError:
                 raise ValueError(
-                    "Error reading in '" +
-                    str(handyfiles.aia_altreg_map) + "'")
+                    f"Error reading in '{str(handyfiles.aia_altreg_map)}'")
             # IECC -> EMM or State mapping
             try:
                 iecc_altreg_map = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.iecc_reg_map),
-                    names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                    handyfiles.iecc_reg_map, names=True, delimiter='\t',
+                    dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.iecc_reg_map + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
             self.alt_perfcost_brk_map = {
                 "IECC": iecc_altreg_map, "AIA": aia_altreg_map,
@@ -1478,10 +1417,10 @@ class UsefulVars(object):
                     metrics_data = handyfiles.tsv_metrics_data_net_hr
 
                 # Import system max/min and peak/take hour load by EMM region
+                # raise ValueError(metrics_data, opts.tsv_metrics[-2])
                 sysload_dat = numpy.genfromtxt(
-                        path.join(base_dir, *metrics_data),
-                        names=peak_take_names, delimiter=',', dtype="<i4",
-                        encoding="latin1", skip_header=1)
+                    metrics_data, names=peak_take_names, delimiter=',',
+                    dtype="<i4", encoding="latin1", skip_header=1)
                 # Find unique set of projection years in system peak/take data
                 sysload_dat_yrs = numpy.unique(sysload_dat["Year"])
                 # Set a dict that maps EMM region names to region
@@ -1630,12 +1569,12 @@ class UsefulVars(object):
                 ("PHC-EE (high)", "Uniform EE", "2017cents_kWh_3pct_high")]
             # Set data file with public health benefits information
             self.health_scn_data = numpy.genfromtxt(
-                    path.join(base_dir, *handyfiles.health_data),
-                    names=("AVERT_Region", "EMM_Region", "Category",
-                           "2017cents_kWh_3pct_low", "2017cents_kWh_3pct_high",
-                           "2017cents_kWh_7pct_low",
-                           "2017cents_kWh_7pct_high"),
-                    delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
+                handyfiles.health_data,
+                names=("AVERT_Region", "EMM_Region", "Category",
+                       "2017cents_kWh_3pct_low", "2017cents_kWh_3pct_high",
+                       "2017cents_kWh_7pct_low",
+                       "2017cents_kWh_7pct_high"),
+                delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
         self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
@@ -2195,8 +2134,7 @@ class Measure(object):
                 try:
                     self.tsv_features["shape"]["custom_annual_savings"] = \
                         numpy.genfromtxt(
-                            path.join(base_dir, *handyfiles.tsv_shape_data,
-                                      csv_shape_file_name),
+                            handyfiles.tsv_shape_data / csv_shape_file_name,
                             names=True, delimiter=',', dtype=[
                                 ('Hour_of_Year', '<i4'),
                                 ('Climate_Zone', '<U25'),
@@ -2211,9 +2149,8 @@ class Measure(object):
                     raise OSError(
                         "Savings shape data file indicated in 'tsv_features' "
                         "attribute of measure '" + self.name + "' not found; "
-                        "looking for file " + (
-                            path.join(base_dir, *handyfiles.tsv_shape_data,
-                                      csv_shape_file_name)) + ". "
+                        "looking for file " +
+                        (handyfiles.tsv_shape_data / csv_shape_file_name) + ". "
                         "Find the latest measure savings shape data here: "
                         "https://doi.org/10.5281/zenodo.4602369, files "
                         "'Latest_Com_Shapes.zip' and 'Latest_Res_Shapes.zip'")
@@ -8180,8 +8117,7 @@ class Measure(object):
                 # Set appropriate capacity factor (TBtu delivered service
                 # for hours of actual operation / TBtu service running at
                 # full capacity for all hours of the year)
-                cap_fact_mseg = self.handyvars.cap_facts[
-                    "data"][mskeys[2]][mskeys[4]]
+                cap_fact_mseg = self.handyvars.cap_facts["data"][mskeys[2]][mskeys[4]]
                 # Conversion: (1) divides stock (service delivered) by
                 # the capacity factor (service delivered per year /
                 # service per year @ full capacity) to get to service per
@@ -11828,8 +11764,7 @@ class MeasurePackage(Measure):
                     # for hours of actual operation / TBtu service running at
                     # full capacity for all hours of the year), keyed in
                     # by building type and end use service
-                    cap_fact_mseg = self.handyvars.cap_facts[
-                        "data"][key_list[2]][key_list[4]]
+                    cap_fact_mseg = self.handyvars.cap_facts["data"][key_list[2]][key_list[4]]
                     # Conversion: (1) divides by 1e9 to get from capacity
                     # units of kBtu to service demand units of TBtu (2)
                     # multiplies by 8760 to translate units from per hour full
@@ -12947,12 +12882,11 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                 meas_obj.technology_type = meas_summary_data[0][
                     "technology_type"]
                 # Assemble folder path for measure competition data
-                meas_folder_name = path.join(*handyfiles.ecm_compete_data)
+                meas_folder_name = handyfiles.ecm_compete_data
                 # Assemble file name for measure competition data
                 meas_file_name = meas_obj.name + ".pkl.gz"
                 # Load and set competition data for the missing measure object
-                with gzip.open(path.join(base_dir, meas_folder_name,
-                                         meas_file_name), 'r') as zp:
+                with gzip.open(meas_folder_name / meas_file_name, 'r') as zp:
                     try:
                         meas_comp_data = pickle.load(zp)
                     except Exception as e:
@@ -13202,13 +13136,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # provide empty list as substitute, since file will be created
     # later when writing ECM data)
     try:
-        es = open(path.join(base_dir, *handyfiles.ecm_prep), 'r')
+        es = open(handyfiles.ecm_prep, 'r')
         try:
             meas_summary = json.load(es)
         except ValueError as e:
-            raise ValueError(
-                "Error reading in '" + handyfiles.ecm_prep +
-                "': " + str(e)) from None
+            raise ValueError(f"Error reading in '{handyfiles.ecm_prep}': {str(e)}") from None
         es.close()
         # Flag if the ecm_prep file already exists
         ecm_prep_exists = True
@@ -13217,26 +13149,23 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         ecm_prep_exists = ""
 
     # Import packages JSON
-    with open(path.join(base_dir, *handyfiles.ecm_packages), 'r') as mpk:
+    with open(handyfiles.ecm_packages, 'r') as mpk:
         try:
             meas_toprep_package_init = json.load(mpk)
         except ValueError as e:
             raise ValueError(
-                "Error reading in ECM package '" + handyfiles.ecm_packages +
-                "': " + str(e)) from None
+                f"Error reading in ECM package '{handyfiles.ecm_packages}': {str(e)}") from None
 
     # If applicable, import file to write prepared measure sector shapes to
     # (if file does not exist, provide empty list as substitute, since file
     # will be created later when writing ECM data)
     if opts.sect_shapes is True:
         try:
-            es_ss = open(path.join(
-                base_dir, *handyfiles.ecm_prep_shapes), 'r')
+            es_ss = open(handyfiles.ecm_prep_shapes, 'r')
             try:
                 meas_shapes = json.load(es_ss)
             except ValueError:
-                raise ValueError("Error reading in '" +
-                                 handyfiles.ecm_prep_shapes + "'")
+                raise ValueError(f"Error reading in '{handyfiles.ecm_prep_shapes}'")
             es_ss.close()
         except FileNotFoundError:
             meas_shapes = []
@@ -13250,8 +13179,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Determine full list of individual measure JSON names
     meas_toprep_indiv_names = [
-        x for x in listdir(handyfiles.indiv_ecms) if x.endswith(".json") and
-        'package' not in x]
+        x for x in handyfiles.indiv_ecms.iterdir() if x.suffix == ".json" and
+        'package' not in x.name]
     # Initialize list of all individual measures that require updates
     meas_toprep_indiv = []
     # Initialize list of individual measures that require an update due to
@@ -13278,14 +13207,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # Import separate file that will ultimately store all
             # counterfactual package data for later use
             try:
-                ecf = open(
-                    path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+                ecf = open(handyfiles.ecm_prep_env_cf, 'r')
                 try:
                     meas_summary_env_cf = json.load(ecf)
                 except ValueError as e:
                     raise ValueError(
-                        "Error reading in '" + handyfiles.ecm_prep_env_cf +
-                        "': " + str(e)) from None
+                        f"Error reading in '{handyfiles.ecm_prep_env_cf}': {str(e)}") from None
                 ecf.close()
                 # In some cases, individual ECMs may be defined and written to
                 # the counterfactual package data; these ECMs should be added
@@ -13302,15 +13229,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # If applicable, import separate file that will store
             # counterfactual package sector shape data
             try:
-                ecf_ss = open(
-                    path.join(base_dir, *handyfiles.ecm_prep_env_cf), 'r')
+                ecf_ss = open(handyfiles.ecm_prep_env_cf, 'r')
                 try:
                     meas_shapes_env_cf = json.load(ecf_ss)
                 except ValueError:
                     raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.ecm_prep_env_cf_shapes +
-                        "'") from None
+                        f"Error reading in '{handyfiles.ecm_prep_env_cf_shapes}'") from None
                 ecf_ss.close()
             except FileNotFoundError:
                 meas_shapes_env_cf = []
@@ -13323,7 +13247,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
-        with open(path.join(base_dir, handyfiles.indiv_ecms, mi), 'r') as jsf:
+        with open(handyfiles.indiv_ecms / mi, 'r') as jsf:
             try:
                 # Load each JSON into a dict
                 meas_dict = json.load(jsf)
@@ -13348,24 +13272,22 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # was prepared (based on 'usr_opts' attribute), excepting
                 # the 'verbose' option, which has no bearing on results
                 update_indiv_ecm = ((ecm_prep_exists and stat(
-                    path.join(handyfiles.indiv_ecms, mi)).st_mtime > stat(
-                    path.join(
-                        "supporting_data", "ecm_prep.json")).st_mtime) or
-                   (len(match_in_prep_file) == 0 or (
+                    handyfiles.indiv_ecms / mi).st_mtime > stat(
+                    handyfiles.ecm_prep).st_mtime) or
+                    (len(match_in_prep_file) == 0 or (
                         "(CF)" not in meas_dict["name"] and all([all([
-                            x["name"] != path.splitext(
-                                path.splitext(y)[0])[0] for y in listdir(
-                                path.join(*handyfiles.ecm_compete_data))]) for
+                            x["name"] != y.stem for y in
+                            handyfiles.ecm_compete_data.iterdir()]) for
                             x in match_in_prep_file])) or
-                    (opts is None and not all([all([
-                        m["usr_opts"][k] is False
-                        for k in m["usr_opts"].keys()]) for
-                        m in match_in_prep_file])) or
-                    (not all([all([m["usr_opts"][x] ==
-                              vars(opts)[x] for x in [
-                                k for k in vars(opts).keys() if
-                                k != "verbose"]]) for m in
-                              match_in_prep_file]))))
+                        (opts is None and not all([all([
+                         m["usr_opts"][k] is False
+                         for k in m["usr_opts"].keys()]) for
+                            m in match_in_prep_file])) or
+                        (not all([all([m["usr_opts"][x] ==
+                                      vars(opts)[x] for x in [
+                            k for k in vars(opts).keys() if
+                            k != "verbose"]]) for m in
+                            match_in_prep_file]))))
                 # Add measure to tracking of individual measures needing update
                 # independent of required updates to packages they are a
                 # part of (if applicable)
@@ -13637,9 +13559,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         if any([meas_name in m["contributing_ECMs"] for
                 meas_name in meas_toprep_indiv_nopkg]) or \
             len(m_exist) == 0 or \
-            all([m["name"] != path.splitext(path.splitext(y)[0])[0] for
-                y in listdir(path.join(
-                *handyfiles.ecm_compete_data))]) or (len(m_exist) == 1 and (
+            all([m["name"] != y.stem for
+                y in handyfiles.ecm_compete_data.iterdir()]) or (len(m_exist) == 1 and (
                     sorted(m["contributing_ECMs"]) !=
                     sorted(m_exist[0]["contributing_ECMs"]) or (
                         m["benefits"]["energy savings increase"] !=
@@ -13700,11 +13621,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
         # Import baseline microsegments
         if opts.alt_regions in ['EMM', 'State']:  # Extract EMM/state files
-            bjszip = path.join(base_dir, *handyfiles.msegs_in)
+            bjszip = handyfiles.msegs_in
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs = json.loads(zip_ref.read().decode('utf-8'))
         else:
-            with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
+            with open(handyfiles.msegs_in, 'r') as msi:
                 try:
                     msegs = json.load(msi)
                 except ValueError as e:
@@ -13712,28 +13633,25 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         "Error reading in '" +
                         handyfiles.msegs_in + "': " + str(e)) from None
         # Import baseline cost, performance, and lifetime data
-        bjszip = path.join(base_dir, *handyfiles.msegs_cpl_in)
+        bjszip = handyfiles.msegs_cpl_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
             msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
         # Import measure cost unit conversion data
-        with open(path.join(base_dir, *handyfiles.cost_convert_in), 'r') as cc:
+        with open(handyfiles.cost_convert_in, 'r') as cc:
             try:
                 convert_data = json.load(cc)
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.cost_convert_in + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.cost_convert_in}': {str(e)}") from None
         # Import CBECs square footage by vintage data (used to map EnergyPlus
         # commercial building vintages to Scout building vintages)
-        with open(path.join(
-                base_dir, *handyfiles.cbecs_sf_byvint), 'r') as cbsf:
+        with open(handyfiles.cbecs_sf_byvint, 'r') as cbsf:
             try:
                 cbecs_sf_byvint = json.load(cbsf)[
                     "commercial square footage by vintage"]
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.cbecs_sf_byvint + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.cbecs_sf_byvint}': {str(e)}") from None
         if (opts.alt_regions == 'EMM' and ((
                 opts.tsv_metrics is not False or any([
                 ("tsv_features" in m.keys() and m["tsv_features"] is not None)
@@ -13741,8 +13659,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 opts is not None and opts.sect_shapes is True)):
             # Import load, price, and emissions shape data needed for time
             # sensitive analysis of measure energy efficiency impacts
-            tsv_l = path.join(base_dir, *handyfiles.tsv_load_data)
-            tsv_l_zip = path.splitext(tsv_l)[0] + '.gz'
+            tsv_l = handyfiles.tsv_load_data
+            tsv_l_zip = tsv_l.with_suffix('.gz')
             with gzip.GzipFile(tsv_l_zip, 'r') as zip_ref_l:
                 tsv_load_data = json.loads(zip_ref_l.read().decode('utf-8'))
             # When sector shapes are specified and no other time sensitive
@@ -13757,8 +13675,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     "price_yr_map": None, "emissions": None,
                     "emissions_yr_map": None} for n in range(2))
             else:
-                tsv_c = path.join(base_dir, *handyfiles.tsv_cost_data)
-                tsv_c_zip = path.splitext(tsv_c)[0] + '.gz'
+                tsv_c = handyfiles.tsv_cost_data
+                tsv_c_zip = tsv_c.with_suffix('.gz')
                 with gzip.GzipFile(tsv_c_zip, 'r') as zip_ref_c:
                     tsv_cost_data = \
                         json.loads(zip_ref_c.read().decode('utf-8'))
@@ -13766,9 +13684,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # factors for before grid decarbonization for non-fuel
                 # switching measures
                 if handyfiles.tsv_cost_data_nonfs is not None:
-                    tsv_c_nonfs = path.join(
-                        base_dir, *handyfiles.tsv_cost_data_nonfs)
-                    tsv_c_nonfs_zip = path.splitext(tsv_c_nonfs)[0] + '.gz'
+                    tsv_c_nonfs = handyfiles.tsv_cost_data_nonfs
+                    tsv_c_nonfs_zip = tsv_c_nonfs.with_suffix('.gz')
                     with gzip.GzipFile(tsv_c_nonfs_zip, 'r') as \
                             zip_ref_nonfs_c:
                         tsv_cost_nonfs_data = \
@@ -13776,8 +13693,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 else:
                     tsv_cost_nonfs_data = None
 
-                tsv_cb = path.join(base_dir, *handyfiles.tsv_carbon_data)
-                tsv_cb_zip = path.splitext(tsv_cb)[0] + '.gz'
+                tsv_cb = handyfiles.tsv_carbon_data
+                tsv_cb_zip = tsv_cb.with_suffix('.gz')
                 with gzip.GzipFile(tsv_cb_zip, 'r') as zip_ref_cb:
                     tsv_carbon_data = \
                         json.loads(zip_ref_cb.read().decode('utf-8'))
@@ -13785,9 +13702,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # factors for before grid decarbonization for non-fuel
                 # switching measures
                 if handyfiles.tsv_carbon_data_nonfs is not None:
-                    tsv_cb_nonfs = path.join(
-                        base_dir, *handyfiles.tsv_carbon_data_nonfs)
-                    tsv_cb_nonfs_zip = path.splitext(tsv_cb_nonfs)[0] + '.gz'
+                    tsv_cb_nonfs = handyfiles.tsv_carbon_data_nonfs
+                    tsv_cb_nonfs_zip = tsv_cb_nonfs.with_suffix('.gz')
                     with gzip.GzipFile(tsv_cb_nonfs_zip, 'r') as \
                             zip_ref_nonfs_cb:
                         tsv_carbon_nonfs_data = \
@@ -13835,8 +13751,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 run_setup = json.load(am, object_pairs_hook=OrderedDict)
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.run_setup + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.run_setup}': {str(e)}") from None
             am.close()
         except FileNotFoundError:
             run_setup = {"active": [], "inactive": []}
@@ -13957,24 +13872,20 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # Assemble file name for measure competition data
                 meas_file_name = m.name + ".pkl.gz"
                 # Assemble folder path for measure competition data
-                comp_folder_name = path.join(*handyfiles.ecm_compete_data)
-                with gzip.open(path.join(base_dir, comp_folder_name,
-                                         meas_file_name), 'w') as zp:
+                comp_folder_name = handyfiles.ecm_compete_data
+                with gzip.open(comp_folder_name / meas_file_name, 'w') as zp:
                     pickle.dump(meas_prepped_compete[ind], zp, -1)
                 if len(meas_eff_fs_splt[ind].keys()) != 0:
                     # Assemble path for measure efficient fs split data
-                    fs_splt_folder_name = path.join(
-                        *handyfiles.ecm_eff_fs_splt_data)
-                    with gzip.open(path.join(base_dir, fs_splt_folder_name,
-                                             meas_file_name), 'w') as zp:
+                    fs_splt_folder_name = handyfiles.ecm_eff_fs_splt_data
+                    with gzip.open(fs_splt_folder_name / meas_file_name, 'w') as zp:
                         pickle.dump(meas_eff_fs_splt[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
-        with open(path.join(base_dir, *handyfiles.ecm_prep), "w") as jso:
+        with open(handyfiles.ecm_prep, "w") as jso:
             json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
         # If applicable, write sector shape data to JSON
         if opts.sect_shapes is True:
-            with open(path.join(
-                    base_dir, *handyfiles.ecm_prep_shapes), "w") as jso:
+            with open(handyfiles.ecm_prep_shapes, "w") as jso:
                 json.dump(meas_shapes, jso, indent=2, cls=MyEncoder)
 
         # Write prepared high-level counterfactual measure attributes data to
@@ -13982,14 +13893,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # the effects of envelope within envelope/HVAC packages)
         if opts is not None and opts.pkg_env_sep is True and \
                 meas_summary_env_cf is not None:
-            with open(path.join(
-                    base_dir, *handyfiles.ecm_prep_env_cf), "w") as jso:
+            with open(handyfiles.ecm_prep_env_cf, "w") as jso:
                 json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
             # If applicable, write out envelope counterfactual sector shapes
             if opts.sect_shapes is True:
-                with open(path.join(
-                        base_dir,
-                        *handyfiles.ecm_prep_env_cf_shapes), "w") as jso:
+                with open(handyfiles.ecm_prep_env_cf_shapes, "w") as jso:
                     json.dump(meas_shapes_env_cf, jso, indent=2, cls=MyEncoder)
 
         # Write any newly prepared measure names to the list of active
@@ -13998,7 +13906,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             json.dump(run_setup, jso, indent=2)
 
         # Write metadata for consistent use later in the analysis engine
-        with open(path.join(base_dir, handyfiles.glob_vars), "w") as jso:
+        with open(handyfiles.glob_vars, "w") as jso:
             glob_vars = {
                 "adopt_schemes": handyvars.adopt_schemes,
                 "retro_rate": handyvars.retro_rate,

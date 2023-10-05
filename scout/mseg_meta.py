@@ -6,6 +6,7 @@ from scout import mseg as rm
 from scout import mseg_techdata as rmt
 from scout import com_mseg as cm
 from scout import com_mseg_tech as cmt
+from scout.constants import FilePaths as fp
 
 import numpy as np
 import re
@@ -432,7 +433,7 @@ def main():
                          'max year': int(min(max_yrs))}
 
     # Output a tiny JSON file with two integer values
-    with open('metadata.json', 'w') as jso:
+    with open(fp.METADATA_PATH, 'w') as jso:
         json.dump(year_range_result, jso, indent=2)
         jso.write('\n')
 

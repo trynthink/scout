@@ -34,6 +34,7 @@ import argparse
 import pandas as pd
 from backoff import on_exception, expo
 from collections import OrderedDict
+from scout.constants import FilePaths as fp
 
 
 class UsefulVars(object):
@@ -48,14 +49,12 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.emm_state_map = ('supporting_data/convert_data/geo_map/'
-                              'EMM_State_ColSums.txt')
-        self.state_baseline_data = ('supporting_data/convert_data/'
-                                    'EIA_State_Emissions_Prices_Baselines_'
-                                    '2020.csv')
-        self.state_conv_file = ('supporting_data/convert_data/' +
-                                'state_emissions_prices.json')
-        self.metadata = ('metadata.json')
+        self.emm_state_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_ColSums.txt"
+        self.state_baseline_data = (
+            fp.CONVERT_DATA / "EIA_State_Emissions_Prices_Baselines_2020.csv")
+        self.state_conv_file = (
+            fp.CONVERT_DATA / "state_emissions_prices.json")
+        self.metadata = fp.METADATA_PATH
 
 
 class ValidQueries(object):
@@ -809,12 +808,10 @@ def updater_state(conv_emm, aeo_min):
 
     # Load and clean state baselines data from CSV
     # Drop AK and HI and rename columns
-    state_baselines = pd.read_csv(UsefulVars().state_baseline_data).set_index(
-         'State')
+    state_baselines = pd.read_csv(UsefulVars().state_baseline_data).set_index('State')
 
     # Load and clean EMM to State mapping file
-    emm_state_map = pd.read_csv(UsefulVars().emm_state_map,
-                                delimiter="\t").dropna(
+    emm_state_map = pd.read_csv(UsefulVars().emm_state_map, delimiter="\t").dropna(
         axis=0).set_index('EMM').drop(
         ['AK', 'HI'], axis=1).sort_index()
 

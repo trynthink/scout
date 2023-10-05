@@ -5,6 +5,7 @@ import json
 from collections import OrderedDict
 from datetime import datetime
 import gzip
+from scout.constants import FilePaths as fp
 
 
 class UsefulInputFiles(object):
@@ -106,7 +107,7 @@ class UsefulInputFiles(object):
             "site_source_co2_conversions-100by2035.json")
         self.ss_fp_ce = ("supporting_data", "convert_data",
                          "site_source_co2_conversions-ce.json")
-        self.metadata = "metadata.json"
+        self.metadata = fp.METADATA_PATH
 
 
 class UsefulVars(object):
