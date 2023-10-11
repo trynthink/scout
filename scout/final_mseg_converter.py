@@ -1345,6 +1345,295 @@ def walk(cpl_data, conversions, perf_convert, years, json_db,
     return json_db
 
 
+def finalize_eu_shares(result, eu_pp, years):
+    """Reallocate electricity data to match EULP end use shares of total.
+
+    When EMM-resolved stock/energy data are prepared (based on total
+    electricity shares within each Census Division stock/energy total from
+    EIA), this function recursively traverses the microsegment data structure
+    (formatted as a nested dict) to each leaf/terminal node and applies
+    scaling factors as needed to calibrate final electricity end use shares
+    within each EMM region to the shares in the End Use Load Profiles (EULP)
+    database.
+
+    Args:
+        result (dict): EMM-resolved stock and energy use microsegments, pre-
+            calibration to the EULP data.
+        eu_pp (numpy array): Electricity end use shares of total electricity
+            by EMM region and building type, from the EULP.
+
+    Returns:
+        An updated stock/energy dict with electricity end use totals that are
+        consistent with end use shares of total electricity from each EMM
+        region and res. vs. com. building type in the EULP database.
+    """
+
+    # Set Scout building types, end uses, and tech names to exclude from the
+    # calibration
+    excl = {
+        "bldg": ["unspecified", "other"],
+        "euses": ["unspecified"],
+        "tech": [
+            "electric other", "Commercial Beverage Merchandisers",
+            "Commercial Ice Machines", "Commercial Reach-In Freezers",
+            "Commercial Reach-In Refrigerators",
+            "Commercial Refrigerated Vending Machines",
+            "Commercial Supermarket Display Cases",
+            "Commercial Walk-In Freezers",
+            "Commercial Walk-In Refrigerators", "other"]
+        }
+
+    # Set Scout building types, fuel types, and end uses in the input dict
+
+    # Anchor on data structure for first region
+    first_reg_dat = result[list(result.keys())[0]]
+    # Res building types from data
+    res_btypes = [x for x in first_reg_dat.keys() if "home" in x]
+    # Res electric end uses from data
+    res_elec_eus = list(first_reg_dat[res_btypes[0]]["electricity"].keys())
+    # Com building types from data
+    com_btypes = [x for x in first_reg_dat.keys() if x not in res_btypes]
+    # Com electric end uses from data
+    com_elec_eus = list(first_reg_dat[com_btypes[0]]["electricity"].keys())
+    # Fuels
+    fuels = ["electricity", "natural gas", "distillate", "other fuel"]
+    # Shorthand for combined building types
+    all_btypes = res_btypes + com_btypes
+    # Shorthand for combined end uses
+    all_eus = np.unique(res_elec_eus + com_elec_eus)
+    # Shorthand dict with all variables
+    scout_base_defs = {"fuels": fuels, "bldg types": all_btypes,
+                       "end uses": all_eus}
+    # EULP calibration year is 2018 – set to first year in data range if
+    # not available
+    if 2018 in years:
+        yr_calibrate = "2018"
+    else:
+        yr_calibrate = str(years[0])
+    # Map building types in the EULP shares array to Scout building types
+    eulp_bt_map = {
+        "res": res_btypes,
+        "com": com_btypes
+    }
+    # Map end uses in the EULP shares array to Scout building types
+
+    # Residential EULP end uses and mapping to Scout residential end uses
+    eulp_eu_res = {
+        "heating": ["heating", "secondary heating"], "cooling": ["cooling"],
+        "fans and pumps": ["fans and pumps"],
+        "water heating": ["water heating"], "lighting": ["lighting"],
+        "refrigeration": ["refrigeration", "other-freezers"],
+        "plug loads": ["other-misc", "computers", "TVs"],
+        "ceiling fan": ["ceiling fan"], "drying": ["drying"],
+        "clothes washing": ["other-clothes washing"],
+        "dishwasher": ["other-dishwashing"],
+        "pool heaters": ["other-pool heaters"],
+        "pool pumps": ["other-pool pumps"], "cooking": ["cooking"],
+        "portable electric spas": ["other-portable electric spas"]
+    }
+    # Commercial EULP end uses and mapping to Scout commercial end uses
+    eulp_eu_com = {
+        "heating": ["heating"], "cooling": ["cooling"],
+        "fans and pumps": ["ventilation"], "water heating": ["water heating"],
+        "lighting": ["lighting"], "refrigeration": ["refrigeration"],
+        "plug loads": ["MELs", "unspecified", "PCs", "non-PC office equipment"]
+    }
+    # Shorthand dict containing all mapping data
+    eulp_map_dat = {
+        "bldg types": eulp_bt_map, "res end uses": eulp_eu_res,
+        "com end uses": eulp_eu_com
+    }
+    # Initialize dict to track mseg characteristics during recursive loops
+    branch_dat = {"fuel": "", "bldg": "", "end use": "", "tech type": "",
+                  "tech": "", "value type": ""}
+    # Initalize adjustment factors by region/bldg. type/end use and
+    # electricity totals by region/bldg. type
+    adj_facts = {reg: {
+        bldg: {eu: 0 for eu in (
+            eulp_eu_res.keys() if bldg == "res" else eulp_eu_com.keys())}
+        for bldg in eulp_bt_map.keys()} for reg in result.keys()}
+    elec_tots = {
+        reg: {bldg: 0 for bldg in eulp_bt_map.keys()} for reg in result.keys()}
+
+    # Find total electricity and end use shares of total for the original
+    # baseline data; develop adjustment factors that ensure electric end use
+    # shares in the baseline data match those in the EULP; apply factors to
+    # original baseline data
+
+    # Loop through regions
+    for reg in adj_facts.keys():
+        # Develop electric end use and total values for each region
+        process_branches(
+            adj_facts[reg], elec_tots[reg], result[reg], yr_calibrate,
+            eulp_map_dat, scout_base_defs, branch_dat, excl,
+            operation="sum")
+
+        # Loop through building types and end uses to find the original
+        # Scout end use shares by building type and the EULP shares; divide
+        # the latter by the former to get the final adjustment factors by
+        # end use and building type within the currently looped region
+        for bt in adj_facts[reg].keys():
+            for eu in adj_facts[reg][bt].keys():
+                # Find Scout end use shares (normalize end use sums by total
+                # electricity sum by region and building type)
+                if elec_tots[reg][bt] != 0:
+                    adj_facts[reg][bt][eu] = \
+                        adj_facts[reg][bt][eu] / elec_tots[reg][bt]
+                else:
+                    adj_facts[reg][bt][eu] = 0
+                # Pull EULP value for the end use share in the given region
+                # and building type
+                eulp_fact = eu_pp[
+                    (eu_pp["region"] == reg) &
+                    (eu_pp["building type"] == bt)][eu].iloc[0]
+                # Find ratio of EULP share to Scout share, to use subsequently
+                # in adjusting the Scout end use data
+                if adj_facts[reg][bt][eu] != 0:
+                    adj_facts[reg][bt][eu] = (
+                        eulp_fact / adj_facts[reg][bt][eu])
+
+        # Apply adjustment factors to original baseline data for each region
+        process_branches(
+            adj_facts[reg], elec_tots[reg], result[reg], yr_calibrate,
+            eulp_map_dat, scout_base_defs, branch_dat, excl,
+            operation="multiply")
+
+    # Return recalibrated dictionary
+    return result
+
+
+def process_branches(adj_dct, tot_dct, base_dct, yr_calibrate, eulp_map_dat,
+                     scout_base_defs, branch_dat, excl, operation):
+    """Find sum of electric end use estimates or apply adjustments to them.
+
+    Recursively iterate through a dict of baseline microsegments and either
+    sum the microsegments' energy use data across a given building type
+    (res/com) and end use or apply a scaling factor to both the stock and
+    energy use data for each microsegment to reflect calibration against EULP
+    end use shares of total electricity use.
+
+    Args:
+        adj_dct (dict): Dict that will ultimately contain scaling factors
+            to true up end-use shares for each region/bldg. type to EULP.
+        tot_dct (dict): Regional electricity totals data by building type.
+        base_dct (dict): Baseline data pre-calibration to EULP.
+        yr_calibrate (str): Year of EULP calibration.
+        eulp_map_dat (dict): Info. for mapping Scout building types and end
+            uses to those in the EULP end use shares data.
+        scout_base_defs (dict): Dict that supports identification of current
+            level in microsegment hierarchy (building type, fuel, end use,
+            tech.) that this function recursively loops through.
+        branch_dat (dict): Data for tracking building type, fuel, end use,
+            and tech. characteristics of currently looped microsegment.
+        excl (dict): Building types, end uses, and technology types to exclude
+            from the EULP calibration (and execution of this function).
+        operation (str): Flag that determines whether this function sums
+            microsegment data across end use/building type combinations or
+            applies scaling factors to each microsegment to reflect EULP
+            calbration.
+
+    Returns:
+        Either a) summed electric end use energy by res/com building
+        type, within a given region or b) baseline data updated to reflect
+        EULP end use shares of total res/com electricity within a given region.
+    """
+
+    # Shorthands for microsegment branch data
+    ft, bt, eu, tt, tc, vt = [
+        branch_dat["fuel"], branch_dat["bldg"], branch_dat["end use"],
+        branch_dat["tech type"], branch_dat["tech"], branch_dat["value type"]]
+    # Loop through microsegment branches in baseline input data
+    for key, value in base_dct.items():
+        # Reached terminal value: apply sum or multiplication operation
+
+        # Ensure that full microsegment branch data exist and microsegment
+        # applies to electricity only (EULP calibration for electric end uses)
+        if isinstance(value, (int, float)) and all([
+                x for x in [ft, bt, eu, tc]]) and ft == "electricity":
+            # Handle 'other' Scout end use, which matches multiple end uses
+            # in the EULP database (e.g., clothes washing, dishwasher, etc.);
+            # try to match based on technology information, and if no match,
+            # assign to plug loads
+            if len(eu) > 1:
+                eu_f = [x for x in eu if tc in x]
+                if len(eu_f) == 0:
+                    eu_f = "plug loads"
+                else:
+                    eu_f = eu_f[0]
+            else:
+                eu_f = eu[0]
+
+            # Handle terminal value differently depending on operation
+
+            # If summing for the purposes of developing calibration adjustment
+            # factors, exclude envelope data from calibration (would be double
+            # counted w/ HVAC) and ensure factors are based on energy use (not
+            # stock) in the calibration year
+            if operation == "sum" and (not tt or tt == "supply") and \
+                    vt == "energy" and key == yr_calibrate:
+                # Add to both end use specific and total values of electricity
+                # for the given building type and region
+                adj_dct[bt][eu_f] += value
+                tot_dct[bt] += value
+            # Second case multiplies adjustment factors calculated for the
+            # current microsegment building type and end use by original
+            # microsegment data
+            elif operation == "multiply":
+                base_dct[key] = base_dct[key] * adj_dct[bt][eu_f]
+        # Did not reach terminal value: update microsegment branch data
+        # and continue recursive loop
+        elif isinstance(value, dict):
+            # Register the fuel, building type, end use, and technology
+            # of the current branch being recursively looped through
+            if not ft and key in scout_base_defs["bldg types"]:
+                # Map building type of current Scout microsegment to building
+                # type in the EULP end use shares data; ensure that excluded
+                # building types are not processed further
+                bt = [b[0] for b in eulp_map_dat[
+                    "bldg types"].items() if (
+                        key not in excl["bldg"] and key in b[1])]
+                if len(bt) != 0:
+                    bt = bt[0]
+                else:
+                    bt = ""
+            elif key in scout_base_defs["fuels"]:
+                # Map fuel type of current Scout microsegment to building
+                # type in the EULP end use shares data
+                ft = key
+            elif key in scout_base_defs["end uses"]:
+                # Set Scout end use check conditionally based on building type
+                if bt == "res":
+                    eulp_eu_map = eulp_map_dat["res end uses"]
+                else:
+                    eulp_eu_map = eulp_map_dat["com end uses"]
+                # Map end use of current Scout microsegment to end use
+                # in the EULP end use shares data; ensure that excluded
+                # end uses are not processed further
+                eu = [e[0] for e in eulp_eu_map.items() if (
+                    key not in excl["euses"] and (
+                        (key != "other" and key in e[1]) or
+                        (key == "other" and any([key in i for i in e[1]]))))]
+                if len(eu) == 0:
+                    eu = ""
+            elif key in ["supply", "demand"]:
+                # Flag envelope data ("demand" technology type)
+                tt = key
+            elif key in ["stock", "energy"]:
+                # Flag stock vs. energy data
+                vt = key
+            if any([x in value.keys() for x in ["stock", "energy"]]):
+                # Ensure that excluded technologies are not processed further
+                if key not in excl["tech"]:
+                    tc = key
+            # Reset microsegment branch data to mapped information pulled above
+            branch_dat = {"fuel": ft, "bldg": bt, "end use": eu,
+                          "tech type": tt, "tech": tc, "value type": vt}
+            # Continue the recursive loop
+            process_branches(
+                adj_dct, tot_dct, value, yr_calibrate, eulp_map_dat,
+                scout_base_defs, branch_dat, excl, operation)
+
+
 def main():
     """Import external data files, process data, and produce desired output.
 
@@ -1650,6 +1939,12 @@ def main():
                 result = walk(
                     jscpl_data, jsconv_data, env_perf_convert, years, result,
                     aia_list, cdiv_list, emm_list)
+
+    # For EMM data, run a final post-processing step on the data to
+    # calibrate regional electricity end use shares to the End Use Load
+    # Profiles library
+    if (input_var[0] == '1' and input_var[1] == '2'):
+        result = finalize_eu_shares(result, eu_pp, years)
 
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
