@@ -1,6 +1,5 @@
 name: tests
-on:
-  push:
+on: [push, pull_request]
 jobs:
 
   code-quality-checks:
