@@ -1,5 +1,8 @@
 name: tests
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    types: [opened, ready_for_review]
 jobs:
 
   code-quality-checks:
@@ -60,9 +63,15 @@ jobs:
       - name: Check if PR
         uses: 8BitJonny/gh-get-current-pr@2.2.0
         id: PR
+        with:
+          filterOutClosed: true
+          filterOutDraft: true
 
   integration-tests:
     needs: [check-PR]
-    if: (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') || github.ref == 'refs/heads/master'
+    if: |
+      (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master' && github.event.pull_request.draft == false) ||
+      github.ref == 'refs/heads/master'
     uses: ./.github/workflows/integration_tests.yml
     secrets: inherit
