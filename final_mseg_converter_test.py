@@ -14,6 +14,7 @@ import unittest
 import numpy as np
 import copy
 import itertools
+import pandas as pd
 
 
 class CommonUnitTest(unittest.TestCase):
@@ -2959,6 +2960,292 @@ class CostUnitsConversionTest(EnvelopeDataUnitTest):
                 fmc.cost_converter(conv_inp[0], conv_inp[1],
                                    conv_inp[2], conv_inp[3],
                                    self.cost_convert_data)
+
+
+class EULPPostprocessTest(CommonUnitTest):
+    """ Test recalibration of EMM-resolved electric end use baseline data
+    against electricity end use shares by region and building type from
+    End Use Load Profiles dataset, via 'finalize_eu_shares' function. """
+
+    # Test year range for the input data
+    test_yrs = list(range(2023, 2025))
+
+    # Test input data to recalibrate
+    test_input = {
+        "FRCC": {
+            "single family home": {
+                "new homes": {"2023": 1000, "2024": 2000},
+                "electricity": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 1, "2024": 10}}},
+                        "supply": {
+                            "ASHP": {
+                                "stock": {"2023": 2, "2024": 20},
+                                "energy": {"2023": 3, "2024": 30}},
+                            "resistance heat": {
+                                "stock": {"2023": 9, "2024": 10},
+                                "energy": {"2023": 11, "2024": 12}}}},
+                    "other": {
+                        "clothes washing": {
+                            "stock": {"2023": 4, "2024": 40},
+                            "energy": {"2023": 5, "2024": 50}},
+                        "freezers": {
+                            "stock": {"2023": 13, "2024": 14},
+                            "energy": {"2023": 15, "2024": 16}}}},
+                "natural gas": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 100, "2024": 200}}},
+                        "supply": {
+                            "furnace (NG)": {
+                                "stock": {"2023": 300, "2024": 400},
+                                "energy": {"2023": 500, "2024": 600}}}}}},
+            "large office": {
+                "new square footage": {"2023": 1000, "2024": 2000},
+                "electricity": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 10, "2024": 20}}},
+                        "supply": {
+                            "rooftop_ASHP-heat": {
+                                "stock": {"2023": 10, "2024": 20},
+                                "energy": {"2023": 10, "2024": 20}}}},
+                    "MELs": {
+                        "escalators": {
+                            "stock": {"2023": 30, "2024": 40},
+                            "energy": {"2023": 30, "2024": 40}}}},
+                "natural gas": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 10, "2024": 20}}},
+                        "supply": {
+                            "gas_boiler": {
+                                "stock": {"2023": 10, "2024": 20},
+                                "energy": {"2023": 10, "2024": 20}}}}}}},
+        "ISNE": {
+            "single family home": {
+                "new homes": {"2023": 1000, "2024": 2000},
+                "electricity": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 1, "2024": 10}}},
+                        "supply": {
+                            "ASHP": {
+                                "stock": {"2023": 2, "2024": 20},
+                                "energy": {"2023": 3, "2024": 30}},
+                            "resistance heat": {
+                                "stock": {"2023": 9, "2024": 10},
+                                "energy": {"2023": 11, "2024": 12}}}},
+                    "other": {
+                        "clothes washing": {
+                            "stock": {"2023": 4, "2024": 40},
+                            "energy": {"2023": 5, "2024": 50}},
+                        "freezers": {
+                            "stock": {"2023": 13, "2024": 14},
+                            "energy": {"2023": 15, "2024": 16}}}},
+                "natural gas": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 100, "2024": 200}}},
+                        "supply": {
+                            "furnace (NG)": {
+                                "stock": {"2023": 300, "2024": 400},
+                                "energy": {"2023": 500, "2024": 600}}}}}},
+            "large office": {
+                "new square footage": {"2023": 1000, "2024": 2000},
+                "electricity": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 10, "2024": 20}}},
+                        "supply": {
+                            "rooftop_ASHP-heat": {
+                                "stock": {"2023": 10, "2024": 20},
+                                "energy": {"2023": 10, "2024": 20}}}},
+                    "MELs": {
+                        "escalators": {
+                            "stock": {"2023": 30, "2024": 40},
+                            "energy": {"2023": 30, "2024": 40}}}},
+                "natural gas": {
+                    "heating": {
+                        "demand": {
+                            "windows conduction": {
+                                "stock": "NA",
+                                "energy": {"2023": 10, "2024": 20}}},
+                        "supply": {
+                            "gas_boiler": {
+                                "stock": {"2023": 10, "2024": 20},
+                                "energy": {"2023": 10, "2024": 20}}}}}}}}
+
+    # Test EULP end use shares recalibrate against
+    test_regs = ["FRCC", "ISNE", "TRE", "FRCC", "ISNE", "TRE"]
+    test_bldg = ["res", "res", "res", "com", "com", "com"]
+    test_heat = [0.05, 0.025, 0.1, 0.025, 0.025, 0.15]
+    test_plug = [0.05, 0.01, 0.05, 0.05, 0.05, 0.05]
+    test_washing = [0.01, 0.01, 0.05, 0, 0, 0]
+    test_zeros = [0 for n in range(6)]
+    test_eu_pp = pd.DataFrame(
+        list(zip(test_regs, test_bldg, test_heat,
+                 test_zeros, test_zeros, test_zeros,
+                 test_zeros, test_zeros, test_plug,
+                 test_zeros, test_zeros, test_washing, test_zeros,
+                 test_zeros, test_zeros, test_zeros,
+                 test_zeros)),
+        columns=["region", "building type", "heating", "cooling",
+                 "fans and pumps", "water heating", "lighting",
+                 "refrigeration", "plug loads", "ceiling fan",
+                 "drying", "clothes washing", "dishwasher",
+                 "pool heaters", "pool pumps", "cooking",
+                 "portable electric spas"])
+
+    # Recalibrated output dict to test against
+    ok_out = {
+        'FRCC': {
+            'single family home': {
+                'new homes': {'2023': 1000, '2024': 2000},
+                'electricity': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2023': 0.1214286, '2024': 1.214286}}},
+                        'supply': {
+                            'ASHP': {
+                                'stock': {'2023': 0.2428571, '2024': 2.428571},
+                                'energy': {'2023': 0.3642857, '2024': 3.6429}},
+                            "resistance heat": {
+                                "stock": {"2023": 1.092857, "2024": 1.214286},
+                                "energy": {"2023": 1.335714, "2024": 1.457143}
+                            }}},
+                    'other': {
+                        'clothes washing': {
+                            'stock': {'2023': 0.272, '2024': 2.72},
+                            'energy': {'2023': 0.34, '2024': 3.4}},
+                        "freezers": {
+                            "stock": {"2023": 1.473333, "2024": 1.586667},
+                            "energy": {"2023": 1.7, "2024": 1.813333}}}},
+                'natural gas': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 100, '2024': 200}}},
+                        'supply': {
+                            'furnace (NG)': {
+                                'stock': {'2023': 300, '2024': 400},
+                                'energy': {'2023': 500, '2024': 600}}}}}},
+            'large office': {
+                'new square footage': {'2023': 1000, '2024': 2000},
+                'electricity': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 1, '2024': 2}}},
+                        'supply': {
+                            'rooftop_ASHP-heat': {
+                                'stock': {'2023': 1.0, '2024': 2.0},
+                                'energy': {'2023': 1.0, '2024': 2.0}}}},
+                    'MELs': {
+                        'escalators': {
+                            'stock': {'2023': 2.0, '2024': 2.667},
+                            'energy': {'2023': 2.0, '2024': 2.667}}}},
+                'natural gas': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 10, '2024': 20}}},
+                        'supply': {
+                            'gas_boiler': {
+                                'stock': {'2023': 10, '2024': 20},
+                                'energy': {'2023': 10, '2024': 20}}}}}}},
+        'ISNE': {
+            'single family home': {
+                'new homes': {'2023': 1000, '2024': 2000},
+                'electricity': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 0.0607143,
+                                           '2024': 0.6071429}}},
+                        'supply': {
+                            'ASHP': {
+                                'stock': {
+                                    '2023': 0.1214285, '2024': 1.214285},
+                                'energy': {
+                                    '2023': 0.1821428, '2024': 1.82145}},
+                            "resistance heat": {
+                                "stock": {"2023": 0.5464285, "2024": 0.607143},
+                                "energy": {"2023": 0.667857, "2024": 0.7285715}
+                            }}},
+                    'other': {
+                        'clothes washing': {
+                            'stock': {'2023': 0.272, '2024': 2.72},
+                            'energy': {'2023': 0.34, '2024': 3.4}},
+                        "freezers": {
+                            "stock": {"2023": 0.2946666, "2024": 0.3173334},
+                            "energy": {"2023": 0.34, "2024": 0.3626666}}}},
+                'natural gas': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 100, '2024': 200}}},
+                        'supply': {
+                            'furnace (NG)': {
+                                'stock': {'2023': 300, '2024': 400},
+                                'energy': {'2023': 500, '2024': 600}}}}}},
+            'large office': {
+                'new square footage': {'2023': 1000, '2024': 2000},
+                'electricity': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 1, '2024': 2}}},
+                        'supply': {
+                            'rooftop_ASHP-heat': {
+                                'stock': {'2023': 1.0, '2024': 2.0},
+                                'energy': {'2023': 1.0, '2024': 2.0}}}},
+                    'MELs': {
+                        'escalators': {
+                            'stock': {'2023': 2.0, '2024': 2.667},
+                            'energy': {'2023': 2.0, '2024': 2.667}}}},
+                'natural gas': {
+                    'heating': {
+                        'demand': {
+                            'windows conduction': {
+                                'stock': 'NA',
+                                'energy': {'2023': 10, '2024': 20}}},
+                        'supply': {
+                            'gas_boiler': {
+                                'stock': {'2023': 10, '2024': 20},
+                                'energy': {'2023': 10, '2024': 20}}}}}}}}
+
+    # Test function execution
+    def test_eulp_eu_shares_postprocess(self):
+        # Generate output to test against expected values
+        out = fmc.finalize_eu_shares(
+            self.test_input, self.test_eu_pp, self.test_yrs)
+        # Compare output with expected values
+        self.dict_check(out, self.ok_out)
 
 
 # Offer external code execution (include all lines below this point in all
