@@ -1,5 +1,7 @@
 name: tests
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
 jobs:
 
   code-quality-checks:
@@ -28,12 +30,9 @@ jobs:
 
   python-tests:
     runs-on: ubuntu-latest
-
-    # Specify python versions to run
     strategy:
       matrix:
         python: ['3.8', '3.9', '3.10']
-
     steps:
       - name: Get contents from tip of branch on push
         uses: actions/checkout@v2
@@ -49,20 +48,104 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -p '*_test.py'
 
-  check-PR:
-    # Check if there is a PR - allows one main workflow with dependency on previous jobs
-    needs: [code-quality-checks, python-tests]
+  start-runner:
+    name: Start self-hosted EC2 runner
     runs-on: ubuntu-latest
     outputs:
-      PR_status: ${{ steps.PR.outputs.pr_found }}
-      PR: ${{ steps.PR.outputs.pr }}
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    if: (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     steps:
-      - name: Check if PR
-        uses: 8BitJonny/gh-get-current-pr@2.2.0
-        id: PR
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ami-0f57c48465f6361a6
+          ec2-instance-type: r5a.4xlarge
+          subnet-id: subnet-a4b769c3
+          security-group-id: sg-06a2ae324a6e68d4d
+          aws-resource-tags: >
+            [
+              {"Key": "Name", "Value": "scout-github-runner"},
+              {"Key": "billingId", "Value": "210109"},
+              {"Key": "org", "Value": "scout"}
+            ]
 
-  integration-tests:
-    needs: [check-PR]
-    if: (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') || github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/integration_tests.yml
-    secrets: inherit
+  run-integration-test:
+    name: Integration Testing
+    needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    if: (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy>=1.16 pandas>=2.2 scipy requests numpy-financial matplotlib xlsxwriter psrecord     
+      - name: Run and profile workflow
+        run: |
+          branch_name="${{ github.ref }}"
+          if [[ $branch_name == 'refs/heads/master' ]]; then
+            steps=("ecm_prep" "run")
+            for step in "${steps[@]}"; do
+              psrecord --log memory_log_${step}.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py --run_step $step --with_profiler"
+              (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_${step}.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_${step}.csv
+              mv memory_log_${step}.txt ./tests/integration_testing/results/
+            done
+          else
+            python tests/integration_testing/run_workflow.py
+          fi
+          mv ./results/*.json ./tests/integration_testing/results/
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: ./tests/integration_testing/results/
+      - name: Commit test results
+        run: |
+          branch_name="${{ github.ref }}"
+          git pull origin $branch_name
+          git add ./tests/integration_testing/results/*.json
+          if [[ $(git diff --cached --exit-code) ]]; then
+            git config --system user.email "github-action@users.noreply.github.com"
+            git config --system user.name "GitHub Action"
+            git commit -m "Upload results files from CI build"
+            echo "Pushing to branch: $branch_name"
+            git push -u origin $branch_name
+          fi
+
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - start-runner
+      - run-integration-test
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
