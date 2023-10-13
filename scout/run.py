@@ -41,14 +41,14 @@ class UsefulInputFiles(object):
 
     def __init__(self, energy_out, regions, grid_decarb):
         self.glob_vars = fp.INPUTS / "glob_run_vars.json"
-        self.meas_summary_data = Path.cwd() / "supporting_data" / "ecm_prep.json"
+        self.meas_summary_data = Path.cwd() / "ecm_prep.json"
         self.meas_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
         self.meas_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
         self.active_measures = "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
         self.comp_fracs_out = ("results", "comp_fracs.json")
-        self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
+        self.cpi_data = fp.SUPPORTING_DATA / "convert_data" / "cpi.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -258,7 +258,7 @@ class UsefulVars(object):
         # Import CPI data to use in cost conversions
         try:
             cpi = numpy.genfromtxt(
-                path.join(base_dir, *handyfiles.cpi_data),
+                handyfiles.cpi_data,
                 names=True, delimiter=',',
                 dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
             # Ensure that consumer price date is in expected format
@@ -4815,14 +4815,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 "settings. To address this issue, ensure that all active ECMs "
                 "in ./run_setup.json were prepared using the same command "
                 "line options, or delete the file "
-                "./supporting_data/ecm_prep.json and rerun ecm_prep.py with "
+                "./supporting_data/ and rerun ecm_prep.py with "
                 "desired command line options.")
     except AttributeError:
         raise ValueError(
             "One or more active ECMs lacks information needed to determine "
             "what energy units or conversions were used in its definition. "
             "To address this issue, delete the file "
-            "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
+            "./supporting_data/ and rerun ecm_prep.py "
             "with desired command line options.")
 
     # Set a flag for detailed building types

@@ -189,11 +189,11 @@ class UsefulInputFiles(object):
         self.cbecs_sf_byvint = fp.CONVERT_DATA / "cbecs_sf_byvintage.json"
         self.indiv_ecms = fp.ECM_DEF
         self.ecm_packages = fp.ECM_DEF / "package_ecms.json"
-        self.ecm_prep = Path.cwd() / "supporting_data" / "ecm_prep.json"
-        self.ecm_prep_env_cf = fp.SUPPORTING_DATA / "ecm_prep_env_cf.json"
-        self.ecm_prep_shapes = fp.SUPPORTING_DATA / "ecm_prep_shapes.json"
+        self.ecm_prep = Path.cwd() / "ecm_prep.json"
+        self.ecm_prep_env_cf = Path.cwd() / "ecm_prep_env_cf.json"
+        self.ecm_prep_shapes = Path.cwd() / "ecm_prep_shapes.json"
         self.ecm_prep_env_cf_shapes = (
-            fp.SUPPORTING_DATA / "ecm_prep_env_cf_shapes.json")
+            Path.cwd() / "ecm_prep_env_cf_shapes.json")
         self.ecm_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
         self.ecm_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
         self.run_setup = "run_setup.json"
