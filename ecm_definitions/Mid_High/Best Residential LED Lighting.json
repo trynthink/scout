@@ -144,6 +144,7 @@
   },
   "measure_type": "full service",
   "fuel_switch_to": null,
+  "tech_switch_to": "LEDs",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": "NA",
   "_description": "Highest efficiency A19 E26 LED bulbs available in 2023",
