@@ -6623,10 +6623,10 @@ class Measure(object):
                 eplus_bldg_wts = cost_conv["building type conversions"][
                     "conversion data"]["value"]["commercial"][mskeys[2]]
                 # Handle case where there is no EnergyPlus analogue for a Scout
-                # commercial building type (e.g., for the other Scout building
-                # type and the health care Scout building type)
+                # commercial building type (e.g., for the other or unspecified
+                # Scout building type and the health care Scout building type)
                 if eplus_bldg_wts is None:
-                    if mskeys[2] == "other":
+                    if mskeys[2] in ["other", "unspecified"]:
                         eplus_bldg_wts = {"MediumOfficeDetailed": 1}
                     elif mskeys[2] == "health care":
                         eplus_bldg_wts = {"Hospital": 1}
