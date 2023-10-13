@@ -70,7 +70,7 @@ jobs:
     needs: [check-PR]
     if: |
       (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') ||
-      github.ref == 'refs/heads/master' || 
-      (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+      (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master' && github.event.pull_request.draft == false) ||
+      github.ref == 'refs/heads/master'      
     uses: ./.github/workflows/integration_tests.yml
     secrets: inherit
