@@ -38,7 +38,8 @@
 						"RetailStripmall": 0.47},
 					"warehouse": {
 						"Warehouse": 1},
-					"other": null}},
+					"other": null,
+					"unspecified": null}},
 			"source": {
 				"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
 				"commercial": "1) Deru et al., U.S. Department of Energy Commercial Reference Building Models of the National Building Stock, 2011, Tables 1 and 13, 2) EIA, Commercial Buildings Energy Consumption Survey (CBECs), Building Definitions, 3) Navigant Consulting, Analysis and Representation of Miscellaneous Electric Loads in NEMS, 2013, p.18"},
@@ -97,7 +98,8 @@
 								"RetailStripmall": 0.01},
 							"warehouse": {
 								"Warehouse": 0.0001},
-							"other": 0.005}},
+							"other": 0.005,
+							"unspecified": 0.005}},
 					"units": "occupants/ft^2 floor",
 					"source": {
 						"residential": "U.S. Census, Households and Families 2010, p.1; EIA, Residential Energy Consumption Survey (RECS) 2015, Table HC 1.10, 'Total square footage of U.S. homes, 2015'",
@@ -163,7 +165,8 @@
 									"RetailStripmall": 0.11},
 								"warehouse": {
 									"Warehouse": 0.006},
-								"other": 0.2}},
+								"other": 0.2,
+								"unspecified": 0.2}},
 						"units": "ft^2 glazing/ft^2 wall",
 						"source": {
 							"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
@@ -208,7 +211,8 @@
 									"RetailStripmall": 0.57},
 								"warehouse": {
 									"Warehouse": 0.53},
-								"other": 0.4}},
+								"other": 0.4,
+								"unspecified": 0.4}},
 						"units": "ft^2 wall/ft^2 floor",
 						"source": {
 							"residential": "U.S. Department of Energy, Impacts of the 2009 IECC for Residential Buildings at State Level, 2009, p.13",
@@ -252,7 +256,8 @@
 									"RetailStripmall": 1},
 								"warehouse": {
 									"Warehouse": 1},
-								"other": 1}},
+								"other": 1,
+								"unspecified": 1}},
 						"units": "ft^2 footprint/ft^2 floor",
 						"source": {
 							"residential": "U.S. Department of Energy, National Energy and Cost Savings for Single-and Multifamily Homes: A Comparison of the 2006, 2009, and 2012 Editions of the IECC, 2012, p.A.2",
