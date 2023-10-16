@@ -54,74 +54,49 @@ class UsefulInputFiles(object):
         # (fossil equivalent site-source conversion), or source energy data
         # (captured energy site-source conversion) are needed
         if regions == "AIA":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_cz.json")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site.json"
             elif energy_out[0] == "fossil_equivalent":
                 # Further condition the file based on whether a high grid
                 # decarb case has been selected by the user
                 if grid_decarb is True:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_decarb.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
                 else:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "EMM":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.gz")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site_emm.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_emm.json"
             elif energy_out[0] == "fossil_equivalent":
                 # Further condition the file based on whether a high grid
                 # decarb case has been selected by the user
                 if grid_decarb is True:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_emm_decarb.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
                 else:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_emm.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce_emm.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_emm.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "State":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_state.gz")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_state.json"
             elif energy_out[0] == "fossil_equivalent":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_state.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
@@ -133,43 +108,28 @@ class UsefulInputFiles(object):
         # calculation method to determine which site-source
         # conversions to select
         if grid_decarb is not False:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-100by2035.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
         elif energy_out[0] == "captured":
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-ce.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
         else:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions.json"
         # Use the user-specified grid_decarb flag and region selection
         # to select the correct electricity price and CO2 intensity data
         if regions == 'EMM':
             if grid_decarb is not False:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-100by2035.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices-100by2035.json"
             else:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices.json"
         elif regions == 'State':
-            self.elec_price_co2 = (
-                "supporting_data", "convert_data",
-                "state_emissions_prices.json")
+            self.elec_price_co2 = fp.CONVERT_DATA / "state_emissions_prices.json"
         else:
             if grid_decarb is not False:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "site_source_co2_conversions-100by2035.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
             else:
                 if energy_out[0] == 'captured':
-                    self.elec_price_co2 = (
-                        "supporting_data", "convert_data",
-                        "site_source_co2_conversions-ce.json")
+                    self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
                 else:
-                    self.elec_price_co2 = (
-                        "supporting_data", "convert_data",
-                        "site_source_co2_conversions.json")
+                    self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions.json"
 
 
 class UsefulVars(object):
@@ -4961,13 +4921,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Import total absolute heating and cooling energy use data, used in
     # removing overlaps between supply-side and demand-side heating/cooling
     # ECMs in the analysis
-    with open(path.join(base_dir, *handyfiles.htcl_totals), 'r') as msi:
+    with open(handyfiles.htcl_totals, 'r') as msi:
         try:
             htcl_totals = json.load(msi)
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.htcl_totals + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
 
     # Print message to console; if in verbose mode, print to new line,
     # otherwise append to existing message on the console
@@ -5012,37 +4971,34 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Import baseline microsegments
     if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
-        bjszip = path.join(base_dir, *handyfiles.msegs_in)
+        bjszip = handyfiles.msegs_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
             msegs = json.loads(zip_ref.read().decode('utf-8'))
     else:
-        with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
+        with open(handyfiles.msegs_in, 'r') as msi:
             try:
                 msegs = json.load(msi)
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.msegs_in + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
 
     # Import site-source conversions
-    with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
+    with open(handyfiles.ss_data, 'r') as ss:
         try:
             cost_ss_carb = json.load(ss)
             ss_conv = cost_ss_carb['electricity'][
                 'site to source conversion']['data']
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.ss_data + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.ss_data}': {str(e)}") from None
 
     # Import electricity price and CO2 emissions intensity
-    with open(path.join(base_dir, *handyfiles.elec_price_co2), 'r') as ece:
+    with open(handyfiles.elec_price_co2, 'r') as ece:
         try:
             elec_cost_carb = json.load(ece)
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.elec_price_co2 + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.elec_price_co2}': + {str(e)}") from None
     # Extract separate price and CO2 emissions intensity variables
     try:
         elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
