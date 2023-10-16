@@ -13,7 +13,6 @@ from ast import literal_eval
 import math
 from argparse import ArgumentParser
 import numpy_financial as npf
-from pathlib import Path
 from datetime import datetime
 from scout.plots import run_plot
 from scout.constants import FilePaths as fp
@@ -40,15 +39,15 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
-        self.glob_vars = fp.INPUTS / "glob_run_vars.json"
-        self.meas_summary_data = Path.cwd() / "ecm_prep.json"
-        self.meas_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
-        self.meas_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
-        self.active_measures = "run_setup.json"
+        self.glob_vars = fp.GENERATED / "glob_run_vars.json"
+        self.meas_summary_data = fp.GENERATED / "ecm_prep.json"
+        self.meas_compete_data = fp.ECM_COMP
+        self.meas_eff_fs_splt_data = fp.EFF_FS_SPLIT
+        self.active_measures = fp.GENERATED / "run_setup.json"
         self.meas_engine_out_ecms = ("results", "ecm_results.json")
         self.meas_engine_out_agg = ("results", "agg_results.json")
         self.comp_fracs_out = ("results", "comp_fracs.json")
-        self.cpi_data = fp.SUPPORTING_DATA / "convert_data" / "cpi.csv"
+        self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data

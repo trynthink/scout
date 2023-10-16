@@ -18,7 +18,6 @@ import operator
 from ast import literal_eval
 import math
 import pandas as pd
-from pathlib import Path
 from datetime import datetime
 import argparse
 from scout.ecm_prep_args import ecm_args
@@ -181,7 +180,7 @@ class UsefulInputFiles(object):
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
 
         self.metadata = fp.METADATA_PATH
-        self.glob_vars = fp.INPUTS / "glob_run_vars.json"
+        self.glob_vars = fp.GENERATED / "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
         # self.metadata = "metadata_2017.json"
         self.cost_convert_in = fp.CONVERT_DATA / "ecm_cost_convert.json"
@@ -189,14 +188,13 @@ class UsefulInputFiles(object):
         self.cbecs_sf_byvint = fp.CONVERT_DATA / "cbecs_sf_byvintage.json"
         self.indiv_ecms = fp.ECM_DEF
         self.ecm_packages = fp.ECM_DEF / "package_ecms.json"
-        self.ecm_prep = Path.cwd() / "ecm_prep.json"
-        self.ecm_prep_env_cf = Path.cwd() / "ecm_prep_env_cf.json"
-        self.ecm_prep_shapes = Path.cwd() / "ecm_prep_shapes.json"
-        self.ecm_prep_env_cf_shapes = (
-            Path.cwd() / "ecm_prep_env_cf_shapes.json")
-        self.ecm_compete_data = fp.SUPPORTING_DATA / "ecm_competition_data"
-        self.ecm_eff_fs_splt_data = fp.SUPPORTING_DATA / "eff_fs_splt_data"
-        self.run_setup = "run_setup.json"
+        self.ecm_prep = fp.GENERATED / "ecm_prep.json"
+        self.ecm_prep_env_cf = fp.GENERATED / "ecm_prep_env_cf.json"
+        self.ecm_prep_shapes = fp.GENERATED / "ecm_prep_shapes.json"
+        self.ecm_prep_env_cf_shapes = fp.GENERATED / "ecm_prep_env_cf_shapes.json"
+        self.ecm_compete_data = fp.ECM_COMP
+        self.ecm_eff_fs_splt_data = fp.EFF_FS_SPLIT
+        self.run_setup = fp.GENERATED / "run_setup.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         # Use the user-specified grid decarb flag to determine
         # which site-source conversions file to select
@@ -2150,7 +2148,7 @@ class Measure(object):
                         "Savings shape data file indicated in 'tsv_features' "
                         "attribute of measure '" + self.name + "' not found; "
                         "looking for file " +
-                        (handyfiles.tsv_shape_data / csv_shape_file_name) + ". "
+                        str(handyfiles.tsv_shape_data / csv_shape_file_name) + ". "
                         "Find the latest measure savings shape data here: "
                         "https://doi.org/10.5281/zenodo.4602369, files "
                         "'Latest_Com_Shapes.zip' and 'Latest_Res_Shapes.zip'")

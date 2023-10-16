@@ -13,7 +13,9 @@ class FilePaths:
     # Non-package data:
     _parent_dir = Path.cwd()  # parent dir of repo
     ECM_DEF = _parent_dir / "ecm_definitions"
+    GENERATED = _parent_dir / "generated"
+    ECM_COMP = GENERATED / "ecm_competition_data"
+    EFF_FS_SPLIT = GENERATED / "eff_fs_splt_data"
     INPUTS = _parent_dir / "inputs"
     RESULTS = _parent_dir / "results"
-    INT_FILES = _parent_dir / "int_files"
     METADATA_PATH = INPUTS / "metadata.json"
