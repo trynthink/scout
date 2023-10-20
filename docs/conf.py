@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Scout'
-copyright = '2018'
+copyright = '2023'
 author = 'Chioke Harris and Jared Langevin'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -74,7 +74,7 @@ release = version
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -404,9 +404,9 @@ sphinx.environment.BuildEnvironment.warn_node = _warn_node
 
 # Define custom external link references
 extlinks = {'repo_file': ('https://github.com/trynthink/scout/blob/master/%s',
-                          ''),
+                          '%s'),
             'issue': ('https://github.com/trynthink/scout/issues/%s',
-                      'issue ')}
+                      'issue %s')}
 # These can be used with the syntax (for example):
 # :issue:`123` to reference produce "issue 123" with a hyperlink in the text
 # :issue:`custom text <123>` to produce "custom text" with a hyperlink
