@@ -53,11 +53,11 @@ the "Low Macro and Low Zero-Carbon Technology Cost" side case.
 """
 
 import pandas as pd
-import glob
-import os
 import json
 import gzip
 import re
+from pathlib import Path
+from scout.constants import FilePaths as fp
 
 
 class UsefulInputFiles(object):
@@ -99,47 +99,29 @@ class UsefulInputFiles(object):
 
     def __init__(self):
         # Set the path to the file that maps Cambium BA regions to EMM regions
-        self.ba_emm_map = ("supporting_data", "convert_data", "geo_map",
-                           "scout_reeds_emm_mapping_112520.csv")
+        self.ba_emm_map = fp.CONVERT_DATA / "geo_map" / "scout_reeds_emm_mapping_112520.csv"
         # Set the path to the national site-source conversions file
         # for the AEO Reference Case
-        self.ss_ref = ("supporting_data", "convert_data",
-                       "site_source_co2_conversions.json")
-        self.emm_ref = ("supporting_data", "convert_data",
-                        "emm_region_emissions_prices.json")
+        self.ss_ref = fp.CONVERT_DATA / "site_source_co2_conversions.json"
+        self.emm_ref = fp.CONVERT_DATA / "emm_region_emissions_prices.json"
         # Set the path to the national site-source conversions file
         # for all Cambium scenarios
-        self.ss_midcase = ("supporting_data", "convert_data",
-                           "site_source_co2_conversions-MidCaseTCExp.json")
-        self.ss_95by2050 = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-95by2050.json")
-        self.ss_100by2035 = ("supporting_data", "convert_data",
-                             "site_source_co2_conversions-100by2035.json")
+        self.ss_midcase = fp.CONVERT_DATA / "site_source_co2_conversions-MidCaseTCExp.json"
+        self.ss_95by2050 = fp.CONVERT_DATA / "site_source_co2_conversions-95by2050.json"
+        self.ss_100by2035 = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
         # Set the path to the EMM region CO2 emissions intensities
         # and price data for all Cambium scenarios
-        self.emm_midcase = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-MidCaseTCExp.json")
-        self.emm_95by2050 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-95by2050.json")
-        self.emm_100by2035 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-100by2035.json")
+        self.emm_midcase = fp.CONVERT_DATA / "emm_region_emissions_prices-MidCaseTCExp.json"
+        self.emm_95by2050 = fp.CONVERT_DATA / "emm_region_emissions_prices-95by2050.json"
+        self.emm_100by2035 = fp.CONVERT_DATA / "emm_region_emissions_prices-100by2035.json"
         # Set the path to the hourly emissions/price scaling factors
         # for all Cambium scenarios
-        self.tsv_cost_midcase = ("supporting_data", "tsv_data",
-                                 "tsv_cost-MidCaseTCExp.gz")
-        self.tsv_carbon_midcase = ("supporting_data", "tsv_data",
-                                   "tsv_carbon-MidCaseTCExp.gz")
-        self.tsv_cost_95by2050 = ("supporting_data", "tsv_data",
-                                  "tsv_cost-95by2050.gz")
-        self.tsv_carbon_95by2050 = ("supporting_data", "tsv_data",
-                                    "tsv_carbon-95by2050.gz")
-        self.tsv_cost_100by2035 = ("supporting_data", "tsv_data",
-                                   "tsv_cost-100by2035.gz")
-        self.tsv_carbon_100by2035 = ("supporting_data", "tsv_data",
-                                     "tsv_carbon-100by2035.gz")
+        self.tsv_cost_midcase = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.gz"
+        self.tsv_carbon_midcase = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.gz"
+        self.tsv_cost_95by2050 = fp.TSV_DATA / "tsv_cost-95by2050.gz"
+        self.tsv_carbon_95by2050 = fp.TSV_DATA / "tsv_carbon-95by2050.gz"
+        self.tsv_cost_100by2035 = fp.TSV_DATA / "tsv_cost-100by2035.gz"
+        self.tsv_carbon_100by2035 = fp.TSV_DATA / "tsv_carbon-100by2035.gz"
         # Create a dictionary of the paths to the data files to be
         # updated
         self.file_paths = {'ss': {'Ref': self.ss_ref,
@@ -165,7 +147,6 @@ class UsefulInputFiles(object):
 
 
 class ValidQueries(object):
-
     """Define valid query options for Cambium data.
 
     Attributes:
@@ -190,7 +171,7 @@ def import_ba_emm_mapping():
         regions.
     """
     # Scout <> ReEDS <> EMM2020
-    mapping = pd.read_csv(os.path.join(*UsefulInputFiles().ba_emm_map))
+    mapping = pd.read_csv(UsefulInputFiles().ba_emm_map)
     # set ba column to str
     mapping['cambium_ba'] = 'p' + mapping['cambium_ba'].astype(str)
     # select relevant columns
@@ -218,13 +199,12 @@ def cambium_data_import(cambium_base_dir, year, scenario):
         and region (Cambium Balancing Authority)
     """
     # create list of files
-    files = glob.glob(os.path.join(
-        cambium_base_dir, year, scenario, "*202*.csv"))
+    files = list(Path(cambium_base_dir, year, scenario).glob("*202*.csv"))
     # create df from multiple CSVs in working directory and assign new 'ba'
     # column to appropriate file name; parse dates with datetime
     ba_df = pd.concat(
         map(lambda file: pd.read_csv(
-            file, parse_dates=['timestamp', 'timestamp_local'],
+            file.resolve(), parse_dates=['timestamp', 'timestamp_local'],
             header=5).assign(
                 # extract "pXX" from file name and assign to ba
                 ba=re.search(r'p\d+', file).group()), files))
@@ -507,8 +487,7 @@ def main():
             else:
                 break
         # Load existing national supporting data file for specified scenario
-        with open(os.path.join(*UsefulInputFiles().file_paths['ss'][scenario]),
-                  "r") as js:
+        with open(UsefulInputFiles().file_paths['ss'][scenario], "r") as js:
             ss_nat = json.load(js)
         # Import mapping file to map Cambium BA regions to EMM regions
         ba_emm_map = import_ba_emm_mapping()
@@ -532,14 +511,12 @@ def main():
         print('Writing national annual emissions intensities data to file...')
         # Write national annual CO2 emissions intensities for annual data for
         # a given Cambium scenario to file
-        with open(os.path.join(*UsefulInputFiles().file_paths['ss'][
-                  scenario]), 'w') as json_file:
+        with open(UsefulInputFiles().file_paths['ss'][scenario], 'w') as json_file:
             json.dump(ss_updated, json_file, sort_keys=False, indent=2)
         # Notify user that EMM region supporting factors are updating
         print('Updating EMM region annual emissions intensities data...')
         # Load existing EMM region supporting data file for specified scenario
-        with open(os.path.join(*UsefulInputFiles().file_paths['emm'][
-                  scenario]), "r") as js:
+        with open(UsefulInputFiles().file_paths['emm'][scenario], "r") as js:
             ss_reg = json.load(js)
         # Update EMM region annual CO2 emissions intensities for annual data
         # for a given Cambium scenario
@@ -552,8 +529,7 @@ def main():
         print('Writing EMM region annual emissions intensities data to file..')
         # Write EMM region annual CO2 emissions intensities for annual data for
         # a given Cambium scenario to file
-        with open(os.path.join(*UsefulInputFiles().file_paths['emm'][
-                  scenario]), 'w') as json_file:
+        with open(UsefulInputFiles().file_paths['emm'][scenario], 'w') as json_file:
             json.dump(ss_updated, json_file, sort_keys=False, indent=2)
         # Notify user that hourly supporting factors are updating
         print('Updating hourly emissions and price scaling factors...')
@@ -566,15 +542,11 @@ def main():
         # Notify user that hourly supporting factors are writing to file
         print('Writing price scaling factors to file...')
         # Write hourly price scaling factors to file
-        with gzip.open(os.path.join(
-                *UsefulInputFiles().file_paths['tsv']['cost'][scenario]),
-                    'wt') as fp:
+        with gzip.open(UsefulInputFiles().file_paths['tsv']['cost'][scenario], 'wt') as fp:
             json.dump(hourly_cost_json, fp, sort_keys=True, indent=4)
         print('Writing CO2 emissions scaling factors to file...')
         # Write hourly CO2 emissions scaling factors to file
-        with gzip.open(os.path.join(
-                *UsefulInputFiles().file_paths['tsv']['carbon'][scenario]),
-                    'wt') as fp:
+        with gzip.open(UsefulInputFiles().file_paths['tsv']['carbon'][scenario], 'wt') as fp:
             json.dump(hourly_carbon_json, fp, sort_keys=True, indent=4)
         print('Update complete.')
     elif full_update == "No":
@@ -631,8 +603,7 @@ def main():
         if temporal_res == "Annual":
             # Load existing national supporting data file for specified
             # scenario
-            with open(os.path.join(*UsefulInputFiles().file_paths['ss'][
-                      scenario]), "r") as js:
+            with open(UsefulInputFiles().file_paths['ss'][scenario], "r") as js:
                 ss_nat = json.load(js)
             # Import mapping file to map Cambium BA regions to EMM regions
             ba_emm_map = import_ba_emm_mapping()
@@ -658,9 +629,7 @@ def main():
                     'Writing national annual emissions intensities to file...')
                 # Write national annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario to file
-                with open(os.path.join(
-                        *UsefulInputFiles().file_paths['ss'][scenario]),
-                            'w') as json_file:
+                with open(UsefulInputFiles().file_paths['ss'][scenario], 'w') as json_file:
                     json.dump(ss_updated, json_file, sort_keys=False, indent=2)
                 # Notify user that update is complete.
                 print('Update complete.')
@@ -670,8 +639,7 @@ def main():
                     'Updating EMM region annual emissions intensities data...')
                 # Load existing EMM region supporting data file for specified
                 # scenario
-                with open(os.path.join(*UsefulInputFiles().file_paths['emm'][
-                        scenario]), "r") as js:
+                with open(UsefulInputFiles().file_paths['emm'][scenario], "r") as js:
                     ss_reg = json.load(js)
                 # Update EMM region annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario
@@ -687,9 +655,7 @@ def main():
                     file...')
                 # Write EMM region annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario to file
-                with open(os.path.join(
-                    *UsefulInputFiles().file_paths['emm'][scenario]),
-                        'w') as json_file:
+                with open(UsefulInputFiles().file_paths['emm'][scenario], 'w') as json_file:
                     json.dump(ss_updated, json_file, sort_keys=False, indent=2)
                 # Notify user that update is complete.
                 print('Update complete.')
@@ -714,15 +680,11 @@ def main():
             # Notify user that hourly supporting factors are writing to file
             print('Writing price scaling factors to file...')
             # Write hourly price scaling factors to file
-            with gzip.open(os.path.join(
-                *UsefulInputFiles().file_paths['tsv']['cost'][scenario]),
-                    'wt') as fp:
+            with gzip.open(UsefulInputFiles().file_paths['tsv']['cost'][scenario], 'wt') as fp:
                 json.dump(hourly_cost_json, fp, sort_keys=True, indent=4)
             print('Writing CO2 emissions scaling factors to file...')
             # Write hourly CO2 emissions scaling factors to file
-            with gzip.open(os.path.join(
-                *UsefulInputFiles().file_paths['tsv']['carbon'][scenario]),
-                    'wt') as fp:
+            with gzip.open(UsefulInputFiles().file_paths['tsv']['carbon'][scenario], 'wt') as fp:
                 json.dump(hourly_carbon_json, fp, sort_keys=True, indent=4)
             print('Update complete.')
     else:
