@@ -8,7 +8,6 @@ from numpy.linalg import LinAlgError
 from collections import OrderedDict, defaultdict
 import gzip
 import pickle
-from os import getcwd, path
 from ast import literal_eval
 import math
 from argparse import ArgumentParser
@@ -44,9 +43,9 @@ class UsefulInputFiles(object):
         self.meas_compete_data = fp.ECM_COMP
         self.meas_eff_fs_splt_data = fp.EFF_FS_SPLIT
         self.active_measures = fp.GENERATED / "run_setup.json"
-        self.meas_engine_out_ecms = ("results", "ecm_results.json")
-        self.meas_engine_out_agg = ("results", "agg_results.json")
-        self.comp_fracs_out = ("results", "comp_fracs.json")
+        self.meas_engine_out_ecms = fp.RESULTS / "ecm_results.json"
+        self.meas_engine_out_agg = fp.RESULTS / "agg_results.json"
+        self.comp_fracs_out = fp.RESULTS / "comp_fracs.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
@@ -155,7 +154,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, base_dir, handyfiles):
+    def __init__(self, handyfiles):
         # Pull in global variable settings from ecm_prep
         with open(handyfiles.glob_vars, 'r') as gv:
             try:
@@ -4671,8 +4670,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         of key results to an output JSON.
     """
 
-    base_dir = getcwd()
-
     # Set function that only prints message when in verbose mode
     verboseprint = print if opts.verbose else lambda *a, **k: None
 
@@ -4690,7 +4687,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
-    handyvars = UsefulVars(base_dir, handyfiles)
+    handyvars = UsefulVars(handyfiles)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -4727,13 +4724,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 f"Error reading in '{handyfiles.meas_summary_data}': {str(e)}") from None
 
     # Import list of all unique active measures
-    with open(path.join(base_dir, handyfiles.active_measures), 'r') as am:
+    with open(handyfiles.active_measures, 'r') as am:
         try:
             active_meas_all = numpy.unique(json.load(am)["active"])
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" + handyfiles.active_measures +
-                "': " + str(e)) from None
+                f"Error reading in '{handyfiles.active_measures}': {str(e)}") from None
     print('ECM attributes data load complete')
 
     active_ecms_w_jsons = 0
@@ -4772,7 +4768,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             raise ValueError(
                 "Attempting to compete measures with different user option "
                 "settings. To address this issue, ensure that all active ECMs "
-                "in ./run_setup.json were prepared using the same command "
+                f"in {fp.GENERATED / 'run_setup.json'} were prepared using the same command "
                 "line options, or delete the file "
                 "./supporting_data/ and rerun ecm_prep.py with "
                 "desired command line options.")
@@ -4873,7 +4869,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(base_dir, handyfiles)
+        handyvars = UsefulVars(handyfiles)
 
     # Load and set competition data for active measure objects; suppress
     # new line if not in verbose mode ('Data load complete' is appended to
@@ -5109,18 +5105,15 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     a_run.output_all = round_values(a_run.output_all, 6)
 
     # Write summary outputs for individual measures to a JSON
-    with open(path.join(
-            base_dir, *handyfiles.meas_engine_out_ecms), "w") as jso:
+    with open(handyfiles.meas_engine_out_ecms, "w") as jso:
         json.dump(a_run.output_ecms, jso, indent=2)
     # Write summary outputs across all measures to a JSON
-    with open(path.join(
-            base_dir, *handyfiles.meas_engine_out_agg), "w") as jso:
+    with open(handyfiles.meas_engine_out_agg, "w") as jso:
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
     # Write competition adjustment fractions to a JSON, if applicable
     if a_run.output_ecms_cfs is not None:
-        with open(path.join(
-                base_dir, *handyfiles.comp_fracs_out), "w") as jso:
+        with open(handyfiles.comp_fracs_out, "w") as jso:
             json.dump(a_run.output_ecms_cfs, jso, indent=2)
 
     # Do not plot for the case where a user has trimmed down the results

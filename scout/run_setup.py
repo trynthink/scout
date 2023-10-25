@@ -19,6 +19,7 @@ the applicable baseline market categories.
 import re
 import json
 import os
+from scout.constants import FilePaths as fp
 
 
 class UsefulVars(object):
@@ -32,8 +33,8 @@ class UsefulVars(object):
             parameters that are handled by this module
     """
     def __init__(self):
-        self.setup_file = 'run_setup.json'
-        self.ecm_folder_location = './ecm_definitions'
+        self.setup_file = fp.GENERATED / 'run_setup.json'
+        self.ecm_folder_location = fp.ECM_DEF
         self.market_filters = ['climate_zone', 'bldg_type', 'structure_type']
 
 

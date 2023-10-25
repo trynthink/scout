@@ -18,4 +18,5 @@ class FilePaths:
     EFF_FS_SPLIT = GENERATED / "eff_fs_splt_data"
     INPUTS = _parent_dir / "inputs"
     RESULTS = _parent_dir / "results"
+    PLOTS = RESULTS / "plots"
     METADATA_PATH = INPUTS / "metadata.json"

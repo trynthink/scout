@@ -347,7 +347,7 @@ class TestMeasureInit(unittest.TestCase, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        handyvars = run.UsefulVars(Constants.HANDYFILES)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -377,7 +377,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        handyvars = run.UsefulVars(Constants.HANDYFILES)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
@@ -477,7 +477,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Hardcode adjustments to common cost year to 1
         cls.handyvars.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1445,7 +1445,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1505,7 +1505,7 @@ class PaybackTest(unittest.TestCase, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1588,7 +1588,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -16151,7 +16151,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -26633,7 +26633,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26688,7 +26688,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.BASE_DIR, Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]

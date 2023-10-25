@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from os import getcwd, path
 import json
 from collections import OrderedDict
 from datetime import datetime
@@ -65,48 +64,23 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self):
-        self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                         "mseg_res_com_cz.json")
-        self.msegs_in_emm = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.gz")
-        self.msegs_in_state = ("supporting_data", "stock_energy_tech_data",
-                               "mseg_res_com_state.gz")
-        self.htcl_totals = ("supporting_data", "stock_energy_tech_data",
-                            "htcl_totals.json")
-        self.htcl_totals_decarb = ("supporting_data", "stock_energy_tech_data",
-                                   "htcl_totals_decarb.json")
-        self.htcl_totals_ce = ("supporting_data", "stock_energy_tech_data",
-                               "htcl_totals-ce.json")
-        self.htcl_totals_site = ("supporting_data", "stock_energy_tech_data",
-                                 "htcl_totals-site.json")
-        self.htcl_totals_emm = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals_emm.json")
-        self.htcl_totals_emm_decarb = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals_emm_decarb.json")
-        self.htcl_totals_ce_emm = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals-ce_emm.json")
-        self.htcl_totals_site_emm = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals-site_emm.json")
-        self.htcl_totals_state = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals_state.json")
-        self.htcl_totals_ce_state = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals-ce_state.json")
-        self.htcl_totals_site_state = (
-            "supporting_data", "stock_energy_tech_data",
-            "htcl_totals-site_state.json")
-        self.ss_fp = ("supporting_data", "convert_data",
-                      "site_source_co2_conversions.json")
-        self.ss_fp_decarb = (
-            "supporting_data", "convert_data",
-            "site_source_co2_conversions-100by2035.json")
-        self.ss_fp_ce = ("supporting_data", "convert_data",
-                         "site_source_co2_conversions-ce.json")
+        self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
+        self.msegs_in_emm = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
+        self.msegs_in_state = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
+        self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
+        self.htcl_totals_decarb = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
+        self.htcl_totals_ce = fp.STOCK_ENERGY / "htcl_totals-ce.json"
+        self.htcl_totals_site = fp.STOCK_ENERGY / "htcl_totals-site.json"
+        self.htcl_totals_emm = fp.STOCK_ENERGY / "htcl_totals_emm.json"
+        self.htcl_totals_emm_decarb = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
+        self.htcl_totals_ce_emm = fp.STOCK_ENERGY / "htcl_totals-ce_emm.json"
+        self.htcl_totals_site_emm = fp.STOCK_ENERGY / "htcl_totals-site_emm.json"
+        self.htcl_totals_state = fp.STOCK_ENERGY / "htcl_totals_state.json"
+        self.htcl_totals_ce_state = fp.STOCK_ENERGY / "htcl_totals-ce_state.json"
+        self.htcl_totals_site_state = fp.STOCK_ENERGY / "htcl_totals-site_state.json"
+        self.ss_fp = fp.CONVERT_DATA / "site_source_co2_conversions.json"
+        self.ss_fp_decarb = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
+        self.ss_fp_ce = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
         self.metadata = fp.METADATA_PATH
 
 
@@ -123,9 +97,9 @@ class UsefulVars(object):
             cooling energy files to define the conversion method.
     """
 
-    def __init__(self, base_dir, handyfiles):
+    def __init__(self, handyfiles):
         # Load metadata including AEO year range
-        with open(path.join(base_dir, handyfiles.metadata), 'r') as aeo_yrs:
+        with open(handyfiles.metadata, 'r') as aeo_yrs:
             try:
                 aeo_yrs = json.load(aeo_yrs)
             except ValueError as e:
@@ -143,7 +117,7 @@ class UsefulVars(object):
 
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data
-        with open(path.join(base_dir, *handyfiles.ss_fp), 'r') as ss:
+        with open(handyfiles.ss_fp, 'r') as ss:
             cost_ss_carb = json.load(ss)
         # Set site to source conversions
         self.ss_conv = {
@@ -155,8 +129,7 @@ class UsefulVars(object):
 
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data under high grid decarbonization case
-        with open(path.join(
-                base_dir, *handyfiles.ss_fp_decarb), 'r') as ss:
+        with open(handyfiles.ss_fp_decarb, 'r') as ss:
             cost_ss_carb_decarb = json.load(ss)
         # Set site to source conversions under high grid decarbonization case
         self.ss_conv_decarb = {
@@ -177,7 +150,7 @@ class UsefulVars(object):
         # Try to get site-source conversion factors for the captured
         # energy method if the file is present
         try:
-            with open(path.join(base_dir, *handyfiles.ss_fp_ce), 'r') as ss:
+            with open(handyfiles.ss_fp_ce, 'r') as ss:
                 ss_dict = json.load(ss)
             self.ss_conv_ce = {
                 "electricity": ss_dict[
@@ -341,7 +314,7 @@ def main():
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
     # Instantiate useful variables
-    handyvars = UsefulVars(base_dir, handyfiles)
+    handyvars = UsefulVars(handyfiles)
 
     # Generate data for both the default AIA climate region baseline data
     # breakout and EMM region and state baseline data breakout
@@ -372,17 +345,16 @@ def main():
         # Import baseline microsegment stock and energy data; special
         # handling needed for state and EMM data, which are in zip format
         if f in ["State", "EMM"]:
-            bjszip = path.join(base_dir, *mseg_fi)
+            bjszip = mseg_fi
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs = json.loads(zip_ref.read().decode('utf-8'))
         else:
-            with open(path.join(base_dir, *mseg_fi), 'r') as msi:
+            with open(mseg_fi, 'r') as msi:
                 try:
                     msegs = json.load(msi)
                 except ValueError as e:
                     raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.msegs_in + "': " + str(e)) from None
+                        f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
 
         # Find total heating and cooling *source* energy use for each region,
         # building type, and structure type combination (fossil fuel site-
@@ -396,7 +368,7 @@ def main():
         htcl_totals.move_to_end(handyvars.ss_conv_str, last=False)
 
         # Write out summed heating/cooling fossil equivalent energy data
-        output_file = path.join(base_dir, *fo)
+        output_file = fo
         with open(output_file, 'w') as jso:
             json.dump(htcl_totals, jso, indent=2)
 
@@ -418,7 +390,7 @@ def main():
 
             # Write out summed heating/cooling fossil equivalent energy data
             # under high grid decarbonization case
-            output_file_decarb = path.join(base_dir, *fo_decarb)
+            output_file_decarb = fo_decarb
             with open(output_file_decarb, 'w') as jso:
                 json.dump(htcl_totals_decarb, jso, indent=2)
 
@@ -434,7 +406,7 @@ def main():
         htcl_totals_site.move_to_end(handyvars.ss_conv_str, last=False)
 
         # Write out summed heating/cooling site energy data
-        output_file = path.join(base_dir, *fo_site)
+        output_file = fo_site
         with open(output_file, 'w') as jso:
             json.dump(htcl_totals_site, jso, indent=2)
 
@@ -451,12 +423,10 @@ def main():
             htcl_totals_ce.move_to_end(handyvars.ss_conv_str, last=False)
 
             # Write out heating/cooling combined captured energy data
-            output_file = path.join(base_dir, *fo_capt)
+            output_file = fo_capt
             with open(output_file, 'w') as jso:
                 json.dump(htcl_totals_ce, jso, indent=2)
 
 
 if __name__ == '__main__':
-    # Set current working directory
-    base_dir = getcwd()
     main()

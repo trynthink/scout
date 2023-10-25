@@ -997,7 +997,7 @@ def main():
     aeo_min = aeo_min_extract()
 
     # Import file contents
-    conv = json.load(open('supporting_data/convert_data/' + opts.f, 'r'))
+    conv = json.load(open(fp.CONVERT_DATA / opts.f, 'r'))
 
     # Determine if the conversion file has been updated using Cambium data
     try:
@@ -1059,7 +1059,7 @@ def main():
                         pass
 
         # Output modified site-source and CO2 emissions conversion data
-        with open('supporting_data/convert_data/' + opts.f, 'w') as js_out:
+        with open(fp.CONVERT_DATA / opts.f, 'w') as js_out:
             json.dump(conv, js_out, indent=2)
 
         # Warn user that source fields need to be updated manually
@@ -1106,7 +1106,7 @@ def main():
         conv_emm = updater_emm(conv, api_key, year, scenario, restrict_update)
 
         # Output updated EMM emissions/price projections data
-        with open('supporting_data/convert_data/' + opts.f, 'w') as js_out:
+        with open(fp.CONVERT_DATA / opts.f, 'w') as js_out:
             json.dump(conv_emm, js_out, indent=5)
 
         # Only update the state file if the EMM file imported does not
