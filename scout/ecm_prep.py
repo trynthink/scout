@@ -6,7 +6,7 @@ import itertools
 import json
 import sys
 from collections import OrderedDict
-from os import listdir, getcwd, stat, path
+from os import listdir, getcwd, stat
 from os.path import isfile, join
 import copy
 import warnings
@@ -2281,8 +2281,7 @@ class Measure(object):
                                         "fractions are available for all " +
                                         "baseline market segments the " +
                                         "measure applies to in "
-                                        "./ecm_definitions/energy_plus_data"
-                                        "/savings_shapes.")
+                                        f"{fp.ECM_DEF / 'energy_plus_data' / 'savings_shapes'}.")
                                 # Calculate baseline hourly load fractions of
                                 # annual load in CSV (to be used later to scale
                                 # hourly fractions of annual load in tsv_load
@@ -7201,8 +7200,8 @@ class Measure(object):
                                     "unexpected, check that 8760 hourly "
                                     "savings fractions are available for "
                                     "all baseline market segments the "
-                                    "measure applies to in ./ecm_definitions/"
-                                    "energy_plus_data/savings_shapes.")
+                                    "measure applies to in "
+                                    f"{fp.ECM_DEF / 'energy_plus_data' / 'savings_shapes'}.")
                             else:
                                 # Develop an adjustment from the generic
                                 # baseline load shape for the current climate,
@@ -8671,8 +8670,7 @@ class Measure(object):
                         raise ValueError(
                             "Refrigerant '" + r_key_b +
                             "' has no available GWP data in supporting "
-                            "file ./supporting_data/convert_data/"
-                            "fugitive_emissions_convert.json")
+                            f"file {fp.CONVERT_DATA / 'fugitive_emissions_convert.json'}")
                 else:
                     base_gwp_yr = ""
                 # Measure tech. unit-level refrigerant emissions
@@ -8744,8 +8742,7 @@ class Measure(object):
                         raise ValueError(
                             "Refrigerant '" + r_key_e +
                             "' has no available GWP data in supporting "
-                            "file ./supporting_data/convert_data/"
-                            "fugitive_emissions_convert.json")
+                            f"file {fp.CONVERT_DATA / 'fugitive_emissions_convert.json'}")
                 else:
                     meas_gwp_yr = ""
 
@@ -13262,9 +13259,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # (may be removed from update later) b) measure JSON time stamp
                 # indicates it has been modified since the last run of
                 # 'ecm_prep.py' c) measure name is not already included in
-                # database of prepared measure attributes ('ecm_prep.json'); d)
+                # database of prepared measure attributes ('/generated/ecm_prep.json'); d)
                 # measure does not already have competition data prepared for
-                # it (in '/supporting_data/ecm_competition_data' folder), or
+                # it (in '/generated/ecm_competition_data' folder), or
                 # or e) command line arguments applied to the measure are not
                 # consistent with those reported out the last time the measure
                 # was prepared (based on 'usr_opts' attribute), excepting
@@ -13744,7 +13741,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # list as substitute, since file will be overwritten/created
         # later when writing ECM data)
         try:
-            am = open(path.join(base_dir, handyfiles.run_setup), 'r')
+            am = open(handyfiles.run_setup, 'r')
             try:
                 run_setup = json.load(am, object_pairs_hook=OrderedDict)
             except ValueError as e:
@@ -13900,7 +13897,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
         # Write any newly prepared measure names to the list of active
         # measures to be run in the analysis engine
-        with open(path.join(base_dir, handyfiles.run_setup), "w") as jso:
+        with open(handyfiles.run_setup, "w") as jso:
             json.dump(run_setup, jso, indent=2)
 
         # Write metadata for consistent use later in the analysis engine

@@ -2,7 +2,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
-from os import getcwd, path
+from scout.constants import FilePaths as fp
 import numpy
 import math
 
@@ -41,7 +41,6 @@ def pretty(low, high, n):
 
 def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Set base directory
-    base_dir = getcwd()
     # Set uncompeted ECM energy, carbon, and cost data
     uncompete_results = meas_summary
     # Set competed ECM energy, carbon, and cost data
@@ -373,18 +372,13 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             plot_col_c_base = "#191970"
             plot_col_c_eff = "#87cefa"
             # Set Excel summary data file name
-            xlsx_file_name = \
-                path.join(base_dir, 'results', 'plots', 'tech_potential',
-                          "Summary_Data-TP.xlsx")
+            xlsx_file_name = fp.PLOTS / "tech_potential" / "Summary_Data-TP.xlsx"
         else:
             # Set plot colors
             plot_col_c_base = "#cd0000"
             plot_col_c_eff = "#ffc0cb"
             # Set Excel summary data file name
-            xlsx_file_name = \
-                path.join(base_dir, 'results', 'plots',
-                          'max_adopt_potential',
-                          "Summary_Data-MAP.xlsx")
+            xlsx_file_name = fp.PLOTS / "max_adopt_potential" / "Summary_Data-MAP.xlsx"
         # Preallocate list for variable names to be used later to export data
         # to xlsx-formatted Excel files
         xlsx_var_name_list = list()
@@ -480,33 +474,21 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # Set the file name for the plot based on the adoption scenario
             # and plotting variable
             if adopt_scenarios[a] == 'Technical potential':
+                plot_dir = fp.PLOTS / "tech_potential" / results_folder_names[v]
                 # ECM energy, carbon, and cost totals
-                plot_file_name_ecms = path.join(
-                    base_dir, 'results', 'plots',
-                    'tech_potential', results_folder_names[v],
-                    file_names_ecms[v] + '-TP')
+                plot_file_name_ecms = plot_dir / f"{file_names_ecms[v]}-TP"
                 # Aggregate energy, carbon, and cost savings
-                plot_file_name_agg = path.join(
-                    base_dir, 'results', 'plots', 'tech_potential',
-                    results_folder_names[v], plot_names_agg[v] + '-TP')
+                plot_file_name_agg = plot_dir / f"{plot_names_agg[v]}-TP"
                 # ECM cost effectiveness
-                plot_file_name_finmets = path.join(
-                    base_dir, 'results', 'plots', 'tech_potential',
-                    results_folder_names[v], plot_names_finmets[v] + '-TP.pdf')
+                plot_file_name_finmets = plot_dir / f"{plot_names_finmets[v]}-TP.pdf"
             else:
+                plot_dir = fp.PLOTS / "max_adopt_potential" / results_folder_names[v]
                 # ECM energy, carbon, and cost totals
-                plot_file_name_ecms = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], file_names_ecms[v] + '-MAP')
+                plot_file_name_ecms = plot_dir / f"{file_names_ecms[v]}-MAP"
                 # Aggregate energy, carbon, and cost savings
-                plot_file_name_agg = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], plot_names_agg[v] + '-MAP')
+                plot_file_name_agg = plot_dir / f"{plot_names_agg[v]}-MAP"
                 # ECM cost effectiveness
-                plot_file_name_finmets = path.join(
-                    base_dir, 'results', 'plots', 'max_adopt_potential',
-                    results_folder_names[v], plot_names_finmets[v] +
-                    '-MAP.pdf')
+                plot_file_name_finmets = plot_dir / f"{plot_names_finmets[v]}-MAP.pdf"
 
             # Determine number of rows for individual ECM plots
             row = math.ceil(len(meas_names) / 4)
@@ -1189,8 +1171,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
             # Generate individual ECM plot figure
             plt.tight_layout()
-            plt.savefig(plot_file_name_ecms + "-byECM.pdf",
-                        bbox_inches='tight')
+            plt.savefig(f"{plot_file_name_ecms}-byECM.pdf", bbox_inches='tight')
             ###################################################################
 
             # Plot annual and cumulative energy, carbon, and cost savings
@@ -1426,8 +1407,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
             # Generate aggregate savings figure
             plt.tight_layout()
-            plt.savefig(plot_file_name_agg + "-Aggregate.pdf",
-                        bbox_inches='tight')
+            plt.savefig(f"{plot_file_name_agg}-Aggregate.pdf", bbox_inches='tight')
 
             fig, axcs = plt.subplots(2, 2, figsize=(10, 7))
             for (axc, fmp) in zip(fig.axes, range(len(fin_metrics))):
