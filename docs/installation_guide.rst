@@ -16,7 +16,9 @@
 Installation Guide
 ==================
 
-Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software.
+Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software. The first step is to `download or clone the latest version of Scout`_ to a local directory.
+
+.. _download or clone the latest version of Scout: https://github.com/trynthink/scout/releases/latest
 
 If you're comfortable at the command line, install or set up everything in this list of prerequisites and then skip straight to :ref:`step 2 <qsg-create-ecm-step>` of the Quick Start Guide.
 
@@ -25,7 +27,7 @@ If you're comfortable at the command line, install or set up everything in this 
 **Prerequisites**
 
 * Python 3
-* Python packages: pip [#]_, matplotlib, numpy, numpy_financial, pandas, xlsxwriter
+* Scout Python package: ``pip install .`` from your Scout install directory
 * A text editor of your choice
 
 The installation instructions for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` assume that none of these prerequisite programs or distributions are installed on your system. Please follow the instructions as appropriate, given what might already installed on your system and checking for updates if appropriate.
@@ -63,22 +65,20 @@ In a Terminal window, at the command prompt (a line terminated with a $ characte
 
    brew install python3
 
-2. Install required Python packages
+2. Install Scout Python package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Once Python 3 is fully installed, pip3 [#f1]_ is the tool you will use to install add-ons specific to Python 3. We recommend using a virtual environment, such as ``venv``, ``vitualenv``, or ``conda`` to run Scout. Create and activate an environment and run the following from your Scout installation directory to install the Scout package::
 
-Once Python 3 is fully installed, pip3 is the tool you will use to install add-ons specific to Python 3. Several packages are required for Scout: matplotlib, numpy, numpy_financial, pandas, and xlsxwriter. To install them, at the command prompt in Terminal, type::
+   pip3 install .
 
-   pip3 install matplotlib numpy numpy_financial pandas xlsxwriter
+.. note::
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``pip3 install -e .`` to install in editable mode.
 
-If you'd like to confirm that numpy and numpy_financial were installed successfully, you can start Python from the command prompt in Terminal by typing::
+The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
-   python3
+.. code-block:: shell
 
-and import one or more of the packages (within the Python interactive shell, indicated by the ``>>>`` prompt). :: 
-
-   import numpy, matplotlib
-
-If no error or warning messages appear, then the installation was successful and you can exit Python by typing ``quit()``.
+   pip3 list
 
 3. Install a text editor
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,27 +174,24 @@ Download the executable installer for Windows available on the Python Software F
 
 .. _downloads page: https://www.python.org/downloads/
 
-2. Install required Python packages
+2. Install Scout Python package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once Python 3 installation is complete, the required packages need to be installed. pip is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. At the prompt (a line of text with a file path terminated by a greater than symbol, such as ``C:\>``), type::
+Once Python 3 installation is complete, the Scout package and its dependencies can be installed. pip [#f1]_ is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. We recommend using a virtual environment, such as ``venv``, ``vitualenv``, or ``conda`` to run Scout. Create and activate an environment and run the following from your Scout installation directory to install the Scout package::
 
-   py -3 -m pip install matplotlib numpy numpy_financial pandas xlsxwriter
+   py -3 -m pip install .
+
+.. note::
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``py -3 -m pip install -e .`` to install in editable mode.
 
 .. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
 
-If you would like to confirm that numpy and numpy_financial were installed successfully, you can open an interactive session of Python in a command prompt window by typing::
+The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
-   py -3
+.. code-block:: shell
 
-and then importing numpy and numpy_financial (within the Python interactive session, indicated by a ``>>>`` prompt)::
-
-   import matplotlib, numpy
-
-If no error or warning messages appear, the packages were installed successfully. Exit the interactive session of Python by typing::
-
-   quit()
+   py -3 -m pip list
 
 3. Install a text editor
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -259,4 +256,4 @@ Quit and reopen Sublime Text to apply all of the settings changes and new packag
    
 
 .. rubric:: Footnotes
-.. [#] pip/pip3 is typically installed at the same time that Python 3 is installed.
+.. [#f1] pip/pip3 is typically installed at the same time that Python 3 is installed.
