@@ -260,15 +260,15 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
   **Windows** ::
 
-..      py -3 ecm_prep.py
+..      py -3 scout/ecm_prep.py
 
   **Mac** ::
 
-..      python3 ecm_prep.py
+..      python3 scout/ecm_prep.py
 
 .. 3. On the `ECM Summaries Page`_ of the web interface, click the drop down arrow next to the "Custom ECMs" label towards the top right of the page; then click "Upload File" at the bottom of the resulting drop down window.
 
-.. 4. When prompted to select a file to upload, navigate to the |html-filepath| ./supporting_data |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_prep.json |html-fp-end| - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
+.. 4. When prompted to select a file to upload, upload the file named |html-filepath| ./generated/ecm_prep.json |html-fp-end| in your Scout project directory - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
 
   note:: 
 ..       Larger files may take several seconds to upload in step 4.

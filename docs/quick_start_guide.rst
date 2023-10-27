@@ -51,11 +51,11 @@ Enter the following command line argument (see Local Execution :ref:`tuts-2` for
 
 **Windows** ::
 
-   py -3 ecm_prep.py --alt_regions
+   py -3 scout/ecm_prep.py --alt_regions
 
 **Mac** ::
 
-   python3 ecm_prep.py --alt_regions
+   python3 scout/ecm_prep.py --alt_regions
 
 
 When prompted, select option 1 to use :ref:`EIA Electricity Market Module (EMM) <emm-reg>` regions.  
@@ -75,11 +75,11 @@ Enter the following command line argument (see Local Execution :ref:`tuts-ecm-li
 
 **Windows** ::
 
-   py -3 run_setup.py
+   py -3 scout/run_setup.py
 
 **Mac** ::
 
-   python3 run_setup.py
+   python3 scout/run_setup.py
 
 .. _qsg-run-analysis-step:
 
@@ -90,11 +90,11 @@ Enter the following command line argument (see Local Execution :ref:`tuts-analys
 
 **Windows** ::
 
-   py -3 run.py
+   py -3 scout/run.py
 
 **Mac** ::
 
-   python3 run.py
+   python3 scout/run.py
 
 .. _qsg-view-results-step:
 
