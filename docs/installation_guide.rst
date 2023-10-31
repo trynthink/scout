@@ -72,7 +72,7 @@ Once Python 3 is fully installed, pip3 [#f1]_ is the tool you will use to instal
    pip3 install .
 
 .. note::
-   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``pip3 install -e .`` to install in editable mode.
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``pip3 install -e .[dev]`` to install in editable mode with developer depedendencies.
 
 The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
@@ -182,7 +182,7 @@ Once Python 3 installation is complete, the Scout package and its dependencies c
    py -3 -m pip install .
 
 .. note::
-   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``py -3 -m pip install -e .`` to install in editable mode.
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``py -3 -m pip install -e .[dev]`` to install in editable mode with developer depedendencies.
 
 .. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
