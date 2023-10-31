@@ -32,3 +32,8 @@ dependencies = [
     "matplotlib",
     "backoff"
 ]
+
+[project.optional-dependencies]
+dev = [
+    "openpyxl",
+]
