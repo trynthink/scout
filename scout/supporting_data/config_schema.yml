@@ -1,0 +1,127 @@
+type: object
+properties:
+  ecm_prep:
+    type: object
+    required: []
+    properties:
+      site_energy:
+        type: boolean
+        default: false
+        description: Enable site energy calculation
+
+      captured_energy:
+        type: boolean
+        default: false
+        description: Enable captured energy calculation
+
+      alt_regions:
+        type: boolean
+        default: false
+        description: Flag alternate regional breakdown
+
+      alt_regions_option:
+        type: string
+        enum:
+          - EMM
+          - State
+          - AIA
+        description: Alternate region breakdown
+
+      tsv_metrics:
+        type: boolean
+        default: false
+        description: Enable TSV metrics
+
+      sect_shapes:
+        type: boolean
+        default: false
+        description: Enable sector shapes
+
+      rp_persist:
+        type: boolean
+        default: false
+        description: Enable RP persistence
+
+      verbose:
+        type: boolean
+        default: false
+        description: Enable verbose mode
+
+      health_costs:
+        type: boolean
+        default: false
+        description: Enable health costs
+
+      split_fuel:
+        type: boolean
+        default: false
+        description: Enable split fuel
+
+      no_scnd_lgt:
+        type: boolean
+        default: false
+        description: Disable secondary lighting
+
+      floor_start:
+        type: integer
+        default: 0
+        description: The starting floor
+
+      pkg_env_costs:
+        type: boolean
+        default: false
+        description: Enable package environmental costs
+
+      exog_hp_rates:
+        type: boolean
+        default: false
+        description: Enable exogenous HP rates
+
+      alt_ref_carb:
+        type: boolean
+        default: false
+        description: Set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+
+      grid_decarb:
+        type: boolean
+        default: false
+        description: Enable grid decarbonization
+
+      adopt_scn_restrict:
+        type: boolean
+        default: false
+        description: Restrict to a single adoption scenario
+
+      retro_set:
+        type: boolean
+        default: false
+        description: Enable retrofit set
+
+      add_typ_eff:
+        type: boolean
+        default: false
+        description: Enable additional typical efficiency
+
+      pkg_env_sep:
+        type: boolean
+        default: false
+        description: Enable package environmental separation
+
+      detail_brkout:
+        type: boolean
+        default: false
+        description: Enable detailed breakout
+
+      fugitive_emissions:
+        type: boolean
+        default: false
+        description: Enable fugitive emissions
+      
+  run:
+    type: object
+    required: []
+    properties:
+      none:
+        type: boolean
+        description: test descrioptions
+

@@ -27,7 +27,9 @@ dependencies = [
     "numpy-financial",
     "xlsxwriter",
     "matplotlib",
-    "backoff"
+    "backoff",
+    "pyyaml",
+    "jsonschema"
 ]
 
 [tool.setuptools_scm]
