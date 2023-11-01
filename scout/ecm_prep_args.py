@@ -1,6 +1,7 @@
 from __future__ import annotations
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import warnings
+from scout.config import Config
 
 
 def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
@@ -10,93 +11,23 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
         args (list): ecm_prep.py input arguments
     """
 
-    # Handle option user-specified execution arguments
-    parser = ArgumentParser()
-    # Optional flag to calculate site (rather than source) energy outputs
-    parser.add_argument("--site_energy", action="store_true",
-                        help="Flag site energy output")
-    # Optional flag to calculate site-source energy conversions using the
-    # captured energy (rather than fossil fuel equivalent) method
-    parser.add_argument("--captured_energy", action="store_true",
-                        help="Flag captured energy site-source conversions")
-    # Optional flag for non-AIA regional breakdown
-    parser.add_argument("--alt_regions", action="store_true",
-                        help="Flag alternate regional breakdown")
-    # Optional choice arg for non-AIA regional breakdown
-    parser.add_argument("--alt_regions_option", choices=["EMM", "State", "AIA"],
-                        help="Alternate region breakdown")
-    # Optional flag for TSV metrics
-    parser.add_argument("--tsv_metrics", action="store_true",
-                        help="Flag time sensitive valuation metrics")
-    # Optional flag for generating sector-level load shapes
-    parser.add_argument("--sect_shapes", action="store_true",
-                        help="Flag sector-level load shapes")
-    # Optional flag for persistent relative performance after market entry
-    parser.add_argument("--rp_persist", action="store_true",
-                        help="Flag consistent relative performance value "
-                        "after market entry")
-    # Optional flag to print all warning messages to stdout
-    parser.add_argument("--verbose", action="store_true",
-                        help="Print all warnings to stdout")
-    # Optional flag to introduce public health cost assessment
-    parser.add_argument("--health_costs", action="store_true",
-                        help="Flag addition of public health cost data")
-    # Optional flag to introduce output fuel splits
-    parser.add_argument("--split_fuel", action="store_true",
-                        help="Split electric vs. non-electric fuel in results")
-    # Optional flag to suppress secondary lighting calculations
-    parser.add_argument("--no_scnd_lgt", action="store_true",
-                        help="Suppress secondary lighting calculations")
-    # Optional flag to delay the minimum start date for the measure set (
-    # representative of delaying implementation of a min. perf. code/std.)
-    parser.add_argument("--floor_start", required=False, type=int,
-                        help="Delay to global measure start date")
-    # Optional flag to consider envelope costs in the overall cost estimates
-    # for HVAC/envelope measures (these are excluded by default to facilitate
-    # competition in run.py that is anchored on equipment costs)
-    parser.add_argument("--pkg_env_costs", action="store_true",
-                        help=("Account for envelope costs in HVAC/envelope "
-                              "packages (and their subsequent competition)"))
-    # Optional flag to handle fuel switching conversions via exogenous rates
-    parser.add_argument("--exog_hp_rates", action="store_true",
-                        help=("Accomodates exogenous forcing of fuel "
-                              "switching conversion rates"))
-    # Optional flag that will set baseline electricity emissions intensities to
-    # be consistent with the Standard Scenarios Mid Case (rather than AEO)
-    parser.add_argument("--alt_ref_carb", action="store_true",
-                        help=("Use Standard Scenarios Mid Case electricity "
-                              "emissions intensities"))
-    # Optional flag to use alternate grid decarbonization case
-    parser.add_argument("--grid_decarb", action="store_true",
-                        help="Flag alternate grid decarbonization scenario")
-    # Optional flag to restrict adoption schemes
-    parser.add_argument("--adopt_scn_restrict", action="store_true",
-                        help="Restrict to a single adoption scenario")
-    # Optional flag to force early retrofit rate to zero
-    parser.add_argument("--retro_set", action="store_true",
-                        help="Prompt user for early retrofit rate settings")
-    # Optional flag to add typical efficiency tech. analogues for ESTAR, IECC,
-    # or 90.1 measures (to account for competitive effects)
-    parser.add_argument("--add_typ_eff", action="store_true",
-                        help=("Add typical technology analogues for equipment "
-                              "efficiency measures at the most current ENERGY "
-                              "STAR, IECC, and 90.1 performance levels"))
-    # Optional flag that will develop copies HVAC/envelope packages that remove
-    # the relative impacts of the HVAC portion to isolate the impacts of the
-    # envelope portion
-    parser.add_argument("--pkg_env_sep", action="store_true",
-                        help=("Isolate the impacts of envelope in "
-                              "envelope + HVAC packages"))
-    # Optional flag to use more detailed building type breakouts
-    parser.add_argument("--detail_brkout", action="store_true",
-                        help=("Use more detailed region/building type "
-                              "breakouts as applicable"))
-    # Optional flag to include accounting of fugitive emissions from
-    # refrigerant leakage and/or supply chain methane leakage
-    parser.add_argument("--fugitive_emissions", action="store_true",
-                        help="Account for fugitive emissions sources")
-    # Object to store all user-specified execution arguments
-    opts = parser.parse_args(args)
+    # Handle optional user-specified execution arguments
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "-y", "--yaml",
+        type=str,
+        help=("Path to YAML configuration file, arguments in this file will take priority over "
+              "arguments passed via the CLI")
+        )
+
+    # Translate config schema to parser args
+    config = Config(parser, "ecm_prep")
+    opts = parser.parse_args()
+
+    # Update args with yml config data
+    if opts.yaml:
+        config_opts = config.get_args(opts.yaml)
+        opts.__dict__.update(config_opts)
     opts = fill_user_inputs(opts)
 
     return opts
