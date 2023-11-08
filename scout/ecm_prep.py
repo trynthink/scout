@@ -362,13 +362,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, opts):
-        # Choose default adoption scenarios if user doesn't specify otherwise
-        if opts.adopt_scn_restrict is False:
-            self.adopt_schemes = [
-                'Technical potential', 'Max adoption potential']
-        # Otherwise set adoption scenario to user-specified choice
-        else:
-            self.adopt_schemes = opts.adopt_scn_restrict
+        self.adopt_schemes = opts.adopt_scn_restrict
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions

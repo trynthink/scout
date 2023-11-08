@@ -15,22 +15,69 @@ properties:
         description: Enable captured energy calculation
 
       alt_regions:
-        type: boolean
-        default: false
-        description: Flag alternate regional breakdown
-
-      alt_regions_option:
         type: string
-        enum:
-          - EMM
-          - State
-          - AIA
-        description: Alternate region breakdown
+        enum: [EMM, State, AIA]
+        description: Specify an alternative region breakdown
 
       tsv_metrics:
-        type: boolean
-        default: false
-        description: Enable TSV metrics
+        type: object
+        required: [tsv_type, tsv_daily_hr_restrict]
+        properties:
+          tsv_type:
+            type: string
+            enum: [energy, power]
+            description: Time-sensitive metric desired, where `energy` is the change in energy and `power` is the change in power (e.g., single hour GW)
+          tsv_daily_hr_restrict:
+            type: string
+            enum: [all, peak, low]
+            description: The daily hour range to restrict time-sensitive metrics, where `all` is all hours, `peak` is peak demand period hours, and `low` is low demand period hours
+          tsv_sys_shape_case:
+            type: string
+            enum: [total reference, total high renewables, net renewable reference, net renewable high renewables]
+            description: The basis for determining hours for peak or low demand. Only applicable if tsv_daily_hr_restrict is `peak` or `low`
+          tsv_season:
+            type: string
+            enum: [summer, winter, intermediate]
+            description: Season of focus for time-sensitve metrics
+          tsv_energy_agg:
+            type: string
+            enum: [sum, average]
+            description: Define how the the tsv_daily_hr_restrict hours are aggregated when tsv_type is `energy`
+          tsv_power_agg:
+            type: string
+            enum: [peak, average]
+            description: Define how the the tsv_daily_hr_restrict hours are aggregated when tsv_type is `power`
+          tsv_average_days:
+            type: string
+            enum: [all, weekdays, weekends]
+            description: The day type to average over. Only applicable if tsv_type is `energy` or tsv_power_agg is `average`
+        if:
+          properties:
+            tsv_daily_hr_restric:
+              enum: [peak, low]
+        then:
+          required: [tsv_average_days]
+        if:
+          properties:
+            tsv_type:
+              const: energy
+        then:
+          required: [tsv_energy_agg, tsv_average_days]
+        else:
+          if:
+            properties:
+              tsv_type:
+                const: power
+          then:
+            required: [tsv_power_agg]
+            if:
+              properties:
+                tsv_power_agg:
+                  const: average
+            then:
+              required: [tsv_average_days]
+        not:
+          required: [tsv_energy_agg, tsv_power_agg]
 
       sect_shapes:
         type: boolean
@@ -68,14 +115,26 @@ properties:
         description: The starting floor
 
       pkg_env_costs:
-        type: boolean
-        default: false
-        description: Enable package environmental costs
+        type: string
+        enum: [include HVAC, exclude HVAC]
+        description: Define what measure data should be written out for inclusion in measure competition. `include HVAC` will prepare HVAC-only versions of all HVAC/envelope packages for measure competition, `exclude HVAC` will exclude these HVAC-only measures from measure competition
 
       exog_hp_rates:
-        type: boolean
-        default: false
-        description: Enable exogenous HP rates
+        type: object
+        properties:
+          exog_hp_rate_scenario:
+            type: string
+            enum: [conservative, optimistic, aggressive, most aggressive]
+            description: Guidehouse E3HP conversion scenario to use for exogenous HP rates
+          switch_all_retrofit_hp:
+            type: boolean
+            description: Assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined
+        if:
+          properties:
+            exog_hp_rate_scenario:
+              enum: [conservative, optimistic, aggressive, most aggressive]
+        then:
+          required: [exog_hp_rate_scenario]
 
       alt_ref_carb:
         type: boolean
@@ -83,19 +142,43 @@ properties:
         description: Set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
 
       grid_decarb:
-        type: boolean
-        default: false
-        description: Enable grid decarbonization
+        type: object
+        required: [grid_decarb_level, grid_assesment_timing]
+        properties:
+          grid_decarb_level:
+            type: string
+            enum: ["0.8", full]
+            description: Enable grid decarbonization - `0.8` represents 80%% reduced grid emissions from current levels by 2050, and `full` represents full grid decarbonization by 2035
+          grid_assesment_timing:
+            type: string
+            enum: [before, after]
+            description: When to assess avoided emissions and costs from non-fuel switching measures relative to the additional grid decarbonization
 
       adopt_scn_restrict:
-        type: boolean
-        default: false
-        description: Restrict to a single adoption scenario
+        type: string
+        enum: [Max adoption potential, Technical potential]
+        description: Specify adoption scenario restrictions
 
-      retro_set:
-        type: boolean
-        default: false
-        description: Enable retrofit set
+      retrofits:
+        type: object
+        required: [retrofit_type]
+        properties:
+          retrofit_type:
+            type: string
+            enum: [constant, increasing]
+            description: Type of retrofit. `constant` assumes component-based early retrofit rates that do not change over time, `increasing` assumes rates that increase over time
+          retrofit_multiplier:
+            type: number
+            description: Factor by which early retrofit rates are multiplied (only for increasing retrofit_type)  
+          retrofit_mult_year:
+            type: integer
+            description: The year by which the retorfit multiplier is achieved (only for increasing retrofit_type)
+        if:
+          properties:
+            retrofit_type:
+              const: increasing
+        then:
+          required: [retrofit_multiplier, retrofit_mult_year]
 
       add_typ_eff:
         type: boolean
@@ -108,14 +191,28 @@ properties:
         description: Enable package environmental separation
 
       detail_brkout:
-        type: boolean
-        default: false
-        description: Enable detailed breakout
+        type: array
+        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid of the split_fuel argument is set to False.
+        default: []
+        items:
+          type: string
+          enum: [regions, buildings, fuel types]
 
       fugitive_emissions:
-        type: boolean
-        default: false
-        description: Enable fugitive emissions
+        type: array
+        items:
+          type: string
+          enum: [methane, low-gwp refrigerant, typical refrigerant]
+        default: []
+        description: Array enabling fugitive emissions; array may include methane and one of the two refrigerant options 
+        maxItems: 2
+        minItems: 0
+        not:
+          items:
+            type: string
+            enum: [typical refrigerant, low-gwp refrigerant]
+          maxItems: 2
+          minItems: 2
       
   run:
     type: object
