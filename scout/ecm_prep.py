@@ -522,7 +522,7 @@ class UsefulVars(object):
             if handyfiles.ss_data_altreg_nonfs is not None:
                 # Read in EMM- or state-specific emissions factors and price
                 # data
-                with open(*handyfiles.ss_data_altreg_nonfs, 'r') as ss:
+                with open(handyfiles.ss_data_altreg_nonfs, 'r') as ss:
                     try:
                         cost_ss_carb_altreg_nonfs = json.load(ss)
                     except ValueError:
@@ -1415,7 +1415,6 @@ class UsefulVars(object):
                     metrics_data = handyfiles.tsv_metrics_data_net_hr
 
                 # Import system max/min and peak/take hour load by EMM region
-                # raise ValueError(metrics_data, opts.tsv_metrics[-2])
                 sysload_dat = numpy.genfromtxt(
                     metrics_data, names=peak_take_names, delimiter=',',
                     dtype="<i4", encoding="latin1", skip_header=1)

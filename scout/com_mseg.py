@@ -841,7 +841,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # while removing the " that denoted inches; by inserting an
         # escape character before the " denoting inches, the text will
         # be handled correctly by csv.reader
-        if re.match('.*KSDOUT', re.escape(data_file_path)):
+        if re.match('.*KSDOUT', re.escape(str(data_file_path))):
             cont = thefile.read().replace('11"', '11\\"')
             thefile = io.StringIO(cont)
 

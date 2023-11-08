@@ -27,8 +27,7 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.ss_conv_file = ('supporting_data/convert_data/'
-                             'site_source_co2_conversions.json')
+        self.ss_conv_file = (fp.CONVERT_DATA / "site_source_co2_conversions.json")
 
 
 def json_processor(json_file, min_years, max_years):
