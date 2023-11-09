@@ -2036,12 +2036,15 @@ class Engine(object):
                 # adjust based on segment of current microsegment that was
                 # removed from competition
                 for var in ["energy", "cost", "carbon"]:
-                    # Update baseline and efficient results for the baseline
-                    # fuel in a non-fuel-switching case and baseline results
-                    # only for a fuel switching case (efficient results for
-                    # the baseline fuel will be zero in this case and do not
+                    # Update baseline and efficient results for the
+                    # baseline fuel in a non-fuel-switching case or a fuel
+                    # switching case without exogenous switching rates, and
+                    # baseline results only for a fuel switching case w/
+                    # exogenous switching rates (efficient results for the
+                    # baseline fuel will be zero in this case and do not
                     # require further adjustment)
-                    if adj_out_break["switched fuel"][var][
+                    if m.usr_opts["exog_hp_rates"] is not False and \
+                        adj_out_break["switched fuel"][var][
                             "efficient"] is not None:
                         vs_list = ["baseline"]
                     else:
@@ -2470,12 +2473,14 @@ class Engine(object):
                     # removed from competition
                     for var in ["energy", "cost", "carbon"]:
                         # Update baseline and efficient results for the
-                        # baseline fuel in a non-fuel-switching case and
-                        # baseline results only for a fuel switching case
-                        # (efficient results for the baseline fuel will be
-                        # zero in this case and do not require further
-                        # adjustment)
-                        if adj_out_break["switched fuel"][var][
+                        # baseline fuel in a non-fuel-switching case or a fuel
+                        # switching case without exogenous switching rates, and
+                        # baseline results only for a fuel switching case w/
+                        # exogenous switching rates (efficient results for the
+                        # baseline fuel will be zero in this case and do not
+                        # require further adjustment)
+                        if m.usr_opts["exog_hp_rates"] is not False and \
+                            adj_out_break["switched fuel"][var][
                                 "efficient"] is not None:
                             vs_list = ["baseline"]
                         else:
@@ -3514,15 +3519,18 @@ class Engine(object):
         # fraction; adjust based on segment of current microsegment that was
         # removed from competition
         for var in ["energy", "cost", "carbon"]:
-            # Update baseline and efficient results for the baseline fuel in
-            # a non-fuel-switching case and baseline results only for a
-            # fuel switching case (efficient results for the baseline fuel
-            # will be zero in this case and do not require further adjustment)
-            if adj_out_break["switched fuel"][var]["efficient"] is not None:
+            # Update baseline and efficient results for the baseline fuel in a
+            # non-fuel-switching case or a fuel switching case without
+            # exogenous switching rates, and baseline results only for a fuel
+            # switching case w/ exogenous switching rates (efficient results
+            # for the baseline fuel will be zero in this case and do not
+            # require further adjustment)
+            if measure.usr_opts["exog_hp_rates"] is not False and \
+                    adj_out_break[
+                        "switched fuel"][var]["efficient"] is not None:
                 vs_list = ["baseline"]
             else:
                 vs_list = ["baseline", "efficient"]
-
             for var_sub in vs_list:
                 # Adjustment fraction is unique to baseline/efficient results
                 if var_sub == "baseline":
