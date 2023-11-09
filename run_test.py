@@ -1665,6 +1665,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -3049,6 +3050,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -4518,6 +4520,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -6029,6 +6032,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -7416,6 +7420,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -8837,6 +8842,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -10348,6 +10354,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -16212,6 +16219,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -17734,6 +17742,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2010,
             "market_exit_year": None,
             "yrs_on_mkt": ["2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -19256,6 +19265,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2010,
             "market_exit_year": None,
             "yrs_on_mkt": ["2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
@@ -20808,6 +20818,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods):
             "market_entry_year": 2009,
             "market_exit_year": None,
             "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False},
             "markets": {
                 "Technical potential": {
                     "master_mseg": {
