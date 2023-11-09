@@ -10,29 +10,59 @@ class Config:
         configuration files.
 
     Attributes:
+        parser (argparse.ArgumentParser): Argument parser
         schema_file (Pathlib.filepath): Location of the configuration schema yml
         schema_data (dict): Parsed schema data
         key (str): Workflow step on which to validate and set arguments {ecm_prep, run}
     """
 
     def __init__(self, parser, key):
+        self.parser = parser
         self.schema_file = fp.SUPPORTING_DATA / "config_schema.yml"
         self.schema_data = self._load_config(self.schema_file)
         self.key = key
         schema_block = self.schema_data.get("properties", {}).get(self.key, {})
+        self.initialize_argparse(parser)
         self.create_argparse(parser, schema_block)
 
     def _load_config(self, filepath):
         with open(filepath, "r") as file:
             return yaml.safe_load(file)
 
-    def get_args(self, config_path):
+    def initialize_argparse(self, parser):
+        # Initialize arguments with a yml config file argument
+        parser.add_argument(
+            "-y", "--yaml",
+            type=str,
+            help=("Path to YAML configuration file, arguments in this file will take priority over "
+                  "arguments passed via the CLI")
+            )
+
+    def parse_args(self, args: list[str] = []):
+        # Parse initial command-line args
+        opts = self.parser.parse_args(args)
+
+        # Update with yaml arguments
+        if opts.yaml:
+            config_opts = self.get_yml_args(opts.yaml)
+            opts = self.update_args(opts, config_opts)
+
+        # Ensure command-line args take precendence
+        opts = self.parser.parse_args(args, namespace=opts)
+
+        # Check for valid arguments
+        self.check_dependencies(opts)
+
+        return opts
+
+    def get_yml_args(self, config_path):
         config_data = self._load_config(config_path)
         validate(config_data, self.schema_data)
 
         parsed_data = config_data.get(self.key, {})
         args_dict = {}
         args_dict.update(parsed_data)
+
         return args_dict
 
     def update_args(self, existing_args: argparse.NameSpace, new_args: dict):  # noqa: F821
