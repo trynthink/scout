@@ -11,32 +11,17 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
         args (list): ecm_prep.py input arguments
     """
 
-    # Handle optional user-specified execution arguments
-    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument(
-        "-y", "--yaml",
-        type=str,
-        help=("Path to YAML configuration file, arguments in this file will take priority over "
-              "arguments passed via the CLI")
-        )
-
     # Translate config schema to parser args
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     config = Config(parser, "ecm_prep")
-    opts = parser.parse_args(args)
-
-    # Update args with yml config data
-    if opts.yaml:
-        config_opts = config.get_args(opts.yaml)
-        opts = config.update_args(opts, config_opts)
-
-    config.check_dependencies(opts)
-    opts = translate_inputs(opts)
+    opts = config.parse_args(args)  # Parse both command line + yml args
+    opts = translate_inputs(opts)  # Translate for use downstream
 
     return opts
 
 
 def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F821
-    """Request additional user inputs through command line prompts and store them
+    """Process args and translate them for use in ecm_prep.py
 
     Args:
         opts (argparse.NameSpace): object in which to store user responses
