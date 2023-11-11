@@ -18,6 +18,6 @@ module.exports = function(grunt) {
   // Load required plugins
   grunt.loadNpmTasks('grunt-jsonlint');
 
-  // Define commands to run when the `grunt travis` command is run
+  // Define commands to run when `grunt jsonreview` is called by the test runner
   grunt.registerTask('jsonreview', ['jsonlint'])
 };

@@ -6,8 +6,31 @@ import mseg_meta as mm
 # Import needed packages
 import unittest
 from unittest.mock import patch, mock_open
+import os
+import pathlib as pl
 import json
 import numpy as np
+
+
+# Skip this test if the EIA files are not expected, indicated by the
+# EXPECT_EIA_FILES environment variable being set to the string 'true'
+@unittest.skipUnless('EXPECT_EIA_FILES' in os.environ and
+                     os.environ['EXPECT_EIA_FILES'] == 'true',
+                     'EIA Data Files Not Available On This System')
+class AdditionalDataFilePresenceCheck(unittest.TestCase):
+    """ Test for the presence of expected files that are
+    independently imported by the module and are not obtained from
+    other modules (and thus tested by the tests for those modules). """
+    def assertIsFile(self, path):
+        if not pl.Path(path).resolve().is_file():
+            raise AssertionError("File does not exist: %s" % str(path))
+
+    def test_for_presence_of_files_for_import(self):
+        # Note that the loop iterates over all attributes of the
+        # UsefulVars class assuming they are all file paths to be checked
+        for fp in vars(mm.UsefulVars()).values():
+            path = pl.Path(fp)
+            self.assertIsFile(path)
 
 
 class YearRangeExtractionFromStructuredArraysTest(unittest.TestCase):
