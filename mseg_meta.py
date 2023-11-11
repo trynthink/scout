@@ -6,7 +6,6 @@ import mseg as rm
 import mseg_techdata as rmt
 import com_mseg as cm
 import com_mseg_tech as cmt
-import converter as cnvt
 
 import numpy as np
 import re
@@ -14,6 +13,21 @@ import json
 import types
 import argparse
 from contextlib import suppress
+
+
+class UsefulVars(object):
+    """Class of variables defining file locations for import
+
+    Specify any additional files to import beyond those used by the
+    imported Scout modules.
+
+    Attributes:
+        ss_conv_file (str): Path to site-source conversion factor file.
+    """
+
+    def __init__(self):
+        self.ss_conv_file = ('supporting_data/convert_data/'
+                             'site_source_co2_conversions.json')
 
 
 def json_processor(json_file, min_years, max_years):
@@ -274,8 +288,7 @@ def main():
     # should be current year)
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
-    parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018])
+    parser.add_argument('-y', '--year', type=int, help=help_string)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -300,17 +313,6 @@ def main():
     # Remove rsclass.txt if it is present, since that file does not
     # have any data reported by year
     files_ = [file_ for file_ in files_ if file_ != 'rsclass.txt']
-
-    # Set up to support user option to specify the year for the
-    # AEO data being imported (default if the option is not used
-    # should be current year)
-    parser = argparse.ArgumentParser()
-    help_string = 'Specify year of AEO data to be imported'
-    parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018])
-
-    # Get import year specified by user (if any)
-    aeo_import_year = parser.parse_args().year
 
     def import_residential_energy_stock_data(file_name):
         # The delimiters for RESDBOUT vary depending on the release
@@ -356,8 +358,6 @@ def main():
         col_indices, tech_dtypes = cmt.dtype_reducer(
                                         tech_dtypes,
                                         cmt.UsefulVars().columns_to_keep)
-        # Manual correction of lifetime data type
-        tech_dtypes[8] = ('Life', 'f8')
         tech_data = cm.data_import(file_name, tech_dtypes, ',',
                                    cmt.UsefulVars().cpl_data_skip_lines,
                                    col_indices)
@@ -407,15 +407,8 @@ def main():
                                       ['Year'],
                                       files_, min_yrs, max_yrs)
 
-    # Since the converter module does not overwrite the prior
-    # JSON file, check first to see if the output file is present
-    # and if not, then fall back to the default file name
-    try:
-        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().ss_conv_file_out,
-                                          min_yrs, max_yrs)
-    except FileNotFoundError:
-        min_yrs, max_yrs = json_processor(cnvt.UsefulVars().ss_conv_file,
-                                          min_yrs, max_yrs)
+    min_yrs, max_yrs = json_processor(UsefulVars().ss_conv_file,
+                                      min_yrs, max_yrs)
 
     # Check that all of the expected files have been imported, and if
     # any files remain, print the filenames to the console

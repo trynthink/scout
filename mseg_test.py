@@ -18,9 +18,6 @@ import itertools
 @unittest.skipUnless('EXPECT_EIA_FILES' in os.environ and
                      os.environ['EXPECT_EIA_FILES'] == 'true',
                      'EIA Data Files Not Available On This System')
-# Skip this test if running on Travis-CI and print the given skip statement
-@unittest.skipIf("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-                 'External File Dependency Unavailable on Travis-CI')
 class ResidentialDataIntegrityTest(unittest.TestCase):
     """ Tests the imported residential equipment energy use data from
     EIA to confirm that the data are in the expected order and that the
