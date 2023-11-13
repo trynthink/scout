@@ -10,11 +10,12 @@ import gzip
 import pickle
 from ast import literal_eval
 import math
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
 from datetime import datetime
 from scout.plots import run_plot
 from scout.constants import FilePaths as fp
+from scout.config import Config
 
 
 class UsefulInputFiles(object):
@@ -5133,24 +5134,11 @@ def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
         args (list): run.py input arguments
     """
 
-    # Handle option user-specified execution arguments
-    parser = ArgumentParser()
-    parser.add_argument("--verbose", action="store_true", dest="verbose",
-                        help="print all warnings to stdout")
-    # Optional flag to calculate site (rather than source) user opts
-    parser.add_argument("--mkt_fracs", action="store_true",
-                        help="Flag market penetration outputs")
-    # Optional flag to trim down results output size
-    parser.add_argument("--trim_results", action="store_true",
-                        help="Reduce results file size")
-    # Optional flag to trim down results output size
-    parser.add_argument("--report_stk", action="store_true",
-                        help="Report baseline/measure stock data")
-    # Optional flag to report competition adjustment fractions
-    parser.add_argument("--report_cfs", action="store_true",
-                        help="Report competition adjustment fractions")
+    # Retrieve config file and CLI arguments
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    config = Config(parser, "run")
+    opts = config.parse_args(args)
 
-    opts = parser.parse_args(args)
     return opts
 
 
