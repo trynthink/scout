@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 
 
-def run_workflow(run_step: str = None, with_profiler: bool = False) -> None:
+def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = False) -> None:
     """Runs Scout workflow steps with optional profiling
 
     Args:
@@ -35,7 +35,7 @@ def run_workflow(run_step: str = None, with_profiler: bool = False) -> None:
 
     # Run ecm_prep.py
     if run_step == "ecm_prep" or run_step is None:
-        opts = ecm_args(["--add_typ_eff", "--rp_persist", "--alt_regions_option", "EMM"])
+        opts = ecm_args(["-y", config])
         if with_profiler:
             run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
         else:
@@ -43,7 +43,7 @@ def run_workflow(run_step: str = None, with_profiler: bool = False) -> None:
 
     # Run run.py
     if run_step == "run" or run_step is None:
-        opts = run.parse_args([])
+        opts = run.parse_args(["-y", config])
         if with_profiler:
             run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
         else:
@@ -107,5 +107,10 @@ if __name__ == "__main__":
         required=False,
         help="Run workflow step(s) with profiler",
     )
+    parser.add_argument(
+        "-y", "--yaml",
+        type=str,
+        help=("Path to YAML configuration file")
+    )
     opts = parser.parse_args()
-    run_workflow(run_step=opts.run_step, with_profiler=opts.with_profiler)
+    run_workflow(config=opts.yaml, run_step=opts.run_step, with_profiler=opts.with_profiler)

@@ -1,0 +1,7 @@
+description: Defines arguments for integration testing runs
+ecm_prep:
+  add_typ_eff: true
+  rp_persist: true
+  alt_regions: EMM
+run: 
+  None: None
