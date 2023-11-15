@@ -65,6 +65,57 @@ class CommonUnitTest(unittest.TestCase):
             else:
                 # Compare the values, allowing for floating point inaccuracy
                 self.assertAlmostEqual(dict1[k], dict2[k2], places=3)
+    # Set expected AIA climate zone list
+    aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
+    # Set expected Census Division list
+    cdiv_list = ["new england", "mid atlantic", "east north central",
+                 "west north central", "south atlantic", "east south central",
+                 "west south central", "mountain", "pacific"]
+    # Set expected EMM region list; restrict to 5 example regions for testing
+    emm_list = ['TRE', 'FRCC', 'ISNE', 'NWPP', 'MISE']
+    # Set data used to map Scout end uses to End Use Load Profiles data for
+    # the purpose of disaggregating CDIV to EMM or state data
+    flag_map_dat = {
+        "res_bldg_types": [
+            "single family home", "multi family home", "mobile home"],
+        "com_bldg_types": [
+            "assembly", "education", "food sales", "food service",
+            "health care", "lodging", "large office", "small office",
+            "mercantile/service", "warehouse", "other", "unspecified"],
+        "res_fuel_types": [
+            "electricity", "natural gas", "distillate", "other fuel"],
+        "com_fuel_types": [
+            "electricity", "natural gas", "distillate"],
+        "res_eus": ["heating", "secondary heating", "cooling", "water heating",
+                    "cooking", "lighting", "fans and pumps", "ceiling fan",
+                    "refrigeration", "drying", "TVs", "computers", "other"],
+        "com_eus": ["heating", "cooling", "water heating", "ventilation",
+                    "cooking", "lighting", "refrigeration", "PCs",
+                    "non-PC office equipment", "other", "MELs",
+                    "unspecified"],
+        "eulp_map": {
+            "heating": ["heating", "secondary heating"],
+            "cooling": ["cooling"],
+            "water heating": ["water heating"],
+            "cooking": ["cooking"],
+            "drying": ["drying"],
+            "clothes washing": ["other-clothes washing"],
+            "dishwasher": ["other-dishwasher"],
+            "lighting": ["lighting"],
+            "refrigeration": ["refrigeration", "other-freezers"],
+            "ceiling fan": ["ceiling fan"],
+            "plug loads": ["TVs", "computers", "MELs", "PCs",
+                           "non-PC office equipment", "unspecified",
+                           "other"],
+            "pool heaters": ["other-pool heaters"],
+            "pool pumps": ["other-pool pumps"],
+            "portable electric spas": ["other-spas"],
+            "fans and pumps": ["ventilation", "fans and pumps"]},
+        "eulp_other_tech": [
+            "dishwasher", "clothes washing", "freezers",
+            "pool heaters", "pool pumps", "portable electric spas"]
+
+    }
 
     # Array of census division to climate zone conversion factors for
     # energy, stock, and square footage data for residential buildings
@@ -81,6 +132,21 @@ class CommonUnitTest(unittest.TestCase):
         (9, 0.0202, 0.0204, 0.2157, 0.6996, 0.0442)],
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+    # Residential building census division to EMM conversion
+    # factors for energy, stock, and square footage data. Derived from array
+    # above, using a select set of EMM regions
+    res_cd_cz_array_emm = np.array([
+        (1, 0.2196, 0.7273, 0.0532, 0.0, 0.0),
+        (2, 0.0599, 0.3407, 0.5994, 0.0, 0.0),
+        (3, 0.1554, 0.6739, 0.1707, 0.0, 0.0),
+        (4, 0.3621, 0.206, 0.4274, 0.0045, 0.0),
+        (5, 0.0, 0.0096, 0.258, 0.3514, 0.3811),
+        (6, 0.0, 0.0, 0.287, 0.4393, 0.2736),
+        (7, 0.0, 0.0, 0.061, 0.1416, 0.7974),
+        (8, 0.1189, 0.3085, 0.1604, 0.0549, 0.3574),
+        (9, 0.0202, 0.0204, 0.2157, 0.6996, 0.0442)],
+        dtype=[('CDIV', '<i4'), ('TRE', '<f8'), ('FRCC', '<f8'),
+               ('ISNE', '<f8'), ('NWPP', '<f8'), ('MISE', '<f8')])
 
     # Test a case where the residential array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
@@ -88,11 +154,15 @@ class CommonUnitTest(unittest.TestCase):
     # headings will actually be EMM regions or states, but this test setup
     # demonstrates the intended functionality nonetheless)
     res_cd_cz_array_fuelsplit = {
-        "electricity": res_cd_cz_array,
-        "natural gas": res_cd_cz_array,
-        "distillate": res_cd_cz_array,
-        "other fuel": res_cd_cz_array,
-        "building stock and square footage": res_cd_cz_array}
+        "electricity": {
+            "heating": res_cd_cz_array_emm,
+            "water heating": res_cd_cz_array_emm,
+            "lighting": res_cd_cz_array_emm,
+            "refrigeration": res_cd_cz_array_emm},
+        "natural gas": res_cd_cz_array_emm,
+        "distillate": res_cd_cz_array_emm,
+        "other fuel": res_cd_cz_array_emm,
+        "building stock and square footage": res_cd_cz_array_emm}
 
     # Array of census division to climate zone conversion factors for
     # energy, stock, and square footage data for commercial buildings
@@ -109,6 +179,21 @@ class CommonUnitTest(unittest.TestCase):
         (9, 0.0701, 0.129, 0.0792, 0.708, 0.0137)],
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+    # Commercial building census division to EMM conversion
+    # factors for energy, stock, and square footage data. Derived from array
+    # above, using a select set of EMM regions
+    com_cd_cz_array_emm = np.array([
+        (1, 0.2389, 0.7611, 0.0, 0.0, 0.0),
+        (2, 0.1546, 0.3568, 0.4886, 0.0, 0.0),
+        (3, 0.2668, 0.7332, 0.0, 0.0, 0.0),
+        (4, 0.4769, 0.2417, 0.2815, 0.0, 0.0),
+        (5, 0.0, 0.0, 0.2107, 0.515, 0.2743),
+        (6, 0.0, 0.0, 0.3102, 0.5726, 0.1172),
+        (7, 0.0, 0.0, 0.0616, 0.2638, 0.6746),
+        (8, 0.5681, 0.2986, 0.0, 0.0, 0.1332),
+        (9, 0.0701, 0.129, 0.0792, 0.708, 0.0137)],
+        dtype=[('CDIV', '<i4'), ('TRE', '<f8'), ('FRCC', '<f8'),
+               ('ISNE', '<f8'), ('NWPP', '<f8'), ('MISE', '<f8')])
 
     # Test a case where the commercial array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
@@ -116,10 +201,14 @@ class CommonUnitTest(unittest.TestCase):
     # headings will actually be EMM regions or states, but this test setup
     # demonstrates the intended functionality nonetheless)
     com_cd_cz_array_fuelsplit = {
-        "electricity": com_cd_cz_array,
-        "natural gas": com_cd_cz_array,
-        "distillate": com_cd_cz_array,
-        "building stock and square footage": com_cd_cz_array}
+        "electricity": {
+            "heating": com_cd_cz_array_emm,
+            "water heating": com_cd_cz_array_emm,
+            "lighting": com_cd_cz_array_emm,
+            "refrigeration": com_cd_cz_array_emm},
+        "natural gas": com_cd_cz_array_emm,
+        "distillate": com_cd_cz_array_emm,
+        "building stock and square footage": com_cd_cz_array_emm}
 
     # Residential building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -136,6 +225,21 @@ class CommonUnitTest(unittest.TestCase):
         (9, 0.03763, 0.01332, 0.1243, 0.4731, 0.03096)],
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+    # Residential building census division to EMM conversion
+    # factors for cost, performance, and lifetime data.
+    # Derived from array above, but using a select set of EMM regions
+    res_cd_cz_wtavg_array_emm = np.array([
+        (1, 0.13296, 0.15477, 0.00997, 0, 0),
+        (2, 0.10044, 0.20077, 0.31107, 0, 0),
+        (3, 0.30485, 0.46459, 0.10366, 0, 0),
+        (4, 0.32086, 0.06415, 0.11721, 0.00146, 0),
+        (5, 0, 0.00822, 0.195, 0.31172, 0.35048),
+        (6, 0, 0, 0.06916, 0.12423, 0.08022),
+        (7, 0, 0, 0.0265, 0.07217, 0.42143),
+        (8, 0.10326, 0.09417, 0.04312, 0.01732, 0.11691),
+        (9, 0.03763, 0.01332, 0.1243, 0.4731, 0.03096)],
+        dtype=[('CDIV', '<i4'), ('TRE', '<f8'), ('FRCC', '<f8'),
+               ('ISNE', '<f8'), ('NWPP', '<f8'), ('MISE', '<f8')])
 
     # Test a case where the residential array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
@@ -143,11 +247,15 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     res_cd_cz_wtavg_array_fuelsplit = {
-        "electricity": res_cd_cz_wtavg_array,
-        "natural gas": res_cd_cz_wtavg_array,
-        "distillate": res_cd_cz_wtavg_array,
-        "other fuel": res_cd_cz_wtavg_array,
-        "building stock and square footage": res_cd_cz_wtavg_array}
+        "electricity": {
+            "heating": res_cd_cz_wtavg_array_emm,
+            "water heating": res_cd_cz_wtavg_array_emm,
+            "lighting": res_cd_cz_wtavg_array_emm,
+            "refrigeration": res_cd_cz_wtavg_array_emm},
+        "natural gas": res_cd_cz_wtavg_array_emm,
+        "distillate": res_cd_cz_wtavg_array_emm,
+        "other fuel": res_cd_cz_wtavg_array_emm,
+        "building stock and square footage": res_cd_cz_wtavg_array_emm}
 
     # Commercial building census division to climate zone conversion
     # factors for cost, performance, and lifetime data
@@ -164,6 +272,21 @@ class CommonUnitTest(unittest.TestCase):
         (9, 0.0522, 0.05769, 0.0563, 0.34226, 0.01089)],
         dtype=[('CDIV', '<i4'), ('AIA_CZ1', '<f8'), ('AIA_CZ2', '<f8'),
                ('AIA_CZ3', '<f8'), ('AIA_CZ4', '<f8'), ('AIA_CZ5', '<f8')])
+    # Commercial building census division to EMM conversion
+    # factors for cost, performance, and lifetime data.
+    # Derived from array above, but using a select set of EMM regions
+    com_cd_cz_wtavg_array_emm = np.array([
+        (1, 0.07044, 0.13487, 0, 0, 0),
+        (2, 0.13854, 0.19219, 0.41823, 0, 0),
+        (3, 0.28803, 0.47563, 0, 0, 0),
+        (4, 0.24615, 0.07497, 0.13876, 0, 0),
+        (5, 0, 0, 0.24293, 0.40379, 0.35346),
+        (6, 0, 0, 0.09947, 0.12486, 0.04198),
+        (7, 0, 0, 0.04431, 0.12909, 0.54244),
+        (8, 0.20464, 0.06465, 0, 0, 0.05122),
+        (9, 0.0522, 0.05769, 0.0563, 0.34226, 0.01089)],
+        dtype=[('CDIV', '<i4'), ('TRE', '<f8'), ('FRCC', '<f8'),
+               ('ISNE', '<f8'), ('NWPP', '<f8'), ('MISE', '<f8')])
 
     # Test a case where the commercial array above is split out by fuel type,
     # as is true for a conversion between census division and EIA Electricity
@@ -171,10 +294,14 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     com_cd_cz_wtavg_array_fuelsplit = {
-        "electricity": com_cd_cz_wtavg_array,
-        "natural gas": com_cd_cz_wtavg_array,
-        "distillate": com_cd_cz_wtavg_array,
-        "building stock and square footage": com_cd_cz_wtavg_array}
+        "electricity": {
+            "heating": com_cd_cz_wtavg_array_emm,
+            "water heating": com_cd_cz_wtavg_array_emm,
+            "lighting": com_cd_cz_wtavg_array_emm,
+            "refrigeration": com_cd_cz_wtavg_array_emm},
+        "natural gas": com_cd_cz_wtavg_array_emm,
+        "distillate": com_cd_cz_wtavg_array_emm,
+        "building stock and square footage": com_cd_cz_wtavg_array_emm}
 
 
 class DataRestructuringFunctionTest(CommonUnitTest):
@@ -212,7 +339,7 @@ class DataRestructuringFunctionTest(CommonUnitTest):
 
     # Specify the climate zones to be tested with the census divisions
     # specified by 'census_divisions'
-    climate_zones = [1, 1]
+    climate_zones = ["AIA_CZ1", "AIA_CZ1"]
 
     # Create an instance of the CommericalTranslationDicts object from
     # com_mseg, which includes dictionaries for converting between
@@ -305,13 +432,13 @@ class DataRestructuringFunctionTest(CommonUnitTest):
             # Call the function to be tested
             result = fmc.merge_sum(base_input,
                                    add_input,
-                                   self.census_divisions[idx],
+                                   (idx+1),
                                    self.climate_zones[idx],
-                                   self.cd.cdivdict,
-                                   self.cd_list,
                                    self.res_cd_cz_array,
                                    self.com_cd_cz_array,
-                                   self.cpl_bool)
+                                   self.cpl_bool,
+                                   self.flag_map_dat,
+                                   first_cd_flag="")
 
             self.dict_check(result, self.loutput[idx])
 
@@ -854,49 +981,6 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                 'source': 'EIA AEO',
                                 'units': 'years'}}}}}}}
 
-    # Create a sample input dict that will trigger KeyError exceptions
-    # because it is not correctly structured
-    test_fail_input = {
-        'new england': {
-            'single family home': {
-                'electricity': {
-                    'lighting': {
-                        'linear fluorescent': {
-                            'stock': {
-                                '2009': 1,
-                                '2010': 1,
-                                '2011': 1},
-                            'energy': {
-                                '2009': 1,
-                                '2010': 1,
-                                '2011': 1}}}}}},
-        'middle atlantic': {
-            'single family home': {
-                'electricity': {
-                    'lighting': {
-                        'linear fluorescent': {
-                            'stock': {
-                                '2009': 2,
-                                '2010': 2,
-                                '2011': 2},
-                            'energy': {
-                                '2009': 2,
-                                '2010': 2,
-                                '2011': 2}}}}}},
-        'east north central': {
-            'single family home': {
-                'electricity': {
-                    'lighting': {
-                        'linear fluorescent': {
-                            'stock': {
-                                '2009': 3,
-                                '2010': 3,
-                                '2011': 3},
-                            'energy': {
-                                '2009': 3,
-                                '2010': 3,
-                                '2011': 3}}}}}}}
-
     # Create an expected output dict of energy, square footage, and
     # stock data structured by climate zone
     test_energy_stock_output = {
@@ -1057,6 +1141,204 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                     'water heating': {
                         '2009': 0, '2010': 0, '2011': 0}}}},
         'AIA_CZ5': {
+            'single family home': {
+                'new homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'total homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0},
+                            "energy": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0}}},
+                    'heating': {
+                        'demand': {
+                            'wall': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2009': 0,
+                                    '2010': 0,
+                                    '2011': 0}}}}}},
+            'mercantile/service': {
+                'total square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'new square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity': {
+                    'lighting': {
+                        'F96T8 HO_HB': {
+                            '2009': 0, '2010': 0, '2011': 0}}},
+                'natural gas': {
+                    'water heating': {
+                        '2009': 0, '2010': 0, '2011': 0}}}}}
+    # Create an expected output dict of energy, square footage, and
+    # stock data structured by EMM region
+    test_energy_stock_output_emm = {
+        'TRE': {
+            'single family home': {
+                'new homes': {
+                    '2009': 18.1279, '2010': 20.3239, '2011': 18.1279},
+                'total homes': {
+                    '2009': 36.2558, '2010': 40.6478, '2011': 36.2558},
+                'square footage': {
+                    '2009': 54.3837, '2010': 60.9717, '2011': 54.3837},
+                'electricity': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 2.6591,
+                                "2010": 3.0940,
+                                "2011": 3.5289},
+                            "energy": {
+                                "2009": 3.9638,
+                                "2010": 4.3987,
+                                "2011": 4.8336}}},
+                    'heating': {
+                        'demand': {
+                            'wall': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2009': 1.4388,
+                                    '2010': 1.7639,
+                                    '2011': 2.1988}}}}}},
+            'mercantile/service': {
+                'total square footage': {
+                    '2009': 8.8636, '2010': 9.7907, '2011': 9.9174},
+                'new square footage': {
+                    '2009': 2.3878, '2010': 2.0507, '2011': 2.1774},
+                'electricity': {
+                    'lighting': {
+                        'F96T8 HO_HB': {
+                            '2009': 0.1812, '2010': 0.3006, '2011': 0.3667}}},
+                'natural gas': {
+                    'water heating': {
+                        '2009': 8.0765, '2010': 9.0036, '2011': 9.2001}}}},
+        'FRCC': {
+            'single family home': {
+                'new homes': {
+                    '2009': 79.2779, '2010': 86.5509, '2011': 79.2779},
+                'total homes': {
+                    '2009': 158.5558, '2010': 173.1018, '2011': 158.5558},
+                'square footage': {
+                    '2009': 237.8337, '2010': 259.6527, '2011': 237.8337},
+                'electricity': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 11.8729,
+                                "2010": 13.6148,
+                                "2011": 15.3567},
+                            "energy": {
+                                "2009": 17.0986,
+                                "2010": 18.8405,
+                                "2011": 20.5824}}},
+                    'heating': {
+                        'demand': {
+                            'wall': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2009': 5.9376,
+                                    '2010': 7.3158,
+                                    '2011': 9.0578}}}}}},
+            'mercantile/service': {
+                'total square footage': {
+                    '2009': 25.2048, '2010': 27.7891, '2011': 28.1738},
+                'new square footage': {
+                    '2009': 6.635, '2010': 5.9493, '2011': 6.334},
+                'electricity': {
+                    'lighting': {
+                        'F96T8 HO_HB': {
+                            '2009': 0.4745, '2010': 0.8062, '2011': 0.9913}}},
+                'natural gas': {
+                    'water heating': {
+                        '2009': 22.0375, '2010': 24.6218, '2011': 25.4025}}}},
+        'ISNE': {
+            'single family home': {
+                'new homes': {
+                    '2009': 25.5943, '2010': 26.1263, '2011': 25.5943},
+                'total homes': {
+                    '2009': 51.1886, '2010': 52.2526, '2011': 51.1886},
+                'square footage': {
+                    '2009': 76.7829, '2010': 78.3789, '2011': 76.7829},
+                'electricity': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 6.4681,
+                                "2010": 7.2914,
+                                "2011": 8.1147},
+                            "energy": {
+                                "2009": 8.9380,
+                                "2010": 9.7613,
+                                "2011": 10.5846}}},
+                    'heating': {
+                        'demand': {
+                            'wall': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2009': 4.124,
+                                    '2010': 4.9207,
+                                    '2011': 5.744}}}}}},
+            'mercantile/service': {
+                'total square footage': {
+                    '2009': 2.9316, '2010': 3.4202, '2011': 3.9088},
+                'new square footage': {
+                    '2009': 0.9772, '2010': 0, '2011': 0.4886},
+                'electricity': {
+                    'lighting': {
+                        'F96T8 HO_HB': {
+                            '2009': 0.2443, '2010': 0.2932, '2011': 0.3420}}},
+                'natural gas': {
+                    'water heating': {
+                        '2009': 4.886, '2010': 5.3746, '2011': 4.3974}}}},
+        'NWPP': {
+            'single family home': {
+                'new homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'total homes': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity': {
+                    'lighting': {
+                        'linear fluorescent': {
+                            "stock": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0},
+                            "energy": {
+                                "2009": 0,
+                                "2010": 0,
+                                "2011": 0}}},
+                    'heating': {
+                        'demand': {
+                            'wall': {
+                                'stock': 'NA',
+                                'energy': {
+                                    '2009': 0,
+                                    '2010': 0,
+                                    '2011': 0}}}}}},
+            'mercantile/service': {
+                'total square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'new square footage': {
+                    '2009': 0, '2010': 0, '2011': 0},
+                'electricity': {
+                    'lighting': {
+                        'F96T8 HO_HB': {
+                            '2009': 0, '2010': 0, '2011': 0}}},
+                'natural gas': {
+                    'water heating': {
+                        '2009': 0, '2010': 0, '2011': 0}}}},
+        'MISE': {
             'single family home': {
                 'new homes': {
                     '2009': 0, '2010': 0, '2011': 0},
@@ -1774,6 +2056,684 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                     '2017': 14.3622},
                                 'source': 'EIA AEO',
                                 'units': 'years'}}}}}}}
+    # Create an expected output dict of cost, performance, and lifetime
+    # data structured by EMM region
+    test_cpl_output_emm = {
+        'TRE': {
+            'mobile home': {
+                'new homes': 0,
+                'total homes': 0,
+                'square footage': 0,
+                'distillate': {
+                    'heating': {
+                        'supply': {
+                            'boiler (distillate)': {
+                                'installed cost': {
+                                    'typical': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'best': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'source': 'EIA AEO',
+                                    'units': '2013$/kBTU out/hr'},
+                                'performance': {
+                                    'typical': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'best': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'source': 'EIA AEO',
+                                    'units': 'BTU out/BTU in'},
+                                'lifetime': {
+                                    'average': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'range': {
+                                        '2015': 0,
+                                        '2016': 0,
+                                        '2017': 0},
+                                    'source': 'EIA AEO',
+                                    'units': 'years'}}}}}},
+            'assembly': {
+                'total square footage': 0,
+                'new square footage': 0,
+                'electricity': {
+                    'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
+                        'Supermkt_display_case': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'range': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}},
+                'natural gas': {
+                    'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
+                        'gas_water_heater': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'range': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}}}},
+        'FRCC': {
+            'mobile home': {
+                'new homes': 0,
+                'total homes': 0,
+                'square footage': 0,
+                'distillate': {
+                    'heating': {
+                        'supply': {
+                            'boiler (distillate)': {
+                                'installed cost': {
+                                    'typical': {
+                                        '2015': 0.1644,
+                                        '2016': 0.2466,
+                                        '2017': 0.3288},
+                                    'best': {
+                                        '2015': 0.1644,
+                                        '2016': 0.2466,
+                                        '2017': 0.3288},
+                                    'source': 'EIA AEO',
+                                    'units': '2013$/kBTU out/hr'},
+                                'performance': {
+                                    'typical': {
+                                        '2015': 0.0411,
+                                        '2016': 0.0493,
+                                        '2017': 0.0575},
+                                    'best': {
+                                        '2015': 0.0411,
+                                        '2016': 0.0493,
+                                        '2017': 0.0575},
+                                    'source': 'EIA AEO',
+                                    'units': 'BTU out/BTU in'},
+                                'lifetime': {
+                                    'average': {
+                                        '2015': 0.2055,
+                                        '2016': 0.2055,
+                                        '2017': 0.2055},
+                                    'range': {
+                                        '2015': 0.2055,
+                                        '2016': 0.2055,
+                                        '2017': 0.2055},
+                                    'source': 'EIA AEO',
+                                    'units': 'years'}}}}}},
+            'assembly': {
+                'total square footage': 0,
+                'new square footage': 0,
+                'electricity': {
+                    'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
+                        'Supermkt_display_case': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'range': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}},
+                'natural gas': {
+                    'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]},
+                            'population fraction': {
+                                '2015': [0, 0, 0],
+                                '2016': [0, 0, 0],
+                                '2017': [0, 0, 0]}},
+                        'gas_water_heater': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'best': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'range': {
+                                    '2015': 0,
+                                    '2016': 0,
+                                    '2017': 0},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}}}},
+        'ISNE': {
+            'mobile home': {
+                'new homes': 0,
+                'total homes': 0,
+                'square footage': 0,
+                'distillate': {
+                    'heating': {
+                        'supply': {
+                            'boiler (distillate)': {
+                                'installed cost': {
+                                    'typical': {
+                                        '2015': 4.4371,
+                                        '2016': 6.4828,
+                                        '2017': 8.5284},
+                                    'best': {
+                                        '2015': 4.7241,
+                                        '2016': 6.8389,
+                                        '2017': 8.9537},
+                                    'source': 'EIA AEO',
+                                    'units': '2013$/kBTU out/hr'},
+                                'performance': {
+                                    'typical': {
+                                        '2015': 1.5121,
+                                        '2016': 1.8023,
+                                        '2017': 2.0934},
+                                    'best': {
+                                        '2015': 1.7991,
+                                        '2016': 2.1589,
+                                        '2017': 2.5187},
+                                    'source': 'EIA AEO',
+                                    'units': 'BTU out/BTU in'},
+                                'lifetime': {
+                                    'average': {
+                                        '2015': 7.2665,
+                                        '2016': 7.2665,
+                                        '2017': 7.2665},
+                                    'range': {
+                                        '2015': 7.2665,
+                                        '2016': 7.2665,
+                                        '2017': 7.2665},
+                                    'source': 'EIA AEO',
+                                    'units': 'years'}}}}}},
+            'assembly': {
+                'total square footage': 0,
+                'new square footage': 0,
+                'electricity': {
+                    'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0387, 0.3093, 0.4641],
+                                '2016': [0.0387, 0.3093, 0.4641],
+                                '2017': [0.0387, 0.3093, 0.4641]},
+                            'population fraction': {
+                                '2015': [0.0387, 0.1204, 0.1934],
+                                '2016': [0.0387, 0.1204, 0.1934],
+                                '2017': [0.0387, 0.1204, 0.1934]}},
+                        'Supermkt_display_case': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 4.1228,
+                                    '2016': 5.1064,
+                                    '2017': 7.6262},
+                                'best': {
+                                    '2015': 5.3831,
+                                    '2016': 7.1072,
+                                    '2017': 7.767},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 6.1551,
+                                    '2016': 6.4535,
+                                    '2017': 7.4807},
+                                'best': {
+                                    '2015': 6.4318,
+                                    '2016': 6.7303,
+                                    '2017': 8.2433},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 6.087,
+                                    '2016': 6.1313,
+                                    '2017': 6.1756},
+                                'range': {
+                                    '2015': 9.0586,
+                                    '2016': 9.1029,
+                                    '2017': 9.1472},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}},
+                'natural gas': {
+                    'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0387, 0.3093, 0.4641],
+                                '2016': [0.0387, 0.3093, 0.4641],
+                                '2017': [0.0387, 0.3093, 0.4641]},
+                            'population fraction': {
+                                '2015': [0.0674, 0.1403, 0.1691],
+                                '2016': [0.0674, 0.1403, 0.1691],
+                                '2017': [0.0674, 0.1403, 0.1691]}},
+                        'gas_water_heater': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 2.5852,
+                                    '2016': 3.1712,
+                                    '2017': 3.7572},
+                                'best': {
+                                    '2015': 3.1154,
+                                    '2016': 3.7014,
+                                    '2017': 4.2873},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 1.3146,
+                                    '2016': 1.7013,
+                                    '2017': 2.088},
+                                'best': {
+                                    '2015': 1.6018,
+                                    '2016': 1.9886,
+                                    '2017': 2.3753},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 5.8208,
+                                    '2016': 5.9202,
+                                    '2017': 6.0197},
+                                'range': {
+                                    '2015': 8.5485,
+                                    '2016': 8.6479,
+                                    '2017': 8.7474},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}}}},
+        'NWPP': {
+            'mobile home': {
+                'new homes': 0,
+                'total homes': 0,
+                'square footage': 0,
+                'distillate': {
+                    'heating': {
+                        'supply': {
+                            'boiler (distillate)': {
+                                'installed cost': {
+                                    'typical': {
+                                        '2015': 7.2484,
+                                        '2016': 10.5619,
+                                        '2017': 13.8756},
+                                    'best': {
+                                        '2015': 7.8376,
+                                        '2016': 11.2754,
+                                        '2017': 14.7132},
+                                    'source': 'EIA AEO',
+                                    'units': '2013$/kBTU out/hr'},
+                                'performance': {
+                                    'typical': {
+                                        '2015': 2.5726,
+                                        '2016': 3.0807,
+                                        '2017': 3.5888},
+                                    'best': {
+                                        '2015': 3.1618,
+                                        '2016': 3.7941,
+                                        '2017': 4.4265},
+                                    'source': 'EIA AEO',
+                                    'units': 'BTU out/BTU in'},
+                                'lifetime': {
+                                    'average': {
+                                        '2015': 12.703,
+                                        '2016': 12.703,
+                                        '2017': 12.703},
+                                    'range': {
+                                        '2015': 12.703,
+                                        '2016': 12.703,
+                                        '2017': 12.703},
+                                    'source': 'EIA AEO',
+                                    'units': 'years'}}}}}},
+            'assembly': {
+                'total square footage': 0,
+                'new square footage': 0,
+                'electricity': {
+                    'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0658, 0.5262, 0.7893],
+                                '2016': [0.0658, 0.5262, 0.7893],
+                                '2017': [0.0658, 0.5262, 0.7893]},
+                            'population fraction': {
+                                '2015': [0.0658, 0.2102, 0.3289],
+                                '2016': [0.0658, 0.2102, 0.3289],
+                                '2017': [0.0658, 0.2102, 0.3289]}},
+                        'Supermkt_display_case': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 6.3293,
+                                    '2016': 7.7362,
+                                    '2017': 11.1451},
+                                'best': {
+                                    '2015': 8.3775,
+                                    '2016': 10.7875,
+                                    '2017': 11.8615},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 10.8988,
+                                    '2016': 11.2734,
+                                    '2017': 12.8594},
+                                'best': {
+                                    '2015': 11.54,
+                                    '2016': 11.9146,
+                                    '2017': 14.3082},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 9.7366,
+                                    '2016': 9.8657,
+                                    '2017': 9.9948},
+                                'range': {
+                                    '2015': 14.4779,
+                                    '2016': 14.607,
+                                    '2017': 14.7361},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}},
+                'natural gas': {
+                    'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0658, 0.5262, 0.7893],
+                                '2016': [0.0658, 0.5262, 0.7893],
+                                '2017': [0.0658, 0.5262, 0.7893]},
+                            'population fraction': {
+                                '2015': [0.1191, 0.2377, 0.2885],
+                                '2016': [0.1191, 0.2377, 0.2885],
+                                '2017': [0.1191, 0.2377, 0.2885]}},
+                        'gas_water_heater': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 4.0586,
+                                    '2016': 4.9411,
+                                    '2017': 5.8236},
+                                'best': {
+                                    '2015': 4.9953,
+                                    '2016': 5.8778,
+                                    '2017': 6.7602},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 2.1063,
+                                    '2016': 2.7641,
+                                    '2017': 3.4218},
+                                'best': {
+                                    '2015': 2.6392,
+                                    '2016': 3.297,
+                                    '2017': 3.9547},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 9.7244,
+                                    '2016': 9.8492,
+                                    '2017': 9.9741},
+                                'range': {
+                                    '2015': 14.1368,
+                                    '2016': 14.2617,
+                                    '2017': 14.3866},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}}}},
+        'MISE': {
+            'mobile home': {
+                'new homes': 0,
+                'total homes': 0,
+                'square footage': 0,
+                'distillate': {
+                    'heating': {
+                        'supply': {
+                            'boiler (distillate)': {
+                                'installed cost': {
+                                    'typical': {
+                                        '2015': 8.414,
+                                        '2016': 12.4205,
+                                        '2017': 16.4269},
+                                    'best': {
+                                        '2015': 9.9189,
+                                        '2016': 14.0056,
+                                        '2017': 18.0923},
+                                    'source': 'EIA AEO',
+                                    'units': '2013$/kBTU out/hr'},
+                                'performance': {
+                                    'typical': {
+                                        '2015': 3.1568,
+                                        '2016': 4.0089,
+                                        '2017': 4.8611},
+                                    'best': {
+                                        '2015': 4.6618,
+                                        '2016': 5.5941,
+                                        '2017': 6.5265},
+                                    'source': 'EIA AEO',
+                                    'units': 'BTU out/BTU in'},
+                                'lifetime': {
+                                    'average': {
+                                        '2015': 21.3033,
+                                        '2016': 21.3033,
+                                        '2017': 21.3033},
+                                    'range': {
+                                        '2015': 21.3033,
+                                        '2016': 21.3033,
+                                        '2017': 21.3033},
+                                    'source': 'EIA AEO',
+                                    'units': 'years'}}}}}},
+            'assembly': {
+                'total square footage': 0,
+                'new square footage': 0,
+                'electricity': {
+                    'refrigeration': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0938, 0.7503, 1.1255],
+                                '2016': [0.0938, 0.7503, 1.1255],
+                                '2017': [0.0938, 0.7503, 1.1255]},
+                            'population fraction': {
+                                '2015': [0.0938, 0.3356, 0.4689],
+                                '2016': [0.0938, 0.3356, 0.4689],
+                                '2017': [0.0938, 0.3356, 0.4689]}},
+                        'Supermkt_display_case': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 8.3794,
+                                    '2016': 9.5692,
+                                    '2017': 11.9311},
+                                'best': {
+                                    '2015': 11.7809,
+                                    '2016': 13.807,
+                                    '2017': 15.3838},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 18.4077,
+                                    '2016': 18.5337,
+                                    '2017': 19.72},
+                                'best': {
+                                    '2015': 20.6195,
+                                    '2016': 20.7454,
+                                    '2017': 22.6386},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 10.2501,
+                                    '2016': 10.7925,
+                                    '2017': 11.3349},
+                                'range': {
+                                    '2015': 15.0829,
+                                    '2016': 15.6253,
+                                    '2017': 16.1678},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}},
+                'natural gas': {
+                    'water heating': {
+                        'consumer choice': {
+                            'time preference': {
+                                '2015': [0.0938, 0.7503, 1.1255],
+                                '2016': [0.0938, 0.7503, 1.1255],
+                                '2017': [0.0938, 0.7503, 1.1255]},
+                            'population fraction': {
+                                '2015': [0.1834, 0.3167, 0.4336],
+                                '2016': [0.1834, 0.3167, 0.4336],
+                                '2017': [0.1834, 0.3167, 0.4336]}},
+                        'gas_water_heater': {
+                            'installed cost': {
+                                'typical': {
+                                    '2015': 4.1679,
+                                    '2016': 5.4627,
+                                    '2017': 6.7574},
+                                'best': {
+                                    '2015': 5.4172,
+                                    '2016': 6.712,
+                                    '2017': 8.0068},
+                                'source': 'EIA AEO',
+                                'units': '2013$/kBTU out/hr'},
+                            'performance': {
+                                'typical': {
+                                    '2015': 2.2187,
+                                    '2016': 3.1566,
+                                    '2017': 4.0945},
+                                'best': {
+                                    '2015': 3.1146,
+                                    '2016': 4.0525,
+                                    '2017': 4.9904},
+                                'source': 'EIA AEO',
+                                'units': 'BTU out/BTU in'},
+                            'lifetime': {
+                                'average': {
+                                    '2015': 10.6177,
+                                    '2016': 10.6597,
+                                    '2017': 10.7017},
+                                'range': {
+                                    '2015': 14.2782,
+                                    '2016': 14.3202,
+                                    '2017': 14.3622},
+                                'source': 'EIA AEO',
+                                'units': 'years'}}}}}}}
 
     # Define user input strings
     user_input_nrgstk = "1"  # User input to reprocess energy and stock data
@@ -1786,19 +2746,22 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array,
                                    self.com_cd_cz_array,
-                                   self.user_input_nrgstk)
+                                   self.user_input_nrgstk,
+                                   self.flag_map_dat, self.aia_list,
+                                   self.cdiv_list)
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
     # Compare the converted dict of energy, stock, and square footage
     # data to the expected data reported on an alternate region (EMM or state)
     # basis, given conversion arrays that are split out by fuel type
-    def test_conversion_of_energy_stock_square_footage_data_alt(self):
+    def test_conversion_of_energy_stock_square_footage_data_emm(self):
         dict1 = fmc.clim_converter(self.test_energy_stock_input,
                                    self.res_cd_cz_array_fuelsplit,
                                    self.com_cd_cz_array_fuelsplit,
-                                   self.user_input_nrgstk)
-        dict2 = self.test_energy_stock_output
+                                   self.user_input_nrgstk, self.flag_map_dat,
+                                   self.emm_list, self.cdiv_list)
+        dict2 = self.test_energy_stock_output_emm
         self.dict_check(dict1, dict2)
 
     # Compare the converted dict of cost, performance, and lifetime
@@ -1808,7 +2771,9 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         dict1 = fmc.clim_converter(self.test_cpl_input,
                                    self.res_cd_cz_wtavg_array,
                                    self.com_cd_cz_wtavg_array,
-                                   self.user_input_cpl)
+                                   self.user_input_cpl,
+                                   self.flag_map_dat, self.aia_list,
+                                   self.cdiv_list)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -1819,17 +2784,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
         dict1 = fmc.clim_converter(self.test_cpl_input,
                                    self.res_cd_cz_wtavg_array_fuelsplit,
                                    self.com_cd_cz_wtavg_array_fuelsplit,
-                                   self.user_input_cpl)
-        dict2 = self.test_cpl_output
+                                   self.user_input_cpl, self.flag_map_dat,
+                                   self.emm_list, self.cdiv_list)
+        dict2 = self.test_cpl_output_emm
         self.dict_check(dict1, dict2)
-
-    # Check malformed dict to verify that the appropriate error is raised
-    def test_census_division_to_climate_zone_conversion_error_handling(self):
-        with self.assertRaises(KeyError):
-            fmc.clim_converter(self.test_fail_input,
-                               self.res_cd_cz_array,
-                               self.com_cd_cz_array,
-                               self.user_input_nrgstk)
 
 
 class EnvelopeDataUnitTest(CommonUnitTest):
@@ -2337,15 +3295,15 @@ class EnvelopeDataUnitTest(CommonUnitTest):
     # regional breakout is needed. For convenience, the below conversion array
     # assumes 5 EIA EMM regions that map directly to one of the five AIA
     # climate zones (e.g., EMM region 1 = AIA region 1)
-    perf_convert_data_alt = np.array([
+    perf_convert_data_emm = np.array([
         (1, 1, 0, 0, 0, 0),
         (2, 0, 1, 0, 0, 0),
         (3, 0, 0, 1, 0, 0),
         (4, 0, 0, 0, 1, 0),
         (5, 0, 0, 0, 0, 1)],
-        dtype=[('AIA', 'float64'), ('TRE', 'float64'),
-               ('FRCC', 'float64'), ('SPPN', 'float64'),
-               ('MISW', 'float64'), ('ISNE', 'float64')])
+        dtype=[('EMM', 'float64'), ('TRE', 'float64'),
+               ('FRCC', 'float64'), ('MISE', 'float64'),
+               ('NWPP', 'float64'), ('ISNE', 'float64')])
 
 
 class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
@@ -2378,9 +3336,9 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
     sample_keys_alt = [
         ['FRCC', 'warehouse', 'natural gas',
          'heating', 'demand', 'windows solar'],
-        ['MISW', 'health care', 'electricity',
+        ['MISE', 'health care', 'electricity',
          'cooling', 'demand', 'people gain'],
-        ['SPPN', 'single family home', 'electricity',
+        ['NWPP', 'single family home', 'electricity',
          'heating', 'demand', 'windows conduction'],
         ['ISNE', 'mobile home', 'electricity',
          'cooling', 'demand', 'infiltration'],
@@ -2538,7 +3496,10 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
                                               self.cost_convert_data,
                                               self.perf_convert_data_aia,
                                               self.the_years,
-                                              keys)
+                                              keys,
+                                              self.aia_list,
+                                              self.cdiv_list,
+                                              self.emm_list)
 
             # Call the appropriate test based on the expectation of a dict
             if self.dict_expected[idx]:
@@ -2554,9 +3515,12 @@ class EnvelopeDataHandlerFunctionTest(EnvelopeDataUnitTest):
         for idx, keys in enumerate(self.sample_keys_alt):
             output = fmc.env_cpl_data_handler(self.envelope_cpl_data,
                                               self.cost_convert_data,
-                                              self.perf_convert_data_alt,
+                                              self.perf_convert_data_emm,
                                               self.the_years,
-                                              keys)
+                                              keys,
+                                              self.aia_list,
+                                              self.cdiv_list,
+                                              self.emm_list)
 
             # Call the appropriate test based on the expectation of a dict
             if self.dict_expected[idx]:
