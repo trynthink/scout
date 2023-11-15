@@ -32,6 +32,7 @@ import com_mseg as cm
 import functools as ft
 import math
 import gzip
+import pandas as pd
 
 
 class UsefulVars(object):
@@ -103,7 +104,7 @@ class UsefulVars(object):
         # Set input JSON
         self.json_in = 'mseg_res_com_cdiv.json'
         # Find appropriate conversion data for user-specified geo. breakout
-        # (1=AIA climate zones, 2=NEMS EMM regions)
+        # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
             self.res_climate_convert = (
                 'supporting_data/convert_data/geo_map/'
@@ -117,7 +118,7 @@ class UsefulVars(object):
             self.res_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Res_Cdiv_EMM_Elec_RowSums.txt'),
+                    'Res_Cdiv_EMM_Elec_EU_RowSums.csv'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'Res_Cdiv_EMM_NG_RowSums.txt'),
@@ -134,7 +135,7 @@ class UsefulVars(object):
             self.com_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Com_Cdiv_EMM_Elec_RowSums.txt'),
+                    'Com_Cdiv_EMM_Elec_EU_RowSums.csv'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'Com_Cdiv_EMM_NG_RowSums.txt'),
@@ -151,7 +152,7 @@ class UsefulVars(object):
             self.res_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Res_Cdiv_State_Elec_RowSums.txt'),
+                    'Res_Cdiv_State_Elec_EU_RowSums.csv'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'Res_Cdiv_State_NG_RowSums.txt'),
@@ -168,7 +169,7 @@ class UsefulVars(object):
             self.com_climate_convert = {
                 "electricity": (
                     'supporting_data/convert_data/geo_map/'
-                    'Com_Cdiv_State_Elec_RowSums.txt'),
+                    'Com_Cdiv_State_Elec_EU_RowSums.csv'),
                 "natural gas": (
                     'supporting_data/convert_data/geo_map/'
                     'Com_Cdiv_State_NG_RowSums.txt'),
@@ -249,24 +250,23 @@ class UsefulVars(object):
             self.json_out = 'cpl_res_com_cdiv.json'
 
 
-def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
-              res_convert_array, com_convert_array, cpl, cd_to_cz_factor=0,
-              fuel_flag=None):
+def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
+              com_convert_array, cpl, flag_map_dat, first_cd_flag,
+              cd_to_cz_factor=0, bldg_flag=None, fuel_flag=None, eu_flag=None):
     """Calculate values to restructure census division data to custom regions.
 
     Two dicts with identical structure, 'base_dict' and 'add_dict' are
     passed to this function and manipulated to effect conversion of the
-    data from a census division (specified by 'cd') to a custom region
-    (specified by 'cz') basis.
+    data from a census division (specified by 'cd_num') to a custom region
+    (specified by 'reg_name') basis.
 
     This function operates recursively, traversing the structure of
     the input dicts until a list of years is reached. At that point,
     if the census division specified corresponds to the first census
-    division in the original data (the order is obtained from
-    'cd_list'), the entries in 'base_dict' are overwritten by the same
-    data multiplied by the appropriate conversion factor. If the census
-    division is not the first to appear in the original data,
-    'base_dict' has already been modified, and data from subsequent
+    division in the original data, the entries in 'base_dict' are
+    overwritten by the same data multiplied by the appropriate conversion
+    factor. If the census division is not the first to appear in the original
+    data, 'base_dict' has already been modified, and data from subsequent
     census divisions should be added to 'base_dict', thus 'add_dict' is
     modified to the current custom region using the appropriate
     conversion factor and added to 'base_dict'.
@@ -289,42 +289,34 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             should be structurally identical to 'base_dict', and
             (generally) corresponds to the data that should be updated
             and then added to 'base_dict'.
-        cd (int): The census division (1-9) currently being processed.
-            Used as an array row index, so the actual values begin
-            with 0, not 1.
-        cz (int): The custom region to which the census division data
-            are being added. Used as an array column index where the
-            first (0th) column is not relevant, thus it begins at 1.
-        cd_dict (dict): A dict for translating between census division
-            descriptive strings and their corresponding numeric codes.
-        cd_list (list): A list of the census divisions that are in the
-            input data (the top level keys from the JSON structure),
-            in the order in which they appear.
+        cd_num (int): The census division index (0-8) currently being
+            processed.
+        reg_name (int): The custom region name to which the census division
+            data are being added.
         res_convert_array (numpy.ndarray): Coefficients for converting
             from census divisions to custom regions for residential buildings.
         com_convert_array (numpy.ndarray): Coefficients for converting
             from census divisions to custom regions for commercial buildings.
         cpl (bool): True if cpl data are being processed
+        flag_map_dat (dict): Info. used to flag building types, fuel types,
+            end uses, and map to NREL End Use Load Profiles (EULP) datasets.
+        first_cd_flag (boolean): Flag for loop through the first census
+            division in the input data.
         cd_to_cz_factor (float): The numeric conversion factor to
             calculate the contribution from the current census division
             'cd' to the current custom region 'cz'.
+        bldg_flag (NoneType): Flag for the building type currently being looped
+            through (relevant only to EMM/state custom region convert).
         fuel_flag (NoneType): Flag for the fuel type currently being looped
-            through (relevant only to EMM custom region cost_convert).
+            through (relevant only to EMM/state custom region convert).
+        eu_flag (NoneType): Flag for the end use currently being looped
+            through (relevant only to EMM/state custom region convert)
 
     Returns:
         A dict with the same form as base_dict and add_dict, with the
         values for the particular census division specified in 'cd'
         converted to the custom region 'cz'.
     """
-
-    # Extract lists of strings corresponding to the residential and
-    # commercial building types used to process these inputs
-    res_bldg_types = list(mseg.bldgtypedict.keys())
-    com_bldg_types = list(cm.CommercialTranslationDicts().bldgtypedict.keys())
-    # Extract lists of strings corresponding to the residential and
-    # commercial fuel types used to process these inputs
-    res_fuel_types = list(mseg.fueldict.keys())
-    com_fuel_types = list(cm.CommercialTranslationDicts().fueldict.keys())
 
     for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
                                 sorted(add_dict.items())):
@@ -348,14 +340,19 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             # cd_to_cz_factor will be the same. Ensure that the walk is
             # currently at the building type level by checking keys from the
             # next level down (the fuel type level) against expected fuel types
-            if ((k in res_bldg_types and
-                any([x in res_fuel_types for x in base_dict[k].keys()])) or
-                (k in com_bldg_types and
-                 any([x in com_fuel_types for x in base_dict[k].keys()]))):
-                if k in res_bldg_types:
+            # Record building type flag
+            if ((k in flag_map_dat["res_bldg_types"] and
+                any([x in flag_map_dat["res_fuel_types"] for
+                     x in base_dict[k].keys()])) or
+                (k in flag_map_dat["com_bldg_types"] and
+                 any([x in flag_map_dat["com_fuel_types"] for
+                      x in base_dict[k].keys()]))):
+                if k in flag_map_dat["res_bldg_types"]:
                     cd_to_cz_factor = res_convert_array
-                elif k in com_bldg_types:
+                    bldg_flag = "res"
+                elif k in flag_map_dat["com_bldg_types"]:
                     cd_to_cz_factor = com_convert_array
+                    bldg_flag = "com"
             # Flag the current fuel type being updated, which is relevant
             # to ultimate selection of conversion factor from the conversion
             # array when translating to EMM region or state, in which case
@@ -363,44 +360,110 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
             # expectation that conversion arrays will be in dict format in the
             # EMM region or state case (with keys for fuel conversion factors)
             # to trigger the fuel flag update
-            elif (k in res_fuel_types or k in com_fuel_types) and \
+            elif (k in flag_map_dat["res_fuel_types"] or
+                  k in flag_map_dat["com_fuel_types"]) and \
                     type(res_convert_array) is dict:
                 fuel_flag = k
             # When updating total building stock or square footage data for
             # EMM regions or states, which are not keyed by fuel type, set the
             # fuel type flag accordingly; for states, this will pull in
             # mapping data based on consumption splits across all fuels; for
-            # EMM regions, this will pull in mapping data based on electricity
+            # EMM regions, this will pull in mapping data based on
+            # total electricity
             elif (k in ["total homes", "new homes", "total square footage",
                         "new square footage"]):
                 fuel_flag = "building stock and square footage"
+            # Flag the current end use being updated, which is relevant to
+            # ultimate selection of conversion factor from the conversion
+            # array when translating electricity stock/energy data to EMM
+            # region or state, in which case conversion factors are based on
+            # the EULP and are different for different end uses
+            elif (fuel_flag and fuel_flag == "electricity") and (type(
+                cd_to_cz_factor[fuel_flag]) is dict) and any([
+                    k in x for x in [flag_map_dat["res_eus"],
+                                     flag_map_dat["com_eus"]]]):
+                # Handle special cases of "other" end use technologies in
+                # Scout, which are sometimes handled at the end-use level in
+                # the EULP data (e.g., washing), and the case of cooking,
+                # which has EULP data for residential but not commercial
+                if k != "other" and (k != "cooking" or (
+                        k == "cooking" and bldg_flag == "res")):
+                    # Find the EULP end use for the current Scout end use
+                    eu_find = [i[0] for i in flag_map_dat["eulp_map"].items()
+                               if k in i[1]]
+                    # If there was not a unique match, warn user
+                    if len(eu_find) == 1:
+                        eu_flag = eu_find[0]
+                    else:
+                        raise ValueError(
+                            "Could not match Scout end use: " + bldg_flag +
+                            " " + fuel_flag + " " + " " + k + " to EULP data")
+                else:
+                    eu_flag = "misc"
+            # Process end uses/technologies that were not initially matched
+            # in the clause above
+            elif eu_flag == "misc":
+                # Case where "other" tech. in Scout data is assigned unique
+                # end-use profile in the EULP data; match tech. to EULP end use
+                if k in flag_map_dat["eulp_other_tech"]:
+                    # Find the EULP end use for the current Scout technology;
+                    # note that technology name will be included in EULP
+                    # mapping dict items w/ "other", e.g., "other-[tech name]"
+                    eu_find = [
+                        i[0] for i in flag_map_dat["eulp_map"].items() if any([
+                            k in x for x in i[1]])]
+                    # If there was not a unique match, warn user
+                    if len(eu_find) == 1:
+                        eu_flag = eu_find[0]
+                    else:
+                        raise ValueError(
+                            "Could not match Scout end use: "
+                            + bldg_flag + " " + fuel_flag + " " +
+                            " " + k + " to EULP data")
+                # All other cases without unique EULP end-use profiles are
+                # assigned to the plug loads profile
+                else:
+                    eu_flag = "plug loads"
+
             # Recursively loop through both dicts
             if isinstance(i, dict):
-                merge_sum(i, i2, cd, cz, cd_dict, cd_list, res_convert_array,
-                          com_convert_array, cpl, cd_to_cz_factor, fuel_flag)
+                merge_sum(i, i2, cd_num, reg_name, res_convert_array,
+                          com_convert_array, cpl, flag_map_dat, first_cd_flag,
+                          cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag)
             elif type(base_dict[k]) is not str:
                 # Check whether the conversion array needs to be further keyed
-                # by fuel type, as is the case when converting to EMM region or
-                # state; in such cases, the fuel flag indicates the key value
-                # to use
-                if fuel_flag is not None:
-                    # Find conversion factor for the fuel and given
-                    # combination of census division and EMM region or state;
-                    # handle case where conversion data are not broken out
-                    # by fuel type (AIA regions)
-                    try:
-                        convert_fact = cd_to_cz_factor[fuel_flag][cd][cz]
-                    except ValueError:
-                        convert_fact = cd_to_cz_factor[cd][cz]
+                # by fuel type and (for electricity) by end use, as is the case
+                # when converting to EMM region or state and using EULP data
+                # to disaggregate to those regions; in such cases, the fuel
+                # and end use flags indicate the key values for pulling
+                # appropriate data
+                if type(cd_to_cz_factor) is dict:
+                    # For electricity case, data will be further broken
+                    # out by end use via EULP
+                    if (fuel_flag and fuel_flag == "electricity") and eu_flag:
+                        # Ensure that data for the current end use can be
+                        # pulled and that data converted from pandas df
+                        # are in format that is JSON serializable
+                        try:
+                            convert_fact = float(cd_to_cz_factor[fuel_flag][
+                                eu_flag][cd_num][reg_name])
+                        except IndexError:
+                            raise ValueError(
+                                "End use: " + bldg_flag + " " + fuel_flag +
+                                " " + eu_flag + " not present in EULP "
+                                "disaggregration data")
+                    else:
+                        convert_fact = cd_to_cz_factor[fuel_flag][cd_num][
+                            reg_name]
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
-                    convert_fact = cd_to_cz_factor[cd][cz]
+                    convert_fact = cd_to_cz_factor[cd_num][reg_name]
 
-                # Special handling of first dict (no addition of the
+                # Special handling of first census dict (no addition of the
                 # second dict, only conversion of the first dict with
                 # the appropriate factor)
-                if (cd == (cd_dict[cd_list[0]] - 1)):
+                if first_cd_flag:
                     # In the special case of consumer choice/time
                     # preference premium data, the data are reported
                     # as a list and must be reprocessed using a list
@@ -440,7 +503,8 @@ def merge_sum(base_dict, add_dict, cd, cz, cd_dict, cd_list,
     return base_dict
 
 
-def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
+def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
+                   flag_map_dat, reg_list, cdiv_list):
     """Convert input data dict from a census division to a custom region basis.
 
     This function principally serves to prepare the inputs for, and
@@ -458,7 +522,11 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
             division to custom region conversion factors for
             commercial building types.
         data_in (str): User input indicating energy and stock (1) or cost,
-            performance, and lifetime data are being processed (2)
+            performance, and lifetime data are being processed (2).
+        flag_map_dat (dict): Info. used to flag building types, fuel types,
+            end uses, and map to NREL End Use Load Profiles (EULP) datasets.
+        reg_list (list): List of expected regional names to disaggregate to.
+        cdiv_list (list): List of expected CDIV names to disaggregate to.
 
     Returns:
         A complete dict with the same structure as input_dict,
@@ -467,11 +535,6 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
         have been updated to correspond to those custom regions.
     """
 
-    # Create an instance of the CommercialTranslationDicts object from
-    # com_mseg, which contains a dict that translates census division
-    # strings into the corresponding integer codes
-    cd = cm.CommercialTranslationDicts()
-
     # Set boolean for whether cost, performance, and lifetime data
     # are being processed
     if data_in == '2':
@@ -479,74 +542,57 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in):
     else:
         cpl_bool = False
 
-    # Obtain list of all custom region names as strings
-    try:
-        cz_list = res_convert_array.dtype.names[1:]
-    # Handle conversion to EMM regions or states, in which custom region names
-    # will be one level-deep in a dict that breaks out conv. factors by fuel
-    except AttributeError:
-        cz_list = res_convert_array["electricity"].dtype.names[1:]
-
-    # Obtain list of all census divisions in the input data
-    cd_list = list(input_dict.keys())
-
     # Set up empty dict to be updated with the results for each custom
     # region as the data are converted
     converted_dict = {}
 
     # Add the values from each custom region to the converted_dict
-    for cz_number, cz_name in enumerate(cz_list):
+    for reg_name in reg_list:
         # Create a copy of the input dict at the level below a census
         # division or custom region (the structure below that level
         # should be identical); uses the first census division in
-        # cd_list each time
-        base_dict = copy.deepcopy(input_dict[cd_list[0]])
-
+        # the data
+        first_cd = list(input_dict.keys())[0]
+        base_dict = copy.deepcopy(input_dict[first_cd])
         # Loop through all census divisions to add their contributions
         # to each custom region
-        for cd_name in cd_list:
-            # Proceed only if the census division name is found in
-            # the dict specified in this function, otherwise raise
-            # a KeyError
-            if cd_name in cd.cdivdict.keys():
-                # Obtain the census division number from the dict
-                # and subtract 1 to make the number usable as a list
-                # index (1st list element is indexed by 0 in Python)
-                cd_number = cd.cdivdict[cd_name] - 1
-
-                # Make a copy of the portion of the input dict
-                # corresponding to the current census division
-                add_dict = copy.deepcopy(input_dict[cd_name])
-
-                # Call the merge_sum function to replace base_dict with
-                # updated contents; add 1 to the custom region number
-                # because it will be used as a column index for an
-                # array where the first column of data are in the
-                # second column (indexed as 1 in Python); this approach
-                # overwrites base_dict, which is intentional because it
-                # is the master dict that stores the data on a custom
-                # region basis as the contribution from each census
-                # division is added to the custom region by merge_sum
-                base_dict = merge_sum(base_dict, add_dict, cd_number,
-                                      (cz_number + 1), cd.cdivdict, cd_list,
-                                      res_convert_array, com_convert_array,
-                                      cpl_bool)
+        for cdiv_ind, cdiv_name in enumerate(cdiv_list):
+            # Flag a loop through the first census division in the input
+            # dict for special handling in merge_sum function
+            if cdiv_name == first_cd:
+                first_cd_flag = True
             else:
-                raise (KeyError(
-                    "Census division name not found in dict keys!"))
+                first_cd_flag = ""
+            # Make a copy of the portion of the input dict corresponding
+            # to the current census division, to be added to the base_dict
+            # data; if census division not present in the data, continue loop
+            try:
+                add_dict = copy.deepcopy(input_dict[cdiv_name])
+            except KeyError:
+                continue
+            # Call the merge_sum function to replace base_dict with
+            # updated contents; this approach overwrites base_dict, which
+            # is intentional because it is the master dict that stores the
+            # data on a custom region basis as the contribution from each
+            # census division is added to the custom region by merge_sum
+            base_dict = merge_sum(base_dict, add_dict, cdiv_ind,
+                                  reg_name, res_convert_array,
+                                  com_convert_array, cpl_bool, flag_map_dat,
+                                  first_cd_flag)
 
         # Once fully updated with the data from all census divisions,
         # write the resulting data to a new variable and update the
         # master dict with the data using the appropriate census
         # division string name as the key
         newadd = base_dict
-        converted_dict.update({cz_name: newadd})
+        converted_dict.update({reg_name: newadd})
 
     return converted_dict
 
 
 def env_cpl_data_handler(
-        cpl_data, cost_convert, perf_convert, years, key_list):
+        cpl_data, cost_convert, perf_convert, years, key_list,
+        aia_list, cdiv_list, emm_list):
     """Restructure envelope component cost, performance, and lifetime data.
 
     This function extracts the cost, performance, and lifetime data for
@@ -577,6 +623,9 @@ def env_cpl_data_handler(
         key_list (list): Keys that specify the current location in the
             microsegments database structure and thus indicate what
             data should be returned by this function.
+        aia_list (list): Expected AIA region names.
+        cdiv_list (list): Expected Census Division names.
+        emm_list (list): Expected EMM region names.
 
     Returns:
         A dict with installed cost, performance, and lifetime data
@@ -596,17 +645,6 @@ def env_cpl_data_handler(
     bldg_type = ''
     cz_int = ''
 
-    # Set AIA climate zone list
-    aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
-    # Set EMM region list
-    emm_list = ['TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-    # Set Census division list
-    cdiv_list = ["new england", "mid atlantic", "east north central",
-                 "west north central", "south atlantic", "east south central",
-                 "west south central", "mountain", "pacific"]
     # Loop through the keys specifying the current microsegment to
     # determine the building type, whether the building is residential
     # or commercial, and identify the custom region
@@ -1245,7 +1283,8 @@ def cost_converter(cost, units, bldg_class, bldg_type, conversions):
     return adj_cost, adj_cost_units
 
 
-def walk(cpl_data, conversions, perf_convert, years, json_db, key_list=[]):
+def walk(cpl_data, conversions, perf_convert, years, json_db,
+         aia_list, cdiv_list, emm_list, key_list=[]):
     """Recursively explore JSON data structure to populate data at leaf nodes.
 
     This function recursively traverses the microsegment data structure
@@ -1278,6 +1317,9 @@ def walk(cpl_data, conversions, perf_convert, years, json_db, key_list=[]):
         years (list): A list of integers representing the range of years
             in the data that are desired to be included in the output.
         json_db (dict): The dict structure to be modified with additional data.
+        aia_list (list): Expected AIA region names.
+        cdiv_list (list): Expected Census Division names.
+        emm_list (list): Expected EMM region names.
         key_list (list): Keys that specify the current location in the
             microsegments database structure and thus indicate what
             data should be returned by this function. Since this
@@ -1298,7 +1340,7 @@ def walk(cpl_data, conversions, perf_convert, years, json_db, key_list=[]):
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
             walk(cpl_data, conversions, perf_convert, years, item,
-                 key_list + [key])
+                 aia_list, cdiv_list, emm_list, key_list + [key])
 
         # If a leaf node has been reached, check if the final entry in
         # the list is 'demand', indicating that the current node is an
@@ -1316,7 +1358,8 @@ def walk(cpl_data, conversions, perf_convert, years, json_db, key_list=[]):
                 # performance, and lifetime data into a complete dict
                 # for the specified microsegment and envelope component
                 data_dict = env_cpl_data_handler(
-                    cpl_data, conversions, perf_convert, years, leaf_node_keys)
+                    cpl_data, conversions, perf_convert, years, leaf_node_keys,
+                    aia_list, cdiv_list, emm_list)
                 # Set dict key to extracted data
                 json_db[key] = data_dict
             elif (len(key_list) == 3) and any([
@@ -1401,9 +1444,76 @@ def main():
     elif input_var[0] == '2':
         handyvars.configure_for_cost_performance_lifetime_data()
 
+    # Set expected AIA climate zone names
+    aia_list = ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3', 'AIA_CZ4', 'AIA_CZ5']
+    # Set expected Census Division names
+    cdiv_list = list(mseg.cdivdict.keys())
+    # Set expected EMM region names
+    emm_list = ['TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+    # Set expected state names
+    states_list = [
+        "AK", "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI",
+        "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN",
+        "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND",
+        "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
+        "VA", "WA", "WV", "WI", "WY"]
+    # Prepare dict containing all the information needed to flag
+    # electric end use microsegment information and (if needed) map to the
+    # appropriate EULP data/end uses for disaggregation to EMM/state
+    flag_map_dat = {
+        # Extract lists of strings corresponding to the residential and
+        # commercial building types used to process these inputs
+        "res_bldg_types": list(mseg.bldgtypedict.keys()),
+        "com_bldg_types": list(
+            cm.CommercialTranslationDicts().bldgtypedict.keys()),
+        # Extract lists of strings corresponding to the residential and
+        # commercial fuel types used to process these inputs
+        "res_fuel_types": list(mseg.fueldict.keys()),
+        "com_fuel_types": list(
+            cm.CommercialTranslationDicts().fueldict.keys()),
+        # Extract lists of strings corresponding to the residential and
+        # commercial end uses used to process these inputs
+        "res_eus": list([e for e in mseg.endusedict.keys()]),
+        "com_eus": list(
+            cm.CommercialTranslationDicts().endusedict.keys()),
+        # Data needed to map between Scout end uses and end use
+        # definitions in the EULP data
+        "eulp_map": {
+            "heating": ["heating", "secondary heating"],
+            "cooling": ["cooling"],
+            "water heating": ["water heating"],
+            "cooking": ["cooking"],
+            "drying": ["drying"],
+            "clothes washing": ["other-clothes washing"],
+            "dishwasher": ["other-dishwasher"],
+            "lighting": ["lighting"],
+            "refrigeration": ["refrigeration", "other-freezers"],
+            "ceiling fan": ["ceiling fan"],
+            "plug loads": ["TVs", "computers", "MELs", "PCs",
+                           "non-PC office equipment", "unspecified",
+                           "other"],
+            "pool heaters": ["other-pool heaters"],
+            "pool pumps": ["other-pool pumps"],
+            "portable electric spas": ["other-spas"],
+            "fans and pumps": ["ventilation", "fans and pumps"]},
+        # Flag Scout technologies that are handled as end uses in the
+        # EULP data
+        "eulp_other_tech": [
+            "dishwasher", "clothes washing", "freezers",
+            "pool heaters", "pool pumps", "portable electric spas"]
+
+    }
+
     # Based on the second input from the user to indicate what regional
     # breakdown to use in converting the data, import necessary conversion data
+
+    # Settings for AIA regions
     if input_var[1] == '1':
+        # Set expected names for regional selection
+        reg_list = aia_list
         # Import residential census division to AIA climate conversion data
         res_cd_cz_conv = np.genfromtxt(
             handyvars.res_climate_convert, names=True,
@@ -1412,58 +1522,113 @@ def main():
         com_cd_cz_conv = np.genfromtxt(
             handyvars.com_climate_convert, names=True,
             delimiter='\t', dtype="float64")
+    # Settings for EMM or state regions and stock/energy data
+    elif input_var[1] in ['2', '3'] and input_var[0] == '1':
+        # Set expected names for regional selection
+        if input_var[1] == '2':  # EMM
+            reg_list = emm_list
+        else:
+            reg_list = states_list
+
+        # Import CSV data with the fractions of end-use electricity in
+        # each CDIV that is attributable to each EMM or state, based on
+        # EULP data
+        res_elec_disag_dat = pd.read_csv(
+            handyvars.res_climate_convert["electricity"], index_col=False)
+        com_elec_disag_dat = pd.read_csv(
+            handyvars.com_climate_convert["electricity"], index_col=False)
+        # Initialize dicts for storing conversion data keyed by end use
+        # from the input CSVs/arrays
+        res_convert_byeu_dict = {}
+        com_convert_byeu_dict = {}
+        # Store data for each end use in the input CSVs in dicts; convert
+        # the data from pandas dfs to record arrays for subsequent use
+        for k in flag_map_dat["eulp_map"].keys():
+            res_convert_byeu_dict[k] = res_elec_disag_dat[
+                (res_elec_disag_dat["End use"] == k)].to_records(
+                index=False)
+            com_convert_byeu_dict[k] = com_elec_disag_dat[
+                (com_elec_disag_dat["End use"] == k)].to_records(
+                index=False)
+
+        # Set up final residential and commercial conversion data by fuel.
+        # For electricity, used data prepared above. For other fuels,
+        # import data from input files directly into this dict.
+        res_cd_cz_conv = {
+            "electricity": res_convert_byeu_dict,
+            "natural gas": np.genfromtxt(
+                handyvars.res_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.res_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "other fuel": np.genfromtxt(
+                handyvars.res_climate_convert["other fuel"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.res_climate_convert[
+                    "building stock and square footage"], names=True,
+                delimiter='\t', dtype="float64")}
+        com_cd_cz_conv = {
+            "electricity": com_convert_byeu_dict,
+            "natural gas": np.genfromtxt(
+                handyvars.com_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.com_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.com_climate_convert[
+                    "building stock and square footage"], names=True,
+                delimiter='\t', dtype="float64")}
+    # Settings for EMM regions and CPL data; note that no conversion data is
+    # needed for state regions and CPL data, which are left w/ CDIV resolution
+    elif input_var[1] == '2' and input_var[0] == '2':
+        # Set expected names for regional selection
+        reg_list = emm_list
+        # Set up final residential and commercial conversion data by fuel.
+        # Import data from input files directly into this dict.
+        res_cd_cz_conv = {
+            "electricity": np.genfromtxt(
+                handyvars.res_climate_convert["electricity"], names=True,
+                delimiter='\t', dtype="float64"),
+            "natural gas": np.genfromtxt(
+                handyvars.res_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.res_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "other fuel": np.genfromtxt(
+                handyvars.res_climate_convert["other fuel"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.res_climate_convert[
+                    "building stock and square footage"], names=True,
+                delimiter='\t', dtype="float64")}
+        com_cd_cz_conv = {
+            "electricity": np.genfromtxt(
+                handyvars.com_climate_convert["electricity"], names=True,
+                delimiter='\t', dtype="float64"),
+            "natural gas": np.genfromtxt(
+                handyvars.com_climate_convert["natural gas"], names=True,
+                delimiter='\t', dtype="float64"),
+            "distillate": np.genfromtxt(
+                handyvars.com_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "building stock and square footage": np.genfromtxt(
+                handyvars.com_climate_convert[
+                    "building stock and square footage"], names=True,
+                delimiter='\t', dtype="float64")}
+
+    # Import data needed to convert envelope CPL performance data from an
+    # AIA climate zone to EMM region breakdown (not relevant when AIA
+    # regions are used or stock/energy data are being processed)
+    if input_var[0] == '2' and input_var[1] != '1':
+        env_perf_convert = np.genfromtxt(
+            handyvars.envelope_climate_convert, names=True,
+            delimiter='\t', dtype="float64")
+    else:
         env_perf_convert = None
-    elif input_var[1] in ['2', '3']:
-        # Do not prepare mapping conversions for non-envelope technology
-        # characteristics data if a state-level resolution is desired (in this
-        # case, these data remain with the original Census breakout)
-        if input_var[0] == '1' or (
-                input_var[0] == '2' and input_var[1] != '3'):
-            # Import residential census division to EMM or state conversion
-            # data; import data into a dict that is keyed by fuel type, since
-            # separate census to EMM or state conversions are used for
-            # different fuels
-            res_cd_cz_conv = {
-                "electricity": np.genfromtxt(
-                    handyvars.res_climate_convert["electricity"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "natural gas": np.genfromtxt(
-                    handyvars.res_climate_convert["natural gas"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "distillate": np.genfromtxt(
-                    handyvars.res_climate_convert["distillate"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "other fuel": np.genfromtxt(
-                    handyvars.res_climate_convert["other fuel"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "building stock and square footage": np.genfromtxt(
-                    handyvars.res_climate_convert[
-                        "building stock and square footage"], names=True,
-                    delimiter='\t', dtype="float64")}
-            # Import commercial census division to EMM or state conversion
-            # data; import data into a dict that is keyed by fuel type, since
-            # separate census to EMM or state conversions are used for
-            # different fuels
-            com_cd_cz_conv = {
-                "electricity": np.genfromtxt(
-                    handyvars.com_climate_convert["electricity"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "natural gas": np.genfromtxt(
-                    handyvars.com_climate_convert["natural gas"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "distillate": np.genfromtxt(
-                    handyvars.com_climate_convert["distillate"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "building stock and square footage": np.genfromtxt(
-                    handyvars.com_climate_convert[
-                        "building stock and square footage"], names=True,
-                    delimiter='\t', dtype="float64")}
-        # Import data needed to convert envelope performance data from an
-        # AIA climate zone to EMM region breakdown
-        if input_var[0] == '2':
-            env_perf_convert = np.genfromtxt(
-                handyvars.envelope_climate_convert, names=True,
-                delimiter='\t', dtype="float64")
 
     # Import metadata generated based on EIA AEO data files
     with open(handyvars.aeo_metadata, 'r') as metadata:
@@ -1484,7 +1649,8 @@ def main():
                 input_var[0] == '2' and input_var[1] != '3'):
             # Convert data
             result = clim_converter(
-                msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv, input_var[0])
+                msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv, input_var[0],
+                flag_map_dat, reg_list, cdiv_list)
         else:
             result = msjson_cdiv
 
@@ -1502,7 +1668,8 @@ def main():
                 # Add envelope components' cost, performance and
                 # lifetime data to the result dict
                 result = walk(
-                    jscpl_data, jsconv_data, env_perf_convert, years, result)
+                    jscpl_data, jsconv_data, env_perf_convert, years, result,
+                    aia_list, cdiv_list, emm_list)
 
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, 'w') as jso:
