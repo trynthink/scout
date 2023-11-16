@@ -65,7 +65,7 @@ class EIAFiles(object):
             os.rename(self.r_db_out, self.r_db_in)
             f_dbin = open(self.r_db_in, 'r')
 
-        with open(self.r_db_out, 'w+', encoding='utf-8') as f_dbout:
+        with open(self.r_db_out, 'w+', encoding='utf-8', newline='') as f_dbout:
             csv_dbin = csv.DictReader(f_dbin)
 
             # Get field names from the file header row as determined
@@ -118,7 +118,7 @@ class EIAFiles(object):
 
         # Overwrite residential equipment stock and energy data file
         # with revised lighting strings
-        with open(self.r_db_out, 'w', encoding='utf-8') as f_dbout:
+        with open(self.r_db_out, 'w', encoding='utf-8', newline='') as f_dbout:
             # Create DictWriter object for file outputs
             csv_dbout = csv.DictWriter(f_dbout, fieldnames=header)
             csv_dbout.writeheader()
@@ -152,7 +152,7 @@ class EIAFiles(object):
             if (cell.value == 'Efficiency Metric'):
                 skip = cell.column  # Note that openpyxl is 1-indexed
 
-        with open(self.r_class, 'w+') as f:
+        with open(self.r_class, 'w+', encoding='utf-8') as f:
             # Construct and set header row
             f.write('\t'.join(str(rsclass.cell(row=19, column=col_num).value)
                               for col_num in [x for x in range(3, 22) if x != skip]) + '\n')
