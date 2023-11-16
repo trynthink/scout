@@ -13,8 +13,8 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
 
     # Retrieve config file and CLI arguments
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    config = Config(parser, "ecm_prep")
-    opts = config.parse_args(args)
+    config = Config(parser, "ecm_prep", args)
+    opts = config.parse_args()
     opts = translate_inputs(opts)  # Translate for use downstream
 
     return opts

@@ -1,0 +1,5 @@
+description: Empty configuration file for testing
+ecm_prep:
+  None: None
+run:
+  None: None

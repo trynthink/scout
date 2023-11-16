@@ -268,7 +268,7 @@ class CommonTestMeasures(object):
 
 class Constants(object):
     BASE_DIR = Path.cwd()
-    GLOB_VARS_PATH = BASE_DIR / "tests" / "glob_run_vars_test.json"
+    GLOB_VARS_PATH = BASE_DIR / "tests" / "test_files" / "glob_run_vars_test.json"
     HANDYFILES = run.UsefulInputFiles(energy_out=[
             "fossil_equivalent", "NA", "NA", "NA", "NA"], regions="AIA",
             grid_decarb=False)

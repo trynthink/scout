@@ -114,7 +114,7 @@ properties:
 
       floor_start:
         type: integer
-        default: 0
+        default: null
         description: The starting floor
 
       pkg_env_costs:
@@ -195,7 +195,7 @@ properties:
 
       detail_brkout:
         type: array
-        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid of the split_fuel argument is set to False.
+        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid if the split_fuel argument is set to False.
         default: []
         items:
           type: string

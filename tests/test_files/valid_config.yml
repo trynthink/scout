@@ -1,0 +1,31 @@
+description: This is an example config file to run ecm_prep.py
+ecm_prep:
+  site_energy: true
+  add_typ_eff: true
+  rp_persist: true
+  alt_regions: EMM
+  adopt_scn_restrict: Max adoption potential
+  fugitive_emissions: [methane, typical refrigerant]
+  retrofits:
+    retrofit_type: increasing
+    retrofit_multiplier: 1.2
+    retrofit_mult_year: 2030
+  exog_hp_rates: 
+    exog_hp_rate_scenario: aggressive
+    switch_all_retrofit_hp: False
+  grid_decarb:
+    grid_decarb_level: full
+    grid_assesment_timing: after
+  tsv_metrics:
+    tsv_type: energy
+    tsv_daily_hr_restrict: all
+    tsv_sys_shape_case: total reference
+    tsv_season: summer
+    tsv_energy_agg: average
+    tsv_average_days: weekdays
+  detail_brkout: [regions, fuel types]
+  pkg_env_costs: include HVAC  
+
+run:
+  mkt_fracs: true
+  trim_results: true
