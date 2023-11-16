@@ -1,0 +1,103 @@
+{
+  "name": "ENERGY STAR Com. ASHP (FS)",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "all",
+  "technology": ["rooftop_AC", "res_type_central_AC", "wall-window_room_AC",
+                 "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
+                 "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat",
+                 "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.5,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column.",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }]},
+  "installed_cost": 172,
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "ENERGY STAR V. 4.0 installed cost in 2023 divided by typical capacity (90 kBtu/h cooling).",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Typical lifetime in 2023",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "ASHP",
+  "market_scaling_fractions": {
+    "cooling": 0.62,
+    "heating": 0.68
+  },
+  "market_scaling_fractions_source": {
+      "title": "CBECS 2018 - Table E1 -  Major fuels consumption by end use, 2018",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "URL": "https://www.eia.gov/consumption/commercial/data/2018/ce/xls/e1.xlsx",
+      "fraction_derivation": "Heating fraction reflects portion of heating consumption in building where cooling is served by a chiller or district chilled water (703 TBtus space heating w/ chiller/district cooling out of 2167 TBtus space heating across all buildings), under the assumption that this service is not replacable by the targeted heat pump; cooling fraction excludes cooling in buildings that use electric source of primary heating (221 TBtus cooling in buildings with electric primary heating / 589 TBtus cooling in all buildings)."
+  },
+  "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, non-cold-climate",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2016-11-16 20:57:11 EST"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 10:51:37 EDT 2018"
+  },{
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Tue Jan 21 14:57:37 MST 2020"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue May 30 12:38:12 PDT 2023"
+  }]
+}
