@@ -1,5 +1,6 @@
 from __future__ import annotations
 import yaml
+from pathlib import Path
 from jsonschema import validate
 from scout.constants import FilePaths as fp
 
@@ -16,54 +17,66 @@ class Config:
         key (str): Workflow step on which to validate and set arguments {ecm_prep, run}
     """
 
-    def __init__(self, parser, key):
+    def __init__(self, parser, key, cli_args: list):
         self.parser = parser
+        self.key = key
+        self.cli_args = cli_args
         self.schema_file = fp.SUPPORTING_DATA / "config_schema.yml"
         self.schema_data = self._load_config(self.schema_file)
-        self.key = key
+
+        # Generate argparse, set initial cli args
         schema_block = self.schema_data.get("properties", {}).get(self.key, {})
         self.initialize_argparse(parser)
         self.create_argparse(parser, schema_block)
+        self.set_config_args(self.cli_args)
 
     def _load_config(self, filepath):
         with open(filepath, "r") as file:
             return yaml.safe_load(file)
 
+    def _validate(self, input_data: dict, schema_data: dict = None):
+        """Validate argument data against schema data
+
+        Args:
+            input_data (dict): Data to validate.
+            schema_data (dict, optional): Data to validate against, "None" value will use the yml
+                                          schema data in supporting_data/config_schema.
+        """
+
+        if not schema_data:
+            schema_data = self.schema_data
+        validate(input_data, schema_data)
+
     def initialize_argparse(self, parser):
         # Initialize arguments with a yml config file argument
         parser.add_argument(
             "-y", "--yaml",
-            type=str,
+            type=Path,
             help=("Path to YAML configuration file, arguments in this file will take priority over "
                   "arguments passed via the CLI")
             )
 
-    def parse_args(self, args: list[str] = []):
-        # Parse initial command-line args
-        opts = self.parser.parse_args(args)
+    def set_config_args(self, cli_args: list[str] = []):
+        # If applicable, set yml arguments to dict object
+        self.config_args = {}
+        self.args = self.parser.parse_args(cli_args)
+        if self.args.yaml:
+            self.config_args = self._load_config(self.args.yaml)
+            self._validate(self.config_args, self.schema_data)
 
-        # Update with yaml arguments
-        if opts.yaml:
-            config_opts = self.get_yml_args(opts.yaml)
-            opts = self.update_args(opts, config_opts)
+    def parse_args(self):
+        # Update args with yaml arguments
+        if self.config_args:
+            config_key_args = self.config_args.get(self.key, {})
+            self.args = self.update_args(self.args, config_key_args)
 
         # Ensure command-line args take precendence
-        opts = self.parser.parse_args(args, namespace=opts)
+        self.args = self.parser.parse_args(self.cli_args, namespace=self.args)
 
         # Check for valid arguments
-        self.check_dependencies(opts)
+        self.check_dependencies(self.args)
 
-        return opts
-
-    def get_yml_args(self, config_path):
-        config_data = self._load_config(config_path)
-        validate(config_data, self.schema_data)
-
-        parsed_data = config_data.get(self.key, {})
-        args_dict = {}
-        args_dict.update(parsed_data)
-
-        return args_dict
+        return self.args
 
     def update_args(self, existing_args: argparse.NameSpace, new_args: dict):  # noqa: F821
         """ Update argparse arguments NameSpace with dictionary of args"""
@@ -76,9 +89,9 @@ class Config:
 
         return existing_args
 
-    def check_dependencies(self, opts: argparse.NameSpace):  # noqa: F821
+    def check_dependencies(self, args: argparse.NameSpace):  # noqa: F821
         # Verify that arguments are valid that are not captured in the yml schema
-        if "fuel types" in vars(opts).get("detail_brkout", []) and opts.split_fuel is True:
+        if "fuel types" in vars(args).get("detail_brkout", []) and args.split_fuel is True:
             raise ValueError(
                 "Detailed breakout (detail_brkout) cannot include `fuel types` if split_fuel==True")
 

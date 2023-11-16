@@ -5136,8 +5136,8 @@ def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
 
     # Retrieve config file and CLI arguments
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-    config = Config(parser, "run")
-    opts = config.parse_args(args)
+    config = Config(parser, "run", args)
+    opts = config.parse_args()
 
     return opts
 
