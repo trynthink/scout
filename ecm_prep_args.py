@@ -64,11 +64,11 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
     # Optional flag that will set baseline electricity emissions intensities to
     # be consistent with the Standard Scenarios Mid Case (rather than AEO)
     parser.add_argument("--alt_ref_carb", action="store_true",
-                        help=("Use Standard Scenarios Mid Case electricity "
-                              "emissions intensities"))
+                        help=("Use Standard Scenarios Mid Case or DECARB BAU "
+                              "electricity emissions intensities"))
     # Optional flag to use alternate grid decarbonization case
     parser.add_argument("--grid_decarb", action="store_true",
-                        help="Flag alternate grid decarbonization scenario")
+                        help="Flag high grid decarbonization scenario")
     # Optional flag to restrict adoption schemes
     parser.add_argument("--adopt_scn_restrict", action="store_true",
                         help="Restrict to a single adoption scenario")
@@ -286,20 +286,57 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                 "conversion rates: ensure that ECM data reflect these EMM "
                 "regions or states (and not the default AIA regions)")
 
-    # If alternate grid decarbonization specified, gather further info. about
-    # which grid decarbonization scenario should be used, how electricity
+    # If alternate reference grid is specified, gather further info. about
+    # which reference grid decarbonization scenario should be used and ensure
+    # State regional breakouts and/or captured energy method are not used
+    if opts.alt_ref_carb is True:
+        input_var = 0
+        # Find which grid decarbonization scenario should be used
+        while input_var not in ['1', '2']:
+            input_var = input(
+                "\nSelect from one of the non-AEO reference grid "
+                "decarbonization options below:\n\n"
+                "1=Cambium Mid-case (with tax credit phaseout),\n"
+                "2=ReEDS DECARB BAU\n\n")
+            if input_var not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                      'Use ctrl-c to exit.')
+        opts.alt_ref_carb = input_var
+        # Ensure that if alternate grid decarbonization scenario to be used,
+        # EMM regional breakouts are set (grid decarb data use this resolution)
+        if (opts.alt_regions in ["State"]):
+            opts.alt_regions = "EMM"
+            warnings.warn(
+                "WARNING: Analysis regions were set to EMM to ensure "
+                "ECM data reflect EMM regions to match non-AEO reference "
+                "grid decarbonization scenario geographical breakdown")
+        # Ensure that if alternate grid decarbonization scenario to be used,
+        # EMM regional breakouts are set (grid decarb data use this resolution)
+        if opts.captured_energy is True:
+            opts.captured_energy = False
+            warnings.warn(
+                "WARNING: Site-source conversion method was set to use the "
+                "fossil fuel equivalency method because captured energy "
+                "site-source conversion factors not compatible with "
+                "reference grid decarbonization scenario")
+
+    # If alternate high grid decarb. specified, gather further info. about
+    # which high grid decarbonization scenario should be used, how electricity
     # emissions and cost factors should be handled, and ensure State regional
     # breakouts and/or captured energy method are not used
     if opts.grid_decarb is True:
         input_var = [0, 0]
         # Find which grid decarbonization scenario should be used
-        while input_var[0] not in ['1', '2']:
+        while input_var[0] not in ['1', '2', '3', '4']:
             input_var[0] = input(
-                "\nEnter 1 to assume full grid decarbonization by 2035 \n"
-                "or 2 to assume that grid emissions are reduced 80% from "
-                "current levels by 2050: ")
-            if input_var[0] not in ['1', '2']:
-                print('Please try again. Enter either 1 or 2. '
+                "\nSelect from one of the high grid decarbonization \n"
+                "options below:\n\n"
+                "1=Cambium Mid-case with 100% Decarbonization by 2035,\n"
+                "2=Cambium Mid-case with 95% Decarbonization by 2050,\n"
+                "3=ReEDS DECARB high,\n"
+                "4=ReEDS DECARB mid\n\n")
+            if input_var[0] not in ['1', '2', '3', '4']:
+                print('Please try again. Enter 1, 2, 3, or 4. '
                       'Use ctrl-c to exit.')
         # Find how emissions/cost factors should be handled
         while input_var[1] not in ['1', '2']:
@@ -313,13 +350,14 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         opts.grid_decarb = input_var
+        print(opts.grid_decarb, 'HERERERE')
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
         if (opts.alt_regions in ["State"]):
             opts.alt_regions = "EMM"
             warnings.warn(
                 "WARNING: Analysis regions were set to EMM to ensure "
-                "ECM data reflect EMM regions to match alternative grid "
+                "ECM data reflect EMM regions to match high grid "
                 "decarbonization scenario geographical breakdown")
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
@@ -328,7 +366,7 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             warnings.warn(
                 "WARNING: Site-source conversion method was set to use the "
                 "fossil fuel equivalency method because captured energy "
-                "site-source conversion factors not compatible with alternate "
+                "site-source conversion factors not compatible with high "
                 "grid decarbonization scenario")
 
     # If a user wishes to change the outputs to metrics relevant for

@@ -134,20 +134,32 @@ class UsefulInputFiles(object):
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-100by2035.json")
-                else:
+                elif opts.grid_decarb[0] == "2":
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-95by2050.json")
+                elif opts.grid_decarb[0] == "3":
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-high.json")
+                else:
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-mid.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
                 if opts.grid_decarb[1] == "1":
                     # Case where Standard Scenarios Mid Case (with tax credit
                     # phaseout) is used to set baseline emissions factors (vs.
                     # AEO)
-                    if opts.alt_ref_carb is True:
+                    if opts.alt_ref_carb == "1":
                         self.ss_data_altreg_nonfs = (
                             "supporting_data", "convert_data",
                             "emm_region_emissions_prices-MidCaseTCExp.json")
+                    elif opts.alt_ref_carb == "2":
+                        self.ss_data_altreg_nonfs = (
+                            "supporting_data", "convert_data",
+                            "emm_region_emissions_prices-bau.json")
                     else:
                         self.ss_data_altreg_nonfs = (
                             "supporting_data", "convert_data",
@@ -159,10 +171,14 @@ class UsefulInputFiles(object):
             else:
                 # Case where Standard Scenarios Mid Case (with tax credit
                 # phaseout is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
+                if opts.alt_ref_carb == "1":
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
                         "emm_region_emissions_prices-MidCaseTCExp.json")
+                elif opts.alt_ref_carb == "2":
+                    self.ss_data_altreg = (
+                        "supporting_data", "convert_data",
+                        "emm_region_emissions_prices-bau.json")
                 else:
                     self.ss_data_altreg = (
                         "supporting_data", "convert_data",
@@ -225,9 +241,23 @@ class UsefulInputFiles(object):
                                       "tsv_cost-100by2035.json")
                 self.tsv_carbon_data = ("supporting_data", "tsv_data",
                                         "tsv_carbon-100by2035.json")
-            else:
+            elif opts.grid_decarb[0] == "2":
                 self.ss_data = ("supporting_data", "convert_data",
                                 "site_source_co2_conversions-95by2050.json")
+                self.tsv_cost_data = ("supporting_data", "tsv_data",
+                                      "tsv_cost-95by2050.json")
+                self.tsv_carbon_data = ("supporting_data", "tsv_data",
+                                        "tsv_carbon-95by2050.json")
+            elif opts.grid_decarb[0] == "3":
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions-high.json")
+                self.tsv_cost_data = ("supporting_data", "tsv_data",
+                                      "tsv_cost-100by2035.json")
+                self.tsv_carbon_data = ("supporting_data", "tsv_data",
+                                        "tsv_carbon-100by2035.json")
+            else:
+                self.ss_data = ("supporting_data", "convert_data",
+                                "site_source_co2_conversions-mid.json")
                 self.tsv_cost_data = ("supporting_data", "tsv_data",
                                       "tsv_cost-95by2050.json")
                 self.tsv_carbon_data = ("supporting_data", "tsv_data",
@@ -237,10 +267,14 @@ class UsefulInputFiles(object):
             if opts.grid_decarb[1] == "1":
                 # Case where Standard Scenarios Mid Case (with tax credit
                 # phaseout)is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
+                if opts.alt_ref_carb == "1":
                     self.ss_data_nonfs = (
                         "supporting_data", "convert_data",
                         "site_source_co2_conversions-MidCaseTCExp.json")
+                elif opts.alt_ref_carb == "2":
+                    self.ss_data_nonfs = (
+                        "supporting_data", "convert_data",
+                        "site_source_co2_conversions-bau.json")
                 else:
                     self.ss_data_nonfs = ("supporting_data", "convert_data",
                                           "site_source_co2_conversions.json")
@@ -264,10 +298,13 @@ class UsefulInputFiles(object):
             else:
                 # Case where Standard Scenarios Mid Case (with tax credit
                 # phaseout) is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
+                if opts.alt_ref_carb == "1":
                     self.ss_data = ("supporting_data", "convert_data",
                                     "site_source_co2_conversions-"
                                     "MidCaseTCExp.json")
+                elif opts.alt_ref_carb == "2":
+                    self.ss_data = ("supporting_data", "convert_data",
+                                    "site_source_co2_conversions-bau.json")
                 else:
                     self.ss_data = ("supporting_data", "convert_data",
                                     "site_source_co2_conversions.json")
