@@ -1,0 +1,74 @@
+{ 
+  "name": "Best Res. HPWH (EE-Only)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "electricity",
+  "technology": "electric WH",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P1e_Best_waterheater.csv"
+    }
+  },
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": 1715.47,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is installed costs mean for high HPWH in 2022 in the EIA source",
+    "source_data": 
+       {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+    },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for high category in 2022, rounded down to 15 years",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "tech_switch_to": "HPWH",
+  "_description": "Highest efficiency residential heat pump water heater in 2017",
+  "_notes": null, 
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Lab",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Sep 16 2019 16:56:00 UTC"},
+  "_updated_by": [{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 14:39:36 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue Nov 07 09:15:00 PST 2023"
+  }]
+}

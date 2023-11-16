@@ -1,0 +1,105 @@
+{
+  "name": "Best Com. Lighting (EE-Only)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "EE_Lighting.csv"
+    }
+  },
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "lighting",
+  "fuel_type": "electricity",
+  "technology": ["100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
+    "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED Integrated Luminaire", "LED PAR38", "Mercury Vapor", "Metal Halide", 
+    "Sodium Vapor", "T5 4xF54 HO High Bay", "T5 F28", "T8 F28", "T8 F32", "T8 F59", "T8 F96"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": null,
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": {
+    "100W A19 Incandescent": 117.01,
+    "100W Equivalent A19 Halogen": 115.5,
+    "100W Equivalent CFL Bare Spiral": 101.21,
+    "100W Equivalent LED A Lamp": 105.64,
+    "Halogen Infrared Reflector (HIR) PAR38": 114.5,
+    "Halogen PAR38": 95.04,
+    "LED PAR38": 79.81,
+    "T5 F28": 56.67,
+    "T8 F28": 38.02,
+    "T8 F32": 47.31,
+    "T8 F59": 37.66,
+    "T8 F96": 36.45,
+    "T5 4xF54 HO High Bay": 30.01,
+    "Mercury Vapor": 41.09,
+    "Metal Halide": 41.53,
+    "Sodium Vapor": 43.99,
+    "LED Integrated Luminaire": 37.3},
+  "cost_units": "2022$/1000 lm",
+  "installed_cost_source": {
+    "notes": "'High' or (if no 'High' value 'Typical') LED installed cost levels in 2022 for appropriate type of luminaire.",
+    "source_data": 
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": [48, 49, 50, 51, 55, 54, 56, 61, 60, 59, 69, 70, 84, 75, 76, 77, 72],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "product_lifetime": {
+    "100W A19 Incandescent": 0.2,
+    "100W Equivalent A19 Halogen": 0.25,
+    "100W Equivalent CFL Bare Spiral": 2.11,
+    "100W Equivalent LED A Lamp": 5.07,
+    "Halogen Infrared Reflector (HIR) PAR38": 0.74,
+    "Halogen PAR38": 0.35,
+    "LED PAR38": 5.07,
+    "T5 F28": 9.45,
+    "T8 F28": 16.44,
+    "T8 F32": 13.7,
+    "T8 F59": 7.83,
+    "T8 F96": 9.78,
+    "T5 4xF54 HO High Bay": 6.19,
+    "Mercury Vapor": 6.51,
+    "Metal Halide": 3.99,
+    "Sodium Vapor": 6.64,
+    "LED Integrated Luminaire": 29.15},
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Best available LED lifetime levels in 2022 for appropriate type of luminaire; divide lamp life by annual operating hours",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [48, 49, 50, 51, 55, 54, 56, 61, 60, 59, 69, 70, 84, 75, 76, 77, 72],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"}
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Install efficient lighting equipment generally corresponding to the AEDG 50% guideline",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 10 12:05:15 EDT 2019"
+  },
+  "_updated_by": [{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 17:33:36 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue Nov 07 09:01:00 PST 2023"
+  }]
+}
