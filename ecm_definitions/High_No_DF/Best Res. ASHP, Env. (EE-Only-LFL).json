@@ -1,0 +1,92 @@
+{
+  "name": "Best Res. ASHP, Env. (EE-Only LFL)",
+  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
+                   "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
+                   "CASO"],
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["cooling", "heating"],
+  "fuel_type": "electricity",
+  "technology": "ASHP",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": {
+      "title": null,
+      "author": null,
+      "organization": null,
+      "year": null,
+      "pages": null,
+      "URL": null
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P1g_Best_envelope_thermostat_ASHP.csv"
+    }
+  },
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": "Determined by custom savings shape information in 'tsv_features'",
+  "installed_cost": 8620,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is total installed cost for best ASHP in 2023.",
+    "source_data":
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for high efficiency ASHP in 2023, rounded down from 15.3",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 39,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_description": "Highest efficiency residential air source heat pump in 2023 combined with 6-sided envelope upgrade, non-cold-climate, like-for-like",
+  "_notes": null,
+  "_added_by": {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Sep 16 2019 19:28:00 UTC"},
+  "_updated_by": [{
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Fri Oct 30 2020 22:00:00 UTC"
+  },{
+    "name": "Aven Satre-Meloy",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "asatremeloy@lbl.gov",
+    "timestamp": "Mon Mar 29 14:39:36 EDT 2021"
+  },{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Oct 13 09:46:05 EDT 2021"
+  },{
+    "name": "Handi Chandra Putra",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "Tue Nov 07 09:18:00 PST 2023"
+  }]
+}
