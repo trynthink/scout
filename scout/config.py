@@ -30,7 +30,8 @@ class Config:
         self.create_argparse(parser, schema_block)
         self.set_config_args(self.cli_args)
 
-    def _load_config(self, filepath):
+    @classmethod
+    def _load_config(cls, filepath):
         with open(filepath, "r") as file:
             return yaml.safe_load(file)
 
@@ -108,7 +109,7 @@ class Config:
             arg_arr_choices = data.get("items", {}).get("enum")
 
             if arg_type == "string" and arg_choices:
-                arg_help += f". Allowed values are {{{', '.join(arg_choices)}}}"
+                arg_help += f" Allowed values are {{{', '.join(arg_choices)}}}"
                 parser.add_argument(
                     f"--{arg_name}",
                     choices=arg_choices,
@@ -125,7 +126,7 @@ class Config:
             elif arg_type == "boolean":
                 parser.add_argument(f"--{arg_name}", action="store_true", help=arg_help)
             elif arg_type == "array":
-                arg_help += f". Allowed values are 0 or more of {{{', '.join(arg_arr_choices)}}}"
+                arg_help += f" Allowed values are 0 or more of {{{', '.join(arg_arr_choices)}}}"
                 parser.add_argument(
                     f"--{arg_name}",
                     nargs="*",
