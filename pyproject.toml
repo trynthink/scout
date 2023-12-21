@@ -1,19 +1,16 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["scout", "scout.*"]
-namespaces = false
 
 [project]
 name = "scout"
 readme = "README.md"
-version = "0.9"
+dynamic = ["version"]
 authors = [
   {email = "chioke.harris@nrel.gov"},
   {name = "Chioke Harris"},
@@ -32,6 +29,8 @@ dependencies = [
     "matplotlib",
     "backoff"
 ]
+
+[tool.setuptools_scm]
 
 [project.optional-dependencies]
 dev = [
