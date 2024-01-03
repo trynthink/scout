@@ -6,10 +6,11 @@ ecm_prep:
   adopt_scn_restrict: (string) Specify adoption scenario restrictions.
     Allowable options are {'Technical potential', 'Max adoption
     potential'}. Default None
-  alt_ref_carb: (boolean) Enable alternative reference carbon.
-    Default False
+  alt_ref_carb: (boolean) Set the baseline electricity emissions
+    intensities to be consistent with the Standard Scenarios Mid
+    Case (rather than AEO). Default False
   alt_regions: (string) Specify an alternative region breakdown.
-    Allowable options are {'EMM', 'AIA', 'State'}. Default None
+    Allowable options are {'State', 'EMM', 'AIA'}. Default None
   captured_energy: (boolean) Enable captured energy calculation.
     Default False
   detail_brkout: (array) List of options by which to breakout
@@ -19,7 +20,7 @@ ecm_prep:
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowable options
-      are {'conservative', 'optimistic', 'most aggressive', 'aggressive'}.
+      are {'optimistic', 'aggressive', 'most aggressive', 'conservative'}.
       Default None
     switch_all_retrofit_hp: (boolean) Assume all retrofits convert
       to heat pumps, otherwise, retrofits are subject to the same
@@ -78,20 +79,20 @@ ecm_prep:
       key is present) The daily hour range to restrict time-sensitive
       metrics, where `all` is all hours, `peak` is peak demand
       period hours, and `low` is low demand period hours. Allowable
-      options are {'peak', 'low', 'all'}. Default None
+      options are {'low', 'peak', 'all'}. Default None
     tsv_energy_agg: (string) Define how the the tsv_daily_hr_restrict
       hours are aggregated when tsv_type is `energy`. Allowable
-      options are {'sum', 'average'}. Default None
+      options are {'average', 'sum'}. Default None
     tsv_power_agg: (string) Define how the the tsv_daily_hr_restrict
       hours are aggregated when tsv_type is `power`. Allowable
-      options are {'peak', 'average'}. Default None
+      options are {'average', 'peak'}. Default None
     tsv_season: (string) Season of focus for time-sensitve metrics.
       Allowable options are {'winter', 'intermediate', 'summer'}.
       Default None
     tsv_sys_shape_case: (string) The basis for determining hours
       for peak or low demand. Only applicable if tsv_daily_hr_restrict
-      is `peak` or `low`. Allowable options are {'total reference',
-      'total high renewables', 'net renewable high renewables',
+      is `peak` or `low`. Allowable options are {'net renewable
+      high renewables', 'total high renewables', 'total reference',
       'net renewable reference'}. Default None
     tsv_type: (string, required if the tsv_metrics key is present)
       Time-sensitive metric desired, where `energy` is the change

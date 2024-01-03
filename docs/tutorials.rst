@@ -25,7 +25,7 @@ The example in this tutorial will demonstrate how to write new ECMs so that they
 
 As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
-Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 2 <tuts-2>`.
+Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 3 <tuts-3>`.
 
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
@@ -474,7 +474,7 @@ Each time sensitive ECM feature is further described below with illustrative exa
    Accordingly, when preparing an ECM with time sensitive features, the user should ensure that:
 
    1) the ECM's :ref:`json-fuel_type` parameter is set to ``"electricity"``, and the ECM's :ref:`json-fuel_switch_to` parameter is set to ``null``;
-   2) |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` :ref:`option specified <tuts-2-cmd-opts>`; and
+   2) |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` :ref:`option specified <tuts-3-cmd-opts>`; and
    3) EMM is subsequently selected as the alternate regional breakout.
 
    Users are also encouraged to use the ``--site_energy`` option when executing |html-filepath| ecm_prep.py\ |html-fp-end| for ECMs with time sensitive features, as utility planners are often most interested in the change in the electricity *demand* (rather than generation) that may result from ECM deployment.
@@ -1031,7 +1031,7 @@ If an ECM applies to only a portion of the energy use in an applicable baseline 
 
 Since the scaling fraction is not derived from the EIA data used to provide a common baseline across all ECMs in Scout, source information must be provided, and it is especially important that the source information be correct and complete. The market scaling fraction source information should be supplied as a dict corresponding to a single source. If multiple values derived from multiple sources are reported, source information can be provided using the same nested dict structure as the scaling fractions themselves. The source field for the market scaling fraction has keys similar to those under the "source_data" key associated with other ECM data, but with an additional :ref:`json-fraction_derivation` key. The fraction derivation is a string that should include an explanation of how the scaling value(s) are calculated from the source(s) given.
 
-When :ref:`preparing the ECM for analysis <tuts-2>`, if a scaling fraction is specified, the source fields are automatically reviewed to ensure that either a) a "title," "author," "organization," and "year" are specified or b) a URL from an acceptable source [#]_ is provided. While these are the minimum requirements, the source information fields should be filled out as completely as possible. Additionally, the "fraction_derivation" field is checked for the presence of some explanatory text. If any of these required fields are missing, the ECM will not be included in the :ref:`prepared ECMs <tuts-2>`.
+When :ref:`preparing the ECM for analysis <tuts-3>`, if a scaling fraction is specified, the source fields are automatically reviewed to ensure that either a) a "title," "author," "organization," and "year" are specified or b) a URL from an acceptable source [#]_ is provided. While these are the minimum requirements, the source information fields should be filled out as completely as possible. Additionally, the "fraction_derivation" field is checked for the presence of some explanatory text. If any of these required fields are missing, the ECM will not be included in the :ref:`prepared ECMs <tuts-3>`.
 
 As an example, for a multi-function fuel-fired heat pump ECM for commercial building applications, if the system is to provide space heating and cooling and water heating services, it is most readily installed in a building that already has some non-electric energy supply. If it is assumed that any building with a non-electric heating system would be a viable installation target for this technology, market scaling fractions can be applied to restrict the baseline market to correspond with that assumption. ::
 
@@ -1175,7 +1175,7 @@ A commercial heat pump water heater ECM is :ref:`available for download <ecm-dow
 Editing existing ECMs
 ~~~~~~~~~~~~~~~~~~~~~
 
-All of the ECM definitions are stored in the |html-filepath| ./ecm_definitions |html-fp-end| folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 2 <tuts-2>`.
+All of the ECM definitions are stored in the |html-filepath| ./ecm_definitions |html-fp-end| folder. To edit any of the existing ECMs, open that folder and then open the JSON file for the ECM of interest. Make any desired changes, save, and close the edited file. Like new ECMs, all edited ECMs must be prepared following the steps in :ref:`Tutorial 3 <tuts-3>`.
 
 Making changes to the existing ECMs will necessarily overwrite previous versions of those ECMs. If both the original and revised version of an ECM are desired for subsequent analysis, make a copy of the original JSON file (copy and paste the file in the same directory) and rename the copied JSON file with an informative differentiating name. When revising the copied JSON file with the new desired parameters, take care to ensure that the ECM name is updated as well.
 
@@ -1193,7 +1193,7 @@ Package ECMs are not actually unique ECMs, rather, they are combinations of exis
 Currently, the ECM packaging capability is oriented around combinations of HVAC equipment, windows and envelope, and/or controls ECMs, as well as around combinations of lighting equipment and controls ECMs. Users attempting to package unsupported types of ECMs will receive an error message that informs them of the types of ECMs that the packaging capability is meant to support.
 
 .. note::
-   When HVAC equipment and windows and envelope (W/E) ECMs are included together in a package, the W/E costs will be excluded from the overall package costs by default. This is necessary to match the nature of the packaged HVAC + W/E measure's installed costs with that of Scout's underlying technology competition model, which is developed around HVAC equipment costs. Nevertheless, W/E costs can be included for such packages by specifying the ``--pkg_env_costs`` command line option described in :ref:`tuts-2-cmd-opts`.
+   When HVAC equipment and windows and envelope (W/E) ECMs are included together in a package, the W/E costs will be excluded from the overall package costs by default. This is necessary to match the nature of the packaged HVAC + W/E measure's installed costs with that of Scout's underlying technology competition model, which is developed around HVAC equipment costs. Nevertheless, W/E costs can be included for such packages by specifying the ``--pkg_env_costs`` command line option described in :ref:`tuts-3-cmd-opts`.
 
 .. A package ECM might make sense, for example, in a case where a particular grouping of ECMs could reduce installation labor requirements, or where a combination of ECMs would yield better overall efficiency than if the ECMs were implemented separately. More specifically, a package ECM could be created from an air barrier ECM and an insulation ECM to represent performing an air barrier *and* insulation retrofit at `tenant fit-out`_ in a commercial building, which could reduce the labor cost and thus the combined total installed cost by installing both systems at the same time. If one or more building type-appropriate HVAC equipment ECMs are added to the air barrier and insulation package ECM, downsizing of the HVAC equipment could further reduce the combined total installed cost. The definition for each package includes fields to specify any improvements in cost and/or efficiency, if they apply. (Package ECMs could also include reductions in efficiency and/or increases in installed cost, but it is expected that those packages would not be of interest.)
 
@@ -1256,7 +1256,28 @@ All of the intended packages should be specified in the |html-filepath| package_
 
 .. _tuts-2:
 
-Tutorial 2: Preparing ECMs for analysis
+Tutorial 2: Creating project configuration files
+-------------------------------------------------
+Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. These project definition configuration files map to the command-line arguments described in the "Addtional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but allow for a more consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration you can run one or both of the following:
+::
+
+   python scout/ecm_prep.py -y <my_project.yml>
+   python scout/run.py -y <my_project.yml>
+
+Scout will parse the .yml file and write arguments for each script, provided there is a corresponding ``ecm_prep`` and/or ``run`` key specifying ecm_prep.py or run.py arguments, respectively.  
+
+.. Note::
+   If other command-line arguments are included (i.e., those other than ``-y``), then they will take precedence over the yaml file if there is overlap between the two.
+
+Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file.
+
+.. literalinclude:: config_readable.yml
+  :language: YAML
+
+
+.. _tuts-3:
+
+Tutorial 3: Preparing ECMs for analysis
 ---------------------------------------
 
 .. ADD LINKS TO INDICATED JSON INPUT FILES
@@ -1286,7 +1307,7 @@ If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with t
 
 If exceptions are generated, the text that appears in the command window should indicate the general location or nature of the error. Common causes of errors include extraneous commas at the end of lists, typos in or completely missing keys within an ECM definition, invalid values (for valid keys) in the specification of the applicable baseline market, and units for the installed cost or energy efficiency that do not match the baseline cost and efficiency data in the ECM.
 
-.. _tuts-2-cmd-opts:
+.. _tuts-3-cmd-opts:
 
 Additional preparation options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1304,10 +1325,14 @@ Users may include a range of additional options alongside the |html-filepath| ec
 The additional ECM preparation options are described further here.
 
 
+Configuration File
+******************
+``--yaml`` specifies the filepath to a yaml configuration file, as described in the :ref:`Tutorial 2 <tuts-2>`. This file provides an alternative way of defining the command line arguments below. Additional arguments passed via the command line will take precedence over those defined in the yaml file.
+
 Alternate regions
 *****************
 
-``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions (see :ref:`ecm-baseline_climate-zone`). When this option is specified, the user will be prompted to select the desired alternate regional breakout upon running |html-filepath| ecm_prep.py\ |html-fp-end|.
+``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions (see :ref:`ecm-baseline_climate-zone`). Valid options include one of "EMM", "State", or "AIA".
 
 .. note::
    Currently, two alternative regional breakouts are supported: the U.S. Electricity Information Administration (EIA) Electricity Market Module (EMM) regions, and the contiguous U.S. states. See the :ref:`ecm-baseline_climate-zone-alt` section for additional details.
@@ -1319,11 +1344,11 @@ Site energy
 
 Restricted adoption scenarios
 ******************************
-``--adopt_scn_restrict`` limits ECM preparation and analysis to one of the two default adoption scenarios (see :ref:`overview-adoption`). When this option is selected, the user will be prompted to select which of the two adoption scenarios to execute.
+``--adopt_scn_restrict`` limits ECM preparation and analysis to one of the two default adoption scenarios (see :ref:`overview-adoption`). Valid opions include either "Max adoption potential" or "Technical potential".
 
 Detailed results breakouts
 **************************
-``--detail_brkout`` reports regional and/or building type breakouts of results at the highest possible resolution. When this option is specified, the user will be prompted to select whether to use the most detailed breakout resolutions for regions, building types, or both regions and building types.
+``--detail_brkout`` reports regional, building type, and/or fuel type breakouts of results at the highest possible resolution. Valid options include at least one of "regions", "buildings", and "fuel types". If "regions" is included, then ``--alt_regions`` must be set to "EMM". If "fuel types" is included, then ``--split_fuel`` must be false.
 
 .. note::
    Default regional breakouts depend on the :ref:`region selection <ecm-baseline_climate-zone>` for the current run. An :ref:`AIA <ecm-baseline_climate-zone>` region selection does not have a more detailed breakout option. An :ref:`EMM <emm-reg>` region selection defaults to reporting breakouts for a higher-level aggregation of those 25 regions into 11 broader regions that are similar to the `2019 EPA AVERT regions`_ but separate the Great Basin from the Northwest region; the detailed breakout option resolves results by all 25 EMM regions. Finally, a :ref:`U.S. state <state-reg>` region selection defaults to reporting breakouts by the 9 `U.S. Census Divisions`_; the detailed breakout option resolves results by all contiguous U.S. states plus the District of Columbia.
@@ -1333,7 +1358,9 @@ Detailed results breakouts
 High electric grid decarbonization
 **********************************
 
-``--grid_decarb`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a more aggressive decarbonization pathway for the electric grid than is assumed in the default `AEO Reference Case`_. When this option is selected, the user will be prompted to select from two scenarios of additional grid decarbonization: one scenario in which remaining grid emissions are reduced 80% by 2050, or a second scenario in which remaining grid emissions are reduced to zero by 2035. The user will also be prompted to select whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the Reference Case. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the Reference Case.
+``--grid_decarb_level`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a more aggressive decarbonization pathway for the electric grid than is assumed in the default `AEO Reference Case`_. When this argument is passed, the user must specify either "0.8" or "full" to define the additonal grid decarbonization scenario. The "0.8" option represents a scenario in which remaining grid emissions are reduced 80% by 2050, while "full" represents a scenario in which remaining grid emissions are reduced to zero by 2035.
+
+``--grid_assessment_timing`` selects whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the Reference Case, by specifying either "before" or "after" with this argument. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the Reference Case.
 
 .. note::
    Annual emissions intensities for the more aggressive grid decarbonization scenarios are drawn from runs of The Brattle Group's `GridSIM modeling tool`_ and are found in |html-filepath| ./scout/supporting_data/convert_data |html-fp-end| . Annual electricity price data (also found in |html-filepath| ./scout/supporting_data/convert_data |html-fp-end| ) and hourly electricity emissions and price data for the more aggressive grid decarbonization scenarios (found in |html-filepath| ./scout/supporting_data/tsv_data |html-fp-end| ) are drawn from different sources --- the `EIA Annual Energy Outlook Low Renewable Cost Side Case`_ for the annual electricity price data, and the `NREL Cambium Low Renewable Energy Cost Scenario`_ for the hourly data.
@@ -1341,27 +1368,23 @@ High electric grid decarbonization
 .. note::
    Currently the ``--grid_decarb`` option is not supported for state regions; if state regions are selected alongside the ``--grid_decarb`` option, the code will automatically switch the run to EMM regions while warning the user.
 
-Alternate Reference Case grid forecast
-**************************************
-
-``--gs_ref_carb`` uses the Reference Case grid forecast from the The Brattle Group's `GridSIM modeling tool`_ to determine baseline grid emissions intensities, rather than the default `AEO Reference Case`_ forecast of these emissions intensities.
-
-
 Exogenous heat pump switching rates
 ***********************************
-
-``--exog_hp_rates`` imposes externally determined rates of technology and/or fuel switching from fossil- or resistance-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./scout/supporting_data/convert_data/hp_convert_rates |html-fp-end|. When this option is selected, users will be prompted to select from one of four scenarios of switching rates; the scenarios were developed by Guidehouse as benchmarks for the U.S Department of Energy's `E3HP Initiative`_. Users will also be prompted to select whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use.
-
-.. note::
-   In the absence of the ``--exog_hp_rates`` option, rates of switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
+``--exog_hp_rate_scenario`` imposes externally determined rates of technology and/or fuel switching from fossil- or resistance-based equipment to heat pump technologies, with the default rates available in |html-filepath| ./scout/supporting_data/convert_data/hp_convert_rates |html-fp-end|. When this option is provided, users must select one four scenarios of switching rates: "conservative", "optimistic", "aggressive", or "most aggressive". These scenarios were developed by Guidehouse as benchmarks for the U.S Department of Energy's `E3HP Initiative`_.
 
 .. note::
-   Currently the ``--exog_hp_rates`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rates`` option, the code will automatically switch the run to EMM regions while warning the user.
+   In the absence of the ``--exog_hp_rate_scenario`` option, rates of switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
+
+.. note::
+   Currently the ``--exog_hp_rate_scenario`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rate_scenario`` option, the code will automatically switch the run to EMM regions while warning the user.
+
+``--switch_all_retrofit_hp`` selects whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use. This argument is only applicable if ``--exog_hp_rate_scenario`` is specified
+
 
 Assessment of fugitive emissions
 ********************************
 
-``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./scout/supporting_data/convert_data/fugitive_emissions_convert.json\ |html-fp-end|. When this option is selected, the user will be prompted to select whether they would like to assess fugitive emissions from either of the above sources independently or from both together. For fugitive emissions from equipment refrigerant leakage, the user will be prompted to select whether to assume that measures use market-available refrigerants and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ or to assume that measures use low-GWP refrigerants. 
+``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./scout/supporting_data/convert_data/fugitive_emissions_convert.json\ |html-fp-end|. When this option is selected, the user must provide at least one of "methane", "low-gwp refrigerant", and "typical refrigerant". Valid options include one option, a combination of "methane" and one of the two "\*refrigerant" options. When including more than one, Scout will assess fugitive emissions for the sources together. For fugitive emissions from equipment refrigerant leakage, the user will specify whether to assume that measures use market-available refrigerants  and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ ("typical refrigerant") or to assume that measures use low-GWP refrigerants ("low-gwp refrigerant"). 
 
 .. note::
    Currently the ``--fugitive_emissions`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--fugitive_emissions`` option, the code will automatically switch the run to EMM regions while warning the user.
@@ -1382,7 +1405,7 @@ Add Reference Case measures
 ``--add_typ_eff`` automatically prepares `AEO Reference Case`_ analogues to any equipment measures representing ENERGY STAR, IECC, and/or 90.1 performance levels in the Scout analysis (as identified by those measures' :ref:`json-name` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute). They are otherwise identical to the ENERGY STAR, IECC, and/or 90.1 measures in the analysis in their baseline market characteristics. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
 
 .. note::
-   The ``--add_typ_eff`` option includes special handling of measures that switch equipment and/or fuel types, as determined via the measures' :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes (and see :ref:`ecm-features-multiple-fuel-types`). When exogenous heat pump switching rates are used (see ``--exog_hp_rates`` option above), Reference Case analogues will not be prepared at all for these measures. When exogenous switching rates are not used, Reference Case analogues will be prepared with the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes reset to ``null`` such that the analogues represent the baseline technology and fuel type (in the measure's :ref:`json-technology` and :ref:`json-fuel_type` attributes.)
+   The ``--add_typ_eff`` option includes special handling of measures that switch equipment and/or fuel types, as determined via the measures' :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes (and see :ref:`ecm-features-multiple-fuel-types`). When exogenous heat pump switching rates are used (see ``--exog_hp_rate_scenario`` option above), Reference Case analogues will not be prepared at all for these measures. When exogenous switching rates are not used, Reference Case analogues will be prepared with the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes reset to ``null`` such that the analogues represent the baseline technology and fuel type (in the measure's :ref:`json-technology` and :ref:`json-fuel_type` attributes.)
 
    In these measure switching cases, Reference Case analogue measures that switch equipment and/or fuel types may be manually defined with typical cost, performance, and lifetime characteristics for the relevant technology class from the `EIA Reference Case technology documentation`_.
 
@@ -1407,7 +1430,11 @@ Raise technology performance floor
 Specify early retrofit rates
 ****************************
 
-``--retro_set`` assumes that a certain portion of technologies are replaced before the end of their useful life each year at a component-specific rate, on top of the portion that is regularly replaced at end-of-life. When this option is specified, the user will be prompted to select whether the early retrofit rates should remain constant over time or escalated to achieve a certain multiplier by a certain year (e.g., 4X the starting rates by 2035). Component-specific rate assumptions are reported in :numref:`retro-tab`.
+``--retrofit_type`` assumes that a certain portion of technologies are replaced before the end of their useful life each year at a component-specific rate, on top of the portion that is regularly replaced at end-of-life. When this option is passes, the user must specify one of "constant" or "increasing", which defines whether the early retrofit rates should remain constant over time or escalated to achieve a certain multiplier by a certain year (e.g., 4X the starting rates by 2035), respectively. If applying a multipler ("increasing"), then ``--retrofit_multiplier`` and ``--retrofit_mult_year`` must also be specified. Component-specific rate assumptions are reported in :numref:`retro-tab`.
+
+``--retrofit_multiplier`` designates the factor by which early retrofit rates are multiplied. Only applicable if ``--retrofit_type`` is specified.
+
+``--retrofit_mult_year`` designates the year by which the retrofit multiplier is achieved. Only applicable if ``--retrofit_type`` is specified.
 
 .. _retro-tab:
 .. table:: Assumed values and sources for component-specific early retrofit rates. [#]_
@@ -1458,22 +1485,33 @@ Isolate W/E impacts in ECM packages
 
 Reflect W/E costs in ECM packages
 *********************************
-``--pkg_env_costs`` reflects the installed cost of W/E technologies that are included in HVAC + W/E :ref:`ECM packages <package-ecms>` in the overall installed costs for the package.
+``--pkg_env_costs`` reflects the installed cost of W/E technologies that are included in HVAC + W/E :ref:`ECM packages <package-ecms>` in the overall installed costs for the package. The user must sepcify either "include HVAC" or "exclude HVAC" as the value for this argument.
 
 .. note::
    By default, W/E costs are excluded from the overall costs of an HVAC + W/E package to harmonize the handling of costs in such packages with the approach of Scout's technology choice models, which are drawn from EIA National Energy Modeling System (NEMS) data on HVAC equipment costs and sales only.
 
+Alternative Emissions Intensities
+*********************************
+``--alt_ref_carb`` sets the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+
 Time sensitive valuation metrics
 ********************************
 
-``--tsv_metrics`` assesses and reports out ECM impacts on electric load during pre-defined sub-annual time slices, rather than impacts on annual energy use as in the default ECM preparation. Time slice settings are based on 2006 as the `reference year`_ for the purpose of defining the days of the week and number of days in the year. When this option is specified, the user will be prompted to define the characteristics of the intended time sensitive valuation metric upon running |html-filepath| ecm_prep.py\ |html-fp-end|. Time sensitive valuation metrics are defined by several characteristics, listed here.
+The following time sensitive valuation metrics are used to assess and report out ECM impacts on electric load during pre-defined sub-annual time slices, rather than impacts on annual energy use as in the default ECM preparation. Time slice settings are based on 2006 as the `reference year`_ for the purpose of defining the days of the week and number of days in the year. 
 
-* *Type of time sensitive metric desired*. The reported metric can represent either change in energy use across multiple hours (e.g., kWh, GWh, TWh) or change in power per hour (e.g., kW, GW, TW).
-* *Daily hour range to restrict to*. The time slice can include all 24 hours of a day or be set to specific a daily period of peak demand on the electric grid (e.g., 4--8 PM) or low demand on the electric grid (e.g., 12--4 AM).
-* *Basis for determining hour range*. Periods of peak and low demand are determined using system-level load profiles for a representative set of `EMM regions`_. These profiles and associated periods may be based on *total* system demand, or total system demand *net* renewable energy generation. Furthermore, the system profiles may be based on either the `AEO Reference Case`_ or the `AEO Low Renewable Cost`_ (e.g., higher renewable penetration) side case assumptions. [#]_
-* *Season of focus*. The analysis can be limited to one of three seasons: summer (Jun--Sep), winter (Dec--Mar), or intermediate (Oct--Nov, Apr--May).
-* *Calculation type*. The reported metric can represent a sum or average of loads across multiple hours (when reporting a change in energy use); or a maximum or average hourly load (when reporting a change in power).
-* *Day type of focus*. The time slice can include all days of the week or be restricted to only weekdays or weekends.
+``--tsv_type`` selects the reported metric to represent either change in energy use across multiple hours (e.g., kWh, GWh, TWh) or change in power per hour (e.g., kW, GW, TW). Valid options include "energy" or "power".
+
+``--tsv_daily_hr_restrict`` specifies the daily hour range to restrict tsv metrics to. The time slice can include all 24 hours of a day or be set to specific a daily period of peak demand on the electric grid (e.g., 4--8 PM) or low demand on the electric grid (e.g., 12--4 AM). Valid options include "all", "peak", or "low".
+
+``--tsv_sys_shape_case`` specifies the basis for determining hour range. Periods of peak and low demand are determined using system-level load profiles for a representative set of `EMM regions`_. These profiles and associated periods may be based on *total* system demand, or total system demand *net* renewable energy generation. Furthermore, the system profiles may be based on either the `AEO Reference Case`_ or the `AEO Low Renewable Cost`_ (e.g., higher renewable penetration) side case assumptions. Valid options include "total reference", "total high renewables", "net renewable reference", or "net renewable high renewables". This argument is only applicable if ``--tsv_daily_hr_restrict`` is set to "peak" or "low". [#]_
+
+``--tsv_season`` limits the analysis to one of three seasons: summer (Jun--Sep), winter (Dec--Mar), or intermediate (Oct--Nov, Apr--May). Valid options include "summer", "winter", or "intermediate".
+
+``--tsv_energy_agg`` defines how metrics are aggregated when ``--tsv_type``  is set to "energy". This argument will specify a sum or average across the hours specified in ``--tsv_daily_hr_restrict``. Valid options include "sum" or "average".
+
+``--tsv_power_agg`` defines how metrics are aggregated when ``--tsv_type``  is set to "power". This argument will specify a maximum or average across the hours specified in ``--tsv_daily_hr_restrict``. Valid options include "peak" or "average".
+
+``--tsv_average_days`` defines the day type to average over. Valid options include "all", "weekdays", or "weekends". This argument is only applicable if ``--tsv_type`` is "energy" or ``tsv_power_agg`` is "average".
 
 .. _EMM regions: https://www.eia.gov/outlooks/aeo/pdf/f2.pdf
 
@@ -1524,14 +1562,14 @@ Verbose mode
 
 .. _tuts-ecm-list-setup:
 
-Tutorial 3: Modifying the active ECMs list
+Tutorial 4: Modifying the active ECMs list
 ------------------------------------------
 
 Prior to running an analysis, the list of ECMs that will be included in that analysis can be revised to suit your interests. For example, if your primary interest is in ECMs that are applicable to commercial buildings, you could choose to include only those ECMs in your analysis.
 
 The "active" (i.e., included in the analysis) and "inactive" (i.e., excluded from the analysis) ECMs are specified in the |html-filepath| run_setup.json |html-fp-end| file. There are two ways to modify the lists of ECMs: by :ref:`manually editing them <ecm-list-setup-manual>` or :ref:`using the automatic configuration module <ecm-list-setup-automatic>`.
 
-If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 4 <tuts-analysis>`, as all ECMs are included by default.
+If you would like to run your analysis with all of the ECMs and have not previously edited the lists of active and inactive ECMs, you can skip these steps and go straight to :ref:`Tutorial 5 <tuts-analysis>`, as all ECMs are included by default.
 
 .. tip::
    As new ECMs are added and pre-processed (by running |html-filepath| ecm_prep.py\ |html-fp-end|), their names are added to the "active" list. Any ECMs that were edited after being moved to the inactive list will be automatically moved back to the active list by |html-filepath| ecm_prep.py\ |html-fp-end|.
@@ -1616,13 +1654,13 @@ To exclude one or more ECMs from the analysis, copy and paste their names from t
 
 .. _tuts-analysis:
 
-Tutorial 4: Running an analysis
+Tutorial 5: Running an analysis
 -------------------------------
 
-Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 2 <tuts-2>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
+Once the ECMs have been pre-processed following the steps in :ref:`Tutorial 3 <tuts-3>`, the uncompeted and competed financial metrics and energy, |CO2|, and cost savings can be calculated for each ECM. Competition determines the portion of the applicable baseline market affected by ECMs that have identical or partially overlapping applicable baseline markets. The calculations and ECM competition are performed by |html-filepath| run.py |html-fp-end| following the outline in :ref:`Step 3 <analysis-step-3>` of the analysis approach section.
 
 .. note::
-   ECMs prepared via |html-filepath| ecm_prep.py\ |html-fp-end| with :ref:`additional options <tuts-2-cmd-opts>` may only be simulated in  |html-filepath| run.py |html-fp-end| alongside other ECMs that were prepared with the same options and option settings. If discrepancies are found in ECM preparation settings across ECMs in the active list, |html-filepath| run.py |html-fp-end| execution will be halted and the user will see an error message.
+   ECMs prepared via |html-filepath| ecm_prep.py\ |html-fp-end| with :ref:`additional options <tuts-3-cmd-opts>` may only be simulated in  |html-filepath| run.py |html-fp-end| alongside other ECMs that were prepared with the same options and option settings. If discrepancies are found in ECM preparation settings across ECMs in the active list, |html-filepath| run.py |html-fp-end| execution will be halted and the user will see an error message.
 
 To run the uncompeted and competed ECM calculations, open a Terminal window (Mac) or command prompt (Windows) if one is not already open. If you're working in a new command window, navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|). If your command window is already set to that folder/directory, the first line of the commands are not needed. Finally, run |html-filepath| run.py |html-fp-end| as a Python script.
 
@@ -1652,7 +1690,7 @@ Uncompeted and competed ECM results are automatically converted into graphical f
 .. note::
    On-site generation results are currently not reflected in the graphical results summaries and XLSX write-out.
 
-.. _tuts-4-cmd-opts:
+.. _tuts-5-cmd-opts:
 
 Additional run options
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1691,7 +1729,7 @@ Verbose mode
 
 .. _tuts-results:
 
-Tutorial 5: Viewing and understanding outputs
+Tutorial 6: Viewing and understanding outputs
 ---------------------------------------------
 
 Interpreting results figures
