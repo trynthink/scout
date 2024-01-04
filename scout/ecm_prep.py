@@ -19,6 +19,7 @@ from ast import literal_eval
 import math
 import pandas as pd
 from datetime import datetime
+from pathlib import PurePath
 import argparse
 from scout.ecm_prep_args import ecm_args
 from scout.constants import FilePaths as fp
@@ -32,6 +33,8 @@ class MyEncoder(json.JSONEncoder):
         # Case where object to be serialized is numpy array
         if isinstance(obj, numpy.ndarray):
             return obj.tolist()
+        if isinstance(obj, PurePath):
+            return str(obj)
         # All other cases
         else:
             return super(MyEncoder, self).default(obj)
