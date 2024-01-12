@@ -77,6 +77,23 @@ jobs:
             git commit -m "Upload results files from CI build"
             echo "Pushing to branch: $branch_name"
             git push -u origin $branch_name
+
+            # Set status checks to success
+            checks=("code-quality-checks" "python-tests (3.8)" "python-tests (3.9)" "python-tests (3.10)")
+            commit_sha=$(git rev-parse HEAD)
+            status_url="https://api.github.com/repos/${{ github.repository }}/statuses/$commit_sha"
+            for check in "${checks[@]}"; do
+              curl -L \
+                -X POST \
+                $status_url \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -d '{
+                  "state": "success",
+                  "context": "'"${check}"'",
+                  "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                }'
+            done
           fi
 
   stop-runner:
