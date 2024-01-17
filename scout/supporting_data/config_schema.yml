@@ -2,7 +2,7 @@ type: object
 required: [description]
 properties:
   description:
-    type: string
+    type: ["string", "null"]
     description: A description of the scenario configuration.
   ecm_prep:
     type: object
@@ -19,8 +19,8 @@ properties:
         description: Enable captured energy calculation.
 
       alt_regions:
-        type: string
-        enum: [EMM, State, AIA]
+        type: ["string", "null"]
+        enum: [EMM, State, AIA, null]
         description: Specify an alternative region breakdown.
 
       tsv_metrics:
@@ -28,39 +28,39 @@ properties:
         required: [tsv_type, tsv_daily_hr_restrict]
         properties:
           tsv_type:
-            type: string
-            enum: [energy, power]
-            description: Time-sensitive metric desired, where `energy` is the change in energy and `power` is the change in power (e.g., single hour GW).
+            type: ["string", "null"]
+            enum: [energy, power, null]
+            description: Time-sensitive metric desired, where `energy` is the change in energy and `power` is the change in power (e.g., single hour GW). Required if running tsv_metrics.
           tsv_daily_hr_restrict:
-            type: string
-            enum: [all, peak, low]
-            description: The daily hour range to restrict time-sensitive metrics, where `all` is all hours, `peak` is peak demand period hours, and `low` is low demand period hours.
+            type: ["string", "null"]
+            enum: [all, peak, low, null]
+            description: The daily hour range to restrict time-sensitive metrics, where `all` is all hours, `peak` is peak demand period hours, and `low` is low demand period hours. Required if running tsv_metrics.
           tsv_sys_shape_case:
-            type: string
-            enum: [total reference, total high renewables, net renewable reference, net renewable high renewables]
-            description: The basis for determining hours for peak or low demand. Only applicable if tsv_daily_hr_restrict is `peak` or `low`.
+            type: ["string", "null"]
+            enum: [total reference, total high renewables, net renewable reference, net renewable high renewables, null]
+            description: The basis for determining hours for peak or low demand. Required if tsv_daily_hr_restrict is `peak` or `low`.
           tsv_season:
-            type: string
-            enum: [summer, winter, intermediate]
+            type: ["string", "null"]
+            enum: [summer, winter, intermediate, null]
             description: Season of focus for time-sensitve metrics.
           tsv_energy_agg:
-            type: string
-            enum: [sum, average]
-            description: Define how the the tsv_daily_hr_restrict hours are aggregated when tsv_type is `energy`.
+            type: ["string", "null"]
+            enum: [sum, average, null]
+            description: Define how the the tsv_daily_hr_restrict hours are aggregated, required when tsv_type is `energy`.
           tsv_power_agg:
-            type: string
-            enum: [peak, average]
-            description: Define how the the tsv_daily_hr_restrict hours are aggregated when tsv_type is `power`.
+            type: ["string", "null"]
+            enum: [peak, average, null]
+            description: Define how the the tsv_daily_hr_restrict hours are aggregated, required when tsv_type is `power`.
           tsv_average_days:
-            type: string
-            enum: [all, weekdays, weekends]
+            type: ["string", "null"]
+            enum: [all, weekdays, weekends, null]
             description: The day type to average over. Only applicable if tsv_type is `energy` or tsv_power_agg is `average`.
         if:
           properties:
             tsv_daily_hr_restrict:
               enum: [peak, low]
         then:
-          required: [tsv_average_days]
+          required: [tsv_sys_shape_case]
         if:
           properties:
             tsv_type:
@@ -80,8 +80,6 @@ properties:
                   const: average
             then:
               required: [tsv_average_days]
-        not:
-          required: [tsv_energy_agg, tsv_power_agg]
 
       sect_shapes:
         type: boolean
@@ -114,21 +112,21 @@ properties:
         description: Disable secondary lighting.
 
       floor_start:
-        type: integer
+        type: ["integer", "null"]
         default: null
         description: The starting floor.
 
       pkg_env_costs:
-        type: string
-        enum: [include HVAC, exclude HVAC]
+        type: ["string", "null"]
+        enum: [include HVAC, exclude HVAC, null]
         description: Define what measure data should be written out for inclusion in measure competition. `include HVAC` will prepare HVAC-only versions of all HVAC/envelope packages for measure competition, `exclude HVAC` will exclude these HVAC-only measures from measure competition.
 
       exog_hp_rates:
         type: object
         properties:
           exog_hp_rate_scenario:
-            type: string
-            enum: [conservative, optimistic, aggressive, most aggressive]
+            type: ["string", "null"]
+            enum: [conservative, optimistic, aggressive, most aggressive, null]
             description: Guidehouse E3HP conversion scenario to use for exogenous HP rates.
           switch_all_retrofit_hp:
             type: boolean
@@ -143,24 +141,24 @@ properties:
       alt_ref_carb:
         type: boolean
         default: false
-        description: Set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+        description: set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
 
       grid_decarb:
         type: object
         required: [grid_decarb_level, grid_assesment_timing]
         properties:
           grid_decarb_level:
-            type: string
-            enum: ["0.8", full]
+            type: ["string", "null"]
+            enum: ["0.8", full, null]
             description: Enable grid decarbonization - `0.8` represents 80%% reduced grid emissions from current levels by 2050, and `full` represents full grid decarbonization by 2035.
           grid_assesment_timing:
-            type: string
-            enum: [before, after]
+            type: ["string", "null"]
+            enum: [before, after, null]
             description: When to assess avoided emissions and costs from non-fuel switching measures relative to the additional grid decarbonization.
 
       adopt_scn_restrict:
-        type: string
-        enum: [Max adoption potential, Technical potential]
+        type: ["string", "null"]
+        enum: [Max adoption potential, Technical potential, null]
         description: Specify adoption scenario restrictions.
 
       retrofits:
@@ -168,14 +166,14 @@ properties:
         required: [retrofit_type]
         properties:
           retrofit_type:
-            type: string
-            enum: [constant, increasing]
+            type: ["string", "null"]
+            enum: [constant, increasing, null]
             description: Type of retrofit. `constant` assumes component-based early retrofit rates that do not change over time, `increasing` assumes rates that increase over time.
           retrofit_multiplier:
-            type: number
+            type: ["number", "null"]
             description: Factor by which early retrofit rates are multiplied (only for increasing retrofit_type).
           retrofit_mult_year:
-            type: integer
+            type: ["integer", "null"]
             description: The year by which the retorfit multiplier is achieved (only for increasing retrofit_type).
         if:
           properties:
@@ -199,13 +197,13 @@ properties:
         description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid if the split_fuel argument is set to False.
         default: []
         items:
-          type: string
+          type: ["string", "null"]
           enum: [regions, buildings, fuel types]
 
       fugitive_emissions:
         type: array
         items:
-          type: string
+          type: ["string", "null"]
           enum: [methane, low-gwp refrigerant, typical refrigerant]
         default: []
         description: Array enabling fugitive emissions; array may include methane and one of the two refrigerant options.
@@ -213,7 +211,7 @@ properties:
         minItems: 0
         not:
           items:
-            type: string
+            type: ["string", "null"]
             enum: [typical refrigerant, low-gwp refrigerant]
           maxItems: 2
           minItems: 2

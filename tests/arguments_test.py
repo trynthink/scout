@@ -11,13 +11,11 @@ from scout.ecm_prep_args import ecm_args
 class Utils:
     test_files = Path(__file__).parent / "test_files"
     empty_yml_pth = str(test_files / "empty_config.yml")
+    default_yml_pth = str(test_files / "default_config.yml")
     valid_yml_pth = str(test_files / "valid_config.yml")
 
     def _assert_arg_vals(
-        self,
-        args: argparse.NameSpace,  # noqa: F821
-        expected_args: dict,
-        update_dict: dict = {}
+        self, args: argparse.NameSpace, expected_args: dict, update_dict: dict = {}  # noqa: F821
     ):
         expected_args.update(update_dict)
         for arg, val in expected_args.items():
@@ -26,7 +24,7 @@ class Utils:
 
 class TestConfig(unittest.TestCase, Utils):
     # Tests to process yml configuration files and parse as arguments
-    empty_config = {
+    default_config = {
         "ecm_prep": {
             "site_energy": False,
             "captured_energy": False,
@@ -118,21 +116,31 @@ class TestConfig(unittest.TestCase, Utils):
         # Test defaults from no cfg file
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=[])
-        self._assert_arg_vals(args, self.empty_config["ecm_prep"])
+        self._assert_arg_vals(args, self.default_config["ecm_prep"])
 
         # run.py
         args = self._get_cfg_args("run", cli_args=[])
-        self._assert_arg_vals(args, self.empty_config["run"])
+        self._assert_arg_vals(args, self.default_config["run"])
 
     def test_minimum_yml(self):
         # Test defaults with empty cfg file
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=["--yaml", self.empty_yml_pth])
-        self._assert_arg_vals(args, self.empty_config["ecm_prep"])
+        self._assert_arg_vals(args, self.default_config["ecm_prep"])
 
         # run.py
         args = self._get_cfg_args("run", cli_args=["--yaml", self.empty_yml_pth])
-        self._assert_arg_vals(args, self.empty_config["run"])
+        self._assert_arg_vals(args, self.default_config["run"])
+
+    def test_default_yml(self):
+        # Test explicit defaults values from cfg file
+        # ecm_prep.py
+        args = self._get_cfg_args("ecm_prep", cli_args=["--yaml", self.default_yml_pth])
+        self._assert_arg_vals(args, self.default_config["ecm_prep"])
+
+        # run.py
+        args = self._get_cfg_args("run", cli_args=["--yaml", self.empty_yml_pth])
+        self._assert_arg_vals(args, self.default_config["run"])
 
     def test_valid_yml_file(self):
         # Test & validate with valid cfg file
@@ -176,7 +184,7 @@ class TestConfig(unittest.TestCase, Utils):
     def test_invalid_yml_schema(self):
         # Invalid yml schemas
         args_update = {"ecm_prep": {"alt_regions": "invalid"}}
-        expected_err = "'invalid' is not one of ['EMM', 'State', 'AIA']"
+        expected_err = "'invalid' is not one of ['EMM', 'State', 'AIA', None]"
         self._check_schema_err(expected_err, args_update)
 
         args_update = {

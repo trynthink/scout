@@ -1,0 +1,43 @@
+description: This is a sample configuration file that uses default arguments for ecm_prep and run
+ecm_prep:
+  site_energy: false
+  captured_energy: false
+  alt_regions: null
+  sect_shapes: false
+  rp_persist: false
+  verbose: false
+  health_costs: false
+  split_fuel: false
+  no_scnd_lgt: false
+  floor_start: null
+  pkg_env_costs: null
+  alt_ref_carb: false
+  adopt_scn_restrict: null
+  add_typ_eff: false
+  pkg_env_sep: false
+  detail_brkout: []
+  fugitive_emissions: []
+  tsv_metrics:
+    tsv_type: null
+    tsv_daily_hr_restrict: null
+    tsv_sys_shape_case: null
+    tsv_season: null
+    tsv_energy_agg: null
+    tsv_power_agg: null
+    tsv_average_days: null
+  exog_hp_rates:
+    exog_hp_rate_scenario: null
+    switch_all_retrofit_hp: false
+  grid_decarb:
+    grid_decarb_level: null
+    grid_assesment_timing: null
+  retrofits:
+    retrofit_type: null
+    retrofit_multiplier: null
+    retrofit_mult_year: null
+run:
+  verbose: False
+  mkt_fracs: False
+  trim_results: False
+  report_stk: False
+  report_cfs: False

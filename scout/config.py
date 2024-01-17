@@ -1,5 +1,6 @@
 from __future__ import annotations
 import yaml
+import copy
 from pathlib import Path
 from jsonschema import validate
 from scout.constants import FilePaths as fp
@@ -100,15 +101,23 @@ class Config:
         """Extracts arguments from the config schema and writes argparse arguments"""
         if group:
             parser = group
-        arguments = schema_data.get("properties", {})
+        arguments = copy.deepcopy(schema_data).get("properties", {})
         for arg_name, data in arguments.items():
             arg_type = data["type"]
+            if type(arg_type) == list:
+                if "null" in arg_type:
+                    arg_type.remove("null")
+                if len(arg_type) > 1:
+                    raise ValueError("Multiple argument data types is not currently supported")
+                arg_type = arg_type[0]
             arg_choices = data.get("enum")
             arg_help = data.get("description")
             arg_default = data.get("default")
             arg_arr_choices = data.get("items", {}).get("enum")
 
             if arg_type == "string" and arg_choices:
+                while None in arg_choices:
+                    arg_choices.remove(None)
                 arg_help += f" Allowed values are {{{', '.join(arg_choices)}}}"
                 parser.add_argument(
                     f"--{arg_name}",
