@@ -350,7 +350,6 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                 print('Please try again. Enter either 1 or 2. '
                       'Use ctrl-c to exit.')
         opts.grid_decarb = input_var
-        print(opts.grid_decarb, 'HERERERE')
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
         if (opts.alt_regions in ["State"]):
