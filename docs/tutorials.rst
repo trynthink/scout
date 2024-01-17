@@ -1258,7 +1258,7 @@ All of the intended packages should be specified in the |html-filepath| package_
 
 Tutorial 2: Creating project configuration files
 -------------------------------------------------
-Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. These project definition configuration files map to the command-line arguments described in the "Addtional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but allow for a more consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration you can run one or both of the following:
+Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. These project definition configuration files map to the command-line arguments described in the "Additional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but allow for a more consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration you can run one or both of the following:
 ::
 
    python scout/ecm_prep.py -y <my_project.yml>
@@ -1269,7 +1269,7 @@ Scout will parse the .yml file and write arguments for each script, provided the
 .. Note::
    If other command-line arguments are included (i.e., those other than ``-y``), then they will take precedence over the yaml file if there is overlap between the two.
 
-Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file.
+Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file. Additionally, a `sample configuration file`_ can be found on the Scout repository, serving as a valid configuration file pre-filled with default values.
 
 .. literalinclude:: config_readable.yml
   :language: YAML
@@ -1892,3 +1892,4 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. _AHS 2019: https://www.census.gov/programs-surveys/ahs/data/interactive/ahstablecreator.html?s_areas=00000&s_year=2019&s_tablename=TABLE16&s_bygroup1=4&s_bygroup2=1&s_filtergroup1=1&s_filtergroup2=1
 .. _2019 EPA AVERT regions: https://www.epa.gov/sites/default/files/2019-05/documents/avert_emission_factors_05-30-19_508.pdf
 .. _U.S. Census Divisions: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf
+.. _sample configuration file: https://github.com/trynthink/scout/tree/master/inputs/default_config.yml
