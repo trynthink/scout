@@ -8,7 +8,7 @@ ecm_prep:
   rp_persist: true
   alt_regions: EMM
   adopt_scn_restrict: Max adoption potential
-  fugitive_emissions: [methane, typical refrigerant]
+  fugitive_emissions: [methane-mid, typical refrigerant]
   retrofits:
     retrofit_type: increasing
     retrofit_multiplier: 1.2

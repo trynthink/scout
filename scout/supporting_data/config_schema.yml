@@ -190,17 +190,21 @@ properties:
         type: array
         items:
           type: ["string", "null"]
-          enum: [methane, low-gwp refrigerant, typical refrigerant]
+          enum: [methane-low, methane-mid, methane-high, low-gwp refrigerant, typical refrigerant, typical refrigerant no phaseout]
         default: []
-        description: Array enabling fugitive emissions; array may include methane and one of the two refrigerant options.
+        description: Array enabling fugitive emissions; array may include one of the three supply chain methane leakage rate options and one of the three refrigerant options.
         maxItems: 2
         minItems: 0
         not:
-          items:
-            type: ["string", "null"]
-            enum: [typical refrigerant, low-gwp refrigerant]
-          maxItems: 2
-          minItems: 2
+          anyOf:
+            - items:
+                type: ["string", "null"]
+                enum: [typical refrigerant, low-gwp refrigerant, typical refrigerant no phaseout]
+              minItems: 2
+            - items:
+                type: ["string", "null"]
+                enum: [methane-low, methane-mid, methane-high]
+              minItems: 2
       
   run:
     type: object
