@@ -12,7 +12,10 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
     """
 
     # Retrieve config file and CLI arguments
-    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter,
+                            epilog="For more detail please read: "
+                            "https://scout-bto.readthedocs.io/en/latest/tutorials.html"
+                            "#tutorial-2-preparing-ecms-for-analysis")
     config = Config(parser, "ecm_prep", args)
     opts = config.parse_args()
     opts = translate_inputs(opts)  # Translate for use downstream

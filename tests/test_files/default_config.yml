@@ -6,7 +6,7 @@ ecm_prep:
   sect_shapes: false
   rp_persist: false
   verbose: false
-  health_costs: true
+  health_costs: false
   split_fuel: false
   no_scnd_lgt: false
   floor_start: null
