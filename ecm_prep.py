@@ -5423,6 +5423,14 @@ class Measure(object):
                     opts.fugitive_emissions[0] in ['1', '3'] and (
                         opts.alt_regions != "State" and
                         mskeys[3] == "natural gas"):
+                    # Prepare leakage rate sensitivity variable based on
+                    # input options
+                    if opts.fugitive_emissions[1] == '1':
+                        lkg_rate_scenario = "Low"
+                    elif opts.fugitive_emissions[1] == '2':
+                        lkg_rate_scenario = "Mid"
+                    else:
+                        lkg_rate_scenario = "High"
                     # Prepare fractions needed to map state-resolved
                     # fugitive methane data to current region
                     try:
@@ -5437,10 +5445,12 @@ class Measure(object):
                     # Apply mapping fractions to develop methane leakage rate
                     try:
                         lkg_rate = sum([self.handyvars.fug_emissions[
-                            "methane"]["total_leakage_rate"][state] *
+                            "methane"]["total_leakage_rate"][
+                                lkg_rate_scenario][state] *
                             reg_weight[state] for state in
                             self.handyvars.fug_emissions[
-                            "methane"]["total_leakage_rate"].keys()])
+                            "methane"]["total_leakage_rate"][
+                                lkg_rate_scenario].keys()])
                     except (KeyError):
                         raise ValueError(
                             "Inconsistent state keys "
@@ -5461,7 +5471,8 @@ class Measure(object):
                         mskeys[3] == "natural gas":
                     # Directly pull methane leakage rate for current state
                     lkg_rate = self.handyvars.fug_emissions[
-                        "methane"]["total_leakage_rate"][mskeys[1]]
+                        "methane"]["total_leakage_rate"][
+                            lkg_rate_scenario][mskeys[1]]
                     # Handle case where measure is switching away from
                     # a baseline case with methane leakage to a non-gas tech.
                     # without such leakage
@@ -8811,16 +8822,35 @@ class Measure(object):
             if f_refr_assess:
                 # Baseline tech. unit-level refrigerant emissions
                 if f_refr["baseline"][0] is not None:
-                    # Find key to use in pulling global warming potential
-                    # value for the typical baseline tech. refrigerant; typical
-                    # refrigerants may be stored as a dict keyed in by year
-                    if type(f_refr["baseline"][0]["typ_refrigerant"]) == dict:
-                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"][[
-                            y for y in f_refr["baseline"][0][
-                                "typ_refrigerant"].keys() if
-                            int(yr) >= int(y)][-1]]
-                    else:
-                        r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                    # Case where user assumes typical refrigerants do not phase
+                    # out
+                    if opts.fugitive_emissions[1] == '1':
+                        # Find key to use in pulling global warming potential
+                        # value for the typical baseline tech. refrigerant
+                        if (type(f_refr["baseline"][0][
+                                "typ_refrigerant"]) == dict):
+                            r_key_b = f_refr["baseline"][0][
+                                "typ_refrigerant"][[
+                                    y for y in f_refr["baseline"][0][
+                                        "typ_refrigerant"].keys()][0]]
+                        else:
+                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                    # Case where user assumes typical refrigerants have phase-
+                    # out years
+                    elif opts.fugitive_emissions[1] in ['2', '3']:
+                        # Find key to use in pulling global warming potential
+                        # value for the typical baseline tech. refrigerant;
+                        # typical refrigerants may be stored as a dict keyed in
+                        # by year
+                        if (type(f_refr["baseline"][0][
+                                "typ_refrigerant"]) == dict):
+                            r_key_b = f_refr["baseline"][0][
+                                "typ_refrigerant"][
+                                [y for y in f_refr["baseline"][0][
+                                    "typ_refrigerant"].keys() if
+                                    int(yr) >= int(y)][-1]]
+                        else:
+                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
                     # Use key above to pull baseline tech. refrigerant GWP
                     try:
                         base_gwp_yr = self.handyvars.fug_emissions[
@@ -8836,7 +8866,7 @@ class Measure(object):
                 # Measure tech. unit-level refrigerant emissions
                 if f_refr["efficient"][0] is not None:
                     # Case where user assumes measure uses low GWP refrigerant
-                    if opts.fugitive_emissions[1] == '2':
+                    if opts.fugitive_emissions[1] == '3':
                         # Low GWP refrigerant may be specified as a measure
                         # attribute; first try to pull from this attribute
                         try:
@@ -8880,7 +8910,21 @@ class Measure(object):
                             else:
                                 r_key_e = f_refr["efficient"][0][
                                     "low_gwp_refrigerant"]
-                    # Case where user assumes measure uses typical refrigerant
+                    # Case where user assumes typical refrigerants do
+                    # not phase out
+                    elif opts.fugitive_emissions[1] == '1':
+                        # Find key to use in pulling global warming potential
+                        # value for the typical baseline tech. refrigerant
+                        if (type(f_refr["efficient"][0][
+                                "typ_refrigerant"]) == dict):
+                            r_key_e = f_refr["efficient"][0][
+                                "typ_refrigerant"][[
+                                    y for y in f_refr["efficient"][0][
+                                        "typ_refrigerant"].keys()][0]]
+                        else:
+                            r_key_e = f_refr["efficient"][0]["typ_refrigerant"]
+                    # Case where user assumes typical refrigerants have phase-
+                    # out years
                     else:
                         # Typical refrigerants may be stored as a dict keyed
                         # in by year
@@ -8889,11 +8933,11 @@ class Measure(object):
                             r_key_e = f_refr["efficient"][0][
                                 "typ_refrigerant"][
                                 [y for y in f_refr["efficient"][0][
-                                  "typ_refrigerant"].keys() if
-                                 int(yr) >= int(y)][-1]]
+                                    "typ_refrigerant"].keys() if
+                                    int(yr) >= int(y)][-1]]
                         else:
                             r_key_e = \
-                                f_refr["efficient"][0]["low_gwp_refrigerant"]
+                                f_refr["efficient"][0]["typ_refrigerant"]
                     # Use key above to pull measure refrigerant GWP
                     try:
                         meas_gwp_yr = self.handyvars.fug_emissions[

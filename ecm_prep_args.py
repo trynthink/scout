@@ -103,7 +103,7 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
 
 
 def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F821
-    """Request additional user inputs through command line prompts and store them
+    """Request additional user inputs through command line prompts, store them
 
     Args:
         opts (argparse.NameSpace): object in which to store user responses
@@ -179,7 +179,7 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # whether to use typical refrigerants (including representation of expected
     # phase-out years) or user-defined low-GWP refrigerants, as applicable
     if opts and opts.fugitive_emissions is True:
-        input_var = [0, None]
+        input_var = [0, None, None]
         # Determine which fugitive emissions setting to use
         while input_var[0] not in ['1', '2', '3']:
             input_var[0] = input(
@@ -194,13 +194,26 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         # In cases where refrigerant emissions are being assessed,
         # determine assumptions about typical vs. low-GWP refrigerants
         if input_var[0] != '1':
-            while input_var[1] not in ['1', '2']:
+            while input_var[1] not in ['1', '2', '3']:
                 input_var[1] = input(
-                    "\nEnter 1 to assume measures use typical refrigerants, "
-                    "including representation of their phase-out years,\nor 2 "
-                    "to assume measures use low-GWP refrigerants: ")
-                if input_var[1] not in ['1', '2']:
-                    print('Please try again. Enter either 1 or 2. '
+                    "\nEnter 1 to assume measures use typical refrigerants "
+                    "\nwithout representation of their phase-out years,\nor 2 "
+                    "to include representation of their phase-out years,\nor "
+                    "3 to assume measures use low-GWP refrigerants\n "
+                    "immediately: ")
+                if input_var[1] not in ['1', '2', '3']:
+                    print('Please try again. Enter either 1, 2, or 3. '
+                          'Use ctrl-c to exit.')
+        # In cases where methane emissions are being assessed,
+        # determine assumptions about methane leakage rates
+        if input_var[0] != '2':
+            while input_var[2] not in ['1', '2', '3']:
+                input_var[2] = input(
+                    "\nEnter 1 to assume lower bound methane leakage rates "
+                    "\nor 2 to assume middle bound methane leakage rates, "
+                    "\nor 3 to upper bound methane leakage rates\n ")
+                if input_var[2] not in ['1', '2', '3']:
+                    print('Please try again. Enter either 1, 2, or 3. '
                           'Use ctrl-c to exit.')
         opts.fugitive_emissions = input_var
 
