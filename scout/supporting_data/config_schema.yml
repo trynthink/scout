@@ -99,7 +99,7 @@ properties:
       health_costs:
         type: boolean
         default: false
-        description: Enable health costs.
+        description: Enable health costs. Requires alt_regions to be set to `EMM`.
 
       split_fuel:
         type: boolean
