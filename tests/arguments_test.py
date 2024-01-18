@@ -125,7 +125,7 @@ class TestConfig(unittest.TestCase, Utils):
             "rp_persist": True,
             "alt_regions": "EMM",
             "adopt_scn_restrict": "Max adoption potential",
-            "fugitive_emissions": ["methane", "typical refrigerant"],
+            "fugitive_emissions": ["methane-mid", "typical refrigerant"],
             "retrofit_type": "increasing",
             "retrofit_multiplier": 1.2,
             "retrofit_mult_year": 2030,
@@ -423,7 +423,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "add_typ_eff": True,
         "pkg_env_sep": False,
         "detail_brkout": "6",
-        "fugitive_emissions": [3, 1],
+        "fugitive_emissions": [3, 2, 2],
         "retro_set": ["3", 1.2, 2030],
         "exog_hp_rates": ["aggressive", "2"],
         "grid_decarb": True,
@@ -491,7 +491,8 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
             "--fugitive_emissions",
             "low-gwp refrigerant",
         ]
-        update_dict = {"adopt_scn_restrict": ["Technical potential"], "fugitive_emissions": [2, 2]}
+        update_dict = {"adopt_scn_restrict": ["Technical potential"],
+                       "fugitive_emissions": [2, 3, None]}
         args = ecm_args(cli_args)
         expected_args = copy.deepcopy(self.valid_yml_translated)
         expected_args.update(update_dict)

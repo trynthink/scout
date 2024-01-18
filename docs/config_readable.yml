@@ -61,9 +61,11 @@ ecm_prep:
     in the year specified. The desired future year must be given
     in the format YYYY. Default null
   fugitive_emissions: (array) Array enabling fugitive emissions;
-    array may include methane and one of the two refrigerant options.
-    Allowed values are 0 or more of {low-gwp refrigerant, methane,
-    typical refrigerant}. Default []
+    array may include one of the three supply chain methane leakage
+    rate options and one of the three refrigerant options. Allowed
+    values are 0 or more of {low-gwp refrigerant, methane-high,
+    methane-low, methane-mid, typical refrigerant, typical refrigerant
+    no phaseout}. Default []
   grid_decarb:
     grid_assessment_timing: (string, required if the grid_decarb
       key is present) When to assess avoided emissions and costs
