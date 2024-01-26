@@ -36,8 +36,8 @@ ecm_prep:
     retrofit_multiplier: null
     retrofit_mult_year: null
 run:
-  verbose: False
-  mkt_fracs: False
-  trim_results: False
-  report_stk: False
-  report_cfs: False
+  verbose: false
+  mkt_fracs: false
+  trim_results: false
+  report_stk: false
+  report_cfs: false

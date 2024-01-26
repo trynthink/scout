@@ -11,17 +11,17 @@ properties:
       site_energy:
         type: boolean
         default: false
-        description: Enable site energy calculation.
+        description: If true, enable site energy calculation.
 
       captured_energy:
         type: boolean
         default: false
-        description: Enable captured energy calculation.
+        description: If true, enable captured energy calculation.
 
       alt_regions:
         type: ["string", "null"]
         enum: [EMM, State, AIA, null]
-        description: Specify an alternative region breakdown.
+        description: Specify an alternative region breakdown. If none selected, AIA will be used.
 
       tsv_metrics:
         type: object
@@ -84,37 +84,45 @@ properties:
       sect_shapes:
         type: boolean
         default: false
-        description: Enable sector shapes.
+        description: If true, enable calculation of sector-level electricity savings shapes.
 
       rp_persist:
         type: boolean
         default: false
-        description: Enable relative performance persistence.
+        description: If true, enable relative performance persistence.
 
       verbose:
         type: boolean
         default: false
-        description: Enable verbose mode.
+        description: If true, enable verbose mode.
 
       health_costs:
         type: boolean
         default: false
-        description: Enable health costs. Requires alt_regions to be set to `EMM`.
+        description: If true, enable health costs. Requires alt_regions to be set to `EMM`.
 
       split_fuel:
         type: boolean
         default: false
-        description: Enable split fuel.
+        description: If true, split out ECM results reporting by fuel type.
+
+      detail_brkout:
+        type: array
+        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid if the split_fuel argument is set to False.
+        default: []
+        items:
+          type: ["string", "null"]
+          enum: [regions, buildings, fuel types]
 
       no_scnd_lgt:
         type: boolean
         default: false
-        description: Disable secondary lighting.
+        description: If true, disable the calculation of secondary heating and cooling energy effects from changes in lighting efficacy.
 
       floor_start:
         type: ["integer", "null"]
         default: null
-        description: The starting floor.
+        description: Apply an elevated performance floor starting in the year specified. The desired future year must be given in the format YYYY.
 
       pkg_env_costs:
         type: ["string", "null"]
@@ -130,7 +138,8 @@ properties:
             description: Guidehouse E3HP conversion scenario to use for exogenous HP rates.
           switch_all_retrofit_hp:
             type: boolean
-            description: Assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
+            default: false
+            description: If true, assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
         if:
           properties:
             exog_hp_rate_scenario:
@@ -141,7 +150,7 @@ properties:
       alt_ref_carb:
         type: boolean
         default: false
-        description: set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+        description: If true, set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
 
       grid_decarb:
         type: object
@@ -150,7 +159,7 @@ properties:
           grid_decarb_level:
             type: ["string", "null"]
             enum: ["0.8", full, null]
-            description: Enable grid decarbonization - `0.8` represents 80%% reduced grid emissions from current levels by 2050, and `full` represents full grid decarbonization by 2035.
+            description: Enable grid decarbonization - `0.8` represents 80 percent reduced grid emissions from current levels by 2050, and `full` represents full grid decarbonization by 2035.
           grid_assesment_timing:
             type: ["string", "null"]
             enum: [before, after, null]
@@ -159,7 +168,8 @@ properties:
       adopt_scn_restrict:
         type: ["string", "null"]
         enum: [Max adoption potential, Technical potential, null]
-        description: Specify adoption scenario restrictions.
+        default: null
+        description: Specify single desired adoption scenario, otherwise both scenarios will be used.
 
       retrofits:
         type: object
@@ -168,13 +178,13 @@ properties:
           retrofit_type:
             type: ["string", "null"]
             enum: [constant, increasing, null]
-            description: Type of retrofit. `constant` assumes component-based early retrofit rates that do not change over time, `increasing` assumes rates that increase over time.
+            description: Specify early retrofit rates. `constant` assumes component-based early retrofit rates that do not change over time, `increasing` assumes rates that increase over time.
           retrofit_multiplier:
             type: ["number", "null"]
             description: Factor by which early retrofit rates are multiplied (only for increasing retrofit_type).
           retrofit_mult_year:
             type: ["integer", "null"]
-            description: The year by which the retorfit multiplier is achieved (only for increasing retrofit_type).
+            description: The year by which the retrofit multiplier is achieved (only for increasing retrofit_type).
         if:
           properties:
             retrofit_type:
@@ -185,20 +195,12 @@ properties:
       add_typ_eff:
         type: boolean
         default: false
-        description: Enable additional typical efficiency.
+        description: If true, enable automatic addition of ECMs with typical (business-as-usual) efficiency to compete with user-defined ECMs.
 
       pkg_env_sep:
         type: boolean
         default: false
-        description: Enable package environmental separation.
-
-      detail_brkout:
-        type: array
-        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid if the split_fuel argument is set to False.
-        default: []
-        items:
-          type: ["string", "null"]
-          enum: [regions, buildings, fuel types]
+        description: If true, enable output of separate envelope ECM impacts when both HVAC and envelope ECMs are combined in one or more measure packages.
 
       fugitive_emissions:
         type: array
@@ -223,21 +225,21 @@ properties:
       verbose:
         type: boolean
         default: false
-        description: Print all warnings to stdout.
+        description: If true, print all warnings to stdout.
       mkt_fracs:
         type: boolean
         default: false
-        description: Flag market penetration outputs.
+        description: If true, flag market penetration outputs.
       trim_results:
         type: boolean
         default: false
-        description: Reduce results file size.
+        description: If true, reduce results file size.
       report_stk:
         type: boolean
         default: false
-        description: Report baseline/measure stock data.
+        description: If true, report baseline/measure stock data.
       report_cfs:
         type: boolean
         default: false
-        description: Report competition adjustment fractions.
+        description: If true, report competition adjustment fractions.
 

@@ -709,6 +709,7 @@ In this example, the first feature will represent baseline load shedding between
 A commercial load shedding and shifting ECM is :ref:`available for download <ecm-download-com-multiple>`.
 
 .. _2019 EIA Electricity Market Module (EMM) regions: https://www.eia.gov/outlooks/aeo/pdf/f2.pdf
+.. _Standard Scenarios Mid Case: https://www.nrel.gov/docs/fy24osti/87724.pdf
 .. _reference year: https://asd.gsfc.nasa.gov/Craig.Markwardt/doy2006.html
 .. _ASHRAE 90.1-2016 climate zone: https://www.ashrae.org/File%20Library/Conferences/Specialty%20Conferences/2018%20Building%20Performance%20Analysis%20Conference%20and%20SimBuild/Papers/C008.pdf
 .. _EIA Electricity Market Module (EMM): https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m068(2018).pdf
@@ -1258,7 +1259,7 @@ All of the intended packages should be specified in the |html-filepath| package_
 
 Tutorial 2: Creating project configuration files
 -------------------------------------------------
-Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. These project definition configuration files map to the command-line arguments described in the "Additional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but allow for a more consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration you can run one or both of the following:
+Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. Arguments in a project definition configuration file map to the command-line arguments described in the "Additional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but enable a consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration file you can run one or both of the following:
 ::
 
    python scout/ecm_prep.py -y <my_project.yml>
@@ -1300,7 +1301,7 @@ To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, ope
 
 As each ECM is processed by |html-filepath| ecm_prep.py\ |html-fp-end|, the text "Updating ECM" and the ECM name are printed to the command window, followed by text indicating whether the ECM has been updated successfully. There may be some additional text printed to indicate whether the installed cost units in the ECM definition were converted to match the desired cost units for the analysis. If any exceptions (errors) occur, the module will stop running and the exception will be printed to the command window with some additional information to indicate where the exception occurred within |html-filepath| ecm_prep.py\ |html-fp-end|. The error message printed should provide some indication of where the error occurred and in what ECM. This information can be used to narrow the troubleshooting effort.
 
-If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| ./generated/run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./generated/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./generated |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 4 <tuts-analysis>`.
+If |html-filepath| ecm_prep.py |html-fp-end| runs successfully, a message with the total runtime will be printed to the console window. The names of the ECMs updated will be added to |html-filepath| ./generated/run_setup.json\ |html-fp-end|, a file that indicates which ECMs should be included in :ref:`the analysis <tuts-analysis>`. The total baseline and efficient energy, |CO2|, and cost data for those ECMs that were just added or revised are added to the |html-filepath| ./generated/ecm_competition_data |html-fp-end| folder, where there appear separate compressed files for each ECM. High-level summary data for all prepared ECMs are added to the |html-filepath| ecm_prep.json |html-fp-end| file in the |html-filepath| ./generated |html-fp-end| folder. These files are then used by the ECM competition routine, outlined in :ref:`Tutorial 5 <tuts-analysis>`.
 
 .. tip::
    The format of |html-filepath| ecm_prep.json |html-fp-end| is a list of dictionaries, with each dictionary including one ECM's high-level summary data. Use the ``name`` key in these ECM summary data dictionaries to find information for a particular ECM of interest in this file.
@@ -1325,7 +1326,7 @@ Users may include a range of additional options alongside the |html-filepath| ec
 The additional ECM preparation options are described further here.
 
 
-Configuration File
+Configuration file
 ******************
 ``--yaml`` specifies the filepath to a yaml configuration file, as described in the :ref:`Tutorial 2 <tuts-2>`. This file provides an alternative way of defining the command line arguments below. Additional arguments passed via the command line will take precedence over those defined in the yaml file.
 
@@ -1378,7 +1379,7 @@ Exogenous heat pump switching rates
 .. note::
    Currently the ``--exog_hp_rate_scenario`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rate_scenario`` option, the code will automatically switch the run to EMM regions while warning the user.
 
-``--switch_all_retrofit_hp`` selects whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use. This argument is only applicable if ``--exog_hp_rate_scenario`` is specified
+``--switch_all_retrofit_hp`` selects whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use. This argument is only applicable if ``--exog_hp_rate_scenario`` is specified.
 
 
 Assessment of fugitive emissions
@@ -1430,7 +1431,7 @@ Raise technology performance floor
 Specify early retrofit rates
 ****************************
 
-``--retrofit_type`` assumes that a certain portion of technologies are replaced before the end of their useful life each year at a component-specific rate, on top of the portion that is regularly replaced at end-of-life. When this option is passes, the user must specify one of "constant" or "increasing", which defines whether the early retrofit rates should remain constant over time or escalated to achieve a certain multiplier by a certain year (e.g., 4X the starting rates by 2035), respectively. If applying a multipler ("increasing"), then ``--retrofit_multiplier`` and ``--retrofit_mult_year`` must also be specified. Component-specific rate assumptions are reported in :numref:`retro-tab`.
+``--retrofit_type`` assumes that a certain portion of technologies are replaced before the end of their useful life each year at a component-specific rate, on top of the portion that is regularly replaced at end-of-life. When this option is passed, the user must specify one of "constant" or "increasing", which defines whether the early retrofit rates should remain constant over time or escalated to achieve a certain multiplier by a certain year (e.g., 4X the starting rates by 2035), respectively. If applying a multipler ("increasing"), then ``--retrofit_multiplier`` and ``--retrofit_mult_year`` must also be specified. Component-specific rate assumptions are reported in :numref:`retro-tab`.
 
 ``--retrofit_multiplier`` designates the factor by which early retrofit rates are multiplied. Only applicable if ``--retrofit_type`` is specified.
 
@@ -1485,14 +1486,14 @@ Isolate W/E impacts in ECM packages
 
 Reflect W/E costs in ECM packages
 *********************************
-``--pkg_env_costs`` reflects the installed cost of W/E technologies that are included in HVAC + W/E :ref:`ECM packages <package-ecms>` in the overall installed costs for the package. The user must sepcify either "include HVAC" or "exclude HVAC" as the value for this argument.
+``--pkg_env_costs`` reflects the installed cost of W/E technologies that are included in HVAC + W/E :ref:`ECM packages <package-ecms>` in the overall installed costs for the package. The user must specify either "include HVAC" or "exclude HVAC" as the value for this argument.
 
 .. note::
    By default, W/E costs are excluded from the overall costs of an HVAC + W/E package to harmonize the handling of costs in such packages with the approach of Scout's technology choice models, which are drawn from EIA National Energy Modeling System (NEMS) data on HVAC equipment costs and sales only.
 
-Alternative Emissions Intensities
+Alternative emissions intensities
 *********************************
-``--alt_ref_carb`` sets the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+``--alt_ref_carb`` sets the baseline electricity emissions intensities to be consistent with the `Standard Scenarios Mid Case`_ (rather than AEO).
 
 Time sensitive valuation metrics
 ********************************
@@ -1892,4 +1893,4 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. _AHS 2019: https://www.census.gov/programs-surveys/ahs/data/interactive/ahstablecreator.html?s_areas=00000&s_year=2019&s_tablename=TABLE16&s_bygroup1=4&s_bygroup2=1&s_filtergroup1=1&s_filtergroup2=1
 .. _2019 EPA AVERT regions: https://www.epa.gov/sites/default/files/2019-05/documents/avert_emission_factors_05-30-19_508.pdf
 .. _U.S. Census Divisions: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf
-.. _sample configuration file: https://github.com/trynthink/scout/tree/master/inputs/default_config.yml
+.. _sample configuration file: https://github.com/trynthink/scout/tree/master/inputs/config_default.yml

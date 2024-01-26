@@ -9,21 +9,33 @@ from scout.ecm_prep_args import ecm_args
 
 
 class Utils:
+    """Shared resources with paths to test yml files and a method for asserting argument values
+    """
+
     test_files = Path(__file__).parent / "test_files"
     empty_yml_pth = str(test_files / "empty_config.yml")
     default_yml_pth = str(test_files / "default_config.yml")
     valid_yml_pth = str(test_files / "valid_config.yml")
 
-    def _assert_arg_vals(
-        self, args: argparse.NameSpace, expected_args: dict, update_dict: dict = {}  # noqa: F821
-    ):
-        expected_args.update(update_dict)
+    def _assert_arg_vals(self, args: argparse.NameSpace, expected_args: dict):  # noqa: F821
+        """Generic method to assert generated argparse object against expected
+
+        Args:
+            args (argparse.NameSpace): Arguments object generated for ecm_prep.py or run.py
+            expected_args (dict): Expected arguments and argument values
+        """
+
         for arg, val in expected_args.items():
             self.assertEqual(vars(args).get(arg), val, f"for argument {arg}")
 
 
 class TestConfig(unittest.TestCase, Utils):
-    # Tests to process yml configuration files and parse as arguments
+    """Tests to process yml configuration files and parse as arguments within the Config class.
+        These tests cover only methods in Config, addressing both argument parsing from yml
+        files and directly from the command line.
+    """
+
+    # Expected ecm_prep and run default values
     default_config = {
         "ecm_prep": {
             "site_energy": False,
@@ -67,6 +79,7 @@ class TestConfig(unittest.TestCase, Utils):
         },
     }
 
+    # Expected values for a valid config file; aligns with test_files/valid_config.yml
     valid_config = {
         "ecm_prep": {
             "add_typ_eff": True,
@@ -93,14 +106,35 @@ class TestConfig(unittest.TestCase, Utils):
         "run": {"mkt_fracs": True, "trim_results": True},
     }
 
-    def _get_cfg_args(self, key, cli_args=[]):
+    def _get_cfg_args(self, key: str, cli_args=[]) -> argparse.Namespace:  # noqa: F821
+        """Instantiates the Config class and parses args based on cli args
+
+        Args:
+            key (str): File for which to parse args, ecm_prep or run
+            cli_args (list, optional): Command line arguments for given key. Defaults to [].
+
+        Returns:
+            argparse.Namespace: Arguments object that could be used in ecm_prep.py or run.py
+        """
+
         # Instantiate Config class and parse args
         parser = ArgumentParser()
         config = Config(parser, key, cli_args)
         args = config.parse_args()
         return args
 
-    def _check_schema_err(self, expected_err, args_update={}, drop_key=None):
+    def _check_schema_err(self, expected_err: str, args_update: dict = {}, drop_key: str = None):
+        """Generic method to check for expected schema validation error messages that result from
+            updates to a valid configuration file.
+
+        Args:
+            expected_err (str): Expected error message when validating
+            args_update (dict, optional): Changes to valid yml data that should result in a
+                validation error. Defaults to {}.
+            drop_key (str, optional): Specify key in the valid yml to drop that results in a
+                validation error. Defaults to None.
+        """
+
         parser = ArgumentParser()
         c = Config(parser, "ecm_prep", ["--yaml", self.valid_yml_pth])
         c.config_args.update(args_update)
@@ -113,7 +147,7 @@ class TestConfig(unittest.TestCase, Utils):
         self.assertTrue(expected_err in actual_msg, f"Expected {expected_err} in {actual_msg}")
 
     def test_empty_args(self):
-        # Test defaults from no cfg file
+        # Test defaults from no cfg file (no cli args)
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=[])
         self._assert_arg_vals(args, self.default_config["ecm_prep"])
@@ -143,7 +177,9 @@ class TestConfig(unittest.TestCase, Utils):
         self._assert_arg_vals(args, self.default_config["run"])
 
     def test_valid_yml_file(self):
-        # Test & validate with valid cfg file
+        # Test & validate with valid cfg file. Note: _get_cfg_args() will automatically validate
+        # when instantiating Config()
+
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=["--yaml", self.valid_yml_pth])
         self._assert_arg_vals(args, self.valid_config["ecm_prep"])
@@ -165,21 +201,23 @@ class TestConfig(unittest.TestCase, Utils):
         ]
         args = self._get_cfg_args("ecm_prep", cli_args=cli_args)
         expected_args = copy.deepcopy(self.valid_config["ecm_prep"])
-        expected_arg_update = {
+        update_dict = {
             "adopt_scn_restrict": "Technical potential",
             "fugitive_emissions": ["low-gwp refrigerant"],
         }
-        self._assert_arg_vals(args, expected_args, expected_arg_update)
+        expected_args.update(update_dict)
+        self._assert_arg_vals(args, expected_args)
 
         # run.py
         cli_args = ["--yaml", self.valid_yml_pth, "--report_stk", "--report_cfs"]
         args = self._get_cfg_args("run", cli_args=cli_args)
         expected_args = copy.deepcopy(self.valid_config["run"])
-        expected_arg_update = {
+        update_dict = {
             "report_stk": True,
             "report_cfs": True,
         }
-        self._assert_arg_vals(args, expected_args, expected_arg_update)
+        expected_args.update(update_dict)
+        self._assert_arg_vals(args, expected_args)
 
     def test_invalid_yml_schema(self):
         # Invalid yml schemas
@@ -209,8 +247,11 @@ class TestConfig(unittest.TestCase, Utils):
 
 
 class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
-    # Tests for the translation of cli/yml args for use in ecm_prep.py
+    """Tests to confirm accurate translation of cli/yml arguments to values used in ecm_prep.py.
+        These tests implicitly use the Config class, but focus on methods from ecm_prep_args.py.
+    """
 
+    # Expected default values translated in ecm_prep_args
     default_translated = {
         "site_energy": False,
         "captured_energy": False,
@@ -248,6 +289,9 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "exog_hp_rates": False,
         "grid_decarb": False,
     }
+
+    # Expected values translated from ecm_prep_args valid config file; aligns with
+    # test_files/valid_config.yml
     valid_yml_translated = {
         "site_energy": True,
         "captured_energy": False,
@@ -287,10 +331,12 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     }
 
     def test_translate_empty_cli(self):
+        # Translation of empty/default arguments
         args = ecm_args([])
         self._assert_arg_vals(args, self.default_translated)
 
     def test_translate_valid_cli(self):
+        # Translation of valid cli inputs
         cli_args = [
             "--add_typ_eff",
             "--alt_regions",
@@ -319,10 +365,12 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         self.assertEqual(args.retro_set, ["3", 2.0, 2030])
 
     def test_translate_from_empty_cfg(self):
+        # Translation of empty yml (default args)
         args = ecm_args(["--yaml", self.empty_yml_pth])
         self._assert_arg_vals(args, self.default_translated)
 
     def test_translate_from_valid_cfg(self):
+        # Translation of valid yaml args
         args = ecm_args(["--yaml", self.valid_yml_pth])
         self._assert_arg_vals(args, self.valid_yml_translated)
 
@@ -338,7 +386,9 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         ]
         update_dict = {"adopt_scn_restrict": ["Technical potential"], "fugitive_emissions": [0, 2]}
         args = ecm_args(cli_args)
-        self._assert_arg_vals(args, copy.deepcopy(self.valid_yml_translated), update_dict)
+        expected_args = copy.deepcopy(self.valid_yml_translated)
+        expected_args.update(update_dict)
+        self._assert_arg_vals(args, expected_args)
 
 
 if __name__ == "__main__":

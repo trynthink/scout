@@ -101,3 +101,9 @@ _build
 *.rar
 *.tar
 *.zip
+
+# Build artifacts #
+###################
+
+build/
+scout.egg-info/

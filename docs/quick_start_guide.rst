@@ -47,7 +47,7 @@ Open a Terminal window (Mac) [#]_ or command prompt (Windows) [#]_ and navigate 
 4. Prepare ECMs for analysis
 ----------------------------
 
-Enter the following command line argument (see Local Execution :ref:`tuts-2` for additional guidance and execution :ref:`options <tuts-2-cmd-opts>`):
+Enter the following command line argument (see Local Execution :ref:`tuts-3` for additional guidance and execution :ref:`options <tuts-3-cmd-opts>`):
 
 **Windows** ::
 
@@ -86,7 +86,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-ecm-li
 6. Run analysis on active ECMs
 ------------------------------
 
-Enter the following command line argument (see Local Execution :ref:`tuts-analysis` for additional guidance and execution :ref:`options <tuts-4-cmd-opts>`):
+Enter the following command line argument (see Local Execution :ref:`tuts-analysis` for additional guidance and execution :ref:`options <tuts-5-cmd-opts>`):
 
 **Windows** ::
 
