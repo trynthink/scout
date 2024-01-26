@@ -37,4 +37,5 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "openpyxl",
+    "flake8 == 6.0",
 ]

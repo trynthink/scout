@@ -4,7 +4,6 @@ import numpy
 import re
 import itertools
 import json
-import sys
 from collections import OrderedDict
 from os import listdir, getcwd, stat
 from os.path import isfile, join
@@ -13917,7 +13916,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 if __name__ == "__main__":
     import time
     start_time = time.time()
-    opts = ecm_args(sys.argv[1:])
+    opts = ecm_args()
 
     main(opts)
     hours, rem = divmod(time.time() - start_time, 3600)

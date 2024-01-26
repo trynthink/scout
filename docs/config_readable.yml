@@ -1,111 +1,129 @@
 description: (string) A description of the scenario configuration.
   Default None
 ecm_prep:
-  add_typ_eff: (boolean) Enable additional typical efficiency.
-    Default False
-  adopt_scn_restrict: (string) Specify adoption scenario restrictions.
-    Allowable options are {'Technical potential', 'Max adoption
-    potential'}. Default None
-  alt_ref_carb: (boolean) Set the baseline electricity emissions
-    intensities to be consistent with the Standard Scenarios Mid
-    Case (rather than AEO). Default False
+  add_typ_eff: (boolean) If true, enable automatic addition of
+    ECMs with typical (business-as-usual) efficiency to compete
+    with user-defined ECMs. Default False
+  adopt_scn_restrict: (string) Specify single desired adoption
+    scenario, otherwise both scenarios will be used. Allowed values
+    are {'Technical potential', 'Max adoption potential', None}.
+    Default None
+  alt_ref_carb: (boolean) If true, set the baseline electricity
+    emissions intensities to be consistent with the Standard Scenarios
+    Mid Case (rather than AEO). Default False
   alt_regions: (string) Specify an alternative region breakdown.
-    Allowable options are {'State', 'EMM', 'AIA'}. Default None
-  captured_energy: (boolean) Enable captured energy calculation.
+    If none selected, AIA will be used. Allowed values are {'EMM',
+    'AIA', None, 'State'}. Default None
+  captured_energy: (boolean) If true, enable captured energy calculation.
     Default False
   detail_brkout: (array) List of options by which to breakout
     results. The `regions` options is only valid if the alt_regions
     argument is set to `EMM`, and `fuel types` is only valid if
-    the split_fuel argument is set to False. Default []
+    the split_fuel argument is set to False. Allowed values are
+    0 or more of {'fuel types', 'buildings', 'regions'} Default
+    []
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
-      scenario to use for exogenous HP rates. Allowable options
-      are {'optimistic', 'aggressive', 'most aggressive', 'conservative'}.
-      Default None
-    switch_all_retrofit_hp: (boolean) Assume all retrofits convert
-      to heat pumps, otherwise, retrofits are subject to the same
-      external heat pump conversion rates assumed for new/replacement
-      decisions. Only applicable if `exog_hp_rate_scenario` and
-      `retrofit_type` are defined. Default None
-  floor_start: (integer) The starting floor. Default 0
+      scenario to use for exogenous HP rates. Allowed values are
+      {'optimistic', 'aggressive', None, 'conservative', 'most
+      aggressive'}. Default None
+    switch_all_retrofit_hp: (boolean) If true, assume all retrofits
+      convert to heat pumps, otherwise, retrofits are subject
+      to the same external heat pump conversion rates assumed
+      for new/replacement decisions. Only applicable if `exog_hp_rate_scenario`
+      and `retrofit_type` are defined. Default False
+  floor_start: (integer) Apply an elevated performance floor starting
+    in the year specified. The desired future year must be given
+    in the format YYYY. Default None
   fugitive_emissions: (array) Array enabling fugitive emissions;
     array may include methane and one of the two refrigerant options.
-    Default []
+    Allowed values are 0 or more of {'methane', 'low-gwp refrigerant',
+    'typical refrigerant'} Default []
   grid_decarb:
     grid_assesment_timing: (string, required if the grid_decarb
       key is present) When to assess avoided emissions and costs
       from non-fuel switching measures relative to the additional
-      grid decarbonization. Allowable options are {'before', 'after'}.
-      Default None
+      grid decarbonization. Allowed values are {'after', 'before',
+      None}. Default None
     grid_decarb_level: (string, required if the grid_decarb key
       is present) Enable grid decarbonization - `0.8` represents
-      80%% reduced grid emissions from current levels by 2050,
-      and `full` represents full grid decarbonization by 2035.
-      Allowable options are {'0.8', 'full'}. Default None
-  health_costs: (boolean) Enable health costs. Default False
-  no_scnd_lgt: (boolean) Disable secondary lighting. Default False
+      80 percent reduced grid emissions from current levels by
+      2050, and `full` represents full grid decarbonization by
+      2035. Allowed values are {'0.8', None, 'full'}. Default
+      None
+  health_costs: (boolean) If true, enable health costs. Requires
+    alt_regions to be set to `EMM`. Default False
+  no_scnd_lgt: (boolean) If true, disable the calculation of secondary
+    heating and cooling energy effects from changes in lighting
+    efficacy. Default False
   pkg_env_costs: (string) Define what measure data should be written
     out for inclusion in measure competition. `include HVAC` will
     prepare HVAC-only versions of all HVAC/envelope packages for
     measure competition, `exclude HVAC` will exclude these HVAC-only
-    measures from measure competition. Allowable options are {'include
-    HVAC', 'exclude HVAC'}. Default None
-  pkg_env_sep: (boolean) Enable package environmental separation.
-    Default False
+    measures from measure competition. Allowed values are {None,
+    'exclude HVAC', 'include HVAC'}. Default None
+  pkg_env_sep: (boolean) If true, enable output of separate envelope
+    ECM impacts when both HVAC and envelope ECMs are combined
+    in one or more measure packages. Default False
   retrofits:
-    retrofit_mult_year: (integer) The year by which the retorfit
+    retrofit_mult_year: (integer) The year by which the retrofit
       multiplier is achieved (only for increasing retrofit_type).
       Default None
     retrofit_multiplier: (number) Factor by which early retrofit
       rates are multiplied (only for increasing retrofit_type).
       Default None
     retrofit_type: (string, required if the retrofits key is present)
-      Type of retrofit. `constant` assumes component-based early
-      retrofit rates that do not change over time, `increasing`
-      assumes rates that increase over time. Allowable options
-      are {'constant', 'increasing'}. Default None
-  rp_persist: (boolean) Enable relative performance persistence.
+      Specify early retrofit rates. `constant` assumes component-based
+      early retrofit rates that do not change over time, `increasing`
+      assumes rates that increase over time. Allowed values are
+      {'increasing', 'constant', None}. Default None
+  rp_persist: (boolean) If true, enable relative performance persistence.
     Default False
-  sect_shapes: (boolean) Enable sector shapes. Default False
-  site_energy: (boolean) Enable site energy calculation. Default
-    False
-  split_fuel: (boolean) Enable split fuel. Default False
+  sect_shapes: (boolean) If true, enable calculation of sector-level
+    electricity savings shapes. Default False
+  site_energy: (boolean) If true, enable site energy calculation.
+    Default False
+  split_fuel: (boolean) If true, split out ECM results reporting
+    by fuel type. Default False
   tsv_metrics:
     tsv_average_days: (string) The day type to average over. Only
       applicable if tsv_type is `energy` or tsv_power_agg is `average`.
-      Allowable options are {'weekends', 'weekdays', 'all'}. Default
-      None
+      Allowed values are {'all', 'weekends', 'weekdays', None}.
+      Default None
     tsv_daily_hr_restrict: (string, required if the tsv_metrics
       key is present) The daily hour range to restrict time-sensitive
       metrics, where `all` is all hours, `peak` is peak demand
-      period hours, and `low` is low demand period hours. Allowable
-      options are {'low', 'peak', 'all'}. Default None
+      period hours, and `low` is low demand period hours. Required
+      if running tsv_metrics. Allowed values are {None, 'all',
+      'low', 'peak'}. Default None
     tsv_energy_agg: (string) Define how the the tsv_daily_hr_restrict
-      hours are aggregated when tsv_type is `energy`. Allowable
-      options are {'average', 'sum'}. Default None
+      hours are aggregated, required when tsv_type is `energy`.
+      Allowed values are {None, 'average', 'sum'}. Default None
     tsv_power_agg: (string) Define how the the tsv_daily_hr_restrict
-      hours are aggregated when tsv_type is `power`. Allowable
-      options are {'average', 'peak'}. Default None
+      hours are aggregated, required when tsv_type is `power`.
+      Allowed values are {None, 'average', 'peak'}. Default None
     tsv_season: (string) Season of focus for time-sensitve metrics.
-      Allowable options are {'winter', 'intermediate', 'summer'}.
-      Default None
+      Allowed values are {'summer', 'intermediate', 'winter',
+      None}. Default None
     tsv_sys_shape_case: (string) The basis for determining hours
-      for peak or low demand. Only applicable if tsv_daily_hr_restrict
-      is `peak` or `low`. Allowable options are {'net renewable
-      high renewables', 'total high renewables', 'total reference',
-      'net renewable reference'}. Default None
+      for peak or low demand. Required if tsv_daily_hr_restrict
+      is `peak` or `low`. Allowed values are {'total high renewables',
+      'net renewable reference', 'net renewable high renewables',
+      None, 'total reference'}. Default None
     tsv_type: (string, required if the tsv_metrics key is present)
       Time-sensitive metric desired, where `energy` is the change
       in energy and `power` is the change in power (e.g., single
-      hour GW). Allowable options are {'energy', 'power'}. Default
-      None
-  verbose: (boolean) Enable verbose mode. Default False
+      hour GW). Required if running tsv_metrics. Allowed values
+      are {'energy', None, 'power'}. Default None
+  verbose: (boolean) If true, enable verbose mode. Default False
 run:
-  mkt_fracs: (boolean) Flag market penetration outputs. Default
-    False
-  report_cfs: (boolean) Report competition adjustment fractions.
+  mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
-  report_stk: (boolean) Report baseline/measure stock data. Default
+  report_cfs: (boolean) If true, report competition adjustment
+    fractions. Default False
+  report_stk: (boolean) If true, report baseline/measure stock
+    data. Default False
+  trim_results: (boolean) If true, reduce results file size. Default
     False
-  trim_results: (boolean) Reduce results file size. Default False
-  verbose: (boolean) Print all warnings to stdout. Default False
+  verbose: (boolean) If true, print all warnings to stdout. Default
+    False

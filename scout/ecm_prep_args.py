@@ -4,11 +4,12 @@ import warnings
 from scout.config import Config
 
 
-def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
+def ecm_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
     """Parse arguments for ecm_prep.py
 
     Args:
-        args (list): ecm_prep.py input arguments
+        args (list, optional): ecm_prep.py input arguments, if not provided, command line
+            arguments will be used in Config. Defaults to None.
     """
 
     # Retrieve config file and CLI arguments
@@ -61,7 +62,8 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             warn_text + ": ensure that ECM data reflect these EMM regions "
             "(and not the default AIA regions)")
 
-    # Set fugitive emissions
+    # Set fugitive emissions to include, if any, and whether to use typical refrigerants
+    # (including representation of expected phase-out years) or user-defined low-GWP refrigerants
     if opts.fugitive_emissions:
         input_var = [0, None]
         for emission in opts.fugitive_emissions:
@@ -75,7 +77,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     else:
         opts.fugitive_emissions = False
 
-    # Early retrofit settings from the default
+    # Modify early retrofit settings from the default
     input_var = ['1', None, None]
     if opts.retrofit_type == "constant":
         input_var[0] = '2'

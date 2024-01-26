@@ -47,7 +47,7 @@ Alternate regions
 ~~~~~~~~~~~~~~~~~
 
 .. note::
-   These alternate regions are only permitted when |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` option, as described in :ref:`tuts-2-cmd-opts`. 
+   These alternate regions are only permitted when |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` option, as described in :ref:`tuts-3-cmd-opts`. 
 
 .. _emm-reg:
 

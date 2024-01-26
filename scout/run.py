@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import numpy
 import copy
-import sys
 from numpy.linalg import LinAlgError
 from collections import OrderedDict, defaultdict
 import gzip
@@ -5127,11 +5126,15 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         print("Plotting complete")
 
 
-def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
-    """Parse arguments for run.py
+def parse_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
+    """Parse arguments for run.py using Config class
 
     Args:
-        args (list): run.py input arguments
+        args (list, optional): run.py input arguments, if not provided, command line arguments
+            will be used in Config. Defaults to None.
+
+    Returns:
+        argparse.NameSpace: Arguments object to be used in main()
     """
 
     # Retrieve config file and CLI arguments
@@ -5145,7 +5148,7 @@ def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
 if __name__ == '__main__':
     import time
     start_time = time.time()
-    opts = parse_args(sys.argv[1:])
+    opts = parse_args()
     main(opts)
 
     hours, rem = divmod(time.time() - start_time, 3600)
