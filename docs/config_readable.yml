@@ -1,129 +1,126 @@
 description: (string) A description of the scenario configuration.
-  Default None
+  Default null
 ecm_prep:
   add_typ_eff: (boolean) If true, enable automatic addition of
     ECMs with typical (business-as-usual) efficiency to compete
-    with user-defined ECMs. Default False
+    with user-defined ECMs. Default null
   adopt_scn_restrict: (string) Specify single desired adoption
     scenario, otherwise both scenarios will be used. Allowed values
-    are {'Technical potential', 'Max adoption potential', None}.
-    Default None
+    are {Max adoption potential, Technical potential, null}. Default
+    null
   alt_ref_carb: (boolean) If true, set the baseline electricity
     emissions intensities to be consistent with the Standard Scenarios
-    Mid Case (rather than AEO). Default False
+    Mid Case (rather than AEO). Default null
   alt_regions: (string) Specify an alternative region breakdown.
-    If none selected, AIA will be used. Allowed values are {'EMM',
-    'AIA', None, 'State'}. Default None
+    If none selected, AIA will be used. Allowed values are {AIA,
+    EMM, State, null}. Default null
   captured_energy: (boolean) If true, enable captured energy calculation.
-    Default False
+    Default null
   detail_brkout: (array) List of options by which to breakout
     results. The `regions` options is only valid if the alt_regions
     argument is set to `EMM`, and `fuel types` is only valid if
-    the split_fuel argument is set to False. Allowed values are
-    0 or more of {'fuel types', 'buildings', 'regions'} Default
-    []
+    the split_fuel argument is set to false. Allowed values are
+    0 or more of {buildings, fuel types, regions}. Default null
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowed values are
-      {'optimistic', 'aggressive', None, 'conservative', 'most
-      aggressive'}. Default None
+      {aggressive, conservative, most aggressive, optimistic,
+      null}. Default null
     switch_all_retrofit_hp: (boolean) If true, assume all retrofits
       convert to heat pumps, otherwise, retrofits are subject
       to the same external heat pump conversion rates assumed
       for new/replacement decisions. Only applicable if `exog_hp_rate_scenario`
-      and `retrofit_type` are defined. Default False
+      and `retrofit_type` are defined. Default null
   floor_start: (integer) Apply an elevated performance floor starting
     in the year specified. The desired future year must be given
-    in the format YYYY. Default None
+    in the format YYYY. Default null
   fugitive_emissions: (array) Array enabling fugitive emissions;
     array may include methane and one of the two refrigerant options.
-    Allowed values are 0 or more of {'methane', 'low-gwp refrigerant',
-    'typical refrigerant'} Default []
+    Allowed values are 0 or more of {low-gwp refrigerant, methane,
+    typical refrigerant}. Default null
   grid_decarb:
     grid_assesment_timing: (string, required if the grid_decarb
       key is present) When to assess avoided emissions and costs
       from non-fuel switching measures relative to the additional
-      grid decarbonization. Allowed values are {'after', 'before',
-      None}. Default None
+      grid decarbonization. Allowed values are {after, before,
+      null}. Default null
     grid_decarb_level: (string, required if the grid_decarb key
       is present) Enable grid decarbonization - `0.8` represents
       80 percent reduced grid emissions from current levels by
       2050, and `full` represents full grid decarbonization by
-      2035. Allowed values are {'0.8', None, 'full'}. Default
-      None
+      2035. Allowed values are {0.8, full, null}. Default null
   health_costs: (boolean) If true, enable health costs. Requires
-    alt_regions to be set to `EMM`. Default False
+    alt_regions to be set to `EMM`. Default null
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
     heating and cooling energy effects from changes in lighting
-    efficacy. Default False
+    efficacy. Default null
   pkg_env_costs: (string) Define what measure data should be written
     out for inclusion in measure competition. `include HVAC` will
     prepare HVAC-only versions of all HVAC/envelope packages for
     measure competition, `exclude HVAC` will exclude these HVAC-only
-    measures from measure competition. Allowed values are {None,
-    'exclude HVAC', 'include HVAC'}. Default None
+    measures from measure competition. Allowed values are {exclude
+    HVAC, include HVAC, null}. Default null
   pkg_env_sep: (boolean) If true, enable output of separate envelope
     ECM impacts when both HVAC and envelope ECMs are combined
-    in one or more measure packages. Default False
+    in one or more measure packages. Default null
   retrofits:
     retrofit_mult_year: (integer) The year by which the retrofit
       multiplier is achieved (only for increasing retrofit_type).
-      Default None
+      Default null
     retrofit_multiplier: (number) Factor by which early retrofit
       rates are multiplied (only for increasing retrofit_type).
-      Default None
+      Default null
     retrofit_type: (string, required if the retrofits key is present)
       Specify early retrofit rates. `constant` assumes component-based
       early retrofit rates that do not change over time, `increasing`
       assumes rates that increase over time. Allowed values are
-      {'increasing', 'constant', None}. Default None
+      {constant, increasing, null}. Default null
   rp_persist: (boolean) If true, enable relative performance persistence.
-    Default False
+    Default null
   sect_shapes: (boolean) If true, enable calculation of sector-level
-    electricity savings shapes. Default False
+    electricity savings shapes. Default null
   site_energy: (boolean) If true, enable site energy calculation.
-    Default False
+    Default null
   split_fuel: (boolean) If true, split out ECM results reporting
-    by fuel type. Default False
+    by fuel type. Default null
   tsv_metrics:
-    tsv_average_days: (string) The day type to average over. Only
-      applicable if tsv_type is `energy` or tsv_power_agg is `average`.
-      Allowed values are {'all', 'weekends', 'weekdays', None}.
-      Default None
+    tsv_average_days: (string) The day type to average over. Required
+      if tsv_type is `energy` or tsv_power_agg is `average`. Allowed
+      values are {all, weekdays, weekends, null}. Default null
     tsv_daily_hr_restrict: (string, required if the tsv_metrics
       key is present) The daily hour range to restrict time-sensitive
       metrics, where `all` is all hours, `peak` is peak demand
       period hours, and `low` is low demand period hours. Required
-      if running tsv_metrics. Allowed values are {None, 'all',
-      'low', 'peak'}. Default None
+      if running tsv_metrics. Allowed values are {all, low, peak,
+      null}. Default null
     tsv_energy_agg: (string) Define how the the tsv_daily_hr_restrict
       hours are aggregated, required when tsv_type is `energy`.
-      Allowed values are {None, 'average', 'sum'}. Default None
+      Allowed values are {average, sum, null}. Default null
     tsv_power_agg: (string) Define how the the tsv_daily_hr_restrict
       hours are aggregated, required when tsv_type is `power`.
-      Allowed values are {None, 'average', 'peak'}. Default None
+      Allowed values are {average, peak, null}. Default null
     tsv_season: (string) Season of focus for time-sensitve metrics.
-      Allowed values are {'summer', 'intermediate', 'winter',
-      None}. Default None
+      Allowed values are {intermediate, summer, winter, null}.
+      Default null
     tsv_sys_shape_case: (string) The basis for determining hours
       for peak or low demand. Required if tsv_daily_hr_restrict
-      is `peak` or `low`. Allowed values are {'total high renewables',
-      'net renewable reference', 'net renewable high renewables',
-      None, 'total reference'}. Default None
+      is `peak` or `low`. Allowed values are {net renewable high
+      renewables, net renewable reference, total high renewables,
+      total reference, null}. Default null
     tsv_type: (string, required if the tsv_metrics key is present)
       Time-sensitive metric desired, where `energy` is the change
       in energy and `power` is the change in power (e.g., single
       hour GW). Required if running tsv_metrics. Allowed values
-      are {'energy', None, 'power'}. Default None
-  verbose: (boolean) If true, enable verbose mode. Default False
+      are {energy, power, null}. Default null
+  verbose: (boolean) If true, enable verbose mode. Default null
 run:
   mkt_fracs: (boolean) If true, flag market penetration outputs.
-    Default False
+    Default null
   report_cfs: (boolean) If true, report competition adjustment
-    fractions. Default False
+    fractions. Default null
   report_stk: (boolean) If true, report baseline/measure stock
-    data. Default False
+    data. Default null
   trim_results: (boolean) If true, reduce results file size. Default
-    False
+    null
   verbose: (boolean) If true, print all warnings to stdout. Default
-    False
+    null
