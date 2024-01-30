@@ -1295,7 +1295,8 @@ class UsefulVars(object):
             "SEF": {"UEF": 1}}
         self.sf_to_house = {}
         self.com_eqp_eus_nostk = [
-            "PCs", "non-PC office equipment", "MELs", "other"]
+            "PCs", "non-PC office equipment", "MELs", "other",
+            "unspecified"]
         self.res_lts_per_home = {
             "single family home": 36,
             "multi family home": 15,
@@ -2195,7 +2196,7 @@ class Measure(object):
                         eu_key = eval(eu)
                     except (NameError, SyntaxError):
                         eu_key = eu
-                    if type(eu_key) != str:
+                    if not isinstance(eu_key, str):
                         eu_key = str(eu_key)
                     # Restrict shape data to that of the current end use
                     css_dat_eu = css_dat[
@@ -2221,7 +2222,7 @@ class Measure(object):
                             bd_key = eval(bd)
                         except (NameError, SyntaxError):
                             bd_key = bd
-                        if type(bd_key) != str:
+                        if not isinstance(bd_key, str):
                             bd_key = str(bd_key)
                         # Account for possible use of "StandAlone" naming in
                         # savings shape CSV, vs. expected "Standalone"
@@ -2250,7 +2251,7 @@ class Measure(object):
                                 cz_key = eval(cz)
                             except (NameError, SyntaxError):
                                 cz_key = cz
-                            if type(cz_key) != str:
+                            if not isinstance(cz_key, str):
                                 cz_key = str(cz_key)
                             # Account for possible use of climate 7A naming
                             # in savings shape CSV, vs. 7 naming in Scout's
@@ -3534,7 +3535,7 @@ class Measure(object):
                             # alternate regions into the current mseg region,
                             # to arrive at a final performance value for that
                             # region
-                            if all([type(x) != dict for
+                            if all([not isinstance(x, dict) for
                                     x in perf_meas[0].values()]):
                                 perf_meas = sum([x * y for x, y in zip(
                                     perf_meas[0].values(), perf_meas[1])])
@@ -3614,7 +3615,7 @@ class Measure(object):
                             # weighted sum of the data across the alternate
                             # regions into the current mseg region, to arrive
                             # at a final cost value for that region
-                            if all([type(x) != dict for
+                            if all([not isinstance(x, dict) for
                                     x in cost_meas[0].values()]):
                                 cost_meas = sum([x * y for x, y in zip(
                                     cost_meas[0].values(), cost_meas[1])])
@@ -4801,7 +4802,7 @@ class Measure(object):
                         # relative savings are directly user-specified in the
                         # measure definition, calculate relative performance
                         # based on the relative savings value
-                        if type(perf_meas) != numpy.ndarray and \
+                        if not isinstance(perf_meas, numpy.ndarray) and \
                            perf_meas == "Missing (secondary lighting)":
                             rel_perf = light_scnd_autoperf
                         else:
@@ -4852,7 +4853,7 @@ class Measure(object):
                                     # initially be specified as less than zero
                                     # in lighting efficiency cases, which
                                     # secondarily increase heating energy use
-                                    if type(perf_meas) == numpy.array:
+                                    if isinstance(perf_meas, numpy.ndarray):
                                         if any(perf_meas > 1):
                                             perf_meas[
                                                 numpy.where(perf_meas > 1)] = 1
@@ -4860,10 +4861,12 @@ class Measure(object):
                                                 all(perf_meas_orig) > 0:
                                             perf_meas[
                                                 numpy.where(perf_meas < 0)] = 0
-                                    elif type(perf_meas) != numpy.array and \
+                                    elif not isinstance(
+                                            perf_meas, numpy.ndarray) and \
                                             perf_meas > 1:
                                         perf_meas = 1
-                                    elif type(perf_meas) != numpy.array and \
+                                    elif not isinstance(
+                                            perf_meas, numpy.ndarray) and \
                                             perf_meas < 0 and \
                                             perf_meas_orig > 0:
                                         perf_meas = 0
@@ -4900,9 +4903,10 @@ class Measure(object):
                                     rel_perf[yr] = 1
                                 # Ensure that relative performance is a finite
                                 # number; if not, set to 1
-                                if (type(rel_perf[yr]) != numpy.ndarray and (
+                                if (not isinstance(
+                                        rel_perf[yr], numpy.ndarray) and (
                                     not numpy.isfinite(rel_perf[yr]))) or (
-                                   type(rel_perf[yr]) == numpy.ndarray and
+                                   isinstance(rel_perf[yr], numpy.ndarray) and
                                    any([not numpy.isfinite(x) for
                                         x in rel_perf[yr]])):
                                     rel_perf[yr] = 1
@@ -6976,9 +6980,9 @@ class Measure(object):
                 load_fact_climate_key = cz[0]
                 # Flag for cases where multiple sets of system load shape
                 # information are germane to the current climate zone
-                if cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == int:
+                if cz[0] and isinstance(self.handyvars.cz_emm_map[cz[0]], int):
                     mult_sysshp_key_save = "set 1"
-                elif cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == dict:
+                elif cz[0] and isinstance(self.handyvars.cz_emm_map[cz[0]], dict):
                     # Given multiple possible system load shape data
                     # sets for us in calculating representative savings shapes,
                     # find the key for the set that is representative
@@ -8231,9 +8235,9 @@ class Measure(object):
                     df = pd.DataFrame(self.diffusion.items(), columns=['years', 'diff'])
                     df['years'] = df['years'].str.replace('fraction_', '')
                     if str(self.handyvars.aeo_years[0]) not in df['years']:
-                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[0]), None]
+                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[0]), numpy.nan]
                     if str(self.handyvars.aeo_years[-1]) not in df['years']:
-                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[-1]), None]
+                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[-1]), numpy.nan]
                     # The years column is used as index
                     df['years'] = pd.to_datetime(df['years'])
                     df.index = df['years']
@@ -8259,7 +8263,7 @@ class Measure(object):
                     # if values for the first and for the last years are not specified, the first
                     # declared value is used for all the first years and the last declared value
                     # is used for all the last years.
-                    if df['diff'].isnull().values.any():
+                    if df['diff'].isna().values.any():
                         warn_list.append("WARNING: Not enough data were provided for first and"
                                          " last years of the considered simulation period.\n"
                                          "\tThe simulation will continue assuming plausible"
@@ -8412,7 +8416,7 @@ class Measure(object):
                 yrs_until_prevcapt_tover = int(life_base[yr]) - (
                     int(yr) - int(sorted(self.handyvars.aeo_years)[0]))
 
-                if type(yrs_until_prevcapt_tover) != numpy.ndarray:
+                if not isinstance(yrs_until_prevcapt_tover, numpy.ndarray):
                     prev_capt_turnover = yrs_until_prevcapt_tover <= 0
                 else:
                     prev_capt_turnover = all(yrs_until_prevcapt_tover <= 0)
@@ -8680,12 +8684,12 @@ class Measure(object):
                 comp_frac_diffuse = comp_frac_sbmkt
 
             # Ensure that competed diffusion fraction is always between 0 and 1
-            if type(comp_frac_diffuse) != numpy.ndarray:
+            if not isinstance(comp_frac_diffuse, numpy.ndarray):
                 if comp_frac_diffuse > 1:
                     comp_frac_diffuse = 1
                 elif comp_frac_diffuse < 0:
                     comp_frac_diffuse = 0
-            elif type(comp_frac_diffuse) == numpy.ndarray:
+            elif isinstance(comp_frac_diffuse, numpy.ndarray):
                 if any(comp_frac_diffuse > 1):
                     comp_frac_diffuse[numpy.where(comp_frac_diffuse > 1)] = 1
                 elif any(comp_frac_diffuse < 0):
@@ -8719,21 +8723,47 @@ class Measure(object):
             # If applicable, pull baseline and efficient case refrigerant
             # leakage emissions on a per unit basis
             if f_refr_assess:
+                # Initialize (or re-initialize) flag for 1st year in
+                # refrigerant GWP calculations
+                base_gwp_yr_init = ""
                 # Baseline tech. unit-level refrigerant emissions
                 if f_refr["baseline"][0] is not None:
-                    # Case where user assumes typical refrigerants do not phase
-                    # out
-                    if opts.fugitive_emissions[1] == '1':
+                    # First year in modeling horizon; find GWP value to use
+                    # for installed base of stock; set this value to the
+                    # earliest available typical GWP value in the
+                    # refrigerants data
+                    if yr == self.handyvars.aeo_years[0]:
                         # Find key to use in pulling global warming potential
                         # value for the typical baseline tech. refrigerant
-                        if (type(f_refr["baseline"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_b = f_refr["baseline"][0][
+                        # in the earliest available year
+                        if isinstance(f_refr["baseline"][0]["typ_refrigerant"], dict):
+                            r_key_b_init = f_refr["baseline"][0][
                                 "typ_refrigerant"][[
                                     y for y in f_refr["baseline"][0][
                                         "typ_refrigerant"].keys()][0]]
                         else:
-                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                            r_key_b_init = f_refr["baseline"][0]["typ_refrigerant"]
+                        # Use key above to pull installed base refrigerant GWP
+                        try:
+                            base_gwp_yr_init = self.handyvars.fug_emissions[
+                                "refrigerants"]["refrigerant_GWP100"][r_key_b_init]
+                        except KeyError:
+                            raise ValueError(
+                                f"Refrigerant '{r_key_b_init}' has no available GWP "
+                                f"data in supporting file {self.fug_emissions_dat}")
+
+                    typ_refrig = f_refr["baseline"][0].get("typ_refrigerant", None)
+                    # Case where user assumes typical refrigerants as of
+                    # earliest year in the refrigerants data do not phase out
+                    # in subsequent years
+                    if opts.fugitive_emissions[1] == '1':
+                        # Find key to use in pulling global warming potential
+                        # value for the typical baseline tech. refrigerant
+                        # in the earliest available year
+                        if isinstance(typ_refrig, dict):
+                            r_key_b = list(typ_refrig.values())[0]
+                        else:
+                            r_key_b = typ_refrig
                     # Case where user assumes typical refrigerants have phase-
                     # out years
                     elif opts.fugitive_emissions[1] in ['2', '3']:
@@ -8741,28 +8771,28 @@ class Measure(object):
                         # value for the typical baseline tech. refrigerant;
                         # typical refrigerants may be stored as a dict keyed in
                         # by year
-                        if (type(f_refr["baseline"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_b = f_refr["baseline"][0][
-                                "typ_refrigerant"][
-                                [y for y in f_refr["baseline"][0][
-                                    "typ_refrigerant"].keys() if
-                                    int(yr) >= int(y)][-1]]
+                        if isinstance(typ_refrig, dict):
+                            yr_ident = [y for y in typ_refrig.keys() if int(yr) >= int(y)]
+                            if yr_ident:
+                                r_key_b = typ_refrig[max(yr_ident)]
+                            else:
+                                raise ValueError(
+                                    f"No refrigerant data were found for the year '{yr}'.")
                         else:
-                            r_key_b = f_refr["baseline"][0]["typ_refrigerant"]
+                            r_key_b = typ_refrig
                     # Use key above to pull baseline tech. refrigerant GWP
                     try:
                         base_gwp_yr = self.handyvars.fug_emissions[
                             "refrigerants"]["refrigerant_GWP100"][r_key_b]
                     except KeyError:
                         raise ValueError(
-                            "Refrigerant '" + r_key_b +
-                            "' has no available GWP data in supporting "
-                            f"file {fp.CONVERT_DATA / 'fugitive_emissions_convert.json'}")
+                            f"Refrigerant '{r_key_b}' has no available GWP data "
+                            f"data in supporting file {self.fug_emissions_dat}")
                 else:
                     base_gwp_yr = ""
                 # Measure tech. unit-level refrigerant emissions
                 if f_refr["efficient"][0] is not None:
+                    typ_refrig = f_refr["efficient"][0].get("typ_refrigerant", None)
                     # Case where user assumes measure uses low GWP refrigerant
                     if opts.fugitive_emissions[1] == '3':
                         # Low GWP refrigerant may be specified as a measure
@@ -8789,62 +8819,59 @@ class Measure(object):
                         if low_gwp_usr:
                             # Handle low gwp broken out by year in the
                             # user input
-                            if type(low_gwp_usr) == dict:
-                                r_key_e = low_gwp_usr[
-                                     [y for y in low_gwp_usr.keys() if
-                                      int(yr) >= int(y)][-1]]
+                            if isinstance(low_gwp_usr, dict):
+                                yr_ident = [y for y in low_gwp_usr.keys() if int(yr) >= int(y)]
+                                if yr_ident:
+                                    r_key_e = low_gwp_usr[max(yr_ident)]
+                                else:
+                                    raise ValueError(
+                                        f"No refrigerant data were found for the year '{yr}'.")
                             else:
                                 r_key_e = low_gwp_usr
                         else:
                             # Low GWP refrigerants may be stored as a dict
                             # keyed in by year
-                            if type(f_refr["efficient"][0][
-                                    "low_gwp_refrigerant"]) == dict:
-                                r_key_e = f_refr["efficient"][0][
-                                    "low_gwp_refrigerant"][
-                                     [y for y in f_refr["efficient"][0][
-                                      "low_gwp_refrigerant"].keys() if
-                                      int(yr) >= int(y)][-1]]
+                            low_refrig = f_refr["efficient"][0]["low_gwp_refrigerant"]
+                            if isinstance(low_refrig, dict):
+                                yr_ident = [y for y in low_refrig.keys() if int(yr) >= int(y)]
+                                if yr_ident:
+                                    r_key_e = low_refrig[max(yr_ident)]
+                                else:
+                                    raise ValueError(
+                                        f"No refrigerant data were found for the year '{yr}'.")
                             else:
-                                r_key_e = f_refr["efficient"][0][
-                                    "low_gwp_refrigerant"]
+                                r_key_e = low_refrig
                     # Case where user assumes typical refrigerants do
                     # not phase out
                     elif opts.fugitive_emissions[1] == '1':
                         # Find key to use in pulling global warming potential
                         # value for the typical baseline tech. refrigerant
-                        if (type(f_refr["efficient"][0][
-                                "typ_refrigerant"]) == dict):
-                            r_key_e = f_refr["efficient"][0][
-                                "typ_refrigerant"][[
-                                    y for y in f_refr["efficient"][0][
-                                        "typ_refrigerant"].keys()][0]]
+                        if isinstance(typ_refrig, dict):
+                            r_key_e = list(typ_refrig.values())[0]
                         else:
-                            r_key_e = f_refr["efficient"][0]["typ_refrigerant"]
+                            r_key_e = typ_refrig
                     # Case where user assumes typical refrigerants have phase-
                     # out years
                     else:
                         # Typical refrigerants may be stored as a dict keyed
                         # in by year
-                        if type(f_refr[
-                                "efficient"][0]["typ_refrigerant"]) == dict:
-                            r_key_e = f_refr["efficient"][0][
-                                "typ_refrigerant"][
-                                [y for y in f_refr["efficient"][0][
-                                    "typ_refrigerant"].keys() if
-                                    int(yr) >= int(y)][-1]]
+                        if isinstance(typ_refrig, dict):
+                            yr_ident = [y for y in typ_refrig.keys() if int(yr) >= int(y)]
+                            if yr_ident:
+                                r_key_e = typ_refrig[max(yr_ident)]
+                            else:
+                                raise ValueError(
+                                    f"No refrigerant data were found for the year '{yr}'.")
                         else:
-                            r_key_e = \
-                                f_refr["efficient"][0]["typ_refrigerant"]
+                            r_key_e = typ_refrig
                     # Use key above to pull measure refrigerant GWP
                     try:
                         meas_gwp_yr = self.handyvars.fug_emissions[
                             "refrigerants"]["refrigerant_GWP100"][r_key_e]
                     except KeyError:
                         raise ValueError(
-                            "Refrigerant '" + r_key_e +
-                            "' has no available GWP data in supporting "
-                            f"file {fp.CONVERT_DATA / 'fugitive_emissions_convert.json'}")
+                            f"Refrigerant '{r_key_e}' has no available GWP data "
+                            f"data in supporting file {self.fug_emissions_dat}")
                 else:
                     meas_gwp_yr = ""
 
@@ -8865,29 +8892,30 @@ class Measure(object):
                             f_refr["baseline"][0]["typ_charge"] *
                             f_refr["baseline"][0]["EOL_leak_pct"]) /
                             life_base[yr])) * base_gwp_yr * (1 / 1e9)
+                    # If necessary, initialize the per unit baseline tech.
+                    # refrigerant emissions of previously captured stock (e.g,,
+                    # what is already installed) in the first modeling year
+                    if base_gwp_yr_init:
+                        base_f_r_unit_capt = (
+                            f_refr["baseline"][0]["typ_charge"] *
+                            f_refr["baseline"][0]["typ_ann_leak_pct"] + ((
+                                f_refr["baseline"][0]["typ_charge"] *
+                                f_refr["baseline"][0]["EOL_leak_pct"]) /
+                                life_base[yr])) * base_gwp_yr_init * (1 / 1e9)
                 else:
-                    base_f_r_unit_yr = 0
+                    base_f_r_unit_yr, base_f_r_unit_capt = (
+                        0 for n in range(2))
 
                 # Weighted overall (for stock captured in current year and all
                 # previous years) and previously captured per unit
                 # baseline tech. refrigerant emissions
 
-                # If first year in modeling time horizon, initialize
-                # overall/previously captured unit baseline refrigerant
-                # emissions as the same as the first year's values
-                if yr == self.handyvars.aeo_years[0]:
-                    base_f_r_unit_overall, base_f_r_unit_capt = (
-                        copy.deepcopy(base_f_r_unit_yr) for n in range(2))
-                # Otherwise calculate overall unit baseline refrigerant
-                # emissions by weighing competed baseline stock from current
-                # year with stock from previous years
-                else:
-                    # Set overall per unit refrigerant emissions; use
-                    # competition fraction to weight current vs. previous
-                    # year baseline unit refrigerant emissions
-                    base_f_r_unit_overall = \
-                        base_f_r_unit_yr * comp_frac_diffuse + \
-                        base_f_r_unit_capt * (1 - comp_frac_diffuse)
+                # Set overall per unit refrigerant emissions; use
+                # competition fraction to weight current vs. previous
+                # year baseline unit refrigerant emissions
+                base_f_r_unit_overall = \
+                    base_f_r_unit_yr * comp_frac_diffuse + \
+                    base_f_r_unit_capt * (1 - comp_frac_diffuse)
 
                 # Per unit measure tech. refrigerant emissions; if
                 # not available, set to zero
@@ -9038,9 +9066,20 @@ class Measure(object):
                         meas_cum_frac = \
                             stock_total_meas[prev_yr] / (
                                 stock_total[yr] - stock_compete[yr])
+                    # When end use and building type are 'unspecified' no stock
+                    # data will be available; base cumulative competed/captured
+                    # fraction on the sum of competed fractions until this pt
+                    else:
+                        meas_cum_frac += (
+                            diffuse_frac * comp_frac_diffuse_meas)
                     if (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]) != 0:
                         comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
                             (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr])
+                    # When end use and building type are 'unspecified' no stock
+                    # data will be available; base cumulative competed fraction
+                    # on the sum of competed fractions up until this point
+                    else:
+                        comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
                 # Handle case where captured efficient stock total
                 # is a numpy array
                 except ValueError:
@@ -9048,23 +9087,30 @@ class Measure(object):
                         meas_cum_frac = (
                             stock_total_meas[prev_yr] /
                             (stock_total[yr] - stock_compete[yr]))
+                    else:
+                        meas_cum_frac += (
+                            diffuse_frac * comp_frac_diffuse_meas)
                     if all((stock_total_sbmkt[yr] -
                             stock_compete_sbmkt[yr]) != 0):
                         comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
                             stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]))
+                    else:
+                        comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
 
                 # Ensure neither fraction goes above 1
 
                 # Cumulative measure-captured fraction
-                if type(meas_cum_frac) != numpy.ndarray and meas_cum_frac > 1:
+                if not isinstance(meas_cum_frac, numpy.ndarray) and \
+                        meas_cum_frac > 1:
                     meas_cum_frac = 1
-                elif type(meas_cum_frac) == numpy.ndarray and \
+                elif isinstance(meas_cum_frac, numpy.ndarray) and \
                         any(meas_cum_frac > 1):
                     meas_cum_frac[numpy.where(meas_cum_frac > 1)] = 1
                 # Cumulative competed-captured fraction
-                if type(comp_cum_frac) != numpy.ndarray and comp_cum_frac > 1:
+                if not isinstance(comp_cum_frac, numpy.ndarray) and \
+                        comp_cum_frac > 1:
                     comp_cum_frac = 1
-                elif type(comp_cum_frac) == numpy.ndarray and \
+                elif isinstance(comp_cum_frac, numpy.ndarray) and \
                         any(comp_cum_frac > 1):
                     comp_cum_frac[numpy.where(comp_cum_frac > 1)] = 1
 
@@ -9075,7 +9121,7 @@ class Measure(object):
                 # cap is not applicable)
                 if "existing" in mskeys and \
                         adopt_scheme != "Technical potential":
-                    if type(comp_cum_frac) != numpy.ndarray:
+                    if not isinstance(comp_cum_frac, numpy.ndarray):
                         turnover_cap_not_reached = comp_cum_frac < 1
                     else:
                         turnover_cap_not_reached = all(comp_cum_frac < 1)
@@ -9174,19 +9220,19 @@ class Measure(object):
             # and that it never goes below zero
 
             # Handle case where stock captured by measure is an array
-            if type(stock_total_meas[yr]) == numpy.ndarray and \
+            if isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     any(stock_total_meas[yr] > stock_total[yr]) is True:
                 stock_total_meas[yr][numpy.where(
                     stock_total_meas[yr] > stock_total[yr])] = stock_total[yr]
-            elif type(stock_total_meas[yr]) == numpy.ndarray and \
+            elif isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     any(stock_total_meas[yr] < 0) is True:
                 stock_total_meas[yr][numpy.where(
                     stock_total_meas[yr] < 0)] = 0
             # Handle case where stock captured by measure is point val
-            elif type(stock_total_meas[yr]) != numpy.ndarray and \
+            elif not isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     stock_total_meas[yr] > stock_total[yr]:
                 stock_total_meas[yr] = stock_total[yr]
-            elif type(stock_total_meas[yr]) != numpy.ndarray and \
+            elif not isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     stock_total_meas[yr] < 0:
                 stock_total_meas[yr] = 0
 
@@ -9214,19 +9260,19 @@ class Measure(object):
             # stock in the current year to total previously captured
             # measure stock across all previous years
             else:
-                if ((type(stock_total_meas[yr]) != numpy.ndarray and
+                if ((not isinstance(stock_total_meas[yr], numpy.ndarray) and
                      stock_total_meas[yr] != 0) or (
-                    type(stock_total_meas[yr]) == numpy.ndarray and
+                    isinstance(stock_total_meas[yr], numpy.ndarray) and
                         all(stock_total_meas[yr]) != 0)):
                     to_m_stk = (
                         stock_compete_meas[yr] / stock_total_meas[yr])
                 else:
                     to_m_stk = 0
                 # Ensure the measure turnover weight never exceeds 1
-                if (type(to_m_stk) != numpy.ndarray) and \
+                if (not isinstance(to_m_stk, numpy.ndarray)) and \
                         to_m_stk > 1:
                     to_m_stk = 1
-                elif (type(to_m_stk) == numpy.ndarray) and any(
+                elif (isinstance(to_m_stk, numpy.ndarray)) and any(
                         to_m_stk > 1):
                     to_m_stk[numpy.where(to_m_stk > 1)] = 1
                 # Update overall measure stock RP
@@ -9662,9 +9708,9 @@ class Measure(object):
         # Special case: ECM uses region names that are inconsistent with
         # higher-level region settings for the simulation
         if len(invalid_names) > 0 and ((
-            type(self.climate_zone) == list and all([
+            isinstance(self.climate_zone, list) and all([
                 x in self.climate_zone for x in invalid_names])) or (
-            type(self.climate_zone) == str and all([
+            isinstance(self.climate_zone, str) and all([
                 x == self.climate_zone for x in invalid_names]))):
             raise ValueError(
                 f"'climate_zone' input name(s) for ECM '{self.name}' ({str(invalid_names)})"
@@ -9768,7 +9814,7 @@ class Measure(object):
             if self.bldg_type == "all" or (
                 "all" in self.bldg_type and
                 self.bldg_type != "small office") or (
-                type(self.bldg_type) == list and any([
+                isinstance(self.bldg_type, list) and any([
                     "all" in b for b in self.bldg_type if
                     b != "small office"])):
                 # Record the initial 'bldg_type' attribute the user has defined
@@ -9901,10 +9947,10 @@ class Measure(object):
             # ['all heating,' 'central AC', 'room AC'])
             if self.technology[mseg_type] == 'all' or \
                 self.technology[mseg_type] == ['all'] or \
-                (type(self.technology[mseg_type]) == list and any([
+                (isinstance(self.technology[mseg_type], list) and any([
                  t is not None and 'all ' in t for t in
                  self.technology[mseg_type]])) or (
-                    type(self.technology[mseg_type]) == str and
+                    isinstance(self.technology[mseg_type], str) and
                     self.technology[mseg_type] is not None and
                     'all ' in self.technology[mseg_type]):
                 # Record the initial 'technology' attribute the user has
@@ -10217,8 +10263,10 @@ class Measure(object):
                 self.div_keyvals(i, dict2)
             else:
                 # Handle total energy use of zero
-                if ((type(dict2[k]) == numpy.ndarray and all(dict2[k]) != 0) or
-                        (type(dict2[k]) != numpy.ndarray and dict2[k] != 0)):
+                if ((isinstance(dict2[k], numpy.ndarray) and all(
+                    dict2[k]) != 0) or
+                        (not isinstance(dict2[k], numpy.ndarray)
+                         and dict2[k] != 0)):
                     dict1[k] = dict1[k] / dict2[k]
                 else:
                     dict1[k] = 0
@@ -10241,9 +10289,9 @@ class Measure(object):
                 self.div_keyvals_float(i, reduce_num)
             else:
                 # Handle zero values
-                if ((type(reduce_num) == numpy.ndarray and
+                if ((isinstance(reduce_num, numpy.ndarray) and
                      all(reduce_num) != 0) or (
-                        type(reduce_num) != numpy.ndarray and
+                        not isinstance(reduce_num, numpy.ndarray) and
                         reduce_num != 0)):
                     dict1[k] = dict1[k] / reduce_num
                 else:
