@@ -296,8 +296,8 @@ class Measure(object):
         # measure based on usr_opts attribute; handle case where this
         # attribute is not present
         try:
-            if self.usr_opts["fugitive_emissions"] is not False and type(
-                    self.usr_opts["fugitive_emissions"]) == list:
+            if self.usr_opts["fugitive_emissions"] is not False and isinstance(
+                    self.usr_opts["fugitive_emissions"], list):
                 # Methane only
                 if self.usr_opts["fugitive_emissions"][0] == '1':
                     self.fug_e = ["methane"]
@@ -681,9 +681,9 @@ class Engine(object):
                     # calculations below); set these values to zero for
                     # years in which total number of base/meas units is zero
                     if nunits_cmp != 0 and (
-                        type(nunits_meas_cmp) != numpy.ndarray and
+                        not isinstance(nunits_meas_cmp, numpy.ndarray) and
                         nunits_meas_cmp != 0 or
-                            type(nunits_meas_cmp) == numpy.ndarray and all(
+                            isinstance(nunits_meas_cmp, numpy.ndarray) and all(
                                 nunits_meas_cmp) != 0):
                         # Per unit baseline capital cost; note that these costs
                         # are aggregated as a baseline counterfactual for all
@@ -724,16 +724,20 @@ class Engine(object):
                     # comparison with measure lifetime
                     life_base = markets_uc["lifetime"]["baseline"][yr]
                     # Ensure that baseline lifetime is at least 1 year
-                    if type(life_base) == numpy.ndarray and any(life_base) < 1:
+                    if isinstance(life_base, numpy.ndarray) and \
+                            any(life_base) < 1:
                         life_base[numpy.where(life_base) < 1] = 1
-                    elif type(life_base) != numpy.ndarray and life_base < 1:
+                    elif not isinstance(life_base, numpy.ndarray) and \
+                            life_base < 1:
                         life_base = 1
                     # Set lifetime of the measure
                     life_meas = markets_uc["lifetime"]["measure"]
                     # Ensure that measure lifetime is at least 1 year
-                    if type(life_meas) == numpy.ndarray and any(life_meas) < 1:
+                    if isinstance(life_meas, numpy.ndarray) and \
+                            any(life_meas) < 1:
                         life_meas[numpy.where(life_meas) < 1] = 1
-                    elif type(life_meas) != numpy.ndarray and life_meas < 1:
+                    elif not isinstance(life_meas, numpy.ndarray) and \
+                            life_meas < 1:
                         life_meas = 1
 
                     # Calculate measure financial metrics
@@ -742,9 +746,9 @@ class Engine(object):
                     # have been captured for a given year, set finance metrics
                     # to 999
                     if nunits_cmp == 0 or (
-                        type(nunits_meas_cmp) != numpy.ndarray and
+                        not isinstance(nunits_meas_cmp, numpy.ndarray) and
                         nunits_meas_cmp == 0 or
-                            type(nunits_meas_cmp) == numpy.ndarray and all(
+                            isinstance(nunits_meas_cmp, numpy.ndarray) and all(
                                 nunits_meas_cmp) == 0):
                         if yr == self.handyvars.aeo_years[0]:
                             stock_unit_cost_res[yr], \
@@ -777,7 +781,7 @@ class Engine(object):
                                     cce_bens, ccc, ccc_bens]]
                     # Otherwise, check whether any financial metric calculation
                     # inputs that can be arrays are in fact arrays
-                    elif any(type(x) == numpy.ndarray for x in [
+                    elif any(isinstance(x, numpy.ndarray) for x in [
                             scostmeas_delt_unit[yr], esave_unit[yr],
                             life_meas]):
                         # Make copies of the above stock, energy/carbon/cost
@@ -801,20 +805,23 @@ class Engine(object):
                         # "metric_update" should consistently have
                         len_arr = next((len(item) for item in [
                             scostmeas_delt_unit[yr], esave_unit[yr],
-                            life_meas] if type(item) == numpy.ndarray), None)
+                            life_meas] if isinstance(
+                                item, numpy.ndarray)), None)
 
                         # Ensure all array inputs to "metric_update" are of the
                         # above length
 
                         # Check capital cost inputs
-                        if type(scostmeas_delt_unit_tmp) != numpy.ndarray:
+                        if not isinstance(
+                                scostmeas_delt_unit_tmp, numpy.ndarray):
                             scostmeas_delt_unit_tmp = numpy.repeat(
                                 scostmeas_delt_unit_tmp, len_arr)
                             scost_meas_tmp = numpy.repeat(
                                 scost_meas_tmp, len_arr)
                         # Check energy/energy cost and carbon/cost savings
                         # inputs
-                        if type(esave_tmp_unit) != numpy.ndarray:
+                        if not isinstance(
+                                esave_tmp_unit, numpy.ndarray):
                             esave_tmp_unit = numpy.repeat(
                                 esave_tmp_unit, len_arr)
                             ecostsave_tmp_unit = \
@@ -828,7 +835,7 @@ class Engine(object):
                             ccost_meas_tmp = numpy.repeat(
                                 ccost_meas_tmp, len_arr)
                         # Check measure lifetime input
-                        if type(life_meas_tmp) != numpy.ndarray:
+                        if not isinstance(life_meas_tmp, numpy.ndarray):
                             life_meas_tmp = numpy.repeat(
                                 life_meas_tmp, len_arr)
 
@@ -1114,8 +1121,8 @@ class Engine(object):
             try:
                 for ind, tps in enumerate(
                         self.handyvars.com_timeprefs["rates"]):
-                    unit_cost_s_com["rate " + str(ind + 1)],\
-                        unit_cost_e_com["rate " + str(ind + 1)],\
+                    unit_cost_s_com["rate " + str(ind + 1)], \
+                        unit_cost_e_com["rate " + str(ind + 1)], \
                         unit_cost_c_com["rate " + str(ind + 1)] = \
                         [npf.npv(tps, x) for x in [
                          cashflows_s_tot, cashflows_e_tot,
@@ -1386,14 +1393,14 @@ class Engine(object):
                     # could be expanded to include maintenance and carbon costs
 
                     # Set capital cost (handle as numpy array or point value)
-                    if type(unit_cost_s_in[ind][yr]) == numpy.ndarray:
+                    if isinstance(unit_cost_s_in[ind][yr], numpy.ndarray):
                         cap_cost = numpy.zeros(len(unit_cost_s_in[ind][yr]))
                         for i in range(0, len(unit_cost_s_in[ind][yr])):
                             cap_cost[i] = unit_cost_s_in[ind][yr][i]
                     else:
                         cap_cost = unit_cost_s_in[ind][yr]
                     # Set operating cost (handle as numpy array or point value)
-                    if type(unit_cost_e_in[ind][yr]) == numpy.ndarray:
+                    if isinstance(unit_cost_e_in[ind][yr], numpy.ndarray):
                         op_cost = numpy.zeros(len(unit_cost_e_in[ind][yr]))
                         for i in range(0, len(unit_cost_e_in[ind][yr])):
                             op_cost[i] = unit_cost_e_in[ind][yr][i]
@@ -1418,9 +1425,10 @@ class Engine(object):
 
                         # Guard against cases with very low weighted sums of
                         # incremental capital and operating costs
-                        if type(sum_wt) != numpy.ndarray and sum_wt < -500:
+                        if not isinstance(sum_wt, numpy.ndarray) and \
+                                sum_wt < -500:
                             sum_wt = -500
-                        elif type(sum_wt) == numpy.ndarray and any([
+                        elif isinstance(sum_wt, numpy.ndarray) and any([
                                 x < -500 for x in sum_wt]):
                             sum_wt = [-500 if x < -500 else x for x in sum_wt]
 
@@ -1446,9 +1454,9 @@ class Engine(object):
                 # competing measures if none of those measures is on
                 # the market either, or else has a market share of zero
                 if yr in m.yrs_on_mkt:
-                    if ((type(mkt_fracs_tot[yr]) != numpy.ndarray and
+                    if ((not isinstance(mkt_fracs_tot[yr], numpy.ndarray) and
                          mkt_fracs_tot[yr] != 0) or (
-                        type(mkt_fracs_tot[yr]) == numpy.ndarray and all(
+                        isinstance(mkt_fracs_tot[yr], numpy.ndarray) and all(
                             mkt_fracs_tot[yr] != 0))):
                         mkt_fracs[ind][yr] = \
                             mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
@@ -1545,13 +1553,14 @@ class Engine(object):
             # the given year; if so, find the array length. * Note: all
             # array lengths should be equal to the 'nsamples' variable
             # defined in 'ecm_prep.py'
-            if any([type(x[yr]) == numpy.ndarray or
-                    type(y[yr]) == numpy.ndarray for
+            if any([isinstance(x[yr], numpy.ndarray) or
+                    isinstance(y[yr], numpy.ndarray) for
                     x, y in zip(unit_cost_s_in, unit_cost_e_in)]) is True:
                 length_array[ind_l] = next(
                     (len(x[yr]) or len(y[yr]) for x, y in
-                     zip(unit_cost_s_in, unit_cost_e_in) if type(x[yr]) ==
-                     numpy.ndarray or type(y[yr]) == numpy.ndarray),
+                     zip(unit_cost_s_in, unit_cost_e_in) if isinstance(
+                        x[yr], numpy.ndarray) or isinstance(
+                            y[yr], numpy.ndarray)),
                     length_array[ind_l])
 
         # Loop through competing measures and calculate market shares for
@@ -1577,12 +1586,14 @@ class Engine(object):
                             n in range(2))
                         for i in range(length_array[ind_l]):
                             # Set capital cost input array
-                            if type(unit_cost_s_in[ind][yr]) == numpy.ndarray:
+                            if isinstance(
+                                    unit_cost_s_in[ind][yr], numpy.ndarray):
                                 cap_cost[i] = unit_cost_s_in[ind][yr][i]
                             else:
                                 cap_cost[i] = unit_cost_s_in[ind][yr]
                             # Set operating cost input array
-                            if type(unit_cost_e_in[ind][yr]) == numpy.ndarray:
+                            if isinstance(
+                                    unit_cost_e_in[ind][yr], numpy.ndarray):
                                 op_cost[i] = unit_cost_e_in[ind][yr][i]
                             else:
                                 op_cost[i] = unit_cost_e_in[ind][yr]
@@ -1852,11 +1863,12 @@ class Engine(object):
                     # Case where one or more competing ECMs applies to the full
                     # competed segment, but the market shares for these ECMs
                     # are all zero
-                    if (type(mkt_fracs[0][yr]) != numpy.ndarray and all(
+                    if (not isinstance(
+                            mkt_fracs[0][yr], numpy.ndarray) and all(
                         [(mkt_fracs[x][yr] == 0) for
                             x in range(0, len(distrib_inds)) if
                             distrib_inds[x] == 1])) or \
-                       (type(mkt_fracs[0][yr]) == numpy.ndarray and all(
+                       (isinstance(mkt_fracs[0][yr], numpy.ndarray) and all(
                         [all([mkt_fracs[x][yr][y] == 0 for
                              y in range(len(mkt_fracs[x][yr]))]) for
                             x in range(0, len(distrib_inds)) if
@@ -1886,9 +1898,11 @@ class Engine(object):
                             else 0 for mc in range(0, len_compete)]
                         # Re-normalize the weighting factors to ensure that
                         # they sum to 1
-                        if (type(sbmkt_distrib_fracs_yr[0]) != numpy.ndarray
+                        if (not isinstance(
+                                sbmkt_distrib_fracs_yr[0], numpy.ndarray)
                             and sum(sbmkt_distrib_fracs_yr) != 0) or \
-                           (type(sbmkt_distrib_fracs_yr[0]) == numpy.ndarray
+                           (isinstance(
+                                sbmkt_distrib_fracs_yr[0], numpy.ndarray)
                             and all([sum(sbmkt_distrib_fracs_yr[x]) != 0 for
                                     x in range(len(sbmkt_distrib_fracs_yr))])):
                             sbmkt_distrib_fracs_yr = [
@@ -2323,11 +2337,11 @@ class Engine(object):
                     # type of the current contributing microsegment in the
                     # given climate zone, building type, and structure type
                     # combination
-                    if (type(tech_data["total affected"][yr]) !=
-                        numpy.ndarray and
+                    if (not isinstance(
+                            tech_data["total affected"][yr], numpy.ndarray) and
                         tech_data["total affected"][yr] != 0) or (
-                        type(tech_data[
-                            "total affected"][yr]) == numpy.ndarray and
+                        isinstance(tech_data[
+                            "total affected"][yr], numpy.ndarray) and
                         all([x != 0 for x in
                              tech_data["total affected"][yr]])):
                         rel_perf_tech = (1 - (
@@ -2338,11 +2352,11 @@ class Engine(object):
                     # Find overall relative performance for the overlapping
                     # technology type in the given climate zone, building
                     # type, and structure type combination
-                    if (type(overlp_data["total affected"][yr]) !=
-                        numpy.ndarray and
+                    if (not isinstance(overlp_data["total affected"][yr],
+                                       numpy.ndarray) and
                         overlp_data["total affected"][yr] != 0) or (
-                        type(overlp_data[
-                            "total affected"][yr]) == numpy.ndarray and
+                        isinstance(overlp_data[
+                            "total affected"][yr], numpy.ndarray) and
                         all([x != 0 for x in
                              overlp_data["total affected"][yr]])):
                         rel_perf_tech_overlp = (1 - (
@@ -2355,11 +2369,11 @@ class Engine(object):
                     # technology types in the given climate zone, building
                     # type, and structure type combination; ensure that
                     # neither performance value is negative for the comparison
-                    if (all([type(x) != numpy.ndarray for x in [
+                    if (all([not isinstance(x, numpy.ndarray) for x in [
                         rel_perf_tech, rel_perf_tech_overlp]]) and
                         (abs(1 - rel_perf_tech) +
                          abs(1 - rel_perf_tech_overlp) != 0)) or (
-                        any([type(x) == numpy.ndarray for x in [
+                        any([isinstance(x, numpy.ndarray) for x in [
                             rel_perf_tech, rel_perf_tech_overlp]]) and
                         all([x != 0 for x in (
                             abs(1 - rel_perf_tech) +
@@ -2403,13 +2417,13 @@ class Engine(object):
                         # contributing microsegment and master microsegment
                         mast["cost"]["energy"]["total"][x][yr], \
                             mast["cost"]["carbon"]["total"][x][yr], \
-                            mast["energy"]["total"][x][yr],\
+                            mast["energy"]["total"][x][yr], \
                             mast["carbon"]["total"][x][yr] = [
                                 x[yr] - (y[yr] * (1 - adj_frac))
                                 for x, y in zip(mastlist[1:5], adjlist[1:5])]
                         mast["cost"]["energy"]["competed"][x][yr], \
                             mast["cost"]["carbon"]["competed"][x][yr], \
-                            mast["energy"]["competed"][x][yr],\
+                            mast["energy"]["competed"][x][yr], \
                             mast["carbon"]["competed"][x][yr] = [
                                 x[yr] - (y[yr] * (1 - adj_frac))
                                 for x, y in zip(mastlist[6:10], adjlist[6:10])]
@@ -3360,9 +3374,10 @@ class Engine(object):
                     adj_frac_t = (1 - wt_comp_wyr) * adj_frac_t + \
                         wt_comp_wyr * mms_lr
                     # Ensure that total weighted market share is never above 1
-                    if type(adj_frac_t) != numpy.ndarray and adj_frac_t > 1:
+                    if not isinstance(adj_frac_t, numpy.ndarray) and \
+                            adj_frac_t > 1:
                         adj_frac_t = 1
-                    elif type(adj_frac_t) == numpy.ndarray:
+                    elif isinstance(adj_frac_t, numpy.ndarray):
                         adj_frac_t[numpy.where(adj_frac_t > 1)] = 1
 
         # Initialize baseline and efficient data market share adjustment
@@ -3421,9 +3436,9 @@ class Engine(object):
                             b_e_ratio = 1
 
                     # Ensure that calculated ratio is a finite number
-                    if (type(b_e_ratio) == numpy.ndarray and not all(
+                    if (isinstance(b_e_ratio, numpy.ndarray) and not all(
                         numpy.isfinite(b_e_ratio))) or (
-                        type(b_e_ratio) != numpy.ndarray and not
+                        not isinstance(b_e_ratio, numpy.ndarray) and not
                             numpy.isfinite(b_e_ratio)):
                         b_e_ratio = 1
 
