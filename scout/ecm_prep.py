@@ -1602,6 +1602,7 @@ class UsefulVars(object):
                             sysld_wint[sys_yr_str][reg], \
                             sysld_int[sys_yr_str][reg] = self.set_peak_take(
                                 sysload_dat_yr, self.emm_name_num_map[reg])
+
                 self.tsv_metrics_data = {
                     "season days": {
                         "all": {
@@ -2463,6 +2464,7 @@ class Measure(object):
                 print("Data import complete")
         except AttributeError:
             self.tsv_features = None
+
         self.markets = {}
 
         for adopt_scheme in handyvars.adopt_schemes_prep:
