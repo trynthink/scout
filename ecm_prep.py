@@ -5430,9 +5430,9 @@ class Measure(object):
                         mskeys[3] == "natural gas"):
                     # Prepare leakage rate sensitivity variable based on
                     # input options
-                    if opts.fugitive_emissions[1] == '1':
+                    if opts.fugitive_emissions[2] == '1':
                         lkg_rate_scenario = "Low"
-                    elif opts.fugitive_emissions[1] == '2':
+                    elif opts.fugitive_emissions[2] == '2':
                         lkg_rate_scenario = "Mid"
                     else:
                         lkg_rate_scenario = "High"
