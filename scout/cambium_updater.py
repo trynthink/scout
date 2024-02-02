@@ -57,7 +57,7 @@ import json
 import gzip
 import re
 from pathlib import Path
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulInputFiles(object):

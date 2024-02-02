@@ -19,7 +19,7 @@ the applicable baseline market categories.
 import re
 import json
 import os
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulVars(object):

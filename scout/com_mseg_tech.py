@@ -11,7 +11,7 @@ import warnings
 import json
 import csv
 import itertools as it
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class EIAData(object):

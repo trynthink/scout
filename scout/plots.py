@@ -2,7 +2,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 import numpy
 import math
 

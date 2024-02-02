@@ -4,7 +4,7 @@ import json
 from collections import OrderedDict
 from datetime import datetime
 import gzip
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulInputFiles(object):

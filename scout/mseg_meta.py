@@ -6,7 +6,7 @@ from scout import mseg as rm
 from scout import mseg_techdata as rmt
 from scout import com_mseg as cm
 from scout import com_mseg_tech as cmt
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 import numpy as np
 import re

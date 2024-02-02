@@ -4,7 +4,53 @@ import copy
 import sys
 from pathlib import Path
 from jsonschema import validate
-from scout.constants import FilePaths as fp
+
+
+class FilePaths:
+    # Package data:
+    _root_dir = Path(__file__).resolve().parents[0]  # package install dir
+    SUPPORTING_DATA = _root_dir / "supporting_data"
+    THERMAL_LOADS = SUPPORTING_DATA / "thermal_loads_data"
+    CONVERT_DATA = SUPPORTING_DATA / "convert_data"
+    STOCK_ENERGY = SUPPORTING_DATA / "stock_energy_tech_data"
+    TSV_DATA = SUPPORTING_DATA / "tsv_data"
+
+    # Non-package data:
+    _parent_dir = Path(__file__).resolve().parents[1]  # parent dir of repo
+    ECM_DEF = _parent_dir / "ecm_definitions"
+    GENERATED = _parent_dir / "generated"
+    ECM_COMP = GENERATED / "ecm_competition_data"
+    EFF_FS_SPLIT = GENERATED / "eff_fs_splt_data"
+    INPUTS = _parent_dir / "inputs"
+    RESULTS = _parent_dir / "results"
+    PLOTS = RESULTS / "plots"
+    METADATA_PATH = INPUTS / "metadata.json"
+
+    # Store baseline FilePaths attributes
+    _base_paths = {
+        attr: value
+        for attr, value in locals().items()
+        if not callable(value) and not attr.startswith("__")
+    }
+
+    @classmethod
+    def set_paths(cls, paths_to_update: dict = None):
+        """Update class attributes to new values
+
+        Args:
+            paths_to_update (dict, optional): Update dictionary, where attributes are keys and
+                file paths are values. Defaults to None.
+        """
+
+        if paths_to_update:
+            for var, new_path in paths_to_update.items():
+                setattr(cls, var, new_path)
+
+    @classmethod
+    def reset_base_paths(cls):
+        """Reset filepath attributes to the baseline values defined at class definition"""
+        for attr, val in cls._base_paths.items():
+            setattr(cls, attr, val)
 
 
 class Config:
@@ -31,7 +77,7 @@ class Config:
             self.cli_args = sys.argv[1:]
         else:
             self.cli_args = cli_args
-        self.schema_file = fp.SUPPORTING_DATA / "config_schema.yml"
+        self.schema_file = FilePaths.SUPPORTING_DATA / "config_schema.yml"
         self.schema_data = self._load_config(self.schema_file)
 
         # Generate argparse, set initial cli args
@@ -58,6 +104,28 @@ class Config:
             schema_data = self.schema_data
         validate(input_data, schema_data)
 
+    def _resolve_filepath_args(self):
+        """Resolves filepaths depending on whether they are set in the yml or via the CLI.
+            Currently only relevant for the --ecm_directory argument.
+        """
+
+        if not getattr(self.args, "ecm_directory", None):
+            return
+        if Path(self.args.ecm_directory).is_absolute():
+            return
+
+        # Set relative to cwd, if applicable
+        if "--ecm_directory" in self.cli_args:
+            cwd = Path.cwd()
+            self.args.ecm_directory = (cwd / self.args.ecm_directory).resolve()
+        # Set relative to yml location, if applicable
+        elif "ecm_directory" in self.config_args.get(self.key, {}).keys():
+            yml_dir = self.args.yaml.resolve().parents[0]
+            self.args.ecm_directory = (yml_dir / self.args.ecm_directory).resolve()
+
+        # Update FilePaths with new ECM_DEF directory
+        FilePaths.set_paths({"ECM_DEF": self.args.ecm_directory})
+
     def initialize_argparse(self, parser: argparse.ArgumentParser):  # noqa: F821
         """Initialize argument parser with yaml argument, as this is not included in the schema
 
@@ -65,7 +133,8 @@ class Config:
             parser (argparse.ArgumentParser): Parser to which arguments are added
         """
         parser.add_argument(
-            "-y", "--yaml",
+            "-y",
+            "--yaml",
             type=Path,
             help=("Path to YAML configuration file, arguments passed directly to the command "
                   "line will take priority over arguments in this file")
@@ -100,6 +169,9 @@ class Config:
 
         # Ensure command-line args take precedence
         self.args = self.parser.parse_args(self.cli_args, namespace=self.args)
+
+        # Resolve relative filepaths (--ecm_directory)
+        self._resolve_filepath_args()
 
         # Check for valid arguments
         self.check_dependencies(self.args)
@@ -232,7 +304,7 @@ class Config:
                     choices=arg_choices,
                     help=arg_help,
                     default=arg_default,
-                    metavar=''
+                    metavar="",
                 )
             elif arg_type == "string":
                 parser.add_argument(f"--{arg_name}", type=str, help=arg_help, default=arg_default)
@@ -244,14 +316,16 @@ class Config:
                 parser.add_argument(f"--{arg_name}", action="store_true", help=arg_help)
             # If applicable, write allowable array choices to description
             elif arg_type == "array":
-                arg_help += f" Allowed values are 0 or more of {{{', '.join(arg_arr_choices)}}}"
+                if arg_arr_choices:
+                    arg_help += f" Allowed values are 0 or more of {{{', '.join(arg_arr_choices)}}}"
                 parser.add_argument(
                     f"--{arg_name}",
                     nargs="*",
                     choices=arg_arr_choices,
                     help=arg_help,
                     default=arg_default,
-                    metavar='')
+                    metavar="",
+                )
             # If belonging to a group, recursively call function and populate arguments
             elif arg_type == "object" and "properties" in data:
                 new_group = parser.add_argument_group(arg_name)

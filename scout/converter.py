@@ -34,7 +34,7 @@ import argparse
 import pandas as pd
 from backoff import on_exception, expo
 from collections import OrderedDict
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulVars(object):

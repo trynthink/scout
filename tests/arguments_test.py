@@ -2,9 +2,9 @@ from __future__ import annotations
 import unittest
 import copy
 import jsonschema
-from pathlib import Path
+from pathlib import Path, PurePath
 from argparse import ArgumentParser
-from scout.config import Config
+from scout.config import Config, FilePaths as fp
 from scout.ecm_prep_args import ecm_args
 
 
@@ -26,7 +26,12 @@ class Utils:
         """
 
         for arg, val in expected_args.items():
-            self.assertEqual(vars(args).get(arg), val, f"for argument {arg}")
+            parsed_arg = vars(args).get(arg)
+            if isinstance(parsed_arg, PurePath):
+                local_path = str(Path(*parsed_arg.parts[-2:])).replace("\\", "/")
+                self.assertEqual(local_path, val, f"for argument {arg}")
+            else:
+                self.assertEqual(parsed_arg, val, f"for argument {arg}")
 
 
 class TestConfig(unittest.TestCase, Utils):
@@ -38,6 +43,7 @@ class TestConfig(unittest.TestCase, Utils):
     # Expected ecm_prep and run default values; aligns with test_files/default_config.yml
     default_config = {
         "ecm_prep": {
+            "ecm_directory": None,
             "site_energy": False,
             "captured_energy": False,
             "alt_regions": None,
@@ -82,6 +88,7 @@ class TestConfig(unittest.TestCase, Utils):
     # Expected values for a valid config file; aligns with test_files/valid_config.yml
     valid_config = {
         "ecm_prep": {
+            "ecm_directory": "scout/ecm_definitions",
             "add_typ_eff": True,
             "rp_persist": True,
             "alt_regions": "EMM",
@@ -105,6 +112,10 @@ class TestConfig(unittest.TestCase, Utils):
         },
         "run": {"mkt_fracs": True, "trim_results": True},
     }
+
+    def tearDown(self):
+        # Reset base filepaths so downstream tests are not affected
+        fp.reset_base_paths()
 
     def _get_cfg_args(self, key: str, cli_args=[]) -> argparse.Namespace:  # noqa: F821
         """Instantiates the Config class and parses args based on cli args
@@ -293,6 +304,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # Expected default values translated in ecm_prep_args; aligns with values translated from
     # test_files/default_config.yml
     default_translated = {
+        "ecm_directory": None,
         "site_energy": False,
         "captured_energy": False,
         "alt_regions": False,
@@ -333,6 +345,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # Expected values translated from ecm_prep_args valid config file; aligns with
     # test_files/valid_config.yml
     valid_yml_translated = {
+        "ecm_directory": "scout/ecm_definitions",
         "site_energy": True,
         "captured_energy": False,
         "alt_regions": "EMM",
@@ -369,6 +382,10 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "grid_decarb": ["1", "2"],
         "tsv_metrics": ["1", "1", "1", "2", "1", "2"],
     }
+
+    def tearDown(self):
+        # Reset base filepaths so downstream tests are not affected
+        fp.reset_base_paths()
 
     def test_translate_empty_cli(self):
         # Translation of empty/default arguments
