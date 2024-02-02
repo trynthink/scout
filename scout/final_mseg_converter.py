@@ -32,7 +32,7 @@ import math
 import gzip
 import pandas as pd
 from scout import mseg, com_mseg as cm
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulVars(object):

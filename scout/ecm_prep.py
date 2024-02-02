@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import PurePath, Path
 import argparse
 from scout.ecm_prep_args import ecm_args
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class MyEncoder(json.JSONEncoder):

@@ -1,5 +1,5 @@
 from scout.config import Config
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 from pathlib import Path
 import yaml
 import argparse

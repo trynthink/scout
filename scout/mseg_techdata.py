@@ -5,7 +5,7 @@ import numpy
 import json
 import argparse
 from scout import mseg
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class EIAData(object):

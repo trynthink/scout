@@ -8,6 +8,10 @@ properties:
     type: object
     required: []
     properties:
+      ecm_directory:
+        type: ["string", "null"]
+        description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, /ecm_definitions will be used.
+
       site_energy:
         type: boolean
         default: false

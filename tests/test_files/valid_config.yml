@@ -1,5 +1,6 @@
 description: This is an example config file to run ecm_prep.py
 ecm_prep:
+  ecm_directory: ../../ecm_definitions
   site_energy: true
   add_typ_eff: true
   rp_persist: true

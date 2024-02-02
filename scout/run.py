@@ -13,7 +13,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
 from datetime import datetime
 from scout.plots import run_plot
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 from scout.config import Config
 
 

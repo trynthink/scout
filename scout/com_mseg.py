@@ -6,7 +6,7 @@ import re
 import csv
 import json
 import io
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class EIAData(object):

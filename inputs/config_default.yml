@@ -1,5 +1,6 @@
 description: This is a sample configuration file that uses default arguments for ecm_prep and run
 ecm_prep:
+  ecm_directory: null
   site_energy: false
   captured_energy: false
   alt_regions: null
