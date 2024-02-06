@@ -10,7 +10,18 @@ properties:
     properties:
       ecm_directory:
         type: ["string", "null"]
+        default: null
         description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, /ecm_definitions will be used.
+
+      ecm_files:
+        type: array
+        default: []
+        description: Specify a subset of ECM definitions in the ECM directory. Values must contain exact matches to the ECM definition file names in `--ecm_directory`.
+
+      ecm_files_regex:
+        type: array
+        default: []
+        description: Specify a subset of ECM definitions in the ECM directory using a regular expression. Each value will be matched to file names in `--ecm_directory`.
 
       site_energy:
         type: boolean

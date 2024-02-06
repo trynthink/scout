@@ -23,6 +23,13 @@ ecm_prep:
   ecm_directory: (string) Directory containing ECM definitions
     and savings shapes (if applicable). If not provided, /ecm_definitions
     will be used. Default None
+  ecm_files: (array) Specify a subset of ECM definitions in the
+    ECM directory. Values must contain exact matches to the ECM
+    definition file names in `--ecm_directory`. Default []
+  ecm_files_regex: (array) Specify a subset of ECM definitions
+    in the ECM directory using a regular expression. Each value
+    will be matched to file names in `--ecm_directory`. Default
+    []
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowed values are

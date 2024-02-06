@@ -25,13 +25,19 @@ class Utils:
             expected_args (dict): Expected arguments and argument values
         """
 
-        for arg, val in expected_args.items():
-            parsed_arg = vars(args).get(arg)
-            if isinstance(parsed_arg, PurePath):
-                local_path = str(Path(*parsed_arg.parts[-2:])).replace("\\", "/")
-                self.assertEqual(local_path, val, f"for argument {arg}")
+        for arg, expected_val in expected_args.items():
+            parsed_arg_val = vars(args).get(arg)
+            if isinstance(parsed_arg_val, list):
+                parsed_arg_val = [str(v) for v in parsed_arg_val]
+                expected_val = [str(v) for v in expected_val]
+                parsed_arg_val.sort()
+                expected_val.sort()
+
+            if isinstance(parsed_arg_val, PurePath):
+                local_path = str(Path(*parsed_arg_val.parts[-2:])).replace("\\", "/")
+                self.assertEqual(local_path, expected_val, f"for argument {arg}")
             else:
-                self.assertEqual(parsed_arg, val, f"for argument {arg}")
+                self.assertEqual(parsed_arg_val, expected_val, f"for argument {arg}")
 
 
 class TestConfig(unittest.TestCase, Utils):
@@ -44,6 +50,8 @@ class TestConfig(unittest.TestCase, Utils):
     default_config = {
         "ecm_prep": {
             "ecm_directory": None,
+            "ecm_files": [],
+            "ecm_files_regex": [],
             "site_energy": False,
             "captured_energy": False,
             "alt_regions": None,
@@ -89,6 +97,8 @@ class TestConfig(unittest.TestCase, Utils):
     valid_config = {
         "ecm_prep": {
             "ecm_directory": "scout/ecm_definitions",
+            "ecm_files": ["Best Com. Air Sealing (Exist)", "Best Com. Air Sealing (New)"],
+            "ecm_files_regex": ["^Best Res\\. Air Sealing \\((Exist|New)\\)$"],
             "add_typ_eff": True,
             "rp_persist": True,
             "alt_regions": "EMM",
@@ -205,6 +215,8 @@ class TestConfig(unittest.TestCase, Utils):
         cli_args = [
             "--yaml",
             self.valid_yml_pth,
+            "--ecm_files",
+            "Best Com. Air Sealing (Exist)",
             "--adopt_scn_restrict",
             "Technical potential",
             "--fugitive_emissions",
@@ -213,6 +225,7 @@ class TestConfig(unittest.TestCase, Utils):
         args = self._get_cfg_args("ecm_prep", cli_args=cli_args)
         expected_args = copy.deepcopy(self.valid_config["ecm_prep"])
         update_dict = {
+            "ecm_files": ["Best Com. Air Sealing (Exist)"],
             "adopt_scn_restrict": "Technical potential",
             "fugitive_emissions": ["low-gwp refrigerant"],
         }
@@ -305,6 +318,8 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # test_files/default_config.yml
     default_translated = {
         "ecm_directory": None,
+        "ecm_files": [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()],
+        "ecm_files_regex": [],
         "site_energy": False,
         "captured_energy": False,
         "alt_regions": False,
@@ -346,6 +361,11 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # test_files/valid_config.yml
     valid_yml_translated = {
         "ecm_directory": "scout/ecm_definitions",
+        "ecm_files": ["Best Com. Air Sealing (Exist)",
+                      "Best Com. Air Sealing (New)",
+                      "Best Res. Air Sealing (Exist)",
+                      "Best Res. Air Sealing (New)"],
+        "ecm_files_regex": ["^Best Res\\. Air Sealing \\((Exist|New)\\)$"],
         "site_energy": True,
         "captured_energy": False,
         "alt_regions": "EMM",
@@ -395,6 +415,8 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     def test_translate_valid_cli(self):
         # Translation of valid cli inputs
         cli_args = [
+            "--ecm_files",
+            "Best Com. Air Sealing (Exist)",
             "--add_typ_eff",
             "--alt_regions",
             "EMM",
@@ -406,6 +428,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         self.assertEqual(args.add_typ_eff, True)
         self.assertEqual(args.alt_regions, "EMM")
         self.assertEqual(args.detail_brkout, "6")
+        self.assertEqual(args.ecm_files, ["Best Com. Air Sealing (Exist)"])
 
         cli_args = [
             "--detail_brkout",
