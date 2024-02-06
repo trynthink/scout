@@ -1,7 +1,8 @@
 from __future__ import annotations
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import warnings
-from scout.config import Config
+import re
+from scout.config import Config, FilePaths as fp
 
 
 def ecm_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
@@ -33,6 +34,22 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     Returns:
         argparse.NameSpace: opts variable with user inputs added
     """
+
+    # Set ECMs if subset is provided
+    ecm_dir_files = [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()]
+    missing_ecms = [ecm for ecm in opts.ecm_files if ecm not in ecm_dir_files]
+    if missing_ecms:
+        msg = ("WARNING: The following ECMs specified with the --ecm_files argument are not "
+               f"present in {fp.ECM_DEF} and will not be simulated: {missing_ecms}")
+        warnings.warn(msg)
+
+    ecm_file_matches = [file for file in ecm_dir_files if
+                        any(re.match(pattern, file) for pattern in opts.ecm_files_regex) and
+                        file not in opts.ecm_files]
+    opts.ecm_files.extend(ecm_file_matches)
+
+    if not opts.ecm_files:
+        opts.ecm_files = ecm_dir_files
 
     # Set adoption scenario restrictions
     if opts.adopt_scn_restrict:

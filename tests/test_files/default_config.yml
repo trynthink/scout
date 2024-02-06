@@ -1,6 +1,8 @@
 description: Default arguments for testing
 ecm_prep:
   ecm_directory: null
+  ecm_files: []
+  ecm_files_regex: []
   site_energy: false
   captured_energy: false
   alt_regions: null

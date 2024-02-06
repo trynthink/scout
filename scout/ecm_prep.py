@@ -13170,7 +13170,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Determine full list of individual measure JSON names
     meas_toprep_indiv_names = [
         x for x in handyfiles.indiv_ecms.iterdir() if x.suffix == ".json" and
-        'package' not in x.name]
+        'package' not in x.name and x.stem in opts.ecm_files]
+
     # Initialize list of all individual measures that require updates
     meas_toprep_indiv = []
     # Initialize list of individual measures that require an update due to
