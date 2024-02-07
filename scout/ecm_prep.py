@@ -13522,37 +13522,52 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Initialize a list to track which individual ECMs contribute to packages
     ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
-    meas_prepped_pkgs = [
-        mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
+    meas_prepped_pkgs = [mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
+    # Identify packages whose contributing ECMs are not all present in individual ECM set
+    ecm_names = {ecm.stem for ecm in meas_toprep_indiv_names}
+    invalid_pkgs = [pkg["name"] for pkg in meas_toprep_package_init if not
+                    set(pkg["contributing_ECMs"]).issubset(ecm_names)]
+    if invalid_pkgs:
+        msg = ("WARNING: Some packages listed in package_ecms.json have contributing ECMs that"
+               " are not present among specified ECMs. The following packages will not be"
+               f" executed: {invalid_pkgs}")
+        warnings.warn(msg)
+
     # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
     for m in meas_toprep_package_init:
         # Determine the subset of previously prepared package measures
         # with the same name as the current package measure
-        m_exist = [
-            me for me in meas_prepped_pkgs if me["name"] == m["name"]]
-        # Add a package dict to the list requiring further preparation if:
-        # a) any of the package's contributing measures have been updated,
-        # b) the package is new, c) package does not already have competition
-        # data prepared for it, d) package "contributing_ECMs" and/or
-        # "benefits" parameters have been edited from a previous version, or
-        # e) package was prepared with different settings around including
-        # envelope costs (if applicable) than in the current run
-        if any([meas_name in m["contributing_ECMs"] for
-                meas_name in meas_toprep_indiv_nopkg]) or \
-            len(m_exist) == 0 or \
-            all([m["name"] != y.stem for
-                y in handyfiles.ecm_compete_data.iterdir()]) or (len(m_exist) == 1 and (
-                    sorted(m["contributing_ECMs"]) !=
-                    sorted(m_exist[0]["contributing_ECMs"]) or (
-                        m["benefits"]["energy savings increase"] !=
-                        m_exist[0]["benefits"]["energy savings increase"]) or (
-                        m["benefits"]["cost reduction"] !=
-                        m_exist[0]["benefits"]["cost reduction"])) or (
-                    (opts is not None and opts.pkg_env_costs is not False and
-                     m_exist[0]["pkg_env_costs"] is False) or
-                    (opts is None or opts.pkg_env_costs is False and
-                     m_exist[0]["pkg_env_costs"] is not False))):
+        m_exist = [me for me in meas_prepped_pkgs if me["name"] == m["name"]]
+
+        # Add a package dict to the list requiring further preparation after first checking if all
+        # of the package's contributing measures have been updated, then if: a) the package is
+        # new, b) package does not already have competition data prepared for it, c) package
+        # "contributing_ECMs" and/or "benefits" parameters have been edited from a previous
+        # version, or d) package was prepared with different settings around including envelope
+        # costs (if applicable) than in the current run
+
+        if m["name"] in invalid_pkgs:
+            continue
+        name_mask = all(m["name"] != y.stem for y in handyfiles.ecm_compete_data.iterdir())
+        exst_ecms_mask = exst_engy_save_mask = exst_cost_red_mask = False
+        exst_pkg_env_mask_1 = exst_pkg_env_mask_2 = False
+        if len(m_exist) == 1:
+            exst_ecms_mask = (sorted(m["contributing_ECMs"]) !=
+                              sorted(m_exist[0]["contributing_ECMs"]))
+            exst_engy_save_mask = (m["benefits"]["energy savings increase"] !=
+                                   m_exist[0]["benefits"]["energy savings increase"])
+            exst_cost_red_mask = (m["benefits"]["cost reduction"] !=
+                                  m_exist[0]["benefits"]["cost reduction"])
+            exst_pkg_env_mask_1 = (opts is not None and opts.pkg_env_costs is not False and
+                                   m_exist[0]["pkg_env_costs"] is False)
+            exst_pkg_env_mask_2 = (opts is None or opts.pkg_env_costs is False and
+                                   m_exist[0]["pkg_env_costs"] is not False)
+
+        if len(m_exist) == 0 or name_mask or \
+                ((exst_ecms_mask or exst_engy_save_mask or exst_cost_red_mask) or
+                 (exst_pkg_env_mask_1 or exst_pkg_env_mask_2)):
+
             meas_toprep_package.append(m)
             # Add contributing ECMs to those needing updates
             ctrb_ms_pkg_prep.extend(m["contributing_ECMs"])
@@ -13572,16 +13587,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # Parse new package data to find information about revised
                 # names in contributing ECM set
                 for p in pkg_item:
-                    # Replace original ECM names from the package's
-                    # list of contributing ECMs with those of the ECM copies
-                    # such that data for these copies will be pulled into the
-                    # package assessment
+                    # Replace original ECM names from the package's list of contributing ECMs with
+                    # those of the ECM copies such that data for these copies will be pulled into
+                    # the package assessment
                     for ind, ecm in enumerate(new_pkg["contributing_ECMs"]):
                         if ecm in p:
                             new_pkg["contributing_ECMs"][ind] = p[3]
-                # Append the copied package measure to list of measure
-                # definitions to update, and also update the list of
-                # individual measures that contribute to packages being
+                # Append the copied package measure to list of measure definitions to update, and
+                # also update the list of individual measures that contribute to packages being
                 # prepared
                 meas_toprep_package.append(new_pkg)
                 ctrb_ms_pkg_prep.extend(new_pkg["contributing_ECMs"])
