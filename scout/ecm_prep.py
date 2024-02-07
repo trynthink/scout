@@ -8141,17 +8141,13 @@ class Measure(object):
             # 3) Check if diffusion parameters are defined as fractions
             if ('fraction_' in list(self.diffusion.keys())[0]):
                 try:
-                    # The diffusion fraction dictionary is converted
-                    # to a pandas dataframe
-                    df = pd.DataFrame(self.diffusion.items(),
-                                      columns=['years', 'diff'])
+                    # The diffusion fraction dictionary is converted to a pandas dataframe
+                    df = pd.DataFrame(self.diffusion.items(), columns=['years', 'diff'])
                     df['years'] = df['years'].str.replace('fraction_', '')
                     if str(self.handyvars.aeo_years[0]) not in df['years']:
-                        df.loc[len(df.index)] =\
-                            [str(self.handyvars.aeo_years[0]), None]
+                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[0]), None]
                     if str(self.handyvars.aeo_years[-1]) not in df['years']:
-                        df.loc[len(df.index)] =\
-                            [str(self.handyvars.aeo_years[-1]), None]
+                        df.loc[len(df.index), :] = [str(self.handyvars.aeo_years[-1]), None]
                     # The years column is used as index
                     df['years'] = pd.to_datetime(df['years'])
                     df.index = df['years']
@@ -8162,36 +8158,28 @@ class Measure(object):
                     df = df.resample('Y').mean()
                     # If there is any value greater than 1, set it to 1
                     if (df['diff'] > 1).any():
-                        warn_list.append("WARNING: Some declared diffusion"
-                                         " fractions are greater than 1."
-                                         " Their value has been changed to 1.")
+                        warn_list.append("WARNING: Some declared diffusion fractions are greater"
+                                         " than 1. Their value has been changed to 1.")
                         df.loc[df['diff'] > 1, 'diff'] = 1
                     # if there is any value smaller than 0, set it to 0
                     if (df['diff'] < 0).any():
-                        warn_list.append('WARNING: Some declared diffusion'
-                                         ' fractions are smaller than 0.'
-                                         ' Their value has been changed to 0.')
+                        warn_list.append("WARNING: Some declared diffusion fractions are smaller"
+                                         " than 0. Their value has been changed to 0.")
                         df.loc[df['diff'] < 0, 'diff'] = 0
                     # The data are interpolated to fill up values for each year
                     df = df.interpolate(method='linear',
                                         limit_direction='both',
                                         limit_area='inside')
-                    # if values for the first and for the last years
-                    # are not specified, the first declared value is
-                    # used for all the first years and the last declared
-                    # value is used for all the last years.
+                    # if values for the first and for the last years are not specified, the first
+                    # declared value is used for all the first years and the last declared value
+                    # is used for all the last years.
                     if df['diff'].isnull().values.any():
-                        warn_list.append('WARNING: Not enough data were'
-                                         ' provided for first and last'
-                                         ' years of the considered'
-                                         ' simulation period.\n'
-                                         '\tThe simulation will'
-                                         ' continue assuming'
-                                         ' plausible diffusion'
-                                         ' fraction values.')
+                        warn_list.append("WARNING: Not enough data were provided for first and"
+                                         " last years of the considered simulation period.\n"
+                                         "\tThe simulation will continue assuming plausible"
+                                         " diffusion fraction values.")
                         df = df.interpolate(method='linear').bfill()
-                    # The time span for the diffusion fraction
-                    # is limited to the simulation period
+                    # The time span for the diffusion fraction is limited to the simulation period
                     df = df[(
                              df.index.year >= int(self.handyvars.aeo_years[0])
                             ) &
