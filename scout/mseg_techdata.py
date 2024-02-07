@@ -1096,9 +1096,9 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                 if array_reduce.shape[0] == 1:
                     # For incentives info., append to list, otherwise set float
                     if incent_flag is True:
-                        output_dict[yr].append(float(array_reduce[col_name]))
+                        output_dict[yr].append(float(array_reduce[col_name][0]))
                     else:
-                        output_dict[yr] = float(array_reduce[col_name])
+                        output_dict[yr] = float(array_reduce[col_name][0])
                 else:
                     raise ValueError(
                         "Multiple identical years in filtered array!")
@@ -1139,11 +1139,9 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                 if len(array_close_ind) == 1:
                     # For incentives info., append to list, otherwise set float
                     if incent_flag is True:
-                        output_dict[yr].append(float(
-                            input_array[array_close_ind][col_name]))
+                        output_dict[yr].append(float(input_array[array_close_ind][col_name][0]))
                     else:
-                        output_dict[yr] = float(
-                            input_array[array_close_ind][col_name])
+                        output_dict[yr] = float(input_array[array_close_ind][col_name][0])
                 # If multiple rows have been found above and each has unique yr
                 # value, draw output information from column in the first of
                 # these rows keyed by col_name input; if multiple rows were
