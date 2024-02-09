@@ -23,6 +23,11 @@ properties:
         default: []
         description: Specify a subset of ECM definitions in the ECM directory using a regular expression. Each value will be matched to file names in `--ecm_directory`.
 
+      ecm_packages:
+        type: ["array", "null"]
+        default: null
+        description: Specify a subset of ECM packages; values must correspond with package_ecms.json package names in the ECM directory. If no list is provided, all packages will be used so long as their ECM definitions are present; if an empty list is provided, no packages will be used.
+
       site_energy:
         type: boolean
         default: false

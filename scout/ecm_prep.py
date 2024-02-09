@@ -13076,6 +13076,42 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
     return tsv_yr_map
 
 
+def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
+    downselected_pkgs = [pkg for pkg in existing_pkgs if pkg["name"] in pkg_subset]
+
+    return downselected_pkgs
+
+
+def filter_invalid_packages(packages: list[dict],
+                            ecms: list,
+                            pkgs_filtered: bool) -> list[dict]:
+    """Identify and filter packages whose ECMs are not all present in the individual ECM set
+
+    Args:
+        packages (list[dict]): List of packages imported from package_ecms.json
+        ecms (list): List of ECM definitions file names
+        pkgs_filtered (bool): indicate whether the packages have been filtered via the
+            --ecm_packages argument
+
+    Returns:
+        filtered_packages (list[dict]): Packages list with invalid packages filtered out
+    """
+
+    invalid_pkgs = [pkg["name"] for pkg in packages if not
+                    set(pkg["contributing_ECMs"]).issubset(set(ecms))]
+    if invalid_pkgs:
+        package_opt_txt = ""
+        if pkgs_filtered:
+            package_opt_txt = "specified with the --ecm_packages argument "
+        msg = (f"WARNING: Packages in package_ecms.json {package_opt_txt}have contributing ECMs"
+               " that are not present among ECM definitions. The following packages will not be"
+               f" executed: {invalid_pkgs}")
+        warnings.warn(msg)
+    filtered_packages = [pkg for pkg in packages if pkg["name"] not in invalid_pkgs]
+
+    return filtered_packages
+
+
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import and prepare measure attributes for analysis engine.
 
@@ -13086,8 +13122,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         engine; and write prepared data to analysis engine input files.
 
     Args:
-        opts (argparse.NameSpace): argparse object containing the argument
-        attributes
+        opts (argparse.NameSpace): argparse object containing the argument attributes
     """
 
     # Set current working directory
@@ -13126,13 +13161,16 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         meas_summary = []
         ecm_prep_exists = ""
 
-    # Import packages JSON
+    # Import packages JSON, filter as needed
     with open(handyfiles.ecm_packages, 'r') as mpk:
         try:
             meas_toprep_package_init = json.load(mpk)
         except ValueError as e:
             raise ValueError(
                 f"Error reading in ECM package '{handyfiles.ecm_packages}': {str(e)}") from None
+
+    if opts.ecm_packages is not None:
+        meas_toprep_package_init = downselect_packages(meas_toprep_package_init, opts.ecm_packages)
 
     # If applicable, import file to write prepared measure sector shapes to
     # (if file does not exist, provide empty list as substitute, since file
@@ -13523,15 +13561,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
-    # Identify packages whose contributing ECMs are not all present in individual ECM set
-    ecm_names = {ecm.stem for ecm in meas_toprep_indiv_names}
-    invalid_pkgs = [pkg["name"] for pkg in meas_toprep_package_init if not
-                    set(pkg["contributing_ECMs"]).issubset(ecm_names)]
-    if invalid_pkgs:
-        msg = ("WARNING: Some packages listed in package_ecms.json have contributing ECMs that"
-               " are not present among specified ECMs. The following packages will not be"
-               f" executed: {invalid_pkgs}")
-        warnings.warn(msg)
+    # Identify and filter packages whose ECMs are not all present in individual ECM set
+    ecm_pkg_filtered = False
+    if opts.ecm_packages is not None:
+        ecm_pkg_filtered = True
+    ecm_names = [meas["name"] for meas in meas_toprep_indiv]
+    meas_toprep_package_init = filter_invalid_packages(meas_toprep_package_init,
+                                                       ecm_names,
+                                                       ecm_pkg_filtered)
 
     # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
@@ -13547,8 +13584,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # version, or d) package was prepared with different settings around including envelope
         # costs (if applicable) than in the current run
 
-        if m["name"] in invalid_pkgs:
-            continue
         name_mask = all(m["name"] != y.stem for y in handyfiles.ecm_compete_data.iterdir())
         exst_ecms_mask = exst_engy_save_mask = exst_cost_red_mask = False
         exst_pkg_env_mask_1 = exst_pkg_env_mask_2 = False
