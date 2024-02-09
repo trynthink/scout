@@ -3,6 +3,7 @@ ecm_prep:
   ecm_directory: null
   ecm_files: []
   ecm_files_regex: []
+  ecm_packages: null
   site_energy: false
   captured_energy: false
   alt_regions: null
