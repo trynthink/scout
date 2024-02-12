@@ -14,7 +14,7 @@ class Utils:
 
     test_files = Path(__file__).parent / "test_files"
     empty_yml_pth = str(test_files / "empty_config.yml")
-    default_yml_pth = str(test_files / "default_config.yml")
+    default_yml_pth = str(fp.INPUTS / "config_default.yml")
     valid_yml_pth = str(test_files / "valid_config.yml")
 
     def _assert_arg_vals(self, args: argparse.NameSpace, expected_args: dict):  # noqa: F821
