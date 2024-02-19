@@ -66,10 +66,16 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # (including representation of expected phase-out years) or user-defined low-GWP refrigerants
     if opts.fugitive_emissions:
         input_var = [0, None]
+        refrigerants = ["refrigerant" in elem for elem in opts.fugitive_emissions]
+        if all("methane" in elem for elem in opts.fugitive_emissions):
+            input_var[0] = 1
+        elif all(refrigerants):
+            input_var[0] = 2
+        elif "methane" in opts.fugitive_emissions and any(refrigerants):
+            input_var[0] = 3
+
         for emission in opts.fugitive_emissions:
-            if emission == "methane":
-                input_var[0] = 1
-            elif emission == "typical refrigerant":
+            if emission == "typical refrigerant":
                 input_var[1] = 1
             elif emission == "low-gwp refrigerant":
                 input_var[1] = 2
@@ -115,7 +121,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # cost factors should be handled
     if opts.grid_decarb_level and opts.grid_assesment_timing:
         input_var = [0, 0]
-        input_var[0] = {"full": "1", "0.8": "2:"}[opts.grid_decarb_level]
+        input_var[0] = {"full": "1", "0.8": "2"}[opts.grid_decarb_level]
         input_var[1] = {"before": "1", "after": "2"}[opts.grid_assesment_timing]
         opts.grid_decarb = input_var
         # Ensure that if alternate grid decarbonization scenario to be used,
