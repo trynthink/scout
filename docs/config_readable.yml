@@ -17,10 +17,9 @@ ecm_prep:
   captured_energy: (boolean) If true, enable captured energy calculation.
     Default null
   detail_brkout: (array) List of options by which to breakout
-    results. The `regions` options is only valid if the alt_regions
-    argument is set to `EMM`, and `fuel types` is only valid if
-    the split_fuel argument is set to false. Allowed values are
-    0 or more of {buildings, fuel types, regions}. Default null
+    results. The `fuel types` option is only valid if the split_fuel
+    argument is set to false. Allowed values are 0 or more of
+    {buildings, fuel types, regions}. Default null
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowed values are

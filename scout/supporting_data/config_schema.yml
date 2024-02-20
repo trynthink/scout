@@ -54,32 +54,7 @@ properties:
           tsv_average_days:
             type: ["string", "null"]
             enum: [all, weekdays, weekends, null]
-            description: The day type to average over. Only applicable if tsv_type is `energy` or tsv_power_agg is `average`.
-        if:
-          properties:
-            tsv_daily_hr_restrict:
-              enum: [peak, low]
-        then:
-          required: [tsv_sys_shape_case]
-        if:
-          properties:
-            tsv_type:
-              const: energy
-        then:
-          required: [tsv_energy_agg, tsv_average_days]
-        else:
-          if:
-            properties:
-              tsv_type:
-                const: power
-          then:
-            required: [tsv_power_agg]
-            if:
-              properties:
-                tsv_power_agg:
-                  const: average
-            then:
-              required: [tsv_average_days]
+            description: The day type to average over. Required if tsv_type is `energy` or tsv_power_agg is `average`.
 
       sect_shapes:
         type: boolean
@@ -108,7 +83,7 @@ properties:
 
       detail_brkout:
         type: array
-        description: List of options by which to breakout results. The `regions` options is only valid if the alt_regions argument is set to `EMM`, and `fuel types` is only valid if the split_fuel argument is set to false.
+        description: List of options by which to breakout results. The `fuel types` option is only valid if the split_fuel argument is set to false.
         default: []
         items:
           type: ["string", "null"]
@@ -140,12 +115,6 @@ properties:
             type: boolean
             default: false
             description: If true, assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
-        if:
-          properties:
-            exog_hp_rate_scenario:
-              enum: [conservative, optimistic, aggressive, most aggressive]
-        then:
-          required: [exog_hp_rate_scenario]
 
       alt_ref_carb:
         type: boolean
@@ -185,12 +154,6 @@ properties:
           retrofit_mult_year:
             type: ["integer", "null"]
             description: The year by which the retrofit multiplier is achieved (only for increasing retrofit_type).
-        if:
-          properties:
-            retrofit_type:
-              const: increasing
-        then:
-          required: [retrofit_multiplier, retrofit_mult_year]
 
       add_typ_eff:
         type: boolean
