@@ -128,7 +128,8 @@ class Config:
         return existing_args
 
     def check_dependencies(self, args: argparse.NameSpace):  # noqa: F821
-        """Allow for custom checks that are not easily defined directly in the schema
+        """Custom checks to test for invalid combinations of arguments. These checks apply to
+            arguments populated by the configuration file and the CLI.
 
         Args:
             args (argparse.NameSpace): Arguments object to be passed to ecm_prep.py or run.py
@@ -137,15 +138,57 @@ class Config:
             ValueError: If detailed breakout option is not compatible with split_fuel arg
         """
 
-        if "fuel types" in vars(args).get("detail_brkout", []) and args.split_fuel is True:
-            raise ValueError(
-                "Detailed breakout (detail_brkout) cannot include `fuel types` if split_fuel==True")
+        if self.key == "ecm_prep":
+            # tsv metrics
+            if bool(args.tsv_type) ^ bool(args.tsv_daily_hr_restrict):
+                raise ValueError(
+                    "Both `tsv_type` and `tsv_daily_hr_restrict` must be provided if running tsv"
+                    " metrics")
+            if args.tsv_daily_hr_restrict in ["peak", "low"] and not args.tsv_sys_shape_case:
+                raise ValueError(
+                    "The `tsv_sys_shape_case` argument must be provided if `tsv_daily_hr_restrict`"
+                    " is one of 'peak' or 'low'.")
+            if args.tsv_type == "energy" and not (args.tsv_energy_agg and args.tsv_average_days):
+                raise ValueError(
+                    "`tsv_energy_agg` and `tsv_average_days` must be specified if `tsv_type` is"
+                    " 'energy'.")
+            if args.tsv_type == "power" and not args.tsv_power_agg:
+                raise ValueError(
+                    "`tsv_power_agg` must be specified if `tsv_type` is 'power'.")
+            if args.tsv_power_agg == "average" and not args.tsv_average_days:
+                raise ValueError(
+                    "`tsv_average_days` must be specified if `tsv_power_agg` is 'average'.")
+
+            if bool(args.grid_decarb_level) ^ bool(args.grid_assesment_timing):
+                raise ValueError(
+                    "Both `grid_decarb_level` and `grid_assesment_timing` must be provided if"
+                    " assessing grid decarbonization")
+
+            # detailed breakout
+            if "fuel types" in args.detail_brkout and args.split_fuel:
+                raise ValueError(
+                    "Detailed breakout (`detail_brkout`) cannot include `fuel types` if"
+                    " split_fuel==True")
+
+            # retrofits
+            if args.retrofit_type == "increasing" and (not args.retrofit_multiplier or
+                                                       not args.retrofit_mult_year):
+                raise ValueError(
+                    "`retrofit_multiplier` and `retrofit_mult_year` must be specified if"
+                    " `retrofit_type` is 'increasing'.")
+
+            # fugitive emissions
+            if ("typical refrigerant" in args.fugitive_emissions and
+                    "low-gwp refrigerant" in args.fugitive_emissions):
+                raise ValueError(
+                    "The `fugitive_emissions` argument can only accept one of 'typical"
+                    " refrigerant' and 'low-gwp refrigerant'")
 
     def create_argparse(self, parser: argparse.ArgumentParser,  # noqa: F821
                         schema_data: dict, group: str = None):
         """Extracts arguments from the config schema and writes argparse arguments. This method
-            populates information for the --help flag for ecm_prep.py and run.py and enables
-            passing arguments directly to the command line.
+            populates information for the --help flag of ecm_prep.py and run.py and enables
+            passing arguments directly via the command line.
 
         Args:
             parser (argparse.ArgumentParser): Parser to which arguments are added

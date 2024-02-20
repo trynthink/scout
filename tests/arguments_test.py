@@ -241,7 +241,7 @@ class TestConfig(unittest.TestCase, Utils):
             self._get_cfg_args("ecm_prep", cli_args)
         actual_msg = str(context.exception)
         expected_err = (
-            "Detailed breakout (detail_brkout) cannot include `fuel types` if split_fuel==True"
+            "Detailed breakout (`detail_brkout`) cannot include `fuel types` if split_fuel==True"
         )
         self.assertTrue(expected_err in actual_msg, f"Expected {expected_err} in {actual_msg}")
 

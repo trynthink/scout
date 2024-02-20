@@ -43,8 +43,9 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # Screen for cases where user desires time-sensitive valuation metrics
     # or hourly sector-level load shapes but EMM regions are not used (such
     # options require baseline data to be resolved by EMM region)
-    if not opts.tsv_type:
-        opts.tsv_metrics = False
+    opts.tsv_metrics = False
+    if opts.tsv_type:
+        opts.tsv_metrics = True
     if not opts.alt_regions:
         opts.alt_regions = False
     if (opts.alt_regions != "EMM") and any([
