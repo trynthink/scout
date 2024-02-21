@@ -266,6 +266,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # and cost results from JSON data
     var_names_uncompete = ['energy', 'carbon', 'cost']
     results_folder_names = ['energy', 'co2', 'cost']
+    tech_potential_dir = fp.PLOTS / "tech_potential"
+    max_adopt_potential_dir = fp.PLOTS / "max_adopt_potential"
+    for folder in results_folder_names:
+        (max_adopt_potential_dir / folder).mkdir(parents=True, exist_ok=True)
+        (tech_potential_dir / folder).mkdir(parents=True, exist_ok=True)
+
     # Set output units for each variable type
     var_units = [e_axis_units, c_axis_units, cs_axis_units]
     # Set variable names to use in accessing competed baseline energy, carbon,
@@ -372,13 +378,13 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             plot_col_c_base = "#191970"
             plot_col_c_eff = "#87cefa"
             # Set Excel summary data file name
-            xlsx_file_name = fp.PLOTS / "tech_potential" / "Summary_Data-TP.xlsx"
+            xlsx_file_name = tech_potential_dir / "Summary_Data-TP.xlsx"
         else:
             # Set plot colors
             plot_col_c_base = "#cd0000"
             plot_col_c_eff = "#ffc0cb"
             # Set Excel summary data file name
-            xlsx_file_name = fp.PLOTS / "max_adopt_potential" / "Summary_Data-MAP.xlsx"
+            xlsx_file_name = max_adopt_potential_dir / "Summary_Data-MAP.xlsx"
         # Preallocate list for variable names to be used later to export data
         # to xlsx-formatted Excel files
         xlsx_var_name_list = list()
@@ -474,7 +480,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # Set the file name for the plot based on the adoption scenario
             # and plotting variable
             if adopt_scenarios[a] == 'Technical potential':
-                plot_dir = fp.PLOTS / "tech_potential" / results_folder_names[v]
+                plot_dir = tech_potential_dir / results_folder_names[v]
                 # ECM energy, carbon, and cost totals
                 plot_file_name_ecms = plot_dir / f"{file_names_ecms[v]}-TP"
                 # Aggregate energy, carbon, and cost savings
@@ -482,7 +488,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                 # ECM cost effectiveness
                 plot_file_name_finmets = plot_dir / f"{plot_names_finmets[v]}-TP.pdf"
             else:
-                plot_dir = fp.PLOTS / "max_adopt_potential" / results_folder_names[v]
+                plot_dir = max_adopt_potential_dir / results_folder_names[v]
                 # ECM energy, carbon, and cost totals
                 plot_file_name_ecms = plot_dir / f"{file_names_ecms[v]}-MAP"
                 # Aggregate energy, carbon, and cost savings

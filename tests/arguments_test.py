@@ -17,6 +17,23 @@ class Utils:
     default_yml_pth = str(fp.INPUTS / "config_default.yml")
     valid_yml_pth = str(test_files / "valid_config.yml")
 
+    def _assert_path(self, path: Path, expected_path: str, arg: str = None):
+        """Assert expected filepath by checking the two deepest directories of `path`. Only checks
+            part of the path to maintain compatibility across systems.
+
+        Args:
+            path (Path): Full path to check
+            expected_path (str): Deepest two paths expected
+            arg (str, optional): The argparse argument with which the check is associated.
+                Defaults to None.
+        """
+
+        local_path = str(Path(*path.parts[-2:])).replace("\\", "/")
+        msg = None
+        if arg:
+            msg = f"for argument {arg}"
+        self.assertEqual(local_path, expected_path, msg)
+
     def _assert_arg_vals(self, args: argparse.NameSpace, expected_args: dict):  # noqa: F821
         """Generic method to assert generated argparse object against expected
 
@@ -36,10 +53,9 @@ class Utils:
                 parsed_arg_val.sort()
                 expected_val.sort()
 
-            # If argument is path, check just the deepest two levels
+            # Check deepest two directories for path args
             if isinstance(parsed_arg_val, PurePath):
-                local_path = str(Path(*parsed_arg_val.parts[-2:])).replace("\\", "/")
-                self.assertEqual(local_path, expected_val, f"for argument {arg}")
+                self._assert_path(parsed_arg_val, expected_val, arg)
             else:
                 self.assertEqual(parsed_arg_val, expected_val, f"for argument {arg}")
 
@@ -90,6 +106,7 @@ class TestConfig(unittest.TestCase, Utils):
             "fugitive_emissions": [],
         },
         "run": {
+            "results_directory": None,
             "verbose": False,
             "mkt_fracs": False,
             "trim_results": False,
@@ -125,7 +142,9 @@ class TestConfig(unittest.TestCase, Utils):
             "detail_brkout": ["regions", "fuel types"],
             "pkg_env_costs": "include HVAC",
         },
-        "run": {"mkt_fracs": True, "trim_results": True},
+        "run": {"results_directory": "results/test_dir",
+                "mkt_fracs": True,
+                "trim_results": True},
     }
 
     def tearDown(self):
@@ -213,6 +232,7 @@ class TestConfig(unittest.TestCase, Utils):
         # run.py
         args = self._get_cfg_args("run", cli_args=["--yaml", self.valid_yml_pth])
         self._assert_arg_vals(args, self.valid_config["run"])
+        self._assert_path(fp.RESULTS, "results/test_dir")
 
     def test_cli_overwrite(self):
         # Ensure cli arguments take precedence over yml

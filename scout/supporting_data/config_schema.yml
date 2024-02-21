@@ -206,6 +206,10 @@ properties:
     type: object
     required: []
     properties:
+      results_directory:
+        type: ["string", "null"]
+        default: null
+        description: Directory to output results
       verbose:
         type: boolean
         default: false

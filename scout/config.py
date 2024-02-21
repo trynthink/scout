@@ -42,8 +42,19 @@ class FilePaths:
                 file paths are values. Defaults to None.
         """
 
+        downstream_map = {"GENERATED": ["ECM_COMP", "EFF_FS_SPLIT"],
+                          "INPUTS": ["METADATA_PATH"],
+                          "RESULTS": ["PLOTS"]}
         if paths_to_update:
             for var, new_path in paths_to_update.items():
+                original_path = getattr(cls, var)
+
+                # Update downstream paths
+                for downstream_path in downstream_map.get(var, []):
+                    diff = getattr(cls, downstream_path).relative_to(original_path)
+                    setattr(cls, downstream_path, new_path / diff)
+
+                # Set new path
                 setattr(cls, var, new_path)
 
     @classmethod
@@ -106,26 +117,27 @@ class Config:
 
     def _resolve_filepath_args(self):
         """Resolves filepaths depending on whether they are set in the yml or via the CLI.
-            Currently only relevant for the --ecm_directory argument.
         """
 
-        # Do not resolve if ecm_directory is not provided or is already absolute
-        if not getattr(self.args, "ecm_directory", None):
-            return
-        if Path(self.args.ecm_directory).is_absolute():
-            return
+        fp_arg_dict = {"ecm_directory": "ECM_DEF", "results_directory": "RESULTS"}
+        for dir_arg, fp_var in fp_arg_dict.items():
+            dir_val = getattr(self.args, dir_arg, None)
+            if not dir_val or Path(dir_val).is_absolute():
+                continue
 
-        # Set relative to cwd, if applicable
-        if "--ecm_directory" in self.cli_args:
-            cwd = Path.cwd()
-            self.args.ecm_directory = (cwd / self.args.ecm_directory).resolve()
-        # Set relative to yml location, if applicable
-        elif "ecm_directory" in self.config_args.get(self.key, {}).keys():
-            yml_dir = self.args.yaml.resolve().parents[0]
-            self.args.ecm_directory = (yml_dir / self.args.ecm_directory).resolve()
+            # Set relative to cwd, if applicable
+            if "--" + dir_arg in self.cli_args:
+                cwd = Path.cwd()
+                resolved_path = (cwd / dir_val).resolve()
+            # Set relative to yml location, if applicable
+            elif dir_arg in self.config_args.get(self.key, {}).keys():
+                yml_dir = self.args.yaml.resolve().parents[0]
+                resolved_path = (yml_dir / dir_val).resolve()
 
-        # Update FilePaths with new ECM_DEF directory
-        FilePaths.set_paths({"ECM_DEF": self.args.ecm_directory})
+            setattr(self.args, dir_arg, resolved_path)
+
+            # Update FilePaths with new ECM_DEF directory
+            FilePaths.set_paths({fp_var: resolved_path})
 
     def initialize_argparse(self, parser: argparse.ArgumentParser):  # noqa: F821
         """Initialize argument parser with yaml argument, as this is not included in the schema
@@ -171,7 +183,7 @@ class Config:
         # Ensure command-line args take precedence
         self.args = self.parser.parse_args(self.cli_args, namespace=self.args)
 
-        # Resolve relative filepaths (--ecm_directory)
+        # Resolve relative filepaths (--ecm_directory and --results_directory)
         self._resolve_filepath_args()
 
         # Check for valid arguments
