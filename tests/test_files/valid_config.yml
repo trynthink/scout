@@ -30,5 +30,6 @@ ecm_prep:
   pkg_env_costs: include HVAC  
 
 run:
+  results_directory: ../../results/test_dir
   mkt_fracs: true
   trim_results: true

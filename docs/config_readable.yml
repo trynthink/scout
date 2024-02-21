@@ -140,6 +140,8 @@ run:
     fractions. Default False
   report_stk: (boolean) If true, report baseline/measure stock
     data. Default False
+  results_directory: (string) Directory to output results Default
+    null
   trim_results: (boolean) If true, reduce results file size. Default
     False
   verbose: (boolean) If true, print all warnings to stdout. Default
