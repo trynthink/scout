@@ -2,6 +2,7 @@ from __future__ import annotations
 import yaml
 import copy
 import sys
+import warnings
 from pathlib import Path
 from jsonschema import validate
 
@@ -34,28 +35,37 @@ class FilePaths:
     }
 
     @classmethod
-    def set_paths(cls, paths_to_update: dict = None):
-        """Update class attributes to new values
+    def set_paths(cls, paths_to_update: dict):
+        """Update class attributes to new values. If the filepath variable being updated has
+            dependent filepaths downstream, then those will also be updated, assuming the same
+            relative relationship (e.g., PLOTS remains one level inside of RESULTS)
 
         Args:
-            paths_to_update (dict, optional): Update dictionary, where attributes are keys and
-                file paths are values. Defaults to None.
+            paths_to_update (dict): Update dictionary, where attributes are keys and
+                file paths are values.
         """
 
         downstream_map = {"GENERATED": ["ECM_COMP", "EFF_FS_SPLIT"],
                           "INPUTS": ["METADATA_PATH"],
                           "RESULTS": ["PLOTS"]}
-        if paths_to_update:
-            for var, new_path in paths_to_update.items():
-                original_path = getattr(cls, var)
 
-                # Update downstream paths
-                for downstream_path in downstream_map.get(var, []):
-                    diff = getattr(cls, downstream_path).relative_to(original_path)
-                    setattr(cls, downstream_path, new_path / diff)
+        for var, new_path in paths_to_update.items():
+            if var[0] == "_":
+                warnings.warn(f"Changing the value of `FilePaths.{var}` is not allowed. The"
+                              " variable will remain unchanged.")
+                continue
 
-                # Set new path
-                setattr(cls, var, new_path)
+            original_path = getattr(cls, var)
+
+            # Update downstream paths
+            for downstream_path in downstream_map.get(var, []):
+                diff = getattr(cls, downstream_path).relative_to(original_path)
+                setattr(cls, downstream_path, new_path / diff)
+                getattr(cls, downstream_path).mkdir(parents=True, exist_ok=True)
+
+            # Set new path
+            setattr(cls, var, new_path)
+            getattr(cls, var).mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def reset_base_paths(cls):
@@ -122,7 +132,10 @@ class Config:
         fp_arg_dict = {"ecm_directory": "ECM_DEF", "results_directory": "RESULTS"}
         for dir_arg, fp_var in fp_arg_dict.items():
             dir_val = getattr(self.args, dir_arg, None)
-            if not dir_val or Path(dir_val).is_absolute():
+            if not dir_val:
+                continue
+            if Path(dir_val).is_absolute():
+                FilePaths.set_paths({fp_var: Path(dir_val)})
                 continue
 
             # Set relative to cwd, if applicable
@@ -136,7 +149,7 @@ class Config:
 
             setattr(self.args, dir_arg, resolved_path)
 
-            # Update FilePaths with new ECM_DEF directory
+            # Update FilePaths with new directory and affected downstream paths
             FilePaths.set_paths({fp_var: resolved_path})
 
     def initialize_argparse(self, parser: argparse.ArgumentParser):  # noqa: F821
