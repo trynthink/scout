@@ -38,8 +38,6 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
-        fp.RESULTS.mkdir(parents=True, exist_ok=True)
-        fp.PLOTS.mkdir(parents=True, exist_ok=True)
         self.glob_vars = fp.GENERATED / "glob_run_vars.json"
         self.meas_summary_data = fp.GENERATED / "ecm_prep.json"
         self.meas_compete_data = fp.ECM_COMP
