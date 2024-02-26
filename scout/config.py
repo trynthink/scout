@@ -3,8 +3,25 @@ import yaml
 import copy
 import sys
 import warnings
+import logging
 from pathlib import Path
 from jsonschema import validate
+
+
+class LogConfig:
+    """Configure the logger
+    """
+
+    @staticmethod
+    def configure_logging():
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s: %(message)s",
+            datefmt="%d-%b-%y %H:%M:%S",
+        )
+
+
+LogConfig.configure_logging()
 
 
 class FilePaths:
