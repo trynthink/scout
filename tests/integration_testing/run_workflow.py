@@ -9,16 +9,12 @@ import pstats
 
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from scout import ecm_prep  # noqa: E402
+from scout import ecm_prep, run  # noqa: E402
 from scout.ecm_prep_args import ecm_args  # noqa: E402
-from scout import run  # noqa: E402
+from scout.config import LogConfig  # noqa: E402
 
+LogConfig.configure_logging()
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
 
 
 def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = False) -> None:
