@@ -116,7 +116,7 @@ class Config:
         else:
             self.cli_args = cli_args
         self.schema_file = FilePaths.SUPPORTING_DATA / "config_schema.yml"
-        self.schema_data = self._load_config(self.schema_file)
+        self.schema_data = Config.load_config(self.schema_file)
 
         # Generate argparse, set initial cli args
         schema_block = self.schema_data.get("properties", {}).get(self.key, {})
@@ -124,8 +124,8 @@ class Config:
         self.create_argparse(parser, schema_block)
         self.set_config_args(self.cli_args)
 
-    @classmethod
-    def _load_config(cls, filepath):
+    @staticmethod
+    def load_config(filepath):
         with open(filepath, "r") as file:
             return yaml.safe_load(file)
 
@@ -193,7 +193,7 @@ class Config:
         self.config_args = {}
         self.args = self.parser.parse_args(cli_args)
         if self.args.yaml:
-            self.config_args = self._load_config(self.args.yaml)
+            self.config_args = Config.load_config(self.args.yaml)
             self._validate(self.config_args, self.schema_data)
 
     def parse_args(self) -> argparse.Namespace:  # noqa: F821
