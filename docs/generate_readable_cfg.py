@@ -78,7 +78,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     schema_file = fp.SUPPORTING_DATA / "config_schema.yml"
-    schema_data = Config._load_config(schema_file)
+    schema_data = Config.load_config(schema_file)
     output_file = args.output_file
     if args.output_file:
         output_file = Path(args.output_file)
