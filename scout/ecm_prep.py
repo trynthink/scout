@@ -18,7 +18,7 @@ from ast import literal_eval
 import math
 import pandas as pd
 from datetime import datetime
-from pathlib import PurePath
+from pathlib import PurePath, Path
 import argparse
 from scout.ecm_prep_args import ecm_args
 from scout.constants import FilePaths as fp
@@ -13261,13 +13261,16 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # consistent with those reported out the last time the measure
                 # was prepared (based on 'usr_opts' attribute), excepting
                 # the 'verbose' option, which has no bearing on results
+                compete_files = [x for x in handyfiles.ecm_compete_data.iterdir() if not
+                                 x.name.startswith('.')]
+
                 update_indiv_ecm = ((ecm_prep_exists and stat(
                     handyfiles.indiv_ecms / mi).st_mtime > stat(
                     handyfiles.ecm_prep).st_mtime) or
                     (len(match_in_prep_file) == 0 or (
                         "(CF)" not in meas_dict["name"] and all([all([
-                            x["name"] != y.stem for y in
-                            handyfiles.ecm_compete_data.iterdir()]) for
+                            x["name"] != Path(y.stem).stem for y in
+                            compete_files]) for
                             x in match_in_prep_file])) or
                         (opts is None and not all([all([
                          m["usr_opts"][k] is False
@@ -13276,7 +13279,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         (not all([all([m["usr_opts"][x] ==
                                       vars(opts)[x] for x in [
                             k for k in vars(opts).keys() if
-                            k != "verbose"]]) for m in
+                            k != "verbose" and k != "yaml"]]) for m in
                             match_in_prep_file]))))
                 # Add measure to tracking of individual measures needing update
                 # independent of required updates to packages they are a
