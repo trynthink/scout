@@ -16,7 +16,7 @@ def ecm_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter,
                             epilog="For more detail please read: "
                             "https://scout-bto.readthedocs.io/en/latest/tutorials.html"
-                            "#tutorial-2-preparing-ecms-for-analysis")
+                            "#tutorial-3-preparing-ecms-for-analysis")
     config = Config(parser, "ecm_prep", args)
     opts = config.parse_args()
     opts = translate_inputs(opts)  # Translate for use downstream
@@ -97,6 +97,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # Set exogenous HP rates scenario and retrofit HP behavior
     input_var = [0, 0]
     if opts.exog_hp_rate_scenario:
+        # Scenario name maps to Guidehouse E3HP conversion scenario in the input file
         input_var[0] = opts.exog_hp_rate_scenario
 
         # Retrofit HP switching

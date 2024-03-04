@@ -35,7 +35,7 @@ class TestConfig(unittest.TestCase, Utils):
         files and directly from the command line.
     """
 
-    # Expected ecm_prep and run default values
+    # Expected ecm_prep and run default values; aligns with test_files/default_config.yml
     default_config = {
         "ecm_prep": {
             "site_energy": False,
@@ -157,7 +157,7 @@ class TestConfig(unittest.TestCase, Utils):
         self._assert_arg_vals(args, self.default_config["run"])
 
     def test_minimum_yml(self):
-        # Test defaults with empty cfg file
+        # Test args that are applied by default for an empty cfg file (yml with no arguments)
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=["--yaml", self.empty_yml_pth])
         self._assert_arg_vals(args, self.default_config["ecm_prep"])
@@ -167,7 +167,7 @@ class TestConfig(unittest.TestCase, Utils):
         self._assert_arg_vals(args, self.default_config["run"])
 
     def test_default_yml(self):
-        # Test explicit defaults values from cfg file
+        # Test explicit default values provided via cfg file
         # ecm_prep.py
         args = self._get_cfg_args("ecm_prep", cli_args=["--yaml", self.default_yml_pth])
         self._assert_arg_vals(args, self.default_config["ecm_prep"])
@@ -220,7 +220,7 @@ class TestConfig(unittest.TestCase, Utils):
         self._assert_arg_vals(args, expected_args)
 
     def test_invalid_yml_schema(self):
-        # Invalid yml schemas
+        # Check that invalid values/keys in the yml schema yield expected exceptions
         args_update = {"ecm_prep": {"alt_regions": "invalid"}}
         expected_err = "'invalid' is not one of ['EMM', 'State', 'AIA', None]"
         self._check_schema_err(expected_err, args_update)
@@ -234,16 +234,55 @@ class TestConfig(unittest.TestCase, Utils):
         expected_err = "'description' is a required property"
         self._check_schema_err(expected_err, drop_key="description")
 
-    def test_invalid_config_args(self):
-        # For invalid arguments not captured in the schema
-        cli_args = ["--detail_brkout", "fuel types", "--split_fuel"]
+    def _get_cfg_args_err_message(self, key: str, cli_args: []) -> str:
+        """Runs _get_cfg_args() for scenarios with expected error messages, returns the error
+
+        Args:
+            key (str): File for which to parse args, ecm_prep or run
+            cli_args (list, optional): Command line arguments for given key. Defaults to [].
+
+        Returns:
+            str: error message as a result of calling Config.parse_args
+        """
+
         with self.assertRaises(ValueError) as context:
             self._get_cfg_args("ecm_prep", cli_args)
         actual_msg = str(context.exception)
+
+        return actual_msg
+
+    def test_invalid_config_args(self):
+        # Check that incompatible argument values not specified in the yml schema yield
+        # appropriate exceptions
+        cli_args = ["--detail_brkout", "fuel types", "--split_fuel"]
+        actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
         expected_err = (
             "Detailed breakout (`detail_brkout`) cannot include `fuel types` if split_fuel==True"
         )
-        self.assertTrue(expected_err in actual_msg, f"Expected {expected_err} in {actual_msg}")
+        self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
+
+        cli_args = ["--tsv_type", "energy"]
+        actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
+        expected_err = (
+            "Both `tsv_type` and `tsv_daily_hr_restrict` must be provided if running tsv metrics"
+        )
+        self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
+
+        cli_args = ["--tsv_type", "power",
+                    "--tsv_daily_hr_restrict", "all",
+                    "--tsv_power_agg", "average"]
+        actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
+        expected_err = ("`tsv_average_days` must be specified if `tsv_power_agg` is 'average'.")
+        self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
+
+        cli_args = ["--retrofit_type", "increasing",
+                    "--retrofit_multiplier", "1"]
+        actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
+        expected_err = (
+            "`retrofit_multiplier` and `retrofit_mult_year` must be specified if `retrofit_type`"
+            " is 'increasing'."
+        )
+        self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
 
 
 class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
@@ -251,7 +290,8 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         These tests implicitly use the Config class, but focus on methods from ecm_prep_args.py.
     """
 
-    # Expected default values translated in ecm_prep_args
+    # Expected default values translated in ecm_prep_args; aligns with values translated from
+    # test_files/default_config.yml
     default_translated = {
         "site_energy": False,
         "captured_energy": False,
@@ -375,7 +415,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         self._assert_arg_vals(args, self.valid_yml_translated)
 
     def test_translate_cli_overwrite(self):
-        # Ensure cli arguments take precedence over yml
+        # Ensure cli arguments take precedence over yml and are correctly translated
         cli_args = [
             "--yaml",
             self.valid_yml_pth,
