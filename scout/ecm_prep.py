@@ -13090,8 +13090,8 @@ def filter_invalid_packages(packages: list[dict],
     Args:
         packages (list[dict]): List of packages imported from package_ecms.json
         ecms (list): List of ECM definitions file names
-        pkgs_filtered (bool): indicate whether the packages have been filtered via the
-            --ecm_packages argument
+        pkgs_filtered (bool): Indicate whether the packages have been filtered via the
+            ecm_packages argument
 
     Returns:
         filtered_packages (list[dict]): Packages list with invalid packages filtered out
@@ -13102,7 +13102,7 @@ def filter_invalid_packages(packages: list[dict],
     if invalid_pkgs:
         package_opt_txt = ""
         if pkgs_filtered:
-            package_opt_txt = "specified with the --ecm_packages argument "
+            package_opt_txt = "specified with the ecm_packages argument "
         msg = (f"WARNING: Packages in package_ecms.json {package_opt_txt}have contributing ECMs"
                " that are not present among ECM definitions. The following packages will not be"
                f" executed: {invalid_pkgs}")
@@ -13287,10 +13287,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # or e) command line arguments applied to the measure are not
                 # consistent with those reported out the last time the measure
                 # was prepared (based on 'usr_opts' attribute), excepting
-                # the 'verbose' option, which has no bearing on results
+                # the 'verbose', 'yaml', and 'ecm_directory' options, which have no bearing
+                # on results
                 compete_files = [x for x in handyfiles.ecm_compete_data.iterdir() if not
                                  x.name.startswith('.')]
-
+                ignore_opts = ["verbose", "yaml", "ecm_directory"]
                 update_indiv_ecm = ((ecm_prep_exists and stat(
                     handyfiles.indiv_ecms / mi).st_mtime > stat(
                     handyfiles.ecm_prep).st_mtime) or
@@ -13306,7 +13307,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         (not all([all([m["usr_opts"][x] ==
                                       vars(opts)[x] for x in [
                             k for k in vars(opts).keys() if
-                            k != "verbose" and k != "yaml"]]) for m in
+                            k not in ignore_opts]]) for m in
                             match_in_prep_file]))))
                 # Add measure to tracking of individual measures needing update
                 # independent of required updates to packages they are a
@@ -13565,7 +13566,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     ecm_pkg_filtered = False
     if opts.ecm_packages is not None:
         ecm_pkg_filtered = True
-    ecm_names = [meas["name"] for meas in meas_toprep_indiv]
+    ecm_names = [meas.stem for meas in meas_toprep_indiv_names]
     meas_toprep_package_init = filter_invalid_packages(meas_toprep_package_init,
                                                        ecm_names,
                                                        ecm_pkg_filtered)
@@ -13584,12 +13585,16 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # version, or d) package was prepared with different settings around including envelope
         # costs (if applicable) than in the current run
 
+        # Check for existing competition data for the package (condition b)
         name_mask = all(m["name"] != y.stem for y in handyfiles.ecm_compete_data.iterdir())
         exst_ecms_mask = exst_engy_save_mask = exst_cost_red_mask = False
         exst_pkg_env_mask_1 = exst_pkg_env_mask_2 = False
+        # Check for differences in the specification of the previously prepared
+        # package measure and the current package measure of the same name (condition c and d)
         if len(m_exist) == 1:
             exst_ecms_mask = (sorted(m["contributing_ECMs"]) !=
                               sorted(m_exist[0]["contributing_ECMs"]))
+            # Difference in expected package energy savings
             exst_engy_save_mask = (m["benefits"]["energy savings increase"] !=
                                    m_exist[0]["benefits"]["energy savings increase"])
             exst_cost_red_mask = (m["benefits"]["cost reduction"] !=
@@ -13599,6 +13604,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             exst_pkg_env_mask_2 = (opts is None or opts.pkg_env_costs is False and
                                    m_exist[0]["pkg_env_costs"] is not False)
 
+        # Check for conditions that would indicate a package needs to be processed
+        # (condition a and previously inspected conditions b, c, and d)
         if len(m_exist) == 0 or name_mask or \
                 ((exst_ecms_mask or exst_engy_save_mask or exst_cost_red_mask) or
                  (exst_pkg_env_mask_1 or exst_pkg_env_mask_2)):

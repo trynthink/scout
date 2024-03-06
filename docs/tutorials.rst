@@ -25,7 +25,7 @@ The example in this tutorial will demonstrate how to write new ECMs so that they
 
 As a starting point for writing new ECMs, an empty ECM definition file is available for :download:`download </examples/blank_ecm.json>`. Reference versions of the tutorial ECMs are also provided for download to check one's own work following completion of the examples.
 
-Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 3 <tuts-3>`.
+Each new ECM created should be saved in a separate file. To add new or edited ECMs to the analysis, the files should be placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory, or in a :ref:`directory specified by the user <opts_specify_ecm>`. Further details regarding where ECM definitions should be saved and how to ensure that they are included in new analyses are included in :ref:`Tutorial 3 <tuts-3>`.
 
 JSON syntax basics
 ~~~~~~~~~~~~~~~~~~
@@ -1285,7 +1285,7 @@ Tutorial 3: Preparing ECMs for analysis
 
 The Scout analysis is divided into two steps, each with corresponding Python modules. In the first of these steps, discussed in this tutorial, the ECMs are pre-processed by retrieving the applicable baseline energy, |CO2|, and cost data from the input files (located in the |html-filepath| ./scout/supporting_data/stock_energy_tech_data |html-fp-end| directory) and calculating the uncompeted efficient energy, |CO2|, and cost values. This pre-processing step ensures that the computationally intensive process of parsing the input files to retrieve and calculate the relevant data is only performed once for each new or edited ECM.
 
-Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with a brief but descriptive file name and placed in the |html-filepath| ./ecm_definitions |html-fp-end| directory. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
+Each new ECM that is written following the formatting and structure guidelines covered in :ref:`Tutorial 1 <tuts-1>` should be saved in a separate JSON file with a brief but descriptive file name and placed in a common directory. This directory can be specified with the ecm_directory argument described in :ref:`Specify ECM files and packages <opts_specify_ecm>`, or it will be defaulted to |html-filepath| ./ecm_definitions |html-fp-end|. If any changes to the package ECMs are desired, incorporating either or both new and existing ECMs, follow the instructions in the :ref:`package ECMs <package-ecms>` section to specify these packages. The pre-processing script can be run once these updates are complete.
 
 To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory (shown with the example location |html-filepath| ./Documents/projects/scout-run_scheme\ |html-fp-end|), and run the script.
 
@@ -1329,6 +1329,21 @@ The additional ECM preparation options are described further here.
 Configuration file
 ******************
 ``--yaml`` specifies the filepath to a yaml configuration file, as described in the :ref:`Tutorial 2 <tuts-2>`. This file provides an alternative way of defining the command line arguments below. Additional arguments passed via the command line will take precedence over those defined in the yaml file.
+
+.. _opts_specify_ecm:
+
+Specify ECM files and packages
+******************************
+``--ecm_directory`` defines the directory that stores all ECM definition files, savings shapes, and the package_ecms.json file. If not provided, |html-filepath| ./ecm_definitions |html-fp-end| will be used.
+
+.. note::
+   The default path, |html-filepath| ./ecm_definitions |html-fp-end|, is referenced throughout the documentation, but this path can be changed with the use of this argument.
+
+``--ecm_files`` selects a subset of ECM definitions within the ECM directory. Values must contain exact matches to the ECM definition file names in ``--ecm_directory``, excluding the file extension.
+
+``--ecm_files_regex`` selects a subset of ECM definitions within the ECM directory using a list of regular expressions. Each value will be matched to file names in ``--ecm_directory``.
+
+``--ecm_packages`` selects a subset of ECM packages; values must correspond with package_ecms.json package names in the ECM directory. If no list is provided, all packages will be used so long as their ECM definitions are present; if an empty list is provided, no packages will be used. Packages that require ECM definitions not specified through ``--ecm_directory``, ``--ecm_files``, and/or ``--ecm_files_regex`` will be skipped and a warning will be issued.
 
 Alternate regions
 *****************

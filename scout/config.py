@@ -16,7 +16,7 @@ class FilePaths:
     TSV_DATA = SUPPORTING_DATA / "tsv_data"
 
     # Non-package data:
-    _parent_dir = Path(__file__).resolve().parents[1]  # parent dir of repo
+    _parent_dir = Path.cwd()  # parent dir of repo
     ECM_DEF = _parent_dir / "ecm_definitions"
     GENERATED = _parent_dir / "generated"
     ECM_COMP = GENERATED / "ecm_competition_data"
@@ -109,6 +109,7 @@ class Config:
             Currently only relevant for the --ecm_directory argument.
         """
 
+        # Do not resolve if ecm_directory is not provided or is already absolute
         if not getattr(self.args, "ecm_directory", None):
             return
         if Path(self.args.ecm_directory).is_absolute():

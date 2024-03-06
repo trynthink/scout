@@ -11,22 +11,22 @@ properties:
       ecm_directory:
         type: ["string", "null"]
         default: null
-        description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, /ecm_definitions will be used.
+        description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, ./ecm_definitions will be used.
 
       ecm_files:
         type: array
         default: []
-        description: Specify a subset of ECM definitions in the ECM directory. Values must contain exact matches to the ECM definition file names in `--ecm_directory`.
+        description: Specify a subset of ECM definitions in the ECM directory. Values must contain exact matches to the ECM definition file names in `ecm_directory`, excluding the file extension.
 
       ecm_files_regex:
         type: array
         default: []
-        description: Specify a subset of ECM definitions in the ECM directory using a regular expression. Each value will be matched to file names in `--ecm_directory`.
+        description: Specify a subset of ECM definitions in the ECM directory using a regular expression. Each value will be matched to file names in `ecm_directory`.
 
       ecm_packages:
         type: ["array", "null"]
         default: null
-        description: Specify a subset of ECM packages; values must correspond with package_ecms.json package names in the ECM directory. If no list is provided, all packages will be used so long as their ECM definitions are present; if an empty list is provided, no packages will be used.
+        description: Specify a subset of ECM packages; values must correspond with package_ecms.json package names in the ECM directory. If no list is provided, all packages will be used so long as their ECM definitions are present; if an empty list is provided, no packages will be used. Packages that require ECM definitions not specified through `ecm_directory`, `ecm_files`, and/or `ecm_files_regex` will be skipped and a warning will be issued.
 
       site_energy:
         type: boolean

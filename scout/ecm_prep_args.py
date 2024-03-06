@@ -39,8 +39,9 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     ecm_dir_files = [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()]
     missing_ecms = [ecm for ecm in opts.ecm_files if ecm not in ecm_dir_files]
     if missing_ecms:
-        msg = ("WARNING: The following ECMs specified with the --ecm_files argument are not "
-               f"present in {fp.ECM_DEF} and will not be simulated: {missing_ecms}")
+        msg = ("WARNING: The following ECMs specified with the `ecm_directory`, `ecm_files`,"
+               " and/or `ecm_files_regex` argument are not present in {fp.ECM_DEF} and will"
+               " not be simulated: {missing_ecms}")
         warnings.warn(msg)
 
     ecm_file_matches = [file for file in ecm_dir_files if

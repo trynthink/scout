@@ -25,14 +25,18 @@ class Utils:
             expected_args (dict): Expected arguments and argument values
         """
 
+        # Get parsed args and compare to args in expected dict individually
         for arg, expected_val in expected_args.items():
             parsed_arg_val = vars(args).get(arg)
+
+            # Ensure consistent sorting between lists
             if isinstance(parsed_arg_val, list):
                 parsed_arg_val = [str(v) for v in parsed_arg_val]
                 expected_val = [str(v) for v in expected_val]
                 parsed_arg_val.sort()
                 expected_val.sort()
 
+            # If argument is path, check just the deepest two levels
             if isinstance(parsed_arg_val, PurePath):
                 local_path = str(Path(*parsed_arg_val.parts[-2:])).replace("\\", "/")
                 self.assertEqual(local_path, expected_val, f"for argument {arg}")
@@ -97,7 +101,7 @@ class TestConfig(unittest.TestCase, Utils):
     # Expected values for a valid config file; aligns with test_files/valid_config.yml
     valid_config = {
         "ecm_prep": {
-            "ecm_directory": "scout/ecm_definitions",
+            "ecm_directory": "test_files/ecm_definitions",
             "ecm_files": ["Best Com. Air Sealing (Exist)", "Best Com. Air Sealing (New)"],
             "ecm_files_regex": ["^Best Res\\. Air Sealing \\((Exist|New)\\)$"],
             "add_typ_eff": True,
@@ -362,7 +366,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # Expected values translated from ecm_prep_args valid config file; aligns with
     # test_files/valid_config.yml
     valid_yml_translated = {
-        "ecm_directory": "scout/ecm_definitions",
+        "ecm_directory": "test_files/ecm_definitions",
         "ecm_files": ["Best Com. Air Sealing (Exist)",
                       "Best Com. Air Sealing (New)",
                       "Best Res. Air Sealing (Exist)",
