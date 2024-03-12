@@ -19,9 +19,11 @@ from ast import literal_eval
 import math
 import pandas as pd
 from datetime import datetime
+import time
 import argparse
 from scout.ecm_prep_args import ecm_args
 from scout.constants import FilePaths as fp
+import traceback
 
 
 class MyEncoder(json.JSONEncoder):
@@ -92,6 +94,7 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
         fug_emissions_dat (tuple): Refrigerant and supply chain methane leakage
             data to asses fugitive emissions sources.
+        prep_err_log (tuple): Log of preparation errors
     """
 
     def __init__(self, opts):
@@ -259,6 +262,11 @@ class UsefulInputFiles(object):
         self.health_data = fp.CONVERT_DATA / "epa_costs.csv"
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
+        # Find current time to append to prep error file name
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        # Set file name for prep error logs
+        err_f_name = ("prep_errs_" + timestr + ".txt")
+        self.prep_err_log = fp.LOGS / err_f_name
 
 
 class UsefulVars(object):
@@ -359,6 +367,7 @@ class UsefulVars(object):
         health_scn_data (numpy.ndarray): Public health cost data.
         env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
             sensitive valuation for heating (no load shapes for these gains).
+        skipped_ecms (int): List of names for ECMs skipped due to errors.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1575,6 +1584,7 @@ class UsefulVars(object):
         self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
+        self.skipped_ecms = []
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -2551,10 +2561,6 @@ class Measure(object):
                 invalid, or if baseline market microsegment information cannot
                 be mapped to a valid breakout category for measure outputs.
         """
-        # Check that the measure's applicable baseline market input definitions
-        # are valid before attempting to retrieve data on this baseline market
-        self.check_mkt_inputs()
-
         # Notify user that ECM is being updated; suppress new line
         # if not in verbose mode ('Success' is appended to this message on
         # the same line of the console upon completion of ECM update)
@@ -6272,7 +6278,8 @@ class Measure(object):
                 print(warn)
         # Print suppressed incentives warning
         if len(suppress_incent) > 0:
-            warnings.warn("Incentives found for measure '" + self.name +
+            warnings.warn("WARNING: Incentives found for measure '" +
+                          self.name +
                           "' markets but cannot be applied due to "
                           "performance units for incentives that are "
                           "inconsistent with the baseline or measure "
@@ -12814,11 +12821,25 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         raise ValueError(
             'One or more ECMs require EnergyPlus data for ECM performance; '
             'EnergyPlus-based ECM performance data are currently unsupported.')
+
+    # Check that all Measure objects have valid market inputs before proceeding
+    for m in meas_update_objs:
+        # Check that the measure's applicable baseline market input definitions
+        # are valid before attempting to retrieve data on this baseline market
+        m.check_mkt_inputs()
+
     # Finalize 'markets' attribute for all Measure objects
-    [m.fill_mkts(
-        msegs, msegs_cpl, convert_data, tsv_data, opts, ctrb_ms_pkg_prep,
-        tsv_data_nonfs)
-     for m in meas_update_objs]
+    for m_ind, m in enumerate(meas_update_objs):
+        # Try/except allows continuation of routine when individual ECMs error
+        try:
+            m.fill_mkts(
+                msegs, msegs_cpl, convert_data, tsv_data, opts,
+                ctrb_ms_pkg_prep, tsv_data_nonfs)
+        except Exception:
+            prep_error(m.name, handyvars, handyfiles)
+            # Remove the measure object from the preparation list
+            del meas_update_objs[m_ind]
+
     return meas_update_objs
 
 
@@ -12843,108 +12864,138 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
     # Run through each unique measure package and merge the measures that
     # contribute to this package
     for p in packages:
-        # Notify user that measure is being updated
-        print("Updating ECM '" + p["name"] + "'...", end="", flush=True)
+        # Try/except allows continuation of routine when individual pkgs error
+        try:
+            # Notify user that measure is being updated
+            print("Updating ECM '" + p["name"] + "'...", end="", flush=True)
 
-        # Establish a list of names for measures that contribute to the
-        # package
-        package_measures = p["contributing_ECMs"]
-        # Determine the subset of all previously initialized measure
-        # objects that contribute to the current package
-        measure_list_package = [
-            x for x in meas_update_objs if x.name in package_measures]
-        # Determine which contributing measures have not yet been
-        # initialized as objects
-        measures_to_add = [mc for mc in package_measures if mc not in [
-            x.name for x in measure_list_package]]
-        # Initialize any missing contributing measure objects and add to
-        # the existing list of contributing measure objects for the package
-        for m in measures_to_add:
-            # Load and set high level summary data for the missing measure
-            meas_summary_data = [x for x in meas_summary if x["name"] == m]
-            if len(meas_summary_data) == 1:
-                # Translate user options to a dictionary for further use in
-                # Measures
-                opts_dict = vars(opts)
-                # Initialize the missing measure as an object
-                meas_obj = Measure(
-                    base_dir, handyvars, handyfiles, opts_dict,
-                    **meas_summary_data[0])
-                # Reset measure technology type and total energy (used to
-                # normalize output breakout fractions) to their values in the
-                # high level summary data (reformatted during initialization)
-                meas_obj.technology_type = meas_summary_data[0][
-                    "technology_type"]
-                # Assemble folder path for measure competition data
-                meas_folder_name = handyfiles.ecm_compete_data
-                # Assemble file name for measure competition data
-                meas_file_name = meas_obj.name + ".pkl.gz"
-                # Load and set competition data for the missing measure object
-                with gzip.open(meas_folder_name / meas_file_name, 'r') as zp:
-                    try:
-                        meas_comp_data = pickle.load(zp)
-                    except Exception as e:
-                        raise Exception(
-                            "Error reading in competition data of " +
-                            "contributing ECM '" + meas_obj.name +
-                            "' for package '" + p["name"] + "': " +
-                            str(e)) from None
-                for adopt_scheme in handyvars.adopt_schemes:
-                    meas_obj.markets[adopt_scheme]["master_mseg"] = \
-                        meas_summary_data[0]["markets"][adopt_scheme][
-                            "master_mseg"]
-                    meas_obj.markets[adopt_scheme]["mseg_adjust"] = \
-                        meas_comp_data[adopt_scheme]
-                    meas_obj.markets[adopt_scheme]["mseg_out_break"] = \
-                        meas_summary_data[0]["markets"][adopt_scheme][
-                            "mseg_out_break"]
-                # Add missing measure object to the existing list
-                measure_list_package.append(meas_obj)
-            # Raise an error if no existing data exist for the missing
-            # contributing measure
-            elif len(meas_summary_data) == 0:
-                raise ValueError(
-                    "Contributing ECM '" + m +
-                    "' cannot be added to package '" + p["name"] +
-                    "' due to missing attribute data for this ECM")
+            # Establish a list of names for measures that contribute to the
+            # package
+            package_measures = p["contributing_ECMs"]
+            # Determine the subset of all previously initialized measure
+            # objects that contribute to the current package
+            measure_list_package = [
+                x for x in meas_update_objs if x.name in package_measures]
+            # Determine which contributing measures have not yet been
+            # initialized as objects
+            measures_to_add = [mc for mc in package_measures if mc not in [
+                x.name for x in measure_list_package]]
+            # Initialize any missing contributing measure objects and add to
+            # the existing list of contributing measure objects for the package
+            for m in measures_to_add:
+                # Load and set high level summary data for the missing measure
+                meas_summary_data = [x for x in meas_summary if x["name"] == m]
+                if len(meas_summary_data) == 1:
+                    # Translate user options to a dictionary for further use in
+                    # Measures
+                    opts_dict = vars(opts)
+                    # Initialize the missing measure as an object
+                    meas_obj = Measure(
+                        base_dir, handyvars, handyfiles, opts_dict,
+                        **meas_summary_data[0])
+                    # Reset measure technology type and total energy (used to
+                    # normalize output breakout fractions) to their values in the
+                    # high level summary data (reformatted during initialization)
+                    meas_obj.technology_type = meas_summary_data[0][
+                        "technology_type"]
+                    # Assemble folder path for measure competition data
+                    meas_folder_name = handyfiles.ecm_compete_data
+                    # Assemble file name for measure competition data
+                    meas_file_name = meas_obj.name + ".pkl.gz"
+                    # Load and set competition data for the missing measure object
+                    with gzip.open(meas_folder_name / meas_file_name, 'r') as zp:
+                        try:
+                            meas_comp_data = pickle.load(zp)
+                        except Exception as e:
+                            raise Exception(
+                                "Error reading in competition data of " +
+                                "contributing ECM '" + meas_obj.name +
+                                "' for package '" + p["name"] + "': " +
+                                str(e)) from None
+                    for adopt_scheme in handyvars.adopt_schemes:
+                        meas_obj.markets[adopt_scheme]["master_mseg"] = \
+                            meas_summary_data[0]["markets"][adopt_scheme][
+                                "master_mseg"]
+                        meas_obj.markets[adopt_scheme]["mseg_adjust"] = \
+                            meas_comp_data[adopt_scheme]
+                        meas_obj.markets[adopt_scheme]["mseg_out_break"] = \
+                            meas_summary_data[0]["markets"][adopt_scheme][
+                                "mseg_out_break"]
+                    # Add missing measure object to the existing list
+                    measure_list_package.append(meas_obj)
+                # Raise an error if no existing data exist for the missing
+                # contributing measure
+                elif len(meas_summary_data) == 0:
+                    raise ValueError(
+                        "Contributing ECM '" + m +
+                        "' cannot be added to package '" + p["name"] +
+                        "' due to missing attribute data for this ECM")
+                else:
+                    raise ValueError(
+                        "More than one set of attribute data for " +
+                        "contributing ECM '" + m + "'; ECM cannot be added to" +
+                        "package '" + p["name"])
+
+            # Determine which (if any) measure objects that contribute to
+            # the package are invalid due to unacceptable input data sourcing
+            measure_list_package_rmv = [
+                x for x in measure_list_package if x.remove is True]
+
+            # Warn user of no valid measures to package
+            if len(measure_list_package_rmv) > 0:
+                warnings.warn("WARNING (CRITICAL): Package '" + p["name"] +
+                              "' removed due to invalid contributing ECM(s)")
+                packaged_measure = False
+            # Update package if valid contributing measures are available
             else:
-                raise ValueError(
-                    "More than one set of attribute data for " +
-                    "contributing ECM '" + m + "'; ECM cannot be added to" +
-                    "package '" + p["name"])
+                # Instantiate measure package object based on packaged measure
+                # subset above
+                packaged_measure = MeasurePackage(
+                    measure_list_package, p["name"], p["benefits"],
+                    handyvars, handyfiles, opts, convert_data)
+                # Record heating/cooling equipment and envelope overlaps in
+                # package after confirming that envelope measures are present
+                if len(packaged_measure.contributing_ECMs_env) > 0:
+                    packaged_measure.htcl_adj_rec(opts)
+                # Merge measures in the package object
+                packaged_measure.merge_measures(opts)
+                # Print update on measure status
+                print("Success")
 
-        # Determine which (if any) measure objects that contribute to
-        # the package are invalid due to unacceptable input data sourcing
-        measure_list_package_rmv = [
-            x for x in measure_list_package if x.remove is True]
-
-        # Warn user of no valid measures to package
-        if len(measure_list_package_rmv) > 0:
-            warnings.warn("WARNING (CRITICAL): Package '" + p["name"] +
-                          "' removed due to invalid contributing ECM(s)")
-            packaged_measure = False
-        # Update package if valid contributing measures are available
-        else:
-            # Instantiate measure package object based on packaged measure
-            # subset above
-            packaged_measure = MeasurePackage(
-                measure_list_package, p["name"], p["benefits"],
-                handyvars, handyfiles, opts, convert_data)
-            # Record heating/cooling equipment and envelope overlaps in
-            # package after confirming that envelope measures are present
-            if len(packaged_measure.contributing_ECMs_env) > 0:
-                packaged_measure.htcl_adj_rec(opts)
-            # Merge measures in the package object
-            packaged_measure.merge_measures(opts)
-            # Print update on measure status
-            print("Success")
-
-        # Add the new packaged measure to the measure list (if it exists)
-        # for further evaluation like any other regular measure
-        if packaged_measure is not False:
-            meas_update_objs.append(packaged_measure)
+            # Add the new packaged measure to the measure list (if it exists)
+            # for further evaluation like any other regular measure
+            if packaged_measure is not False:
+                meas_update_objs.append(packaged_measure)
+        except Exception:
+            prep_error(p["name"], handyvars, handyfiles)
 
     return meas_update_objs
+
+
+def prep_error(meas_name, handyvars, handyfiles):
+    """Prepare and write out error messages for skipped measures/packages.
+
+    Args:
+        meas_name (str): Measure or package name.
+        handyvars (object): Global variables of use across Measure methods.
+        handyfiles (object): Input files of use across Measure methods.
+    """
+    # Complete the update to the console for each measure being processed
+    print("Error")
+    # Pull full error traceback
+    err_dets = traceback.format_exc()
+    # Construct error message to write out
+    err_msg = (
+        "\nECM '" + meas_name + "' produced the following exception that "
+        "prevented its preparation:\n" + str(err_dets) + "\n")
+    # Add ECM to skipped list
+    handyvars.skipped_ecms.append(meas_name)
+    # Print error message if in verbose mode
+    verboseprint(opts.verbose, err_msg)
+    # Write message to log file
+    with open(handyfiles.prep_err_log, "a") as ef:
+        ef.write(err_msg)
+        ef.close()
 
 
 def split_clean_data(meas_prepped_objs):
@@ -13748,7 +13799,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     f"Error reading in '{handyfiles.run_setup}': {str(e)}") from None
             am.close()
         except FileNotFoundError:
-            run_setup = {"active": [], "inactive": []}
+            run_setup = {"active": [], "inactive": [], "skipped": []}
 
         print("Complete")
 
@@ -13763,6 +13814,38 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             meas_prepped_objs = prepare_packages(
                 meas_toprep_package, meas_prepped_objs, meas_summary,
                 handyvars, handyfiles, base_dir, opts, convert_data)
+
+        # Warn users about skipped ECMs before completing prep execution
+        if len(handyvars.skipped_ecms) != 0:
+            # Calculate relative share of skipped ECMs for warning
+            rel_share = "(" + str(int((len(handyvars.skipped_ecms) / (
+                len(meas_toprep_indiv) +
+                len(meas_toprep_package))) * 100)) + "%)"
+            # Set singular or plural use of ECMs for error message
+            if len(handyvars.skipped_ecms) == 1:
+                single_plural = " ECM " + rel_share + " was "
+            else:
+                single_plural = " ECMs " + rel_share + " were "
+            # Warn user
+            warnings.warn(
+                "WARNING: " +
+                str(len(handyvars.skipped_ecms)) + single_plural +
+                "not prepared due to exceptions. See TXT file with the "
+                "appropriate timestamp in ./logs for details.")
+        # Add names of skipped measures to run setup list if not already there
+        try:
+            run_setup["skipped"].extend([x for x in handyvars.skipped_ecms if
+                                         x not in run_setup["skipped"]])
+        except KeyError:
+            run_setup["skipped"] = handyvars.skipped_ecms
+        # Remove from active or inactive lists if already there
+        for ln in ["active", "inactive"]:
+            try:
+                if any([x in run_setup[ln] for x in handyvars.skipped_ecms]):
+                    run_setup[ln] = [x for x in run_setup[ln] if
+                                     x not in handyvars.skipped_ecms]
+            except KeyError:
+                continue
 
         print("All ECM updates complete; finalizing data...",
               end="", flush=True)
@@ -13821,10 +13904,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     # Measure not already in active measures list (add to list)
                     if m["name"] not in run_setup["active"]:
                         run_setup["active"].append(m["name"])
-                    # Measure in inactive measures list (remove name from list)
-                    if m["name"] in run_setup["inactive"]:
-                        run_setup["inactive"] = [x for x in run_setup[
-                            "inactive"] if x != m["name"]]
+                    # Measure in inactive or skipped measures list (remove name
+                    # from list)
+                    for ln in ["inactive", "skipped"]:
+                        if m["name"] in run_setup[ln]:
+                            run_setup[ln] = [x for x in run_setup[ln] if
+                                             x != m["name"]]
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
@@ -13918,7 +14003,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
 
 if __name__ == "__main__":
-    import time
     start_time = time.time()
     opts = ecm_args(sys.argv[1:])
 

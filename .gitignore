@@ -12,6 +12,7 @@ __pycache__/
 ktek*
 k*.txt
 rs*.txt
+prep*.txt
 
 # Populated microsegment JSON databases #
 #########################################
@@ -78,6 +79,7 @@ ehthumbs.db
 ###################################
 
 node_modules/
+scout.egg-info/
 .python-version
 .Rapp.history
 *.sublime-project

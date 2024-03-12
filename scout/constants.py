@@ -20,3 +20,4 @@ class FilePaths:
     RESULTS = _parent_dir / "results"
     PLOTS = RESULTS / "plots"
     METADATA_PATH = INPUTS / "metadata.json"
+    LOGS = _parent_dir / "logs"
