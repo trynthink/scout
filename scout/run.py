@@ -15,6 +15,7 @@ from datetime import datetime
 from scout.plots import run_plot
 from scout.config import FilePaths as fp
 from scout.config import Config
+import warnings
 
 
 class UsefulInputFiles(object):
@@ -4746,7 +4747,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Import list of all unique active measures
     with open(handyfiles.active_measures, 'r') as am:
         try:
-            active_meas_all = numpy.unique(json.load(am)["active"])
+            run_setup = json.load(am)
+            active_meas_all = numpy.unique(run_setup["active"])
         except ValueError as e:
             raise ValueError(
                 f"Error reading in '{handyfiles.active_measures}': {str(e)}") from None
@@ -4758,11 +4760,22 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # that do not have a matching ECM definition, which will be excluded
     for mn in active_meas_all:
         if mn not in [m["name"] for m in meas_summary]:
-            print("WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
-                  "list does not match any of the ECM names found in " +
-                  "./ecm_definitions JSONs and will not be simulated")
+            warnings.warn(
+                "WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
+                "list does not match any of the ECM names found in " +
+                f"{fp.ECM_DEF} JSONs and will not be simulated")
         else:
             active_ecms_w_jsons += 1
+
+    # Warn the user if skipped ECMs remain in the run_setup file (may need
+    # to be edited and re-prepared)
+    if len(run_setup["skipped"]) != 0:
+        warnings.warn(
+            f"WARNING: Run setup file ({handyfiles.active_measures}) "
+            "indicates ECM preparation routine skipped over some measures. "
+            "Check names of these measures under the 'skipped' key within "
+            "this setup file and if needed, edit their measure definitions "
+            f"in {fp.ECM_DEF} and re-prepare via ecm_prep.")
 
     # After verifying that there are active measures to simulate with
     # corresponding JSON definitions, loop through measures data in JSON,
