@@ -73,11 +73,13 @@ ehthumbs.db
 
 *.log
 *.sqlite
+log_*.txt
 
 # Software/language support files #
 ###################################
 
 node_modules/
+scout.egg-info/
 .python-version
 .Rapp.history
 *.sublime-project
