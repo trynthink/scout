@@ -9452,18 +9452,92 @@ class Measure(object):
                 fs_energy_eff_remain, fs_carb_eff_remain,
                 fs_energy_cost_eff_remain, mkt_scale_frac_fin, warn_list]
 
-    def check_mkt_inputs(self):
-        """Check for valid applicable baseline market inputs for a measure.
+    def check_meas_inputs(self):
+        """Check for valid inputs for key measure characteristics.
 
         Note:
-            The inputs are checked against a list of valid baseline market
+            Market inputs are checked against a list of valid baseline market
             input names, determined from the 'valid_mktnames' attribute of the
             'UsefulVars' object type.
 
         Raises:
-            ValueError: If 'technology_type' attribute is improperly formatted
-                or input names are not in the list of valid names.
+            ValueError: If there are unexpected values or formats for key
+            measure inputs.
         """
+
+        # Check through key attributes for expected formats and values –
+        # market entry year, performance, cost, lifetime, market scaling
+
+        # Initialize list of errors
+        attr_errs = []
+
+        # Loop through key attributes
+        for attr_nm in ["market_entry_year", "energy_efficiency",
+                        "installed_cost", "product_lifetime",
+                        "market_scaling_fractions"]:
+            # Get object attribute value
+            try:
+                attr = getattr(self, attr_nm)
+            except AttributeError as ae:
+                # Ok if market scaling fractions are not provided in ECM;
+                # pass over this attribute
+                if attr_nm == "market_scaling_fractions":
+                    continue
+                else:
+                    raise ae
+            # Set expected format and value range for market entry year
+            if attr_nm == "market_entry_year":
+                # Market entry year should not be None (it can be set as null
+                # in the JSON, but when Measure is initialized it would
+                # be set to the minimum year in the AEO horizon)
+                none_ok = False
+                val_types = (int, float)
+                aeo_range_ints = [int(x) for x in self.handyvars.aeo_years]
+                # Market entry year should be in AEO range
+                val_min, val_max = (min(aeo_range_ints), max(aeo_range_ints))
+            # Set expected format and value range for other attributes
+            else:
+                val_types = (dict, float, int)
+                if attr_nm == "market_scaling_fractions":
+                    # Market scaling can be None
+                    none_ok = True
+                    # Market scaling fractions between zero and 1
+                    val_min, val_max = (0, 1)
+                else:
+                    # Performance/cost/lifetime should never be none
+                    none_ok = False
+                    # No upper limit on performance, cost, and lifetime values
+                    val_min, val_max = (0, math.inf)
+            # Check for issue with attribute type
+            if (attr is None and none_ok is False) and (
+                    not isinstance(attr, val_types)):
+                # Add error message
+                attr_errs.append(
+                    attr_nm + " for measure '" + self.name +
+                    "' must be value of type: " + str(val_types))
+            # Check for issue with attribute value under number or dict (check
+            # only goes one level down in nested dict)
+            elif (isinstance(attr, (float, int)) and (
+                        attr < val_min or (val_max and attr > val_max)) or (
+                  isinstance(attr, dict) and any([(
+                    not isinstance(y, dict) and (y is None or (
+                        y < val_min or (val_max and y > val_max))))
+                        for y in attr.values()]))):
+                # Add error message
+                attr_errs.append(
+                    attr_nm + " for measure '" + self.name +
+                    "' must be in range [" + str(val_min) + "," +
+                    str(val_max) + "]")
+        # If the list of errors is non-zero, raise all exceptions
+        if len(attr_errs) > 0:
+            raise Exception(*attr_errs)
+            # Eventually use ExceptionGroup (available Python 3.11)
+            # raise ExceptionGroup(
+            #     (str(len(attr_errs)) + ' issues with key ECM inputs'),
+            #     attr_errs)
+
+        # Check for valid applicable baseline market inputs
+
         # Initialize the list of input names to check
         check_list = []
         # Loop through all inputs related to a measure's applicable baseline
@@ -12826,7 +12900,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     for m in meas_update_objs:
         # Check that the measure's applicable baseline market input definitions
         # are valid before attempting to retrieve data on this baseline market
-        m.check_mkt_inputs()
+        m.check_meas_inputs()
 
     # Finalize 'markets' attribute for all Measure objects
     for m_ind, m in enumerate(meas_update_objs):
@@ -13143,6 +13217,17 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
     return tsv_yr_map
 
 
+def dict_raise_on_duplicates(ordered_pairs):
+    """Reject duplicate keys in individual measure JSONs."""
+    d = {}
+    for k, v in ordered_pairs:
+        if k in d:
+            raise ValueError("duplicate key %r" % (k,))
+        else:
+            d[k] = v
+    return d
+
+
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import and prepare measure attributes for analysis engine.
 
@@ -13295,7 +13380,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         with open(handyfiles.indiv_ecms / mi, 'r') as jsf:
             try:
                 # Load each JSON into a dict
-                meas_dict = json.load(jsf)
+                meas_dict = json.load(
+                    jsf, object_pairs_hook=dict_raise_on_duplicates)
                 # Shorthand for previously prepared measured data that match
                 # current measure
                 match_in_prep_file = [y for y in meas_summary if (
@@ -13572,7 +13658,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                 p, new_pkg_name, meas_dict["name"], new_name])
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in ECM '" + mi + "': " +
+                    "Error reading in ECM '" + mi.stem + "': " +
                     str(e)) from None
 
     # Find package measure definitions that are new or were edited since
