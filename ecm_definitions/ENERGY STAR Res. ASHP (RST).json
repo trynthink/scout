@@ -105,19 +105,17 @@
     "email": "jared.langevin@lbl.gov",
     "timestamp": "2016-11-17 15:19:55 EST"
   },
-  "_updated_by": {
+  "_updated_by": [{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
     "timestamp": "Mon Sep 24 16:50:26 EDT 2018"
-},
-  "_updated_by": {
+  },{
     "name": "Ardelia Clarke",
     "organization": "National Renewable Energy Laboratory",
     "email": "ardelia.clarke@nrel.gov",
     "timestamp": "Tue Jan 21 16:05:26 MST 2020"
-  },
-  "updated_by": [{
+  },{
     "name": "Jared Langevin",
     "organization": "Lawrence Berkeley National Laboratory",
     "email": "jared.langevin@lbl.gov",
