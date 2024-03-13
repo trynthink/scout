@@ -58,7 +58,6 @@
       "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
-  "measure_type": "full service",
   "product_lifetime": 26,
   "product_lifetime_units": "years",
   "product_lifetime_source": {

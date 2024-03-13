@@ -20,6 +20,8 @@
     "notes": "Targeted year of breakthrough technology market entry",
     "source_data": null
   },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
   "energy_efficiency": 0.3,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
@@ -38,9 +40,6 @@
     "notes": "Consistent with typical lifetime of supporting sensing hardware",
     "source_data": null
   },
-  "market_entry_year_source": null,
-  "market_exit_year": null,
-  "market_exit_year_source": null,
   "fuel_switch_to": null,
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
