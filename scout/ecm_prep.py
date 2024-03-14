@@ -13082,6 +13082,10 @@ def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
     return downselected_pkgs
 
 
+def format_console_list(list_to_format):
+    return [f"  {elem}\n" for elem in list_to_format]
+
+
 def filter_invalid_packages(packages: list[dict],
                             ecms: list,
                             pkgs_filtered: bool) -> list[dict]:
@@ -13103,9 +13107,10 @@ def filter_invalid_packages(packages: list[dict],
         package_opt_txt = ""
         if pkgs_filtered:
             package_opt_txt = "specified with the ecm_packages argument "
+        invalid_pkgs_txt = format_console_list(invalid_pkgs)
         msg = (f"WARNING: Packages in package_ecms.json {package_opt_txt}have contributing ECMs"
                " that are not present among ECM definitions. The following packages will not be"
-               f" executed: {invalid_pkgs}")
+               f" executed: \n{''.join(invalid_pkgs_txt)}")
         warnings.warn(msg)
     filtered_packages = [pkg for pkg in packages if pkg["name"] not in invalid_pkgs]
 
@@ -13477,6 +13482,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         new_meas = copy.deepcopy(meas_dict)
                         # Set the copied measure name to the name above
                         new_meas["name"] = new_name
+                        opts.ecm_files.append(new_meas["name"])
                         # If measure was set to fuel switch without exogenous
                         # FS rates, reset typical/BAU analogue FS to None (
                         # e.g., such that for an ASHP FS measure, a typical/
@@ -13821,18 +13827,18 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # packages are not written out, with the exception of HVAC
         # measures in a package that the user has requested be written
         # out for eventual competition with the packages they contribute to
+        excluded_ind_ecms = []
         for m_i, m in enumerate([x for x in meas_prepped_summary]):
+            is_in_package = m["name"] in ctrb_ms_pkg_prep
+            is_supply_tech = m["technology_type"]["primary"][0] == "supply"
             # Measure does not serve as counterfactual for isolating
             # envelope impacts within packages
             if "(CF)" not in m["name"] and (
-                m["name"] not in ctrb_ms_pkg_prep or (
-                    opts.pkg_env_costs == '1' and
-                    m["technology_type"]["primary"][0] == "supply")):
+                    not is_in_package or (opts.pkg_env_costs == '1' and is_supply_tech)):
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary]:
-                    [x.update(m) for x in meas_summary if
-                     x["name"] == m["name"]]
+                    [x.update(m) for x in meas_summary if x["name"] == m["name"]]
                 # Measure is new (add high-level data for measure)
                 else:
                     meas_summary.append(m)
@@ -13856,25 +13862,18 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # the package measure; in a scenario where public health costs
                 # are assumed, add only the "high" health costs versions of
                 # prepared measures to active list
-                if (m["name"] not in ctrb_ms_pkg_prep or (
-                    opts.pkg_env_costs == '1' and
-                    m["technology_type"]["primary"][0] == "supply")) and (
-                        opts.health_costs is False or
-                        "PHC-EE (high)" in m["name"]):
+                if opts.health_costs is False or "PHC-EE (high)" in m["name"]:
                     # Measure not already in active measures list (add to list)
                     if m["name"] not in run_setup["active"]:
                         run_setup["active"].append(m["name"])
                     # Measure in inactive measures list (remove name from list)
                     if m["name"] in run_setup["inactive"]:
-                        run_setup["inactive"] = [x for x in run_setup[
-                            "inactive"] if x != m["name"]]
+                        run_setup["inactive"].remove(m["name"])
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
             elif opts.pkg_env_sep is True and (
-                    m["name"] not in ctrb_ms_pkg_prep or (
-                    opts.pkg_env_costs == '1' and
-                    m["technology_type"]["primary"][0] == "supply")):
+                    not is_in_package or (opts.pkg_env_costs == '1' and is_supply_tech)):
                 # Measure has been prepared from existing case (replace
                 # high-level data for measure)
                 if m["name"] in [x["name"] for x in meas_summary_env_cf]:
@@ -13890,6 +13889,29 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         m_ss = meas_prepped_shapes[m_i]
                         if len(m_ss.keys()) != 0:
                             meas_shapes_env_cf.append(m_ss)
+            # Move any remaining active measures to inactive if they contribute to a package
+            elif is_in_package:
+                # Set measure to inactive
+                if m["name"] in run_setup["active"] and m["name"] not in run_setup["inactive"]:
+                    run_setup["active"].remove(m["name"])
+                    run_setup["inactive"].append(m["name"])
+                # Write measures not run individually but specified by the user
+                if m["name"] in opts.ecm_files_user and m["name"] not in run_setup["active"]:
+                    excluded_ind_ecms.append(m["name"])
+
+        if excluded_ind_ecms:
+            excluded_ind_ecms_txt = format_console_list(excluded_ind_ecms)
+            warnings.warn("The following ECMs were selected to be prepared, but due to their"
+                          " presence in one or more packages, they will not be run individually and"
+                          " will only be included as part of the package(s):"
+                          f"\n{''.join(excluded_ind_ecms_txt)}")
+
+        # Move active ECMs to inactive if they are not present in opts.ecm_files
+        package_names = [p["name"] for p in meas_toprep_package]
+        active_ms = [m for m in run_setup["active"] if m in opts.ecm_files or m in package_names]
+        inactive_ms = [m for m in run_setup["active"] if m not in active_ms]
+        run_setup["active"] = active_ms
+        run_setup["inactive"].extend(inactive_ms)
 
         # Notify user that all measure preparations are completed
         print('Writing output data...')
