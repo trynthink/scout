@@ -49,6 +49,10 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                         file not in opts.ecm_files]
     opts.ecm_files.extend(ecm_file_matches)
 
+    # Store the ecms that were set explicitely
+    opts.ecm_files_user = opts.ecm_files.copy()
+
+    # Use all ecms in the ecm directory if not set explicitely
     if not opts.ecm_files:
         opts.ecm_files = ecm_dir_files
 
