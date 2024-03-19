@@ -24,6 +24,16 @@ import argparse
 from scout.ecm_prep_args import ecm_args
 from scout.constants import FilePaths as fp
 import traceback
+# Import and configure error logging
+import logging
+# Find current time to append to prep error file name
+timestr = time.strftime("%Y%m%d-%H%M%S")
+# Set file name for prep error logs
+err_f_name = fp.LOGS / ("prep_errs_" + timestr + ".txt")
+# Configure logger to write to file
+logging.basicConfig(filename=err_f_name, filemode='a')
+# Instantiate logger
+logger = logging.getLogger(__name__)
 
 
 class MyEncoder(json.JSONEncoder):
@@ -94,7 +104,6 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
         fug_emissions_dat (tuple): Refrigerant and supply chain methane leakage
             data to asses fugitive emissions sources.
-        prep_err_log (tuple): Log of preparation errors
     """
 
     def __init__(self, opts):
@@ -262,11 +271,6 @@ class UsefulInputFiles(object):
         self.health_data = fp.CONVERT_DATA / "epa_costs.csv"
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
-        # Find current time to append to prep error file name
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        # Set file name for prep error logs
-        err_f_name = ("prep_errs_" + timestr + ".txt")
-        self.prep_err_log = fp.LOGS / err_f_name
 
 
 class UsefulVars(object):
@@ -13066,10 +13070,8 @@ def prep_error(meas_name, handyvars, handyfiles):
     handyvars.skipped_ecms.append(meas_name)
     # Print error message if in verbose mode
     verboseprint(opts.verbose, err_msg)
-    # Write message to log file
-    with open(handyfiles.prep_err_log, "a") as ef:
-        ef.write(err_msg)
-        ef.close()
+    # Log error message to file (see ./logs)
+    logger.error(err_msg)
 
 
 def split_clean_data(meas_prepped_objs):

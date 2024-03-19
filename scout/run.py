@@ -4742,7 +4742,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             warnings.warn(
                 "WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
                 "list does not match any of the ECM names found in " +
-                "./ecm_definitions JSONs and will not be simulated")
+                f"{fp.ECM_DEF} JSONs and will not be simulated")
         else:
             active_ecms_w_jsons += 1
 
@@ -4750,11 +4750,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # to be edited and re-prepared)
     if len(run_setup["skipped"]) != 0:
         warnings.warn(
-            "WARNING: Run setup file ('./generated/run_setup.json') "
+            f"WARNING: Run setup file ({handyfiles.active_measures}) "
             "indicates ECM preparation routine skipped over some measures. "
             "Check names of these measures under the 'skipped' key within "
             "this setup file and if needed, edit their measure definitions "
-            "in ./ecm_definitions and re-prepare via ecm_prep.")
+            f"in {fp.ECM_DEF} and re-prepare via ecm_prep.")
 
     # After verifying that there are active measures to simulate with
     # corresponding JSON definitions, loop through measures data in JSON,
