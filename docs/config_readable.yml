@@ -31,14 +31,14 @@ ecm_prep:
     in the ECM directory using a regular expression. Each value
     will be matched to file names in `ecm_directory`. Default
     null
-  ecm_packages: (array) Specify a subset of ECM packages; values
-    must correspond with package_ecms.json package names in the
-    ECM directory. If no list is provided, all packages will be
-    used so long as their ECM definitions are present; if an empty
-    list is provided, no packages will be used. Packages that
-    require ECM definitions not specified through `ecm_directory`,
-    `ecm_files`, and/or `ecm_files_regex` will be skipped and
-    a warning will be issued. Default null
+  ecm_packages: (array) Specify ECM packages; values must correspond
+    with package_ecms.json package names in the ECM directory.
+    If no list or an empty list is provided, no packages will
+    be used. Include an astrisk (["*"]) in the list to prepare
+    all packages present in package_ecms.json. Contributing ECMs
+    for specified packages will automatically be prepared regardless
+    of their presence in the `ecm_directory`, `ecm_files`, and/or
+    `ecm_files_regex` arguments. Default null
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowed values are
