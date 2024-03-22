@@ -1,5 +1,6 @@
 description: Defines arguments for integration testing runs
 ecm_prep:
+  ecm_packages: ["*"]
   add_typ_eff: true
   rp_persist: true
   alt_regions: EMM

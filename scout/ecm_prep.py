@@ -13077,6 +13077,8 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
 
 
 def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
+    if "*" in pkg_subset:
+        return existing_pkgs
     downselected_pkgs = [pkg for pkg in existing_pkgs if pkg["name"] in pkg_subset]
 
     return downselected_pkgs
@@ -13084,6 +13086,32 @@ def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
 
 def format_console_list(list_to_format):
     return [f"  {elem}\n" for elem in list_to_format]
+
+
+def retrieve_valid_ecms(packages: list,
+                        opts: argparse.NameSpace,  # noqa: F821
+                        handyfiles: UsefulInputFiles) -> list:
+    """Determine full list of individual measure JSON names that 1) contribute to selected
+        packages in opts.ecm_packages, or 2) are included in opts.ecm_files, and 3) exist in the
+        ecm definitions directory (opts.ecm_directory)
+
+    Args:
+        packages (list): List of valid packages
+        opts (argparse.NameSpace): object storing user responses
+        handyfiles (UsefulInputFiles): object storing input filepaths
+
+    Returns:
+        list: filtered list of ECMs that meet the criteria above
+    """
+
+    contributing_ecms = {
+        ecm for pkg in packages for ecm in pkg["contributing_ECMs"]}
+    opts.ecm_files.extend([ecm for ecm in contributing_ecms if ecm not in opts.ecm_files])
+    valid_ecms = [
+        x for x in handyfiles.indiv_ecms.iterdir() if x.suffix == ".json" and
+        'package_ecms' not in x.name and x.stem in opts.ecm_files]
+
+    return valid_ecms
 
 
 def filter_invalid_packages(packages: list[dict],
@@ -13173,9 +13201,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         except ValueError as e:
             raise ValueError(
                 f"Error reading in ECM package '{handyfiles.ecm_packages}': {str(e)}") from None
-
-    if opts.ecm_packages is not None:
-        meas_toprep_package_init = downselect_packages(meas_toprep_package_init, opts.ecm_packages)
+    meas_toprep_package_init = downselect_packages(meas_toprep_package_init, opts.ecm_packages)
 
     # If applicable, import file to write prepared measure sector shapes to
     # (if file does not exist, provide empty list as substitute, since file
@@ -13191,17 +13217,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         except FileNotFoundError:
             meas_shapes = []
 
-    # Determine which individual and package measure definitions
-    # require further preparation for use in the analysis engine
-
-    # Find individual measure definitions that are new (e.g., they have
-    # not already been fully prepared for use in the analysis engine) or
-    # have been edited since last the 'ecm_prep.py' routine was run
-
     # Determine full list of individual measure JSON names
-    meas_toprep_indiv_names = [
-        x for x in handyfiles.indiv_ecms.iterdir() if x.suffix == ".json" and
-        'package' not in x.name and x.stem in opts.ecm_files]
+    meas_toprep_indiv_names = retrieve_valid_ecms(meas_toprep_package_init, opts, handyfiles)
 
     # Initialize list of all individual measures that require updates
     meas_toprep_indiv = []
@@ -13568,7 +13585,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     ctrb_ms_pkg_prep = []
     # Identify all previously prepared measure packages
     meas_prepped_pkgs = [mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
-    # Identify and filter packages whose ECMs are not all present in individual ECM set
+    # Identify and filter packages whose ECMs are not all present in ECM list
     ecm_pkg_filtered = False
     if opts.ecm_packages is not None:
         ecm_pkg_filtered = True
