@@ -95,6 +95,9 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
     # refrigerant leakage and/or supply chain methane leakage
     parser.add_argument("--fugitive_emissions", action="store_true",
                         help="Account for fugitive emissions sources")
+    # Optional flag to suppress reporting of measure-captured efficient energy
+    parser.add_argument("--no_eff_capt", action="store_true",
+                        help="Suppress measure-captured efficient energy data")
     # Object to store all user-specified execution arguments
     opts = parser.parse_args(args)
     opts = fill_user_inputs(opts)
