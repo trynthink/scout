@@ -1590,6 +1590,11 @@ Captured energy
 
 ``--captured_energy`` prepares ECM markets and impacts with site-source energy conversion factors calculated using the `captured energy method`_, rather than with the fossil fuel equivalence method as in the default ECM preparation.
 
+Suppress output of ECM-captured energy use
+******************************************
+
+``--no_eff_capt`` suppresses the inclusion in the results of the portion of the efficient energy use associated with each ECM that is specifically captured by the ECM (versus remaining with the baseline technology).
+
 Verbose mode
 ************
 

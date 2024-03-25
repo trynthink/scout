@@ -86,6 +86,8 @@ ecm_prep:
       Default null
   health_costs: (boolean) If true, enable health costs. Requires
     alt_regions to be set to `EMM`. Default False
+  no_eff_capt: (boolean) If true, suppress reporting of ECM-captured
+    efficient energy use. Default False
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
     heating and cooling energy effects from changes in lighting
     efficacy. Default False
