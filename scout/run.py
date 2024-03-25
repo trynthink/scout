@@ -2988,7 +2988,8 @@ class Engine(object):
             for var in ["stock", "energy", "cost", "carbon"]:
                 # Determine list of metrics to loop through; note that stock
                 # breakouts do not cover savings, which are not meaningful
-                # for the stock variable
+                # for the stock variable, and that energy data include unique
+                # tracking of efficient-captured energy data
                 if var == "stock":
                     var_list = ["baseline", "efficient"]
                 elif var != "energy":
@@ -4120,8 +4121,8 @@ class Engine(object):
             focus_yrs = self.handyvars.aeo_years
         # Initialize markets and savings totals across all ECMs
 
-        # Set total number of variables to be reported across all ECMs
-        n_vars_all = 14
+        # Set total # of market variables that could be reported across ECMs
+        n_vars_all = 15
         # Initialize summary variable values at zero
         summary_vals_all_ecms = [{
             yr: 0 for yr in focus_yrs} for n in range(n_vars_all)]
@@ -4733,7 +4734,7 @@ class Engine(object):
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_stk), mkt_save_brk[k],
                             focus_yrs, divide=False)
-                    # Energy results
+                   # Energy results excluding efficient captured
                     elif "Energy Use" in k and "Measure" not in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_energy), mkt_save_brk[k],

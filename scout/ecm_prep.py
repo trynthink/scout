@@ -12551,6 +12551,8 @@ class MeasurePackage(Measure):
             tot_base_orig = copy.deepcopy(mseg_adj["total"]["all"])
             # Total efficient stock
             tot_eff_orig = copy.deepcopy(mseg_adj["total"]["measure"])
+            # Total efficient-captured stock is not relevant
+            tot_eff_capt_orig = ""
             # Stock costs do not require adjustment b/c they are additive
             # (not overlapping)
             mseg_cost_adj = None
@@ -12768,6 +12770,7 @@ class MeasurePackage(Measure):
                 eff_capt_orig, eff_capt_adj = [
                     tot_eff_capt_orig, msegs_ecarb["total"][
                         "efficient-captured"]]
+
         # If necessary, shorthands for data used to adjust original cost output
         if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                             tot_save_orig_ecost]]):
@@ -12806,6 +12809,15 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr] for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                # Remove adjusted efficient-captured
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                    yr in self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Savings is difference between adjusted baseline and efficient
@@ -12832,6 +12844,14 @@ class MeasurePackage(Measure):
                         eff_orig[yr] - eff_adj[yr]) * (
                         1 - fs_eff_splt_var[yr]))
                 for yr in self.handyvars.aeo_years}
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_gain][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr])
+                    for yr in self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted efficient is added to the existing savings for
@@ -12928,6 +12948,15 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         eff_orig[yr] - eff_adj[yr]) for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                # Remove adjusted efficient
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                    yr in self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted
@@ -12990,6 +13019,14 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][yr] - (
                         eff_orig[yr] - eff_adj[yr]) for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                mseg_out_break_adj[k][
+                    "efficient-captured"][out_cz][out_bldg][out_eu] = {
+                        yr: mseg_out_break_adj[k]["efficient-captured"][
+                            out_cz][out_bldg][out_eu][yr] - (
+                                eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                        yr in self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted
