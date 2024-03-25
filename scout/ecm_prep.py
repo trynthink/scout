@@ -2459,6 +2459,15 @@ class Measure(object):
                                 "baseline": copy.deepcopy(init_refr),
                                 "efficient": copy.deepcopy(init_refr)}}}
 
+            # Initialize efficient energy captured by measure if user does not
+            # suppress reporting of this additional variable
+            if self.usr_opts["no_eff_capt"] is not True:
+                self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
+                    "efficient-captured"] = None
+                self.markets[adopt_scheme][
+                    "mseg_out_break"]["energy"]["efficient-captured"] = \
+                    copy.deepcopy(self.handyvars.out_break_in)
+
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
         """Fill in measure performance with EnergyPlus simulation results.
@@ -5778,9 +5787,10 @@ class Measure(object):
                     # scheme
                     [add_stock_total, add_energy_total, add_carb_total,
                      add_fmeth_total, add_frefr_total, add_stock_total_meas,
-                     add_energy_total_eff, add_carb_total_eff,
-                     add_fmeth_total_eff, add_frefr_total_eff,
-                     add_stock_compete, add_energy_compete, add_carb_compete,
+                     add_energy_total_eff, add_energy_total_eff_capt,
+                     add_carb_total_eff, add_fmeth_total_eff,
+                     add_frefr_total_eff, add_stock_compete,
+                     add_energy_compete, add_carb_compete,
                      add_fmeth_compete, add_frefr_compete,
                      add_stock_compete_meas, add_energy_compete_eff,
                      add_carb_compete_eff, add_fmeth_compete_eff,
@@ -5894,6 +5904,11 @@ class Measure(object):
                                 yr: life_base[yr] * add_stock_total[yr] for
                                 yr in self.handyvars.aeo_years},
                             "measure": life_meas}}
+
+                    # Add captured efficient energy if not suppressed
+                    if add_energy_total_eff_capt:
+                        add_dict["energy"]["total"]["efficient-captured"] = \
+                            add_energy_total_eff_capt
 
                     # Check fugitive emissions option settings and update
                     # dict with fugitive emissions, broken out by the source
@@ -6066,6 +6081,12 @@ class Measure(object):
                                      add_carb_total]
                         eff_data = [add_energy_total_eff, add_energy_cost_eff,
                                     add_carb_total_eff]
+                        # Create a shorthand for efficient captured energy data
+                        # to add to the breakout dict
+                        if add_energy_total_eff_capt:
+                            capt_e = add_energy_total_eff_capt
+                        else:
+                            capt_e = ""
                         # For a fuel switching case where the user desires that
                         # the outputs be split by fuel, create shorthands for
                         # any efficient energy/carbon/cost that remains with
@@ -6123,7 +6144,19 @@ class Measure(object):
                                                 out_eu][out_fuel_save][yr] += (
                                                     base_data[ind][yr] -
                                                     eff_data[ind][yr])
+                                            if key == "energy" and capt_e:
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "efficient-captured"][
+                                                    out_cz][out_bldg][out_eu][
+                                                    out_fuel_save][yr] += \
+                                                    capt_e[yr]
                                         else:
+                                            # Note that efficient-captured
+                                            # variable is not relevant for
+                                            # the original fuel (measure
+                                            # captured is only of the switched
+                                            # to fuel), and not updated
                                             self.markets[adopt_scheme][
                                                 "mseg_out_break"][key][
                                                 "efficient"][out_cz][out_bldg][
@@ -6160,6 +6193,14 @@ class Measure(object):
                                             out_eu][out_fuel_save] = {
                                                 yr: eff_data[ind][yr] for
                                                 yr in self.handyvars.aeo_years}
+                                        if key == "energy" and capt_e:
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "efficient-captured"][out_cz][
+                                                out_bldg][out_eu][
+                                                out_fuel_save] = {
+                                                    yr: capt_e[yr] for yr in
+                                                    self.handyvars.aeo_years}
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "savings"][out_cz][out_bldg][
@@ -6168,6 +6209,10 @@ class Measure(object):
                                                      eff_data[ind][yr]) for
                                                 yr in self.handyvars.aeo_years}
                                     else:
+                                        # Note that efficient-captured variable
+                                        # is not relevant for the original fuel
+                                        # measure captured is only of the
+                                        # switched to fuel), and not updated
                                         self.markets[adopt_scheme][
                                             "mseg_out_break"][key][
                                             "efficient"][out_cz][out_bldg][
@@ -6213,6 +6258,17 @@ class Measure(object):
                                                 out_eu][out_fuel_gain][yr] -= (
                                                     eff_data[ind][yr] -
                                                     eff_data_fs[ind][yr])
+                                            # All captured efficient energy
+                                            # goes to switched to fuel
+                                            if key == "energy" and capt_e:
+                                                self.markets[adopt_scheme][
+                                                    "mseg_out_break"][key][
+                                                    "efficient-captured"][
+                                                    out_cz][
+                                                    out_bldg][
+                                                    out_eu][
+                                                    out_fuel_gain][yr] += \
+                                                    capt_e[yr]
                                 except KeyError:
                                     for ind, key in enumerate([
                                             "energy", "cost", "carbon"]):
@@ -6244,6 +6300,17 @@ class Measure(object):
                                                 yr: -(eff_data[ind][yr] -
                                                       eff_data_fs[ind][yr]) for
                                                 yr in self.handyvars.aeo_years}
+                                        # All captured efficient energy
+                                        # goes to switched to fuel
+                                        if key == "energy" and capt_e:
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "efficient-captured"][
+                                                out_cz][out_bldg][
+                                                out_eu][out_fuel_gain] = {
+                                                    yr: capt_e[yr]
+                                                    for yr in self.
+                                                    handyvars.aeo_years}
                         else:
                             # Handle case where results for the current region,
                             # bldg., end use, and fuel have not yet been
@@ -6266,6 +6333,12 @@ class Measure(object):
                                             out_eu][yr] += (
                                                 base_data[ind][yr] -
                                                 eff_data[ind][yr])
+                                        if key == "energy" and capt_e:
+                                            self.markets[adopt_scheme][
+                                                "mseg_out_break"][key][
+                                                "efficient-captured"][out_cz][
+                                                out_bldg][out_eu][yr] += \
+                                                capt_e[yr]
                             except KeyError:
                                 for ind, key in enumerate([
                                         "energy", "cost", "carbon"]):
@@ -6285,6 +6358,13 @@ class Measure(object):
                                             yr: (base_data[ind][yr] -
                                                  eff_data[ind][yr]) for
                                             yr in self.handyvars.aeo_years}
+                                    if key == "energy" and capt_e:
+                                        self.markets[adopt_scheme][
+                                            "mseg_out_break"][key][
+                                            "efficient-captured"][
+                                            out_cz][out_bldg][out_eu] = {
+                                                yr: capt_e[yr] for
+                                                yr in self.handyvars.aeo_years}
 
                     # Yield warning if current contributing microsegment cannot
                     # be mapped to an output breakout category
@@ -6937,7 +7017,7 @@ class Measure(object):
                             "'. Check './supporting_data/tsv_data/tsv_load.gz "
                             "to ensure that this building type name is "
                             "correctly listed under 'represented building "
-                            "types key")
+                            "types' key")
                 # Redo search for appropriate bldg key in load shape data
                 load_fact_bldg_key = [
                     x for x in load_fact.keys() if (bldg_adj in load_fact[x][
@@ -7993,10 +8073,11 @@ class Measure(object):
                 replacing baseline mseg, if applicable.
 
         Returns:
-            Total, total-efficient, competed, and competed-efficient
-            stock, energy, carbon, and cost market microsegments by year; for
-            fuel switching measures, also reports out any remaining
-            (unswitched) energy, carbon, and cost segments by year.
+            By year, total, total-efficient, competed, and competed-efficient
+            stock, energy, carbon, and cost market microsegments; methane and
+            refrigerant leakage fugitive emissions. For fuel switching measures,
+            also return any remaining (unswitched) energy, carbon, and cost
+            segments by year.
         """
         # Initialize stock, energy, and carbon mseg partition dicts, where the
         # dict keys will be years in the modeling time horizon
@@ -8013,6 +8094,14 @@ class Measure(object):
             carb_compete_cost, stock_compete_cost_eff, \
             energy_compete_cost_eff, carb_compete_cost_eff, \
             mkt_scale_frac_fin = ({} for n in range(35))
+
+        # Initialize efficient captured energy output if not suppressed by user
+        if not opts.no_eff_capt:
+            eff_capt = True
+            energy_total_eff_capt = {}
+        else:
+            eff_capt = False
+            energy_total_eff_capt = None
 
         # Case needing fugitive methane assessment where current mseg
         # has fugitive methane
@@ -9307,6 +9396,10 @@ class Measure(object):
             # Total-efficient energy
             energy_total_eff[yr] = energy_compete_eff[yr] + \
                 energy_tot_uncomp_meas + energy_tot_uncomp_base
+            # Total-efficient-captured energy (if not suppressed by user)
+            if eff_capt:
+                energy_total_eff_capt[yr] = energy_compete_eff[yr] + \
+                    energy_tot_uncomp_meas
 
             # Re-apportion total efficient microsegment energy across all 8760
             # hours of the year, if necessary (supports sector-level savings
@@ -9573,8 +9666,8 @@ class Measure(object):
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total, fmeth_total,
                 frefr_total, stock_total_meas, energy_total_eff,
-                carb_total_eff, fmeth_total_eff, frefr_total_eff,
-                stock_compete, energy_compete, carb_compete,
+                energy_total_eff_capt, carb_total_eff, fmeth_total_eff,
+                frefr_total_eff, stock_compete, energy_compete, carb_compete,
                 fmeth_compete, frefr_compete, stock_compete_meas,
                 energy_compete_eff, carb_compete_eff, fmeth_compete_eff,
                 frefr_compete_eff, stock_total_cost, energy_total_cost,
@@ -10343,11 +10436,12 @@ class Measure(object):
 
         # Move down the dict until a non-dict terminal value is encountered
         for (k, i) in cmsegs.items():
-            # If a "baseline" or "efficient" key is encountered, flag the
-            # adjustment appropriately. Note that these keys will only be
-            # encountered for "energy" and "carbon" msegs; other msegs are
-            # not broken out by these keys and will yield a flag of None.
-            if k in ["baseline", "efficient"]:
+            # If a "baseline" or "efficient" or "efficient-captured" key is
+            # encountered, flag the adjustment appropriately. Note that these
+            # keys will only be encountered for "energy" and "carbon" msegs;
+            # other msegs are not broken out by these keys and will yield a
+            # flag of None.
+            if k in ["baseline", "efficient", "efficient-captured"]:
                 base_eff_flag = k
             # If a "competed" key is encountered, flag the adjustment
             # appropriately (in some cases competed values are adjusted
@@ -10370,8 +10464,8 @@ class Measure(object):
                         adj_fact = base_adj[k]
                     except TypeError:
                         adj_fact = base_adj
-                elif base_eff_flag == "efficient" and k in \
-                        self.handyvars.aeo_years:
+                elif base_eff_flag in ["efficient", "efficient-captured"] and \
+                        k in self.handyvars.aeo_years:
                     # If a competed efficient value adjustment is flagged, use
                     # the appropriate competed adjustment fraction; otherwise,
                     # use the total efficient adjustment fraction
@@ -11026,6 +11120,13 @@ class MeasurePackage(Measure):
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]}}
+            # Initialize efficient captured energy if not suppressed by user
+            if self.usr_opts["no_eff_capt"] is not True:
+                self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
+                    "efficient-captured"] = None
+                self.markets[adopt_scheme][
+                    "mseg_out_break"]["energy"]["efficient-captured"] = \
+                    copy.deepcopy(self.handyvars.out_break_in)
 
             # Add fugitive emissions key to output dict if fugitive
             # emissions option is set
@@ -11345,6 +11446,14 @@ class MeasurePackage(Measure):
                         self.merge_out_break(self.markets[adopt_scheme][
                             "mseg_out_break"][v][s],
                             mseg_out_break_fin[v][s])
+                    # Merge in efficient captured energy breakouts if
+                    # this reporting variable is not suppressed by user
+                    if v == "energy" and self.usr_opts[
+                            "no_eff_capt"] is not True:
+                        # Merge out breaks for captured efficient energy
+                        self.merge_out_break(self.markets[adopt_scheme][
+                            "mseg_out_break"]["energy"]["efficient-captured"],
+                            mseg_out_break_fin["energy"]["efficient-captured"])
 
                 # Adjust individual measure's contributing sector shape
                 # information to account for overlaps with other measures in
@@ -11648,14 +11757,16 @@ class MeasurePackage(Measure):
             for k in ["energy", "carbon"]:
                 # Make adjustments to energy/carbon/cost microsegments
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
-                    tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
-                    tot_save_orig_ecost = self.make_base_eff_adjs(
-                        k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
+                    tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
+                    tot_eff_orig_ecost, tot_save_orig_ecost = \
+                    self.make_base_eff_adjs(
+                            k, cm_key, msegs_meas, base_adj,
+                            eff_adj, eff_adj_c)
                 # Make adjustments to energy/carbon/cost output breakouts
                 mseg_out_break_adj = self.find_adj_out_break_cats(
                     k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
-                    tot_base_orig, tot_eff_orig, tot_save_orig,
-                    tot_base_orig_ecost, tot_eff_orig_ecost,
+                    tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
+                    tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                     tot_save_orig_ecost, key_list, fuel_switch_to, fs_eff_splt)
             # Special handling for cost merge when add-on measure is packaged
             if meas_typ == "add-on":
@@ -11835,14 +11946,15 @@ class MeasurePackage(Measure):
             for k in ["energy", "carbon"]:
                 # Make adjustments to energy/carbon/cost microsegments
                 mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
-                    tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
-                    tot_save_orig_ecost = self.make_base_eff_adjs(
+                    tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
+                    tot_eff_orig_ecost, tot_save_orig_ecost = \
+                    self.make_base_eff_adjs(
                         k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
                 # Make adjustments to energy/carbon/cost output breakouts
                 mseg_out_break_adj = self.find_adj_out_break_cats(
                     k, cm_key, mseg_adj, mseg_cost_adj, mseg_out_break_adj,
-                    tot_base_orig, tot_eff_orig, tot_save_orig,
-                    tot_base_orig_ecost, tot_eff_orig_ecost,
+                    tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
+                    tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                     tot_save_orig_ecost, key_list, fuel_switch_to, fs_eff_splt)
 
             # If necessary, adjust fugitive emissions data
@@ -12416,6 +12528,12 @@ class MeasurePackage(Measure):
         tot_base_orig = copy.deepcopy(mseg_adj["total"]["baseline"])
         # Total efficient energy/carbon
         tot_eff_orig = copy.deepcopy(mseg_adj["total"]["efficient"])
+        # Total efficient captured energy if not suppressed by user
+        if k == "energy" and self.usr_opts["no_eff_capt"] is not True:
+            tot_eff_capt_orig = copy.deepcopy(
+                mseg_adj["total"]["efficient-captured"])
+        else:
+            tot_eff_capt_orig = ""
         # Total energy/carbon savings
         tot_save_orig = {yr: (
             copy.deepcopy(mseg_adj["total"]["baseline"][yr]) -
@@ -12445,14 +12563,14 @@ class MeasurePackage(Measure):
                 base_eff_flag=None, comp_flag=None)
 
         return mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
-            tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost, \
-            tot_save_orig_ecost
+            tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
+            tot_eff_orig_ecost, tot_save_orig_ecost
 
     def find_adj_out_break_cats(
             self, k, cm_key, msegs_ecarb, msegs_ecarb_cost, mseg_out_break_adj,
-            tot_base_orig, tot_eff_orig, tot_save_orig, tot_base_orig_ecost,
-            tot_eff_orig_ecost, tot_save_orig_ecost, key_list, fuel_switch_to,
-            fs_eff_splt):
+            tot_base_orig, tot_eff_orig, tot_eff_capt_orig, tot_save_orig,
+            tot_base_orig_ecost, tot_eff_orig_ecost, tot_save_orig_ecost,
+            key_list, fuel_switch_to, fs_eff_splt):
         """Adjust output breakouts after removing energy/carbon data overlaps.
 
         Args:
@@ -12464,6 +12582,8 @@ class MeasurePackage(Measure):
             mseg_out_break_adj (dict): Initial output breakout data.
             tot_base_orig (dict): Unadjusted baseline energy/carbon data.
             tot_eff_orig (dict): Unadjusted efficient energy/carbon data.
+            tot_eff_capt_orig (dict): Unadjusted efficient-captured energy
+                data.
             tot_save_orig (dict): Unadjusted energy/carbon savings data.
             tot_base_orig_ecost (dict): Unadjusted base energy cost data.
             tot_eff_orig_ecost (dict): Unadjusted efficient energy cost data.
@@ -12479,6 +12599,12 @@ class MeasurePackage(Measure):
             to account for removal of overlaps between measure and other
             measures in a package.
         """
+
+        # Establish whether efficient captured energy data need adjustment
+        if k == "energy" and self.usr_opts["no_eff_capt"] is not True:
+            eff_capt = True
+        else:
+            eff_capt = False
 
         # Establish applicable climate zone breakout
         for cz in self.handyvars.out_break_czones.items():
@@ -12591,6 +12717,11 @@ class MeasurePackage(Measure):
         base_orig, eff_orig, save_orig, base_adj, eff_adj = [
             tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
                 "total"]["baseline"], msegs_ecarb["total"]["efficient"]]
+        # Shorthands for efficient-captured energy data if not suppressed by
+        # user
+        if eff_capt:
+            eff_capt_orig, eff_capt_adj = [
+                tot_eff_capt_orig, msegs_ecarb["total"]["efficient-captured"]]
         # If necessary, shorthands for data used to adjust original cost output
         if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                             tot_save_orig_ecost]]):
@@ -12634,6 +12765,15 @@ class MeasurePackage(Measure):
                         (base_orig[yr] - base_adj[yr]) -
                         (eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr]) for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                # Remove adjusted efficient-captured
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                    yr in self.handyvars.aeo_years}
             # Energy/carbon; switched to fuel
             mseg_out_break_adj[k]["efficient"][
                 out_cz][out_bldg][out_eu][out_fuel_gain], \
@@ -12654,6 +12794,14 @@ class MeasurePackage(Measure):
                         eff_orig[yr] - eff_adj[yr]) * (
                         1 - fs_eff_splt_var[yr]))
                  for yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_gain][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr])
+                    for yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
@@ -12738,6 +12886,15 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                     save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                # Remove adjusted efficient
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                    yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
@@ -12786,6 +12943,14 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][yr] - (
                     save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
                  yr in self.handyvars.aeo_years}]
+            # Measure-captured efficient energy (if reported)
+            if eff_capt:
+                mseg_out_break_adj[k][
+                    "efficient-captured"][out_cz][out_bldg][out_eu] = {
+                        yr: mseg_out_break_adj[k]["efficient-captured"][
+                            out_cz][out_bldg][out_eu][yr] - (
+                                eff_capt_orig[yr] - eff_capt_adj[yr]) for
+                        yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):

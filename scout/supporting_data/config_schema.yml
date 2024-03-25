@@ -205,6 +205,11 @@ properties:
                 type: ["string", "null"]
                 enum: [methane-low, methane-mid, methane-high]
               minItems: 2
+
+      no_eff_capt:
+        type: boolean
+        default: false
+        description: If true, suppress reporting of ECM-captured efficient energy use.
       
   run:
     type: object
