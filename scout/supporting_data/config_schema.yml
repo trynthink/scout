@@ -209,7 +209,7 @@ properties:
       results_directory:
         type: ["string", "null"]
         default: null
-        description: Directory to output results
+        description: Directory to output results.
       verbose:
         type: boolean
         default: false

@@ -1257,9 +1257,20 @@ All of the intended packages should be specified in the |html-filepath| package_
 
 .. _tuts-2:
 
-Tutorial 2: Creating project configuration files
--------------------------------------------------
-Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. Arguments in a project definition configuration file map to the command-line arguments described in the "Additional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but enable a consistent and reusable approach to running Scout. To run ecm_prep.py or run.py with a yaml configuration file you can run one or both of the following:
+Tutorial 2: Running with project configuration files
+----------------------------------------------------
+Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml configuration file. Arguments in a project definition configuration file map to the command-line arguments described in the "Additional options" sections in :ref:`Tutorial 3 <tuts-3-cmd-opts>` (ecm_prep.py) and :ref:`Tutorial 5 <tuts-5-cmd-opts>` (run.py), but enable a consistent and reusable approach to running Scout.
+
+Writing configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To get started writing a configuration file, users can reference the `sample configuration file`_ found on the Scout repository, which serves as a valid configuration file pre-filled with default values. Update any relevent fields required to configure a custom scenario, any unchanged arguments can be left as is or deleted. Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file.
+
+.. literalinclude:: config_readable.yml
+  :language: YAML
+
+Running with a single configuration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To run ecm_prep.py or run.py with a yaml configuration file you can run one or both of the following:
 ::
 
    python scout/ecm_prep.py -y <my_project.yml>
@@ -1270,11 +1281,21 @@ Scout will parse the .yml file and write arguments for each script, provided the
 .. Note::
    If other command-line arguments are included (i.e., those other than ``-y``), then they will take precedence over the yaml file if there is overlap between the two.
 
-Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file. Additionally, a `sample configuration file`_ can be found on the Scout repository, serving as a valid configuration file pre-filled with default values.
+.. _tuts-2-batch:
 
-.. literalinclude:: config_readable.yml
-  :language: YAML
+Running with multiple configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Batches of configuration files can also be run with the use of the run_batch.py module. This automatically runs both ecm_prep.py and run.py for a set of configuration files stored in a common directory. To utilize this feature, first generate any number of configuration files (i.e., scenarios) and store them in a common directory of any name. To run the scenarios, enter the following command line argument, where <config_directory> refers to the directory containing the set configuration files:
 
+**Windows** ::
+
+   py -3 scout/run_batch.py --batch <config_directory>
+
+**Mac** ::
+
+   python3 scout/run_batch.py --batch <config_directory>
+
+Final results for each scenario are written to the directory specified in the run.py ``--results_directory`` argument (see :ref:`Tutorial 5 <tuts-5-cmd-opts>`), or are defaulted to a directory matching the configuration file name within the |html-filepath| ./results |html-fp-end| folder. Because this module runs both core Scout modules (ecm_prep.py and run.py), Tutorials 3-6 are not relevent if running with run_batch.py.
 
 .. _tuts-3:
 
@@ -1722,6 +1743,10 @@ Users may include additional options alongside the |html-filepath| run.py |html-
    python3 run.py <additional option> <additional option 2> ... <additional option N>
 
 The additional run options are described further here.
+
+Results directory
+*****************
+``--results_directory`` specifies the directory in which to output results, which includes both raw results and figures. If no directory is provided, results will be outputted to the |html-filepath| ./results |html-fp-end| folder by default.
 
 Stock/stock cost totals
 ***********************
