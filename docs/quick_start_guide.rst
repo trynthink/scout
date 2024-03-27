@@ -44,10 +44,40 @@ Open a Terminal window (Mac) [#]_ or command prompt (Windows) [#]_ and navigate 
 
 .. _qsg-ecm-prep-step:
 
-4. Prepare ECMs for analysis
+4. Run using project configuration file(s) (optional)
+-----------------------------------------------------
+Scout scnearios can be defined by directly passing arguments to Python scripts, or with the use of a .yml configuration file, which stores argument values in a consistent, trackable manner. This approach also provides the benefit of storing argument values to both core modules of Scout, ecm_prep.py and run.py. Guidance on creating configuration files is found in :ref:`tuts-2`. To run a single scenario, enter the following command line arguments, where <my_config.yml> refers to a custom configuration file:
+
+**Windows** ::
+
+   py -3 scout/ecm_prep.py --yaml <my_config.yml>
+   py -3 scout/run.py --yaml <my_config.yml>
+
+**Mac** ::
+
+   python3 scout/ecm_prep.py --yaml <my_config.yml>
+   python3 scout/run.py --yaml <my_config.yml>
+
+.. note::
+   If running scenarios with a configuration file, then steps 4-6 in the Quick Start Guide are not needed.
+
+Running multiple configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Batches of configuration files can also be run with the use of the run_batch.py module. This automatically runs both ecm_prep.py and run.py for a set of configuration files in a common directory. To run files in a batch, enter the following command line argument, where <config_directory> refers to a directory containing a set of custom configuration files (see :ref:`tuts-2-batch` for further guidance):
+
+**Windows** ::
+
+   py -3 scout/run_batch.py --batch <config_directory>
+
+**Mac** ::
+
+   python3 scout/run_batch.py --batch <config_directory>
+
+
+5. Prepare ECMs for analysis
 ----------------------------
 
-Enter the following command line argument (see Local Execution :ref:`tuts-3` for additional guidance and execution :ref:`options <tuts-3-cmd-opts>`):
+To prepare measures for :ref:`EIA Electricity Market Module (EMM) <emm-reg>` regions, enter the following command line argument (see Local Execution :ref:`tuts-3` for additional guidance and execution :ref:`options <tuts-3-cmd-opts>`):
 
 **Windows** ::
 
@@ -66,7 +96,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-3` for
 
 .. _qsg-modify-active-ecm-step:
 
-5. Modify active list of ECMs (optional)
+6. Modify active list of ECMs (optional)
 ----------------------------------------
 
 Enter the following command line argument (see Local Execution :ref:`tuts-ecm-list-setup` for additional guidance):
@@ -81,7 +111,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-ecm-li
 
 .. _qsg-run-analysis-step:
 
-6. Run analysis on active ECMs
+7. Run analysis on active ECMs
 ------------------------------
 
 Enter the following command line argument (see Local Execution :ref:`tuts-analysis` for additional guidance and execution :ref:`options <tuts-5-cmd-opts>`):
@@ -96,7 +126,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-analys
 
 .. _qsg-view-results-step:
 
-7. View results plots and data
+8. View results plots and data
 ------------------------------
 
 .. Visit the Scout web interface’s `Analysis Results Page`_. Click the "Custom Results" dropdown arrow towards the top right of the page, then click "Upload File" to upload results from your Scout run in the previous step (data found in |html-filepath| ./results/plots/ecm_results.json |html-fp-end|). Once the data are uploaded, click through the "Energy," "|CO2|," "Cost," and "Financial Metrics" tabs towards the top of the page to interactively visualize your results (see Web Interface :ref:`tuts-3-web` for additional guidance).
