@@ -37,24 +37,34 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
 
     # Set ECMs if subset is provided
     ecm_dir_files = [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()]
-    missing_ecms = [ecm for ecm in opts.ecm_files if ecm not in ecm_dir_files]
+    missing_ecms = []
+    if opts.ecm_files is not None:
+        missing_ecms = [ecm for ecm in opts.ecm_files if ecm not in ecm_dir_files]
     if missing_ecms:
-        msg = ("WARNING: The following ECMs specified with the `ecm_directory`, `ecm_files`,"
-               " and/or `ecm_files_regex` argument are not present in {fp.ECM_DEF} and will"
-               " not be simulated: {missing_ecms}")
+        msg = ("WARNING: The following ECMs specified with the `ecm_files` argument are not"
+               f" present in {fp.ECM_DEF} and will not be prepared: {missing_ecms}")
         warnings.warn(msg)
 
+    # Find matches to `ecm_files_regex`, warn if none found
     ecm_file_matches = [file for file in ecm_dir_files if
-                        any(re.match(pattern, file) for pattern in opts.ecm_files_regex) and
-                        file not in opts.ecm_files]
-    opts.ecm_files.extend(ecm_file_matches)
+                        any(re.match(pattern, file) for pattern in opts.ecm_files_regex)]
+    if opts.ecm_files_regex and not ecm_file_matches:
+        msg = ("WARNING: A regular expression was specified with `ecm_files_regex`, but it does"
+               f"not match any ECMs in {fp.ECM_DEF}")
+        warnings.warn(msg)
 
-    # Store the ecms that were set explicitely
-    opts.ecm_files_user = opts.ecm_files.copy()
+    # Store ECMs set by the user
+    opts.ecm_files_user = []
+    if opts.ecm_files is not None:
+        opts.ecm_files_user.extend(opts.ecm_files)
+        ecm_file_matches = [ecm for ecm in ecm_file_matches if ecm not in opts.ecm_files]
+    opts.ecm_files_user.extend(ecm_file_matches)
 
-    # Use all ecms in the ecm directory if not set explicitely
-    if not opts.ecm_files:
+    # Use all ecms in the ecm directory if `ecm_files` is None and `ecm_files_regex` is empty
+    if opts.ecm_files is None and not opts.ecm_files_regex:
         opts.ecm_files = ecm_dir_files
+    else:
+        opts.ecm_files = opts.ecm_files_user.copy()
 
     # Set adoption scenario restrictions
     if opts.adopt_scn_restrict:

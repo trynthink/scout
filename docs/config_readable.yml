@@ -26,7 +26,9 @@ ecm_prep:
   ecm_files: (array) Specify a subset of ECM definitions in the
     ECM directory. Values must contain exact matches to the ECM
     definition file names in `ecm_directory`, excluding the file
-    extension. Default null
+    extension. If argument is null, then all files within `ecm_directory`
+    will be prepared, subject to the `ecm_files_regex` argument,
+    if applicable. Default null
   ecm_files_regex: (array) Specify a subset of ECM definitions
     in the ECM directory using a regular expression. Each value
     will be matched to file names in `ecm_directory`. Default
