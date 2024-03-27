@@ -57,6 +57,9 @@ class BatchRun():
         """Groups together configuration files with similar ecm_prep arguments. Those with
             identical ecm_prep arguments excluding `ecm_directory`, `ecm_files`, and
             `ecm_files_regex` are put in the same group to optimize running ecm_prep.py.
+            Note: those with different `ecm_packages` values are not grouped together, as this
+            influences which individual ECMs are run, and may omit preparation of desired
+            measures.
 
         Args:
             yml_dir (Path): directory containing all configurations with which to run.

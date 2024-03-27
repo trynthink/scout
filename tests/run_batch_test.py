@@ -36,12 +36,12 @@ class TestBatchRun(unittest.TestCase):
 
     def test_auto_results_dir(self):
         # Test creation of results directories
-        # With results_directory arg
+        # Using `results_directory` arg
         _ = self.batch_run.get_run_opts(self.yml_dir / "config1.yml")
         self.assertEqual(self.trim_dir_path(fp.RESULTS), "results/custom_dir_config1")
         self.assertEqual(self.trim_dir_path(fp.PLOTS, 3), "results/custom_dir_config1/plots")
 
-        # Set based on config name
+        # Automatically set based on config name
         _ = self.batch_run.get_run_opts(self.yml_dir / "config2.yml")
         self.assertEqual(self.trim_dir_path(fp.RESULTS), "results/config2")
         self.assertEqual(self.trim_dir_path(fp.PLOTS, 3), "results/config2/plots")
