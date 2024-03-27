@@ -14,9 +14,9 @@ properties:
         description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, ./ecm_definitions will be used.
 
       ecm_files:
-        type: array
-        default: []
-        description: Specify a subset of ECM definitions in the ECM directory. Values must contain exact matches to the ECM definition file names in `ecm_directory`, excluding the file extension.
+        type: ["array", "null"]
+        default: null
+        description: Specify a subset of ECM definitions in the ECM directory. Values must contain exact matches to the ECM definition file names in `ecm_directory`, excluding the file extension. If argument is null, then all files within `ecm_directory` will be prepared, subject to the `ecm_files_regex` argument, if applicable.
 
       ecm_files_regex:
         type: array

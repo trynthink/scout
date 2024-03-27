@@ -1,7 +1,7 @@
 description: This is a sample configuration file that uses default arguments for ecm_prep and run
 ecm_prep:
   ecm_directory: null
-  ecm_files: []
+  ecm_files: null
   ecm_files_regex: []
   ecm_packages: []
   site_energy: false

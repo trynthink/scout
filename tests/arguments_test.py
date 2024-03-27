@@ -54,7 +54,7 @@ class TestConfig(unittest.TestCase, Utils):
     default_config = {
         "ecm_prep": {
             "ecm_directory": None,
-            "ecm_files": [],
+            "ecm_files": None,
             "ecm_files_regex": [],
             "ecm_packages": [],
             "site_energy": False,
