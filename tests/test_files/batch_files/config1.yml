@@ -1,9 +1,9 @@
-description: This is a sample configuration file that uses default arguments for ecm_prep and run
+description: Configuration file for testing, matches arguments of test_files/config2.yml with the exception of `ecm_files`
 ecm_prep:
   ecm_directory: null
   ecm_files: ["Residential Walls, IECC c. 2021", "Best Com. Air Sealing (Exist)"]
   ecm_files_regex: []
-  ecm_packages: null
+  ecm_packages: []
   site_energy: false
   captured_energy: false
   alt_regions: null
