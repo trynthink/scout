@@ -13,7 +13,7 @@ ecm_prep:
     Mid Case (rather than AEO). Default False
   alt_regions: (string) Specify an alternative region breakdown.
     If none selected, AIA will be used. Allowed values are {AIA,
-    EMM, State, null}. Default null
+    EMM, State, null}. Default EMM
   captured_energy: (boolean) If true, enable captured energy calculation.
     Default False
   detail_brkout: (array) List of options by which to breakout

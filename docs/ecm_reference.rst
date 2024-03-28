@@ -32,27 +32,13 @@ For some keys, there are shorthand summary values that can be used when all or a
 
 .. _ecm-baseline_climate-zone:
 
-Climate zone (default regions)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-|tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| AIA_CZ3 |chunk-b| AIA Climate Zone 3 |close|, |tooltip| AIA_CZ4 |chunk-b| AIA Climate Zone 4 |close|, |tooltip| AIA_CZ5 |chunk-b| AIA Climate Zone 5 |close|; all
-
-.. figure:: images/climatezone-lg.jpg
-
-   Map of American Institute of Architects (AIA) climate zones for the contiguous U.S., Alaska, and Hawaii.
-
-.. _ecm-baseline_climate-zone-alt:
-
-Alternate regions
-~~~~~~~~~~~~~~~~~
-
-.. note::
-   These alternate regions are only permitted when |html-filepath| ecm_prep.py\ |html-fp-end| is executed with the ``--alt_regions`` option, as described in :ref:`tuts-3-cmd-opts`. 
+Climate zone
+~~~~~~~~~~~~
 
 .. _emm-reg:
 
 EIA Electricity Market Module (EMM) regions
-*******************************************
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 TRE, FRCC, MISW, MISC, MISE, MISS, ISNE, NYCW, NYUP, PJME, PJMW, PJMC,
 PJMD, SRCA, SRSE, SRCE, SPPS, SPPC, SPPN, SRSG, CANO, CASO, NWPP, RMRG, BASN; all
@@ -61,10 +47,21 @@ PJMD, SRCA, SRSE, SRCE, SPPS, SPPC, SPPN, SRSG, CANO, CASO, NWPP, RMRG, BASN; al
 
    Map of U.S. EIA Electricity Market Module (EMM) regions.
 
+.. _cz-reg:
+
+AIA climate zones
+^^^^^^^^^^^^^^^^^
+
+|tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| AIA_CZ3 |chunk-b| AIA Climate Zone 3 |close|, |tooltip| AIA_CZ4 |chunk-b| AIA Climate Zone 4 |close|, |tooltip| AIA_CZ5 |chunk-b| AIA Climate Zone 5 |close|; all
+
+.. figure:: images/climatezone-lg.jpg
+
+   Map of American Institute of Architects (AIA) climate zones for the contiguous U.S., Alaska, and Hawaii.
+
 .. _state-reg:
 
 Contiguous U.S. states
-**********************
+^^^^^^^^^^^^^^^^^^^^^^
 
 AL, AZ, AR, CA, CO, CT, DE, DC, FL,
 GA, ID, IL, IN, IA, KS, KY, LA, ME,

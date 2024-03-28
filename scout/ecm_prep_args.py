@@ -78,8 +78,6 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     opts.tsv_metrics = False
     if opts.tsv_type:
         opts.tsv_metrics = True
-    if not opts.alt_regions:
-        opts.alt_regions = False
     if (opts.alt_regions != "EMM") and any([
             x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
         opts.alt_regions = "EMM"
@@ -91,9 +89,8 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         else:
             warn_text = "sector-level 8760 load shapes"
         warnings.warn(
-            "WARNING: Analysis regions were set to EMM to allow " +
-            warn_text + ": ensure that ECM data reflect these EMM regions "
-            "(and not the default AIA regions)")
+            f"WARNING: Analysis regions were set to EMM to allow {warn_text}; "  # noqa: E702
+            "ensure that ECM data reflect these EMM regions")
 
     # Set fugitive emissions to include, if any, and whether to use typical refrigerants
     # (including representation of expected phase-out years) or user-defined low-GWP refrigerants
@@ -145,9 +142,8 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         if (opts.alt_regions not in ["EMM", "State"]):
             opts.alt_regions = "EMM"
             warnings.warn(
-                "WARNING: Analysis regions were set to EMM to allow HP "
-                "conversion rates: ensure that ECM data reflect these EMM "
-                "regions or states (and not the default AIA regions)")
+                "WARNING: Analysis regions were set to EMM to allow HP conversion rates; ensure"
+                " that ECM data reflect these EMM regions or states")
     else:
         opts.exog_hp_rates = False
 
@@ -160,7 +156,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         opts.grid_decarb = input_var
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
-        if (opts.alt_regions in ["State"]):
+        if opts.alt_regions == "State":
             opts.alt_regions = "EMM"
             warnings.warn(
                 "WARNING: Analysis regions were set to EMM to ensure "
@@ -224,8 +220,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         opts.alt_regions = "EMM"
         warnings.warn(
             "WARNING: Analysis regions were set to EMM to allow public health "
-            "cost adders: ensure that ECM data reflect these EMM regions "
-            "(and not the default AIA regions)")
+            "cost adders; ensure that ECM data reflect these EMM regions")
 
     # Set inclusion of HVAC-only measures in measure competition
     opts.pkg_env_costs = {"include HVAC": "1", "exclude HVAC": "2"}.get(opts.pkg_env_costs, False)
