@@ -95,7 +95,7 @@ Applicable baseline market
 
 The applicable baseline market parameters specify the climate zones, building types, structure types, end uses, fuel types, and specific technologies for the ECM.
 
-The climate zone(s) can be given as a single string, if only one climate zone applies, or as a list if a few climate zones apply. The climate zone entry options are outlined in the :ref:`ecm-baseline_climate-zone` and :ref:`ecm-baseline_climate-zone-alt` sections, and formatting details are in the :ref:`applicable section <json-climate_zone>` of the JSON schema. If the ECM is suitable for all climate zones, the shorthand string ``"all"`` can be used in place of a list of all of the climate zone names. These shorthand terms are discussed further in the :ref:`ecm-features-shorthand` section.
+The climate zone(s) can be given as a single string, if only one climate zone applies, or as a list if a few climate zones apply. The climate zone entry options are outlined in the :ref:`ecm-baseline_climate-zone` section, and formatting details are in the :ref:`applicable section <json-climate_zone>` of the JSON schema. If the ECM is suitable for all climate zones, the shorthand string ``"all"`` can be used in place of a list of all of the climate zone names. These shorthand terms are discussed further in the :ref:`ecm-features-shorthand` section.
 
 LED troffers can be installed in buildings in any climate zone, and for convenience, the available shorthand term will be used in place of a list of all of the climate zone names. ::
 
@@ -1348,10 +1348,10 @@ Specify ECM files and packages
 Alternate regions
 *****************
 
-``--alt_regions`` allows the user to switch the regional breakout of baseline data and ECM results from the default AIA climate regions (see :ref:`ecm-baseline_climate-zone`). Valid options include one of "EMM", "State", or "AIA".
+``--alt_regions`` allows the user to set the regional breakout of baseline data and ECM results (see :ref:`ecm-baseline_climate-zone`). Valid options include one of "EMM" (default), "State", or "AIA".
 
 .. note::
-   Currently, two alternative regional breakouts are supported: the U.S. Electricity Information Administration (EIA) Electricity Market Module (EMM) regions, and the contiguous U.S. states. See the :ref:`ecm-baseline_climate-zone-alt` section for additional details.
+   Currently, three regional breakouts are supported: the U.S. Electricity Information Administration (EIA) Electricity Market Module (EMM) regions, AIA climate regions,  and the contiguous U.S. states. See the :ref:`ecm-baseline_climate-zone` section for additional details.
 
 Site energy
 ***********
@@ -1367,7 +1367,7 @@ Detailed results breakouts
 ``--detail_brkout`` reports regional, building type, and/or fuel type breakouts of results at the highest possible resolution. Valid options include at least one of "regions", "buildings", and "fuel types". If "regions" is included, then ``--alt_regions`` must be set to "EMM". If "fuel types" is included, then ``--split_fuel`` must be false.
 
 .. note::
-   Default regional breakouts depend on the :ref:`region selection <ecm-baseline_climate-zone>` for the current run. An :ref:`AIA <ecm-baseline_climate-zone>` region selection does not have a more detailed breakout option. An :ref:`EMM <emm-reg>` region selection defaults to reporting breakouts for a higher-level aggregation of those 25 regions into 11 broader regions that are similar to the `2019 EPA AVERT regions`_ but separate the Great Basin from the Northwest region; the detailed breakout option resolves results by all 25 EMM regions. Finally, a :ref:`U.S. state <state-reg>` region selection defaults to reporting breakouts by the 9 `U.S. Census Divisions`_; the detailed breakout option resolves results by all contiguous U.S. states plus the District of Columbia.
+   Default regional breakouts depend on the :ref:`region selection <ecm-baseline_climate-zone>` for the current run. An :ref:`AIA <cz-reg>` region selection does not have a more detailed breakout option. An :ref:`EMM <emm-reg>` region selection defaults to reporting breakouts for a higher-level aggregation of those 25 regions into 11 broader regions that are similar to the `2019 EPA AVERT regions`_ but separate the Great Basin from the Northwest region; the detailed breakout option resolves results by all 25 EMM regions. Finally, a :ref:`U.S. state <state-reg>` region selection defaults to reporting breakouts by the 9 `U.S. Census Divisions`_; the detailed breakout option resolves results by all contiguous U.S. states plus the District of Columbia.
 
    Default building type breakouts are resolved by residential vs. commercial and by vintage (new --- constructed at or after the start of the modeling time horizon --- vs. existing). Detailed building type breakouts further resolve the building types into 2 residential and 8 commercial types, while dropping the split by vintage (single family/mobile homes and multi family homes for residential; hospitals, large offices, small/medium offices, retail, hospitality, education, assembly/other, and warehouses for commercial).
 
@@ -1392,7 +1392,7 @@ Exogenous heat pump switching rates
    In the absence of the ``--exog_hp_rate_scenario`` option, rates of switching to heat pump measures are determined based on a tradeoff of the capital and operating costs of the candidate heat pump measures against those of competing measures in the analysis, as described in :ref:`ECM-competition`.
 
 .. note::
-   Currently the ``--exog_hp_rate_scenario`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rate_scenario`` option, the code will automatically switch the run to EMM regions while warning the user.
+   Currently the ``--exog_hp_rate_scenario`` option is not supported for AIA climate regions; if AIA climate regions are selected alongside the ``--exog_hp_rate_scenario`` option, the code will automatically switch the run to EMM regions while warning the user.
 
 ``--switch_all_retrofit_hp`` selects whether the exogenous rates should be applied to early retrofit decisions (as well as to decisions regarding regular replacements and new construction) or if all early retrofit decisions should be assumed to switch to the candidate heat pump technology. Note that while the exogenous rates were developed to describe rates of switching of heating and water heating technologies to heat pumps, rates of natural gas heating conversions are also applied to the cooking end use. This argument is only applicable if ``--exog_hp_rate_scenario`` is specified.
 
@@ -1403,7 +1403,7 @@ Assessment of fugitive emissions
 ``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./scout/supporting_data/convert_data/fugitive_emissions_convert.json\ |html-fp-end|. When this option is selected, the user must provide at least one of "methane", "low-gwp refrigerant", and "typical refrigerant". Valid options include one option, a combination of "methane" and one of the two "\*refrigerant" options. When including more than one, Scout will assess fugitive emissions for the sources together. For fugitive emissions from equipment refrigerant leakage, the user will specify whether to assume that measures use market-available refrigerants  and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ ("typical refrigerant") or to assume that measures use low-GWP refrigerants ("low-gwp refrigerant"). 
 
 .. note::
-   Currently the ``--fugitive_emissions`` option is not supported for the default AIA climate regions; if AIA climate regions are selected alongside the ``--fugitive_emissions`` option, the code will automatically switch the run to EMM regions while warning the user.
+   Currently the ``--fugitive_emissions`` option is not supported for AIA climate regions; if AIA climate regions are selected alongside the ``--fugitive_emissions`` option, the code will automatically switch the run to EMM regions while warning the user.
 
 Persistent relative performance
 *******************************
@@ -1535,7 +1535,7 @@ The following time sensitive valuation metrics are used to assess and report out
    When the ``--tsv_metrics`` option is used, all data prepared for the ECM and written out to |html-filepath| ./generated/ecm_competition_data |html-fp-end| and |html-filepath| ./generated/ecm_prep.json |html-fp-end| will reflect the specific time slice of interest, rather than the default annual outcomes.
 
 .. note::
-   Data needed to support evaluation of TSV metrics are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--tsv_metrics`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
+   Data needed to support evaluation of TSV metrics are broken out by EMM region; when using the ``--tsv_metrics`` option, EMM should be selected as the regional breakout when running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
 
 Sector-level hourly energy loads
 ********************************
@@ -1543,7 +1543,7 @@ Sector-level hourly energy loads
 ``--sect_shapes`` modifies the results output to |html-filepath| ./generated/ecm_prep.json |html-fp-end| to include, for each ECM, the hourly energy use (in MMBtu) attributable to the portion of the building stock the ECM applies to in a given adoption scenario, EMM region, and projection year, both with and without the measure applied. These hourly energy loads are reported for all 8760 hours of a year that corresponds to a `reference year`_.
 
 .. note::
-   Sector-level 8760 load data for an ECM are written to the "sector_shapes" key within the given ECM's dictionary of summary data in |html-filepath| ./generated/ecm_prep.json |html-fp-end|. The 8760 load data are nested in another dictionary under the "sector_shapes" key according to the following key hierarchy: adoption scenario ("Technical potential" or "Max adoption potential") -> EMM region (see :ref:`ecm-baseline_climate-zone-alt` for names) -> summary projection year ("2020", "2030", "2040" or "2050") -> efficiency scenario ("baseline" or "efficient"). The terminal values at the end of each key chain will be a list with 8760 values.
+   Sector-level 8760 load data for an ECM are written to the "sector_shapes" key within the given ECM's dictionary of summary data in |html-filepath| ./generated/ecm_prep.json |html-fp-end|. The 8760 load data are nested in another dictionary under the "sector_shapes" key according to the following key hierarchy: adoption scenario ("Technical potential" or "Max adoption potential") -> EMM region (see :ref:`emm-reg` for names) -> summary projection year ("2020", "2030", "2040" or "2050") -> efficiency scenario ("baseline" or "efficient"). The terminal values at the end of each key chain will be a list with 8760 values.
 
 Public health benefits
 **********************
@@ -1551,7 +1551,7 @@ Public health benefits
 ``--health_costs`` adds low and high estimates of the public health cost benefits of avoided fossil electricity generation from the deployment of each ECM being prepared. The low and high public health cost benefits estimates are drawn from the "Uniform EE - low estimate, 7% discount" and "Uniform EE - high estimate, 3% discount" cases in the `U.S. Environmental Protection Agency (EPA) report`_ "Public Health Benefits per kWh of Energy Efficiency and Renewable Energy in the United States: a Technical Report". [#]_ [#]_
 
 .. note::
-   Public health cost adders are broken out by EMM region; thus, the ``--alt_regions`` option must be set alongside the ``--health_costs`` option, and EMM should be selected as the alternate regional breakout when prompted upon running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
+   Public health cost adders are broken out by EMM region; when using the ``--health_costs`` option, EMM should be selected as regional breakout when running |html-filepath| ecm_prep.py\ |html-fp-end|. If regions are not set to EMM in this case, the code will do so automatically while warning the user.
 
 .. note::
    When ECMs are prepared with the public health cost adder, three versions of the ECM will be produced: 1) the ECM prepared according to defaults, *without* health cost adders, 2) a version of the the ECM with a low public health cost adder ``<ECM Name> - PHC-EE (low)``, and 3) a version of the ECM with a high public health cost adder ``<ECM Name - PHC-EE (high)``. Since the EPA `report`_ estimates public health benefits based on the current fossil fuel generation mix, **users are advised against retaining any results for ECMs prepared with public health cost adders beyond the year 2025**.

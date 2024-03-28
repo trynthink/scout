@@ -41,6 +41,7 @@ properties:
       alt_regions:
         type: ["string", "null"]
         enum: [EMM, State, AIA, null]
+        default: EMM
         description: Specify an alternative region breakdown. If none selected, AIA will be used.
 
       tsv_metrics:

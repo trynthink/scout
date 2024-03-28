@@ -51,14 +51,12 @@ Enter the following command line argument (see Local Execution :ref:`tuts-3` for
 
 **Windows** ::
 
-   py -3 scout/ecm_prep.py --alt_regions
+   py -3 scout/ecm_prep.py
 
 **Mac** ::
 
-   python3 scout/ecm_prep.py --alt_regions
+   python3 scout/ecm_prep.py
 
-
-When prompted, select option 1 to use :ref:`EIA Electricity Market Module (EMM) <emm-reg>` regions.  
 
 .. Note::
    The standard set of ECM definitions included in |html-filepath| ./ecm_definitions |html-fp-end| requires the EMM region setting to execute. Only new or edited ECM definitions are updated in this step.

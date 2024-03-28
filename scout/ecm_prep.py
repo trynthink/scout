@@ -97,7 +97,7 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, opts):
-        if opts.alt_regions in [False, 'AIA']:
+        if opts.alt_regions == 'AIA':
             # UNCOMMENT WITH ISSUE 188
             # self.msegs_in = (fp.STOCK_ENERGY /
             #                  "mseg_res_com_cz_2017.json")
@@ -723,7 +723,7 @@ class UsefulVars(object):
             self.fug_emissions = None
 
         # Set valid region names and regional output categories
-        if opts.alt_regions in [False, "AIA"]:
+        if opts.alt_regions == "AIA":
             valid_regions = [
              "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"]
             regions_out = [
@@ -9474,12 +9474,11 @@ class Measure(object):
             type(self.climate_zone) == str and all([
                 x == self.climate_zone for x in invalid_names]))):
             raise ValueError(
-                "'climate_zone' input name(s) for ECM '" + self.name +
-                "' (" + str(invalid_names) + ") inconsistent with region "
-                "settings for the simulation run. Either revise the "
-                "'climate_zone' input or the simulation's region setting ("
-                "default is AIA zones, with alternates specified via "
-                "'--alt_regions' command line option) to ensure consistency")
+                f"'climate_zone' input name(s) for ECM '{self.name}' ({str(invalid_names)})"
+                " inconsistent with region settings for the simulation run. Either revise the"
+                " 'climate_zone' input or the simulation's region setting (default is EMM regions,"
+                " with alternates specified via '--alt_regions' command line option) to ensure"
+                " consistency")
         # All other cases
         elif len(invalid_names) > 0:
             raise ValueError(
