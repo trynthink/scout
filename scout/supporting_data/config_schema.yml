@@ -24,7 +24,7 @@ properties:
         description: Specify a subset of ECM definitions in the ECM directory using a regular expression. Each value will be matched to file names in `ecm_directory`.
 
       ecm_packages:
-        type: ["array", "null"]
+        type: "array"
         default: []
         description: Specify ECM packages; values must correspond with package_ecms.json package names in the ECM directory. If no list or an empty list is provided, no packages will be used. Include an astrisk (["*"]) in the list to prepare all packages present in package_ecms.json. Contributing ECMs for specified packages will automatically be prepared regardless of their presence in the `ecm_directory`, `ecm_files`, and/or `ecm_files_regex` arguments.
 

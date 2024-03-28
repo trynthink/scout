@@ -37,7 +37,7 @@ def convert_yaml_structure(schema_data: dict, required: list = [], parent_key: s
                 dtype.remove("null")
                 dtype = dtype[0]
             default = value.get("default")
-            if not default:
+            if default is None:
                 default = "null"
             enum = value.get("enum")
             arr_enum = value.get("items", {}).get("enum")
