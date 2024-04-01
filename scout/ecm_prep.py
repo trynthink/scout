@@ -13313,7 +13313,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # on results
                 compete_files = [x for x in handyfiles.ecm_compete_data.iterdir() if not
                                  x.name.startswith('.')]
-                ignore_opts = ["verbose", "yaml", "ecm_directory"]
+                ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
+                               "ecm_packages", "ecm_files_regex"]
                 update_indiv_ecm = ((ecm_prep_exists and stat(
                     handyfiles.indiv_ecms / mi).st_mtime > stat(
                     handyfiles.ecm_prep).st_mtime) or
@@ -13609,7 +13610,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # costs (if applicable) than in the current run
 
         # Check for existing competition data for the package (condition b)
-        name_mask = all(m["name"] != y.stem for y in handyfiles.ecm_compete_data.iterdir())
+        name_mask = all(m["name"] != Path(y.stem).stem for y in
+                        handyfiles.ecm_compete_data.iterdir())
         exst_ecms_mask = exst_engy_save_mask = exst_cost_red_mask = False
         exst_pkg_env_mask_1 = exst_pkg_env_mask_2 = False
         # Check for differences in the specification of the previously prepared
