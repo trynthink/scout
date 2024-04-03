@@ -13145,6 +13145,63 @@ def filter_invalid_packages(packages: list[dict],
     return filtered_packages
 
 
+def update_active_measures(run_setup: dict, to_active: list = [], to_inactive: list = []) -> dict:
+    """Update active/inactive values of the run_setup dictionary
+
+    Args:
+        run_setup (dict): dictionary to be used as the analysis engine setup file
+        to_active (list, optional): measures or packages to set to active and remove from
+            inactive. Defaults to [].
+        to_inactive (list, optional): measures or packages to set to inactive and remove from
+            active. Defaults to [].
+
+    Returns:
+        dict: run_setup data with updated active and inactive lists
+    """
+    active_set = set(run_setup["active"])
+    inactive_set = set(run_setup["inactive"])
+
+    # Set active and remove from inactive
+    active_set.update(to_active)
+    inactive_set.difference_update(to_active)
+
+    # Set inactive and remove from active
+    active_set.difference_update(to_inactive)
+    inactive_set.update(to_inactive)
+
+    run_setup["active"] = list(active_set)
+    run_setup["inactive"] = list(inactive_set)
+
+    return run_setup
+
+
+def initialize_run_setup(input_files: UsefulInputFiles) -> dict:
+    """Reads in analysis engine setup file, run_setup.json, and initializes values. If the file
+        exists and has measures set to 'active', those will be moved to 'inactive'. If the file
+        does not exist, return a dictionary with empty 'active' and 'inactive' lists.
+
+    Args:
+        input_files (UsefulInputFiles): UsefulInputFiles instance
+
+    Returns:
+        dict: run_setup data with active and inactive lists
+    """
+    try:
+        am = open(input_files.run_setup, 'r')
+        try:
+            run_setup = json.load(am, object_pairs_hook=OrderedDict)
+        except ValueError as e:
+            raise ValueError(
+                f"Error reading in '{input_files.run_setup}': {str(e)}") from None
+        am.close()
+        # Initalize all measures as inactive
+        run_setup = update_active_measures(run_setup, to_inactive=run_setup["active"])
+    except FileNotFoundError:
+        run_setup = {"active": [], "inactive": []}
+
+    return run_setup
+
+
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import and prepare measure attributes for analysis engine.
 
@@ -13595,6 +13652,28 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                                        ecm_names,
                                                        ecm_pkg_filtered)
 
+    # Write initial data for run_setup.json
+    # Import analysis engine setup file
+    run_setup = initialize_run_setup(handyfiles)
+
+    # Set contributing ECMs as inactive in run_setup and throw warning, set all others as active
+    ctrb_ms = [ecm for pkg in meas_toprep_package_init for ecm in pkg["contributing_ECMs"]]
+    non_ctrb_ms = [ecm for ecm in opts.ecm_files if ecm not in ctrb_ms]
+    excluded_ind_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms]
+    run_setup = update_active_measures(run_setup,
+                                       to_active=non_ctrb_ms,
+                                       to_inactive=excluded_ind_ecms)
+    if excluded_ind_ecms:
+        excluded_ind_ecms_txt = format_console_list(excluded_ind_ecms)
+        warnings.warn("The following ECMs were selected to be prepared, but due to their"
+                      " presence in one or more packages, they will not be run individually and"
+                      " will only be included as part of the package(s):"
+                      f"\n{''.join(excluded_ind_ecms_txt)}")
+
+    # Set packages to active in run_setup
+    valid_packages = [pkg["name"] for pkg in meas_toprep_package_init]
+    run_setup = update_active_measures(run_setup, to_active=valid_packages)
+
     # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
     for m in meas_toprep_package_init:
@@ -13803,21 +13882,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         else:
             tsv_data, tsv_data_nonfs = (None for n in range(2))
 
-        # Import analysis engine setup file to write prepared ECM names
-        # to (if file does not exist, provide empty active/inactive ECM
-        # list as substitute, since file will be overwritten/created
-        # later when writing ECM data)
-        try:
-            am = open(handyfiles.run_setup, 'r')
-            try:
-                run_setup = json.load(am, object_pairs_hook=OrderedDict)
-            except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.run_setup}': {str(e)}") from None
-            am.close()
-        except FileNotFoundError:
-            run_setup = {"active": [], "inactive": []}
-
         print("Complete")
 
         # Prepare new or edited measures for use in analysis engine
@@ -13846,7 +13910,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # packages are not written out, with the exception of HVAC
         # measures in a package that the user has requested be written
         # out for eventual competition with the packages they contribute to
-        excluded_ind_ecms = []
         for m_i, m in enumerate([x for x in meas_prepped_summary]):
             is_in_package = m["name"] in ctrb_ms_pkg_prep
             is_supply_tech = m["technology_type"]["primary"][0] == "supply"
@@ -13875,19 +13938,10 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         # Measure is new (add high-level data for measure)
                         else:
                             meas_shapes.append(m_ss)
-                # Add measures to active list; exclude individual measures that
-                # are part of a package from the active list, under the
-                # assumption that competition of these measures is handled via
-                # the package measure; in a scenario where public health costs
-                # are assumed, add only the "high" health costs versions of
-                # prepared measures to active list
-                if opts.health_costs is False or "PHC-EE (high)" in m["name"]:
-                    # Measure not already in active measures list (add to list)
-                    if m["name"] not in run_setup["active"]:
-                        run_setup["active"].append(m["name"])
-                    # Measure in inactive measures list (remove name from list)
-                    if m["name"] in run_setup["inactive"]:
-                        run_setup["inactive"].remove(m["name"])
+                # Remove measures from active list; when public health costs are assumed, only
+                # the "high" health costs versions of prepared measures remain active
+                if opts.health_costs is True and "PHC-EE (high)" not in m["name"]:
+                    run_setup = update_active_measures(run_setup, to_inactive=[m["name"]])
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
@@ -13908,29 +13962,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         m_ss = meas_prepped_shapes[m_i]
                         if len(m_ss.keys()) != 0:
                             meas_shapes_env_cf.append(m_ss)
-            # Move any remaining active measures to inactive if they contribute to a package
-            elif is_in_package:
-                # Set measure to inactive
-                if m["name"] in run_setup["active"] and m["name"] not in run_setup["inactive"]:
-                    run_setup["active"].remove(m["name"])
-                    run_setup["inactive"].append(m["name"])
-                # Write measures not run individually but specified by the user
-                if m["name"] in opts.ecm_files_user and m["name"] not in run_setup["active"]:
-                    excluded_ind_ecms.append(m["name"])
-
-        if excluded_ind_ecms:
-            excluded_ind_ecms_txt = format_console_list(excluded_ind_ecms)
-            warnings.warn("The following ECMs were selected to be prepared, but due to their"
-                          " presence in one or more packages, they will not be run individually and"
-                          " will only be included as part of the package(s):"
-                          f"\n{''.join(excluded_ind_ecms_txt)}")
-
-        # Move active ECMs to inactive if they are not present in opts.ecm_files
-        package_names = [p["name"] for p in meas_toprep_package]
-        active_ms = [m for m in run_setup["active"] if m in opts.ecm_files or m in package_names]
-        inactive_ms = [m for m in run_setup["active"] if m not in active_ms]
-        run_setup["active"] = active_ms
-        run_setup["inactive"].extend(inactive_ms)
 
         # Notify user that all measure preparations are completed
         print('Writing output data...')
@@ -13978,11 +14009,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 with open(handyfiles.ecm_prep_env_cf_shapes, "w") as jso:
                     json.dump(meas_shapes_env_cf, jso, indent=2, cls=MyEncoder)
 
-        # Write any newly prepared measure names to the list of active
-        # measures to be run in the analysis engine
-        with open(handyfiles.run_setup, "w") as jso:
-            json.dump(run_setup, jso, indent=2)
-
         # Write metadata for consistent use later in the analysis engine
         with open(handyfiles.glob_vars, "w") as jso:
             glob_vars = {
@@ -13999,6 +14025,10 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
     else:
         print('No new ECM updates available')
+
+    # Write lists of active/inactive measures to be used in the analysis engine
+    with open(handyfiles.run_setup, "w") as jso:
+        json.dump(run_setup, jso, indent=2)
 
 
 if __name__ == "__main__":

@@ -580,7 +580,7 @@ def ecm_list_market_update(ecm_folder, active_list, inactive_list,
     # Work through the list of ECMs
     for ecm_file in file_list:
         # Construct file path
-        ecm_file_path = ecm_folder + '/' + ecm_file
+        ecm_file_path = ecm_folder / ecm_file
 
         # Import JSON file
         with open(ecm_file_path, 'r') as fobj:

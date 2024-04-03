@@ -7,6 +7,7 @@ from scout import run_setup
 import unittest
 from unittest.mock import patch, mock_open
 from collections import Counter
+from pathlib import Path
 import os
 import json
 import sys
@@ -834,7 +835,7 @@ class ECMListMarketSelectionUpdatingTest(CommonUnitTest):
         # Call the function to be tested and obtain the updated
         # active and inactive ECM lists output by the function
         active, inactive = run_setup.ecm_list_market_update(
-            'whatever', self.active_list, self.inactive_list,
+            Path('whatever'), self.active_list, self.inactive_list,
             filters, market_cat)
 
         # Test that both the active and inactive ECM lists are as expected
