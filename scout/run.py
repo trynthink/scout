@@ -4661,6 +4661,26 @@ class Engine(object):
         return orig_dict
 
 
+def measure_opts_match(option_dicts: list[dict]) -> bool:
+    """Checks if a list of measure options have common argument values, excluding those that
+        do not influence final results
+
+    Args:
+        option_dicts (list[dict]): List of dictionaries containing user options for measures
+
+    Returns:
+        bool: if True, then all options dicts are alike, otherwise False
+    """
+
+    ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
+                   "ecm_packages", "ecm_files_regex"]
+    keys_to_check = [key for key in option_dicts[0].keys() if key not in ignore_opts]
+    if any(opts[x] != option_dicts[0][x] for opts in option_dicts[1:] for x in keys_to_check):
+        return False
+
+    return True
+
+
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import, finalize, and write out measure savings and financial metrics.
 
@@ -4761,24 +4781,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Check to ensure that all active/valid measure definitions used consistent
     # user option settings
     try:
-        if not all([all([
-            m.usr_opts[x] == measures_objlist[0].usr_opts[x] for
-            x in measures_objlist[0].usr_opts.keys()])
-                for m in measures_objlist[1:]]):
+        if not measure_opts_match([m.usr_opts for m in measures_objlist]):
             raise ValueError(
-                "Attempting to compete measures with different user option "
-                "settings. To address this issue, ensure that all active ECMs "
-                f"in {fp.GENERATED / 'run_setup.json'} were prepared using the same command "
-                "line options, or delete the file "
-                "./supporting_data/ and rerun ecm_prep.py with "
-                "desired command line options.")
+                "Attempting to compete measures with different user option settings. To address"
+                f" this issue, ensure that all active ECMs in {fp.GENERATED / 'run_setup.json'}"
+                " were prepared using the same command line options, or delete the file"
+                " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
     except AttributeError:
         raise ValueError(
-            "One or more active ECMs lacks information needed to determine "
-            "what energy units or conversions were used in its definition. "
-            "To address this issue, delete the file "
-            "./supporting_data/ and rerun ecm_prep.py "
-            "with desired command line options.")
+            "One or more active ECMs lacks information needed to determine what energy units or"
+            " conversions were used in its definition. To address this issue, delete the file"
+            " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
 
     # Set a flag for detailed building types
     if measures_objlist[0].usr_opts["detail_brkout"] == '1':
