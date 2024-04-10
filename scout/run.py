@@ -3898,47 +3898,46 @@ class Engine(object):
                     # the stock variable; no measure-captured stock remains
                     # with base fuel under fuel switching
                     if var == "stock":
-                        adj_key = "measure"
-                        fs_eff_splt_var = 0
-                    else:
-                        adj_key = "efficient"
-                        fs_eff_splt_var = adj_out_break[
-                            "efficient fuel splits"][var][yr]
-                    # Update efficient result
-                    # Energy data may include efficient-captured tracking
-                    if var == "energy" and "efficient-captured" in \
-                        adj_out_break["switched fuel"][
-                            "energy"].keys():
-                        vs_list = ["efficient", "efficient-captured"]
-                    else:
-                        vs_list = ["efficient"]
-                    # Loop through efficient and (if applicable) efficient-
-                    # captured data and update
-                    for var_sub in vs_list:
-                        if var_sub == "efficient":
-                            # Efficient competition adjustment fraction
-                            adj_t = adj_t_e[var]
-                            # Efficient fuel splits
-                            fs_eff_splt_var = adj_out_break[
-                                "efficient fuel splits"][var][yr]
-                        elif var_sub == "efficient-captured":
-                            # Efficient-captured comp. adj. fraction
-                            adj_t = adj_t_e["energy-captured"]
-                            # Efficient fuel splits
-                            fs_eff_splt_var = adj_out_break[
-                                "efficient-captured fuel splits"][var][yr]
+                        # Update efficient result
                         adj_out_break["switched fuel"][var][
-                            var_sub][yr] = adj_out_break[
-                            "switched fuel"][var][var_sub][yr] - (
-                            adj[var]["total"][var_sub][yr]) * (
-                            1 - adj_t) * (1 - fs_eff_splt_var)
-                    if var != "stock":  # no stk breakout data
+                            "efficient"][yr] = \
+                            adj_out_break["switched fuel"][var][
+                                "efficient"][yr] - (
+                            adj[var]["total"]["measure"][yr]) * (
+                            1 - adj_t_e[var])
+                    else:
+                        # Update efficient result
+                        # Energy data may include efficient-captured tracking
+                        if var == "energy" and "efficient-captured" in \
+                            adj_out_break["switched fuel"][
+                                "energy"].keys():
+                            vs_list = ["efficient", "efficient-captured"]
+                        else:
+                            vs_list = ["efficient"]
+                        # Loop through efficient and (if applicable) efficient-
+                        # captured data and update
+                        for var_sub in vs_list:
+                            # Efficient data subject to fuel splits (some may
+                            # remain with original fuel)
+                            if var_sub == "efficient":
+                                fs_eff_splt_var = adj_out_break[
+                                    "efficient fuel splits"][var][yr]
+                            # Efficient-captured data not subject to fuel
+                            # splits (by definition all energy with
+                            # switched to fuel)
+                            else:
+                                fs_eff_splt_var = 0
+                            adj_out_break["switched fuel"][var][
+                                var_sub][yr] = adj_out_break[
+                                "switched fuel"][var][var_sub][yr] - (
+                                adj[var]["total"][var_sub][yr]) * (
+                                1 - adj_t_e[var]) * (1 - fs_eff_splt_var)
                         # Update savings result
                         adj_out_break["switched fuel"][var]["savings"][yr] = \
                             adj_out_break["switched fuel"][var][
                                 "savings"][yr] + (
                             adj[var]["total"]["efficient"][yr]) * (
-                            1 - adj_t) * (1 - adj_out_break[
+                            1 - adj_t_e[var]) * (1 - adj_out_break[
                                 "efficient fuel splits"][var][yr])
 
         # Adjust the total and competed baseline stock captured, both overall
