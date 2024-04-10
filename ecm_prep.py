@@ -4087,6 +4087,49 @@ class Measure(object):
                         contrib_mseg_key[-2] = "-RST"
                     contrib_mseg_key = tuple(contrib_mseg_key)
 
+                # In cases where an external HP conversion rate has not been
+                # imposed and the current measure applies to both non-HP
+                # heating and non-HP cooling tech., ensure that cooling
+                # segments will only be competed with cooling of other
+                # measures that apply to that same heating technology
+                # (e.g., CAC + resistance, vs. CAC + fossil-based heating,
+                # vs. HPs). NOTE: this approach assumes that any overlaps in
+                # cooling segments across these measures will be handled
+                # exogenously via market scaling fractions - for
+                # example, a measure that applies to resistance heating plus
+                # CAC cooling is constrained to 32% of CAC market and competes
+                # only with other CAC + resistance heat measures with that same
+                # constraint, while a measure that applies to fossil heating
+                # plus CAC is constrained to the remaining 68% of the CAC
+                # market and competes only with other CAC + fossil heating
+                # measures with that same constraint.
+                elif not hp_rate and ("cooling" in mskeys and "heating" in
+                                      self.end_use["primary"] and "HP" not in
+                                      mskeys[-2]):
+                    # Non-HP cooling plus resistance-based electric heating;
+                    # add resistance tag to cooling tech.
+                    if any([x in self.technology["primary"] for x in
+                            self.handyvars.resist_ht_wh_tech]):
+                        add_str = "-RST"
+                    # Non-HP cooling plus non-electric heating; add fossil
+                    # tag to cooling tech.
+                    elif any([x != "electricity" for x in
+                              self.fuel_type["primary"]]):
+                        add_str = "-Fossil"
+                    else:
+                        add_str = ""
+
+                    # Append tag to existing contributing microsegment data
+                    if add_str:
+                        contrib_mseg_key = list(contrib_mseg_key)
+                        # Tech info. is second to last mseg list element
+                        try:
+                            contrib_mseg_key[-2] += add_str
+                        # Handle Nonetype on technology
+                        except TypeError:
+                            contrib_mseg_key[-2] = add_str
+                        contrib_mseg_key = tuple(contrib_mseg_key)
+
                 # If sub-market scaling fraction is non-numeric (indicating
                 # it is not applicable to current microsegment), set to 1
                 if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
