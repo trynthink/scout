@@ -80,7 +80,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         opts.tsv_metrics = True
     if not opts.alt_regions:
         opts.alt_regions = False
-    if (opts.alt_regions != "EMM") and any([
+    if (opts.alt_regions not in ["EMM", "State"]) and any([
             x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
         opts.alt_regions = "EMM"
         # Craft custom warning message based on the option provided
@@ -159,15 +159,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         input_var[1] = {"before": "1", "after": "2"}[opts.grid_assesment_timing]
         opts.grid_decarb = input_var
         # Ensure that if alternate grid decarbonization scenario to be used,
-        # EMM regional breakouts are set (grid decarb data use this resolution)
-        if (opts.alt_regions in ["State"]):
-            opts.alt_regions = "EMM"
-            warnings.warn(
-                "WARNING: Analysis regions were set to EMM to ensure "
-                "ECM data reflect EMM regions to match alternative grid "
-                "decarbonization scenario geographical breakdown")
-        # Ensure that if alternate grid decarbonization scenario to be used,
-        # EMM regional breakouts are set (grid decarb data use this resolution)
+        # fossil fuel equivalency method not used for site-source conversion
         if opts.captured_energy is True:
             opts.captured_energy = False
             warnings.warn(

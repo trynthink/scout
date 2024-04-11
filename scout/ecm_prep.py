@@ -79,14 +79,16 @@ class UsefulInputFiles(object):
             state-resolved, to assign in certain cases to non-fuel switching
             microsegments under high grid decarb case.
         tsv_load_data (tuple): Time sensitive energy demand data.
-        tsv_cost_data (tuple): Time sensitive electricity price data.
-        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data.
+        tsv_cost_data (tuple): Time sensitive electricity price data, EMM- or
+            state-resolved.
+        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data, 
+            EMM- or state-resolved.
         tsv_cost_data_nonfs (tuple): Time sensitive electricity price data to
             assign in certain cases to non-fuel switching microsegments under
-            high grid decarb case.
+            high grid decarb case, EMM- or state-resolved.
         tsv_carbon_data_nonfs (tuple): Time sensitive average CO2 emissions
             data to assign in certain cases to non-fuel switching microsegments
-            under high grid decarb case.
+            under high grid decarb case, EMM- or state-resolved.
         tsv_shape_data (tuple): Custom hourly savings shape data.
         tsv_metrics_data_tot (tuple): Total system load data by EMM region.
         tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
@@ -128,10 +130,22 @@ class UsefulInputFiles(object):
                     self.ss_data_altreg = (
                         fp.CONVERT_DATA /
                         "emm_region_emissions_prices-100by2035.json")
+                    self.tsv_cost_data = (
+                        fp.TSV_DATA / 
+                        "tsv_cost-emm-100by2035.json")
+                    self.tsv_carbon_data = (
+                        fp.TSV_DATA / 
+                        "tsv_carbon-emm-100by2035.json")
                 else:
                     self.ss_data_altreg = (
                         fp.CONVERT_DATA /
                         "emm_region_emissions_prices-95by2050.json")
+                    self.tsv_cost_data = (
+                        fp.TSV_DATA / 
+                        "tsv_cost-emm-95by2050.json")
+                    self.tsv_carbon_data = (
+                        fp.TSV_DATA / 
+                        "tsv_carbon-emm-95by2050.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures before grid decarbonization
                 if opts.grid_decarb[1] == "1":
@@ -141,11 +155,15 @@ class UsefulInputFiles(object):
                     if opts.alt_ref_carb is True:
                         self.ss_data_altreg_nonfs = (
                             fp.CONVERT_DATA /
-                            "emm_region_emissions_prices-MidCaseTCExp.json")
+                            "emm_region_emissions_prices-MidCase.json")
                     else:
                         self.ss_data_altreg_nonfs = (
                             fp.CONVERT_DATA /
                             "emm_region_emissions_prices.json")
+                    self.tsv_cost_data_nonfs = (
+                        fp.TSV_DATA / "tsv_cost-emm-MidCase.json")
+                    self.tsv_carbon_data_nonfs = (
+                        fp.TSV_DATA / "tsv_carbon-emm-MidCase.json")
                 # Case where the user assesses emissions/cost reductions for
                 # non-fuel switching measures after grid decarbonization
                 else:
@@ -156,27 +174,86 @@ class UsefulInputFiles(object):
                 if opts.alt_ref_carb is True:
                     self.ss_data_altreg = (
                         fp.CONVERT_DATA /
-                        "emm_region_emissions_prices-MidCaseTCExp.json")
+                        "emm_region_emissions_prices-MidCase.json")
                 else:
                     self.ss_data_altreg = (
                         fp.CONVERT_DATA /
                         "emm_region_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
+            self.tsv_cost_data_nonfs = (
+                    fp.TSV_DATA / "tsv_cost-emm-MidCase.json")
+            self.tsv_carbon_data_nonfs = (
+                    fp.TSV_DATA / "tsv_carbon-emm-MidCase.json")
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
-            # Ensure that state-level regions are not being used alongside
-            # a high grid decarbonization scenario (incompatible currently)
+            # Toggle State emissions and price data based on whether or not
+            # a grid decarbonization scenario is used
             if opts.grid_decarb is not False:
-                raise ValueError("Unsupported regional breakout for "
-                                 "use with alternate grid decarbonization "
-                                 "scenario (" + opts.alt_regions + ")")
+                # Set either an extreme or moderate grid decarbonization case,
+                # depending on what the user selected; extreme is based on
+                # Standard Scenarios 100x2035, moderate is based on Standard
+                # Scenarios 95x2050
+                if opts.grid_decarb[0] == "1":
+                    self.ss_data_altreg = (
+                        fp.CONVERT_DATA /
+                        "state_emissions_prices-100by2035.json")
+                    self.tsv_cost_data = (
+                        fp.TSV_DATA / 
+                        "tsv_cost-state-100by2035.json")
+                    self.tsv_carbon_data = (
+                        fp.TSV_DATA / 
+                        "tsv_carbon-state-100by2035.json")
+                else:
+                    self.ss_data_altreg = (
+                        fp.CONVERT_DATA /
+                        "state_emissions_prices-95by2050.json")
+                    self.tsv_cost_data = (
+                        fp.TSV_DATA / 
+                        "tsv_cost-state-95by2050.json")
+                    self.tsv_carbon_data = (
+                        fp.TSV_DATA / 
+                        "tsv_carbon-state-95by2050.json")
+                # Case where the user assesses emissions/cost reductions for
+                # non-fuel switching measures before grid decarbonization
+                if opts.grid_decarb[1] == "1":
+                    # Case where Standard Scenarios Mid Case (with tax credit
+                    # phaseout) is used to set baseline emissions factors (vs.
+                    # AEO)
+                    if opts.alt_ref_carb is True:
+                        self.ss_data_altreg_nonfs = (
+                            fp.CONVERT_DATA /
+                            "state_emissions_prices-MidCase.json")
+                    else:
+                        self.ss_data_altreg_nonfs = (
+                            fp.CONVERT_DATA /
+                            "state_emissions_prices.json")
+                    self.tsv_cost_data_nonfs = (
+                        fp.TSV_DATA / "tsv_cost-state-MidCase.json")
+                    self.tsv_carbon_data_nonfs = (
+                        fp.TSV_DATA / "tsv_carbon-state-MidCase.json")
+                # Case where the user assesses emissions/cost reductions for
+                # non-fuel switching measures after grid decarbonization
+                else:
+                    self.ss_data_altreg_nonfs = None
             else:
-                self.ss_data_altreg = (fp.CONVERT_DATA /
-                                       "state_emissions_prices.json")
+                # Case where Standard Scenarios Mid Case (with tax credit
+                # phaseout is used to set baseline emissions factors (vs. AEO)
+                if opts.alt_ref_carb is True:
+                    self.ss_data_altreg = (
+                        fp.CONVERT_DATA /
+                        "state_emissions_prices-MidCase.json")
+                else:
+                    self.ss_data_altreg = (
+                        fp.CONVERT_DATA /
+                        "state_emissions_prices.json")
                 self.ss_data_altreg_nonfs = None
+            self.tsv_cost_data = (fp.TSV_DATA / 
+                                  "tsv_cost-state-MidCase.json")
+            self.tsv_carbon_data = (fp.TSV_DATA / 
+                                    "tsv_carbon-state-MidCase.json")
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -206,13 +283,13 @@ class UsefulInputFiles(object):
             if opts.grid_decarb[0] == "1":
                 self.ss_data = (
                     fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json")
-                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-100by2035.json"
-                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-100by2035.json"
+                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-emm-100by2035.json"
+                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-emm-100by2035.json"
             else:
                 self.ss_data = (
                     fp.CONVERT_DATA / "site_source_co2_conversions-95by2050.json")
-                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-95by2050.json"
-                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-95by2050.json"
+                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-emm-95by2050.json"
+                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-emm-95by2050.json"
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures before grid decarbonization
             if opts.grid_decarb[1] == "1":
@@ -221,12 +298,12 @@ class UsefulInputFiles(object):
                 if opts.alt_ref_carb is True:
                     self.ss_data_nonfs = (
                         fp.CONVERT_DATA /
-                        "site_source_co2_conversions-MidCaseTCExp.json")
+                        "site_source_co2_conversions-MidCase.json")
                 else:
                     self.ss_data_nonfs = (
                         fp.CONVERT_DATA / "site_source_co2_conversions.json")
-                self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
-                self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
+                self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-emm-MidCase.json"
+                self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-emm-MidCase.json"
             # Case where the user assesses emissions/cost reductions for
             # non-fuel switching measures after grid decarbonization
             else:
@@ -243,12 +320,12 @@ class UsefulInputFiles(object):
                 if opts.alt_ref_carb is True:
                     self.ss_data = (
                         fp.CONVERT_DATA /
-                        "site_source_co2_conversions-MidCaseTCExp.json")
+                        "site_source_co2_conversions-MidCase.json")
                 else:
                     self.ss_data = (
                         fp.CONVERT_DATA / "site_source_co2_conversions.json")
-            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
-            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
+            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-emm-MidCase.json"
+            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-emm-MidCase.json"
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
         self.tsv_load_data = fp.TSV_DATA / "tsv_load.json"
@@ -2088,10 +2165,10 @@ class Measure(object):
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
-            # If TSV features are present, ensure that EMM regions are selected
-            # and that the measure only applies to electricity (and no fuel
-            # switching is selected)
-            if self.usr_opts["alt_regions"] != "EMM":
+            # If TSV features are present, ensure that EMM regions or states 
+            # are selected and that the measure only applies to electricity 
+            # (and no fuel switching is selected)
+            if self.usr_opts["alt_regions"] not in ["EMM", "State"]:
                 raise ValueError(
                     "Measure '" + self.name + "' has time sensitive "
                     "assessment features (see 'tsv_features' attribute) but "
