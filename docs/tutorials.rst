@@ -1295,6 +1295,8 @@ Batches of configuration files can also be run with the use of the run_batch.py 
 
    python3 scout/run_batch.py --batch <config_directory>
 
+To minimize redundant data processing, configuration files sharing identical ecm_prep arguments are consolidated into groups. Artifacts produced by ecm_prep.py are then stored in directories labeled as |html-filepath| generated/batch_run<n> |html-fp-end|, where <n> increments with each group. Additionally, each configuration file is copied into its respective group directory.
+
 Final results for each scenario are written to the directory specified in the run.py ``--results_directory`` argument (see :ref:`Tutorial 5 <tuts-5-cmd-opts>`), or are defaulted to a directory matching the configuration file name within the |html-filepath| ./results |html-fp-end| folder. Because this module runs both core Scout modules (ecm_prep.py and run.py), Tutorials 3-6 are not relevent if running with run_batch.py.
 
 .. _tuts-3:
