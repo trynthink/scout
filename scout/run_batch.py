@@ -5,6 +5,7 @@ from scout.ecm_prep_args import ecm_args
 from scout import ecm_prep, run
 from argparse import ArgumentParser
 import logging
+import shutil
 LogConfig.configure_logging()
 logger = logging.getLogger(__name__)
 
@@ -99,10 +100,11 @@ class BatchRun():
         for ct, yml_grp in enumerate(yml_grps):
 
             # Set custom generated directory for each group, write .txt file to document the ymls
-            fp.set_paths({"GENERATED": fp.GENERATED / f"temp{ct}"})
+            fp.set_paths({"GENERATED": fp.GENERATED / f"batch_run{ct+1}"})
             paths = [yml.resolve().as_posix() for yml in yml_grp]
-            with open(fp.GENERATED / "config_files.txt", "w") as f:
-                f.write("\n".join(paths))
+
+            for yml_file in paths:
+                shutil.copy(yml_file, fp.GENERATED)
 
             # Set list of ecms and run ecm_prep.main()
             ecm_prep_opts = ecm_args(["-y", str(yml_grp[0].resolve())])
