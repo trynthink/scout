@@ -4053,39 +4053,36 @@ class Measure(object):
                 else:
                     hp_rate = None
 
-                # For cases where the measure is switching fossil-based
-                # or resistance heating and associated cooling to a HP or
-                # resistance-based WH to a HP and an external HP conversion
-                # rate has been imposed, append an '-FS' or '-RST' to the
+                # For cases that represent exogenous rates of switching away
+                # from baseline technologies to HPs (or other electric tech.
+                # like induction cooking), add additional info. to the
                 # contributing microsegment tech. information needed for ECM
                 # competition; this will ensure that the mseg is only competed
-                # with other measures of the same type
-
-                # Cases where measure is converting fossil-based heating or
-                # water heating and associated cooling to HP
-                if hp_rate and self.fuel_switch_to == "electricity":
-                    contrib_mseg_key = list(contrib_mseg_key)
-                    # Tech info. is second to last mseg list element
-                    try:
-                        contrib_mseg_key[-2] += "-FS"
-                    # Handle Nonetype on technology
-                    except TypeError:
-                        contrib_mseg_key[-2] = "-FS"
-                    contrib_mseg_key = tuple(contrib_mseg_key)
-                # Cases where measure is converting resistance-based heating
-                # and associated cooling or WH to HP
-                elif hp_rate and any(
-                        [x in self.technology["primary"] for x in
-                         self.handyvars.resist_ht_wh_tech]) and \
-                        "electricity" in mskeys:
-                    contrib_mseg_key = list(contrib_mseg_key)
-                    # Tech info. is second to last mseg list element
-                    try:
-                        contrib_mseg_key[-2] += "-RST"
-                    # Handle Nonetype on technology
-                    except TypeError:
-                        contrib_mseg_key[-2] = "-RST"
-                    contrib_mseg_key = tuple(contrib_mseg_key)
+                # with other msegs with the same exogenous constraints
+                if hp_rate:
+                    # Exogenous rates, measure switching from fossil fuel (e.g.
+                    # gas furnace to HP)
+                    if self.fuel_switch_to == "electricity":
+                        add_str = "-fossil-exg-switch"
+                    # Exogenous rates for only measure technology switching
+                    # (e.g., electric resistance-based to HP)
+                    elif self.tech_switch_to not in [None, "NA"]:
+                        add_str = "-elec-exg-switch"
+                    # Exogenous rates for like-for-like baseline technology
+                    # replacement measure
+                    else:
+                        # Resistance-based heating and associated cooling,
+                        # resistance-based water heating, or electric cooking
+                        # or drying
+                        if any([x in self.technology["primary"] for x in
+                                self.handyvars.resist_ht_wh_tech]) or (
+                                "electricity" in mskeys and any(
+                                    [x in mskeys for x in ["cooking",
+                                                           "drying"]])):
+                            add_str = "elec-exg-base"
+                        # Fossil-based baseline technology mseg
+                        else:
+                            add_str = "fossil-exg-base"
 
                 # In cases where an external HP conversion rate has not been
                 # imposed and the current measure applies to both non-HP
@@ -4110,25 +4107,30 @@ class Measure(object):
                     # add resistance tag to cooling tech.
                     if any([x in self.technology["primary"] for x in
                             self.handyvars.resist_ht_wh_tech]):
-                        add_str = "-RST"
+                        add_str = "-resist-heat"
                     # Non-HP cooling plus non-electric heating; add fossil
                     # tag to cooling tech.
                     elif any([x != "electricity" for x in
                               self.fuel_type["primary"]]):
-                        add_str = "-Fossil"
+                        add_str = "-fossil-heat"
+                    # HP cooling plus heating; leave mseg as-is
                     else:
                         add_str = ""
+                # In all other cases, no need to add further mseg info. (allow
+                # mseg to be competed as-is)
+                else:
+                    add_str = ""
 
-                    # Append tag to existing contributing microsegment data
-                    if add_str:
-                        contrib_mseg_key = list(contrib_mseg_key)
-                        # Tech info. is second to last mseg list element
-                        try:
-                            contrib_mseg_key[-2] += add_str
-                        # Handle Nonetype on technology
-                        except TypeError:
-                            contrib_mseg_key[-2] = add_str
-                        contrib_mseg_key = tuple(contrib_mseg_key)
+                # Append additional tag to existing mseg information
+                if add_str:
+                    contrib_mseg_key = list(contrib_mseg_key)
+                    # Tech info. is second to last mseg list element
+                    try:
+                        contrib_mseg_key[-2] += add_str
+                    # Handle Nonetype on technology
+                    except TypeError:
+                        contrib_mseg_key[-2] = add_str
+                    contrib_mseg_key = tuple(contrib_mseg_key)
 
                 # If sub-market scaling fraction is non-numeric (indicating
                 # it is not applicable to current microsegment), set to 1
@@ -8912,9 +8914,10 @@ class Measure(object):
                 # converted stock that was competed in the current year
 
                 # Case where the measure's microsegment is being added to
-                # by the HP conversion (e.g., electric ASHP or HPWH measure)
-                if (self.fuel_switch_to == "electricity" or
-                        "electricity" in mskeys):
+                # by the HP conversion (e.g., electric ASHP or HPWH measure
+                # that switches from fossil- or resistance-based equipment)
+                if (self.fuel_switch_to == "electricity" or (
+                        self.tech_switch_to not in [None, "NA"])):
                     # Cumulative fraction converted to HPs
                     diffuse_frac = stock_total_hp_convert_frac
                     # Fraction of total converted stock that was
@@ -8925,7 +8928,8 @@ class Measure(object):
                     else:
                         comp_frac_diffuse = 0
                 # Case where the measure's microsegment is being eroded
-                # by the pre-determined conversion to HPs (e.g. gas efficiency)
+                # by the pre-determined conversion to HPs (e.g. gas efficiency
+                # or baseline resistance heating tech.)
                 else:
                     # Cumulative fraction remaining after conversion to HPs
                     diffuse_frac = (1 - stock_total_hp_convert_frac)
