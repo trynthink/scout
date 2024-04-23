@@ -2201,10 +2201,10 @@ class Measure(object):
                     # Restrict shape data to that of the current end use
                     css_dat_eu = css_dat[
                         numpy.in1d(css_dat["End_Use"], eu)]
-                    # Translate "drying" key to "clothes drying" to be
-                    # consistent with what's in tsv_load
-                    if eu_key == "drying":
-                        eu_key = "clothes drying"
+                    # # Translate "drying" key to "clothes drying" to be
+                    # # consistent with what's in tsv_load
+                    # if eu_key == "drying":
+                    #     eu_key = "clothes drying"
                     # Initialize dict under the current end use key
                     css_dict[eu_key] = {}
                     # Find all unique building types and climate zones in
@@ -6577,7 +6577,7 @@ class Measure(object):
                         elif mskeys[4] == "drying":
                             eu = "clothes drying"
                         # Other end use maps to various load shapes
-                        elif mskeys[4] == "other":
+                        elif mskeys[4] in ["other", "unspecified"]:
                             # Dishwasher technology maps to dishwasher
                             if mskeys[5] == "dishwasher":
                                 eu = "dishwasher"
@@ -6586,10 +6586,10 @@ class Measure(object):
                                 eu = "clothes washing"
                             # Pool heaters maps to pool heaters
                             elif mskeys[5] == "pool heaters":
-                                eu = "pool heaters"
+                                eu = "pool heater"
                             # Pool pumps map to pool pumps
                             elif mskeys[5] == "pool pumps":
-                                eu = "pool pumps"
+                                eu = "pool pump"
                             # Freezers map to refrigeration
                             elif mskeys[5] == "freezers":
                                 eu = "refrigeration"
@@ -6610,7 +6610,7 @@ class Measure(object):
                         # For commercial PCs/non-PC office equipment and MELs,
                         # use the load shape for plug loads
                         if mskeys[4] in ["PCs", "non-PC office equipment",
-                                         "MELs", "cooking"]:
+                                         "MELs", "cooking", "unspecified"]:
                             eu = "plug loads"
                         # In all other cases, error
                         else:
@@ -7024,27 +7024,29 @@ class Measure(object):
                         load_fact_bldg_key]["load shape"]
                 # Ensure that retrieved baseline load data are expected length
                 if len(base_load_hourly) != 8760:
-                    raise ValueError(
-                        "Baseline load data are of unexpected length " +
-                        "(" + str(len(base_load_hourly)) + " elements) for " +
-                        "end use " + mskeys[4] + ", EPlus building type " +
-                        bldg + ", and region " + mskeys[1] + ". Check "
-                        "file ./supporting_data/tsv_data/tsv_load_[region].gz"
-                        " to ensure that 8760 data values are available for "
-                        "this microsegment")
+                    warnings.warn(
+                        "Baseline load data are of unexpected length ("
+                        f"{len(base_load_hourly)} elements) for end use {mskeys[4]}, "
+                        f"EPlus building type {bldg}, and region {mskeys[1]}."
+                        "Check file ./supporting_data/tsv_data/tsv_load_[region].gz "
+                        "to ensure that 8760 data values are available for "
+                        "this microsegment. Setting base load values to zero.")
+                    # Set unexpected length to 8760 zeros and continue
+                    base_load_hourly = [0] * 8760
                 # Ensure that retrieved baseline load data sum to 1, unless
                 # the data are all zeros (occurs for mobile homes in DC in
                 # 2024 end use load data)
-                elif round(sum(base_load_hourly), 2) != 1 and any([
+                elif round(numpy.nansum(base_load_hourly), 2) != 1 and any([
                         x != 0 for x in base_load_hourly]):
-                    raise ValueError(
-                        "Baseline load data do not sum to 1 " +
-                        "(" + str(round(sum(base_load_hourly), 2)) + ") for " +
-                        "end use " + mskeys[4] + ", EPlus building type " +
-                        bldg + ", and region " + mskeys[1] + ". Check "
-                        "file ./supporting_data/tsv_data/tsv_load_[region].gz"
-                        " to ensure that 8760 values are correct for "
-                        "this microsegment")
+                    warnings.warn(
+                        "Baseline load data do not sum to 1 ("
+                        f"{round(sum(base_load_hourly), 2)}) for end use {mskeys[4]}, "
+                        f"EPlus building type {bldg}, and region {mskeys[1]}."
+                        "Check file ./supporting_data/tsv_data/tsv_load_[region].gz "
+                        "to ensure that 8760 values are correct for "
+                        "this microsegment. Setting base load values to zero.")
+                    # Set unexpected value to 8760 zeros and continue
+                    base_load_hourly = [0] * 8760
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = copy.deepcopy(base_load_hourly)
@@ -7294,8 +7296,7 @@ class Measure(object):
                             if len(custom_hr_save_shape) == 0 or sum(
                                     custom_hr_save_shape[
                                         "CSV base frac. annual"]) == 0:
-                                verboseprint(
-                                    opts.verbose,
+                                warnings.warn(
                                     "Measure '" + self.name + "', requires "
                                     "custom savings shape data, but none were "
                                     "found or all values were zero for the "
@@ -7507,23 +7508,13 @@ class Measure(object):
                         self.handyvars.tsv_metrics_data["hourly index"]] for
                         x in [base_load_hourly, eff_load_hourly]]
 
-                    # Sum across all 8760 hourly baseline and efficient load
-                    # values to arrive at final factor used to rescale
-                    # annually-determined energy totals
-                    energy_scale_base += numpy.sum([
-                        x * emm_adj_wt for x in base_load_hourly])
-                    energy_scale_eff += numpy.sum([
-                        x * emm_adj_wt for x in eff_load_hourly])
-                else:
-                    # If no tsv metrics are specified, annually-determined
-                    # baseline energy total requires no rescaling (8760
-                    # baseline hourly values sum to 1)
-                    energy_scale_base = 1
-                    # Sum across all 8760 hourly efficient load values
-                    # to arrive at final factor used to rescale annually-
-                    # determined energy totals
-                    energy_scale_eff += numpy.sum([
-                        x * emm_adj_wt for x in eff_load_hourly])
+                # Sum across all 8760 hourly baseline and efficient load
+                # values to arrive at final factor used to rescale
+                # annually-determined energy totals
+                energy_scale_base += numpy.sum([
+                    x * emm_adj_wt for x in base_load_hourly])
+                energy_scale_eff += numpy.sum([
+                    x * emm_adj_wt for x in eff_load_hourly])
 
         # Finalize carbon/cost scaling factor variables, but only if
         # either measure TSV features are present or the user desires
