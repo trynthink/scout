@@ -386,77 +386,108 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # to reach the desired metric type
     if opts.tsv_metrics is True:
         # Determine the desired output type (change in energy, power)
-        output_type = input(
-            "\nEnter the type of time-sensitive metric desired "
-            "(1 = change in energy (e.g., multiple hour GWh), "
-            "2 = change in power (e.g., single hour GW)): ")
+        output_type = 0
+        while output_type not in ['1', '2']:
+            output_type = input(
+                "\nEnter the type of time-sensitive metric desired "
+                "(1 = change in energy (e.g., multiple hour GWh), "
+                "2 = change in power (e.g., single hour GW)): ")
+            if output_type not in ['1', '2']:
+                print('Please try again. Enter either 1 or 2. '
+                      'Use ctrl-c to exit.')
 
         # Determine the hourly range to restrict results to (24h, peak, take)
-        hours = input(
-            "Enter the daily hour range to restrict to (1 = all hours, "
-            "2 = peak demand period hours, 3 = low demand period hours): ")
+        hours = 0
+        while hours not in ['1', '2', '3']:
+            hours = input(
+                "Enter the daily hour range to restrict to (1 = all hours, "
+                "2 = peak demand period hours, 3 = low demand period hours): ")
+            if hours not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
 
         # If peak/take hours are chosen, determine whether total or net
         # system shapes should be used to determine the hour ranges
         if hours == '2' or hours == '3':
-            sys_shape = input(
-                "Enter the basis for determining peak or low demand hour "
-                "ranges: 1 = total system load (reference case), 2 = total "
-                "system load (high renewables case), 3 = total system load "
-                "net renewables (reference case), 4 = total system load "
-                "net renewables (high renewables case): "
-            )
+            sys_shape = 0
+            while sys_shape not in ['1', '2', '3', '4']:
+                sys_shape = input(
+                    "Enter the basis for determining peak or low demand hour "
+                    "ranges: 1 = total system load (reference case), 2 = total "
+                    "system load (high renewables case), 3 = total system load "
+                    "net renewables (reference case), 4 = total system load "
+                    "net renewables (high renewables case): "
+                )
+                if sys_shape not in ['1', '2', '3', '4']:
+                    print('Please try again. Enter 1, 2, 3, or 4. '
+                          'Use ctrl-c to exit.')
         else:
             sys_shape = '0'
 
         # Determine the season to restrict results to (summer, winter,
         # intermediate)
-        season = input(
-            "Enter the desired season of focus (1 = summer, "
-            "2 = winter, 3 = intermediate): ")
+        season = 0
+        while season not in ['1', '2', '3']:
+            season = input(
+                "Enter the desired season of focus (1 = summer, "
+                "2 = winter, 3 = intermediate): ")
+            if season not in ['1', '2', '3']:
+                print('Please try again. Enter 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
 
         # Determine desired calculations (dependent on output type) for given
         # flexibility mode, output type, and temporal boundaries
 
-        # Energy output case (multiple hours)
-        if output_type == '1':
-            # Sum/average energy change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across all "
-                    "hours, 2 = daily average): ")
-            # Sum/average energy change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across peak "
-                    "hours, 2 = daily peak period average): ")
-            # Sum/average energy change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = sum across low demand "
-                    "hours, 2 = daily low demand period average): ")
-        # Power output case (single hour)
-        else:
-            # Max/average power change across all hours
-            if hours == '1':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day maximum, "
-                    "2 = daily hourly average): ")
-            # Max/average power change across peak hours
-            elif hours == '2':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, peak period "
-                    "maximum, 2 = daily peak period hourly average): ")
-            # Max/average power change across take hours
-            elif hours == '3':
-                calc_type = input(
-                    "Enter calculation type (1 = peak day, low demand period "
-                    "maximum, 2 = daily low demand period hourly average): ")
+        calc_type = 0
+        while calc_type not in ['1', '2']:
+            # Energy output case (multiple hours)
+            if output_type == '1':
+                # Sum/average energy change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across all "
+                        "hours, 2 = daily average): ")
+                # Sum/average energy change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across peak "
+                        "hours, 2 = daily peak period average): ")
+                # Sum/average energy change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = sum across low demand "
+                        "hours, 2 = daily low demand period average): ")
+            # Power output case (single hour)
+            else:
+                # Max/average power change across all hours
+                if hours == '1':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day maximum, "
+                        "2 = daily hourly average): ")
+                # Max/average power change across peak hours
+                elif hours == '2':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, peak period "
+                        "maximum, 2 = daily peak period hourly average): ")
+                # Max/average power change across take hours
+                elif hours == '3':
+                    calc_type = input(
+                        "Enter calculation type (1 = peak day, low "
+                        "demand period maximum, 2 = daily low demand period "
+                        "hourly average): ")
+            if calc_type not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                      'Use ctrl-c to exit.')
         # Determine the day type to average over (if needed)
         if output_type == '1' or calc_type == '2':
-            day_type = input(
-                "Enter day type to calculate across (1 = all days, "
-                "2 = weekdays, 3 = weekends): ")
+            day_type = 0
+            while day_type not in ['1', '2', '3']:
+                day_type = input(
+                    "Enter day type to calculate across (1 = all days, "
+                    "2 = weekdays, 3 = weekends): ")
+                if day_type not in ['1', '2', '3']:
+                    print('Please try again. Enter 1, 2, or 3. '
+                      'Use ctrl-c to exit.')
         else:
             day_type = "0"
 

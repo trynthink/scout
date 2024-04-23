@@ -6658,7 +6658,7 @@ class Measure(object):
                         elif mskeys[4] == "drying":
                             eu = "clothes drying"
                         # Other end use maps to various load shapes
-                        elif mskeys[4] in ["other"]:
+                        elif mskeys[4] in ["other", "unspecified"]:
                             # Dishwasher technology maps to dishwasher
                             if mskeys[5] == "dishwasher":
                                 eu = "dishwasher"
@@ -6691,7 +6691,7 @@ class Measure(object):
                         # For commercial PCs/non-PC office equipment and MELs,
                         # use the load shape for plug loads
                         if mskeys[4] in ["PCs", "non-PC office equipment",
-                                         "MELs", "cooking"]:
+                                         "MELs", "cooking", "unspecified"]:
                             eu = "plug loads"
                         # In all other cases, error
                         else:
@@ -7103,14 +7103,27 @@ class Measure(object):
                         load_fact_bldg_key]["load shape"]
                 # Ensure that retrieved baseline load data are expected length
                 if len(base_load_hourly) != 8760:
-                    raise ValueError(
+                    warnings.warn(
                         "Baseline load data are of unexpected length " +
-                        "(" + str(len(base_load_hourly)) + " elements) for " +
-                        "end use " + mskeys[4] + ", EPlus building type " +
-                        bldg + ", and EMM region " + mskeys[1] + ". Check "
+                        "(" + str(len(base_load_hourly)) + " elements) for "
+                        + "end use " + mskeys[4] + ", technology " +
+                        mskeys[-2] + ", EPlus building type " + bldg +
+                        ", and EMM region " + mskeys[1] + ". Check "
                         "file ./supporting_data/tsv_data/tsv_load.gz to "
-                        "ensure that 8760 data values are available for this "
-                        "microsegment")
+                        "ensure that valid 8760 data values are available for "
+                        "this microsegment. Setting base load values to zero.")
+                    # Set unexpected length to 8760 zeros and continue
+                    base_load_hourly = [0] * 8760
+                elif not all([numpy.isfinite(x) for x in base_load_hourly]):
+                    warnings.warn("NaNs found in baseline load data for "
+                        + "end use " + mskeys[4] + ", technology " +
+                        mskeys[-2] + ", EPlus building type " + bldg +
+                        ", and EMM region " + mskeys[1] + ". Check "
+                        "file ./supporting_data/tsv_data/tsv_load.gz to "
+                        "ensure that valid 8760 data values are available for "
+                        "this microsegment. Setting base load values to zero.")
+                    # Set unexpected value to 8760 zeros and continue
+                    base_load_hourly = [0] * 8760
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = copy.deepcopy(base_load_hourly)
@@ -7360,8 +7373,7 @@ class Measure(object):
                             if len(custom_hr_save_shape) == 0 or sum(
                                     custom_hr_save_shape[
                                         "CSV base frac. annual"]) == 0:
-                                verboseprint(
-                                    opts.verbose,
+                                warnings.warn(
                                     "Measure '" + self.name + "', requires "
                                     "custom savings shape data, but none were "
                                     "found or all values were zero for the "
