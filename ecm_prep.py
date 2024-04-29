@@ -2165,14 +2165,6 @@ class Measure(object):
         if self.market_entry_year is None or (int(
                 self.market_entry_year) < int(self.handyvars.aeo_years[0])):
             self.market_entry_year = int(self.handyvars.aeo_years[0])
-        # If a global year by which an elevated performance floor is
-        # implemented has been imposed by the user and no measures with
-        # typical/BAU efficiency are represented on the market, assume that
-        # all measures begin showing market impacts in that year
-        if self.usr_opts["floor_start"] is not None and \
-            self.usr_opts["add_typ_eff"] is False and \
-                self.market_entry_year < self.usr_opts["floor_start"]:
-            self.market_entry_year = self.usr_opts["floor_start"]
         # Reset measure market exit year if None or later than max. year
         if self.market_exit_year is None or (int(
                 self.market_exit_year) > (int(
@@ -3870,20 +3862,108 @@ class Measure(object):
                     else:
                         no_stk_mseg = ""
 
-                # If applicable, determine the rate of conversion from baseline
-                # equipment to heat pumps (including fuel switching cases and
-                # same fuel replacements of e.g., resistance heating/WH).
+                # Flag whether exogenous HP rates apply to current mseg.
                 # Assume only heating, secondary heating, water heating, and
                 # cooking end uses are covered by these exogenous rates, and
                 # ensure that these rates are only assessed for equipment
                 # microsegments (e.g., they do not apply to envelope component
-                # heating energy msegs); equipment cooling microsegments that
-                # are linked with the heating microsegments are subject to the
-                # rates; set to None otherwise
-                if self.handyvars.hp_rates and "demand" not in mskeys and (any(
-                    [x in mskeys for x in ["secondary heating", "heating",
-                                           "water heating", "cooking"]]) or (
+                # heating energy msegs); are only assessed for switching to HPs
+                # or the non-switching alternative (e.g., are not assessed for
+                # like-for-like HP replacements); non-HP equipment cooling
+                # microsegments that are linked with the heating microsegments
+                # are also subject to the rates; set to None otherwise
+                if self.handyvars.hp_rates and "demand" not in mskeys and \
+                    (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
+                        x in mskeys for x in [
+                            "secondary heating", "heating",
+                            "water heating", "cooking"]]) or (
                         link_htcl_fs_rates and "cooling" in mskeys)):
+                    hp_rate_flag = True
+                else:
+                    hp_rate_flag = ""
+
+                # For cases that represent exogenous rates of switching away
+                # from baseline technologies to HPs (or other electric tech.
+                # like induction cooking), add additional info. to the
+                # contributing microsegment tech. information needed for ECM
+                # competition; this will ensure that the mseg is only competed
+                # with other msegs with the same exogenous constraints
+                if hp_rate_flag:
+                    # Exogenous rates, measure switching from fossil fuel (e.g.
+                    # gas furnace to HP)
+                    if self.fuel_switch_to == "electricity":
+                        comp_tag_add = "-fossil-exg-switch"
+                    # Exogenous rates for only measure technology switching
+                    # (e.g., electric resistance-based to HP)
+                    elif self.tech_switch_to not in [None, "NA"]:
+                        comp_tag_add = "-elec-exg-switch"
+                    # Exogenous rates for like-for-like baseline technology
+                    # replacement measure
+                    else:
+                        # Resistance-based heating and associated cooling,
+                        # resistance-based water heating, or electric cooking
+                        # or drying
+                        if any([x in self.technology["primary"] for x in
+                                self.handyvars.resist_ht_wh_tech]) or (
+                                "electricity" in mskeys and any(
+                                    [x in mskeys for x in ["cooking",
+                                                           "drying"]])):
+                            comp_tag_add = "-elec-exg-base"
+                        # Fossil-based baseline technology mseg
+                        else:
+                            comp_tag_add = "-fossil-exg-base"
+                # In cases where an external HP conversion rate has not been
+                # imposed and the current measure applies to both non-HP
+                # heating and non-HP cooling tech., ensure that cooling
+                # segments will only be competed with cooling of other
+                # measures that apply to that same heating technology
+                # (e.g., CAC + resistance, vs. CAC + fossil-based heating,
+                # vs. HPs). NOTE: this approach assumes that any overlaps in
+                # cooling segments across these measures will be handled
+                # exogenously via market scaling fractions - for
+                # example, a measure that applies to resistance heating plus
+                # CAC cooling is constrained to 32% of CAC market and competes
+                # only with other CAC + resistance heat measures with that same
+                # constraint, while a measure that applies to fossil heating
+                # plus CAC is constrained to the remaining 68% of the CAC
+                # market and competes only with other CAC + fossil heating
+                # measures with that same constraint.
+                elif not hp_rate_flag and (
+                    "cooling" in mskeys and "heating" in self.end_use[
+                        "primary"] and "HP" not in mskeys[-2]):
+                    # Non-HP cooling plus resistance-based electric heating;
+                    # add resistance tag to cooling tech.
+                    if any([x in self.technology["primary"] for x in
+                            self.handyvars.resist_ht_wh_tech]):
+                        comp_tag_add = "-resist-heat"
+                    # Non-HP cooling plus non-electric heating; add fossil
+                    # tag to cooling tech.
+                    elif any([x != "electricity" for x in
+                              self.fuel_type["primary"]]):
+                        comp_tag_add = "-fossil-heat"
+                    # HP cooling plus heating; leave mseg as-is
+                    else:
+                        comp_tag_add = ""
+                # In all other cases, no need to add further mseg info. (allow
+                # mseg to be competed as-is)
+                else:
+                    comp_tag_add = ""
+
+                # Append additional competition tag to existing mseg info.
+                if comp_tag_add:
+                    contrib_mseg_key = list(contrib_mseg_key)
+                    # Tech info. is second to last mseg list element
+                    try:
+                        contrib_mseg_key[-2] += comp_tag_add
+                    # Handle Nonetype on technology
+                    except TypeError:
+                        contrib_mseg_key[-2] = comp_tag_add
+                    contrib_mseg_key = tuple(contrib_mseg_key)
+
+                # If applicable, determine the rate of conversion from baseline
+                # equipment to heat pumps (including fuel switching cases and
+                # same fuel replacements of e.g., resistance heating/WH).
+                if hp_rate_flag:
                     # Map secondary heating end use to heating HP switch rates
                     if mskeys[4] == "secondary heating":
                         hp_eu_key = "heating"
@@ -3932,7 +4012,7 @@ class Measure(object):
                                 # rates; attach cooling scaling to NG rates (
                                 # NG most prevalent fossil-based heating
                                 # technology)
-                                elif self.fuel_switch_to == "electricity":
+                                elif "fossil" in comp_tag_add:
                                     # Separately handle different bldg. types
                                     if bldg_sect == "residential":
                                         try:
@@ -3970,9 +4050,7 @@ class Measure(object):
                                 # msegs attached to electric resistance heating
                                 # msegs that are subject to the HP rates should
                                 # be subject to the same rates
-                                elif self.fuel_switch_to is None and (
-                                    mskeys[-2] is not None and
-                                        "HP" not in mskeys[-2]):
+                                elif "elec" in comp_tag_add:
                                     # Separately handle different bldg. types
                                     if bldg_sect == "residential":
                                         try:
@@ -4052,85 +4130,6 @@ class Measure(object):
                                 hp_rate = None
                 else:
                     hp_rate = None
-
-                # For cases that represent exogenous rates of switching away
-                # from baseline technologies to HPs (or other electric tech.
-                # like induction cooking), add additional info. to the
-                # contributing microsegment tech. information needed for ECM
-                # competition; this will ensure that the mseg is only competed
-                # with other msegs with the same exogenous constraints
-                if hp_rate:
-                    # Exogenous rates, measure switching from fossil fuel (e.g.
-                    # gas furnace to HP)
-                    if self.fuel_switch_to == "electricity":
-                        add_str = "-fossil-exg-switch"
-                    # Exogenous rates for only measure technology switching
-                    # (e.g., electric resistance-based to HP)
-                    elif self.tech_switch_to not in [None, "NA"]:
-                        add_str = "-elec-exg-switch"
-                    # Exogenous rates for like-for-like baseline technology
-                    # replacement measure
-                    else:
-                        # Resistance-based heating and associated cooling,
-                        # resistance-based water heating, or electric cooking
-                        # or drying
-                        if any([x in self.technology["primary"] for x in
-                                self.handyvars.resist_ht_wh_tech]) or (
-                                "electricity" in mskeys and any(
-                                    [x in mskeys for x in ["cooking",
-                                                           "drying"]])):
-                            add_str = "elec-exg-base"
-                        # Fossil-based baseline technology mseg
-                        else:
-                            add_str = "fossil-exg-base"
-
-                # In cases where an external HP conversion rate has not been
-                # imposed and the current measure applies to both non-HP
-                # heating and non-HP cooling tech., ensure that cooling
-                # segments will only be competed with cooling of other
-                # measures that apply to that same heating technology
-                # (e.g., CAC + resistance, vs. CAC + fossil-based heating,
-                # vs. HPs). NOTE: this approach assumes that any overlaps in
-                # cooling segments across these measures will be handled
-                # exogenously via market scaling fractions - for
-                # example, a measure that applies to resistance heating plus
-                # CAC cooling is constrained to 32% of CAC market and competes
-                # only with other CAC + resistance heat measures with that same
-                # constraint, while a measure that applies to fossil heating
-                # plus CAC is constrained to the remaining 68% of the CAC
-                # market and competes only with other CAC + fossil heating
-                # measures with that same constraint.
-                elif not hp_rate and ("cooling" in mskeys and "heating" in
-                                      self.end_use["primary"] and "HP" not in
-                                      mskeys[-2]):
-                    # Non-HP cooling plus resistance-based electric heating;
-                    # add resistance tag to cooling tech.
-                    if any([x in self.technology["primary"] for x in
-                            self.handyvars.resist_ht_wh_tech]):
-                        add_str = "-resist-heat"
-                    # Non-HP cooling plus non-electric heating; add fossil
-                    # tag to cooling tech.
-                    elif any([x != "electricity" for x in
-                              self.fuel_type["primary"]]):
-                        add_str = "-fossil-heat"
-                    # HP cooling plus heating; leave mseg as-is
-                    else:
-                        add_str = ""
-                # In all other cases, no need to add further mseg info. (allow
-                # mseg to be competed as-is)
-                else:
-                    add_str = ""
-
-                # Append additional tag to existing mseg information
-                if add_str:
-                    contrib_mseg_key = list(contrib_mseg_key)
-                    # Tech info. is second to last mseg list element
-                    try:
-                        contrib_mseg_key[-2] += add_str
-                    # Handle Nonetype on technology
-                    except TypeError:
-                        contrib_mseg_key[-2] = add_str
-                    contrib_mseg_key = tuple(contrib_mseg_key)
 
                 # If sub-market scaling fraction is non-numeric (indicating
                 # it is not applicable to current microsegment), set to 1
@@ -7257,7 +7256,8 @@ class Measure(object):
                     # Set unexpected length to 8760 zeros and continue
                     base_load_hourly = [0] * 8760
                 elif not all([numpy.isfinite(x) for x in base_load_hourly]):
-                    warnings.warn("NaNs found in baseline load data for "
+                    warnings.warn(
+                        "NaNs found in baseline load data for "
                         + "end use " + mskeys[4] + ", technology " +
                         mskeys[-2] + ", EPlus building type " + bldg +
                         ", and EMM region " + mskeys[1] + ". Check "
@@ -9598,7 +9598,7 @@ class Measure(object):
                 energy_tot_uncomp_meas + energy_tot_uncomp_base
             # Total-efficient-captured energy (if not suppressed by user)
             if eff_capt:
-                energy_total_eff_capt[yr] = energy_compete_eff[yr] + \
+                energy_total_eff_capt[yr] = energy_tot_comp_meas + \
                     energy_tot_uncomp_meas
 
             # Re-apportion total efficient microsegment energy across all 8760
@@ -13962,9 +13962,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     # Check for whether a reference case analogue measure
                     # should be added (user option is present, measure is in
                     # ESTAR/IECC/90.1 tier, measure applies to equipment
-                    # not envelope components, and either the
-                    # measure does not switch equipment types or it switches
-                    # and exogenous switching rates are not used)
+                    # not envelope components
                     if opts is not None and opts.add_typ_eff is True and \
                         any([x in meas_dict["name"] for x in [
                             "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and (
@@ -13972,8 +13970,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                   and all([x in handyvars.demand_tech for
                                            x in meas_dict["technology"]])) or
                                  meas_dict["technology"] in
-                                 handyvars.demand_tech)) and (
-                            not tech_swtch or opts.exog_hp_rates is False):
+                                 handyvars.demand_tech)):
                         add_ref_meas = True
                     else:
                         add_ref_meas = ""
