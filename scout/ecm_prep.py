@@ -4215,7 +4215,7 @@ class Measure(object):
                 else:
                     hp_rate = None
 
-               # If sub-market scaling fraction is non-numeric (indicating
+                # If sub-market scaling fraction is non-numeric (indicating
                 # it is not applicable to current microsegment), set to 1
                 if mkt_scale_frac is None or isinstance(mkt_scale_frac, dict):
                     mkt_scale_frac = 1
