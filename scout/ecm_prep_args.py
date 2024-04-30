@@ -200,6 +200,8 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
 
     # Set detailed breakout options
     if opts.detail_brkout:
+        if "all" in opts.detail_brkout:
+            opts.detail_brkout = ["buildings", "fuel types", "regions"]
         input_var_dict = {
             ("buildings", "fuel types", "regions"): "1",
             ("regions",): "2",
