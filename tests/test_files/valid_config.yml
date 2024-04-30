@@ -17,8 +17,8 @@ ecm_prep:
     exog_hp_rate_scenario: aggressive
     switch_all_retrofit_hp: false
   grid_decarb:
-    grid_decarb_level: full
-    grid_assesment_timing: after
+    grid_decarb_level: 100by2035
+    grid_assessment_timing: after
   tsv_metrics:
     tsv_type: energy
     tsv_daily_hr_restrict: all

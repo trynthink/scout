@@ -8,9 +8,12 @@ ecm_prep:
     scenario, otherwise both scenarios will be used. Allowed values
     are {Max adoption potential, Technical potential, null}. Default
     null
-  alt_ref_carb: (boolean) If true, set the baseline electricity
-    emissions intensities to be consistent with the Standard Scenarios
-    Mid Case (rather than AEO). Default False
+  alt_ref_carb: (string) Specify alternate reference grid scnenario
+    for baseline electricity emissions intensities (rather than
+    AEO). 'MidCaseTCExpire' refers to the Standard Scenarios Mid
+    Case and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual
+    scenario. Allowed values are {DECARB-bau, MidCaseTCExpire,
+    null}. Default null
   alt_regions: (string) Specify an alternative region breakdown.
     Allowed values are {AIA, EMM, State}. Default EMM
   captured_energy: (boolean) If true, enable captured energy calculation.
@@ -61,16 +64,23 @@ ecm_prep:
     Allowed values are 0 or more of {low-gwp refrigerant, methane,
     typical refrigerant}. Default []
   grid_decarb:
-    grid_assesment_timing: (string, required if the grid_decarb
+    grid_assessment_timing: (string, required if the grid_decarb
       key is present) When to assess avoided emissions and costs
       from non-fuel switching measures relative to the additional
-      grid decarbonization. Allowed values are {after, before,
-      null}. Default null
+      grid decarbonization. Only applicable if `grid_decarb_level`
+      is provided. Allowed values are {after, before, null}. Default
+      null
     grid_decarb_level: (string, required if the grid_decarb key
-      is present) Enable grid decarbonization - `0.8` represents
-      80 percent reduced grid emissions from current levels by
-      2050, and `full` represents full grid decarbonization by
-      2035. Allowed values are {0.8, full, null}. Default null
+      is present) Enable grid decarbonization - `95by2050` represents
+      95 percent reduced grid emissions from current levels by
+      2050 and `100by2035` represents 100 percent grid decarbonization
+      by 2035. 'DECARB' options were produced as part of EERE's
+      DECARB initiative; `DECARB-mid` represents 97 percent grid
+      decarbonization by 2050, and `DECARB-high` represents 100
+      percent grid decarbonization by 2035. Only applicable if
+      `grid_assessment_timing` is also provided. Allowed values
+      are {100by2035, 95by2050, DECARB-high, DECARB-mid, null}.
+      Default null
   health_costs: (boolean) If true, enable health costs. Requires
     alt_regions to be set to `EMM`. Default False
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary

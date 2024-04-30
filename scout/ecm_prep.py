@@ -99,12 +99,10 @@ class UsefulInputFiles(object):
     def __init__(self, opts):
         if opts.alt_regions == 'AIA':
             # UNCOMMENT WITH ISSUE 188
-            # self.msegs_in = (fp.STOCK_ENERGY /
-            #                  "mseg_res_com_cz_2017.json")
-            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
+            # self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz_2017.json"
             # UNCOMMENT WITH ISSUE 188
-            # self.msegs_cpl_in = (fp.STOCK_ENERGY /
-            #                      "cpl_res_com_cz_2017.json")
+            # self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz_2017.json"
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
             self.iecc_reg_map = (
                 fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt")
@@ -117,70 +115,16 @@ class UsefulInputFiles(object):
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_EMM_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
-            # Toggle EMM emissions and price data based on whether or not
-            # a grid decarbonization scenario is used
-            if opts.grid_decarb is not False:
-                # Set either an extreme or moderate grid decarbonization case,
-                # depending on what the user selected; extreme is based on
-                # Standard Scenarios 100x2035, moderate is based on Standard
-                # Scenarios 95x2050
-                if opts.grid_decarb[0] == "1":
-                    self.ss_data_altreg = (
-                        fp.CONVERT_DATA /
-                        "emm_region_emissions_prices-100by2035.json")
-                else:
-                    self.ss_data_altreg = (
-                        fp.CONVERT_DATA /
-                        "emm_region_emissions_prices-95by2050.json")
-                # Case where the user assesses emissions/cost reductions for
-                # non-fuel switching measures before grid decarbonization
-                if opts.grid_decarb[1] == "1":
-                    # Case where Standard Scenarios Mid Case (with tax credit
-                    # phaseout) is used to set baseline emissions factors (vs.
-                    # AEO)
-                    if opts.alt_ref_carb is True:
-                        self.ss_data_altreg_nonfs = (
-                            fp.CONVERT_DATA /
-                            "emm_region_emissions_prices-MidCaseTCExp.json")
-                    else:
-                        self.ss_data_altreg_nonfs = (
-                            fp.CONVERT_DATA /
-                            "emm_region_emissions_prices.json")
-                # Case where the user assesses emissions/cost reductions for
-                # non-fuel switching measures after grid decarbonization
-                else:
-                    self.ss_data_altreg_nonfs = None
-            else:
-                # Case where Standard Scenarios Mid Case (with tax credit
-                # phaseout is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
-                    self.ss_data_altreg = (
-                        fp.CONVERT_DATA /
-                        "emm_region_emissions_prices-MidCaseTCExp.json")
-                else:
-                    self.ss_data_altreg = (
-                        fp.CONVERT_DATA /
-                        "emm_region_emissions_prices.json")
-                self.ss_data_altreg_nonfs = None
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
-            # Ensure that state-level regions are not being used alongside
-            # a high grid decarbonization scenario (incompatible currently)
-            if opts.grid_decarb is not False:
-                raise ValueError("Unsupported regional breakout for "
-                                 "use with alternate grid decarbonization "
-                                 "scenario (" + opts.alt_regions + ")")
-            else:
-                self.ss_data_altreg = (fp.CONVERT_DATA /
-                                       "state_emissions_prices.json")
-                self.ss_data_altreg_nonfs = None
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
 
+        self.set_decarb_grid_vars(opts)
         self.metadata = fp.METADATA_PATH
         self.glob_vars = fp.GENERATED / "glob_run_vars.json"
         # UNCOMMENT WITH ISSUE 188
@@ -198,59 +142,6 @@ class UsefulInputFiles(object):
         self.ecm_eff_fs_splt_data = fp.EFF_FS_SPLIT
         self.run_setup = fp.GENERATED / "run_setup.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
-        # Use the user-specified grid decarb flag to determine
-        # which site-source conversions file to select
-        if opts.grid_decarb is not False:
-            # Set either an extreme or moderate grid decarbonization case,
-            # depending on what the user selected
-            if opts.grid_decarb[0] == "1":
-                self.ss_data = (
-                    fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json")
-                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-100by2035.json"
-                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-100by2035.json"
-            else:
-                self.ss_data = (
-                    fp.CONVERT_DATA / "site_source_co2_conversions-95by2050.json")
-                self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-95by2050.json"
-                self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-95by2050.json"
-            # Case where the user assesses emissions/cost reductions for
-            # non-fuel switching measures before grid decarbonization
-            if opts.grid_decarb[1] == "1":
-                # Case where Standard Scenarios Mid Case (with tax credit
-                # phaseout)is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
-                    self.ss_data_nonfs = (
-                        fp.CONVERT_DATA /
-                        "site_source_co2_conversions-MidCaseTCExp.json")
-                else:
-                    self.ss_data_nonfs = (
-                        fp.CONVERT_DATA / "site_source_co2_conversions.json")
-                self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
-                self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
-            # Case where the user assesses emissions/cost reductions for
-            # non-fuel switching measures after grid decarbonization
-            else:
-                self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
-                    self.tsv_carbon_data_nonfs = (None for n in range(3))
-        else:
-            # Use the user-specified captured energy method flag to determine
-            # which site-source conversions file to select
-            if opts.captured_energy is True:
-                self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
-            else:
-                # Case where Standard Scenarios Mid Case (with tax credit
-                # phaseout) is used to set baseline emissions factors (vs. AEO)
-                if opts.alt_ref_carb is True:
-                    self.ss_data = (
-                        fp.CONVERT_DATA /
-                        "site_source_co2_conversions-MidCaseTCExp.json")
-                else:
-                    self.ss_data = (
-                        fp.CONVERT_DATA / "site_source_co2_conversions.json")
-            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-MidCaseTCExp.json"
-            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-MidCaseTCExp.json"
-            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
-                self.tsv_carbon_data_nonfs = (None for n in range(3))
         self.tsv_load_data = fp.TSV_DATA / "tsv_load.json"
         self.tsv_shape_data = (
             fp.ECM_DEF / "energyplus_data" / "savings_shapes")
@@ -261,6 +152,82 @@ class UsefulInputFiles(object):
         self.health_data = fp.CONVERT_DATA / "epa_costs.csv"
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
+
+    def set_decarb_grid_vars(self, opts):
+        def get_suffix(arg):
+            if arg is None:
+                return ''
+            else:
+                return f"-{arg}"
+        alt_ref_carb_suffix = get_suffix(opts.alt_ref_carb)
+        grid_decarb_level_suffix = get_suffix(opts.grid_decarb_level)
+        # Toggle EMM emissions and price data based on whether or not a grid decarbonization
+        # scenario is used
+        if opts.alt_regions == 'EMM':
+            emission_var_map = {}  # Map UsefulInputFiles instance vars to filenames suffixes
+            if opts.grid_decarb_level:
+                # Set grid decarbonization case
+                emission_var_map["ss_data_altreg"] = grid_decarb_level_suffix
+            else:
+                # Set baseline emissions factors
+                emission_var_map["ss_data_altreg"] = alt_ref_carb_suffix
+                self.ss_data_altreg_nonfs = None
+            if opts.grid_assessment_timing and opts.grid_assessment_timing == "before":
+                # Set emissions/cost reductions for non-fuel switching measures before grid
+                # decarbonization
+                emission_var_map["ss_data_altreg_nonfs"] = alt_ref_carb_suffix
+            elif (not opts.grid_decarb or
+                    (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
+                # Set emissions/cost reductions for non-fuel switching measures after grid
+                # decarbonization
+                self.ss_data_altreg_nonfs = None
+            # Set filepaths for EMM region emissions prices
+            for var, filesuffix in emission_var_map.items():
+                filepath = fp.CONVERT_DATA / f"emm_region_emissions_prices{filesuffix}.json"
+                setattr(self, var, filepath)
+        # Ensure that state-level regions are not being used alongside a high grid
+        # decarbonization scenario (incompatible currently)
+        elif opts.alt_regions == 'State':
+            if opts.grid_decarb:
+                raise ValueError("Unsupported regional breakout for use with alternate grid"
+                                 f" decarbonization scenario ({opts.alt_regions})")
+            else:
+                self.ss_data_altreg = fp.CONVERT_DATA / "state_emissions_prices.json"
+                self.ss_data_altreg_nonfs = None
+
+        # Set site-source conversions files for grid decarbonization case
+        if opts.grid_decarb:
+            # Update tsv data file suffixes for DECARB levels
+            if "DECARB" in grid_decarb_level_suffix:
+                grid_decarb_level_suffix = {"-DECARB-mid": "-95by2050",
+                                            "-DECARB-high": "-100by2035"}[grid_decarb_level_suffix]
+            self.ss_data = (fp.CONVERT_DATA /
+                            f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
+            self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost{grid_decarb_level_suffix}.json"
+            self.tsv_carbon_data = fp.TSV_DATA / f"tsv_carbon{grid_decarb_level_suffix}.json"
+
+        # Set site-source conversions for non-fuel switching measures before grid decarbonization
+        if opts.grid_assessment_timing and opts.grid_assessment_timing == "before":
+            self.ss_data_nonfs = (fp.CONVERT_DATA /
+                                  f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
+            self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-MidCaseTCExpire.json"
+            self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-MidCaseTCExpire.json"
+        # Set site-source conversions for non-fuel switching measures after grid decarbonization
+        elif (not opts.grid_decarb or
+                (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
+                self.tsv_carbon_data_nonfs = (None for n in range(3))
+
+        # Set site-source conversions for captured energy method
+        if opts.captured_energy:
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
+        elif not opts.grid_decarb:
+            self.ss_data = (fp.CONVERT_DATA /
+                            f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
+            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-MidCaseTCExpire.json"
+            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-MidCaseTCExpire.json"
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
+                self.tsv_carbon_data_nonfs = (None for n in range(3))
 
 
 class UsefulVars(object):
