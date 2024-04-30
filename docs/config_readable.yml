@@ -20,8 +20,9 @@ ecm_prep:
     Default False
   detail_brkout: (array) List of options by which to breakout
     results. The `fuel types` option is only valid if the split_fuel
-    argument is set to false. Allowed values are 0 or more of
-    {buildings, fuel types, regions}. Default []
+    argument is set to false. The `all` option selects all three
+    breakout categories. Allowed values are 0 or more of {all,
+    buildings, fuel types, regions}. Default []
   ecm_directory: (string) Directory containing ECM definitions
     and savings shapes (if applicable). The directory path can
     be absolute or relative to either the configuration file (.yml)
