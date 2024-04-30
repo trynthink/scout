@@ -15,7 +15,7 @@ ecm_prep:
   no_scnd_lgt: false
   floor_start: null
   pkg_env_costs: null
-  alt_ref_carb: false
+  alt_ref_carb: null
   adopt_scn_restrict: null
   add_typ_eff: false
   pkg_env_sep: false
@@ -34,7 +34,7 @@ ecm_prep:
     switch_all_retrofit_hp: false
   grid_decarb:
     grid_decarb_level: null
-    grid_assesment_timing: null
+    grid_assessment_timing: null
   retrofits:
     retrofit_type: null
     retrofit_multiplier: null

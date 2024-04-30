@@ -138,22 +138,22 @@ properties:
             description: If true, assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
 
       alt_ref_carb:
-        type: boolean
-        default: false
-        description: If true, set the baseline electricity emissions intensities to be consistent with the Standard Scenarios Mid Case (rather than AEO).
+        type: ["string", "null"]
+        enum: [MidCaseTCExpire, DECARB-bau, null]
+        description: Specify alternate reference grid scnenario for baseline electricity emissions intensities (rather than AEO). 'MidCaseTCExpire' refers to the Standard Scenarios Mid Case and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual scenario.
 
       grid_decarb:
         type: object
-        required: [grid_decarb_level, grid_assesment_timing]
+        required: [grid_decarb_level, grid_assessment_timing]
         properties:
           grid_decarb_level:
             type: ["string", "null"]
-            enum: ["0.8", full, null]
-            description: Enable grid decarbonization - `0.8` represents 80 percent reduced grid emissions from current levels by 2050, and `full` represents full grid decarbonization by 2035.
-          grid_assesment_timing:
+            enum: [95by2050, 100by2035, DECARB-mid, DECARB-high, null]
+            description: Enable grid decarbonization - `95by2050` represents 95 percent reduced grid emissions from current levels by 2050 and `100by2035` represents 100 percent grid decarbonization by 2035. 'DECARB' options were produced as part of EERE's DECARB initiative; `DECARB-mid` represents 97 percent grid decarbonization by 2050, and `DECARB-high` represents 100 percent grid decarbonization by 2035. Only applicable if `grid_assessment_timing` is also provided.
+          grid_assessment_timing:
             type: ["string", "null"]
             enum: [before, after, null]
-            description: When to assess avoided emissions and costs from non-fuel switching measures relative to the additional grid decarbonization.
+            description: When to assess avoided emissions and costs from non-fuel switching measures relative to the additional grid decarbonization. Only applicable if `grid_decarb_level` is provided.
 
       adopt_scn_restrict:
         type: ["string", "null"]

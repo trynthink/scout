@@ -149,11 +149,8 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
 
     # Set grid decarbonization scenario and how electricity emissions and
     # cost factors should be handled
-    if opts.grid_decarb_level and opts.grid_assesment_timing:
-        input_var = [0, 0]
-        input_var[0] = {"full": "1", "0.8": "2"}[opts.grid_decarb_level]
-        input_var[1] = {"before": "1", "after": "2"}[opts.grid_assesment_timing]
-        opts.grid_decarb = input_var
+    if opts.grid_decarb_level and opts.grid_assessment_timing:
+        opts.grid_decarb = True
         # Ensure that if alternate grid decarbonization scenario to be used,
         # EMM regional breakouts are set (grid decarb data use this resolution)
         if opts.alt_regions == "State":
@@ -172,6 +169,10 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                 "site-source conversion factors not compatible with alternate "
                 "grid decarbonization scenario")
     else:
+        if opts.grid_decarb_level or opts.grid_assessment_timing:
+            warnings.warn(
+                    "WARNING: Both `grid_decarb_level` and `grid_assessment_timing` arguments "
+                    "must be set run alternate grid decarbonization scenarios.")
         opts.grid_decarb = False
 
     # Set time-sensitive efficiency values

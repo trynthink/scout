@@ -274,9 +274,9 @@ class Config:
                 raise ValueError(
                     "`tsv_average_days` must be specified if `tsv_power_agg` is 'average'.")
 
-            if bool(args.grid_decarb_level) ^ bool(args.grid_assesment_timing):
+            if bool(args.grid_decarb_level) ^ bool(args.grid_assessment_timing):
                 raise ValueError(
-                    "Both `grid_decarb_level` and `grid_assesment_timing` must be provided if"
+                    "Both `grid_decarb_level` and `grid_assessment_timing` must be provided if"
                     " assessing grid decarbonization")
 
             # detailed breakout
