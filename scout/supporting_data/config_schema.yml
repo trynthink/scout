@@ -11,7 +11,7 @@ properties:
       ecm_directory:
         type: ["string", "null"]
         default: null
-        description: Directory containing ECM definitions and savings shapes (if applicable). If not provided, ./ecm_definitions will be used.
+        description: Directory containing ECM definitions and savings shapes (if applicable). The directory path can be absolute or relative to either the configuration file (.yml) or the command line path, depending on where the argument is assigned. If not provided, ./ecm_definitions will be used.
 
       ecm_files:
         type: ["array", "null"]
@@ -209,7 +209,7 @@ properties:
       results_directory:
         type: ["string", "null"]
         default: null
-        description: Directory to output results.
+        description: Directory in which to output results. The directory path can be absolute or relative to either the configuration file (.yml) or the command line path, depending on where the argument is assigned. If not provided, ./results will be used.
       verbose:
         type: boolean
         default: false

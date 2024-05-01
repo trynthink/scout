@@ -12,8 +12,7 @@ ecm_prep:
     emissions intensities to be consistent with the Standard Scenarios
     Mid Case (rather than AEO). Default False
   alt_regions: (string) Specify an alternative region breakdown.
-    If none selected, AIA will be used. Allowed values are {AIA,
-    EMM, State, null}. Default EMM
+    Allowed values are {AIA, EMM, State}. Default EMM
   captured_energy: (boolean) If true, enable captured energy calculation.
     Default False
   detail_brkout: (array) List of options by which to breakout
@@ -21,8 +20,11 @@ ecm_prep:
     argument is set to false. Allowed values are 0 or more of
     {buildings, fuel types, regions}. Default []
   ecm_directory: (string) Directory containing ECM definitions
-    and savings shapes (if applicable). If not provided, ./ecm_definitions
-    will be used. Default null
+    and savings shapes (if applicable). The directory path can
+    be absolute or relative to either the configuration file (.yml)
+    or the command line path, depending on where the argument
+    is assigned. If not provided, ./ecm_definitions will be used.
+    Default null
   ecm_files: (array) Specify a subset of ECM definitions in the
     ECM directory. Values must contain exact matches to the ECM
     definition file names in `ecm_directory`, excluding the file
@@ -140,8 +142,11 @@ run:
     fractions. Default False
   report_stk: (boolean) If true, report baseline/measure stock
     data. Default False
-  results_directory: (string) Directory to output results. Default
-    null
+  results_directory: (string) Directory in which to output results.
+    The directory path can be absolute or relative to either the
+    configuration file (.yml) or the command line path, depending
+    on where the argument is assigned. If not provided, ./results
+    will be used. Default null
   trim_results: (boolean) If true, reduce results file size. Default
     False
   verbose: (boolean) If true, print all warnings to stdout. Default
