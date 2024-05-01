@@ -17,7 +17,7 @@ class TestBatchRun(unittest.TestCase):
         return str(Path(*path.parts[-levels:])).replace("\\", "/")
 
     def test_yml_groups(self):
-        # Test ymls are grouped by commen ecm_prep args
+        # Test ymls are grouped by common ecm_prep args
         yml_grps = self.batch_run.group_common_configs(self.yml_dir)
         yml_grp_names = [[yml.name for yml in yml_grp] for yml_grp in yml_grps]
         expected_grps = [['config1.yml', 'config2.yml'], ['config3.yml']]
@@ -25,7 +25,7 @@ class TestBatchRun(unittest.TestCase):
         self.assertEqual(yml_grp_names, expected_grps, yml_grp_names)
 
     def test_ecm_concat(self):
-        # Test retrieval of ecms from numerous ymls
+        # Test retrieval of ECMs from numerous ymls
         ecm_list = self.batch_run.get_ecm_files(self.yml_files)
         expected_ecms = ['Best Com. ASHP, Env., PC (EE+DF-FS)',
                          'Best Com. ASHP, Env., PC (EE+DF-FS) CC',

@@ -1641,6 +1641,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             # Generate cost effectiveness figure
             plt.tight_layout()
             plt.savefig(plot_file_name_finmets, bbox_inches='tight')
+            plt.close()
 
             # Append Excel data, excluding the first two rows (uncompeted
             # 'All ECMs' results, which are not meaningful)

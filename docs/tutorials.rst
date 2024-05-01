@@ -702,7 +702,7 @@ Finally, it is possible to define ECMs that combine multiple time sensitive feat
         "start_hour": 16, "stop_hour": 20}
     ...}
 
-In this example, the first feature will represent baseline load shedding between the hours of 4--8 PM on all winter days, while the second feature will shift baseline loads occuring between 4--8 PM to the hours of 12--4 PM on all summer days.
+In this example, the first feature will represent baseline load shedding between the hours of 4--8 PM on all winter days, while the second feature will shift baseline loads occurring between 4--8 PM to the hours of 12--4 PM on all summer days.
 
 .. _ecm-example-com-multiple:
 
@@ -1263,7 +1263,7 @@ Arguments to the ecm_prep.py and run.py scripts can be defined using a .yml conf
 
 Writing configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To get started writing a configuration file, users can reference the `sample configuration file`_ found on the Scout repository, which serves as a valid configuration file pre-filled with default values. Update any relevent fields required to configure a custom scenario, any unchanged arguments can be left as is or deleted. Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file.
+To get started writing a configuration file, users can reference the `sample configuration file`_ found on the Scout repository, which serves as a valid configuration file pre-filled with default values. Update any relevant fields required to configure a custom scenario; any unchanged arguments can be left as is or deleted. Shown below is an easily readable version of the Scout yaml schema; this reflects information shown when running ecm_prep.py and run.py with ``--help``, but also shows the expected structure of an input yaml file.
 
 .. literalinclude:: config_readable.yml
   :language: YAML
@@ -1285,7 +1285,7 @@ Scout will parse the .yml file and write arguments for each script, provided the
 
 Running with multiple configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Batches of configuration files can also be run with the use of the run_batch.py module. This automatically runs both ecm_prep.py and run.py for a set of configuration files stored in a common directory. To utilize this feature, first generate any number of configuration files (i.e., scenarios) and store them in a common directory of any name. To run the scenarios, enter the following command line argument, where <config_directory> refers to the directory containing the set configuration files:
+Batches of configuration files can also be run using the run_batch.py module. This automatically runs both ecm_prep.py and run.py for a set of configuration files stored in a common directory. To utilize this feature, first generate any number of configuration files (i.e., scenarios) and store them in a common directory of any name. To run the scenarios, enter the following command line argument, where <config_directory> refers to the directory containing the set configuration files:
 
 **Windows** ::
 
@@ -1297,7 +1297,7 @@ Batches of configuration files can also be run with the use of the run_batch.py 
 
 To minimize redundant data processing, configuration files sharing identical ecm_prep arguments are consolidated into groups. Artifacts produced by ecm_prep.py are then stored in directories labeled as |html-filepath| generated/batch_run<n> |html-fp-end|, where <n> increments with each group. Additionally, each configuration file is copied into its respective group directory.
 
-Final results for each scenario are written to the directory specified in the run.py ``--results_directory`` argument (see :ref:`Tutorial 5 <tuts-5-cmd-opts>`), or are defaulted to a directory matching the configuration file name within the |html-filepath| ./results |html-fp-end| folder. Because this module runs both core Scout modules (ecm_prep.py and run.py), Tutorials 3-6 are not relevent if running with run_batch.py.
+Final results for each scenario are written to the directory specified in the run.py ``--results_directory`` argument (see :ref:`Tutorial 5 <tuts-5-cmd-opts>`), or are defaulted to a directory matching the configuration file name within the |html-filepath| ./results |html-fp-end| folder. Because this module runs both core Scout modules (ecm_prep.py and run.py), Tutorials 3-6 are not relevant if running with run_batch.py.
 
 .. _tuts-3:
 
@@ -1397,7 +1397,7 @@ Detailed results breakouts
 High electric grid decarbonization
 **********************************
 
-``--grid_decarb_level`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a more aggressive decarbonization pathway for the electric grid than is assumed in the default `AEO Reference Case`_. When this argument is passed, the user must specify either "0.8" or "full" to define the additonal grid decarbonization scenario. The "0.8" option represents a scenario in which remaining grid emissions are reduced 80% by 2050, while "full" represents a scenario in which remaining grid emissions are reduced to zero by 2035.
+``--grid_decarb_level`` selects versions of annual and hourly electricity emissions and price inputs that are consistent with a more aggressive decarbonization pathway for the electric grid than is assumed in the default `AEO Reference Case`_. When this argument is passed, the user must specify either "0.8" or "full" to define the additional grid decarbonization scenario. The "0.8" option represents a scenario in which remaining grid emissions are reduced 80% by 2050, while "full" represents a scenario in which remaining grid emissions are reduced to zero by 2035.
 
 ``--grid_assessment_timing`` selects whether avoided emissions and costs from non-fuel switching measures should be assessed *before* or *after* accounting for additional grid decarbonization beyond the Reference Case, by specifying either "before" or "after" with this argument. Avoided emissions and costs for fuel switching measures will always be assessed *after* accounting for additional grid decarbonization beyond the Reference Case.
 

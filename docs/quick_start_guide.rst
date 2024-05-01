@@ -46,7 +46,7 @@ Open a Terminal window (Mac) [#]_ or command prompt (Windows) [#]_ and navigate 
 
 4. Run using project configuration file(s) (optional)
 -----------------------------------------------------
-Scout scnearios can be defined by directly passing arguments to Python scripts, or with the use of a .yml configuration file, which stores argument values in a consistent, trackable manner. This approach also provides the benefit of storing argument values to both core modules of Scout, ecm_prep.py and run.py. Guidance on creating configuration files is found in :ref:`tuts-2`. To run a single scenario, enter the following command line arguments, where <my_config.yml> refers to a custom configuration file:
+Scout scenarios can be defined by directly passing arguments to Python scripts, or with the use of a .yml configuration file, which stores argument values in a consistent, trackable manner. This configuration file approach also provides the benefit of storing argument values for both core modules of Scout—ecm_prep.py and run.py—in one place. Guidance on creating configuration files is found in :ref:`tuts-2`. To run a single scenario, enter the following command line arguments, where <my_config.yml> refers to a custom configuration file:
 
 **Windows** ::
 
@@ -59,7 +59,7 @@ Scout scnearios can be defined by directly passing arguments to Python scripts, 
    python3 scout/run.py --yaml <my_config.yml>
 
 .. note::
-   If running scenarios with a configuration file, then steps 4-6 in the Quick Start Guide are not needed.
+   If running scenarios with a configuration file, then steps 5-7 in the Quick Start Guide are not needed.
 
 Running multiple configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

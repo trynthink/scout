@@ -92,7 +92,7 @@ class BatchRun():
 
     def run_batch(self):
         """Run ecm_prep.py and run.py using 1 or more configuration files. Configuration files
-            are first grouped together if they have commone ecm_prep arguments and ecm_prep.main()
+            are first grouped together if they have common ecm_prep arguments and ecm_prep.main()
             is run for each group. run.main() is then run for each individual configuration file.
         """
 
@@ -106,7 +106,7 @@ class BatchRun():
             for yml_file in paths:
                 shutil.copy(yml_file, fp.GENERATED)
 
-            # Set list of ecms and run ecm_prep.main()
+            # Set list of ECMs and run ecm_prep.main()
             ecm_prep_opts = ecm_args(["-y", str(yml_grp[0].resolve())])
             ecm_prep_opts.ecm_files = self.get_ecm_files(yml_grp)
             ecm_prep_opts.ecm_directory = None
