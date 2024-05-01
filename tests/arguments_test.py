@@ -271,7 +271,7 @@ class TestConfig(unittest.TestCase, Utils):
     def test_invalid_yml_schema(self):
         # Check that invalid values/keys in the yml schema yield expected exceptions
         args_update = {"ecm_prep": {"alt_regions": "invalid"}}
-        expected_err = "'invalid' is not one of ['EMM', 'State', 'AIA', None]"
+        expected_err = "'invalid' is not one of ['EMM', 'State', 'AIA']"
         self._check_schema_err(expected_err, args_update)
 
         args_update = {

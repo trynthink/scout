@@ -6,7 +6,7 @@ ecm_prep:
   ecm_packages: []
   site_energy: false
   captured_energy: false
-  alt_regions: null
+  alt_regions: EMM
   sect_shapes: false
   rp_persist: false
   verbose: false
