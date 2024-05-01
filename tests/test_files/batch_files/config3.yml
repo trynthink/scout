@@ -19,7 +19,7 @@ ecm_prep:
   adopt_scn_restrict: null
   add_typ_eff: false
   pkg_env_sep: false
-  detail_brkout: []
+  detail_brkout: [regions]
   fugitive_emissions: []
   tsv_metrics:
     tsv_type: null

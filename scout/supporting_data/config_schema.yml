@@ -39,10 +39,10 @@ properties:
         description: If true, enable captured energy calculation.
 
       alt_regions:
-        type: ["string", "null"]
-        enum: [EMM, State, AIA, null]
+        type: "string"
+        enum: [EMM, State, AIA]
         default: EMM
-        description: Specify an alternative region breakdown. If none selected, AIA will be used.
+        description: Specify an alternative region breakdown.
 
       tsv_metrics:
         type: object
