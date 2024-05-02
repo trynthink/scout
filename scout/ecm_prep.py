@@ -408,7 +408,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, opts):
-        self.adopt_schemes = opts.adopt_scn_restrict
+        self.adopt_schemes = ['Technical potential', 'Max adoption potential']
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
@@ -13957,8 +13957,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                         "(switch to LED lighting)\n"
                         " Alternatively, set 'tech_switch_to' to null "
                         "if no tech switching is meant to be represented")
-                else:
-                    tech_swtch = meas_dict["tech_switch_to"]
 
                 # Append measure dict to list of measure definitions
                 # to update if it meets the above criteria
@@ -14548,8 +14546,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 Utils.dump_json(meas_shapes_env_cf, handyfiles.ecm_prep_env_cf_shapes)
 
         # Write metadata for consistent use later in the analysis engine
+        # Use default adoption scenarios if user doesn't specify otherwise
+        if opts.adopt_scn_restrict is False:
+            adopt_schemes_run = handyvars.adopt_schemes
+        # Otherwise set adoption scenario to user-specified choice
+        else:
+            adopt_schemes_run = opts.adopt_scn_restrict
         glob_vars = {
-            "adopt_schemes": handyvars.adopt_schemes,
+            "adopt_schemes": adopt_schemes_run,
             "retro_rate": handyvars.retro_rate,
             "aeo_years": handyvars.aeo_years,
             "discount_rate": handyvars.discount_rate,
