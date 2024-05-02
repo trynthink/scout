@@ -431,7 +431,8 @@ class Measure(object):
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
         self.convert_to_numpy(self.markets)
-        for adopt_scheme in handyvars.adopt_schemes:
+        # Pull markets data for both possible adoption schemes
+        for adopt_scheme in ["Technical potential", "Max adoption potential"]:
             # Initialize 'uncompeted' and 'competed' versions of
             # Measure markets (initially, they are identical)
             self.markets[adopt_scheme] = {
@@ -735,14 +736,15 @@ class Engine(object):
             # finalized (these metrics remain constant across
             # all consumer adoption and measure competition schemes)
             if m.update_results["financial metrics"] is True:
-                # Shorthand for data used to determine financial metrics (since
-                # these data do not vary based on competition or adoption
-                # scheme, use only uncompeted data for the calculations)
-                markets_uc = m.markets[self.handyvars.adopt_schemes[0]][
-                    "uncompeted"]["master_mseg"]
+                # Shorthand for data used to determine financial metrics at the
+                # unit-level (since metrics at this level do not vary based on
+                # competition or adoption dynamics, use only uncompeted
+                # technical potential data for the calculations)
+                markets_uc = m.markets["Technical potential"]["uncompeted"][
+                    "master_mseg"]
 
                 # Initialize per unit measure stock, energy, and carbon costs;
-                # per unit energy and carbon cost savings; per sunit energy and
+                # per unit energy and carbon cost savings; per unit energy and
                 # carbon savings; unit stock, energy, and carbon costs to use
                 # in residential and commercial competition calculations; and
                 # financial metrics (irr, payback, cce, ccc)
