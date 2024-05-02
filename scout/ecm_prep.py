@@ -442,7 +442,6 @@ class UsefulVars(object):
         self.full_dat_out = {
             a_s: (True if a_s in self.adopt_schemes_run else False)
             for a_s in self.adopt_schemes_prep}
-
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
