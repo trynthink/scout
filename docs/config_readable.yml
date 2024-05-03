@@ -73,8 +73,8 @@ ecm_prep:
       null
     grid_decarb_level: (string, required if the grid_decarb key
       is present) Enable grid decarbonization - `95by2050` represents
-      95 percent reduced grid emissions from current levels by
-      2050 and `100by2035` represents 100 percent grid decarbonization
+      a 95 percent reduction in grid emissions from 2005 levels
+      by 2050 and `100by2035` represents 100 percent grid decarbonization
       by 2035. 'DECARB' options were produced as part of EERE's
       DECARB initiative; `DECARB-mid` represents 97 percent grid
       decarbonization by 2050, and `DECARB-high` represents 100

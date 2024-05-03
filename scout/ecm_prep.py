@@ -153,8 +153,18 @@ class UsefulInputFiles(object):
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
 
-    def set_decarb_grid_vars(self, opts):
+    def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
+        """Assign instance variables related to grid decarbonization which are dependent on the
+            alt_regions, alt_ref_carb, grid_decarb_level, and grid_assessment_timing arguments.
+
+        Args:
+            opts (argparse.NameSpace): argparse object containing the argument attributes
+        """
+
         def get_suffix(arg):
+            """Return a suffix derived from a user-supplied argument string to append to filepath
+                variables; if argument is None, return an empty string.
+            """
             if arg is None:
                 return ''
             else:
@@ -181,7 +191,7 @@ class UsefulInputFiles(object):
                 # Set emissions/cost reductions for non-fuel switching measures after grid
                 # decarbonization
                 self.ss_data_altreg_nonfs = None
-            # Set filepaths for EMM region emissions prices
+            # Set filepaths for EMM region emissions and prices
             for var, filesuffix in emission_var_map.items():
                 filepath = fp.CONVERT_DATA / f"emm_region_emissions_prices{filesuffix}.json"
                 setattr(self, var, filepath)
@@ -197,12 +207,12 @@ class UsefulInputFiles(object):
 
         # Set site-source conversions files for grid decarbonization case
         if opts.grid_decarb:
+            self.ss_data = (fp.CONVERT_DATA /
+                            f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
             # Update tsv data file suffixes for DECARB levels
             if "DECARB" in grid_decarb_level_suffix:
                 grid_decarb_level_suffix = {"-DECARB-mid": "-95by2050",
                                             "-DECARB-high": "-100by2035"}[grid_decarb_level_suffix]
-            self.ss_data = (fp.CONVERT_DATA /
-                            f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
             self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost{grid_decarb_level_suffix}.json"
             self.tsv_carbon_data = fp.TSV_DATA / f"tsv_carbon{grid_decarb_level_suffix}.json"
 
