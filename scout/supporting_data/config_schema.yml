@@ -149,7 +149,7 @@ properties:
           grid_decarb_level:
             type: ["string", "null"]
             enum: [95by2050, 100by2035, DECARB-mid, DECARB-high, null]
-            description: Enable grid decarbonization - `95by2050` represents 95 percent reduced grid emissions from current levels by 2050 and `100by2035` represents 100 percent grid decarbonization by 2035. 'DECARB' options were produced as part of EERE's DECARB initiative; `DECARB-mid` represents 97 percent grid decarbonization by 2050, and `DECARB-high` represents 100 percent grid decarbonization by 2035. Only applicable if `grid_assessment_timing` is also provided.
+            description: Enable grid decarbonization - `95by2050` represents a 95 percent reduction in grid emissions from 2005 levels by 2050 and `100by2035` represents 100 percent grid decarbonization by 2035. 'DECARB' options were produced as part of EERE's DECARB initiative; `DECARB-mid` represents 97 percent grid decarbonization by 2050, and `DECARB-high` represents 100 percent grid decarbonization by 2035. Only applicable if `grid_assessment_timing` is also provided.
           grid_assessment_timing:
             type: ["string", "null"]
             enum: [before, after, null]
