@@ -17,7 +17,7 @@ authors = [
   {email = "jared.langevin@lbl.gov"},
   {name = "Jared Langevin"}
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = {file = "LICENSE.md"}
 dependencies = [
     "pandas >= 2.0",

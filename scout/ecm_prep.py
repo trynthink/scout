@@ -8132,7 +8132,7 @@ class Measure(object):
                     # Force all values to be floats
                     df["diff"] = pd.to_numeric(df["diff"], downcast="float")
                     # The data are resampled yearly
-                    df = df.resample('Y').mean()
+                    df = df.resample('YE').mean()
                     # If there is any value greater than 1, set it to 1
                     if (df['diff'] > 1).any():
                         warn_list.append("WARNING: Some declared diffusion fractions are greater"
