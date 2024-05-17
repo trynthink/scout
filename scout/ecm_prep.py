@@ -5822,9 +5822,6 @@ class Measure(object):
                     # fractions have been calculated
                     if calc_sect_shapes is True and tsv_shapes is not None:
                         tsv_shapes["baseline"] = [0 for x in range(8760)]
-                    # Set baseline TSV scaling fractions to 1
-                    for x in ["energy", "cost", "carbon"]:
-                        tsv_scale_fracs[x]["baseline"] = 1
                 for adopt_scheme in self.handyvars.adopt_schemes:
                     # Update total, competed, and efficient stock, energy,
                     # carbon and baseline/measure cost info. based on adoption
