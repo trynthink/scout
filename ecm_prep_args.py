@@ -23,7 +23,8 @@ def ecm_args(args: list) -> argparse.NameSpace:  # noqa: F821
     parser.add_argument("--alt_regions", action="store_true",
                         help="Flag alternate regional breakdown")
     # Optional choice arg for non-AIA regional breakdown
-    parser.add_argument("--alt_regions_option", choices=["EMM", "State", "AIA"],
+    parser.add_argument("--alt_regions_option", choices=[
+        "EMM", "State", "AIA"],
                         help="Alternate region breakdown")
     # Optional flag for TSV metrics
     parser.add_argument("--tsv_metrics", action="store_true",
@@ -416,10 +417,10 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             while sys_shape not in ['1', '2', '3', '4']:
                 sys_shape = input(
                     "Enter the basis for determining peak or low demand hour "
-                    "ranges: 1 = total system load (reference case), 2 = total "
-                    "system load (high renewables case), 3 = total system load "
-                    "net renewables (reference case), 4 = total system load "
-                    "net renewables (high renewables case): "
+                    "ranges: 1 = total system load (reference case), "
+                    "2 = total system load (high renewables case), 3 = total "
+                    "system load net renewables (reference case), 4 = total "
+                    "system load net renewables (high renewables case): "
                 )
                 if sys_shape not in ['1', '2', '3', '4']:
                     print('Please try again. Enter 1, 2, 3, or 4. '
@@ -490,7 +491,7 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                     "2 = weekdays, 3 = weekends): ")
                 if day_type not in ['1', '2', '3']:
                     print('Please try again. Enter 1, 2, or 3. '
-                      'Use ctrl-c to exit.')
+                          'Use ctrl-c to exit.')
         else:
             day_type = "0"
 
