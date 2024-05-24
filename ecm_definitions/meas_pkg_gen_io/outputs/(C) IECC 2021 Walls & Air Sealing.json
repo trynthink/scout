@@ -1,0 +1,118 @@
+{
+  "name": "(C) IECC 2021 Walls & Air Sealing",
+  "_description": "Commercial wall insulation and air sealing consistent with IECC 2021 energy code levels.",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": "all",
+  "fuel_switch_to": null,
+  "backup_fuel_fraction": null,
+  "technology": [
+    "wall",
+    "infiltration"
+  ],
+  "htcl_tech_link": null,
+  "tech_switch_to": null,
+  "energy_efficiency": {
+    "AIA_CZ1": {
+      "wall": 25.32,
+      "infiltration": 0.33
+    },
+    "AIA_CZ2": {
+      "wall": 22.97,
+      "infiltration": 0.33
+    },
+    "AIA_CZ3": {
+      "wall": 20.6,
+      "infiltration": 0.33
+    },
+    "AIA_CZ4": {
+      "wall": 18.43,
+      "infiltration": 0.33
+    },
+    "AIA_CZ5": {
+      "wall": 16.82,
+      "infiltration": 0.33
+    }
+  },
+  "energy_efficiency_units": {
+    "wall": "R value",
+    "infiltration": "CFM/ft^2 @ 0.3 in. w.c."
+  },
+  "energy_efficiency_source": {
+    "notes": "See ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ:Z7HK0:ec/edit#gid=1968005613",
+    "source_data": [
+      {
+        "title": "ASHRAE Standard 90.1-2022, Section 5.4.3.1.1: Whole:Building Air Leakage",
+        "author": "ASHRAE",
+        "year": 2022,
+        "pages": 55,
+        "url": null
+      },
+      {
+        "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5:1 through Table 5.5:8 for Steel:framed walls",
+        "author": "ASHRAE",
+        "year": 2022,
+        "pages": [
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56
+        ],
+        "url": null
+      }
+    ]
+  },
+  "installed_cost": {
+    "wall": 1.14,
+    "infiltration": {
+      "new": 0.0,
+      "existing": 0.876
+    }
+  },
+  "cost_units": {
+    "wall": "2022$/ft^2 wall",
+    "infiltration": "2022$/ft^2 wall"
+  },
+  "installed_cost_source": {
+    "notes": [
+      "Walls: Assume baseline wall cost from Scout data. Infiltration: Cost based on cost premium:per:% performance improvement implied by residential 'IECC : existing' air sealing measure. Using AIA CZ1 as a benchmark, the residential measure shows a cost premium of $0.42/ft^2 wall per 35% performance improvement in existing buildings in 2017",
+      "thus the cost premium to add to the baseline commercial infiltration cost of $0/ft^2 wall is $2.2/ft^2 wall in existing buildings ($0.42/ft^2 wall premium / 35% improvement)*(73% improvement for commercial infiltration in existing buildings in AIA CZ1 in 2017 (1 : 0.4/1.5)). New measure shows zero cost premium."
+    ],
+    "source_data": {
+      "title": "Scout Baseline Envelope Characteristics Database",
+      "author": "U.S. Department of Energy, Office of Energy Efficiency and Renewable Energy, Building Technologies Office",
+      "year": 2023,
+      "pages": null,
+      "url": "https://github.com/trynthink/scout/blob/master/scout/supporting_data/convert_data/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 100.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Assumed equal to the lifetime of the building",
+    "source_data": null
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}

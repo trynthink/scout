@@ -1,0 +1,125 @@
+{
+  "name": "(R) Best HP Pt. FS (NG Furnace)",
+  "_description": "Best available air source heat pump w/ original gas furnace backup",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": [
+    "natural gas",
+    "electricity"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": "R2 M4 (ESTAR w/ Existing Fuel)",
+  "technology": [
+    "furnace (NG)",
+    "central AC",
+    "room AC"
+  ],
+  "htcl_tech_link": "ng furnace+cac&rac",
+  "tech_switch_to": "ASHP",
+  "energy_efficiency": {
+    "cooling": 6.6,
+    "heating": 3.6
+  },
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": [
+      "High efficiency ASHP performance in 2023",
+      "COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+      "split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)"
+    ],
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Draft PDS:01, MINHERS Addendum 71, SEER2/HSPF2 Conversions",
+        "author": "RESNET",
+        "year": 2022,
+        "pages": 2,
+        "url": "https://www.resnet.us/about/standards/minhers/draft:pds:01:minhers:addendum:71:seer2:hspf2:conversions/"
+      },
+      {
+        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+        "author": "U.S. Energy Information Administration",
+        "year": 2014,
+        "pages": 17,
+        "url": "https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m067(2014).pdf"
+      }
+    ]
+  },
+  "installed_cost": {
+    "electricity": 0.0,
+    "natural gas": {
+      "new": 6740.0,
+      "existing": 15620.0
+    }
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": [
+      "Retail (new) and total installed (existing) for 'High' ASHPs in 2023",
+      "For existing buildings, added costs of $6300 are the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in the NV5 report",
+      "a new circuit cost of 700 $2022 using the upper bound (assuming a high amperage 240V circuit is required for the HVAC system) from the NV5 report."
+    ],
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 39,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
+  },
+  "product_lifetime": 15.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average best lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 39,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": {
+    "heating": 0.88,
+    "cooling": 0.49
+  },
+  "market_scaling_fractions_source": {
+    "notes": "Heating multiple of 88% was determined as proportion of total homes with heating that have both cooling and heating systems (air conditioning = 1 and heating = 1, 15,638 homes out of 17,745 homes with heating). Cooling multiple of 49% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via natural gas other than steam/hot water (7,845 homes).",
+    "source_data": {
+      "title": "RECS 2020 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata"
+    }
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}
