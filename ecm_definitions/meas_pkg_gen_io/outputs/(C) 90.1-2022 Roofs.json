@@ -1,0 +1,88 @@
+{
+  "name": "(C) 90.1-2022 Roofs",
+  "_description": "Commercial roof insulation consistent with IECC 2021 energy code levels.",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": "all",
+  "fuel_switch_to": null,
+  "backup_fuel_fraction": null,
+  "technology": "roof",
+  "htcl_tech_link": null,
+  "tech_switch_to": null,
+  "energy_efficiency": {
+    "AIA_CZ1": 30.58,
+    "AIA_CZ2": 30.0,
+    "AIA_CZ3": 29.97,
+    "AIA_CZ4": 25.86,
+    "AIA_CZ5": 24.57
+  },
+  "energy_efficiency_units": "R value",
+  "energy_efficiency_source": {
+    "notes": "See ASHRAE to AIA climate zone conversions listed here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ:Z7HK0:ec/edit#gid=1968005613",
+    "source_data": {
+      "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5:1 through Table 5.5:8 for insulation entirely above deck roofs",
+      "author": "ASHRAE",
+      "year": 2022,
+      "pages": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "url": null
+    }
+  },
+  "installed_cost": {
+    "new": 3.65,
+    "existing": 3.51
+  },
+  "cost_units": "2022$/ft^2 roof",
+  "installed_cost_source": {
+    "notes": "Assume baseline roof cost from Scout data",
+    "source_data": {
+      "title": "Scout Baseline Envelope Characteristics Database",
+      "author": "U.S. Department of Energy, Office of Energy Efficiency and Renewable Energy, Building Technologies Office",
+      "year": 2023,
+      "pages": null,
+      "url": "https://github.com/trynthink/scout/blob/master/scout/supporting_data/convert_data/cpl_envelope_mels.json"
+    }
+  },
+  "product_lifetime": 30.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Typical least cost commercial roof service life",
+    "source_data": {
+      "title": "Life:Cycle Costs of Commercial Roof Systems",
+      "author": "Coffelt et al.",
+      "year": 2010,
+      "pages": [
+        29,
+        36
+      ],
+      "url": "http://www.cmu.edu/gdi/docs/life:cycle:costs.pdf"
+    }
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}

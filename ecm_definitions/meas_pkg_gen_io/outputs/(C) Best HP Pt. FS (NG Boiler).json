@@ -1,0 +1,98 @@
+{
+  "name": "(C) Best HP Pt. FS (NG Boiler)",
+  "_description": "Best available air source heat pump (w/ cold climate specs as applicable) w/ original NG boiler backup",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": [
+    "natural gas",
+    "electricity"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": "2023.2 Heat Pump RTU with Original Fuel Backup",
+  "technology": [
+    "gas_boiler",
+    "gas_chiller",
+    "scroll_chiller",
+    "reciprocating_chiller",
+    "centrifugal_chiller",
+    "screw_chiller"
+  ],
+  "htcl_tech_link": "ng boiler+chiller",
+  "tech_switch_to": "ASHP",
+  "energy_efficiency": {
+    "cooling": 3.8,
+    "heating": 3.7
+  },
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": [
+      "High' performance in 2023",
+      "COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)"
+    ],
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 139,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+        "author": "U.S. Energy Information Administration",
+        "year": 2014,
+        "pages": 17,
+        "url": "https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m067(2014).pdf"
+      }
+    ]
+  },
+  "installed_cost": {
+    "electricity": 0.0,
+    "natural gas": {
+      "new": 144.0,
+      "existing": 210.0
+    }
+  },
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "High' costs in 2023 normalized by capacity.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "High' lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}
