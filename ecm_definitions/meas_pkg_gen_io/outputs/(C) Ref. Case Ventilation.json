@@ -1,0 +1,67 @@
+{
+  "name": "(C) Ref. Case Ventilation",
+  "_description": "Ref. case commercial CAV_Vent and VAV_Vent ventilation systems",
+  "measure_type": "add-on",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "ventilation",
+  "fuel_type": "electricity",
+  "fuel_switch_to": null,
+  "backup_fuel_fraction": null,
+  "technology": [
+    "CAV_Vent",
+    "VAV_Vent"
+  ],
+  "htcl_tech_link": null,
+  "tech_switch_to": null,
+  "energy_efficiency": 0.0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": [
+      "Ref. case performance",
+      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details"
+    ],
+    "source_data": null
+  },
+  "installed_cost": 0.0,
+  "cost_units": "2022$/1000 CFM",
+  "installed_cost_source": {
+    "notes": [
+      "Ref. case cost (no additional cost)",
+      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details."
+    ],
+    "source_data": null
+  },
+  "product_lifetime": {
+    "CAV_Vent": 35.0,
+    "VAV_Vent": 28.0
+  },
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of typical range",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix C",
+      "author": "U.S. Energy Information Admnistration",
+      "year": 2023,
+      "pages": [
+        119,
+        121
+      ],
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+    }
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "name": "(C) ESTAR HP FS (RTU, Other Fossil Heat)",
+  "_description": "ENERGY STAR air source heat pump (w/ cold climate specs as applicable) fully replacing original distillate RTU equipment",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": [
+    "distillate",
+    "electricity"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": [
+    "oil_furnace",
+    "rooftop_AC"
+  ],
+  "htcl_tech_link": "other fossil heat+rtac",
+  "tech_switch_to": "ASHP",
+  "energy_efficiency": 3.5,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": {
+    "electricity": 0.0,
+    "distillate": {
+      "new": 118.0,
+      "existing": 172.0
+    }
+  },
+  "cost_units": "2022$/kBtu/h cooling",
+  "installed_cost_source": {
+    "notes": "ENERGY STAR costs in 2023 normalized by capacity.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 21.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "ENERGY STAR lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": {
+    "heating": 0.79,
+    "cooling": 0.06
+  },
+  "market_scaling_fractions_source": {
+    "notes": [
+      "Heating multiple of 79% was determined by dividing square feet in which main heating equipment is oil or propane packaged unit (961852 sf) by square feet in which main heating equipment is oil or propane furnace or packaged unit (4543002 sf)",
+      "cooling multiple of 6% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is fossil other than natural gas (23161652 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
+    ],
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-05-24 11:40:17"
+  }
+}
