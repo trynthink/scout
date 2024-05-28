@@ -5,6 +5,7 @@ import pandas as pd
 from scout.config import FilePaths as fp
 import numpy
 import math
+import json
 
 
 def nicenumber(x, round):
@@ -40,6 +41,7 @@ def pretty(low, high, n):
 
 
 def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
+    run_plot_decarb()
     # Set base directory
     # Set uncompeted ECM energy, carbon, and cost data
     uncompete_results = meas_summary
@@ -1654,6 +1656,101 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             xlsx_var_name_list[i].to_excel(
                 writer, sheet_name=file_names_ecms[i], index=False)
         writer.close()
+
+
+def run_plot_decarb():
+    with open(fp.RESULTS / "ecm_results.json") as f:
+        results = json.load(f)
+    X = list(range(2024, 2051))
+    # outdir = r'C:/Users/ariba/DECARB/scout'
+    plot_stock(X, results)
+
+
+def plot_stock(X, results):
+    best_res_ashp = numpy.zeros_like(X)
+    for k in [
+        "Best Res. ASHP, Env., PC (EE+DF-FS) CC",
+        "Best Res. ASHP, Env., PC (EE+DF-FS)",
+        "Best Res. ASHP, Env., PC (EE+DF-LFL) CC",
+        "Best Res. ASHP, Env., PC (EE+DF-LFL)",
+        "Best Res. ASHP, Env., PC (EE+DF-RST) CC",
+        "Best Res. ASHP, Env., PC (EE+DF-RST)"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        best_res_ashp = numpy.add(best_res_ashp, list(measure))
+
+    estar_ashp = numpy.zeros_like(X)
+    for k in [
+        "ENERGY STAR Res. ASHP (FS) CC",
+        "ENERGY STAR Res. ASHP (FS)",
+        "ENERGY STAR Res. ASHP (LFL) CC",
+        "ENERGY STAR Res. ASHP (LFL)",
+        "ENERGY STAR Res. ASHP (RST) CC",
+        "ENERGY STAR Res. ASHP (RST)"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        estar_ashp = numpy.add(estar_ashp, list(measure))
+
+    prosp_ashp = numpy.zeros_like(X)
+    for k in [
+        "Prospective Residential ASHP (FS) CC",
+        "Prospective Residential ASHP (FS)",
+        "Prospective Residential ASHP (LFL) CC",
+        "Prospective Residential ASHP (LFL)",
+        "Prospective Residential ASHP (RST) CC",
+        "Prospective Residential ASHP (RST)"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        prosp_ashp = numpy.add(prosp_ashp, list(measure))
+        
+    min_ashp = numpy.zeros_like(X)
+    for k in [
+        "Min. Eff. Res. ASHP (FS) CC",
+        "Min. Eff. Res. ASHP (FS)",
+        "Min. Eff. Res. ASHP (RST) CC",
+        "Min. Eff. Res. ASHP (RST)"
+            ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        min_ashp = numpy.add(min_ashp, list(measure))
+        
+    fossil = numpy.zeros_like(X)
+    for k in [
+        "Best Res. Fossil Heating",
+        "Res. Fossil Heating, ESTAR (2030)",
+        "Res. Fossil Heating, ESTAR"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        fossil = numpy.add(fossil, list(measure))
+        
+    best_gshp = numpy.zeros_like(X)
+    for k in [
+        "Best Res. GSHP (FS)",
+        "Best Res. GSHP (LFL)",
+        "Best Res. GSHP (RST)"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        best_gshp = numpy.add(best_gshp, list(measure))
+        
+    estar_gshp = numpy.zeros_like(X)
+    for k in [
+        "ENERGY STAR Res. GSHP (FS)",
+        "ENERGY STAR Res. GSHP (LFL)",
+        "ENERGY STAR Res. GSHP (RST)"
+    ]:
+        measure = results[k]['Markets and Savings (Overall)']['Max adoption potential']['Measure Stock (Competed)(units equipment)'].values()
+        estar_gshp = numpy.add(estar_gshp, list(measure))
+        
+    DIV = 1e6
+    plt.plot(X, (fossil)/DIV, color='gray', label='Fossil heating')
+    plt.plot(X, (best_res_ashp + estar_ashp + prosp_ashp + min_ashp)/DIV, color='dodgerblue', label='ASHP')
+    plt.plot(X, (best_gshp + estar_gshp)/DIV, color='olivedrab', label='GSHP')
+    # plt.plot(X, (fossil + best_res_ashp + estar_ashp + prosp_ashp + min_ashp + best_gshp + estar_gshp)/DIV, color='lightgray', linestyle='dashed', label='All')
+
+    plt.ylabel('Technology stock (millions of units)')
+    plt.xlabel('Year')
+
+    plt.legend()
+    plt.savefig(fp.PLOTS / "stock.pdf")
 
 
 if __name__ == '__main__':

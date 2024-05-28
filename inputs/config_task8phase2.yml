@@ -1,7 +1,50 @@
 description: This is a configuration file for running Task 8, Phase 2 analysis
 ecm_prep:
   ecm_directory: null
-  ecm_files: null
+  ecm_files:
+    - Best Res. ASHP, Env., PC (EE+DF-FS) CC
+    - Best Res. ASHP, Env., PC (EE+DF-FS)
+    - Best Res. ASHP, Env., PC (EE+DF-LFL) CC
+    - Best Res. ASHP, Env., PC (EE+DF-LFL)
+    - Best Res. ASHP, Env., PC (EE+DF-RST) CC
+    - Best Res. ASHP, Env., PC (EE+DF-RST)
+    - Best Res. Fossil Heating
+    - Best Res. GSHP (FS)
+    - Best Res. GSHP (LFL)
+    - Best Res. GSHP (RST)
+    - Best Res. HPWH (EE+DF)
+    - Best Res. HPWH (EE+DF-FS)
+    - Best Residential Gas Storage WH
+    - Best Residential Oil WH
+    - ENERGY STAR Gas Storage WH v. 5.0
+    - ENERGY STAR Res. ASHP (FS) CC
+    - ENERGY STAR Res. ASHP (FS)
+    - ENERGY STAR Res. ASHP (LFL) CC
+    - ENERGY STAR Res. ASHP (LFL)
+    - ENERGY STAR Res. ASHP (RST) CC
+    - ENERGY STAR Res. ASHP (RST)
+    - ENERGY STAR Res. GSHP (FS)
+    - ENERGY STAR Res. GSHP (LFL)
+    - ENERGY STAR Res. GSHP (RST)
+    - ENERGY STAR Res. HPWH (FS) 120V
+    - ENERGY STAR Res. HPWH (FS) 240V
+    - ENERGY STAR Res. HPWH (FS) New
+    - ENERGY STAR Res. HPWH
+    - Min. Eff. Res. ASHP (FS) CC
+    - Min. Eff. Res. ASHP (FS)
+    - Min. Eff. Res. ASHP (RST) CC
+    - Min. Eff. Res. ASHP (RST)
+    - Prospective Residential ASHP (FS) CC
+    - Prospective Residential ASHP (FS)
+    - Prospective Residential ASHP (LFL) CC
+    - Prospective Residential ASHP (LFL)
+    - Prospective Residential ASHP (RST) CC
+    - Prospective Residential ASHP (RST)
+    - Prospective Residential HPWH (FS)
+    - Prospective Residential HPWH
+    - Ref. Case Res. Oil WH
+    - Res. Fossil Heating, ESTAR (2030)
+    - Res. Fossil Heating, ESTAR
   ecm_files_regex: []
   ecm_packages: []
   site_energy: false
@@ -16,7 +59,7 @@ ecm_prep:
   floor_start: null
   pkg_env_costs: null
   alt_ref_carb: false
-  adopt_scn_restrict: "Max adoption potential"
+  adopt_scn_restrict: Max adoption potential
   add_typ_eff: false
   pkg_env_sep: false
   detail_brkout: []
