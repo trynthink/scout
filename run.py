@@ -431,8 +431,16 @@ class Measure(object):
         # Convert any master market microsegment data formatted as lists to
         # numpy arrays
         self.convert_to_numpy(self.markets)
-        # Pull markets data for both possible adoption schemes
-        for adopt_scheme in ["Technical potential", "Max adoption potential"]:
+        # Pull high-level markets data for adoption schemes; high-level
+        # technical potential (TP) market data will be available and should be
+        # pulled in here even if a user has declined to simulate this scheme;
+        # TP data are used to set unit-level metrics in the competition
+        if "Technical potential" not in handyvars.adopt_schemes:
+            adopt_schemes_highlvl_mkts = handyvars.adopt_schemes + \
+                ["Technical potential"]
+        else:
+            adopt_schemes_highlvl_mkts = handyvars.adopt_schemes
+        for adopt_scheme in adopt_schemes_highlvl_mkts:
             # Initialize 'uncompeted' and 'competed' versions of
             # Measure markets (initially, they are identical)
             self.markets[adopt_scheme] = {
