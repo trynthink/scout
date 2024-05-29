@@ -40,8 +40,10 @@ Climate zone
 EIA Electricity Market Module (EMM) regions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-TRE, FRCC, MISW, MISC, MISE, MISS, ISNE, NYCW, NYUP, PJME, PJMW, PJMC,
-PJMD, SRCA, SRSE, SRCE, SPPS, SPPC, SPPN, SRSG, CANO, CASO, NWPP, RMRG, BASN; all
+**TRE***, **FRCC**, MISW, **MISC**, MISE, **MISS**, ISNE, NYCW, NYUP, PJME, PJMW, PJMC,
+**PJMD**, **SRCA**, **SRSE**, **SRCE**, **SPPS**, **SPPC**, SPPN, **SRSG**, **CANO**, **CASO**, NWPP, RMRG, BASN; all, warm climates, cold climates
+
+The bolded EMM regions are categorized as "warm climates;" the remainder are "cold climates."
 
 .. figure:: images/eia_emm.*
 
@@ -52,7 +54,9 @@ PJMD, SRCA, SRSE, SRCE, SPPS, SPPC, SPPN, SRSG, CANO, CASO, NWPP, RMRG, BASN; al
 AIA climate zones
 ^^^^^^^^^^^^^^^^^
 
-|tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| AIA_CZ3 |chunk-b| AIA Climate Zone 3 |close|, |tooltip| AIA_CZ4 |chunk-b| AIA Climate Zone 4 |close|, |tooltip| AIA_CZ5 |chunk-b| AIA Climate Zone 5 |close|; all
+|tooltip| AIA_CZ1 |chunk-b| AIA Climate Zone 1 |close|, |tooltip| AIA_CZ2 |chunk-b| AIA Climate Zone 2 |close|, |tooltip| **AIA_CZ3** |chunk-b| AIA Climate Zone 3 |close|, |tooltip| **AIA_CZ4** |chunk-b| AIA Climate Zone 4 |close|, |tooltip| **AIA_CZ5** |chunk-b| AIA Climate Zone 5 |close|; all, warm climates, cold climates
+
+The bolded climate zones are categorized as "warm climates;" the remainder are "cold climates."
 
 .. figure:: images/climatezone-lg.jpg
 
@@ -63,11 +67,13 @@ AIA climate zones
 Contiguous U.S. states
 ^^^^^^^^^^^^^^^^^^^^^^
 
-AL, AZ, AR, CA, CO, CT, DE, DC, FL,
-GA, ID, IL, IN, IA, KS, KY, LA, ME,
-MD, MA, MI, MN, MS, MO, MT, NE, NV, NH,
-NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI,
-SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY; all
+**AL**, **AZ**, **AR**, **CA**, CO, CT, **DE**, **DC**, **FL**,
+**GA**, ID, IL, IN, IA, **KS**, **KY**, **LA**, ME,
+**MD**, MA, MI, MN, **MS**, **MO**, MT, NE, **NV**, NH,
+**NJ**, **NM**, NY, **NC**, ND, OH, **OK**, OR, PA, RI,
+**SC**, SD, **TN**, **TX**, UT, VT, **VA**, WA, WV, WI, WY; all, warm climates, cold climates
+
+The bolded states are categorized as "warm climates;" the remainder are "cold climates."
 
 .. figure:: images/state_map.*
 
