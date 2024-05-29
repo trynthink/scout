@@ -422,10 +422,18 @@ class UsefulVars(object):
         # if the user has excluded the TP adoption scheme from the run, because
         # these data are later required to derive unit-level metrics in the
         # ECM competition module
+<<<<<<< HEAD:scout/ecm_prep.py
         self.adopt_schemes_prep = ["Technical potential"]
         if opts.adopt_scn_restrict is False or \
                 "Max adoption potential" in opts.adopt_scn_restrict:
             self.adopt_schemes_prep.append("Max adoption potential")
+=======
+        self.adopt_schemes_prep = [
+            a_s for a_s in ["Technical potential", "Max adoption potential"] if
+            (a_s == "Technical potential" or (
+                opts.adopt_scn_restrict is False or
+                a_s in opts.adopt_scn_restrict))]
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         # Assume default adoption scenarios will be used in the competition
         # scheme if user doesn't specify otherwise
         if opts.adopt_scn_restrict is False:
@@ -442,6 +450,10 @@ class UsefulVars(object):
         self.full_dat_out = {
             a_s: (True if a_s in self.adopt_schemes_run else False)
             for a_s in self.adopt_schemes_prep}
+<<<<<<< HEAD:scout/ecm_prep.py
+=======
+
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
@@ -913,6 +925,7 @@ class UsefulVars(object):
                     'WY']
                 self.warm_cold_regs = {
                     "warm climates": [
+<<<<<<< HEAD:scout/ecm_prep.py
                         'AL', 'AZ', 'AR', 'CA', 'DE', 'DC', 'FL', 'GA', 'KS',
                         'KY', 'LA', 'MD', 'MS', 'MO', 'NC', 'NJ', 'NM', 'NV',
                         'OK', 'SC', 'TN', 'TX', 'VA'],
@@ -920,6 +933,16 @@ class UsefulVars(object):
                         'CO', 'CT', 'ID', 'IA', 'IL', 'IN', 'MA', 'ME', 'MI',
                         'MN', 'MT', 'ND', 'NE', 'NH', 'NY', 'OH', 'OR', 'PA',
                         'RI', 'SD', 'UT', 'VT', 'WA', 'WI', 'WV', 'WY']}
+=======
+                        'AL', 'AZ', 'AR', 'CA', 'DE', 'DC', 'FL',
+                        'GA', 'IL', 'IN', 'KS', 'KY', 'LA', 'MD', 'MA',
+                        'MS', 'MO', 'NV', 'NJ', 'NM', 'NC', 'ND', 'OK', 'SC',
+                        'TN', 'TX', 'VA', 'WV', 'WY'],
+                    "cold climates": [
+                        'WA', 'OR', 'ID', 'MT', 'NE', 'CO', 'UT', 'SD',
+                        'IA', 'MN', 'WI', 'MI', 'NY', 'CT', 'ME', 'RI', 'NH',
+                        'VT', 'OH', 'PA']}
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                 self.region_cpl_mapping = {
                     "new england": ['CT', 'MA', 'ME', 'NH', 'RI', 'VT'],
                     "mid atlantic": ['NJ', 'NY', 'PA'],
@@ -2070,6 +2093,7 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs)
+<<<<<<< HEAD:scout/ecm_prep.py
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2082,6 +2106,8 @@ class Measure(object):
             switching calculations for measures that apply to separate heating
             and cooling technologies/segments (initialized as None and updated
             in 'fill_mkts' function.)
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         technology_type (string): Flag for supply- or demand-side technology.
         yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
@@ -2178,9 +2204,12 @@ class Measure(object):
                 self.htcl_tech_link = ""
         except AttributeError:
             self.htcl_tech_link = ""
+<<<<<<< HEAD:scout/ecm_prep.py
         self.linked_htcl_tover, self.linked_htcl_tover_anchor_eu, \
             self.linked_htcl_tover_anchor_tech = (
                 None for n in range(3))
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -2522,6 +2551,7 @@ class Measure(object):
                             "original energy (total captured)": {},
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
+<<<<<<< HEAD:scout/ecm_prep.py
                             "adjusted energy (competed and captured)": {}}},
                     "paired heat/cool mseg adjustments": {
                         "original total stock": {},
@@ -2532,6 +2562,9 @@ class Measure(object):
                         "cumulative competed stock": {},
                         "heat pump conversions": {}
                     }})])
+=======
+                            "adjusted energy (competed and captured)": {}}}})])
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
             # Initialize efficient energy captured by measure if user does
             # not suppress reporting of this additional variable
             if self.usr_opts["no_eff_capt"] is not True:
@@ -2583,8 +2616,13 @@ class Measure(object):
             # Add stock breakouts
             self.markets[adopt_scheme][
                 "mseg_out_break"]["stock"] = {
+<<<<<<< HEAD:scout/ecm_prep.py
                     key: copy.deepcopy(self.handyvars.out_break_in) for key in
                     ["baseline", "efficient"]}
+=======
+                    key: copy.deepcopy(self.handyvars.out_break_in) for
+                    key in ["baseline", "efficient"]}
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
             # Initialize breakouts of efficient energy captured by measure
             # if user does not suppress reporting of this variable
             if self.usr_opts["no_eff_capt"] is not True:
@@ -4094,6 +4132,7 @@ class Measure(object):
                         # Fossil-based baseline technology mseg
                         else:
                             comp_tag_exog = "fossil_base_exog"
+<<<<<<< HEAD:scout/ecm_prep.py
                 else:
                     comp_tag_exog = ""
 
@@ -4115,6 +4154,28 @@ class Measure(object):
                 if self.htcl_tech_link:
                     comp_tag_htcl_pair = self.htcl_tech_link
                 else:
+=======
+                else:
+                    comp_tag_exog = ""
+                # Further utilize information about which heating and cooling
+                # equipment is paired by the measure (if provided) to ensure
+                # that heating and cooling segments will only be competed
+                # with heating and cooling segments of other measures that
+                # apply to that same pairing (e.g., CAC + resistance, vs.
+                # CAC + fossil-based heating, vs. HPs). NOTE: this approach
+                # assumes that any overlaps in cooling segments across these
+                # measures will be handled exogenously via market scaling
+                # fractions - for example, a measure that applies to resistance
+                # heating plus CAC cooling is constrained to 32% of CAC market
+                # and competes only with other CAC + resistance heat measures
+                # with that same constraint, while a measure that applies to
+                # fossil heating plus CAC is constrained to the remaining 68%
+                # of the CAC market and competes only with other CAC + fossil
+                # heating measures with that same constraint.
+                if "heating" in mskeys or "cooling" in mskeys:
+                    comp_tag_htcl_pair = self.htcl_tech_link
+                else:
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                     comp_tag_htcl_pair = ""
 
                 # Append additional competition tag(s) to existing mseg info.
@@ -4164,6 +4225,101 @@ class Measure(object):
                             hp_rate = hp_rate_dat[
                                 mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
                         except KeyError:
+<<<<<<< HEAD:scout/ecm_prep.py
+=======
+                            if hp_eu_key == "cooling":
+                                # HP conversion rates for NGHP cooling msegs
+                                # are not directly addressed in the exogenous
+                                # file structure but should be set to the same
+                                # as NGHP heating
+                                if "NGHP" in mskeys:
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            "heating"][mskeys[-2]][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # HP conversion rates for electric cooling
+                                # msegs attached to heating msegs that are fuel
+                                # switching from fossil to electric and subject
+                                # to the HP rates should be subject to the same
+                                # rates; attach cooling scaling to NG rates (
+                                # NG most prevalent fossil-based heating
+                                # technology)
+                                elif "fossil" in comp_tag_exog:
+                                    # Separately handle different bldg. types
+                                    if bldg_sect == "residential":
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "natural gas"]["heating"][
+                                                "furnace (NG)"][mskeys[-1]]
+                                        except KeyError:
+                                            try:
+                                                hp_rate = hp_rate_dat[
+                                                    "natural gas"]["heating"][
+                                                    "all"][mskeys[-1]]
+                                            except KeyError:
+                                                hp_rate = None
+                                    elif any([mskeys[-2] in x for x in [
+                                        self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                        # Determine whether the current cooling
+                                        # tech. falls into switch from an RTU
+                                        # or other tech.
+                                        if mskeys[-2] in \
+                                                self.handyvars.com_RTU_fs_tech:
+                                            tech_key = "RTUs"
+                                        else:
+                                            tech_key = "all other"
+                                        # Try resultant tech. key
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "natural gas"]["heating"][
+                                                tech_key][mskeys[-1]]
+                                        except KeyError:
+                                            hp_rate = None
+                                    else:
+                                        hp_rate = None
+                                # HP conversion rates for electric cooling
+                                # msegs attached to electric resistance heating
+                                # msegs that are subject to the HP rates should
+                                # be subject to the same rates
+                                elif "elec" in comp_tag_exog:
+                                    # Separately handle different bldg. types
+                                    if bldg_sect == "residential":
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "electricity"]["heating"][
+                                                "resistance heat"][mskeys[-1]]
+                                        except KeyError:
+                                            try:
+                                                hp_rate = hp_rate_dat[
+                                                    "electricity"]["heating"][
+                                                    "all"][mskeys[-1]]
+                                            except KeyError:
+                                                hp_rate = None
+                                    elif any([mskeys[-2] in x for x in [
+                                        self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                        # Determine whether the current cooling
+                                        # tech. falls into switch from an RTU
+                                        # or other tech.
+                                        if mskeys[-2] in \
+                                                self.handyvars.com_RTU_fs_tech:
+                                            tech_key = "RTUs"
+                                        else:
+                                            tech_key = "all other"
+                                        # Try resultant tech. key
+                                        try:
+                                            hp_rate = hp_rate_dat[
+                                                "electricity"]["heating"][
+                                                tech_key][mskeys[-1]]
+                                        except KeyError:
+                                            hp_rate = None
+                                    else:
+                                        hp_rate = None
+                                else:
+                                    hp_rate = None
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                             # Handle switch from commercial heating in RTUs vs.
                             # other technologies
                             if hp_eu_key == "heating" and \
@@ -8914,16 +9070,25 @@ class Measure(object):
             # previously applied TSV factors to avoid double counting of
             # impacts in the baseline case
             if (calc_sect_shapes is True and
+<<<<<<< HEAD:scout/ecm_prep.py
                 self.handyvars.full_dat_out[adopt_scheme] and yr in
                 self.handyvars.aeo_years_summary) and \
+=======
+                self.handyvars.full_dat_out[adopt_scheme]) and yr in \
+                self.handyvars.aeo_years_summary and \
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
                     (energy_total[yr] / tsv_energy_base) for x in range(8760)]
             elif (calc_sect_shapes is True and
+<<<<<<< HEAD:scout/ecm_prep.py
                   self.handyvars.full_dat_out[adopt_scheme] and
                   yr in self.handyvars.aeo_years_summary) and \
+=======
+                  self.handyvars.full_dat_out[adopt_scheme]) and \
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                     tsv_shapes is None and (
                     mskeys[0] == "primary" and (
                         (mskeys[3] == "electricity") or
@@ -11084,17 +11249,8 @@ class MeasurePackage(Measure):
                             "original energy (total captured)": {},
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
-                            "adjusted energy (competed and captured)": {}}}},
-                "mseg_out_break": {key: {
-                    "baseline": copy.deepcopy(self.handyvars.out_break_in),
-                    "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                    "savings": copy.deepcopy(self.handyvars.out_break_in)} for
-                    key in ["energy", "carbon", "cost"]}}
-            # Add stock breakouts
-            self.markets[adopt_scheme][
-                "mseg_out_break"]["stock"] = {
-                    key: copy.deepcopy(self.handyvars.out_break_in) for key in
-                    ["baseline", "efficient"]}
+                            "adjusted energy (competed and captured)": {}}}}}
+
             # Initialize efficient captured energy if not suppressed by user
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
@@ -11452,10 +11608,17 @@ class MeasurePackage(Measure):
                         msegs_pkg_fin[cm] = self.add_keyvals(
                             msegs_pkg_fin[cm], msegs_meas_fin[cm])
                 # Generate a dictionary including data on how much of the
+<<<<<<< HEAD:scout/ecm_prep.py
                 # packaged measure's baseline energy/carbon/cost is attributed
                 # to each of the output climate zones, building types, and end
                 # uses it applies to if full data reporting is required for the
                 # current adoption scenario
+=======
+                # packaged measure's baseline stock/energy/carbon/cost is
+                # attributed to each of the output climate zones, building
+                # types, and end uses it applies to if full data reporting is
+                # required for the current adoption scenario
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                 if mseg_out_break_fin:
                     for v in ["stock", "energy", "carbon", "cost"]:
                         for s in ["baseline", "efficient"]:
@@ -11472,8 +11635,15 @@ class MeasurePackage(Measure):
                                 "no_eff_capt"] is not True:
                             # Merge out breaks for captured efficient energy
                             self.merge_out_break(self.markets[adopt_scheme][
+<<<<<<< HEAD:scout/ecm_prep.py
                                 "mseg_out_break"]["energy"]["efficient-captured"],
                                 mseg_out_break_fin["energy"]["efficient-captured"])
+=======
+                                "mseg_out_break"]["energy"][
+                                    "efficient-captured"],
+                                mseg_out_break_fin["energy"][
+                                    "efficient-captured"])
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
 
                 # Adjust individual measure's contributing sector shape
                 # information to account for overlaps with other measures in
@@ -12808,15 +12978,11 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                         eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr] for
                  yr in self.handyvars.aeo_years}]
-            # Measure-captured efficient energy (if reported)
-            if eff_capt:
-                # Remove adjusted efficient-captured
-                mseg_out_break_adj[k]["efficient-captured"][
-                    out_cz][out_bldg][out_eu][out_fuel_save] = {
-                    yr: mseg_out_break_adj[k]["efficient-captured"][
-                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
-                            eff_capt_orig[yr] - eff_capt_adj[yr]) for
-                    yr in self.handyvars.aeo_years}
+
+            # Note: no measure-captured efficient energy in the base fuel
+            # needs adjustment here given that by definition fuel switching
+            # measures only operate via switched to fuel (no data to adjust)
+
             # No savings breakouts for stock variable
             if k != "stock":
                 # Savings is difference between adjusted baseline and efficient
@@ -12843,7 +13009,8 @@ class MeasurePackage(Measure):
                         eff_orig[yr] - eff_adj[yr]) * (
                         1 - fs_eff_splt_var[yr]))
                 for yr in self.handyvars.aeo_years}
-            # Measure-captured efficient energy (if reported)
+            # Measure-captured efficient energy for switched to fuel
+            # (if reported)
             if eff_capt:
                 mseg_out_break_adj[k]["efficient-captured"][
                     out_cz][out_bldg][out_eu][out_fuel_gain] = {
@@ -13350,6 +13517,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             # Notify user that measure is being updated
             print("Updating ECM '" + p["name"] + "'...", end="", flush=True)
 
+<<<<<<< HEAD:scout/ecm_prep.py
             # Establish a list of names for measures that contribute to the
             # package
             package_measures = p["contributing_ECMs"]
@@ -13428,6 +13596,70 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
                               "' removed due to invalid contributing ECM(s)")
                 packaged_measure = False
             # Update package if valid contributing measures are available
+=======
+        # Establish a list of names for measures that contribute to the
+        # package
+        package_measures = p["contributing_ECMs"]
+        # Determine the subset of all previously initialized measure
+        # objects that contribute to the current package
+        measure_list_package = [
+            x for x in meas_update_objs if x.name in package_measures]
+        # Determine which contributing measures have not yet been
+        # initialized as objects
+        measures_to_add = [mc for mc in package_measures if mc not in [
+            x.name for x in measure_list_package]]
+        # Initialize any missing contributing measure objects and add to
+        # the existing list of contributing measure objects for the package
+        for m in measures_to_add:
+            # Load and set high level summary data for the missing measure
+            meas_summary_data = [x for x in meas_summary if x["name"] == m]
+            if len(meas_summary_data) == 1:
+                # Translate user options to a dictionary for further use in
+                # Measures
+                opts_dict = vars(opts)
+                # Initialize the missing measure as an object
+                meas_obj = Measure(
+                    base_dir, handyvars, handyfiles, opts_dict,
+                    **meas_summary_data[0])
+                # Reset measure technology type and total energy (used to
+                # normalize output breakout fractions) to their values in the
+                # high level summary data (reformatted during initialization)
+                meas_obj.technology_type = meas_summary_data[0][
+                    "technology_type"]
+                # Assemble folder path for measure competition data
+                meas_folder_name = path.join(*handyfiles.ecm_compete_data)
+                # Assemble file name for measure competition data
+                meas_file_name = meas_obj.name + ".pkl.gz"
+                # Load and set competition data for the missing measure object
+                with gzip.open(path.join(base_dir, meas_folder_name,
+                                         meas_file_name), 'r') as zp:
+                    try:
+                        meas_comp_data = pickle.load(zp)
+                    except Exception as e:
+                        raise Exception(
+                            "Error reading in competition data of " +
+                            "contributing ECM '" + meas_obj.name +
+                            "' for package '" + p["name"] + "': " +
+                            str(e)) from None
+                for adopt_scheme in handyvars.adopt_schemes_prep:
+                    meas_obj.markets[adopt_scheme]["master_mseg"] = \
+                        meas_summary_data[0]["markets"][adopt_scheme][
+                            "master_mseg"]
+                    meas_obj.markets[adopt_scheme]["mseg_adjust"] = \
+                        meas_comp_data[adopt_scheme]
+                    meas_obj.markets[adopt_scheme]["mseg_out_break"] = \
+                        meas_summary_data[0]["markets"][adopt_scheme][
+                            "mseg_out_break"]
+                # Add missing measure object to the existing list
+                measure_list_package.append(meas_obj)
+            # Raise an error if no existing data exist for the missing
+            # contributing measure
+            elif len(meas_summary_data) == 0:
+                raise ValueError(
+                    "Contributing ECM '" + m +
+                    "' cannot be added to package '" + p["name"] +
+                    "' due to missing attribute data for this ECM")
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
             else:
                 # Instantiate measure package object based on packaged measure
                 # subset above
@@ -13453,6 +13685,7 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
     return meas_update_objs
 
 
+<<<<<<< HEAD:scout/ecm_prep.py
 def prep_error(meas_name, handyvars, handyfiles):
     """Prepare and write out error messages for skipped measures/packages.
 
@@ -13477,6 +13710,8 @@ def prep_error(meas_name, handyvars, handyfiles):
     logger.error(err_msg)
 
 
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
 def split_clean_data(meas_prepped_objs, full_dat_out):
     """Reorganize and remove data from input Measure objects.
 
@@ -13510,9 +13745,15 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
         # Initialize a reorganized measure competition data dict and efficient
         # fuel split data dict
         comp_data_dict, fs_splits_dict, shapes_dict = ({} for n in range(3))
+<<<<<<< HEAD:scout/ecm_prep.py
         # Retrieve measure contributing microsegment data that are relevant to
         # markets competition in the analysis engine, then remove these data
         # from measure object
+=======
+        # Retrieve measure contributing microsegment data that
+        # is relevant to markets competition in the analysis
+        # engine, then remove these data from measure object
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         for adopt_scheme in m.handyvars.adopt_schemes_prep:
             # Delete contributing microsegment data that are
             # not relevant to competition in the analysis engine
@@ -13651,9 +13892,14 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                   add_stock_total, add_energy_total, add_energy_cost,
                   add_carb_total, add_stock_total_meas, add_energy_total_eff,
                   add_energy_total_eff_capt, add_energy_cost_eff,
+<<<<<<< HEAD:scout/ecm_prep.py
                   add_carb_total_eff, add_fs_stk_eff_remain,
                   add_fs_energy_eff_remain, add_fs_energy_cost_eff_remain,
                   add_fs_carb_eff_remain):
+=======
+                  add_carb_total_eff, add_fs_energy_eff_remain,
+                  add_fs_energy_cost_eff_remain, add_fs_carb_eff_remain):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -13673,9 +13919,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
         add_energy_cost_eff (dict): Total mseg energy cost after measure
             adoption.
         add_carb_total_eff (dict): Total mseg carbon after measure adoption.
+<<<<<<< HEAD:scout/ecm_prep.py
         add_fs_stk_eff_remain (dict): Portion of efficient mseg stock that is
             served by base fuel after measure application (applies to fuel
             switching measures)
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         add_fs_energy_eff_remain (dict): Portion of efficient mseg energy that
             is served by base fuel after measure application (applies to fuel
             switching measures)
@@ -13811,15 +14060,21 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     # the measure applies to. Note that savings breakouts are not provided for
     # stock data as "savings" is not meaningful in this context.
     try:
+<<<<<<< HEAD:scout/ecm_prep.py
         # Define data indexing and reporting variables
         breakout_vars = ["stock", "energy", "cost", "carbon"]
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         # Create a shorthand for baseline and efficient stock/energy/carbon/
         # cost data to add to the breakout dict
         base_data = [add_stock_total, add_energy_total,
                      add_energy_cost, add_carb_total]
         eff_data = [add_stock_total_meas, add_energy_total_eff,
                     add_energy_cost_eff, add_carb_total_eff]
+<<<<<<< HEAD:scout/ecm_prep.py
 
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
         # Create a shorthand for efficient captured energy data to add to the
         # breakout dict
         if add_energy_total_eff_capt:
@@ -13830,11 +14085,22 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
         # be split by fuel, create shorthands for any efficient-case
         # stock/energy/carbon/cost that remains with the baseline fuel
         if self.fuel_switch_to is not None and out_fuel_save:
+<<<<<<< HEAD:scout/ecm_prep.py
+=======
+            # No measure-captured stock remains with existing fuel under fuel
+            # switching
+            add_fs_stk_eff_remain = {
+                yr: 0 for yr in self.handyvars.aeo_years
+            }
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
             eff_data_fs = [add_fs_stk_eff_remain,
                            add_fs_energy_eff_remain,
                            add_fs_energy_cost_eff_remain,
                            add_fs_carb_eff_remain]
+<<<<<<< HEAD:scout/ecm_prep.py
 
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
             # Record the efficient energy that has not yet fuel switched and
             # total efficient energy for the current mseg for later use in
             # packaging and/or competing measures
@@ -13851,7 +14117,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             # been initialized
             try:
                 for yr in self.handyvars.aeo_years:
+<<<<<<< HEAD:scout/ecm_prep.py
                     for ind, key in enumerate(breakout_vars):
+=======
+                    for ind, key in enumerate([
+                            "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                         self.markets[adopt_scheme]["mseg_out_break"][key][
                             "baseline"][out_cz][out_bldg][out_eu][
                             out_fuel_save][yr] += base_data[ind][yr]
@@ -13889,7 +14160,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                         base_data[ind][yr] -
                                         eff_data_fs[ind][yr])
             except KeyError:
+<<<<<<< HEAD:scout/ecm_prep.py
                 for ind, key in enumerate(breakout_vars):
+=======
+                for ind, key in enumerate([
+                        "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                     # Baseline; add in baseline data as-is
                     self.markets[adopt_scheme]["mseg_out_break"][key][
                         "baseline"][out_cz][out_bldg][out_eu][
@@ -13940,7 +14216,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                 # end use, and fuel have not yet been initialized
                 try:
                     for yr in self.handyvars.aeo_years:
+<<<<<<< HEAD:scout/ecm_prep.py
                         for ind, key in enumerate(breakout_vars):
+=======
+                        for ind, key in enumerate([
+                                "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                             # Note: no need to add to baseline for fuel being
                             # switched to, which remains zero
 
@@ -13979,7 +14260,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                         out_cz][out_bldg][out_eu][
                                         out_fuel_gain][yr] += capt_e[yr]
                 except KeyError:
+<<<<<<< HEAD:scout/ecm_prep.py
                     for ind, key in enumerate(breakout_vars):
+=======
+                    for ind, key in enumerate([
+                            "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                         # Baseline for the fuel being switched to is
                         # initialized as zero
                         self.markets[adopt_scheme]["mseg_out_break"][key][
@@ -14031,7 +14317,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             # and fuel have not yet been initialized
             try:
                 for yr in self.handyvars.aeo_years:
+<<<<<<< HEAD:scout/ecm_prep.py
                     for ind, key in enumerate(breakout_vars):
+=======
+                    for ind, key in enumerate([
+                            "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                         self.markets[adopt_scheme]["mseg_out_break"][key][
                             "baseline"][out_cz][out_bldg][out_eu][yr] += \
                             base_data[ind][yr]
@@ -14047,7 +14338,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                 "savings"][out_cz][out_bldg][out_eu][yr] += (
                                     base_data[ind][yr] - eff_data[ind][yr])
             except KeyError:
+<<<<<<< HEAD:scout/ecm_prep.py
                 for ind, key in enumerate(breakout_vars):
+=======
+                for ind, key in enumerate([
+                        "stock", "energy", "cost", "carbon"]):
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
                     self.markets[adopt_scheme]["mseg_out_break"][key][
                         "baseline"][out_cz][out_bldg][out_eu] = {
                             yr: base_data[ind][yr] for
@@ -14081,6 +14377,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             "be reflected in output breakout data")
 
 
+<<<<<<< HEAD:scout/ecm_prep.py
 def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
     if "*" in pkg_subset:
         return existing_pkgs
@@ -14220,6 +14517,8 @@ def dict_raise_on_duplicates(ordered_pairs):
     return d
 
 
+=======
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import and prepare measure attributes for analysis engine.
 
@@ -15047,6 +15346,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 Utils.dump_json(meas_shapes_env_cf, handyfiles.ecm_prep_env_cf_shapes)
 
         # Write metadata for consistent use later in the analysis engine
+<<<<<<< HEAD:scout/ecm_prep.py
         glob_vars = {
             "adopt_schemes": handyvars.adopt_schemes_run,
             "retro_rate": handyvars.retro_rate,
@@ -15059,6 +15359,21 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             "out_break_eus_w_fsplits": handyvars.out_break_eus_w_fsplits
         }
         Utils.dump_json(glob_vars, handyfiles.glob_vars)
+=======
+        with open(path.join(base_dir, handyfiles.glob_vars), "w") as jso:
+            glob_vars = {
+                "adopt_schemes": handyvars.adopt_schemes_run,
+                "retro_rate": handyvars.retro_rate,
+                "aeo_years": handyvars.aeo_years,
+                "discount_rate": handyvars.discount_rate,
+                "out_break_czones": handyvars.out_break_czones,
+                "out_break_bldg_types": handyvars.out_break_bldgtypes,
+                "out_break_enduses": handyvars.out_break_enduses,
+                "out_break_fuels": handyvars.out_break_fuels,
+                "out_break_eus_w_fsplits": handyvars.out_break_eus_w_fsplits
+            }
+            json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
+>>>>>>> 37e5ff5 (Heat cool pairs, attribute shortcuts, refactor breakouts, improve efficiency):ecm_prep.py
     else:
         print('No new ECM updates available')
 
