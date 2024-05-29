@@ -1,6 +1,6 @@
 {
   "name": "(C) ESTAR HP FS (RTU, NG Heat)",
-  "_description": "ENERGY STAR air source heat pump (w/ cold climate specs as applicable) fully replacing original NG RTU equipment",
+  "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) fully replacing original NG RTU equipment",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -82,6 +82,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-05-24 11:40:17"
+    "timestamp": "2024-05-29 10:53:52"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "(C) ESTAR HP Pt. FS (NG Furnace)",
-  "_description": "ENERGY STAR air source heat pump (w/ cold climate specs as applicable) w/ original NG furnace backup",
+  "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) w/ original NG furnace backup",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -25,11 +25,11 @@
   "htcl_tech_link": "ng furnace+cac&rac",
   "tech_switch_to": "ASHP",
   "energy_efficiency": {
-    "cold climate": {
+    "cold climates": {
       "heating": 2.79,
       "cooling": 4.69
     },
-    "warm climate": {
+    "warm climates": {
       "heating": 2.69,
       "cooling": 4.69
     }
@@ -37,7 +37,7 @@
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
     "notes": [
-      "Split system ducted (see Tables 2 (warm climate) and 3 (cold climate) in EPA source)",
+      "Split system ducted (see Tables 2 (warm climates) and 3 (cold climates) in EPA source)",
       "conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
       "split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)"
     ],
@@ -125,6 +125,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-05-24 11:40:17"
+    "timestamp": "2024-05-29 10:53:52"
   }
 }

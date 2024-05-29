@@ -1,6 +1,6 @@
 {
   "name": "(C) Best HP Pt. FS (NG Boiler)",
-  "_description": "Best available air source heat pump (w/ cold climate specs as applicable) w/ original NG boiler backup",
+  "_description": "Best available air source heat pump w/ original NG boiler backup",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -93,6 +93,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-05-24 11:40:17"
+    "timestamp": "2024-05-29 10:53:52"
   }
 }
