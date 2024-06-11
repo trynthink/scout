@@ -109,11 +109,11 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 0.88,
+    "heating": 0.9,
     "cooling": 0.49
   },
   "market_scaling_fractions_source": {
-    "notes": "Heating multiple of 88% was determined as proportion of total homes with heating that have both cooling and heating systems (air conditioning = 1 and heating = 1, 15,638 homes out of 17,745 homes with heating). Cooling multiple of 49% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via natural gas other than steam/hot water (7,845 homes).",
+    "notes": "Heating multiple of 90% was determined as proportion of total homes with gas heating that have both cooling and heating systems (8,624 homes out of 9,595 homes with gas heating). Cooling multiple of 49% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via natural gas other than steam/hot water (7,845 homes).",
     "source_data": {
       "title": "RECS 2020 Microdata",
       "author": "U.S. Energy Information Administration",
@@ -126,6 +126,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-05-29 10:53:52"
+    "timestamp": "2024-06-11 13:55:11"
   }
 }

@@ -124,11 +124,11 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 0.88,
+    "heating": 0.8,
     "cooling": 0.08
   },
   "market_scaling_fractions_source": {
-    "notes": "Heating multiple of 88% was determined as proportion of total homes with heating that have both cooling and heating systems (15,638 homes out of 17,745 homes with heating). Cooling multiple of 8% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via a heating energy source other than natural gas, electricity, or biomass AND heating is done via non:steam/hot water system (1,338 homes).",
+    "notes": "Heating multiple of 80% was determined as proportion of total homes with non-NG fossil-based heating that have both cooling and heating systems (1,968 homes out of 2,451 homes with non-NG fossil heating and cooling). Cooling multiple of 8% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via a heating energy source other than natural gas, electricity, or biomass AND heating is done via non:steam/hot water system (1,338 homes).",
     "source_data": {
       "title": "RECS 2020 Microdata",
       "author": "U.S. Energy Information Administration",
@@ -141,6 +141,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-05-29 10:53:52"
+    "timestamp": "2024-06-11 13:55:11"
   }
 }
