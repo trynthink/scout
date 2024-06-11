@@ -1,0 +1,106 @@
+{
+  "name": "(R) ESTAR HP TS (Resist. Heat, No Cool)",
+  "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) fully replacing original resistance equipment, no existing cooling.",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": "electricity",
+  "fuel_switch_to": null,
+  "backup_fuel_fraction": null,
+  "technology": [
+    "resistance heat",
+    "central AC",
+    "room AC"
+  ],
+  "htcl_tech_link": "resistance heat+no cool",
+  "tech_switch_to": "ASHP",
+  "energy_efficiency": {
+    "cooling": 6.6,
+    "heating": 3.6
+  },
+  "energy_efficiency_units": "COP",
+  "energy_efficiency_source": {
+    "notes": [
+      "Split system ducted (see Tables 2 (warm climates) and 3 (cold climates) in EPA source)",
+      "conversion from original standard: COP = SEER / 3.412, COP = HSPF / 3.412 (see EIA source)",
+      "split system conversion factors SEER2/SEER = 0.95, HSPF2/HSPF = 0.85 (see RESNET source)"
+    ],
+    "source_data": [
+      {
+        "title": "ENERGY STAR Program Requirements Product Specification for Central Air Conditioner and Heat Pump Equipment Version 6.1",
+        "author": "U.S. Environmental Protection Agency",
+        "year": 2022,
+        "pages": 4,
+        "url": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Version%206.1%20Central%20Air%20Conditioner%20and%20Heat%20Pump%20Final%20Specification%20%28Rev.%20January%20%202022%29.pdf"
+      },
+      {
+        "title": "Draft PDS:01, MINHERS Addendum 71, SEER2/HSPF2 Conversions",
+        "author": "RESNET",
+        "year": 2022,
+        "pages": 2,
+        "url": "https://www.resnet.us/about/standards/minhers/draft:pds:01:minhers:addendum:71:seer2:hspf2:conversions/"
+      },
+      {
+        "title": "Residential Demand Module of the National Energy Modeling System: Model Documentation 2014",
+        "author": "U.S. Energy Information Administration",
+        "year": 2014,
+        "pages": 17,
+        "url": "https://www.eia.gov/outlooks/aeo/nems/documentation/archive/pdf/m067(2014).pdf"
+      }
+    ]
+  },
+  "installed_cost": {
+    "new": 4380.0,
+    "existing": 6940.0
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Retail (new) and total installed (existing) for ENERGY STAR ASHPs in 2023.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 39,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 15.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of the ENERGY STAR range",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 39,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": {
+    "heating": 0.15,
+    "cooling": 0.0
+  },
+  "market_scaling_fractions_source": {
+    "notes": "Heating multiple of 15% was determined as proportion of total homes with electric non-HP heating that DO NOT have cooling systems (491 homes out of 3,327 homes with non-HP electric heating). Cooling multiple zeroes out cooling segment.",
+    "source_data": {
+      "title": "RECS 2020 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata"
+    }
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-06-11 13:55:11"
+  }
+}
