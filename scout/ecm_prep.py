@@ -518,7 +518,9 @@ class UsefulVars(object):
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
             'windows solar', 'ventilation', 'other heat gain', 'wall']
-        self.zero_cost_tech = ['infiltration']
+        # Note: ASHP costs are zero by convention in EIA data for new
+        # construction
+        self.zero_cost_tech = ['infiltration', 'ASHP']
         self.inverted_relperf_list = ["ACH", "CFM/ft^2 @ 0.3 in. w.c.",
                                       "kWh/yr", "kWh/day", "SHGC", "HP/CFM",
                                       "kWh/cycle"]
@@ -1124,8 +1126,7 @@ class UsefulVars(object):
                                 'private branch exchanges',
                                 'voice-over-IP telecom',
                                 'point-of-sale systems', 'warehouse robots',
-                                'televisions',  'water services',
-                                'telecom systems', 'other'
+                                'televisions', 'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -1614,17 +1615,11 @@ class UsefulVars(object):
             self.tsv_hourly_lafs = {
                 reg: {
                     "residential": {
-                        bldg: {
-                            eu: None for eu in self.in_all_map[
-                                "end_use"]["residential"]["electricity"]
-                        } for bldg in self.in_all_map[
+                        bldg: {} for bldg in self.in_all_map[
                             "bldg_type"]["residential"]
                     },
                     "commercial": {
-                        bldg: {
-                            eu: None for eu in self.in_all_map[
-                                "end_use"]["commercial"]["electricity"]
-                        } for bldg in self.in_all_map[
+                        bldg: {} for bldg in self.in_all_map[
                             "bldg_type"]["commercial"]
                     }
                 } for reg in valid_regions
@@ -2860,7 +2855,7 @@ class Measure(object):
             # screen out ventilation segments, which are sometimes attached
             # to commercial measures that fuel switch or switch from resistance
             # heating to HPs but are not assumed to switch ventilation tech.
-            if self.tech_switch_to not in [None, "NA"] and (
+            if self.tech_switch_to not in [None, "NA", "same"] and (
                     "secondary" not in mskeys and mskeys[4] != "ventilation"):
                 # Handle tech. switch from same fuel (e.g., resistance to HP);
                 # in this case, fuel remains same as baseline mseg info.
@@ -3509,7 +3504,18 @@ class Measure(object):
                             err_message = "regions the measure applies to: "
                         # full set of building breakouts
                         elif (i == 2):
-                            break_keys = self.bldg_type
+                            # Commercial 'other' and 'unspecified' building
+                            # categories are also used at the end use level.
+                            # When present in both levels, include them only in
+                            # the expected input breakouts at the end use level
+                            # (full commercial building type breakouts are
+                            # rarely used, so this assumes the check should
+                            # prioritize their correct use in breaking out
+                            # inputs by end use.)
+                            bldg_typs_for_brks = [
+                                x for x in self.bldg_type if x not in
+                                self.end_use[mskeys[0]]]
+                            break_keys = bldg_typs_for_brks
                             alt_break_keys = ''
                             err_message = "buildings the measure applies to: "
                         # full set of fuel breakouts
@@ -3906,21 +3912,22 @@ class Measure(object):
                         no_stk_mseg = ""
 
                 # Flag whether exogenous HP rates apply to current mseg.
-                # Assume only heating, secondary heating, water heating, and
-                # cooking end uses are covered by these exogenous rates, and
-                # ensure that these rates are only assessed for equipment
-                # microsegments (e.g., they do not apply to envelope component
-                # heating energy msegs); are only assessed for switching to HPs
-                # or the non-switching alternative (e.g., are not assessed for
-                # like-for-like HP replacements); non-HP equipment cooling
-                # microsegments that are linked with the heating microsegments
+                # Assume only heating, water heating, and cooking end uses are
+                # covered by these exogenous rates (no secondary heating); do
+                # not apply rates to wood stoves; and ensure that these rates
+                # are only assessed for equipment microsegments (e.g., they do
+                # not apply to envelope component heating energy msegs); are
+                # only assessed for switching to HPs or the non-switching
+                # alternative (e.g., are not assessed for like-for-like HP
+                # replacements); non-HP equipment cooling microsegments that
+                # are linked with the heating microsegments
                 # are also subject to the rates; set to None otherwise
-                if self.handyvars.hp_rates and "demand" not in mskeys and \
+                if (self.handyvars.hp_rates and "demand" not in mskeys) and \
+                    ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
                         x in mskeys for x in [
-                            "secondary heating", "heating",
-                            "water heating", "cooking"]]) or (
-                        link_htcl_fs_rates and "cooling" in mskeys)):
+                        "heating", "water heating", "cooking"]]) or (
+                            link_htcl_fs_rates and "cooling" in mskeys)):
                     hp_rate_flag = True
                 else:
                     hp_rate_flag = ""
@@ -3957,6 +3964,7 @@ class Measure(object):
                             comp_tag_exog = "fossil_base_exog"
                 else:
                     comp_tag_exog = ""
+
                 # Further utilize information about which heating and cooling
                 # equipment is paired by the measure (if provided) to ensure
                 # that heating and cooling segments will only be competed
@@ -4517,6 +4525,18 @@ class Measure(object):
                                 self.handyvars.tech_units_map.keys()):
                             convert_fact = self.handyvars.tech_units_map[
                                 perf_units][perf_base_units]
+                            # Warn the user of the value/units conversions
+                            if mskeys[-2] is not None and \
+                                    mskeys[-2] not in cpl_warn:
+                                verboseprint(
+                                    opts.verbose, "WARNING: ECM '" +
+                                    self.name + "' uses units of " +
+                                    str(perf_units) + " for "
+                                    "technology '" + str(mskeys[-2]) +
+                                    "' (requires " + str(perf_base_units) +
+                                    "); base units changed to " +
+                                    str(perf_units) + " and base values"
+                                    " multiplied by " + str(convert_fact))
                             # Convert base performance values to values in
                             # measure performance units
                             perf_base = {yr: (perf_base[yr] * convert_fact) for
@@ -4527,17 +4547,6 @@ class Measure(object):
                             # to measure units, if applicable
                             if i_units_base:
                                 i_units_base = perf_units
-                            # Warn the user of the value/units conversions
-                            if mskeys[-2] is not None and \
-                                    mskeys[-2] not in cpl_warn:
-                                verboseprint(
-                                    opts.verbose, "WARNING: ECM '" +
-                                    self.name + "' uses units of COP for "
-                                    "technology '" + str(mskeys[-2]) +
-                                    "' (requires " + str(perf_base_units) +
-                                    "); base units changed to " +
-                                    str(perf_base_units) + " and base values"
-                                    " multiplied by " + str(convert_fact))
 
                         # Handle case where user has defined a 'windows
                         # conduction' technology without 'windows solar',
@@ -5598,7 +5607,7 @@ class Measure(object):
                                      "water heating"]:
                         # Flag for HP measure (requires special handling)
                         hp_flag = ((
-                            self.tech_switch_to is not None and
+                            self.tech_switch_to not in [None, "NA"] and
                             "HP" in self.tech_switch_to) or any([
                                 x in self.name for x in [
                                     "HP", "heat pump", "Heat Pump"]]))
@@ -5852,8 +5861,7 @@ class Measure(object):
                 # desired (per self.handyvars.aeo_years_summary attribute).
                 if (opts.tsv_metrics is not False or
                     self.tsv_features is not None or (
-                        calc_sect_shapes is True and
-                        yr in self.handyvars.aeo_years_summary)) and (
+                        calc_sect_shapes is True)) and (
                         mskeys[0] == "primary" and (
                             (mskeys[3] == "electricity") or
                             (self.fuel_switch_to == "electricity"))):
@@ -6311,93 +6319,88 @@ class Measure(object):
             (if desired by user) hourly fractions of annual energy load.
         """
 
+        # Set load factor to none
+        load_fact = None
+
+        # Determine end use name in the hourly load data (tsv_load file) to
+        # assign to current end use in the Scout microsegment
+
+        # Test whether hourly load end use name maps directly to mseg end use
+        try:
+            # Do not assign the "other" load shape directly to the
+            # "other" end use in Scout, as this end use has
+            # sub-categories (e.g., dishwashing, pool pumps/heaters,
+            # etc.) that should be used to key in the appropriate load
+            # shape information
+            if mskeys[4] == "other":
+                raise (KeyError)
+            else:
+                # Set load data end use key for use in 'apply_tsv'
+                if mskeys[0] == "primary":
+                    eu = mskeys[4]
+                # Commercial secondary lighting microsegment case: use lighting
+                # load shape for secondary heat/cool impacts from lighting
+                else:
+                    eu = "lighting"
+                # If load factors for current end use have not already been
+                # calculated, attempt to key in load data by that end use
+                if self.handyvars.tsv_hourly_lafs is not None and \
+                    eu not in self.handyvars.tsv_hourly_lafs[mskeys[1]][
+                        bldg_sect][mskeys[2]].keys():
+                    load_fact = tsv_data["load"][bldg_sect][eu]
+        except KeyError:
+            # If there is no load shape for the current end use, handle
+            # the resultant error differently for res./com.
+            if bldg_sect == "residential":
+                # Secondary heating maps to heating load shape
+                if mskeys[4] in ["secondary heating"]:
+                    eu = "heating"
+                # Computers and TVs map to plug loads load shape
+                elif mskeys[4] in ["computers", "TVs"]:
+                    eu = "plug loads"
+                # Clothes drying technology maps to clothes drying
+                elif mskeys[4] == "drying":
+                    eu = "clothes drying"
+                # Other end use maps to various load shapes
+                elif mskeys[4] in ["other", "unspecified"]:
+                    # Other end use technology mapping
+                    tech_map = {
+                        "dishwasher": "dishwasher",
+                        "clothes washing": "clothes washing",
+                        "pool heaters": "pool heaters",
+                        "pool pumps": "pool pumps",
+                        "freezers": "refrigeration",
+                        "portable electric spas": "portable electric spas"}
+                    eu = tech_map.get(mskeys[5], "plug loads")  # All other cases map to other
+                # In all other cases, error
+                else:
+                    raise KeyError(
+                        "The following baseline segment could not be "
+                        "mapped to any baseline load shape in the "
+                        "Scout database: " + str(mskeys))
+            elif bldg_sect == "commercial":
+                # For commercial PCs/non-PC office equipment and MELs,
+                # use the load shape for plug loads
+                if mskeys[4] in ["PCs", "non-PC office equipment",
+                                 "MELs", "cooking", "unspecified"]:
+                    eu = "plug loads"
+                # In all other cases, error
+                else:
+                    raise KeyError(
+                        "The following baseline segment could not be "
+                        "mapped to any baseline load shape in the "
+                        "Scout database: " + str(mskeys))
+
         # If time-sensitive valuation is needed and energy, cost, and carbon
         # re-weighting and load shape information does not already exist for
         # the current combination of region, building type, and end use, set
         # energy load shapes for given climate, building type, and end use
         if self.handyvars.tsv_hourly_lafs is not None and \
-            self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                mskeys[2]][mskeys[4]] is None:
-            # Primary microsegment case: find the load shape associated with
-            # the primary end use
-            if mskeys[0] == "primary":
-                # First, assume there is a load shape for the current end use
-                try:
-                    # Do not assign the "other" load shape directly to the
-                    # "other" end use in Scout, as this end use has
-                    # sub-categories (e.g., dishwashing, pool pumps/heaters,
-                    # etc.) that should be used to key in the appropriate load
-                    # shape information
-                    if mskeys[4] == "other":
-                        raise (KeyError)
-                    else:
-                        # Set load data end use key for use in 'apply_tsv'
-                        eu = mskeys[4]
-                        # Key in the appropriate load shape data
-                        load_fact = tsv_data["load"][bldg_sect][eu]
-                except KeyError:
-                    # If there is no load shape for the current end use, handle
-                    # the resultant error differently for res./com.
-                    if bldg_sect == "residential":
-                        # Secondary heating maps to heating load shape
-                        if mskeys[4] == "secondary heating":
-                            eu = "heating"
-                        # Computers and TVs map to plug loads load shape
-                        elif mskeys[4] in ["computers", "TVs"]:
-                            eu = "plug loads"
-                        # Clothes drying technology maps to clothes drying
-                        elif mskeys[4] == "drying":
-                            eu = "clothes drying"
-                        # Other end use maps to various load shapes
-                        elif mskeys[4] in ["other", "unspecified"]:
-                            # Dishwasher technology maps to dishwasher
-                            if mskeys[5] == "dishwasher":
-                                eu = "dishwasher"
-                            # Clothes washing tech. maps to clothes washing
-                            elif mskeys[5] == "clothes washing":
-                                eu = "clothes washing"
-                            # Pool heaters maps to pool heaters
-                            elif mskeys[5] == "pool heaters":
-                                eu = "pool heater"
-                            # Pool pumps map to pool pumps
-                            elif mskeys[5] == "pool pumps":
-                                eu = "pool pump"
-                            # Freezers map to refrigeration
-                            elif mskeys[5] == "freezers":
-                                eu = "refrigeration"
-                            # Portable electric spas (e.g. hot tubs) map
-                            # to portable electric spas
-                            elif mskeys[5] == "portable electric spas":
-                                eu = "portable electric spas"
-                            # All other maps to other
-                            else:
-                                eu = "plug loads"
-                        # In all other cases, error
-                        else:
-                            raise KeyError(
-                                "The following baseline segment could not be "
-                                "mapped to any baseline load shape in the "
-                                "Scout database: " + str(mskeys))
-                    elif bldg_sect == "commercial":
-                        # For commercial PCs/non-PC office equipment and MELs,
-                        # use the load shape for plug loads
-                        if mskeys[4] in ["PCs", "non-PC office equipment",
-                                         "MELs", "cooking", "unspecified"]:
-                            eu = "plug loads"
-                        # In all other cases, error
-                        else:
-                            raise KeyError(
-                                "The following baseline segment could not be "
-                                "mapped to any baseline load shape in the "
-                                "Scout database: " + str(mskeys))
-                    # Key in the appropriate load shape data
-                    load_fact = tsv_data["load"][bldg_sect][eu]
-
-            # Commercial secondary lighting microsegment case: use the lighting
-            # load shape for secondary heating/cooling impacts from lighting
-            else:
-                eu = "lighting"
-                # Key in the appropriate load shape data
+            eu not in self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
+                mskeys[2]].keys():
+            # Key in the appropriate load shape data if it wasn't successfully
+            # keyed in above via the current end use name
+            if not load_fact:
                 load_fact = tsv_data["load"][bldg_sect][eu]
 
             # Find weights needed to map ASHRAE climate zones to EMM
@@ -6531,7 +6534,7 @@ class Measure(object):
             # need not be calculated again for this combination in
             # subsequent technology microsegments
             self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                mskeys[2]][mskeys[4]] = {
+                mskeys[2]][eu] = {
                     "annual adjustment fractions": copy.deepcopy(
                         updated_tsv_fracs),
                     "hourly shapes": copy.deepcopy(updated_tsv_shapes)}
@@ -6539,9 +6542,9 @@ class Measure(object):
             updated_tsv_fracs, updated_tsv_shapes = [
                 copy.deepcopy(x) for x in [
                     self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                        mskeys[2]][mskeys[4]]["annual adjustment fractions"],
+                        mskeys[2]][eu]["annual adjustment fractions"],
                     self.handyvars.tsv_hourly_lafs[mskeys[1]][bldg_sect][
-                        mskeys[2]][mskeys[4]]["hourly shapes"]]]
+                        mskeys[2]][eu]["hourly shapes"]]]
         else:
             updated_tsv_fracs = {
                 "energy": {"baseline": 1, "efficient": 1},
@@ -8757,15 +8760,16 @@ class Measure(object):
             # previously applied TSV factors to avoid double counting of
             # impacts in the baseline case
             if (calc_sect_shapes is True and
-                self.handyvars.full_dat_out[adopt_scheme]) and yr in \
-                self.handyvars.aeo_years_summary and \
+                self.handyvars.full_dat_out[adopt_scheme] and yr in
+                self.handyvars.aeo_years_summary) and \
                     tsv_shapes is not None:
                 self.sector_shapes[adopt_scheme][mskeys[1]][yr]["baseline"] = [
                     self.sector_shapes[adopt_scheme][mskeys[1]][yr][
                         "baseline"][x] + tsv_shapes["baseline"][x] *
                     (energy_total[yr] / tsv_energy_base) for x in range(8760)]
             elif (calc_sect_shapes is True and
-                  self.handyvars.full_dat_out[adopt_scheme]) and \
+                  self.handyvars.full_dat_out[adopt_scheme] and
+                  yr in self.handyvars.aeo_years_summary) and \
                     tsv_shapes is None and (
                     mskeys[0] == "primary" and (
                         (mskeys[3] == "electricity") or
@@ -8832,48 +8836,70 @@ class Measure(object):
                     diffuse_frac * comp_frac_diffuse
 
             # For primary microsegments only, update portion of stock captured
-            # by efficient measure in previous years
+            # by efficient measure or competed in previous years
             if mskeys[0] == "primary" and yr != self.handyvars.aeo_years[0]:
                 # Set previous year key
                 prev_yr = str(int(yr) - 1)
-
-                # Handle case where captured efficient stock total
-                # is a point value
-                try:
-                    if (stock_total[yr] - stock_compete[yr]) != 0:
-                        meas_cum_frac = \
-                            stock_total_meas[prev_yr] / (
-                                stock_total[yr] - stock_compete[yr])
-                    # When end use and building type are 'unspecified' no stock
-                    # data will be available; base cumulative competed/captured
-                    # fraction on the sum of competed fractions until this pt
-                    else:
-                        meas_cum_frac += (
-                            diffuse_frac * comp_frac_diffuse_meas)
-                    if (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]) != 0:
-                        comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
-                            (stock_total_sbmkt[yr] - stock_compete_sbmkt[yr])
-                    # When end use and building type are 'unspecified' no stock
-                    # data will be available; base cumulative competed fraction
-                    # on the sum of competed fractions up until this point
-                    else:
-                        comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
-                # Handle case where captured efficient stock total
-                # is a numpy array
-                except ValueError:
-                    if all((stock_total[yr] - stock_compete[yr]) != 0):
-                        meas_cum_frac = (
-                            stock_total_meas[prev_yr] /
-                            (stock_total[yr] - stock_compete[yr]))
-                    else:
-                        meas_cum_frac += (
-                            diffuse_frac * comp_frac_diffuse_meas)
-                    if all((stock_total_sbmkt[yr] -
-                            stock_compete_sbmkt[yr]) != 0):
-                        comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
-                            stock_total_sbmkt[yr] - stock_compete_sbmkt[yr]))
-                    else:
-                        comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                # Calculate portion of total stock previously captured by
+                # measure if not already 100%
+                if (not isinstance(meas_cum_frac, numpy.ndarray) and
+                    meas_cum_frac != 1) or (isinstance(
+                        meas_cum_frac, numpy.ndarray) and any(
+                        meas_cum_frac != 1)):
+                    # Handle case where captured efficient stock total
+                    # is a point value
+                    try:
+                        if (stock_total[yr] - stock_compete[yr]) != 0:
+                            meas_cum_frac = \
+                                stock_total_meas[prev_yr] / (
+                                    stock_total[yr] - stock_compete[yr])
+                        # For tech. potential cases, total - competed stock is
+                        # zero; also, when end use and building type are
+                        # 'unspecified' no stock data will be available; base
+                        # cumulative competed/captured fraction on the sum of
+                        # competed fractions until this point
+                        else:
+                            meas_cum_frac += (
+                                diffuse_frac * comp_frac_diffuse_meas)
+                    # Handle case where captured efficient stock total
+                    # is a numpy array
+                    except ValueError:
+                        if all((stock_total[yr] - stock_compete[yr]) != 0):
+                            meas_cum_frac = (
+                                stock_total_meas[prev_yr] /
+                                (stock_total[yr] - stock_compete[yr]))
+                        else:
+                            meas_cum_frac += (
+                                diffuse_frac * comp_frac_diffuse_meas)
+                # Calculate portion of total stock previously competed
+                # if not already 100%
+                if (not isinstance(comp_cum_frac, numpy.ndarray) and
+                    comp_cum_frac != 1) or (isinstance(
+                        comp_cum_frac, numpy.ndarray) and any(
+                        comp_cum_frac != 1)):
+                    try:
+                        if (stock_total_sbmkt[yr] -
+                                stock_compete_sbmkt[yr]) != 0:
+                            comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
+                                (stock_total_sbmkt[yr] -
+                                 stock_compete_sbmkt[yr])
+                        # For tech. potential cases, total - competed stock is
+                        # zero; also, when end use and building type are
+                        # 'unspecified' no stock data will be available; base
+                        # cumulative competed/captured fraction on the sum of
+                        # competed fractions until this point
+                        else:
+                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                    # Handle case where captured efficient stock total
+                    # is a numpy array
+                    except ValueError:
+                        if all((stock_total_sbmkt[yr] -
+                                stock_compete_sbmkt[yr]) != 0):
+                            comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
+                                stock_total_sbmkt[yr] -
+                                stock_compete_sbmkt[yr]))
+                        else:
+                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
 
                 # Ensure neither fraction goes above 1
 
@@ -9507,6 +9533,16 @@ class Measure(object):
             raise ValueError(
                 "Input names in the following list are invalid for ECM '" +
                 self.name + "': " + str(invalid_names))
+        # Check to ensure that measures that fuel switch to electricity apply
+        # to non-electric fuels
+        if self.fuel_switch_to == "electricity" and (
+            self.fuel_type == "electricity" or (
+                isinstance(self.fuel_type, list) and
+                not any([x != "electricity" for x in self.fuel_type]))):
+            raise ValueError(
+                "ECM '" + self.name + "' 'fuel_switch_to' attribute is set "
+                "to electricity but the measure does not apply to any "
+                "non-electric fuels in 'fuel_type'.")
 
     def fill_attr(self):
         """Fill out missing ECM attribute data.
