@@ -340,7 +340,7 @@ class UsefulVars(object):
             sensitive valuation for heating (no load shapes for these gains).
     """
 
-    def __init__(self, base_dir, handyfiles, opts):
+    def __init__(self, base_dir, handyfiles, opts, allow_overwrite=False):
         self.adopt_schemes = opts.adopt_scn_restrict
         self.discount_rate = 0.07
         self.nsamples = 100
@@ -1236,7 +1236,6 @@ class UsefulVars(object):
             "AFUE": {"COP": 1}, "UEF": {"SEF": 1},
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
             "SEF": {"UEF": 1}}
-        self.sf_to_house = {}
         self.com_eqp_eus_nostk = [
             "PCs", "non-PC office equipment", "MELs", "other"]
         self.res_lts_per_home = {
@@ -1548,6 +1547,18 @@ class UsefulVars(object):
         self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
+        self._allow_overwrite = allow_overwrite
+        self._initialized = True
+
+    def __setattr__(self, name, value):
+        if name == "adopt_schemes":
+            print(f"wrting adoptSchems: {value}")
+        if not hasattr(self, "_initialized"):
+            super().__setattr__(name, value)
+        elif hasattr(self, "_allow_overwrite") and self._allow_overwrite:
+            super().__setattr__(name, value)
+        else:
+            raise ValueError(f"Cannot modify instance variables after initialization: {name}")
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -1931,6 +1942,8 @@ class Measure(object):
         eff_fs_splt (dict): Data needed to determine the fuel splits of
             efficient case results for fuel switching measures.
         handyvars (object): Global variables useful across class methods.
+        sf_to_house (dict): Stores information for mapping stock units in
+            sf to number of households, as applicable.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
         tech_switch_to (str, None): Technology switch to flag.
         technology_type (string): Flag for supply- or demand-side technology.
@@ -1983,7 +1996,9 @@ class Measure(object):
         self.sector_shapes = None
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
-        self.handyvars = copy.deepcopy(handyvars)
+        # self.handyvars = copy.deepcopy(handyvars)
+        self.handyvars = handyvars
+        self.sf_to_house = {}
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
@@ -4587,28 +4602,26 @@ class Measure(object):
                     # Check if data were already pulled for current
                     # combination of climate/building type; if not,
                     # pull and store the data
-                    if sf_to_house_key not in \
-                            self.handyvars.sf_to_house.keys():
+                    if sf_to_house_key not in self.sf_to_house.keys():
                         # Conversion from $/sf to $/home divides number of
                         # homes in a given climate/res. building type by the
                         # total square footage of those homes; multiply by 1M
                         # given EIA convention of reporting in Msf
-                        self.handyvars.sf_to_house[sf_to_house_key] = {
+                        self.sf_to_house[sf_to_house_key] = {
                             yr: mseg_sqft_stock["total homes"][yr] / (
                                 mseg_sqft_stock["total square footage"][yr] *
                                 1000000) for yr in self.handyvars.aeo_years}
-
                     # Convert measure costs to $/home (assumed synonymous with
                     # $/unit for envelope cases); handle cases where measure
                     # cost is separated out by year or not
                     try:
                         cost_meas = {
-                            yr: cost_meas[yr] / self.handyvars.sf_to_house[
+                            yr: cost_meas[yr] / self.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
                     except (IndexError, TypeError):
                         cost_meas = {
-                            yr: cost_meas / self.handyvars.sf_to_house[
+                            yr: cost_meas / self.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
                     # Handle special case of a residential lighting controls
@@ -4626,7 +4639,7 @@ class Measure(object):
                     # measures)
                     if sqft_subst == 1:
                         cost_base = {
-                            yr: cost_base[yr] / self.handyvars.sf_to_house[
+                            yr: cost_base[yr] / self.sf_to_house[
                                 sf_to_house_key][yr]
                             for yr in self.handyvars.aeo_years}
                     # Set measure and baseline cost units to $/unit
@@ -5220,10 +5233,10 @@ class Measure(object):
                     # above and applied to the stock costs for these
                     # microsegments, and is reused here for the stock
                     if sf_to_house_key and sf_to_house_key in \
-                            self.handyvars.sf_to_house.keys():
+                            self.sf_to_house.keys():
                         add_stock = {
                             key: val * new_existing_frac[key] *
-                            self.handyvars.sf_to_house[sf_to_house_key][key] *
+                            self.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
