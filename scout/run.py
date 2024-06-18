@@ -2019,25 +2019,29 @@ class Engine(object):
                 # adjust based on segment of current microsegment that was
                 # removed from competition
                 for var in ["energy", "cost", "carbon"]:
-                    # Update baseline and efficient results for the
-                    # baseline fuel in a non-fuel-switching case or a fuel
-                    # switching case without exogenous switching rates, and
-                    # baseline results only for a fuel switching case w/
-                    # exogenous switching rates (efficient results for the
-                    # baseline fuel will be zero in this case and do not
-                    # require further adjustment)
-                    if m.usr_opts["exog_hp_rates"] is not False and \
-                        adj_out_break["switched fuel"][var][
-                            "efficient"] is not None:
-                        vs_list = ["baseline"]
-                    else:
-                        vs_list = ["baseline", "efficient"]
-                        # Energy data may include efficient captured tracking
-                        if (var == "energy") and ("efficient-captured" in adj_out_break[
-                                "base fuel"]["energy"].keys()):
-                            vs_list.append("efficient-captured")
-
-                    for var_sub in vs_list:
+                    # Update baseline and efficient results provided neither is
+                    # None or all zeros
+                    vs_list = [
+                        v if (
+                            adj_out_break["base fuel"][var][v] is not None and
+                            ((not isinstance(adj_out_break["base fuel"][
+                                var][v][yr], numpy.ndarray) and any([
+                                    adj_out_break[
+                                        "base fuel"][var][v][yr] != 0])) or (
+                                isinstance(adj_out_break[
+                                    "base fuel"][var][v][yr], numpy.ndarray)
+                             and any([any([adj_out_break[
+                                "base fuel"][var][v][yr] != 0])])) for
+                                yr in adj_out_break[
+                                    "base fuel"][var][v].keys()))
+                        else "" for v in ["baseline", "efficient"]]
+                    # Energy data may include unique efficient captured
+                    # tracking if efficient breakout data are present
+                    if "efficient" in vs_list and var == "energy" and \
+                            "efficient-captured" in adj_out_break[
+                            "base fuel"]["energy"].keys():
+                        vs_list.append("efficient-captured")
+                    for var_sub in [x for x in vs_list if x]:
                         # Select correct fuel split data
 
                         # Baseline data all with original fuel
@@ -2494,24 +2498,31 @@ class Engine(object):
                     # adjust based on segment of current microsegment that was
                     # removed from competition
                     for var in ["energy", "cost", "carbon"]:
-                        # Update baseline and efficient results for the
-                        # baseline fuel in a non-fuel-switching case or a fuel
-                        # switching case without exogenous switching rates, and
-                        # baseline results only for a fuel switching case w/
-                        # exogenous switching rates (efficient results for the
-                        # baseline fuel will be zero in this case and do not
-                        # require further adjustment)
-                        if m.usr_opts["exog_hp_rates"] is not False and \
-                            adj_out_break["switched fuel"][var][
-                                "efficient"] is not None:
-                            vs_list = ["baseline"]
-                        else:
-                            vs_list = ["baseline", "efficient"]
-                            # Energy data may include efficient captured tracking
-                            if (var == "energy") and ("efficient-captured" in adj_out_break[
-                                    "base fuel"]["energy"].keys()):
-                                vs_list.append("efficient-captured")
-                        for var_sub in vs_list:
+                        # Update baseline and efficient results provided
+                        # neither is None or all zeros
+                        vs_list = [
+                            v if (
+                                adj_out_break["base fuel"][var][v] is not None
+                                and
+                                ((not isinstance(adj_out_break["base fuel"][
+                                    var][v][yr], numpy.ndarray) and any([
+                                        adj_out_break[
+                                            "base fuel"][var][v][yr] != 0])) or
+                                 (isinstance(adj_out_break[
+                                        "base fuel"][var][v][yr],
+                                        numpy.ndarray)
+                                 and any([any([adj_out_break[
+                                    "base fuel"][var][v][yr] != 0])])) for
+                                    yr in adj_out_break[
+                                        "base fuel"][var][v].keys()))
+                            else "" for v in ["baseline", "efficient"]]
+                        # Energy data may include unique efficient captured
+                        # tracking if efficient breakout data are present
+                        if "efficient" in vs_list and var == "energy" and \
+                                "efficient-captured" in adj_out_break[
+                                "base fuel"]["energy"].keys():
+                            vs_list.append("efficient-captured")
+                        for var_sub in [x for x in vs_list if x]:
                             # Set appropriate post-competition adjustment frac.
                             # and fuel split data
                             if var_sub == "baseline":
@@ -2973,298 +2984,13 @@ class Engine(object):
         adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
             "contributing mseg keys and values"][mseg_key]
 
-        # Set up separate set of stock data needed to determine stock turnover
-        # adjustments as part of the measure competition calculations
-
-        # Handle case where an equipment measure has multiple end uses that
-        # include heating and/or cooling and the contributing microsegment
-        # needs to be anchored on the stock turnover of the heating equipment
-        # (or cooling if not available). Such measures might include, for
-        # example, HP measures, HVAC + envelope packages, or controls measures
-        # spanning heating/cooling and other end uses
-        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
-            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
-            or ("heating" not in m.end_use["primary"] and (
-                "cooling" in m.end_use["primary"] and
-                "cooling" not in mseg_key))):
-            # Decompose contributing microsegment key information into a list,
-            # to be modified per comment above
-            key_list = list(literal_eval(mseg_key))
-            # Determine the building type of the contributing microsegment
-            if any([x in mseg_key for x in [
-                    "single family home", "mobile home",
-                    "multi family home"]]):
-                mseg_bldg_sect = "residential"
-            else:
-                mseg_bldg_sect = "commercial"
-            # Case 1: heating is in the measure end uses, while heating is not
-            # in the current contributing microsegment
-            if "heating" in m.end_use["primary"] and (
-                    "heating" not in mseg_key):
-                # Reset end use
-                key_list[4] = "heating"
-                # Ensure the contributing microsegment information is
-                # structured to have the same "supply" key as the heating
-                # microsegment that will ultimately be pulled for stock
-                # turnover calculations
-                if "supply" not in key_list:
-                    key_list = key_list[:5] + ["supply"] + key_list[5:]
-                # Residential case
-                if mseg_bldg_sect == "residential":
-                    # Non-cooling tech. or cooling tech. is non-HP; find
-                    # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "room AC", "central AC"]]) or \
-                            "cooling" not in mseg_key:
-                        # Set tech. to first in list of heating
-                        # technologies that the measure applies to, and set
-                        # the fuel as appropriate to the selected tech.
-                        if "resistance heat" in m.technology["primary"]:
-                            # Reset tech.
-                            key_list[-2] = "resistance heat"
-                            # Reset fuel
-                            key_list[3] = "electricity"
-                        else:
-                            # Initialize list of heating technologies that
-                            # would be expected for a non-HP cooling tech.
-                            tech_search = [x for x in [
-                                "furnace (NG)", "boiler (NG)",
-                                "boiler (distillate)", "furnace (distillate)",
-                                "furnace (LPG)", "furnace (kerosene)",
-                                "stove (wood)"] if x
-                                in m.technology["primary"]]
-                            # If the microsegment is non-cooling (e.g.,
-                            # secondary heating), expand to all commercial
-                            # heating tech.
-                            if "cooling" not in mseg_key:
-                                tech_search.extend(["ASHP", "GSHP", "NGHP"])
-                            if len(tech_search) == 0:
-                                raise ValueError(
-                                    "Contributing microsegment " + mseg_key +
-                                    " for measure " + m.name +
-                                    " has unexpected heating technology "
-                                    "information for stock turnover "
-                                    "calculations")
-                            else:
-                                # Reset tech.
-                                key_list[-2] = tech_search[0]
-                                # Reset fuel
-                                if "NG" in tech_search[0]:
-                                    key_list[3] = "natural gas"
-                                elif "distillate" in tech_search[0]:
-                                    key_list[3] = "distillate"
-                                elif any([x in tech_search[0] for x in [
-                                        "LPG", "kerosene", "wood"]]):
-                                    key_list[3] = "other fuel"
-                                else:
-                                    key_list[3] = "electricity"
-                    # Cooling tech. is HP; heating tech. is identical and no
-                    # further action is needed
-                    elif any([x in mseg_key for x in [
-                            "ASHP", "GSHP", "NGHP"]]):
-                        pass
-                    # If unexpected tech. is present, throw error
-                    else:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
-                            "unexpected technology information for stock "
-                            "turnover calculations")
-                # Commercial case
-                else:
-                    # Non-cooling tech. or cooling tech. is non-HP; find
-                    # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "rooftop_AC", "scroll_chiller",
-                            "res_type_central_AC", "reciprocating_chiller",
-                            "centrifugal_chiller", "wall-window_room_AC",
-                            "screw_chiller", "gas_chiller",
-                            "gas_eng-driven_RTAC"]]) or \
-                            "cooling" not in mseg_key:
-                        # Set tech. to first in list of heating
-                        # technologies that the measure applies to, and set
-                        # the fuel as appropriate to the selected tech.
-
-                        # Initialize list of heating technologies that would
-                        # be expected for a non-HP cooling tech.
-                        tech_search = [x for x in [
-                            "elec_boiler", "electric_res-heat", "gas_boiler",
-                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
-                            m.technology["primary"]]
-                        # If the microsegment is non-cooling (e.g.,
-                        # ventilation), expand to all commercial heating tech.
-                        if "cooling" not in mseg_key:
-                            tech_search.extend([
-                                "rooftop_ASHP-heat", "comm_GSHP-heat",
-                                "gas_eng-driven_RTHP-heat",
-                                "res_type_gasHP-heat"])
-                        if len(tech_search) == 0:
-                            raise ValueError(
-                                "Contributing microsegment " + mseg_key +
-                                " for measure " + m.name + " has unexpected "
-                                "heating technology information for stock "
-                                "turnover calculations")
-                        else:
-                            # Reset tech.
-                            key_list[-2] = tech_search[0]
-                            # Reset fuel
-                            if "elec" in tech_search[0] or any([
-                                    x in tech_search[0] for
-                                    x in ["ASHP", "GSHP"]]):
-                                key_list[3] = "electricity"
-                            elif "gas" in tech_search[0]:
-                                key_list[3] = "natural gas"
-                            else:
-                                key_list[3] = "distillate"
-                    # Cooling tech. is HP; select analogous heating HP tech.
-                    # name
-                    elif "comm_GSHP-cool" in mseg_key:
-                        key_list[-2] = "comm_GSHP-heat"
-                    elif "rooftop_ASHP-cool" in mseg_key:
-                        key_list[-2] = "rooftop_ASHP-heat"
-                    elif "gas_eng-driven_RTHP-cool" in mseg_key:
-                        key_list[-2] = "gas_eng-driven_RTHP-heat"
-                    elif "res_type_gasHP-cool" in mseg_key:
-                        key_list[-2] = "res_type_gasHP-heat"
-                    # If unexpected tech. is present, throw error
-                    else:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
-                            "unexpected technology information for stock "
-                            "turnover calculations")
-            # Case 2: heating is not in the measure end uses, cooling is in the
-            # measure end uses, and cooling is not in the current contributing
-            # microsegment
-            elif "heating" not in m.end_use["primary"] and (
-                    "cooling" in m.end_use["primary"] and "cooling" not in
-                    mseg_key):
-                # Reset end use
-                key_list[4] = "cooling"
-                # Ensure the contributing microsegment information is
-                # structured to have the same "supply" key as the cooling
-                # microsegment that will ultimately be pulled for stock
-                # turnover calculations
-                if "supply" not in key_list:
-                    key_list = key_list[:5] + ["supply"] + key_list[5:]
-                # Residential case
-                if mseg_bldg_sect == "residential":
-                    # Set tech. to first in list of cooling
-                    # technologies that the measure applies to, and set
-                    # the fuel as appropriate to the selected tech.
-                    tech_search = [x for x in [
-                        "central AC", "ASHP", "room AC", "GSHP", "NGHP"] if
-                        x in m.technology["primary"]]
-                    if len(tech_search) == 0:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
-                    else:
-                        # Reset tech.
-                        key_list[-2] = tech_search[0]
-                        # Reset fuel
-                        if tech_search[0] == "NGHP":
-                            key_list[3] = "natural gas"
-                        else:
-                            key_list[3] = "electricity"
-                # Commercial case
-                else:
-                    # Set tech. to first in list of cooling
-                    # technologies that the measure applies to, and set
-                    # the fuel as appropriate to the selected tech.
-                    tech_search = [x for x in [
-                        "rooftop_AC", "rooftop_ASHP-cool",
-                        "reciprocating_chiller", "scroll_chiller",
-                        "centrifugal_chiller", "screw_chiller",
-                        "res_type_central_AC", "comm_GSHP-cool",
-                        "wall-window_room_AC", "gas_eng-driven_RTAC",
-                        "gas_chiller", "res_type_gasHP-cool",
-                        "gas_eng-driven_RTHP-cool"] if x in
-                        m.technology["primary"]]
-                    if len(tech_search) == 0:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
-                    else:
-                        # Reset tech.
-                        key_list[-2] = tech_search[0]
-                        # Reset fuel
-                        if "gas" in tech_search[0]:
-                            key_list[3] = "natural gas"
-                        else:
-                            key_list[3] = "electricity"
-            else:
-                raise ValueError(
-                    "Contributing microsegment " + mseg_key +
-                    " for measure " + m.name +
-                    " has unexpected information for stock turnover "
-                    "calculations")
-            # After making the adjustments above, convert the modified
-            # contributing microsegment information back into a string
-            # to use in keying in needed stock data
-            mseg_key_stk_trk = str(tuple(key_list))
-            # For HP measures with exogenously-specified switching
-            # rates, the heating technology will be specified in contributing
-            # microsegment data with an "-FS" or "-RST" appended; develop
-            # alternate stock data keys to switch to to handle this case
-            key_list_alt1, key_list_alt2 = (
-                copy.deepcopy(key_list) for n in range(2))
-            key_list_alt1[-2], key_list_alt2[-2] = [
-                (key_list_alt1[-2] + "-FS"), (key_list_alt2[-2] + "-RST")]
-            mseg_key_stk_trk_alt1, mseg_key_stk_trk_alt2 = (
-                str(tuple(key_list_alt1)), str(tuple(key_list_alt2)))
-        # Handle all other cases, where stock data will be available for
-        # the contributing microsegment to be adjusted as-is
-        else:
-            # Use contributing microsegment info. as-is to key in stock data
-            mseg_key_stk_trk = mseg_key
-            # Alternate stock data key does not apply in this case
-            mseg_key_stk_trk_alt1, mseg_key_stk_trk_alt2 = (
-                None for n in range(2))
-
-        # Pull data for stock turnover calculations for the current
-        # contributing microsegment, using the data key information from above;
-        # note that these calculations rely on pre-competition (unadjusted)
-        # stock data that will be common to all measures that compete for
-        # the microsegment
-
-        # Handle case where data are keyed in with additional "-FS" or "-RST"
-        # in the tech. information (use alternate stock data key from above)
-        try:
-            adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
-        except KeyError:
-            try:
-                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
-                    "mseg_adjust"]["contributing mseg keys and values"][
-                    mseg_key_stk_trk_alt1]["stock"]
-            except KeyError:
-                try:
-                    adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
-                        "mseg_adjust"]["contributing mseg keys and values"][
-                        mseg_key_stk_trk_alt2]["stock"]
-                except KeyError:
-                    # Handle case where expected microsegment stock data to be
-                    # linked to the stock turnover calculations for the current
-                    # microsegment is not available; key in stock data with the
-                    # current microsegment stock info.
-                    try:
-                        adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
-                            "mseg_adjust"][
-                            "contributing mseg keys and values"][
-                            mseg_key]["stock"]
-                    except KeyError:
-                        raise ValueError(
-                            "Stock turnover data could not be keyed in "
-                            "for contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " using the "
-                            "keys " + mseg_key_stk_trk + ", " +
-                            mseg_key_stk_trk_alt1 + ", " +
-                            mseg_key_stk_trk_alt2 + ", or" + mseg_key)
+        # Set up separate set of stock data needed to determine stock
+        # turnover adjustments as part of the measure competition calculations;
+        # separate data are needed because the 'adj' data above are further
+        # adjusted with competition, where stock data before competition
+        # adjustments are needed for the turnover calculations
+        adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
+            "contributing mseg keys and values"][mseg_key]["stock"]
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
@@ -3672,29 +3398,27 @@ class Engine(object):
         # fraction; adjust based on segment of current microsegment that was
         # removed from competition
         for var in ["energy", "cost", "carbon"]:
-            # Update baseline and efficient results for the baseline fuel in a
-            # non-fuel-switching case or a fuel switching case without
-            # exogenous switching rates, and baseline results only for a fuel
-            # switching case w/ exogenous switching rates (efficient results
-            # for the baseline fuel will be zero in this case and do not
-            # require further adjustment)
-            if measure.usr_opts["exog_hp_rates"] is not False and \
-                    adj_out_break[
-                        "switched fuel"][var]["efficient"] is not None:
-                vs_list = ["baseline"]
-            else:
-                # Energy data may include unique efficient captured tracking
-                if var != "energy":
-                    vs_list = ["baseline", "efficient"]
-                else:
-                    if "efficient-captured" in \
-                            adj_out_break["base fuel"]["energy"].keys():
-                        vs_list = [
-                            "baseline", "efficient", "efficient-captured"]
-                    else:
-                        vs_list = ["baseline", "efficient"]
-            for var_sub in vs_list:
-                # Adjustment fraction is unique to baseline/efficient results
+            # Update baseline and efficient results provided
+            # neither is None or all zeros
+            vs_list = [v if (
+                adj_out_break["base fuel"][var][v] is not None and (
+                    (not isinstance(adj_out_break["base fuel"][
+                        var][v][yr], numpy.ndarray) and any([
+                            adj_out_break["base fuel"][var][v][yr] != 0])) or
+                    (isinstance(
+                        adj_out_break["base fuel"][var][v][yr], numpy.ndarray)
+                     and any([any([adj_out_break[
+                        "base fuel"][var][v][yr] != 0])])) for yr in
+                    adj_out_break["base fuel"][var][v].keys()))
+                else "" for v in ["baseline", "efficient"]]
+            # Energy data may include unique efficient captured tracking
+            # if efficient breakout data are present
+            if "efficient" in vs_list and var == "energy" and \
+                    "efficient-captured" in adj_out_break[
+                    "base fuel"]["energy"].keys():
+                vs_list.append("efficient-captured")
+            for var_sub in [x for x in vs_list if x]:
+                # Adjustment fraction unique to baseline/efficient results
                 if var_sub == "baseline":
                     adj_t = adj_t_b[var]
                 else:
