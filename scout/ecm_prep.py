@@ -337,6 +337,14 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
+        link_htcl_tover_anchor_eu = For measures that apply to separate heating
+            and cooling technologies, stock turnover and exogenous switching
+            rates will be anchored on this end use
+        link_htcl_tover_anchor_tech_opts = For measures that apply to separate
+            heating and cooling technologies, stock turnover and exogenous
+            switching rates will be anchored on whichever technology in the
+            measure's definition appears first in the lists in this dict,
+            given the anchor end use above and applicable bldg. type (res/com)
         fug_emissions (dict): Refrigerant leakage data and supply chain
             methane data to support assessments of fugitive emissions.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
@@ -755,6 +763,34 @@ class UsefulVars(object):
                 "room AC", "wall-window_room_AC", "secondary heater",
                 "secondary heater (wood)", "secondary heater (coal)",
                 "secondary heater (kerosene)", "secondary heater (LPG)"]
+
+        # Information for anchoring linked heating/cooling stock turnover
+        # and exogenous switching rate calculations
+
+        # End use anchor
+        self.link_htcl_tover_anchor_eu = "heating"
+        # Technology anchor – list order assigns priority for which technology
+        # in a measure's definition serves as the anchor
+        self.link_htcl_tover_anchor_tech_opts = {
+            "residential": {
+                "heating": [
+                    "resistance heat", "furnace (NG)", "boiler (NG)",
+                    "furnace (distillate)", "boiler (distillate)",
+                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)"],
+                "cooling": ["central AC", "room AC"]
+            },
+            "commercial": {
+                "heating": [
+                    "electric_res-heat", "gas_boiler", "gas_furnace",
+                    "oil_boiler", "oil_furnace"],
+                "cooling": [
+                    "rooftop_AC", "centrifugal_chiller",
+                    "reciprocating_chiller", "screw_chiller",
+                    "res_type_central_AC", "scroll_chiller",
+                    "res_type_central_AC", "wall-window_room_AC",
+                    "gas_eng-driven_RTAC", "gas_chiller"]
+            }
+        }
 
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
@@ -2037,15 +2073,26 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs)
+        linked_htcl_tover (str, None): Flags the need to link stock turnover
+            and exogenous rate switching calculations for measures that apply
+            to separate heating and cooling technologies/segments (initialized
+            as None and updated in 'fill_mkts' function.)
+        linked_htcl_tover_anchor_tech (str, None): Sets the technology to use
+            as an anchor for linking stock turnover and exogenous rate
+            switching calculations for measures that apply to separate heating
+            and cooling technologies/segments (initialized as None and updated
+            in 'fill_mkts' function.)
         technology_type (string): Flag for supply- or demand-side technology.
         yrs_on_mkt (list): List of years that the measure is active on market.
         markets (dict): Data grouped by adoption scheme on:
             a) 'master_mseg': a measure's master market microsegments (stock,
                energy, carbon, cost),
             b) 'mseg_adjust': all microsegments that contribute to each master
-               microsegment (required later for measure competition).
+               microsegment (required later for measure competition); competed
+               choice model parameters; information need to link stock turnover
+               and/or exogenous fuel/tech switching rates across msegs.
             c) 'mseg_out_break': master microsegment breakdowns by key
-               variables (climate zone, building class, end use)
+               variables (climate zone, building class, end use, fuel)
         sector_shapes (dict): Sector-level hourly baseline and efficient load
             shapes by adopt scheme, EMM region, and year
     """
@@ -2131,6 +2178,8 @@ class Measure(object):
                 self.htcl_tech_link = ""
         except AttributeError:
             self.htcl_tech_link = ""
+        self.linked_htcl_tover, self.linked_htcl_tover_anchor_tech = (
+            None for n in range(2))
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -2471,7 +2520,16 @@ class Measure(object):
                             "original energy (total captured)": {},
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
-                            "adjusted energy (competed and captured)": {}}}})])
+                            "adjusted energy (competed and captured)": {}}},
+                    "paired heat/cool mseg adjustments": {
+                        "original total stock": {},
+                        "adjusted total stock": {},
+                        "original competed stock": {},
+                        "adjusted competed stock": {},
+                        "cumulative captured stock": {},
+                        "cumulative competed stock": {},
+                        "heat pump conversions": {}
+                    }})])
             # Initialize efficient energy captured by measure if user does
             # not suppress reporting of this additional variable
             if self.usr_opts["no_eff_capt"] is not True:
@@ -2745,15 +2803,83 @@ class Measure(object):
         # Determine "primary" microsegment key chains
         ms_iterable, ms_lists = self.create_keychain("primary")
 
-        # Insert a flag for linking heating and cooling microsegments, if
-        # applicable; when linked, heat pump conversion rates for heating
-        # microsegments will also be applied to the cooling microsegments
-        # affected by the measure in a given building type/region
-        if self.handyvars.hp_rates and all([
-                x in ms_lists[3] for x in ["heating", "cooling"]]):
-            link_htcl_fs_rates = True
-        else:
-            link_htcl_fs_rates = ""
+        # Update information needed to link the stock turnover rates and
+        # exogenous HP conversion rates for measures that apply to separate
+        # heating and cooling tech. microsegments, as applicable. Such links
+        # are only needed for equipment microsegments (e.g., not envelope) and
+        # for technologies that are not already linked across heating/cooling
+        # end uses (e.g., not HPs)
+        if all([x in self.end_use["primary"] for x in [
+            "heating", "cooling"]]) and (
+                    "demand" not in self.technology_type["primary"]) and all([
+                (x is None or "HP" not in x)
+                for x in self.technology["primary"]]):
+            # Reset flag for linked heating/cooling mseg turnover
+            self.linked_htcl_tover = True
+            try:
+                # Set applicable building sector for the measure to use in
+                # linking heating/cooling turnover and switching calculations.
+                # Note that if measure applies to both residential and
+                # commercial buildings (which is not recommended or typical
+                # practice for ECM definitions), this approach will result in
+                # the use of residential technologies to anchor linked turnover
+                # across measure markets
+                if any([x in ["single family home", "mobile home",
+                              "multi family home"] for x in self.bldg_type]):
+                    bldg_sect = "residential"
+                else:
+                    bldg_sect = "commercial"
+                # Pull the ordered list of candidate technologies to serve as
+                # anchor for linked heating/cooling turnover and switching
+                # calculations (these are specified by building sector and by
+                # the anchor end use set in UsefulVars class earlier)
+                linked_htcl_tover_anchor_tech_list = [
+                    x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
+                        bldg_sect][self.handyvars.link_htcl_tover_anchor_eu]]
+                # Find the first in the ordered list of candidate technologies
+                # that the measure applies to, use as anchor for linked
+                # heating/cooling mseg turnover and switching calculations
+                self.linked_htcl_tover_anchor_tech = [
+                    x for x in linked_htcl_tover_anchor_tech_list if x in
+                    self.technology["primary"]][0]
+            except IndexError:
+                # Throw error if no anchor technology could be determined
+                raise ValueError(
+                    "Cannot find anchor technology to link heating "
+                    "and cooling microsegment stock turnover rates for "
+                    "measure '" + self.name + "'. Check measure "
+                    "'technology' attribute to ensure one or more items "
+                    "are included in the following list: " +
+                    str(linked_htcl_tover_anchor_tech_list))
+            # Given no error after the calculations above, reset the iterable
+            # that determines how measure msegs are looped through to ensure
+            # that msegs with the the anchor end use and technology for linked
+            # heating/cooling turnover and switching calculations are always
+            # looped through first (so linked turnover data will already be
+            # available for heating/cooling msegs that do not serve as anchor)
+
+            # Register initial length of ms_iterable for check
+            iter_len_check = len(ms_iterable)
+            # Set end use and technology anchor names
+            first_eu_tech = [self.handyvars.link_htcl_tover_anchor_eu,
+                             self.linked_htcl_tover_anchor_tech]
+            # Find subset of iterable with msegs that apply to the anchor
+            # end use and technology
+            ms_iterable_first = [x for x in ms_iterable if all([
+                y in x for y in first_eu_tech])]
+            # Find subset of iterable with msegs that do not apply to the
+            # anchor end use and technology
+            ms_iterable_second = [x for x in ms_iterable if any([
+                y not in x for y in first_eu_tech])]
+            # Recombined two subsets above into updated iterable to loop
+            ms_iterable = ms_iterable_first + ms_iterable_second
+            # Ensure that resorted iterable is of same length as original
+            if len(ms_iterable) != iter_len_check:
+                raise ValueError(
+                    "Microsegments list for measure '" + self.name +
+                    "' changed after resorting list to ensure proper "
+                    "linking of heating/cooling stock turnover and switching "
+                    "calculations")
 
         # If needed, fill out any secondary microsegment fuel type, end use,
         # and/or technology input attributes marked 'all' by users. Determine
@@ -3920,14 +4046,14 @@ class Measure(object):
                 # only assessed for switching to HPs or the non-switching
                 # alternative (e.g., are not assessed for like-for-like HP
                 # replacements); non-HP equipment cooling microsegments that
-                # are linked with the heating microsegments
+                # are linked with the heating microsegments turnover/switching
                 # are also subject to the rates; set to None otherwise
                 if (self.handyvars.hp_rates and "demand" not in mskeys) and \
                     ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
                         x in mskeys for x in [
-                        "heating", "water heating", "cooking"]]) or (
-                            link_htcl_fs_rates and "cooling" in mskeys)):
+                        "heating", "water heating", "cooking"]]) or
+                        (self.linked_htcl_tover and "cooling" in mskeys)):
                     hp_rate_flag = True
                 else:
                     hp_rate_flag = ""
@@ -5923,8 +6049,9 @@ class Measure(object):
                      add_carb_cost_eff, add_stock_cost_compete,
                      add_energy_cost_compete, add_carb_cost_compete,
                      add_stock_cost_compete_meas, add_energy_cost_compete_eff,
-                     add_carb_cost_compete_eff, add_fs_energy_eff_remain,
-                     add_fs_carb_eff_remain, add_fs_energy_cost_eff_remain,
+                     add_carb_cost_compete_eff, add_fs_stk_eff_remain,
+                     add_fs_energy_eff_remain, add_fs_carb_eff_remain,
+                     add_fs_energy_cost_eff_remain,
                      mkt_scale_frac_fin, warn_list] = \
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys, bldg_sect,
@@ -6068,6 +6195,7 @@ class Measure(object):
                             add_carb_total, add_stock_total_meas,
                             add_energy_total_eff, add_energy_total_eff_capt,
                             add_energy_cost_eff, add_carb_total_eff,
+                            add_fs_stk_eff_remain,
                             add_fs_energy_eff_remain,
                             add_fs_energy_cost_eff_remain,
                             add_fs_carb_eff_remain)
@@ -7866,16 +7994,21 @@ class Measure(object):
         comp_cum_frac = 0
         stock_total_hp_convert_frac = 0
         turnover_cap_not_reached = True
+        # Initialize turnover fractions that may have already been determined
+        # for heating/cooling msegs with linked turnover calculations
+        diffuse_frac_linked, comp_frac_diffuse_linked, cum_frac_linked, new_cool_units = (
+            None for n in range(4))
 
         # Initialize flag for whether measure is on the market in a given year
         # as false
         measure_on_mkt, measure_exited_mkt = ("" for n in range(2))
 
-        # Initialize variables that capture the portion of baseline
+        # Initialize variables that capture the portion of baseline stock,
         # energy, carbon, and energy cost that remains with the baseline fuel
         # (for fuel switching measures only)
-        fs_energy_eff_remain, fs_carb_eff_remain, fs_energy_cost_eff_remain = (
-            {yr: 0 for yr in self.handyvars.aeo_years} for n in range(3))
+        fs_stk_eff_remain, fs_energy_eff_remain, fs_carb_eff_remain, \
+            fs_energy_cost_eff_remain = ({
+                yr: 0 for yr in self.handyvars.aeo_years} for n in range(4))
 
         # In cases where secondary microsegments are present, initialize a
         # dict of year-by-year secondary microsegment adjustment information
@@ -7949,11 +8082,133 @@ class Measure(object):
                 secnd_adj_mktshr["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
                         self.handyvars.aeo_years, 0)
+            linked_htcl_tover_anchor_tech = None
+        # Handle case where turnover/switching calculations for the current
+        # primary mseg are flagged as being linked to those of another mseg
+        elif self.linked_htcl_tover:
+            # Determine whether currently looped through mseg tech. serves as
+            # anchor tech for linked turnover/switching calcs. across measure
+            linked_htcl_tover_anchor_tech = (
+                self.linked_htcl_tover_anchor_tech == mskeys[-2])
+            # Determine the region, building type, and structure type that is
+            # shared by the linked heating and cooling microsegments
+            htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
+            # Set shorthands for pulling linked turnover data from
+            # measure market information
+            total_htcl_lnk, total_htcl_lnk_adj, compete_htcl_lnk, \
+                compete_htcl_lnk_adj, cum_capt_htcl_lnk, cum_comp_htcl_lnk, \
+                total_hp_converts = [
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "paired heat/cool mseg adjustments"][x] for x in [
+                        "original total stock", "adjusted total stock",
+                        "original competed stock", "adjusted competed stock",
+                        "cumulative captured stock",
+                        "cumulative competed stock", "heat pump conversions"]]
+            # Determine whether linked turnover data for the current
+            # combination of region, building type, and structure type have
+            # already been updated at least once (those keys for linking
+            # will be present in the market data pulled above)
+            if htcl_lnk_adjkey not in total_htcl_lnk.keys():
+                initiate_linked_dat = True
+            else:
+                initiate_linked_dat = False
 
+            # If the current mseg tech. serves as an anchor for linking
+            # heating/cooling turnover and linking data have not yet been
+            # initiated, initiate these data as zero (they will be updated
+            # later on below)
+            if initiate_linked_dat and linked_htcl_tover_anchor_tech:
+                total_htcl_lnk[htcl_lnk_adjkey], \
+                    total_htcl_lnk_adj[htcl_lnk_adjkey], \
+                    compete_htcl_lnk[htcl_lnk_adjkey], \
+                    compete_htcl_lnk_adj[htcl_lnk_adjkey], \
+                    cum_capt_htcl_lnk[htcl_lnk_adjkey], \
+                    cum_comp_htcl_lnk[htcl_lnk_adjkey] = (
+                    dict.fromkeys(self.handyvars.aeo_years, 0)
+                    for n in range(6))
+            # If the current mseg. tech. does not serve as an anchor for
+            # linking heating/cooling turnover, check whether applicable
+            # linking data have already been initiated for this mseg's region,
+            # building type, and structure type, as would be expected. If so,
+            # use those data to determine stock turnover fractions for the
+            # current mseg. If not, warn the user while continuing with
+            # unlinked turnover calculations for the mseg
+            elif not linked_htcl_tover_anchor_tech:
+                # Set contingency value for linked diffusion fraction
+                # in cases where the total stock for the linked segment is zero
+                # (or has otherwise been screened out due to missing EIA data).
+                # When exogenous switching rates are used and the measure is
+                # switching away from the baseline technology, this
+                # translates to zero conversions of the anchor segment and
+                # that should be carried through to the linked segment;
+                # otherwise, full diffusion for the linked segment should
+                # be assumed
+                if hp_rate and (self.fuel_switch_to == "electricity" or (
+                        self.tech_switch_to not in [None, "NA"])):
+                    null_val = 0
+                else:
+                    null_val = 1
+                if not initiate_linked_dat:
+                    # Update stock turnover fractions for current mseg based
+                    # on turnover data calculated for linked anchor
+                    # heating/cooling mseg
+                    diffuse_frac_linked = {
+                        yr: total_htcl_lnk_adj[htcl_lnk_adjkey][yr] /
+                        total_htcl_lnk[htcl_lnk_adjkey][yr] if
+                        total_htcl_lnk[htcl_lnk_adjkey][yr] != 0 else
+                        null_val for yr in self.handyvars.aeo_years}
+                    # When stock for anchor segment after adjustment for
+                    # diffusion fraction is zero, set competition fraction for
+                    # linked segment to zero since competition of the linked to
+                    # segment is contingent on that of the anchor segment
+                    comp_frac_diffuse_linked = {
+                        yr: compete_htcl_lnk_adj[htcl_lnk_adjkey][yr] /
+                        total_htcl_lnk_adj[htcl_lnk_adjkey][yr] if
+                        total_htcl_lnk_adj[htcl_lnk_adjkey][yr] != 0
+                        else 0 for yr in self.handyvars.aeo_years}
+                    # Pull all data needed to determine cumulative captured
+                    # and cumulative competed stock for the current mseg
+                    # based on values from linked anchor heating/cooling mseg
+                    cum_frac_linked = {
+                        "original total stock":
+                            total_htcl_lnk[htcl_lnk_adjkey],
+                        "adjusted total stock":
+                            total_htcl_lnk_adj[htcl_lnk_adjkey],
+                        "original competed stock":
+                            compete_htcl_lnk[htcl_lnk_adjkey],
+                        "adjusted competed stock":
+                            compete_htcl_lnk_adj[htcl_lnk_adjkey],
+                        "cumulative captured stock":
+                            cum_capt_htcl_lnk[htcl_lnk_adjkey],
+                        "cumulative competed stock":
+                            cum_comp_htcl_lnk[htcl_lnk_adjkey]}
+                else:
+                    # When no data can be pulled for the linked anchor segment,
+                    # set diffusion fraction to the null_val specified above
+                    # and competition fraction to zero; also set data needed
+                    # to determined cumulative stock fractions to zero
+                    diffuse_frac_linked = {
+                        yr: null_val for yr in self.handyvars.aeo_years}
+                    comp_frac_diffuse_linked = {
+                        yr: 0 for yr in self.handyvars.aeo_years}
+                    cum_frac_linked = 0
+                    verboseprint(
+                        opts.verbose,
+                        "WARNING: No data available to link mseg " +
+                        str(mskeys) +
+                        " for measure '" + self.name + "' with " +
+                        self.linked_htcl_tover_anchor_tech + " " +
+                        self.handyvars.link_htcl_tover_anchor_eu +
+                        " turnover rates; unlinking turnover")
         # In cases where no secondary heating/cooling microsegment is present,
-        # set secondary microsegment adjustment key to None
+        # and there are no linked stock turnover rates for primary heating and
+        # cooling microsegments, set relevant adjustment variables to None
         else:
-            secnd_mseg_adjkey = None
+            secnd_mseg_adjkey, linked_htcl_tover_anchor_tech, \
+                htcl_lnk_adjkey, total_htcl_lnk, total_htcl_lnk_adj, \
+                compete_htcl_lnk_adj, compete_htcl_lnk_adj, \
+                cum_capt_htcl_lnk, cum_comp_htcl_lnk, total_hp_converts = (
+                    None for n in range(10))
 
         # Set time sensitive energy scaling factors for all baseline stock
         # (does not depend on year)
@@ -8177,8 +8432,11 @@ class Measure(object):
 
             # Calculate new, replacement, and retrofit fractions for the
             # baseline and efficient stock as applicable. * Note: these
-            # fractions are 0 for secondary microsegments
-            if mskeys[0] == "primary":
+            # fractions are 0 for secondary microsegments, and should also not
+            # be calculated if the mseg is a heating/cooling mseg with links
+            # to the stock turnover rates of another mseg that have already
+            # been determined
+            if mskeys[0] == "primary" and not comp_frac_diffuse_linked:
                 # Calculate the portions of existing baseline and efficient
                 # stock that are up for replacement
 
@@ -8348,8 +8606,11 @@ class Measure(object):
                 if any(comp_frac_sbmkt > 1):
                     comp_frac_sbmkt[numpy.where(comp_frac_sbmkt > 1)] = 1
 
-            # Diffusion of electric HPs according to pre-determined rates
-            if hp_rate and mskeys[0] == "primary":
+            # Diffusion of electric HPs according to pre-determined rates;
+            # these calculations need not proceed if the mseg is a heating/
+            # cooling mseg with links to the switching rates of another mseg
+            # that have already been determined
+            if not diffuse_frac_linked and hp_rate and mskeys[0] == "primary":
                 # Find the annual fraction of the total stock that is converted
                 # to a heat pump; set to 100% for technical potential,
                 # otherwise set to the new/replacement stock (and, if user
@@ -8452,13 +8713,30 @@ class Measure(object):
                             stock_total_hp_convert[yr])
                     else:
                         comp_frac_diffuse = 0
-            # All other measure diffusion cases
-            else:
+                # Multiply diffusion fractions calculated above
+                # (to represent exogenous HP switching rates, if applicable)
+                # by further fraction to represent slow diffusion of info.
+                # for emerging technologies
+                diffuse_frac *= years_diff_fraction_dictionary[yr]
+            # All other measure diffusion cases where diffusion scaling and
+            # competed diffusion fractions were not already calculated
+            elif not diffuse_frac_linked:
                 # Currently no diffusion scaling
                 diffuse_frac = 1
                 # Competed fraction is that calculated above for the mseg
                 # after applying submkt scaling
                 comp_frac_diffuse = comp_frac_sbmkt
+                # Multiply diffusion fractions calculated above
+                # (to represent exogenous HP switching rates, if applicable)
+                # by further fraction to represent slow diffusion of info.
+                # for emerging technologies
+                diffuse_frac *= years_diff_fraction_dictionary[yr]
+            # Case where mseg's stock turnover and switching rates are linked
+            # to another mseg and have already been calculated; set to those
+            # rates, which were pulled above
+            else:
+                diffuse_frac = diffuse_frac_linked[yr]
+                comp_frac_diffuse = comp_frac_diffuse_linked[yr]
 
             # Ensure that competed diffusion fraction is always between 0 and 1
             if not isinstance(comp_frac_diffuse, numpy.ndarray):
@@ -8471,12 +8749,6 @@ class Measure(object):
                     comp_frac_diffuse[numpy.where(comp_frac_diffuse > 1)] = 1
                 elif any(comp_frac_diffuse < 0):
                     comp_frac_diffuse[numpy.where(comp_frac_diffuse < 0)] = 0
-
-            # Multiply diffusion fractions calculated above
-            # (to represent exogenous HP switching rates, if applicable)
-            # by further fraction to represent slow diffusion of information
-            # for emerging technologies
-            diffuse_frac *= years_diff_fraction_dictionary[yr]
 
             # If the measure is on the market, the competed fraction that
             # is captured by the measure is the same as the competed fraction
@@ -8801,6 +9073,7 @@ class Measure(object):
             carb_compete[yr] = \
                 carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
                 tsv_carb_base
+
             # Final competed fugitive emissions markets after accounting for
             # diffusion/conversion dynamics that restrict a measure's
             # access to it's full baseline market (after sub-mkt scaling), as
@@ -8835,6 +9108,34 @@ class Measure(object):
                 stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
                     diffuse_frac * comp_frac_diffuse
 
+            # Handle cases where the variables needed to calculate cumulative
+            # captured and competed fractions below are linked to that of
+            # another microsegment (denoted by availability of linked data)
+
+            # Full linked data available
+            if cum_frac_linked and cum_frac_linked != 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        cum_frac_linked["original total stock"],
+                        cum_frac_linked["adjusted total stock"],
+                        cum_frac_linked["original competed stock"],
+                        cum_frac_linked["adjusted competed stock"],
+                        cum_frac_linked["cumulative captured stock"],
+                        cum_frac_linked["cumulative competed stock"]]
+            # Linked microsegment has zero values
+            elif cum_frac_linked and cum_frac_linked == 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = (
+                        {yr: 0 for yr in self.handyvars.aeo_years} for
+                        n in range(6))
+            # Not linked to another mseg; use data for this mseg
+            else:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        stock_total_sbmkt, stock_total,
+                        stock_compete_sbmkt, stock_compete, stock_total_meas,
+                        stock_comp_cum_sbmkt]
+
             # For primary microsegments only, update portion of stock captured
             # by efficient measure or competed in previous years
             if mskeys[0] == "primary" and yr != self.handyvars.aeo_years[0]:
@@ -8849,10 +9150,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a point value
                     try:
-                        if (stock_total[yr] - stock_compete[yr]) != 0:
-                            meas_cum_frac = \
-                                stock_total_meas[prev_yr] / (
-                                    stock_total[yr] - stock_compete[yr])
+                        if (stk_tot_diff[yr] - stk_cmp_diff[yr]) != 0:
+                            meas_cum_frac = stk_cum_m[prev_yr] / (
+                                stk_tot_diff[yr] - stk_cmp_diff[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
                         # 'unspecified' no stock data will be available; base
@@ -8864,10 +9164,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
-                        if all((stock_total[yr] - stock_compete[yr]) != 0):
-                            meas_cum_frac = (
-                                stock_total_meas[prev_yr] /
-                                (stock_total[yr] - stock_compete[yr]))
+                        if all((stk_tot_diff[yr] - stk_cmp_diff[yr]) != 0):
+                            meas_cum_frac = (stk_cum_m[prev_yr] / (
+                                stk_tot_diff[yr] - stk_cmp_diff[yr]))
                         else:
                             meas_cum_frac += (
                                 diffuse_frac * comp_frac_diffuse_meas)
@@ -8878,11 +9177,9 @@ class Measure(object):
                         comp_cum_frac, numpy.ndarray) and any(
                         comp_cum_frac != 1)):
                     try:
-                        if (stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]) != 0:
-                            comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
-                                (stock_total_sbmkt[yr] -
-                                 stock_compete_sbmkt[yr])
+                        if (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]) != 0:
+                            comp_cum_frac = stk_cum_cmp[prev_yr] / \
+                                (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
                         # 'unspecified' no stock data will be available; base
@@ -8893,11 +9190,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
-                        if all((stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]) != 0):
-                            comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
-                                stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]))
+                        if all((stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]) != 0):
+                            comp_cum_frac = (stk_cum_cmp[prev_yr] / (
+                                stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]))
                         else:
                             comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
 
@@ -9039,6 +9334,22 @@ class Measure(object):
             elif not isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     stock_total_meas[yr] < 0:
                 stock_total_meas[yr] = 0
+
+            # For heating/cooling msegs that serve as the anchor for linked
+            # stock turnover and switching rates, update the linked rate
+            # data to reflect the above stock calculations for this mseg
+            if linked_htcl_tover_anchor_tech and htcl_lnk_adjkey and all([
+                    x for x in [total_htcl_lnk, total_htcl_lnk_adj,
+                                compete_htcl_lnk, compete_htcl_lnk_adj,
+                                cum_capt_htcl_lnk, cum_comp_htcl_lnk]]):
+                total_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_sbmkt[yr]
+                total_htcl_lnk_adj[htcl_lnk_adjkey][yr] += stock_total[yr]
+                compete_htcl_lnk[htcl_lnk_adjkey][yr] += \
+                    stock_compete_sbmkt[yr]
+                compete_htcl_lnk_adj[htcl_lnk_adjkey][yr] += stock_compete[yr]
+                cum_capt_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_meas[yr]
+                cum_comp_htcl_lnk[htcl_lnk_adjkey][yr] += \
+                    stock_comp_cum_sbmkt[yr]
 
             # Set the weighted overall relative performance and per unit
             # measure tech. refrigerant emissions (if applicable) for stock
@@ -9373,15 +9684,17 @@ class Measure(object):
 
             # For fuel switching measures where exogenous HP conversion
             # rates have NOT been specified only, record the portion of total
-            # baseline energy, carbon, and energy cost that remains with the
+            # baseline stock, energy, carbon, and energy cost that remains with
             # baseline fuel in the given year; for fuel switching measures
             # with exogenous HP conversion rates specified, no baseline
             # energy/carbon/cost will remain with the baseline fuel b/c of the
             # way the markets are specified (the baseline for such measures is
-            # constrained to only the energy/carbon/cost that switches over
+            # constrained to only the stock/energy/carbon/cost that switches
             # in each year); for non-fuel switching measures, this variable is
             # not used further in the routine
             if self.fuel_switch_to is not None and not hp_rate:
+                fs_stk_eff_remain[yr] = \
+                    stock_total[yr] - stock_total_meas[yr]
                 fs_energy_eff_remain[yr] = \
                     energy_tot_comp_base + energy_tot_uncomp_base
                 fs_carb_eff_remain[yr] = \
@@ -9401,7 +9714,7 @@ class Measure(object):
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff,
-                fs_energy_eff_remain, fs_carb_eff_remain,
+                fs_stk_eff_remain, fs_energy_eff_remain, fs_carb_eff_remain,
                 fs_energy_cost_eff_remain, mkt_scale_frac_fin, warn_list]
 
     def check_meas_inputs(self):
@@ -13253,9 +13566,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
         # Initialize a reorganized measure competition data dict and efficient
         # fuel split data dict
         comp_data_dict, fs_splits_dict, shapes_dict = ({} for n in range(3))
-        # Retrieve measure contributing microsegment data that
-        # is relevant to markets competition in the analysis
-        # engine, then remove these data from measure object
+        # Retrieve measure contributing microsegment data that are relevant to
+        # markets competition in the analysis engine, then remove these data
+        # from measure object
         for adopt_scheme in m.handyvars.adopt_schemes_prep:
             # Delete contributing microsegment data that are
             # not relevant to competition in the analysis engine
@@ -13263,6 +13576,12 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
                 "secondary mseg adjustments"]["sub-market"]
             del m.markets[adopt_scheme]["mseg_adjust"][
                 "secondary mseg adjustments"]["stock-and-flow"]
+            # If individual measure, delete markets data used to linked
+            # heating/cooling turnover and switching rates across msegs (these
+            # data are not prepared for packages)
+            if not isinstance(m, MeasurePackage):
+                del m.markets[adopt_scheme]["mseg_adjust"][
+                    "paired heat/cool mseg adjustments"]
             # Add remaining contributing microsegment data to
             # competition data dict, if the adoption scenario will be competed
             # in the run.py module, then delete from measure
@@ -13304,6 +13623,10 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
         # (not relevant) for individual measures
         if not isinstance(m, MeasurePackage):
             del m.tsv_features
+            # Delete individual measure attributes used to link heating/
+            # cooling microsegment turnover and switching rates
+            del m.linked_htcl_tover
+            del m.linked_htcl_tover_anchor_tech
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -13383,8 +13706,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                   add_stock_total, add_energy_total, add_energy_cost,
                   add_carb_total, add_stock_total_meas, add_energy_total_eff,
                   add_energy_total_eff_capt, add_energy_cost_eff,
-                  add_carb_total_eff, add_fs_energy_eff_remain,
-                  add_fs_energy_cost_eff_remain, add_fs_carb_eff_remain):
+                  add_carb_total_eff, add_fs_stk_eff_remain,
+                  add_fs_energy_eff_remain, add_fs_energy_cost_eff_remain,
+                  add_fs_carb_eff_remain):
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -13404,6 +13728,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
         add_energy_cost_eff (dict): Total mseg energy cost after measure
             adoption.
         add_carb_total_eff (dict): Total mseg carbon after measure adoption.
+        add_fs_stk_eff_remain (dict): Portion of efficient mseg stock that is
+            served by base fuel after measure application (applies to fuel
+            switching measures)
         add_fs_energy_eff_remain (dict): Portion of efficient mseg energy that
             is served by base fuel after measure application (applies to fuel
             switching measures)
@@ -13572,11 +13899,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
         # be split by fuel, create shorthands for any efficient-case
         # stock/energy/carbon/cost that remains with the baseline fuel
         if self.fuel_switch_to is not None and out_fuel_save:
-            # No measure-captured stock remains with existing fuel under fuel
-            # switching
-            add_fs_stk_eff_remain = {
-                yr: 0 for yr in self.handyvars.aeo_years
-            }
             eff_data_fs = [add_fs_energy_eff_remain,
                            add_fs_energy_cost_eff_remain,
                            add_fs_carb_eff_remain]
