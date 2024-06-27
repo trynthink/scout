@@ -11214,126 +11214,128 @@ class MeasurePackage(Measure):
             opts (object): Stores user-specified execution options.
         """
 
-        # If there are both heating/cooling equipment and envelope measures,
-        # in the package, continue further to check for overlaps
-        if all([len(x) != 0 for x in [
-                self.contributing_ECMs_eqp, self.contributing_ECMs_env]]):
-            # Loop through the heating/cooling equipment measures, check for
-            # overlaps with envelope measures, and record the overlaps
-            for ind, m in enumerate(self.contributing_ECMs_eqp):
-                # Record unique data for each adoption scheme
-                for adopt_scheme in self.handyvars.adopt_schemes:
-                    # Use shorthand for measure contributing microsegment data
-                    msegs_meas = copy.deepcopy(m.markets[adopt_scheme][
-                        "mseg_adjust"]["contributing mseg keys and values"])
-                    # Loop through all contributing microsegment keys for the
-                    # equipment measure that apply to heating/cooling end uses
-                    # and have not previously been parsed for overlapping data
-                    for cm_key in [x for x in msegs_meas.keys() if (any([
-                        e in x for e in [
-                            "heating", "cooling", "secondary heating"]]) and x
-                            not in self.htcl_overlaps[adopt_scheme]["keys"])]:
-                        # Record that the contributing microsegment key has
-                        # been parsed for overlapping data
-                        self.htcl_overlaps[adopt_scheme]["keys"].append(cm_key)
-                        # Translate the contributing microsegment key (which
-                        # is in string format) to list format
-                        keys = literal_eval(cm_key)
-                        # Pull out region, building type/vintage,
-                        # fuel type, and end use from the key list
-                        cm_key_match = [str(x) for x in [
-                            keys[1], keys[2], keys[-1], keys[3], keys[4]]]
-                        # Determine which, if any, envelope ECMs overlap with
-                        # the region, building type/vintage, fuel type, and
-                        # end use for the current contributing mseg for the
-                        # equipment ECM
-                        dmd_match_ECMs = [
-                            x for x in self.contributing_ECMs_env if
-                            any([all([k in z for k in cm_key_match]) for z in
-                                x.markets[adopt_scheme]["mseg_adjust"][
-                                "contributing mseg keys and values"].keys()])]
-                        # If an overlap is identified, record all necessary
-                        # data for the current contributing microsegment
-                        # across both the equipment and envelope side
-                        # that are needed to remove the overlap subsequently
-                        if len(dmd_match_ECMs) != 0:
-                            # Determine the specific contributing microsegment
-                            # key(s) to use in pulling data from overlapping
-                            # envelope measures for the current region/bldg/
-                            # vintage/fuel/end use combination
-                            cm_keys_dmd = [[x for x in z.markets[adopt_scheme][
-                                "mseg_adjust"][
-                                "contributing mseg keys and values"].keys()
-                                if all([k in x for k in cm_key_match])] for
-                                z in dmd_match_ECMs]
-                            # Record envelope energy savings across all
-                            # envelope measures that overlap with current mseg
-                            dmd_save = {yr: sum([sum([(
-                                dmd_match_ECMs[m].markets[adopt_scheme][
-                                    "mseg_adjust"][
-                                    "contributing mseg keys and values"][
-                                    cm_keys_dmd[m][k]]["energy"][
-                                    "total"]["baseline"][yr] -
-                                dmd_match_ECMs[m].markets[adopt_scheme][
-                                    "mseg_adjust"][
-                                    "contributing mseg keys and values"][
-                                    cm_keys_dmd[m][k]]["energy"][
-                                    "total"]["efficient"][yr]) for k in range(
-                                        len(cm_keys_dmd[m]))]) for
-                                m in range(len(dmd_match_ECMs))]) for yr in
-                                self.handyvars.aeo_years}
-                            # Record envelope energy baselines across all
-                            # envelope measures that overlap with current mseg
-                            dmd_base = {yr: sum([sum([
-                                dmd_match_ECMs[m].markets[adopt_scheme][
-                                    "mseg_adjust"][
-                                    "contributing mseg keys and values"][
-                                    cm_keys_dmd[m][k]]["energy"][
-                                    "total"]["baseline"][yr] for k in range(
-                                        len(cm_keys_dmd[m]))]) for
-                                m in range(len(dmd_match_ECMs))]) for yr in
-                                self.handyvars.aeo_years}
-                            # If the user opts to include envelope costs in
-                            # the total costs of the HVAC/envelope package,
-                            # record those overlapping costs
-                            if opts.pkg_env_costs is not False:
-                                dmd_stk_cost = [[
-                                    dmd_match_ECMs[m].markets[adopt_scheme][
-                                        "mseg_adjust"][
-                                        "contributing mseg keys and values"][
-                                        cm_keys_dmd[m][k]]["cost"]["stock"] for
-                                    k in range(len(cm_keys_dmd[m]))] for
-                                    m in range(len(dmd_match_ECMs))]
-                                dmd_stk = [[
-                                    dmd_match_ECMs[m].markets[adopt_scheme][
-                                        "mseg_adjust"][
-                                        "contributing mseg keys and values"][
-                                        cm_keys_dmd[m][k]]["stock"] for
-                                    k in range(len(cm_keys_dmd[m]))] for
-                                    m in range(len(dmd_match_ECMs))]
-                            else:
-                                dmd_stk_cost, dmd_stk = (
-                                    None for n in range(2))
+        # If there are both heating/cooling equipment and envelope measures in the package,
+        # continue further to check for overlaps
+        if not self.contributing_ECMs_eqp or not self.contributing_ECMs_env:
+            return
 
-                            # Translate key used to identify overlaps to str
-                            cm_key_store = str(cm_key_match)
-                            # Record the overlap data if it has not already
-                            # been recorded for the current overlapping
-                            # region, building type, building vintage,
-                            # fuel, and end use
-                            if cm_key_store not in self.htcl_overlaps[
-                                    adopt_scheme]["data"].keys():
-                                # Data include the overlapping energy savings
-                                # and baselines recorded for the equipment/
-                                # envelope measures above, as well as the
-                                # total energy use that could have overlapped,
-                                # pulled from pre-calculated values
-                                self.htcl_overlaps[adopt_scheme]["data"][
-                                        cm_key_store] = {
-                                    "affected savings": dmd_save,
-                                    "total affected": dmd_base,
-                                    "stock costs": dmd_stk_cost,
-                                    "stock": dmd_stk}
+        parsed_keys = set()
+        # Loop through the heating/cooling equipment measures, check for
+        # overlaps with envelope measures, and record the overlaps
+        for m in self.contributing_ECMs_eqp:
+            # Record unique data for each adoption scheme
+            for adopt_scheme in self.handyvars.adopt_schemes:
+                # Use shorthand for measure contributing microsegment data
+                msegs_meas = copy.deepcopy(m.markets[adopt_scheme][
+                    "mseg_adjust"]["contributing mseg keys and values"])
+
+                # Loop through all contributing microsegment keys for the equipment measure that
+                # apply to heating/cooling end uses and have not previously been parsed for
+                # overlapping data
+                hvac_keys = [key for key in msegs_meas.keys() if any(e in key for e in [
+                    "heating", "cooling", "secondary heating"])]
+                for cm_key in hvac_keys:
+                    if cm_key in parsed_keys:
+                        continue
+                    # Record that the contributing microsegment key has been parsed
+                    parsed_keys.add(cm_key)
+
+                    # Translate the contributing microsegment key (a str) to list type
+                    keys = literal_eval(str(cm_key))
+                    # Extract region, building type/vintage, fuel type, & end use from the key list
+                    cm_key_match = [str(x) for x in [keys[1], keys[2], keys[-1], keys[3], keys[4]]]
+
+                    # Determine which, if any, envelope ECMs overlap with the region, building
+                    # type/vintage, fuel type, and end use for the current contributing mseg for
+                    # the equipment ECM
+                    dmd_match_ECMs = [
+                        x for x in self.contributing_ECMs_env if
+                        any([all([k in z for k in cm_key_match]) for z in
+                            x.markets[adopt_scheme]["mseg_adjust"][
+                            "contributing mseg keys and values"].keys()])]
+
+                    if not dmd_match_ECMs:
+                        continue
+
+                    # If an overlap is identified, record all necessary
+                    # data for the current contributing microsegment
+                    # across both the equipment and envelope side
+                    # that are needed to remove the overlap subsequently
+                    cm_keys_dmd = [[x for x in z.markets[adopt_scheme][
+                        "mseg_adjust"][
+                        "contributing mseg keys and values"].keys()
+                        if all([k in x for k in cm_key_match])] for
+                        z in dmd_match_ECMs]
+                    # Record envelope energy savings across all
+                    # envelope measures that overlap with current mseg
+                    dmd_save = {yr: sum([sum([(
+                        dmd_match_ECMs[m].markets[adopt_scheme][
+                            "mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            cm_keys_dmd[m][k]]["energy"][
+                            "total"]["baseline"][yr] -
+                        dmd_match_ECMs[m].markets[adopt_scheme][
+                            "mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            cm_keys_dmd[m][k]]["energy"][
+                            "total"]["efficient"][yr]) for k in range(
+                                len(cm_keys_dmd[m]))]) for
+                        m in range(len(dmd_match_ECMs))]) for yr in
+                        self.handyvars.aeo_years}
+
+                    # Record envelope energy baselines across all
+                    # envelope measures that overlap with current mseg
+                    dmd_base = {yr: sum([sum([
+                        dmd_match_ECMs[m].markets[adopt_scheme][
+                            "mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            cm_keys_dmd[m][k]]["energy"][
+                            "total"]["baseline"][yr] for k in range(
+                                len(cm_keys_dmd[m]))]) for
+                        m in range(len(dmd_match_ECMs))]) for yr in
+                        self.handyvars.aeo_years}
+
+                    # If the user opts to include envelope costs in
+                    # the total costs of the HVAC/envelope package,
+                    # record those overlapping costs
+                    if opts.pkg_env_costs is not False:
+                        dmd_stk_cost = [[
+                            dmd_match_ECMs[m].markets[adopt_scheme][
+                                "mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                cm_keys_dmd[m][k]]["cost"]["stock"] for
+                            k in range(len(cm_keys_dmd[m]))] for
+                            m in range(len(dmd_match_ECMs))]
+                        dmd_stk = [[
+                            dmd_match_ECMs[m].markets[adopt_scheme][
+                                "mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                cm_keys_dmd[m][k]]["stock"] for
+                            k in range(len(cm_keys_dmd[m]))] for
+                            m in range(len(dmd_match_ECMs))]
+                    else:
+                        dmd_stk_cost, dmd_stk = (
+                            None for n in range(2))
+
+                    # Translate key used to identify overlaps to str
+                    cm_key_store = str(cm_key_match)
+                    # Record the overlap data if it has not already
+                    # been recorded for the current overlapping
+                    # region, building type, building vintage,
+                    # fuel, and end use
+                    if cm_key_store not in self.htcl_overlaps[
+                            adopt_scheme]["data"].keys():
+                        # Data include the overlapping energy savings
+                        # and baselines recorded for the equipment/
+                        # envelope measures above, as well as the
+                        # total energy use that could have overlapped,
+                        # pulled from pre-calculated values
+                        self.htcl_overlaps[adopt_scheme]["data"][
+                                cm_key_store] = {
+                            "affected savings": dmd_save,
+                            "total affected": dmd_base,
+                            "stock costs": dmd_stk_cost,
+                            "stock": dmd_stk}
 
     def merge_direct_overlaps(
             self, msegs_meas, cm_key, adopt_scheme, mseg_out_break_adj,
@@ -12756,8 +12758,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
     # Translate user options to a dictionary for further use in Measures
     opts_dict = vars(opts)
     # Initialize Measure() objects based on 'measures_update' list
-    meas_update_objs = [Measure(
-        base_dir, handyvars, handyfiles, opts_dict, **m) for m in measures]
+    meas_update_objs = [Measure(base_dir, handyvars, handyfiles, opts_dict, **m) for m in measures]
     print("Complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
