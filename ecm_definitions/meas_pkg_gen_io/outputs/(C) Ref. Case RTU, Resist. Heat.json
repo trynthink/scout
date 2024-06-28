@@ -56,7 +56,7 @@
   },
   "market_scaling_fractions_source": {
     "notes": [
-      "Heating multiple of 4% was determined by dividing square feet in which main heating equipment is resistance packaged (4496602 sf) by square feet in shiwch main heating equipment is resistance furnace or packaged unit (106311260 sf)",
+      "Includes all resistance-based heating in commercial buildings",
       "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
     ],
     "source_data": null
@@ -65,6 +65,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-06-11 13:55:11"
+    "timestamp": "2024-06-28 10:48:53"
   }
 }
