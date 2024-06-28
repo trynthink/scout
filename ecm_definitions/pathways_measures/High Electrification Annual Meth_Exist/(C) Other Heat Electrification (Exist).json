@@ -1,0 +1,53 @@
+{
+  "name": "(C) Other Heat Electrification (Exist)",
+  "_description": "Represents switch to electric commercial HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric commercial HVAC technologies currently (or soon to be) on the market, from AEO 2023",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "existing",
+  "end_use": "heating",
+  "fuel_type": "electricity",
+  "technology": ["elec_boiler", "electric_res-heat"],
+    "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "2022$/kBtu/h heating",
+  "installed_cost_source": null,
+  "product_lifetime": 21.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Based on EIA reference case values for LPG furnace",
+    "source_data": {
+      "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2022,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+    }
+  },
+  "measure_type": "add-on",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "ASHP",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 13:15:48 EDT 2023"
+  }
+}
