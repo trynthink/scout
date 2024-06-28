@@ -1264,21 +1264,37 @@ class UsefulVars(object):
         if opts.detail_brkout in ['1', '3', '5', '7']:
             # Map to more granular building type definition
             self.out_break_bldgtypes = OrderedDict([
-                ('Single Family Homes', [
-                    'new', 'existing', 'single family home', 'mobile home']),
-                ('Multi Family Homes', [
-                    'new', 'existing', 'multi family home']),
-                ('Hospitals', ['new', 'existing', 'health care']),
-                ('Large Offices', ['new', 'existing', 'large office']),
-                ('Small/Medium Offices', ['new', 'existing', 'small office']),
-                ('Retail', ['new', 'existing', 'food sales',
-                            'mercantile/service']),
-                ('Hospitality', [
-                    'new', 'existing', 'lodging', 'food service']),
-                ('Education', ['new', 'existing', 'education']),
-                ('Assembly/Other', [
-                    'new', 'existing', 'assembly', 'other', 'unspecified']),
-                ('Warehouses', ['new', 'existing', 'warehouse'])])
+                ('Single Family Homes (New)', ['new', 'single family home']),
+                ('Multi Family Homes (New)', ['new', 'multi family home']),
+                ('Manufactured Homes (New)', ['new', 'mobile home']),
+                ('Hospitals (New)', ['new', 'health care']),
+                ('Large Offices (New)', ['new', 'large office']),
+                ('Small/Medium Offices (New)', ['new', 'small office']),
+                ('Retail (New)', ['new', 'food sales', 'mercantile/service']),
+                ('Hospitality (New)', ['new', 'lodging', 'food service']),
+                ('Education (New)', ['new', 'education']),
+                ('Assembly/Other (New)', [
+                    'new', 'assembly', 'other', 'unspecified']),
+                ('Warehouses (New)', ['new', 'warehouse']),
+                ('Single Family Homes (Existing)', [
+                    'existing', 'single family home']),
+                ('Multi Family Homes (Existing)', [
+                    'existing', 'multi family home']),
+                ('Manufactured Homes (Existing)', [
+                    'existing', 'mobile home']),
+                ('Hospitals (Existing)', ['existing', 'health care']),
+                ('Large Offices (Existing)', ['existing', 'large office']),
+                ('Small/Medium Offices (Existing)', [
+                    'existing', 'small office']),
+                ('Retail (Existing)', [
+                    'existing', 'food sales', 'mercantile/service']),
+                ('Hospitality (Existing)', [
+                    'existing', 'lodging', 'food service']),
+                ('Education (Existing)', [
+                    'existing', 'education']),
+                ('Assembly/Other (Existing)', [
+                    'existing', 'assembly', 'other', 'unspecified']),
+                ('Warehouses (Existing)', ['existing', 'warehouse'])])
         else:
             self.out_break_bldgtypes = OrderedDict([
                 ('Residential (New)', [
