@@ -1,0 +1,72 @@
+{
+  "name": "(C) Ineff. WH Electrification",
+  "_description": "Represents switch to electric commercial water heating technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric commercial water heating technologies currently (or soon to be) on the market, from AEO 2023",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 1.14,
+  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [151, 154],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 91,
+  "cost_units": "2022$/kBtu/h water heating",
+  "installed_cost_source": {
+    "notes": "Sales-weighted combinations of WH installed costs for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [151, 154],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 12,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Sales-weighted combinations of WH lifetimes for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [151, 154],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}
+  },
+  "measure_type": "full service",
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "HPWH",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": "NA",
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 13:15:48 EDT 2023"
+  }
+}

@@ -1,0 +1,82 @@
+{ 
+  "name": "(R) Cooking Electrification (Exist)",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "existing",
+  "end_use": ["cooking"],
+  "fuel_type": ["natural gas"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0.82,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+      "notes": "Compare overall IAEC (kBtu/y) in 2022 of natural gas vs. electric cooking",
+      "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [89, 94],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "installed_cost": 770,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Based on cost of typical electric ranges; range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 94,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
+    {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2022,
+      "pages": null,
+      "URL": "https://www.eia.gov/todayinenergy/detail.php?id=53439"
+    }
+  ]
+  },
+  "product_lifetime": 17,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for electric ranges in 2022",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 94,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "electric cooking",
+  "_description": "Reference case natural gas residential cooking technology to be switched to electricity",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Nov 18 14:55:00 EST 2021"
+  },
+  "_updated_by":  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Thu May 25 2023 18:54:00 UTC"
+  }
+}

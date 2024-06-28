@@ -326,6 +326,14 @@ class UsefulInputFiles(object):
             "supporting_data", "tsv_data", "tsv_hrs_tot_hr.csv")
         self.tsv_metrics_data_net_hr = (
             "supporting_data", "tsv_data", "tsv_hrs_net_hr.csv")
+        self.tsv_metrics_data_tot_ref_genpk = (
+            "supporting_data", "tsv_data", "tsv_hrs_tot_ref_genpk.csv")
+        self.tsv_metrics_data_net_ref_genpk = (
+            "supporting_data", "tsv_data", "tsv_hrs_net_ref_genpk.csv")
+        self.tsv_metrics_data_tot_hr_genpk = (
+            "supporting_data", "tsv_data", "tsv_hrs_tot_hr_genpk.csv")
+        self.tsv_metrics_data_net_hr_genpk = (
+            "supporting_data", "tsv_data", "tsv_hrs_net_hr_genpk.csv")
         self.health_data = (
             "supporting_data", "convert_data", "epa_costs.csv")
         self.hp_convert_rates = ("supporting_data", "convert_data",
@@ -1592,14 +1600,29 @@ class UsefulVars(object):
                 # Choose the appropriate data to use in determining peak/take
                 # windows (total vs. net system load under reference vs. "Low
                 # Renewable Cost" supply-side AEO case)
-                if opts.tsv_metrics[-2] == "1":
-                    metrics_data = handyfiles.tsv_metrics_data_tot_ref
-                elif opts.tsv_metrics[-2] == "2":
-                    metrics_data = handyfiles.tsv_metrics_data_tot_hr
-                elif opts.tsv_metrics[-2] == "3":
-                    metrics_data = handyfiles.tsv_metrics_data_net_ref
+                if opts.tsv_metrics[-3] == "1":
+                    if opts.tsv_metrics[-2] == "1":
+                        metrics_data = \
+                            handyfiles.tsv_metrics_data_tot_ref_genpk
+                    else:
+                        metrics_data = handyfiles.tsv_metrics_data_tot_ref
+                elif opts.tsv_metrics[-3] == "2":
+                    if opts.tsv_metrics[-2] == "1":
+                        metrics_data = \
+                            handyfiles.tsv_metrics_data_tot_hr_genpk
+                    else:
+                        metrics_data = handyfiles.tsv_metrics_data_tot_hr
+                elif opts.tsv_metrics[-3] == "3":
+                    if opts.tsv_metrics[-2] == "1":
+                        metrics_data = \
+                            handyfiles.tsv_metrics_data_net_ref_genpk
+                    else:
+                        metrics_data = handyfiles.tsv_metrics_data_net_ref
                 else:
-                    metrics_data = handyfiles.tsv_metrics_data_net_hr
+                    if opts.tsv_metrics[-3] == "1":
+                        metrics_data = handyfiles.tsv_metrics_data_net_hr_genpk
+                    else:
+                        metrics_data = handyfiles.tsv_metrics_data_net_hr
 
                 # Import system max/min and peak/take hour load by EMM region
                 sysload_dat = numpy.genfromtxt(

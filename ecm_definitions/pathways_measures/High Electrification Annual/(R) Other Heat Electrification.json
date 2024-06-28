@@ -1,0 +1,53 @@
+{ 
+  "name": "(R) Other Heat Electrification",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": ["heating"],
+  "fuel_type": "all",
+  "technology": ["resistance heat"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": null,
+  "product_lifetime": 21.5,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Based on EIA reference case values for LPG furnace",
+    "source_data": {
+      "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
+      "author": null,
+      "organization": "U.S. Department of Energy",
+      "year": 2022,
+      "pages": null,
+      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
+    }
+  },
+  "measure_type": "add-on",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "same",
+  "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
+  "_notes": null, 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 14 15:09:37 EDT 2021"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 12:31:13 EDT 2023"
+  }]
+}

@@ -404,7 +404,7 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         hours = 0
         while hours not in ['1', '2', '3']:
             hours = input(
-                "Enter the daily hour range to restrict to (1 = all hours, "
+                "\nEnter the daily hour range to restrict to (1 = all hours, "
                 "2 = peak demand period hours, 3 = low demand period hours): ")
             if hours not in ['1', '2', '3']:
                 print('Please try again. Enter 1, 2, or 3. '
@@ -416,11 +416,11 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             sys_shape = 0
             while sys_shape not in ['1', '2', '3', '4']:
                 sys_shape = input(
-                    "Enter the basis for determining peak or low demand hour "
-                    "ranges: 1 = total system load (reference case), "
+                    "\nEnter the basis for determining peak or low demand "
+                    "hour ranges (1 = total system load (reference case), "
                     "2 = total system load (high renewables case), 3 = total "
                     "system load net renewables (reference case), 4 = total "
-                    "system load net renewables (high renewables case): "
+                    "system load net renewables (high renewables case)): "
                 )
                 if sys_shape not in ['1', '2', '3', '4']:
                     print('Please try again. Enter 1, 2, 3, or 4. '
@@ -428,12 +428,26 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         else:
             sys_shape = '0'
 
+        # Determine whether to impose a generic morning winter overall peak
+        # hour (9AM in the system peak data)
+        gen_wnt_pk = 0
+        while gen_wnt_pk not in ['1', '2']:
+            gen_wnt_pk = input(
+                    "\nChoose whether to use a generic morning winter peak "
+                    "(appropriate for high electrification runs) vs. the "
+                    "winter peak hours from EMM modeling (1 = yes, "
+                    "2 = no): "
+                )
+            if gen_wnt_pk not in ['1', '2']:
+                print('Please try again. Enter 1 or 2. '
+                      'Use ctrl-c to exit.')
+
         # Determine the season to restrict results to (summer, winter,
         # intermediate)
         season = 0
         while season not in ['1', '2', '3']:
             season = input(
-                "Enter the desired season of focus (1 = summer, "
+                "\nEnter the desired season of focus (1 = summer, "
                 "2 = winter, 3 = intermediate): ")
             if season not in ['1', '2', '3']:
                 print('Please try again. Enter 1, 2, or 3. '
@@ -449,34 +463,34 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                 # Sum/average energy change across all hours
                 if hours == '1':
                     calc_type = input(
-                        "Enter calculation type (1 = sum across all "
+                        "\nEnter calculation type (1 = sum across all "
                         "hours, 2 = daily average): ")
                 # Sum/average energy change across peak hours
                 elif hours == '2':
                     calc_type = input(
-                        "Enter calculation type (1 = sum across peak "
+                        "\nEnter calculation type (1 = sum across peak "
                         "hours, 2 = daily peak period average): ")
                 # Sum/average energy change across take hours
                 elif hours == '3':
                     calc_type = input(
-                        "Enter calculation type (1 = sum across low demand "
+                        "\nEnter calculation type (1 = sum across low demand "
                         "hours, 2 = daily low demand period average): ")
             # Power output case (single hour)
             else:
                 # Max/average power change across all hours
                 if hours == '1':
                     calc_type = input(
-                        "Enter calculation type (1 = peak day maximum, "
+                        "\nEnter calculation type (1 = peak day maximum, "
                         "2 = daily hourly average): ")
                 # Max/average power change across peak hours
                 elif hours == '2':
                     calc_type = input(
-                        "Enter calculation type (1 = peak day, peak period "
+                        "\nEnter calculation type (1 = peak day, peak period "
                         "maximum, 2 = daily peak period hourly average): ")
                 # Max/average power change across take hours
                 elif hours == '3':
                     calc_type = input(
-                        "Enter calculation type (1 = peak day, low "
+                        "\nEnter calculation type (1 = peak day, low "
                         "demand period maximum, 2 = daily low demand period "
                         "hourly average): ")
             if calc_type not in ['1', '2']:
@@ -487,7 +501,7 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             day_type = 0
             while day_type not in ['1', '2', '3']:
                 day_type = input(
-                    "Enter day type to calculate across (1 = all days, "
+                    "\nEnter day type to calculate across (1 = all days, "
                     "2 = weekdays, 3 = weekends): ")
                 if day_type not in ['1', '2', '3']:
                     print('Please try again. Enter 1, 2, or 3. '
@@ -497,7 +511,8 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
 
         # Summarize user TSV metric settings in a single dict for further use
         opts.tsv_metrics = [
-            output_type, hours, season, calc_type, sys_shape, day_type]
+            output_type, hours, season, calc_type, sys_shape,
+            gen_wnt_pk, day_type]
     else:
         opts.tsv_metrics = False
 
