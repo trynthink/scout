@@ -1,0 +1,82 @@
+{ 
+  "name": "(R) Ineff. WH Electrification",
+  "_description": "Represents switch to electric residential WH technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential WH technologies currently (or soon to be) on the market, from AEO 2023",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical measure penetration is captured in baseline",
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 1.35,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH (3.33 UEF) and electric resistance storage (0.92) WH. New/replacement sales numbers for 2023 are drawn from AEO 2023 microdata files, (~82% resistance, ~18% HPWH in 2023 across all sales), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounted for via the savings shape data in `tsv_features`",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [62, 65],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 1721,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request. Also added $700, the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [62, 65],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+      "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+      "organization": "NV5 and Redwood Energy",
+      "year": 2022,
+      "pages": 33,
+      "table": 4,
+      "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
+    ]},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [62, 65],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "HPWH",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Oct 19 13:00:46 EDT 2021"
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 13:15:48 EDT 2023"
+  }
+}
