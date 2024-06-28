@@ -25,7 +25,7 @@ from scout.config import FilePaths as fp
 
 
 class MyEncoder(json.JSONEncoder):
-    """Convert numpy arrays to list for JSON serializing."""
+    """Convert numpy arrays to list for JSON serializing. """
 
     def default(self, obj):
         """Modify 'default' method from JSONEncoder."""
