@@ -8,7 +8,10 @@
   "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
-  "fuel_type": "natural gas",
+  "fuel_type": [
+    "natural gas",
+    "distillate"
+  ],
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
   "technology": "all",
@@ -53,6 +56,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2024-06-11 13:55:11"
+    "timestamp": "2024-06-28 10:48:53"
   }
 }
