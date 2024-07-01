@@ -3,6 +3,7 @@
 import re
 import numpy
 import json
+from os import path
 import argparse
 import csv
 import mseg_techdata as rmt
@@ -54,6 +55,9 @@ class UsefulVars(object):
         self.aeo_metadata = 'metadata.json'
         self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
         self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
+        self.panel_upg_dat = path.join(
+            'supporting_data', 'stock_energy_tech_data',
+            'panel_solution_shares.json')
 
 
 class SkipLines(object):
@@ -727,7 +731,8 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
             # weighting factor)
             if group_energy:
                 group_energy = dict(zip(sorted(group_energy.keys()),
-                                        list(group_energy.values())*lt_correction))
+                                        list(group_energy.values()) *
+                                        lt_correction))
         else:
             # Given input numpy array and 'compare from' list, return
             # energy/stock projection lists and reduced numpy array
@@ -1168,6 +1173,95 @@ def onsite_calc(generation_file, json_results):
     return json_results
 
 
+def panel_upgrade_calc(panel_input_file, json_results):
+    """ Segments residential mseg data using supporting data file that contains
+    shares of panel upgrade requirements for different EE upgrades; used to
+    further segment the residential mseg data so that measures can be applied
+    to these more resolved segments of the stock based on whether a panel is or
+    is not required (or a panel management solution is sufficient)
+    given a low/med/high efficiency level for the upgrade measure. """
+
+    # Read in panel solution shares json file
+    with open(panel_input_file) as f:
+        panel_solution_shares = json.load(f)
+
+    # Define impacted building type, fuel type and end use
+    # NOTE: not including tech type, so NGHP will be included for now. Can
+    # modify if needed.
+    fuel = 'natural gas'
+    end_use = 'heating'
+
+    # Create funciton to multiply terminal dictionary values by a factor that
+    # represents the panel solution share for a given EE upgrade level
+    def multiply_dict(d, factor):
+        return {k: int(v * factor) if isinstance(v, int) else v * factor for k,
+                v in d.items()}
+
+    # Function to process a single building type within a census division
+    def process_bldg_type(bldg_data, region_shares):
+        # Check if the required keys exist in the building data
+        if fuel in bldg_data and end_use in bldg_data[fuel] and \
+                'supply' in bldg_data[fuel][end_use]:
+            supply_data = bldg_data[fuel][end_use]['supply']
+            new_supply_data = {}
+
+            # Ensure supply_data is a dictionary before processing
+            if isinstance(supply_data, dict):
+                # Iterate through each technology in the supply data
+                for tech, tech_data in supply_data.items():
+                    new_supply_data[tech] = {}
+
+                    # Process each efficiency upgrade level
+                    for upgrade_level, upgrade_shares in region_shares[
+                            'energy'].items():
+                        new_supply_data[tech][upgrade_level] = {}
+
+                        # Process each panel management option
+                        for panel_option, share in upgrade_shares.items():
+                            # Get the corresponding stock and energy shares
+                            stock_share = region_shares['stock'][
+                                upgrade_level][panel_option]
+                            energy_share = region_shares['energy'][
+                                upgrade_level][panel_option]
+
+                            # Extract original stock and energy data
+                            original_stock = tech_data.get('stock', {})
+                            original_energy = tech_data.get('energy', {})
+
+                            # Apply shares to calculate new stock and
+                            # energy data
+                            new_stock = multiply_dict(original_stock,
+                                                      stock_share)
+                            new_energy = multiply_dict(original_energy,
+                                                       energy_share)
+
+                            # Store the new data in the restructured format
+                            new_supply_data[tech][upgrade_level][
+                                panel_option] = {
+                                'stock': new_stock,
+                                'energy': new_energy
+                            }
+
+            # Replace the old supply data with the new restructured data
+            bldg_data[fuel][end_use]['supply'] = new_supply_data
+
+        return bldg_data
+
+    # Function to process each census division region and building type
+    for region, region_data in json_results.items():
+        # Check if share data exists for the current region
+        if region in panel_solution_shares:
+            # Apply the processing function to the CDIV data
+            for bldg_type, bldg_data in region_data.items():
+                json_results[region][bldg_type] = \
+                    process_bldg_type(bldg_data, panel_solution_shares[region])
+        else:
+            print(f"Warning: No share data found for region '{region}'."
+                  "Skipping this region.")
+
+    return json_results
+
+
 def dtype_eval(entry):
     """ Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or
@@ -1450,6 +1544,12 @@ def main():
     parser.add_argument('-y', '--year', type=int, help=help_string,
                         choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
 
+    # Set up user option to indicate whether to apply subsegmentation to
+    # the mseg data to represent panel upgrade requirements
+    parser.add_argument('--panels', type=str, default='No',
+                        help='Apply panel upgrade segmentation',
+                        choices=['Yes', 'No'])
+
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
 
@@ -1557,6 +1657,11 @@ def main():
         # Add in onsite generation for SF as a new end-use from
         # RGENOUT.txt
         result = onsite_calc(eiadata.res_generation, result)
+
+        # Apply panel upgrade shares to residential mseg data if option
+        # provided
+        if parser.parse_args().panels == 'Yes':
+            result = panel_upgrade_calc(handyvars.panel_upg_dat, result)
 
         # Write the updated dict of data to a new JSON file
         json.dump(result, jso, indent=2, default=fix_ints)

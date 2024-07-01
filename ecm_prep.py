@@ -2145,6 +2145,10 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs)
+        panel_upgrade (list): Flag for measures that could initiate a panel
+            upgrade; invokes supporting data on whether or not a panel upgrade
+            or other load/space control solution is needed to avoid an upgrade
+            for a given microsegment.
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2242,6 +2246,13 @@ class Measure(object):
             self.tech_switch_to
         except AttributeError:
             self.tech_switch_to = None
+        # Check for panel upgrade attribute, and if not there set None
+        try:
+            self.panel_upgrade
+            if self.panel_upgrade is None:
+                self.panel_upgrade = ""
+        except AttributeError:
+            self.panel_upgrade = ""
         # Check for flag for heating and cooling equipment pairing, if not
         # there or not applicable set to blank string
         try:
