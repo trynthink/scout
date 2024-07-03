@@ -62,6 +62,36 @@ class MyEncoder(json.JSONEncoder):
             return super(MyEncoder, self).default(obj)
 
 
+class Utils:
+    @classmethod
+    def load_json(cls, filepath: Path) -> dict:
+        """Loads data from a .json file
+
+        Args:
+            filepath (pathlib.Path): filepath of .json file
+
+        Returns:
+            dict: .json data as a dict
+        """
+        with open(filepath, 'r') as handle:
+            try:
+                data = json.load(handle)
+            except ValueError as e:
+                raise ValueError(f"Error reading in '{filepath}': {str(e)}") from None
+        return data
+
+    @classmethod
+    def dump_json(cls, data, filepath: Path):
+        """Export data to .json file
+
+        Args:
+            data: data to write to .json file
+            filepath (pathlib.Path): filepath of .json file
+        """
+        with open(filepath, "w") as handle:
+            json.dump(data, handle, indent=2, cls=MyEncoder)
+
+
 class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
 
@@ -372,11 +402,7 @@ class UsefulVars(object):
         self.nsamples = 100
         self.regions = opts.alt_regions
         # Load metadata including AEO year range
-        with open(handyfiles.metadata, 'r') as aeo_yrs:
-            try:
-                aeo_yrs = json.load(aeo_yrs)
-            except ValueError as e:
-                raise ValueError(f"Error reading in '{handyfiles.metadata}': {str(e)}") from None
+        aeo_yrs = Utils.load_json(handyfiles.metadata)
         # Set minimum modeling year to current year
         aeo_min = datetime.today().year
         # Set maximum modeling year
@@ -469,31 +495,16 @@ class UsefulVars(object):
             raise ValueError(
                 f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
         # Read in commercial equipment capacity factors
-        with open(handyfiles.cap_facts, 'r') as cpfc:
-            try:
-                self.cap_facts = json.load(cpfc)
-            except ValueError:
-                raise ValueError(f"Error reading in '{handyfiles.cap_facts}'")
+        self.cap_facts = Utils.load_json(handyfiles.cap_facts)
         # Read in national-level site-source, emissions, and costs data
-        with open(handyfiles.ss_data, 'r') as ss:
-            try:
-                cost_ss_carb = json.load(ss)
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.ss_data + "': " + str(e)) from None
+        cost_ss_carb = Utils.load_json(handyfiles.ss_data)
+
         # Set base-case emissions/cost data to use in assessing reductions for
         # non-fuel switching microsegments under a high grid decarbonization
         # case, if desired by the user
         if handyfiles.ss_data_nonfs is not None:
             # Read in national-level site-source, emissions, and costs data
-            with open(handyfiles.ss_data_nonfs, 'r') as ss:
-                try:
-                    cost_ss_carb_nonfs = json.load(ss)
-                except ValueError as e:
-                    raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.ss_data + "': " + str(e)) from None
+            cost_ss_carb_nonfs = Utils.load_json(handyfiles.ss_data_nonfs)
         else:
             cost_ss_carb_nonfs = None
         # Set national site to source conversion factors
@@ -508,25 +519,13 @@ class UsefulVars(object):
         # data) or not (use national data)
         if self.regions in ["EMM", "State"]:
             # Read in EMM- or state-specific emissions factors and price data
-            with open(handyfiles.ss_data_altreg, 'r') as ss:
-                try:
-                    cost_ss_carb_altreg = json.load(ss)
-                except ValueError as e:
-                    raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.ss_data_altreg + "': " + str(e)) from None
+            cost_ss_carb_altreg = Utils.load_json(handyfiles.ss_data_altreg)
             # Set base-case emissions/cost data to use in assessing reductions
             # for non-fuel switching microsegments under a high grid
             # decarbonization case, if desired by the user
             if handyfiles.ss_data_altreg_nonfs is not None:
-                # Read in EMM- or state-specific emissions factors and price
-                # data
-                with open(handyfiles.ss_data_altreg_nonfs, 'r') as ss:
-                    try:
-                        cost_ss_carb_altreg_nonfs = json.load(ss)
-                    except ValueError:
-                        raise ValueError(
-                            f"Error reading in '{handyfiles.ss_data_altreg_nonfs}'")
+                # Read in EMM- or state-specific emissions factors and price data
+                cost_ss_carb_altreg_nonfs = Utils.load_json(handyfiles.ss_data_altreg_nonfs)
             else:
                 cost_ss_carb_altreg_nonfs = None
             # Initialize CO2 intensities based on electricity intensities by
@@ -663,11 +662,8 @@ class UsefulVars(object):
                     for key in self.aeo_years}}}
         # Load external data on conversion rates for HP measures
         if opts.exog_hp_rates is not False:
-            with open(handyfiles.hp_convert_rates, 'r') as fs_r:
-                try:
-                    self.hp_rates = json.load(fs_r)
-                except ValueError:
-                    print(f"Error reading in 'f{handyfiles.hp_convert_rates}'")
+            self.hp_rates = Utils.load_json(handyfiles.hp_convert_rates)
+
             # Set a priori assumptions about which non-elec-HP heating/cooling
             # technologies in commercial buildings are part of an RTU config.
             # vs. not; this is necessary to choose the appropriate exogenous
@@ -717,11 +713,7 @@ class UsefulVars(object):
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
         if opts.fugitive_emissions is not False:
-            with open(handyfiles.fug_emissions_dat, 'r') as fs_r:
-                try:
-                    self.fug_emissions = json.load(fs_r)
-                except ValueError:
-                    print(f"Error reading in '{handyfiles.fug_emissions_dat}'")
+            self.fug_emissions = Utils.load_json(handyfiles.fug_emissions_dat)
         else:
             self.fug_emissions = None
 
@@ -13503,12 +13495,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         ecm_prep_exists = ""
 
     # Import packages JSON, filter as needed
-    with open(handyfiles.ecm_packages, 'r') as mpk:
-        try:
-            meas_toprep_package_init = json.load(mpk)
-        except ValueError as e:
-            raise ValueError(
-                f"Error reading in ECM package '{handyfiles.ecm_packages}': {str(e)}") from None
+    meas_toprep_package_init = Utils.load_json(handyfiles.ecm_packages)
     meas_toprep_package_init = downselect_packages(meas_toprep_package_init, opts.ecm_packages)
 
     # If applicable, import file to write prepared measure sector shapes to
@@ -13594,295 +13581,291 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Import all individual measure JSONs
     for mi in meas_toprep_indiv_names:
-        with open(handyfiles.indiv_ecms / mi, 'r') as jsf:
-            try:
-                # Load each JSON into a dict
-                meas_dict = json.load(
-                    jsf, object_pairs_hook=dict_raise_on_duplicates)
-                # Shorthand for previously prepared measured data that match
-                # current measure
-                match_in_prep_file = [y for y in meas_summary if (
-                    "contributing_ECMs" not in y.keys() and
-                    y["name"] == meas_dict["name"]) or (
-                    "contributing_ECMs" in y.keys() and
-                    meas_dict["name"] in y["contributing_ECMs"])]
-                # Determine whether dict should be added to list of individual
-                # measure definitions to update. Add a measure dict to the list
-                # requiring further preparation if: a) measure is in package
-                # (may be removed from update later) b) measure JSON time stamp
-                # indicates it has been modified since the last run of
-                # 'ecm_prep.py' c) measure name is not already included in
-                # database of prepared measure attributes ('/generated/ecm_prep.json'); d)
-                # measure does not already have competition data prepared for
-                # it (in '/generated/ecm_competition_data' folder), or
-                # or e) command line arguments applied to the measure are not
-                # consistent with those reported out the last time the measure
-                # was prepared (based on 'usr_opts' attribute), excepting
-                # the 'verbose', 'yaml', and 'ecm_directory' options, which have no bearing
-                # on results
-                compete_files = [x for x in handyfiles.ecm_compete_data.iterdir() if not
-                                 x.name.startswith('.')]
-                ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
-                               "ecm_packages", "ecm_files_regex"]
-                update_indiv_ecm = ((ecm_prep_exists and stat(
-                    handyfiles.indiv_ecms / mi).st_mtime > stat(
-                    handyfiles.ecm_prep).st_mtime) or
-                    (len(match_in_prep_file) == 0 or (
-                        "(CF)" not in meas_dict["name"] and all([all([
-                            x["name"] != Path(y.stem).stem for y in
-                            compete_files]) for
-                            x in match_in_prep_file])) or
-                        (opts is None and not all([all([
-                         m["usr_opts"][k] is False
-                         for k in m["usr_opts"].keys()]) for
-                            m in match_in_prep_file])) or
-                        (not all([all([m["usr_opts"][x] ==
-                                      vars(opts)[x] for x in [
-                            k for k in vars(opts).keys() if
-                            k not in ignore_opts]]) for m in
-                            match_in_prep_file]))))
-                # Add measure to tracking of individual measures needing update
-                # independent of required updates to packages they are a
-                # part of (if applicable)
-                if update_indiv_ecm:
-                    meas_toprep_indiv_nopkg.append(meas_dict["name"])
-                # Register name of package measure is a part of, if applicable
-                meas_in_pkgs = any([
-                    meas_dict["name"] in pkg["contributing_ECMs"] for pkg in
-                    meas_toprep_package_init])
-                if update_indiv_ecm or meas_in_pkgs:
-                    # Check to ensure that tech switching information is
-                    # available, if needed; otherwise throw a warning
-                    # about this measure
+        # Load each JSON into a dict
+        meas_dict = Utils.load_json(handyfiles.indiv_ecms / mi)
+        try:
+            # Shorthand for previously prepared measured data that match
+            # current measure
+            match_in_prep_file = [y for y in meas_summary if (
+                "contributing_ECMs" not in y.keys() and
+                y["name"] == meas_dict["name"]) or (
+                "contributing_ECMs" in y.keys() and
+                meas_dict["name"] in y["contributing_ECMs"])]
+            # Determine whether dict should be added to list of individual
+            # measure definitions to update. Add a measure dict to the list
+            # requiring further preparation if: a) measure is in package
+            # (may be removed from update later) b) measure JSON time stamp
+            # indicates it has been modified since the last run of
+            # 'ecm_prep.py' c) measure name is not already included in
+            # database of prepared measure attributes ('/generated/ecm_prep.json'); d)
+            # measure does not already have competition data prepared for
+            # it (in '/generated/ecm_competition_data' folder), or
+            # or e) command line arguments applied to the measure are not
+            # consistent with those reported out the last time the measure
+            # was prepared (based on 'usr_opts' attribute), excepting
+            # the 'verbose', 'yaml', and 'ecm_directory' options, which have no bearing
+            # on results
+            compete_files = [x for x in handyfiles.ecm_compete_data.iterdir() if not
+                             x.name.startswith('.')]
+            ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
+                           "ecm_packages", "ecm_files_regex"]
+            update_indiv_ecm = ((ecm_prep_exists and stat(
+                handyfiles.indiv_ecms / mi).st_mtime > stat(
+                handyfiles.ecm_prep).st_mtime) or
+                (len(match_in_prep_file) == 0 or (
+                    "(CF)" not in meas_dict["name"] and all([all([
+                        x["name"] != Path(y.stem).stem for y in
+                        compete_files]) for
+                        x in match_in_prep_file])) or
+                    (opts is None and not all([all([
+                        m["usr_opts"][k] is False
+                        for k in m["usr_opts"].keys()]) for
+                        m in match_in_prep_file])) or
+                    (not all([all([m["usr_opts"][x] ==
+                                  vars(opts)[x] for x in [
+                        k for k in vars(opts).keys() if
+                        k not in ignore_opts]]) for m in
+                        match_in_prep_file]))))
+            # Add measure to tracking of individual measures needing update
+            # independent of required updates to packages they are a
+            # part of (if applicable)
+            if update_indiv_ecm:
+                meas_toprep_indiv_nopkg.append(meas_dict["name"])
+            # Register name of package measure is a part of, if applicable
+            meas_in_pkgs = any([
+                meas_dict["name"] in pkg["contributing_ECMs"] for pkg in
+                meas_toprep_package_init])
+            if update_indiv_ecm or meas_in_pkgs:
+                # Check to ensure that tech switching information is
+                # available, if needed; otherwise throw a warning
+                # about this measure
 
-                    # Check for tech. switch attribute, if not there set NA
-                    try:
-                        meas_dict["tech_switch_to"]
-                    except KeyError:
-                        meas_dict["tech_switch_to"] = "NA"
-                    # If tech switching information is None unexpectedly
-                    # (e.g., for a measure that switches fuels, or from
-                    # resistance-based tech. to HPs, or to LEDs), prompt user
-                    # to provide this information and rerun
-                    if meas_dict["tech_switch_to"] == "NA" and (
-                            meas_dict["fuel_switch_to"] is not None or (
-                                any([x in meas_dict["name"] for x in [
-                                    "LED", "solid state",
-                                    "Solid State", "SSL"]]) or
-                                (any([x in meas_dict["name"] for x in [
-                                        "HP", "heat pump", "Heat Pump"]]) and (
-                                    meas_dict["technology"] is not None and
-                                    (any([
-                                        x in handyvars.resist_ht_wh_tech for
-                                        x in meas_dict["technology"]]) or
-                                     meas_dict["technology"] in
-                                     handyvars.resist_ht_wh_tech))))):
-                        # Print missing tech switch info. warning
-                        raise ValueError(
-                            "Measure is missing expected technology switching "
-                            "info.; add to 'tech_switch_to' attribute in the "
-                            "measure definition JSON and rerun ecm_prep, "
-                            "e.g.:\n"
-                            "'tech_switch_to': 'ASHP' (switch to ASHP)\n"
-                            "'tech_switch_to': 'GSHP' (switch to GSHP)\n"
-                            "'tech_switch_to': 'HPWH' (switch to HPWH)\n"
-                            "'tech_switch_to': 'electric cooking' "
-                            "(switch to electric cooking)\n"
-                            "'tech_switch_to': 'electric drying' "
-                            "(switch to electric drying)\n"
-                            "'tech_switch_to': 'LEDs' "
-                            "(switch to LED lighting)\n"
-                            " Alternatively, set 'tech_switch_to' to null "
-                            "if no tech switching is meant to be represented")
+                # Check for tech. switch attribute, if not there set NA
+                try:
+                    meas_dict["tech_switch_to"]
+                except KeyError:
+                    meas_dict["tech_switch_to"] = "NA"
+                # If tech switching information is None unexpectedly
+                # (e.g., for a measure that switches fuels, or from
+                # resistance-based tech. to HPs, or to LEDs), prompt user
+                # to provide this information and rerun
+                if meas_dict["tech_switch_to"] == "NA" and (
+                        meas_dict["fuel_switch_to"] is not None or (
+                            any([x in meas_dict["name"] for x in [
+                                "LED", "solid state",
+                                "Solid State", "SSL"]]) or
+                            (any([x in meas_dict["name"] for x in [
+                                    "HP", "heat pump", "Heat Pump"]]) and (
+                                meas_dict["technology"] is not None and
+                                (any([
+                                    x in handyvars.resist_ht_wh_tech for
+                                    x in meas_dict["technology"]]) or
+                                    meas_dict["technology"] in
+                                    handyvars.resist_ht_wh_tech))))):
+                    # Print missing tech switch info. warning
+                    raise ValueError(
+                        "Measure is missing expected technology switching "
+                        "info.; add to 'tech_switch_to' attribute in the "
+                        "measure definition JSON and rerun ecm_prep, "
+                        "e.g.:\n"
+                        "'tech_switch_to': 'ASHP' (switch to ASHP)\n"
+                        "'tech_switch_to': 'GSHP' (switch to GSHP)\n"
+                        "'tech_switch_to': 'HPWH' (switch to HPWH)\n"
+                        "'tech_switch_to': 'electric cooking' "
+                        "(switch to electric cooking)\n"
+                        "'tech_switch_to': 'electric drying' "
+                        "(switch to electric drying)\n"
+                        "'tech_switch_to': 'LEDs' "
+                        "(switch to LED lighting)\n"
+                        " Alternatively, set 'tech_switch_to' to null "
+                        "if no tech switching is meant to be represented")
+                else:
+                    tech_swtch = meas_dict["tech_switch_to"]
+
+                # Append measure dict to list of measure definitions
+                # to update if it meets the above criteria
+                meas_toprep_indiv.append(meas_dict)
+                # Add copies of the measure that examine multiple scenarios
+                # of public health cost data additions, assuming the
+                # measure is not already a previously prepared copy
+                # that reflects these additions (judging by name)
+                if opts.health_costs is True and \
+                        "PHC" not in meas_dict["name"]:
+                    # Check to ensure that the measure applies to the
+                    # electric fuel type (or switches to it); if not, do
+                    # not prepare additional versions of the measure with
+                    # health costs
+                    if ((((type(meas_dict["fuel_type"]) is not list) and
+                            meas_dict["fuel_type"] not in [
+                        "electricity", "all"]) or ((type(
+                            meas_dict["fuel_type"]) is list) and all([
+                            x not in ["electricity", "all"] for x in
+                            meas_dict["fuel_type"]]))) and
+                            meas_dict["fuel_switch_to"] != "electricity"):
+                        # Warn the user that ECMs that do not apply to the
+                        # electric fuel type will not be prepared with
+                        # public cost health adders
+                        warnings.warn(
+                            "WARNING: " + meas_dict["name"] + " does not "
+                            "apply to the electric fuel type; versions of "
+                            "this ECM with low/high public health cost "
+                            "adders will not be prepared.")
                     else:
-                        tech_swtch = meas_dict["tech_switch_to"]
+                        for scn in handyvars.health_scn_names:
+                            # Determine unique measure copy name
+                            new_name = meas_dict["name"] + "-" + scn[0]
+                            # Copy the measure
+                            new_meas = copy.deepcopy(meas_dict)
+                            # Set the copied measure name to the name above
+                            new_meas["name"] = new_name
+                            # Append the copied measure to list of measure
+                            # definitions to update
+                            meas_toprep_indiv.append(new_meas)
+                            # Add measure to tracking of individual
+                            # measures needing update independent of
+                            # required updates to packages they are a
+                            # part of (if applicable)
+                            if update_indiv_ecm:
+                                meas_toprep_indiv_nopkg.append(
+                                    new_meas["name"])
+                            # Flag the package(s) that the measure that was
+                            # copied contributes to; this package will be
+                            # copied as well
+                            pkgs_to_copy = [
+                                x[0] for x in ctrb_ms_pkg_all if
+                                meas_dict["name"] in x[1]]
+                            # Add the package name, the package copy name,
+                            # the name of the original measure that
+                            # contributes to the package, and the measure
+                            # copy name
+                            for p in pkgs_to_copy:
+                                # Set pkg copy name
+                                new_pkg_name = p + "-" + scn[0]
+                                pkg_copy_flag.append([
+                                    p, new_pkg_name,
+                                    meas_dict["name"], new_name])
 
-                    # Append measure dict to list of measure definitions
-                    # to update if it meets the above criteria
-                    meas_toprep_indiv.append(meas_dict)
-                    # Add copies of the measure that examine multiple scenarios
-                    # of public health cost data additions, assuming the
-                    # measure is not already a previously prepared copy
-                    # that reflects these additions (judging by name)
-                    if opts.health_costs is True and \
-                            "PHC" not in meas_dict["name"]:
-                        # Check to ensure that the measure applies to the
-                        # electric fuel type (or switches to it); if not, do
-                        # not prepare additional versions of the measure with
-                        # health costs
-                        if ((((type(meas_dict["fuel_type"]) is not list) and
-                              meas_dict["fuel_type"] not in [
-                            "electricity", "all"]) or ((type(
-                                meas_dict["fuel_type"]) is list) and all([
-                                x not in ["electricity", "all"] for x in
-                                meas_dict["fuel_type"]]))) and
-                                meas_dict["fuel_switch_to"] != "electricity"):
-                            # Warn the user that ECMs that do not apply to the
-                            # electric fuel type will not be prepared with
-                            # public cost health adders
-                            warnings.warn(
-                                "WARNING: " + meas_dict["name"] + " does not "
-                                "apply to the electric fuel type; versions of "
-                                "this ECM with low/high public health cost "
-                                "adders will not be prepared.")
-                        else:
-                            for scn in handyvars.health_scn_names:
-                                # Determine unique measure copy name
-                                new_name = meas_dict["name"] + "-" + scn[0]
-                                # Copy the measure
-                                new_meas = copy.deepcopy(meas_dict)
-                                # Set the copied measure name to the name above
-                                new_meas["name"] = new_name
-                                # Append the copied measure to list of measure
-                                # definitions to update
-                                meas_toprep_indiv.append(new_meas)
-                                # Add measure to tracking of individual
-                                # measures needing update independent of
-                                # required updates to packages they are a
-                                # part of (if applicable)
-                                if update_indiv_ecm:
-                                    meas_toprep_indiv_nopkg.append(
-                                        new_meas["name"])
-                                # Flag the package(s) that the measure that was
-                                # copied contributes to; this package will be
-                                # copied as well
-                                pkgs_to_copy = [
-                                    x[0] for x in ctrb_ms_pkg_all if
-                                    meas_dict["name"] in x[1]]
-                                # Add the package name, the package copy name,
-                                # the name of the original measure that
-                                # contributes to the package, and the measure
-                                # copy name
-                                for p in pkgs_to_copy:
-                                    # Set pkg copy name
-                                    new_pkg_name = p + "-" + scn[0]
-                                    pkg_copy_flag.append([
-                                        p, new_pkg_name,
-                                        meas_dict["name"], new_name])
-
-                    # Check for whether a reference case analogue measure
-                    # should be added (user option is present, measure is in
-                    # ESTAR/IECC/90.1 tier, measure applies to equipment
-                    # not envelope components, and either the
-                    # measure does not switch equipment types or it switches
-                    # and exogenous switching rates are not used)
-                    if opts is not None and opts.add_typ_eff is True and \
-                        any([x in meas_dict["name"] for x in [
-                            "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and (
-                            not ((isinstance(meas_dict["technology"], list)
-                                  and all([x in handyvars.demand_tech for
-                                           x in meas_dict["technology"]])) or
-                                 meas_dict["technology"] in
-                                 handyvars.demand_tech)) and (
-                            not tech_swtch or opts.exog_hp_rates is False):
-                        add_ref_meas = True
-                    else:
-                        add_ref_meas = ""
-
-                    # Add copies of ESTAR, IECC, or 90.1 measures that
-                    # downgrade to typical/BAU efficiency levels; exclude typ.
-                    # /BAU fuel switching measures that are assessed under
-                    # exogenously determined FS rates; such measures must be
-                    # manually defined by the user and are handled like normal
-                    # measures; also exclude typical windows/envelope measures,
-                    # as these are already baked into the energy use totals for
-                    # typical/BAU HVAC equipment measures
-                    if add_ref_meas:
-                        # Find substring in existing measure name to replace
-                        if "ENERGY STAR" in meas_dict["name"]:
-                            name_substr = "ENERGY STAR"
-                        elif "ESTAR" in meas_dict["name"]:
-                            name_substr = "ESTAR"
-                        elif "IECC c. 2021" in meas_dict["name"]:
-                            name_substr = "IECC c. 2021"
-                        elif "90.1 c. 2019" in meas_dict["name"]:
-                            name_substr = "90.1 c. 2019"
-                        else:
-                            name_substr = ""
-                        # Determine unique measure copy name
-                        if name_substr:
-                            new_name = meas_dict["name"].replace(
-                                name_substr, "Ref. Case")
-                        else:
-                            new_name = meas_dict["name"] + " Ref. Case"
-                        # Copy the measure
-                        new_meas = copy.deepcopy(meas_dict)
-                        # Set the copied measure name to the name above
-                        new_meas["name"] = new_name
-                        opts.ecm_files.append(new_meas["name"])
-                        # If measure was set to fuel switch without exogenous
-                        # FS rates, reset typical/BAU analogue FS to None (
-                        # e.g., such that for an ASHP FS measure, a typical/
-                        # BAU fossil-based heating analogue is created
-                        # for later competition with that FS measure). Also
-                        # ensure that no tech switching is specified for
-                        # consistency w/ fuel_switch_to
-                        if (meas_dict["fuel_switch_to"] is not None and
-                                opts.exog_hp_rates is False):
-                            new_meas["fuel_switch_to"], \
-                                new_meas["tech_switch_to"] = (
-                                    None for n in range(2))
-                        # Append the copied measure to list of measure
-                        # definitions to update
-                        meas_toprep_indiv.append(new_meas)
-                        # Add measure to tracking of individual
-                        # measures needing update independent of
-                        # required updates to packages they are a
-                        # part of (if applicable)
-                        if update_indiv_ecm:
-                            meas_toprep_indiv_nopkg.append(new_meas["name"])
-                    # If desired by user, add copies of HVAC equipment measures
-                    # that are part of packages; these measures will be
-                    # assigned no relative performance improvement and
-                    # added to copies of those HVAC/envelope packages, to serve
-                    # as counter-factuals that allow isolation of envelope
-                    # impacts within each package
-                    if opts is not None and opts.pkg_env_sep is True and len(
-                        ctrb_ms_pkg_all) != 0 and (any(
-                            [meas_dict["name"] in x[1] for
-                             x in ctrb_ms_pkg_all])) and (
-                        (isinstance(meas_dict["end_use"], list) and any([
-                            x in ["heating", "cooling"] for
-                            x in meas_dict["end_use"]])) or
-                            meas_dict["end_use"] in
-                            ["heating", "cooling"]) and (
+                # Check for whether a reference case analogue measure
+                # should be added (user option is present, measure is in
+                # ESTAR/IECC/90.1 tier, measure applies to equipment
+                # not envelope components, and either the
+                # measure does not switch equipment types or it switches
+                # and exogenous switching rates are not used)
+                if opts is not None and opts.add_typ_eff is True and \
+                    any([x in meas_dict["name"] for x in [
+                        "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and (
                         not ((isinstance(meas_dict["technology"], list)
                               and all([x in handyvars.demand_tech for
                                        x in meas_dict["technology"]])) or
                              meas_dict["technology"] in
-                             handyvars.demand_tech)):
-                        # Determine measure copy name, CF for counterfactual
-                        new_name = meas_dict["name"] + " (CF)"
-                        # Copy the measure
-                        new_meas = copy.deepcopy(meas_dict)
-                        # Set the copied measure name to the name above
-                        new_meas["name"] = new_name
-                        # Append the copied measure to list of measure
-                        # definitions to update
-                        meas_toprep_indiv.append(new_meas)
-                        # Add measure to tracking of individual
-                        # measures needing update independent of
-                        # required updates to packages they are a
-                        # part of (if applicable)
-                        if update_indiv_ecm:
-                            meas_toprep_indiv_nopkg.append(new_meas["name"])
-                        # Flag the package(s) that the measure that was copied
-                        # contributes to; this package will be copied as well
-                        # to produce the final counterfactual data
-                        pkgs_to_copy = [x[0] for x in ctrb_ms_pkg_all if
-                                        meas_dict["name"] in x[1]]
-                        # Add the package name, the package copy name,
-                        # the name of the original measure that contributes
-                        # to the package, and the measure copy name
-                        for p in pkgs_to_copy:
-                            # Set pkg copy name
-                            new_pkg_name = p + " (CF)"
-                            pkg_copy_flag.append([
-                                p, new_pkg_name, meas_dict["name"], new_name])
-            except ValueError as e:
-                raise ValueError(
-                    "Error reading in ECM '" + mi.stem + "': " +
-                    str(e)) from None
+                             handyvars.demand_tech)) and (
+                        not tech_swtch or opts.exog_hp_rates is False):
+                    add_ref_meas = True
+                else:
+                    add_ref_meas = ""
+
+                # Add copies of ESTAR, IECC, or 90.1 measures that
+                # downgrade to typical/BAU efficiency levels; exclude typ.
+                # /BAU fuel switching measures that are assessed under
+                # exogenously determined FS rates; such measures must be
+                # manually defined by the user and are handled like normal
+                # measures; also exclude typical windows/envelope measures,
+                # as these are already baked into the energy use totals for
+                # typical/BAU HVAC equipment measures
+                if add_ref_meas:
+                    # Find substring in existing measure name to replace
+                    if "ENERGY STAR" in meas_dict["name"]:
+                        name_substr = "ENERGY STAR"
+                    elif "ESTAR" in meas_dict["name"]:
+                        name_substr = "ESTAR"
+                    elif "IECC c. 2021" in meas_dict["name"]:
+                        name_substr = "IECC c. 2021"
+                    elif "90.1 c. 2019" in meas_dict["name"]:
+                        name_substr = "90.1 c. 2019"
+                    else:
+                        name_substr = ""
+                    # Determine unique measure copy name
+                    if name_substr:
+                        new_name = meas_dict["name"].replace(
+                            name_substr, "Ref. Case")
+                    else:
+                        new_name = meas_dict["name"] + " Ref. Case"
+                    # Copy the measure
+                    new_meas = copy.deepcopy(meas_dict)
+                    # Set the copied measure name to the name above
+                    new_meas["name"] = new_name
+                    opts.ecm_files.append(new_meas["name"])
+                    # If measure was set to fuel switch without exogenous
+                    # FS rates, reset typical/BAU analogue FS to None (
+                    # e.g., such that for an ASHP FS measure, a typical/
+                    # BAU fossil-based heating analogue is created
+                    # for later competition with that FS measure). Also
+                    # ensure that no tech switching is specified for
+                    # consistency w/ fuel_switch_to
+                    if (meas_dict["fuel_switch_to"] is not None and opts.exog_hp_rates is False):
+                        new_meas["fuel_switch_to"], \
+                            new_meas["tech_switch_to"] = (
+                                None for n in range(2))
+                    # Append the copied measure to list of measure
+                    # definitions to update
+                    meas_toprep_indiv.append(new_meas)
+                    # Add measure to tracking of individual
+                    # measures needing update independent of
+                    # required updates to packages they are a
+                    # part of (if applicable)
+                    if update_indiv_ecm:
+                        meas_toprep_indiv_nopkg.append(new_meas["name"])
+                # If desired by user, add copies of HVAC equipment measures
+                # that are part of packages; these measures will be
+                # assigned no relative performance improvement and
+                # added to copies of those HVAC/envelope packages, to serve
+                # as counter-factuals that allow isolation of envelope
+                # impacts within each package
+                if opts is not None and opts.pkg_env_sep is True and len(
+                    ctrb_ms_pkg_all) != 0 and (any(
+                        [meas_dict["name"] in x[1] for
+                            x in ctrb_ms_pkg_all])) and (
+                    (isinstance(meas_dict["end_use"], list) and any([
+                        x in ["heating", "cooling"] for
+                        x in meas_dict["end_use"]])) or
+                        meas_dict["end_use"] in
+                        ["heating", "cooling"]) and (
+                    not ((isinstance(meas_dict["technology"], list)
+                          and all([x in handyvars.demand_tech for
+                                   x in meas_dict["technology"]])) or
+                         meas_dict["technology"] in
+                         handyvars.demand_tech)):
+                    # Determine measure copy name, CF for counterfactual
+                    new_name = meas_dict["name"] + " (CF)"
+                    # Copy the measure
+                    new_meas = copy.deepcopy(meas_dict)
+                    # Set the copied measure name to the name above
+                    new_meas["name"] = new_name
+                    # Append the copied measure to list of measure
+                    # definitions to update
+                    meas_toprep_indiv.append(new_meas)
+                    # Add measure to tracking of individual
+                    # measures needing update independent of
+                    # required updates to packages they are a
+                    # part of (if applicable)
+                    if update_indiv_ecm:
+                        meas_toprep_indiv_nopkg.append(new_meas["name"])
+                    # Flag the package(s) that the measure that was copied
+                    # contributes to; this package will be copied as well
+                    # to produce the final counterfactual data
+                    pkgs_to_copy = [x[0] for x in ctrb_ms_pkg_all if
+                                    meas_dict["name"] in x[1]]
+                    # Add the package name, the package copy name,
+                    # the name of the original measure that contributes
+                    # to the package, and the measure copy name
+                    for p in pkgs_to_copy:
+                        # Set pkg copy name
+                        new_pkg_name = p + " (CF)"
+                        pkg_copy_flag.append([p, new_pkg_name, meas_dict["name"], new_name])
+        except ValueError as e:
+            raise ValueError(
+                "Error reading in ECM '" + mi.stem + "': " +
+                str(e)) from None
 
     # Set custom warning formatting
     warnings.showwarning = custom_showwarning
@@ -14027,33 +14010,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             with gzip.GzipFile(bjszip, 'r') as zip_ref:
                 msegs = json.loads(zip_ref.read().decode('utf-8'))
         else:
-            with open(handyfiles.msegs_in, 'r') as msi:
-                try:
-                    msegs = json.load(msi)
-                except ValueError as e:
-                    raise ValueError(
-                        "Error reading in '" +
-                        handyfiles.msegs_in + "': " + str(e)) from None
+            msegs = Utils.load_json(handyfiles.msegs_in)
         # Import baseline cost, performance, and lifetime data
         bjszip = handyfiles.msegs_cpl_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
             msegs_cpl = json.loads(zip_ref.read().decode('utf-8'))
         # Import measure cost unit conversion data
-        with open(handyfiles.cost_convert_in, 'r') as cc:
-            try:
-                convert_data = json.load(cc)
-            except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.cost_convert_in}': {str(e)}") from None
+        convert_data = Utils.load_json(handyfiles.cost_convert_in)
         # Import CBECS square footage by vintage data (used to map EnergyPlus
         # commercial building vintages to Scout building vintages)
-        with open(handyfiles.cbecs_sf_byvint, 'r') as cbsf:
-            try:
-                cbecs_sf_byvint = json.load(cbsf)[
-                    "commercial square footage by vintage"]
-            except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.cbecs_sf_byvint}': {str(e)}") from None
+        cbecs_sf_byvint = Utils.load_json(handyfiles.cbecs_sf_byvint)[
+            "commercial square footage by vintage"]
         if (opts.alt_regions == 'EMM' and ((
                 opts.tsv_metrics is not False or any([
                 ("tsv_features" in m.keys() and m["tsv_features"] is not None)
@@ -14290,45 +14257,39 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     with gzip.open(fs_splt_folder_name / meas_file_name, 'w') as zp:
                         pickle.dump(meas_eff_fs_splt[ind], zp, -1)
         # Write prepared high-level measure attributes data to JSON
-        with open(handyfiles.ecm_prep, "w") as jso:
-            json.dump(meas_summary, jso, indent=2, cls=MyEncoder)
+        Utils.dump_json(meas_summary, handyfiles.ecm_prep)
         # If applicable, write sector shape data to JSON
         if opts.sect_shapes is True:
-            with open(handyfiles.ecm_prep_shapes, "w") as jso:
-                json.dump(meas_shapes, jso, indent=2, cls=MyEncoder)
+            Utils.dump_json(meas_shapes, handyfiles.ecm_prep_shapes)
 
         # Write prepared high-level counterfactual measure attributes data to
         # JSON (e.g., a separate file with data that will be used to isolate
         # the effects of envelope within envelope/HVAC packages)
         if opts is not None and opts.pkg_env_sep is True and \
                 meas_summary_env_cf is not None:
-            with open(handyfiles.ecm_prep_env_cf, "w") as jso:
-                json.dump(meas_summary_env_cf, jso, indent=2, cls=MyEncoder)
+            Utils.dump_json(meas_summary_env_cf, handyfiles.ecm_prep_env_cf)
             # If applicable, write out envelope counterfactual sector shapes
             if opts.sect_shapes is True:
-                with open(handyfiles.ecm_prep_env_cf_shapes, "w") as jso:
-                    json.dump(meas_shapes_env_cf, jso, indent=2, cls=MyEncoder)
+                Utils.dump_json(meas_shapes_env_cf, handyfiles.ecm_prep_env_cf_shapes)
 
         # Write metadata for consistent use later in the analysis engine
-        with open(handyfiles.glob_vars, "w") as jso:
-            glob_vars = {
-                "adopt_schemes": handyvars.adopt_schemes,
-                "retro_rate": handyvars.retro_rate,
-                "aeo_years": handyvars.aeo_years,
-                "discount_rate": handyvars.discount_rate,
-                "out_break_czones": handyvars.out_break_czones,
-                "out_break_bldg_types": handyvars.out_break_bldgtypes,
-                "out_break_enduses": handyvars.out_break_enduses,
-                "out_break_fuels": handyvars.out_break_fuels,
-                "out_break_eus_w_fsplits": handyvars.out_break_eus_w_fsplits
-            }
-            json.dump(glob_vars, jso, indent=2, cls=MyEncoder)
+        glob_vars = {
+            "adopt_schemes": handyvars.adopt_schemes,
+            "retro_rate": handyvars.retro_rate,
+            "aeo_years": handyvars.aeo_years,
+            "discount_rate": handyvars.discount_rate,
+            "out_break_czones": handyvars.out_break_czones,
+            "out_break_bldg_types": handyvars.out_break_bldgtypes,
+            "out_break_enduses": handyvars.out_break_enduses,
+            "out_break_fuels": handyvars.out_break_fuels,
+            "out_break_eus_w_fsplits": handyvars.out_break_eus_w_fsplits
+        }
+        Utils.dump_json(glob_vars, handyfiles.glob_vars)
     else:
         print('No new ECM updates available')
 
     # Write lists of active/inactive measures to be used in the analysis engine
-    with open(handyfiles.run_setup, "w") as jso:
-        json.dump(run_setup, jso, indent=2)
+    Utils.dump_json(run_setup, handyfiles.run_setup)
 
 
 if __name__ == "__main__":
