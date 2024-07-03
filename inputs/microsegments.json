@@ -2202,7 +2202,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"mid atlantic" : {
@@ -4408,7 +4411,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"east north central" : {
@@ -6614,7 +6620,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"west north central" : {
@@ -8820,7 +8829,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"south atlantic" : {
@@ -11026,7 +11038,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"east south central" : {
@@ -13232,7 +13247,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"west south central" : {
@@ -15438,7 +15456,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"mountain" : {
@@ -17644,7 +17665,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	},
 	"pacific" : {
@@ -19850,7 +19874,10 @@
 				},
 			"distillate": {
 				"unspecified": 0
-			}
+				},
+     		"other fuel": {
+        		"unspecified": 0
+      		}
 		}
 	}
 }

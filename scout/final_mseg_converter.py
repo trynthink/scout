@@ -123,6 +123,7 @@ class UsefulVars(object):
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_NG_RowSums.txt",
                 "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Dist_RowSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
@@ -143,6 +144,7 @@ class UsefulVars(object):
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_NG_RowSums.txt",
                 "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Dist_RowSums.txt",
                 # Use total consumption splits to apportion no. building/sf
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
@@ -174,6 +176,7 @@ class UsefulVars(object):
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
                 "distillate": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt"
@@ -1520,6 +1523,9 @@ def main():
             "distillate": np.genfromtxt(
                 handyvars.com_climate_convert["distillate"], names=True,
                 delimiter='\t', dtype="float64"),
+            "other fuel": np.genfromtxt(
+                handyvars.com_climate_convert["other fuel"], names=True,
+                delimiter='\t', dtype="float64"),
             "building stock and square footage": np.genfromtxt(
                 handyvars.com_climate_convert[
                     "building stock and square footage"], names=True,
@@ -1557,6 +1563,9 @@ def main():
                 delimiter='\t', dtype="float64"),
             "distillate": np.genfromtxt(
                 handyvars.com_climate_convert["distillate"], names=True,
+                delimiter='\t', dtype="float64"),
+            "other fuel": np.genfromtxt(
+                handyvars.com_climate_convert["other fuel"], names=True,
                 delimiter='\t', dtype="float64"),
             "building stock and square footage": np.genfromtxt(
                 handyvars.com_climate_convert[

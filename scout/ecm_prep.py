@@ -874,7 +874,7 @@ class UsefulVars(object):
                 "residential": [
                     "electricity", "natural gas", "distillate", "other fuel"],
                 "commercial": [
-                    "electricity", "natural gas", "distillate"]},
+                    "electricity", "natural gas", "distillate", "other fuel"]},
             "end_use": {
                 "residential": {
                     "electricity": [
@@ -901,7 +901,8 @@ class UsefulVars(object):
                         'cooling', 'water heating', 'cooking', 'heating',
                         'other', 'unspecified'],
                     "distillate": [
-                        'water heating', 'heating', 'other', 'unspecified']}},
+                        'water heating', 'heating', 'other', 'unspecified'],
+                    "other fuel": ["unspecified"]}},
             "technology": {
                 "residential": {
                     "supply": {
@@ -1061,7 +1062,9 @@ class UsefulVars(object):
                             'water heating': ['oil_water_heater'],
                             'heating': ['oil_boiler', 'oil_furnace'],
                             'other': [None],
-                            'unspecified': [None]}},
+                            'unspecified': [None]},
+                        "other fuel": {
+                            "unspecified": [None]}},
                     "demand": [
                         'roof', 'ground', 'lighting gain',
                         'windows conduction', 'equipment gain',
@@ -5876,6 +5879,11 @@ class Measure(object):
                                         mskeys[-2] is not None and any([
                                             x in mskeys[-2] for x in [
                                             "coal", "kerosene"]])):
+                                        out_fuel_save = f[0]
+                                    # Assign commercial other fuel to Distillate/Other
+                                    elif f[0] == "Distillate/Other" and (
+                                        mskeys[2] in
+                                            self.handyvars.in_all_map['bldg_type']['commercial']):
                                         out_fuel_save = f[0]
                                     # Assign wood tech.
                                     elif f[0] == "Biomass" and (
