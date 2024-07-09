@@ -239,6 +239,63 @@ class UsefulInputFiles(object):
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
 
+class ImmutableDict:
+    def __init__(self, d):
+        self._dict = dict(d)
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __contains__(self, key):
+        return key in self._dict
+
+    def items(self):
+        return self._dict.items()
+
+    def keys(self):
+        return self._dict.keys()
+
+    def values(self):
+        return self._dict.values()
+
+    def __repr__(self):
+        return repr(self._dict)
+
+    def __str__(self):
+        return str(self._dict)
+
+    def __eq__(self, other):
+        if isinstance(other, ImmutableDict):
+            return self._dict == other._dict
+        return self._dict == other
+
+    def __setitem__(self, key, value):
+        raise ValueError(f"Cannot modify ImmutableDict: {key, value}")
+
+    def __delitem__(self, key):
+        raise ValueError("Cannot modify ImmutableDict")
+
+    def clear(self):
+        raise ValueError("Cannot modify ImmutableDict")
+
+    def pop(self, key, default=None):
+        raise ValueError("Cannot modify ImmutableDict")
+
+    def popitem(self):
+        raise ValueError("Cannot modify ImmutableDict")
+
+    def setdefault(self, key, default=None):
+        raise ValueError("Cannot modify ImmutableDict")
+
+    def update(self, *args, **kwargs):
+        raise ValueError("Cannot modify ImmutableDict")
+
 
 class UsefulVars(object):
     """Class of variables that are used globally across functions.
@@ -1548,11 +1605,15 @@ class UsefulVars(object):
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
         self._allow_overwrite = allow_overwrite
+        self._wrap_dicts()
         self._initialized = True
 
+    def _wrap_dicts(self):
+        for name, value in self.__dict__.items():
+            if isinstance(value, (dict, OrderedDict)):
+                super().__setattr__(name, ImmutableDict(value))
+
     def __setattr__(self, name, value):
-        if name == "adopt_schemes":
-            print(f"wrting adoptSchems: {value}")
         if not hasattr(self, "_initialized"):
             super().__setattr__(name, value)
         elif hasattr(self, "_allow_overwrite") and self._allow_overwrite:
