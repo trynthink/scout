@@ -241,7 +241,7 @@ class UsefulInputFiles(object):
 
 class ImmutableDict:
     def __init__(self, d):
-        self._dict = dict(d)
+        self._dict = d
 
     def __getitem__(self, key):
         return self._dict[key]
@@ -276,7 +276,7 @@ class ImmutableDict:
         return self._dict == other
 
     def __setitem__(self, key, value):
-        raise ValueError(f"Cannot modify ImmutableDict: {key, value}")
+        raise ValueError(f"Cannot modify ImmutableDict: {key}")
 
     def __delitem__(self, key):
         raise ValueError("Cannot modify ImmutableDict")
@@ -295,6 +295,9 @@ class ImmutableDict:
 
     def update(self, *args, **kwargs):
         raise ValueError("Cannot modify ImmutableDict")
+
+    def to_dict(self):
+        return dict(self._dict)
 
 
 class UsefulVars(object):
@@ -2060,6 +2063,8 @@ class Measure(object):
         # self.handyvars = copy.deepcopy(handyvars)
         self.handyvars = handyvars
         self.sf_to_house = {}
+        self.tsv_hourly_price = copy.deepcopy(handyvars.tsv_hourly_price.to_dict())
+        self.tsv_hourly_emissions = copy.deepcopy(handyvars.tsv_hourly_emissions.to_dict())
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
@@ -6642,8 +6647,8 @@ class Measure(object):
                 # https://www.nrel.gov/docs/fy22osti/78224.pdf. Check for cases
                 # where multiplication of scaling factor by retail rate will
                 # result in negative prices and force such cases to zero.
-                if self.handyvars.tsv_hourly_price[mskeys[1]] is None:
-                    cost_fact_hourly, self.handyvars.tsv_hourly_price[
+                if self.tsv_hourly_price[mskeys[1]] is None:
+                    cost_fact_hourly, self.tsv_hourly_price[
                         mskeys[1]] = ({} for n in range(2))
                     # Loop through all years in price shape data and record
                     # final scaling factors
@@ -6656,7 +6661,7 @@ class Measure(object):
                         # range, set all price scaling factors to 1 for year
                         if yr in self.handyvars.aeo_years:
                             cost_fact_hourly[yr], \
-                                self.handyvars.tsv_hourly_price[
+                                self.tsv_hourly_price[
                                 mskeys[1]][yr] = ([(
                                     (0.59 + 0.41 * x) if (
                                         cost_energy_meas[yr] *
@@ -6666,26 +6671,26 @@ class Measure(object):
                                      mskeys[1]]] for n in range(2))
                         else:
                             cost_fact_hourly[yr], \
-                                self.handyvars.tsv_hourly_price[
+                                self.tsv_hourly_price[
                                 mskeys[1]][yr] = ([1] * 8760 for n in range(2))
                 else:
                     cost_fact_hourly = \
-                        self.handyvars.tsv_hourly_price[mskeys[1]]
+                        self.tsv_hourly_price[mskeys[1]]
                 # Set TSV data -> AEO year mapping to use in preparing cost
                 # scaling factors
                 cost_yr_map = tsv_data["price_yr_map"]
                 # Set time-varying emissions scaling factors for the EMM
                 # region (dict with keys distinguished by year, *CURRENTLY*
                 # every two years beginning in 2018)
-                if self.handyvars.tsv_hourly_emissions[mskeys[1]] is None:
-                    carbon_fact_hourly,  self.handyvars.tsv_hourly_emissions[
+                if self.tsv_hourly_emissions[mskeys[1]] is None:
+                    carbon_fact_hourly,  self.tsv_hourly_emissions[
                         mskeys[1]] = ({yr: tsv_data["emissions"][
                             "average carbon emissions rates"][yr][
                             mskeys[1]] for yr in tsv_data["emissions"][
                             "average carbon emissions rates"].keys()} for
                             n in range(2))
                 else:
-                    carbon_fact_hourly = self.handyvars.tsv_hourly_emissions[
+                    carbon_fact_hourly = self.tsv_hourly_emissions[
                         mskeys[1]]
                 # Set TSV data -> AEO year mapping to use in preparing
                 # emissions scaling factors
