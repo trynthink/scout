@@ -1608,7 +1608,7 @@ class UsefulVars(object):
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
         self._allow_overwrite = allow_overwrite
-        self._wrap_dicts()
+        # self._wrap_dicts()
         self._initialized = True
 
     def _wrap_dicts(self):
@@ -2063,8 +2063,8 @@ class Measure(object):
         # self.handyvars = copy.deepcopy(handyvars)
         self.handyvars = handyvars
         self.sf_to_house = {}
-        self.tsv_hourly_price = copy.deepcopy(handyvars.tsv_hourly_price.to_dict())
-        self.tsv_hourly_emissions = copy.deepcopy(handyvars.tsv_hourly_emissions.to_dict())
+        self.tsv_hourly_price = copy.deepcopy(handyvars.tsv_hourly_price)
+        self.tsv_hourly_emissions = copy.deepcopy(handyvars.tsv_hourly_emissions)
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
