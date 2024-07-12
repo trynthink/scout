@@ -35,8 +35,8 @@
   "measure_type": "add-on",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "fuel_switch_to": "electricity",
-  "tech_switch_to": "ASHP",
+  "fuel_switch_to": null,
+  "tech_switch_to": "same",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

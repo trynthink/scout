@@ -3,9 +3,9 @@
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating", "secondary heating"],
-  "fuel_type": "all",
-  "technology": ["stove (wood)", "all secondary heating", "resistance heat"],
+  "end_use": ["heating"],
+  "fuel_type": "electricity",
+  "technology": ["resistance heat"],
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
@@ -34,8 +34,8 @@
   "measure_type": "add-on",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
-  "fuel_switch_to": "electricity",
-  "tech_switch_to": "ASHP",
+  "fuel_switch_to": null,
+  "tech_switch_to": "same",
   "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
   "_notes": null, 
   "_added_by": {
