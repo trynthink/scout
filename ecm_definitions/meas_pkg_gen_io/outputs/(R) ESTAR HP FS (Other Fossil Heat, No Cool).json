@@ -1,7 +1,7 @@
 {
   "name": "(R) ESTAR HP FS (Other Fossil Heat, No Cool)",
   "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) fully replacing original fuel oil/propane equipment, no existing cooling",
-  "measure_type": null,
+  "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
   "climate_zone": "all",
@@ -141,6 +141,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-06-28 10:48:53"
+    "timestamp": "2024-07-12 10:21:47"
   }
 }
