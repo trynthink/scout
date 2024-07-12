@@ -428,20 +428,6 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         else:
             sys_shape = '0'
 
-        # Determine whether to impose a generic morning winter overall peak
-        # hour (9AM in the system peak data)
-        gen_wnt_pk = 0
-        while gen_wnt_pk not in ['1', '2']:
-            gen_wnt_pk = input(
-                    "\nChoose whether to use a generic morning winter peak "
-                    "(appropriate for high electrification runs) vs. the "
-                    "winter peak hours from EMM modeling (1 = yes, "
-                    "2 = no): "
-                )
-            if gen_wnt_pk not in ['1', '2']:
-                print('Please try again. Enter 1 or 2. '
-                      'Use ctrl-c to exit.')
-
         # Determine the season to restrict results to (summer, winter,
         # intermediate)
         season = 0
@@ -452,6 +438,23 @@ def fill_user_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             if season not in ['1', '2', '3']:
                 print('Please try again. Enter 1, 2, or 3. '
                       'Use ctrl-c to exit.')
+
+        # Determine whether to impose a generic morning winter overall peak
+        # hour (9AM in the system peak data)
+        if season == '2':
+            gen_wnt_pk = 0
+            while gen_wnt_pk not in ['1', '2']:
+                gen_wnt_pk = input(
+                    "\nChoose whether to use a generic morning winter peak "
+                    "(appropriate for high electrification runs) vs. the "
+                    "winter peak hours from EMM modeling (1 = yes, "
+                    "2 = no): "
+                    )
+                if gen_wnt_pk not in ['1', '2']:
+                    print('Please try again. Enter 1 or 2. '
+                          'Use ctrl-c to exit.')
+        else:
+            gen_wnt_pk = '2'
 
         # Determine desired calculations (dependent on output type) for given
         # flexibility mode, output type, and temporal boundaries

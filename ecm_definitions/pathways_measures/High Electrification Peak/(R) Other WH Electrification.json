@@ -1,11 +1,12 @@
 { 
-  "name": "(R) Other Heat Electrification",
+  "name": "(R) Other WH Electrification",
+  "_description": "Represents switch to electric residential WH technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential WH technologies currently (or soon to be) on the market, from AEO 2023",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
-  "end_use": ["heating"],
-  "fuel_type": "electricity",
-  "technology": ["resistance heat"],
+  "end_use": "water heating",
+  "fuel_type": ["electricity"],
+  "technology": ["electric WH", "solar WH"],
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": null,
@@ -18,25 +19,25 @@
   "installed_cost": 0,
   "cost_units": "2022$/unit",
   "installed_cost_source": null,
-  "product_lifetime": 21.5,
+  "product_lifetime": 15,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Based on EIA reference case values for LPG furnace",
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": {
-      "title": "Scout Baseline Technology Cost, Performance, and Lifetime Data",
-      "author": null,
-      "organization": "U.S. Department of Energy",
-      "year": 2022,
-      "pages": null,
-      "URL": "https://github.com/trynthink/scout/blob/master/supporting_data/stock_energy_tech_data/cpl_res_com_cz.json"
-    }
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [62, 65],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
   },
   "measure_type": "add-on",
   "market_scaling_fractions": null,
   "market_scaling_fractions_source": null,
   "fuel_switch_to": null,
   "tech_switch_to": "same",
-  "_description": "Reference case residential heating tech. not covered by other measures (no savings, no incremental cost)",
+  "_description": "Reference case residential WH tech. not covered by other measures (no savings, no incremental cost)",
   "_notes": null, 
   "_added_by": {
     "name": "Jared Langevin",
