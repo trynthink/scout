@@ -137,10 +137,18 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     if compete_results_agg["Output Resolution"] == "detail" or \
             "bldg" in compete_results_agg["Output Resolution"]:
         bclasses_out_finmets = [
-            ['Single Family Homes', 'Multi Family Homes'],
-            ['Hospitals', 'Large Offices', 'Small/Medium Offices',
-             'Retail', 'Hospitality', 'Education', 'Assembly/Other',
-             'Warehouses']]
+            ['Single Family Homes (New)', 'Multi Family Homes (New)',
+             'Manufactured Homes (New)', 'Single Family Homes (Existing)',
+             'Multi Family Homes (Existing)', 'Manufactured Homes (Existing)',
+             'Hospitals (Existing)'],
+            ['Hospitals (New)',
+             'Large Offices (New)', 'Small/Medium Offices (New)',
+             'Retail (New)', 'Hospitality (New)', 'Education (New)'
+             'Assembly/Other (New)', 'Warehouses (New)',
+             'Large Offices (Existing)', 'Small/Medium Offices (Existing)',
+             'Retail (Existing)', 'Hospitality (Existing)',
+             'Education (Existing)', 'Assembly/Other (Existing)',
+             'Warehouses (Existing)']]
     else:
         bclasses_out_finmets = [
             ['Residential (New)', 'Residential (Existing)'],
