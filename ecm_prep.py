@@ -1678,37 +1678,41 @@ class UsefulVars(object):
                         "winter": sysld_wint,
                         "intermediate": sysld_int
                     },
+                    # Note: these currently correspond to the days in which the
+                    # overall Scout buildings sector winter and summer
+                    # baseline load peaks, given the tsv_load shape data
+                    # (which are based on EULP)
                     "peak days": {
                         "summer": {
-                            "2A": 199,
-                            "2B": 186,
-                            "3A": 192,
-                            "3B": 171,
-                            "3C": 220,
-                            "4A": 192,
-                            "4B": 206,
-                            "4C": 241,
-                            "5A": 199,
-                            "5B": 178,
-                            "5C": 206,
-                            "6A": 186,
-                            "6B": 220,
-                            "7": 206},
+                            "2A": 183,
+                            "2B": 183,
+                            "3A": 183,
+                            "3B": 183,
+                            "3C": 183,
+                            "4A": 183,
+                            "4B": 183,
+                            "4C": 183,
+                            "5A": 183,
+                            "5B": 183,
+                            "5C": 183,
+                            "6A": 183,
+                            "6B": 183,
+                            "7": 183},
                         "winter": {
-                            "2A": 24,
-                            "2B": 17,
-                            "3A": 31,
-                            "3B": 10,
-                            "3C": 10,
-                            "4A": 31,
-                            "4B": 339,
-                            "4C": 38,
-                            "5A": 26,
-                            "5B": 10,
-                            "5C": 12,
-                            "6A": 10,
-                            "6B": 17,
-                            "7": 31}
+                            "2A": 1,
+                            "2B": 1,
+                            "3A": 1,
+                            "3B": 1,
+                            "3C": 1,
+                            "4A": 1,
+                            "4B": 1,
+                            "4C": 1,
+                            "5A": 1,
+                            "5B": 1,
+                            "5C": 1,
+                            "6A": 1,
+                            "6B": 1,
+                            "7": 1}
                     },
                     "hourly index": list(enumerate(
                         itertools.product(range(365), range(24))))
@@ -2906,7 +2910,8 @@ class Measure(object):
         if all([x in self.end_use["primary"] for x in [
             "heating", "cooling"]]) and (
                     "demand" not in self.technology_type["primary"]) and all([
-                "HP" not in x for x in self.technology["primary"]]):
+                (x is None or "HP" not in x)
+                for x in self.technology["primary"]]):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
             try:
