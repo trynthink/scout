@@ -1067,6 +1067,332 @@ class DataToFinalDictAtLeafNodeRestructuringTest(CommonUnitTest):
                             self.dict_list[i])
 
 
+class TestOtherElectricLoadDoubleCountingCleanup(unittest.TestCase):
+    """Test function that cleans up double-counting of some electric technologies
+
+    After processing the commercial energy and stock data from NEMS, some commercial building
+    types and end uses have double-counted electricity use. This test checks the function that
+    cleans up these cases of double counting.
+
+    Electricity use is double-counted in two places.
+    1. For all commercial building types except "unspecified", specific named MELs technologies
+       are double-counted in the MELs "other" technology type.
+    2. For the unspecified building type, the "water systems" and "telecom systems" MELs are
+       double-counted in the "unspecified" end use (not MELs > other, which is not present for
+       the unspecified building type)
+    """
+
+    # Specify list of years (as strings) of dummy data in the test dicts
+    years = ['2018', '2019', '2020']
+
+    # Test dict structure matching the structure of the commercial data after processing by
+    # com_mseg.py but before any corrections are applied to correct double counting
+    # For testing double-counting of specific MELs technologies in other
+    mels_other_pre = {
+        "new england": {
+            "large office": {
+                "electricity": {
+                    "MELs": {
+                        "distribution transformers": {
+                            "energy": {
+                                "2018": 8,
+                                "2019": 6,
+                                "2020": 4,
+                            },
+                            "stock": "NA"
+                        },
+                        "televisions": {
+                            "energy": {
+                                "2018": 5,
+                                "2019": 6,
+                                "2020": 7,
+                            },
+                            "stock": "NA"
+                        },
+                        "water services": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "other": {
+                            "energy": {
+                                "2018": 17,
+                                "2019": 23,
+                                "2020": 24,
+                            },
+                            "stock": "NA"
+                        }
+                    }
+                }
+            },
+            "unspecified": {
+                "electricity": {
+                    "MELs": {
+                        "water services": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        }
+                    },
+                    "unspecified": {
+                        "energy": {
+                            "2018": 50,
+                            "2019": 50,
+                            "2020": 50,
+                        },
+                        "stock": "NA"
+                    }
+                }
+            }
+        }}
+
+    # Test dict structure with correction of MELs double-counting
+    mels_other_post = {
+        "new england": {
+            "large office": {
+                "electricity": {
+                    "MELs": {
+                        "distribution transformers": {
+                            "energy": {
+                                "2018": 8,
+                                "2019": 6,
+                                "2020": 4,
+                            },
+                            "stock": "NA"
+                        },
+                        "televisions": {
+                            "energy": {
+                                "2018": 5,
+                                "2019": 6,
+                                "2020": 7,
+                            },
+                            "stock": "NA"
+                        },
+                        "water services": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "other": {
+                            "energy": {
+                                "2018": 4,
+                                "2019": 11,
+                                "2020": 13,
+                            },
+                            "stock": "NA"
+                        }
+                    }
+                }
+            },
+            "unspecified": {
+                "electricity": {
+                    "MELs": {
+                        "water services": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        }
+                    },
+                    "unspecified": {
+                        "energy": {
+                            "2018": 50,
+                            "2019": 50,
+                            "2020": 50,
+                        },
+                        "stock": "NA"
+                    }
+                }
+            }
+        }}
+
+    # Test dict structure matching the structure of the commercial data after processing by
+    # com_mseg.py but before any corrections are applied to correct double counting
+    # For testing double-counting of water systems and telecom systems in the unspecified end use
+    mels_unspec_pre = {
+        "new england": {
+            "large office": {
+                "electricity": {
+                    "MELs": {
+                        "distribution transformers": {
+                            "energy": {
+                                "2018": 8,
+                                "2019": 6,
+                                "2020": 4,
+                            },
+                            "stock": "NA"
+                        },
+                        "televisions": {
+                            "energy": {
+                                "2018": 5,
+                                "2019": 6,
+                                "2020": 7,
+                            },
+                            "stock": "NA"
+                        },
+                        "water services": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "other": {
+                            "energy": {
+                                "2018": 17,
+                                "2019": 23,
+                                "2020": 24,
+                            },
+                            "stock": "NA"
+                        }
+                    }
+                }
+            },
+            "unspecified": {
+                "electricity": {
+                    "MELs": {
+                        "water services": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        }
+                    },
+                    "unspecified": {
+                        "energy": {
+                            "2018": 50,
+                            "2019": 50,
+                            "2020": 50,
+                        },
+                        "stock": "NA"
+                    }
+                }
+            }
+        }}
+
+    # Test dict structure with correction of unspecified double-counting
+    mels_unspec_post = {
+        "new england": {
+            "large office": {
+                "electricity": {
+                    "MELs": {
+                        "distribution transformers": {
+                            "energy": {
+                                "2018": 8,
+                                "2019": 6,
+                                "2020": 4,
+                            },
+                            "stock": "NA"
+                        },
+                        "televisions": {
+                            "energy": {
+                                "2018": 5,
+                                "2019": 6,
+                                "2020": 7,
+                            },
+                            "stock": "NA"
+                        },
+                        "water services": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {},
+                            "stock": "NA"
+                        },
+                        "other": {
+                            "energy": {
+                                "2018": 17,
+                                "2019": 23,
+                                "2020": 24,
+                            },
+                            "stock": "NA"
+                        }
+                    }
+                }
+            },
+            "unspecified": {
+                "electricity": {
+                    "MELs": {
+                        "water services": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        },
+                        "telecom systems": {
+                            "energy": {
+                                "2018": 10,
+                                "2019": 10,
+                                "2020": 10,
+                            },
+                            "stock": "NA"
+                        }
+                    },
+                    "unspecified": {
+                        "energy": {
+                            "2018": 30,
+                            "2019": 30,
+                            "2020": 30,
+                        },
+                        "stock": "NA"
+                    }
+                }
+            }
+        }
+    }
+
+    def test_MELs_removed_from_MELs_other(self):
+        self.assertEqual(
+            cm.cleanup_calc(self.mels_other_pre, 'new england', 'large office', self.years),
+            self.mels_other_post)
+
+    def test_MELs_removed_from_unspecified(self):
+        self.assertEqual(
+            cm.cleanup_calc(self.mels_unspec_pre, 'new england', 'unspecified', self.years),
+            self.mels_unspec_post)
+
+
 # Offer external code execution (include all lines below this point in all
 # test files)
 def main():

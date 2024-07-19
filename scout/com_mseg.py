@@ -6,6 +6,7 @@ import re
 import csv
 import json
 import io
+from functools import reduce
 from scout.config import FilePaths as fp
 
 
@@ -164,10 +165,9 @@ class CommercialTranslationDicts(object):
         self.fueldict = {'electricity': 1,
                          'natural gas': 2,
                          'distillate': 3,
-                         'liquefied petroleum gas (LPG)': 5,
-                         'other fuel': (4, 6, 7, 8)
+                         'other fuel': (4, 5, 6, 7, 8)
                          }
-        # Other fuel includes residual oil (4), steam from coal (6),
+        # Other fuel includes residual oil (4), propane (5), steam from coal (6),
         # motor gasoline (7), and kerosene (8)
 
         self.demand_typedict = {'windows conduction': 'WIND_COND',
@@ -453,10 +453,23 @@ def catg_data_selector(db_array, sel, section_label, yrs):
     # division, building type, end use, and fuel type - unless the
     # section_label indicates square footage data, which are specified
     # by only census division and building type
+    # Also separately handle other fuel types, which must be filtered
+    # using a different method since multiple numeric indices for fuel type
+    # are combined together
     if 'SurvFloorTotal' in section_label or 'CMNewFloorSpace' in section_label:
         filtered = db_array[np.all([db_array['Label'] == section_label,
                                     db_array['Division'] == sel[0],
                                     db_array['BldgType'] == sel[1]], axis=0)]
+    elif isinstance(sel[3], tuple):  # Tuple of fuel type codes present
+        filtered = db_array[np.all([db_array['Label'] == section_label,
+                                    db_array['Division'] == sel[0],
+                                    db_array['BldgType'] == sel[1],
+                                    db_array['EndUse'] == sel[2]], axis=0)]
+        filtered = filtered[np.in1d(filtered['Fuel'], sel[3])]
+        # Sum over all fuel types selected
+        tyr = np.unique(filtered['Year'])
+        filtered = np.array([(i, filtered[filtered['Year'] == i]['Amount'].sum()) for i in tyr],
+                            dtype=[('Year', 'i4'), ('Amount', 'f8')])
     else:
         filtered = db_array[np.all([db_array['Label'] == section_label,
                                     db_array['Division'] == sel[0],
@@ -658,8 +671,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
     return final_dict
 
 
-def walk(db_array, sd_array, load_array, sd_end_uses, json_db,
-         years, key_list=[]):
+def walk(db_array, sd_array, load_array, sd_end_uses, json_db, years, key_list=[]):
     """ Proceed recursively through the microsegment data structure
     (formatted as a nested dict) to each leaf/terminal node in the
     structure, constructing a list of the applicable keys that define
@@ -692,6 +704,101 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db,
 
     # Return filled database structure
     return json_db
+
+
+def cleanup_calc(dr, cdiv, bld, years):
+    """Fix double-counting of electricity use in MELs and other/unspecified end uses
+
+    This function addresses double-counting of electricity use in two locations in
+    commercial buildings.
+    1. For all commercial building types except "unspecified", specific named MELs technologies
+       are double-counted in the MELs "other" technology type.
+    2. For the unspecified building type, the "water systems" and "telecom systems" MELs are
+       double-counted in the "unspecified" end use (not MELs > other, which is not present for
+       the unspecified building type).
+
+    Args:
+        dr (dict): Complete microsegments dict fully populated with residential
+            and commercial energy and stock data (and building counts/floor areas).
+        cdiv (str): Name of single census division.
+        bld (str): Name of single commercial building type.
+        years (dict_keys): Iterable of years present in the data.
+
+    Returns:
+        Updated microsegments dict with revised values for the census division
+        and building type passed to the function.
+    """
+
+    # Instantiate temporary data structure
+    zc = {k: 0 for k in years}
+
+    # Obtain sum of all MEL technologies except "other"
+    for mels in dr[cdiv][bld]['electricity']['MELs'].keys():
+        if mels != 'other':
+            zml = dr[cdiv][bld]['electricity']['MELs'][mels]['energy']
+            # Sum dicts together
+            # https://stackoverflow.com/a/46128481
+            zc = reduce(reducer, [zc, zml])
+
+    # Remove sum of all MELs from the correct location
+    zcneg = {k: -v for k, v in zc.items()}  # Make values negative to effect subtraction
+    if bld != 'unspecified':
+        # Remove sum of all specific named MELs from MELs > other
+        dr[cdiv][bld]['electricity']['MELs']['other']['energy'] = reduce(
+            reducer, [dr[cdiv][bld]['electricity']['MELs']['other']['energy'], zcneg])
+    else:
+        # Remove sum of all MELs from unspecified
+        dr[cdiv][bld]['electricity']['unspecified']['energy'] = reduce(
+            reducer, [dr[cdiv][bld]['electricity']['unspecified']['energy'], zcneg])
+
+    return dr
+
+
+def reducer(accumulator, element):
+    """Sum an arbitrary collection of dictionaries
+
+    https://stackoverflow.com/a/46128481
+
+    Args:
+        accumulator (dict): Dict to be updated with values from element.
+        element (dict): Dict to be added to accumulator.
+
+    Returns:
+        Dict that is an element (key)-wise sum of the dicts provided.
+    """
+    for key, value in element.items():
+        accumulator[key] = accumulator.get(key, 0) + value
+    return accumulator
+
+
+def double_count_cleanup(dr):
+    """Manage cleanup of double-counted electricity use
+
+    This function addresses two cases where electricity use is double-counted when the
+    data are initially extracted from the EIA data files. This function orchestrates the
+    correction, relying on helper functions to calculate the correct values.
+
+    Args:
+        dr (dict): Complete microsegments dict fully populated with residential
+            and commercial energy and stock data (and building counts/floor areas).
+
+    Returns:
+        Full output dict with the same structure as the input argument.
+    """
+
+    # Create an instance of the commercial data translation dicts object
+    # to be able to use the translation dicts
+    cd = CommercialTranslationDicts()
+
+    # Get the years included in the data
+    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)[0]]['new square footage'].keys()
+
+    # Clean up the double-counted electricity use
+    for cdiv in cd.cdivdict:
+        for bld in cd.bldgtypedict:
+            dr = cleanup_calc(dr, cdiv, bld, yrs)
+
+    return dr
 
 
 def dtype_eval(entry, prev_dtype=None):
@@ -1090,7 +1197,7 @@ def onsite_prep(generation_file):
     # Factor to convert commercial energy data from TBTU to MMBTU
     to_mmbtu = 1000000  # 1e6
 
-    # Convert cdivision to names
+    # Convert census division to names
     cdiv_dct = {str(v): k for k, v in
                 CommercialTranslationDicts().cdivdict.items()}
 
@@ -1099,7 +1206,7 @@ def onsite_prep(generation_file):
                   ('OwnUse', '<f8')]
     gen_data = gen_data.astype(gen_dtypes)
 
-    # Unit converstion of TBTU to MMBTU
+    # Unit conversion of TBTU to MMBTU
     gen_data['OwnUse'] = gen_data['OwnUse'] * to_mmbtu
 
     def name_map(data_array, trans_dict):
@@ -1196,6 +1303,9 @@ def main():
             # Proceed recursively through database structure
             result = walk(catg_data, serv_data, load_data,
                           serv_data_end_uses, msjson, years)
+
+            # Clean up double-counted unspecified and other energy use
+            result = double_count_cleanup(result)
 
             # Add in onsite generation
             result = onsite_calc(onsite_gen, result)
