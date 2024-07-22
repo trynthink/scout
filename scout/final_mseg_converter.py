@@ -105,49 +105,73 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "Res_Cdiv_Czone_RowSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "Com_Cdiv_Czone_RowSums.txt"
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
             self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Other_RowSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_EMM_Elec_EU_RowSums.csv",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_EMM_NG_RowSums.txt",
+                "distillate": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_EMM_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_EMM_Other_RowSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
+                    fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_Elec_RowSums.txt"
                 }
             self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Dist_RowSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_EMM_NG_RowSums.txt",
+                "distillate": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_EMM_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_EMM_Other_RowSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
+                    fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_Elec_RowSums.txt"
                 }
             # Set output JSON
             self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
             self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_State_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_State_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_State_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_State_Other_RowSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_State_Elec_EU_RowSums.csv",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_State_NG_RowSums.txt",
+                "distillate": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_State_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_State_Other_RowSums.txt",
                 # Use total consumption splits to apportion no. building/sf
-                "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_State_AllFuels_RowSums.txt"
+                "building stock and square footage": {
+                    "homes": fp.CONVERT_DATA / "geo_map" / \
+                    "Res_Homes_RowSums.txt",
+                    "square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
                 }
             self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Dist_RowSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_State_Elec_EU_RowSums.csv",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_State_NG_RowSums.txt",
+                "distillate": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_State_Dist_RowSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_State_Other_RowSums.txt",
                 # Use total consumption splits to apportion no. building/sf
                 "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
+                    fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_AllFuels_RowSums.txt"
                 }
             # Set output JSON
             self.json_out = 'mseg_res_com_state.json'
@@ -159,39 +183,53 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "Res_Cdiv_Czone_ColSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "Com_Cdiv_Czone_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cz.json'
         elif self.geo_break == '2':
             self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_ColSums.txt",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "distillate":   fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_EMM_Elec_ColSums.txt",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
+                "distillate":   fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_ColSums.txt"}
+                    fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_Elec_ColSums.txt"}
             self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "electricity": fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_EMM_Elec_ColSums.txt",
+                "natural gas": fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
+                "distillate": fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
+                "other fuel": fp.CONVERT_DATA / "geo_map" /
+                "NElec_Cdiv_EMM_ColSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt"
+                    fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_Elec_ColSums.txt"
             }
             # When breaking out to EMM regions, an additional conversion
             # between AIA climate zones in the envelope data and the EMM
             # regions is needed
-            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / "AIA_EMM_ColSums.txt"
+            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "AIA_EMM_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_emm.json'
         elif self.geo_break == '3':
             # When breaking out to census divisions, an additional conversion
             # between AIA climate zones in the envelope data and the census
             # divisions is needed
-            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / "AIA_Cdiv_ColSums.txt"
+            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / \
+                "AIA_Cdiv_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cdiv.json'
 
@@ -399,8 +437,19 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                                 " " + eu_flag + " not present in EULP "
                                 "disaggregration data")
                     else:
-                        convert_fact = cd_to_cz_factor[fuel_flag][cd_num][
-                            reg_name]
+                        # Handle case where for building stock and square
+                        # footage, conversion data are further distinguished by
+                        # whether it's # homes or square footage
+                        try:
+                            convert_fact = \
+                                cd_to_cz_factor[fuel_flag][cd_num][reg_name]
+                        except KeyError:
+                            try:
+                                convert_fact = cd_to_cz_factor[fuel_flag][
+                                    "homes"][cd_num][reg_name]
+                            except KeyError:
+                                convert_fact = cd_to_cz_factor[fuel_flag][
+                                    "square footage"][cd_num][reg_name]
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
@@ -1030,7 +1079,7 @@ def mels_cpl_data_handler(cpl_data, conversions, years, key_list):
         # Case where performance data are in units of W and are
         # broken out by operational mode (e.g, active, ready, sleep, off);
         # convert to annual kWh/yr values
-        elif type(orig_perf_units) == list and all([
+        elif isinstance(orig_perf_units, list) and all([
             x in orig_perf_units for x in [
                 "W", "fraction annual operating hours"]]):
             # Pre-allocate converted performance dict
@@ -1510,11 +1559,24 @@ def main():
                 delimiter='\t', dtype="float64"),
             "other fuel": np.genfromtxt(
                 handyvars.res_climate_convert["other fuel"], names=True,
-                delimiter='\t', dtype="float64"),
-            "building stock and square footage": np.genfromtxt(
-                handyvars.res_climate_convert[
-                    "building stock and square footage"], names=True,
                 delimiter='\t', dtype="float64")}
+        # Handle case where building stock and square footage conversion data
+        # are read in from two different conversion files (state-level
+        # breakouts) or from just one conversion file (EMM breakouts)
+        try:
+            res_cd_cz_conv["building stock and square footage"] = {
+                "homes": np.genfromtxt(handyvars.res_climate_convert[
+                    "building stock and square footage"]["homes"],
+                    names=True, delimiter='\t', dtype="float64"),
+                "square footage": np.genfromtxt(handyvars.res_climate_convert[
+                    "building stock and square footage"]["square footage"],
+                    names=True, delimiter='\t', dtype="float64")}
+        except TypeError:
+            res_cd_cz_conv["building stock and square footage"] = \
+                np.genfromtxt(
+                    handyvars.res_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")
         com_cd_cz_conv = {
             "electricity": com_convert_byeu_dict,
             "natural gas": np.genfromtxt(
