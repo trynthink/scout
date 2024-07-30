@@ -1157,7 +1157,8 @@ class UsefulVars(object):
                                 'private branch exchanges',
                                 'voice-over-IP telecom',
                                 'point-of-sale systems', 'warehouse robots',
-                                'televisions', 'telecom systems', 'other'
+                                'televisions',  'water services',
+                                'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -12729,6 +12730,13 @@ class MeasurePackage(Measure):
                                 x in key_list[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_save = f[0]
+                        # Assign commercial other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                            key_list[2] in
+                                self.handyvars.in_all_map[
+                                'bldg_type']['commercial']):
+                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             key_list[-2] is not None and "wood" in
@@ -12759,6 +12767,12 @@ class MeasurePackage(Measure):
                                     x in key_list[-2] for x in [
                                     "coal", "kerosene"]])):
                                 out_fuel_gain = f[0]
+                            # Assign commercial other fuel to Distillate/Other
+                            elif f[0] == "Distillate/Other" and (
+                                key_list[2] in
+                                    self.handyvars.in_all_map[
+                                    'bldg_type']['commercial']):
+                                out_fuel_save = f[0]
                             # Assign wood tech.
                             elif f[0] == "Biomass" and (
                                 key_list[-2] is not None and "wood" in
@@ -13770,6 +13784,11 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                         mskeys[-2] is not None and any(
                             [x in mskeys[-2] for x in ["coal", "kerosene"]])):
                         out_fuel_save = f[0]
+                    # Assign commercial other fuel to Distillate/Other
+                    elif f[0] == "Distillate/Other" and (
+                        mskeys[2] in self.handyvars.in_all_map['bldg_type'][
+                            'commercial']):
+                        out_fuel_save = f[0]
                     # Assign wood tech.
                     elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood" in mskeys[-2]):
@@ -13800,6 +13819,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                 x in mskeys[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_gain = f[0]
+                        # Assign commercial other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                            mskeys[2] in self.handyvars.in_all_map[
+                                'bldg_type']['commercial']):
+                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood"
