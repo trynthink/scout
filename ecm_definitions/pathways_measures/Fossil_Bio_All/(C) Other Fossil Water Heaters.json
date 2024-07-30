@@ -21,8 +21,8 @@
   "product_lifetime_source": null,
   "measure_type": "add-on",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": "NA",
+  "market_scaling_fractions": 0.79,
+  "market_scaling_fractions_source": "CBECS 2018",
   "_description": "Measure for segmentation analysis",
   "_notes": null,
   "_added_by": {
