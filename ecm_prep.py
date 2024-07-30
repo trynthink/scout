@@ -1095,7 +1095,7 @@ class UsefulVars(object):
                 "residential": [
                     "electricity", "natural gas", "distillate", "other fuel"],
                 "commercial": [
-                    "electricity", "natural gas", "distillate"]},
+                    "electricity", "natural gas", "distillate", "other fuel"]},
             "end_use": {
                 "residential": {
                     "electricity": [
@@ -1122,7 +1122,8 @@ class UsefulVars(object):
                         'cooling', 'water heating', 'cooking', 'heating',
                         'other', 'unspecified'],
                     "distillate": [
-                        'water heating', 'heating', 'other', 'unspecified']}},
+                        'water heating', 'heating', 'other', 'unspecified'],
+                    "other fuel": ["unspecified"]}},
             "technology": {
                 "residential": {
                     "supply": {
@@ -1235,7 +1236,8 @@ class UsefulVars(object):
                                 'private branch exchanges',
                                 'voice-over-IP telecom',
                                 'point-of-sale systems', 'warehouse robots',
-                                'televisions', 'telecom systems', 'other'
+                                'televisions',  'water services',
+                                'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -1281,7 +1283,9 @@ class UsefulVars(object):
                             'water heating': ['oil_water_heater'],
                             'heating': ['oil_boiler', 'oil_furnace'],
                             'other': [None],
-                            'unspecified': [None]}},
+                            'unspecified': [None]},
+                        "other fuel": {
+                            "unspecified": [None]}},
                     "demand": [
                         'roof', 'ground', 'lighting gain',
                         'windows conduction', 'equipment gain',
@@ -3261,21 +3265,23 @@ class Measure(object):
                 contrib_mseg_key = tuple(contrib_mseg_key)
 
             # Initialize measure performance/cost/lifetime, associated units,
-            # and sub-market scaling fractions/sources if: a) For loop through
-            # all measure mseg key chains is in first iteration, b) A switch
-            # has been made from updating "primary" microsegment info. to
-            # updating "secondary" microsegment, and c) Any of performance/
-            # cost/lifetime units is a dict which must be parsed further to
-            # reach the final value. Additionally, for cost/cost units only,
-            # initialize if a) Incentives information has been applied, b) $/sf
-            # is used as cost units, c) Switching from one end use to another,
-            # or from one building vintage to another * Note: cost/lifetime/
-            # sub-market info. is not updated for "secondary" microsegments,
-            # which do not pertain to these variables; lifetime units in years
-            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+            # and sub-market scaling fractions/sources if: a) The variable has
+            # not yet been initialized at all, b) A switch has been made from
+            # updating "primary" microsegment info. to updating "secondary"
+            # microsegment, and c) Any of performance/ cost/lifetime units is a
+            # dict which must be parsed further to reach the final value.
+            # Additionally, for cost/cost units only, initialize if a)
+            # Incentives information has been applied, b) $/sf is used as cost
+            # units, c) Switching from one end use to another, or from one
+            # building vintage to another * Note: cost/lifetime/ sub-market
+            # info. is not updated for "secondary" microsegments, which do not
+            # pertain to these variables; lifetime units in years
+            if ('perf_meas' not in locals()) or (
+                ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
                or isinstance(self.energy_efficiency, dict):
                 perf_meas = self.energy_efficiency
-            if ind == 0 or (ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
+            if ('perf_units' not in locals()) or (
+                ms_iterable[ind][0] != ms_iterable[ind - 1][0]) \
                or isinstance(self.energy_efficiency_units, dict):
                 perf_units = self.energy_efficiency_units
             if mskeys[0] == "secondary":
@@ -3302,7 +3308,8 @@ class Measure(object):
                 # to another, or original cost/cost units are in dict format;
                 # reset cost/cost units to those of original measure
                 elif ((sqft_subst == 1 or
-                      "$/ft^2 floor" in self.cost_units) or ind == 0 or (
+                      "$/ft^2 floor" in self.cost_units) or (
+                        'cost_meas' not in locals()) or (
                         ms_iterable[ind][0] != ms_iterable[ind - 1][0]) or (
                         ms_iterable[ind][4] != ms_iterable[ind - 1][4]) or (
                         ms_iterable[ind][-1] != ms_iterable[ind - 1][-1]) or
@@ -3311,14 +3318,14 @@ class Measure(object):
                     cost_units, cost_meas = [
                         self.cost_units, self.installed_cost]
                 # Set lifetime attribute to initial value
-                if ind == 0 or isinstance(
-                        self.product_lifetime, dict):
+                if ('life_meas' not in locals()) or \
+                        isinstance(self.product_lifetime, dict):
                     life_meas = self.product_lifetime
                 # Set market scaling attributes to initial values
-                if ind == 0 or isinstance(
-                        self.market_scaling_fractions, dict):
+                if ('mkt_scale_frac' not in locals()) \
+                        or isinstance(self.market_scaling_fractions, dict):
                     mkt_scale_frac = self.market_scaling_fractions
-                if ind == 0 or isinstance(
+                if ('mkt_scale_frac_source' not in locals()) or isinstance(
                         self.market_scaling_fractions_source, dict):
                     mkt_scale_frac_source = \
                         self.market_scaling_fractions_source
@@ -12834,6 +12841,13 @@ class MeasurePackage(Measure):
                                 x in key_list[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_save = f[0]
+                        # Assign commercial other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                            key_list[2] in
+                                self.handyvars.in_all_map[
+                                'bldg_type']['commercial']):
+                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             key_list[-2] is not None and "wood" in
@@ -12864,6 +12878,12 @@ class MeasurePackage(Measure):
                                     x in key_list[-2] for x in [
                                     "coal", "kerosene"]])):
                                 out_fuel_gain = f[0]
+                            # Assign commercial other fuel to Distillate/Other
+                            elif f[0] == "Distillate/Other" and (
+                                key_list[2] in
+                                    self.handyvars.in_all_map[
+                                    'bldg_type']['commercial']):
+                                out_fuel_save = f[0]
                             # Assign wood tech.
                             elif f[0] == "Biomass" and (
                                 key_list[-2] is not None and "wood" in
@@ -13778,6 +13798,11 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                         mskeys[-2] is not None and any(
                             [x in mskeys[-2] for x in ["coal", "kerosene"]])):
                         out_fuel_save = f[0]
+                    # Assign commercial other fuel to Distillate/Other
+                    elif f[0] == "Distillate/Other" and (
+                        mskeys[2] in self.handyvars.in_all_map['bldg_type'][
+                            'commercial']):
+                        out_fuel_save = f[0]
                     # Assign wood tech.
                     elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood" in mskeys[-2]):
@@ -13808,6 +13833,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                 x in mskeys[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_gain = f[0]
+                        # Assign commercial other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                            mskeys[2] in self.handyvars.in_all_map[
+                                'bldg_type']['commercial']):
+                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood"

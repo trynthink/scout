@@ -1,7 +1,7 @@
 {
   "name": "(R) Gas Storage Water Heaters (Exist)",
   "climate_zone": "all",
-  "bldg_type": "all residential",
+  "bldg_type": ["single family home", "mobile home"],
   "structure_type": "existing",
   "end_use": ["water heating"],
   "fuel_type": "natural gas",
@@ -21,8 +21,8 @@
   "product_lifetime_source": null,
   "measure_type": "add-on",
   "fuel_switch_to": null,
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": "NA",
+  "market_scaling_fractions": 0.76,
+  "market_scaling_fractions_source": "RECS 2020",
   "_description": "Measure for segmentation analysis",
   "_notes": null,
   "_added_by": {
