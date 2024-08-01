@@ -105,12 +105,9 @@ class UsefulInputFiles(object):
             # self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz_2017.json"
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
-            self.iecc_reg_map = (
-                fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt")
-            self.ba_reg_map = (
-                fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt")
-            self.state_aia_map = (
-                fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt")
+            self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt"
+            self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt"
+            self.state_aia_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt"
         elif opts.alt_regions == 'EMM':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
@@ -729,9 +726,8 @@ class UsefulVars(object):
                     handyfiles.ba_reg_map, names=True, delimiter='\t',
                     dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
                 # List of possible BA region names
-                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold",
-                           "Subarctic", "Cold", "Hot-Dry", "Mixed-Dry",
-                           "Marine"]
+                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
+                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
             except ValueError as e:
                 raise ValueError(
                     f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
@@ -873,10 +869,9 @@ class UsefulVars(object):
                 ba_altreg_map = numpy.genfromtxt(
                     handyfiles.ba_reg_map, names=True, delimiter='\t',
                     dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
-                # List of possible BA regions
-                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold",
-                           "Subarctic", "Cold", "Hot-Dry", "Mixed-Dry",
-                           "Marine"]
+                # List of possible BA region names
+                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
+                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
             except ValueError as e:
                 raise ValueError(
                     f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
@@ -3570,10 +3565,8 @@ class Measure(object):
                             # - if the analysis uses EMM regions or states -
                             # AIA)
                             alt_key_reg_typ = [
-                                x for x in
-                                self.handyvars.alt_attr_brk_map.keys()
-                                if any([
-                                    x in y for y in cost_meas.keys()])]
+                                x for x in self.handyvars.alt_attr_brk_map.keys()
+                                if any([x in y for y in cost_meas.keys()])]
                             # If the alternate regional breakout is supported,
                             # reformat the cost data for subsequent
                             # calculations
