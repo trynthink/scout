@@ -365,9 +365,6 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
-        link_htcl_tover_anchor_eu = For measures that apply to separate heating
-            and cooling technologies, stock turnover and exogenous switching
-            rates will be anchored on this end use
         link_htcl_tover_anchor_tech_opts = For measures that apply to seperate
             heating and cooling technologies, stock turnover and exogenous
             switching rates will be anchored on whichever technology in the
@@ -835,11 +832,9 @@ class UsefulVars(object):
                 "secondary heater (wood)", "secondary heater (coal)",
                 "secondary heater (kerosene)", "secondary heater (LPG)"]
 
-        # Information for anchoring linked heating/cooling stock turnover
-        # and exogenous switching rate calculations
+        # Global information for anchoring linked heating/cooling stock
+        # turnover and exogenous switching rate calculations
 
-        # End use anchor
-        self.link_htcl_tover_anchor_eu = "heating"
         # Technology anchor – list order assigns priority for which technology
         # in a measure's definition serves as the anchor
         self.link_htcl_tover_anchor_tech_opts = {
@@ -2153,6 +2148,9 @@ class Measure(object):
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
             as None and updated in 'fill_mkts' function.)
+        linked_htcl_tover_anchor_eu (str, None): For measures that apply to
+            separate HVAC technologies, stock turnover and exogenous switching
+            rates will be anchored on this end use
         linked_htcl_tover_anchor_tech (str, None): Sets the technology to use
             as an anchor for linking stock turnover and exogenous rate
             switching calculations for measures that apply to separate heating
@@ -2254,8 +2252,9 @@ class Measure(object):
                 self.htcl_tech_link = ""
         except AttributeError:
             self.htcl_tech_link = ""
-        self.linked_htcl_tover, self.linked_htcl_tover_anchor_tech = (
-            None for n in range(2))
+        self.linked_htcl_tover, self.linked_htcl_tover_anchor_eu, \
+            self.linked_htcl_tover_anchor_tech = (
+                None for n in range(3))
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -2903,17 +2902,24 @@ class Measure(object):
 
         # Update information needed to link the stock turnover rates and
         # exogenous HP conversion rates for measures that apply to separate
-        # heating and cooling tech. microsegments, as applicable. Such links
-        # are only needed for equipment microsegments (e.g., not envelope) and
-        # for technologies that are not already linked across heating/cooling
-        # end uses (e.g., not HPs)
-        if all([x in self.end_use["primary"] for x in [
-            "heating", "cooling"]]) and (
+        # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
+        # as applicable. Such links are only needed for equipment microsegments
+        # (e.g., not envelope) and for technologies that are not already linked
+        # across heating/cooling end uses (e.g., not HPs)
+        if (len(self.end_use["primary"]) > 1 and any([
+            x in self.end_use["primary"] for x in [
+                "heating", "cooling"]])) and (
                     "demand" not in self.technology_type["primary"]) and all([
                 (x is None or "HP" not in x)
                 for x in self.technology["primary"]]):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
+            # Reset anchor end use for linked heating/cooling mseg turnover;
+            # default to heating if present in end uses, otherwise cooling
+            if "heating" in self.end_use["primary"]:
+                self.linked_htcl_tover_anchor_eu = "heating"
+            elif "cooling" in self.end_use["primary"]:
+                self.linked_htcl_tover_anchor_eu = "cooling"
             try:
                 # Set applicable building sector for the measure to use in
                 # linking heating/cooling turnover and switching calculations.
@@ -2933,7 +2939,7 @@ class Measure(object):
                 # the anchor end use set in UsefulVars class earlier)
                 linked_htcl_tover_anchor_tech_list = [
                     x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
-                        bldg_sect][self.handyvars.link_htcl_tover_anchor_eu]]
+                        bldg_sect][self.linked_htcl_tover_anchor_eu]]
                 # Find the first in the ordered list of candidate technologies
                 # that the measure applies to, use as anchor for linked
                 # heating/cooling mseg turnover and switching calculations
@@ -2959,7 +2965,7 @@ class Measure(object):
             # Register initial length of ms_iterable for check
             iter_len_check = len(ms_iterable)
             # Set end use and technology anchor names
-            first_eu_tech = [self.handyvars.link_htcl_tover_anchor_eu,
+            first_eu_tech = [self.linked_htcl_tover_anchor_eu,
                              self.linked_htcl_tover_anchor_tech]
             # Find subset of iterable with msegs that apply to the anchor
             # end use and technology
@@ -4117,22 +4123,22 @@ class Measure(object):
                 else:
                     comp_tag_exog = ""
 
-                # Further utilize information about which heating and cooling
-                # equipment is paired by the measure (if provided) to ensure
-                # that heating and cooling segments will only be competed
-                # with heating and cooling segments of other measures that
-                # apply to that same pairing (e.g., CAC + resistance, vs.
-                # CAC + fossil-based heating, vs. HPs). NOTE: this approach
-                # assumes that any overlaps in cooling segments across these
-                # measures will be handled exogenously via market scaling
-                # fractions - for example, a measure that applies to resistance
-                # heating plus CAC cooling is constrained to 32% of CAC market
-                # and competes only with other CAC + resistance heat measures
-                # with that same constraint, while a measure that applies to
-                # fossil heating plus CAC is constrained to the remaining 68%
-                # of the CAC market and competes only with other CAC + fossil
+                # Further utilize information about which HVAC equipment is
+                # paired by the measure (if provided) to ensure that HVAC
+                # segments will only be competed with HVAC segments of other
+                # measures that apply to that same pairing (e.g., CAC +
+                # resistance, vs. CAC + fossil-based heating, vs. HPs). NOTE:
+                # this approach assumes that any overlaps in packaged cooling/
+                # ventilation/other segments across these measures are handled
+                # exogenously via market scaling fractions - for example, a
+                # measure that applies to resistance heating plus CAC cooling
+                # is constrained to 32% of CAC market and competes only with
+                # other CAC + resistance heat measures with that same
+                # constraint, while a measure that applies to fossil heating
+                # plus CAC is constrained to the remaining 68% of the CAC
+                # market and competes only with other CAC + fossil
                 # heating measures with that same constraint.
-                if "heating" in mskeys or "cooling" in mskeys:
+                if self.htcl_tech_link:
                     comp_tag_htcl_pair = self.htcl_tech_link
                 else:
                     comp_tag_htcl_pair = ""
@@ -8242,7 +8248,7 @@ class Measure(object):
                         str(mskeys) +
                         " for measure '" + self.name + "' with " +
                         self.linked_htcl_tover_anchor_tech + " " +
-                        self.handyvars.link_htcl_tover_anchor_eu +
+                        self.linked_htcl_tover_anchor_eu +
                         " turnover rates; unlinking turnover")
         # In cases where no secondary heating/cooling microsegment is present,
         # and there are no linked stock turnover rates for primary heating and
