@@ -1,6 +1,6 @@
 {
   "name": "(C) Ref. Case RTU, NG Heat",
-  "_description": "Ref. case gas furnace integrated in packaged rooftop unit",
+  "_description": "Ref. case gas furnace integrated in packaged rooftop unit plus ventilation",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -9,7 +9,8 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "ventilation"
   ],
   "fuel_type": [
     "natural gas",
@@ -20,7 +21,9 @@
   "technology": [
     "gas_furnace",
     "gas_eng-driven_RTAC",
-    "rooftop_AC"
+    "rooftop_AC",
+    "CAV_Vent",
+    "VAV_Vent"
   ],
   "htcl_tech_link": "ng heat+rtac",
   "tech_switch_to": null,
@@ -57,12 +60,14 @@
   "market_scaling_fractions": {
     "gas_furnace": 0.92,
     "gas_eng-driven_RTAC": 1.0,
-    "rooftop_AC": 0.6
+    "rooftop_AC": 0.6,
+    "CAV_Vent": 0.35,
+    "VAV_Vent": 0.1
   },
   "market_scaling_fractions_source": {
     "notes": [
       "Heating multiple of 92% was determined by dividing square feet in which main heating equipment is gas packaged unit (14491406 sf) by square feet in shiwch main heating equipment is gas furnace or packaged unit (176461522 sf)",
-      "cooling multiple of 60% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is natural gas (214306467 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
+      "cooling multiple of 60% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is natural gas (214306467 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
     ],
     "source_data": null
   },
@@ -70,6 +75,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-07-12 10:21:47"
+    "timestamp": "2024-08-05 07:05:12"
   }
 }

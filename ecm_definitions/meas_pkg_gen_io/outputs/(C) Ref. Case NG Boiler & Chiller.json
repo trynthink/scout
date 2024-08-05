@@ -1,6 +1,6 @@
 {
   "name": "(C) Ref. Case NG Boiler & Chiller",
-  "_description": "Ref. case gas boiler heating and chiller cooling",
+  "_description": "Ref. case gas boiler heating and chiller cooling plus ventilation",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -9,7 +9,8 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "ventilation"
   ],
   "fuel_type": [
     "natural gas",
@@ -23,7 +24,9 @@
     "scroll_chiller",
     "reciprocating_chiller",
     "centrifugal_chiller",
-    "screw_chiller"
+    "screw_chiller",
+    "CAV_Vent",
+    "VAV_Vent"
   ],
   "htcl_tech_link": "ng boiler+chiller",
   "tech_switch_to": null,
@@ -57,15 +60,24 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "market_scaling_fractions": null,
+  "market_scaling_fractions": {
+    "gas_boiler": 1.0,
+    "gas_chiller": 1.0,
+    "scroll_chiller": 1.0,
+    "reciprocating_chiller": 1.0,
+    "centrifugal_chiller": 1.0,
+    "screw_chiller": 1.0,
+    "CAV_Vent": 0.26,
+    "VAV_Vent": 0.54
+  },
   "market_scaling_fractions_source": {
-    "notes": null,
+    "notes": "Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
     "source_data": null
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-07-12 10:21:47"
+    "timestamp": "2024-08-05 07:05:12"
   }
 }

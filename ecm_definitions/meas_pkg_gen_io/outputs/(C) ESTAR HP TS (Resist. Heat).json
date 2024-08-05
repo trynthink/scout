@@ -1,6 +1,6 @@
 {
-  "name": "(C) ESTAR HP TS (RTU, Resist. Heat)",
-  "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) fully replacing original resistance furnace equipment",
+  "name": "(C) ESTAR HP TS (Resist. Heat)",
+  "_description": "ENERGY STAR air source heat pump (w/ cold climates specs as applicable) fully replacing original resistance heating equipment",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -9,21 +9,36 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "ventilation"
   ],
   "fuel_type": "electricity",
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
   "technology": [
+    "elec_boiler",
     "electric_res-heat",
-    "rooftop_AC"
+    "rooftop_AC",
+    "CAV_Vent",
+    "VAV_Vent"
   ],
   "htcl_tech_link": "resistance heat+rtac",
   "tech_switch_to": "ASHP",
-  "energy_efficiency": 3.5,
-  "energy_efficiency_units": "BTU out/BTU in",
+  "energy_efficiency": {
+    "heating": 3.5,
+    "cooling": 3.5,
+    "ventilation": 0.0
+  },
+  "energy_efficiency_units": {
+    "heating": "BTU out/BTU in",
+    "cooling": "BTU out/BTU in",
+    "ventilation": "relative savings (constant)"
+  },
   "energy_efficiency_source": {
-    "notes": "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column.",
+    "notes": [
+      "ENERGY STAR V. 4.0 went into effect in January 2023 as reflected under 2023 column. Ventilation savings are based on ComStock simulations of a variable speed HP RTU with energy recovery",
+      "savings are averaged across all states."
+    ],
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
@@ -39,7 +54,7 @@
       "existing": 172.0
     }
   },
-  "cost_units": "2022$/kBtu/h cooling",
+  "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
     "notes": "ENERGY STAR costs in 2023 normalized by capacity.",
     "source_data": {
@@ -63,13 +78,16 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 1.0,
-    "cooling": 0.34
+    "elec_boiler": 1.0,
+    "electric_res-heat": 1.0,
+    "rooftop_AC": 0.34,
+    "CAV_Vent": 0.25,
+    "VAV_Vent": 0.3
   },
   "market_scaling_fractions_source": {
     "notes": [
       "Includes all resistance-based heating in commercial buildings",
-      "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
+      "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
     ],
     "source_data": null
   },
@@ -77,6 +95,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-07-12 10:21:47"
+    "timestamp": "2024-08-05 07:05:12"
   }
 }

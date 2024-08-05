@@ -1,6 +1,6 @@
 {
-  "name": "(C) Ref. Case RTU, Resist. Heat",
-  "_description": "Ref. case resistance:based heating integrated in packaged rooftop unit",
+  "name": "(C) Ref. Case, Resist. Heat",
+  "_description": "Ref. case resistance-based heating integrated in packaged rooftop unit or electric boiler plus ventilation",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -9,14 +9,18 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "ventilation"
   ],
   "fuel_type": "electricity",
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
   "technology": [
+    "elec_boiler",
     "electric_res-heat",
-    "rooftop_AC"
+    "rooftop_AC",
+    "CAV_Vent",
+    "VAV_Vent"
   ],
   "htcl_tech_link": "resistance heat+rtac",
   "tech_switch_to": null,
@@ -51,13 +55,16 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 1.0,
-    "cooling": 0.34
+    "elec_boiler": 1.0,
+    "electric_res-heat": 1.0,
+    "rooftop_AC": 0.34,
+    "CAV_Vent": 0.25,
+    "VAV_Vent": 0.3
   },
   "market_scaling_fractions_source": {
     "notes": [
       "Includes all resistance-based heating in commercial buildings",
-      "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
+      "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
     ],
     "source_data": null
   },
@@ -65,6 +72,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-07-12 10:21:47"
+    "timestamp": "2024-08-05 07:05:12"
   }
 }
