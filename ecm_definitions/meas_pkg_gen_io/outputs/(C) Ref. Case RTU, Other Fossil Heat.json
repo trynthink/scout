@@ -1,6 +1,6 @@
 {
   "name": "(C) Ref. Case RTU, Other Fossil Heat",
-  "_description": "Ref. case oil furnace integrated in packaged rooftop unit",
+  "_description": "Ref. case oil furnace integrated in packaged rooftop unit plus ventilation",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -9,7 +9,8 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "ventilation"
   ],
   "fuel_type": [
     "distillate",
@@ -19,7 +20,9 @@
   "backup_fuel_fraction": null,
   "technology": [
     "oil_furnace",
-    "rooftop_AC"
+    "rooftop_AC",
+    "CAV_Vent",
+    "VAV_Vent"
   ],
   "htcl_tech_link": "other fossil heat+rtac",
   "tech_switch_to": null,
@@ -54,13 +57,15 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 0.79,
-    "cooling": 0.06
+    "oil_furnace": 0.79,
+    "rooftop_AC": 0.06,
+    "CAV_Vent": 0.01,
+    "VAV_Vent": 0.01
   },
   "market_scaling_fractions_source": {
     "notes": [
       "Heating multiple of 79% was determined by dividing square feet in which main heating equipment is oil or propane packaged unit (961852 sf) by square feet in which main heating equipment is oil or propane furnace or packaged unit (4543002 sf)",
-      "cooling multiple of 6% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is fossil other than natural gas (23161652 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf)."
+      "cooling multiple of 6% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is fossil other than natural gas (23161652 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
     ],
     "source_data": null
   },
@@ -68,6 +73,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-07-12 10:21:47"
+    "timestamp": "2024-08-05 07:05:12"
   }
 }
