@@ -46,6 +46,7 @@ class UsefulInputFiles(object):
         msegs_in (tuple): Database of baseline microsegment stock/energy.
         msegs_cpl_in (tuple): Database of baseline technology characteristics.
         iecc_reg_map (tuple): Maps IECC climates to AIA or EMM regions/states.
+        ba_reg_map (tuple): Maps Building America climates to AIA/EMM/states.
         ash_emm_map (tuple): Maps ASHRAE climates to EMM regions.
         aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
         state_emm_map (tuple): Maps states to EMM regions.
@@ -104,22 +105,23 @@ class UsefulInputFiles(object):
             # self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz_2017.json"
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
-            self.iecc_reg_map = (
-                fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt")
-            self.state_aia_map = (
-                fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt")
+            self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt"
+            self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt"
+            self.state_aia_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt"
         elif opts.alt_regions == 'EMM':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
             self.ash_emm_map = fp.CONVERT_DATA / "geo_map" / "ASH_EMM_ColSums.txt"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_EMM_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_EMM_ColSums.txt"
+            self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
+            self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_State_ColSums.txt"
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -317,8 +319,8 @@ class UsefulVars(object):
         resist_ht_wh_tech (list): Flag for resistance-based heat/WH technology.
         minor_hvac_tech (list): Minor/secondary HVAC tech. to remove stock/
             stock/cost data for when major tech. is also in measure definition.
-        alt_perfcost_brk_map (dict): Mapping factors used to handle alternate
-            regional breakouts in measure performance or cost units.
+        alt_attr_brk_map (dict): Mapping factors used to handle alternate
+            regional breakouts in measure performance, cost, or mkt. scaling.
         months (str): Month sequence for accessing time-sensitive data.
         tsv_feature_types (list): Possible types of TSV features.
         tsv_climate_regions (list): Possible ASHRAE/IECC climate regions for
@@ -718,10 +720,22 @@ class UsefulVars(object):
             except ValueError as e:
                 raise ValueError(
                     f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
+            # BA -> AIA mapping
+            try:
+                ba_reg_map = numpy.genfromtxt(
+                    handyfiles.ba_reg_map, names=True, delimiter='\t',
+                    dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                # List of possible BA region names
+                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
+                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
+            except ValueError as e:
+                raise ValueError(
+                    f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
-            self.alt_perfcost_brk_map = {
-                "IECC": iecc_reg_map, "levels": str([
-                    "IECC_CZ" + str(n + 1) for n in range(8)])}
+            self.alt_attr_brk_map = {
+                "IECC": iecc_reg_map, "BA": ba_reg_map, "levels": str([
+                    "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " +
+                str(["BA_" + n for n in ba_list])}
             # Read in state -> AIA mapping data only when methane leakage is
             # assessed
             if opts.fugitive_emissions is not False and \
@@ -846,16 +860,29 @@ class UsefulVars(object):
             try:
                 iecc_altreg_map = numpy.genfromtxt(
                     handyfiles.iecc_reg_map, names=True, delimiter='\t',
-                    dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
             except ValueError as e:
                 raise ValueError(
                     f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
+            # BA -> EMM or State mapping
+            try:
+                ba_altreg_map = numpy.genfromtxt(
+                    handyfiles.ba_reg_map, names=True, delimiter='\t',
+                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
+                # List of possible BA region names
+                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
+                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
+            except ValueError as e:
+                raise ValueError(
+                    f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
-            self.alt_perfcost_brk_map = {
-                "IECC": iecc_altreg_map, "AIA": aia_altreg_map,
+            self.alt_attr_brk_map = {
+                "IECC": iecc_altreg_map, "BA": ba_altreg_map,
+                "AIA": aia_altreg_map,
                 "levels": str([
                     "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " + str([
-                        "AIA_CZ" + str(n + 1) for n in range(5)])}
+                        "AIA_CZ" + str(n + 1) for n in range(5)]) + " 0R " +
+                str(["BA_" + n for n in ba_list])}
         self.months = ["january", "february", "march", "april", "may", "june",
                        "july", "august", "september", "october", "november",
                        "december"]
@@ -3398,7 +3425,7 @@ class Measure(object):
                             break_keys = self.climate_zone
                             # set of alternate regional breakout possibilities
                             alt_break_keys = \
-                                self.handyvars.alt_perfcost_brk_map["levels"]
+                                self.handyvars.alt_attr_brk_map["levels"]
                             err_message = "regions the measure applies to: "
                         # full set of building breakouts
                         elif (i == 2):
@@ -3451,12 +3478,12 @@ class Measure(object):
                         # and performance data use alternate regional breakout
                         elif isinstance(perf_meas, dict) and alt_break_keys:
                             # Determine the alternate regions by which the
-                            # performance data are broken out (e.g., IECC, or
-                            # - if the analysis uses EMM regions or states -
+                            # performance data are broken out (e.g., IECC, BA,
+                            # or - if the analysis uses EMM regions or states -
                             # AIA)
                             alt_key_reg_typ = [
                                 x for x in
-                                self.handyvars.alt_perfcost_brk_map.keys()
+                                self.handyvars.alt_attr_brk_map.keys()
                                 if any([
                                     x in y for y in perf_meas.keys()])]
                             # If the alternate regional breakout is supported,
@@ -3467,7 +3494,7 @@ class Measure(object):
                                 # Check to ensure the expected alternate
                                 # breakout keys are provided
                                 if sorted(perf_meas.keys()) == sorted(
-                                    self.handyvars.alt_perfcost_brk_map[
+                                    self.handyvars.alt_attr_brk_map[
                                         alt_key_reg_typ][alt_key_reg_typ]):
                                     # Store data in a list, where the first
                                     # element is a dict of performance data
@@ -3477,7 +3504,7 @@ class Measure(object):
                                     # current mseg region
                                     perf_meas = copy.deepcopy([
                                         perf_meas,
-                                        self.handyvars.alt_perfcost_brk_map[
+                                        self.handyvars.alt_attr_brk_map[
                                             alt_key_reg_typ][mskeys[1]]])
                                 # If unexpected keys are present, yield error
                                 else:
@@ -3534,14 +3561,12 @@ class Measure(object):
                         # and cost data use alternate regional breakout
                         elif isinstance(cost_meas, dict) and alt_break_keys:
                             # Determine the alternate regions by which the
-                            # cost data are broken out (e.g., IECC, or
+                            # cost data are broken out (e.g., IECC, BA, or
                             # - if the analysis uses EMM regions or states -
                             # AIA)
                             alt_key_reg_typ = [
-                                x for x in
-                                self.handyvars.alt_perfcost_brk_map.keys()
-                                if any([
-                                    x in y for y in cost_meas.keys()])]
+                                x for x in self.handyvars.alt_attr_brk_map.keys()
+                                if any([x in y for y in cost_meas.keys()])]
                             # If the alternate regional breakout is supported,
                             # reformat the cost data for subsequent
                             # calculations
@@ -3550,7 +3575,7 @@ class Measure(object):
                                 # Check to ensure the expected alternate
                                 # breakout keys are provided
                                 if sorted(cost_meas.keys()) == sorted(
-                                    self.handyvars.alt_perfcost_brk_map[
+                                    self.handyvars.alt_attr_brk_map[
                                         alt_key_reg_typ][alt_key_reg_typ]):
                                     # Store data in a list, where the first
                                     # element is a dict of cost data
@@ -3560,7 +3585,7 @@ class Measure(object):
                                     # current mseg region
                                     cost_meas = copy.deepcopy([
                                         cost_meas,
-                                        self.handyvars.alt_perfcost_brk_map[
+                                        self.handyvars.alt_attr_brk_map[
                                             alt_key_reg_typ][mskeys[1]]])
                                 # If unexpected keys are present, yield error
                                 else:
@@ -3645,10 +3670,81 @@ class Measure(object):
                                 'broken out '
                                 'by ALL ' + err_message + str(break_keys))
                         # Market scaling fractions
+                        # Case where data are broken out directly by mseg info.
                         if isinstance(mkt_scale_frac, dict) and break_keys \
                             and all([x in mkt_scale_frac.keys() for
                                      x in break_keys]):
                             mkt_scale_frac = mkt_scale_frac[mskeys[i]]
+                        # Case where region is being looped through in the mseg
+                        # and scaling data use alternate regional breakout
+                        elif isinstance(mkt_scale_frac, dict) and \
+                                alt_break_keys:
+                            # Determine the alternate regions by which the
+                            # scaling data are broken out (e.g., IECC, BA,
+                            # or - if the analysis uses EMM regions or states -
+                            # AIA)
+                            alt_key_reg_typ = [
+                                x for x in
+                                self.handyvars.alt_attr_brk_map.keys()
+                                if any([
+                                    x in y for y in mkt_scale_frac.keys()])]
+                            # If the alternate regional breakout is supported,
+                            # reformat the scaling data for subsequent
+                            # calculations
+                            if len(alt_key_reg_typ) > 0:
+                                alt_key_reg_typ = alt_key_reg_typ[0]
+                                # Check to ensure the expected alternate
+                                # breakout keys are provided
+                                if sorted(mkt_scale_frac.keys()) == sorted(
+                                    self.handyvars.alt_attr_brk_map[
+                                        alt_key_reg_typ][alt_key_reg_typ]):
+                                    # Store data in a list, where the first
+                                    # element is a dict of performance data
+                                    # broken out by each alternate region and
+                                    # the second element is the portion of
+                                    # each alternate region that falls in the
+                                    # current mseg region
+                                    mkt_scale_frac = copy.deepcopy([
+                                        mkt_scale_frac,
+                                        self.handyvars.alt_attr_brk_map[
+                                            alt_key_reg_typ][mskeys[1]]])
+                                # If unexpected keys are present, yield error
+                                else:
+                                    raise KeyError(
+                                        self.name +
+                                        ' market scaling fractions (mkt_'
+                                        'scaling_fractions) must be broken '
+                                        'out by ALL ' + err_message +
+                                        str(break_keys) + ' OR alternate '
+                                        'regions ' + alt_break_keys)
+                        # Case where scaling data broken out by alternate
+                        # regions were reformatted as a list and require
+                        # further work to finalize as a single value for the
+                        # current mseg
+                        elif isinstance(mkt_scale_frac, list) and \
+                                isinstance(mkt_scale_frac[0], dict):
+                            # Check the first element of the list for
+                            # scaling data in each of the alternate regions
+                            # that is still in dict format and must be keyed
+                            # in further by info. for the current mseg.
+                            for k in mkt_scale_frac[0].keys():
+                                if isinstance(mkt_scale_frac[0][k], dict) and \
+                                    break_keys and all([
+                                        x in mkt_scale_frac[0][k].keys()
+                                        for x in break_keys]):
+                                    mkt_scale_frac[0][k] = mkt_scale_frac[
+                                        0][k][mskeys[i]]
+                            # If none of the scaling data in the first
+                            # element of the list needs to be keyed in further,
+                            # perform a weighted sum of the data across the
+                            # alternate regions into the current mseg region,
+                            # to arrive at a final market scaling value for
+                            # that region
+                            if all([type(x) != dict for
+                                    x in mkt_scale_frac[0].values()]):
+                                mkt_scale_frac = sum([x * y for x, y in zip(
+                                    mkt_scale_frac[0].values(),
+                                    mkt_scale_frac[1])])
                         elif isinstance(mkt_scale_frac, dict) and any(
                                 [x in mkt_scale_frac.keys() for
                                  x in break_keys]):
