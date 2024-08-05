@@ -337,9 +337,6 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
-        link_htcl_tover_anchor_eu = For measures that apply to separate heating
-            and cooling technologies, stock turnover and exogenous switching
-            rates will be anchored on this end use
         link_htcl_tover_anchor_tech_opts = For measures that apply to separate
             heating and cooling technologies, stock turnover and exogenous
             switching rates will be anchored on whichever technology in the
@@ -764,11 +761,9 @@ class UsefulVars(object):
                 "secondary heater (wood)", "secondary heater (coal)",
                 "secondary heater (kerosene)", "secondary heater (LPG)"]
 
-        # Information for anchoring linked heating/cooling stock turnover
-        # and exogenous switching rate calculations
+        # Global information for anchoring linked heating/cooling stock
+        # turnover and exogenous switching rate calculations
 
-        # End use anchor
-        self.link_htcl_tover_anchor_eu = "heating"
         # Technology anchor – list order assigns priority for which technology
         # in a measure's definition serves as the anchor
         self.link_htcl_tover_anchor_tech_opts = {
@@ -781,8 +776,8 @@ class UsefulVars(object):
             },
             "commercial": {
                 "heating": [
-                    "electric_res-heat", "gas_boiler", "gas_furnace",
-                    "oil_boiler", "oil_furnace"],
+                    "elec_boiler", "electric_res-heat", "gas_boiler",
+                    "gas_furnace", "oil_boiler", "oil_furnace"],
                 "cooling": [
                     "rooftop_AC", "centrifugal_chiller",
                     "reciprocating_chiller", "screw_chiller",
@@ -2077,6 +2072,9 @@ class Measure(object):
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
             as None and updated in 'fill_mkts' function.)
+        linked_htcl_tover_anchor_eu (str, None): For measures that apply to
+            separate HVAC technologies, stock turnover and exogenous switching
+            rates will be anchored on this end use
         linked_htcl_tover_anchor_tech (str, None): Sets the technology to use
             as an anchor for linking stock turnover and exogenous rate
             switching calculations for measures that apply to separate heating
@@ -2178,8 +2176,9 @@ class Measure(object):
                 self.htcl_tech_link = ""
         except AttributeError:
             self.htcl_tech_link = ""
-        self.linked_htcl_tover, self.linked_htcl_tover_anchor_tech = (
-            None for n in range(2))
+        self.linked_htcl_tover, self.linked_htcl_tover_anchor_eu, \
+            self.linked_htcl_tover_anchor_tech = (
+                None for n in range(3))
         # Determine whether the measure replaces technologies pertaining to
         # the supply or the demand of energy services
         self.technology_type = None
@@ -2805,17 +2804,24 @@ class Measure(object):
 
         # Update information needed to link the stock turnover rates and
         # exogenous HP conversion rates for measures that apply to separate
-        # heating and cooling tech. microsegments, as applicable. Such links
-        # are only needed for equipment microsegments (e.g., not envelope) and
-        # for technologies that are not already linked across heating/cooling
-        # end uses (e.g., not HPs)
-        if all([x in self.end_use["primary"] for x in [
-            "heating", "cooling"]]) and (
+        # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
+        # as applicable. Such links are only needed for equipment microsegments
+        # (e.g., not envelope) and for technologies that are not already linked
+        # across heating/cooling end uses (e.g., not HPs)
+        if (len(self.end_use["primary"]) > 1 and any([
+            x in self.end_use["primary"] for x in [
+                "heating", "cooling"]])) and (
                     "demand" not in self.technology_type["primary"]) and all([
                 (x is None or "HP" not in x)
                 for x in self.technology["primary"]]):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
+            # Reset anchor end use for linked heating/cooling mseg turnover;
+            # default to heating if present in end uses, otherwise cooling
+            if "heating" in self.end_use["primary"]:
+                self.linked_htcl_tover_anchor_eu = "heating"
+            else:
+                self.linked_htcl_tover_anchor_eu = "cooling"
             try:
                 # Set applicable building sector for the measure to use in
                 # linking heating/cooling turnover and switching calculations.
@@ -2835,7 +2841,7 @@ class Measure(object):
                 # the anchor end use set in UsefulVars class earlier)
                 linked_htcl_tover_anchor_tech_list = [
                     x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
-                        bldg_sect][self.handyvars.link_htcl_tover_anchor_eu]]
+                        bldg_sect][self.linked_htcl_tover_anchor_eu]]
                 # Find the first in the ordered list of candidate technologies
                 # that the measure applies to, use as anchor for linked
                 # heating/cooling mseg turnover and switching calculations
@@ -2861,7 +2867,7 @@ class Measure(object):
             # Register initial length of ms_iterable for check
             iter_len_check = len(ms_iterable)
             # Set end use and technology anchor names
-            first_eu_tech = [self.handyvars.link_htcl_tover_anchor_eu,
+            first_eu_tech = [self.linked_htcl_tover_anchor_eu,
                              self.linked_htcl_tover_anchor_tech]
             # Find subset of iterable with msegs that apply to the anchor
             # end use and technology
@@ -4045,15 +4051,16 @@ class Measure(object):
                 # not apply to envelope component heating energy msegs); are
                 # only assessed for switching to HPs or the non-switching
                 # alternative (e.g., are not assessed for like-for-like HP
-                # replacements); non-HP equipment cooling microsegments that
+                # replacements); non-HP equipment microsegments that
                 # are linked with the heating microsegments turnover/switching
                 # are also subject to the rates; set to None otherwise
                 if (self.handyvars.hp_rates and "demand" not in mskeys) and \
                     ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
                         x in mskeys for x in [
-                        "heating", "water heating", "cooking"]]) or
-                        (self.linked_htcl_tover and "cooling" in mskeys)):
+                        "heating", "water heating", "cooking"]]) or (
+                            self.linked_htcl_tover and
+                            self.linked_htcl_tover_anchor_eu == "heating")):
                     hp_rate_flag = True
                 else:
                     hp_rate_flag = ""
@@ -4091,22 +4098,22 @@ class Measure(object):
                 else:
                     comp_tag_exog = ""
 
-                # Further utilize information about which heating and cooling
-                # equipment is paired by the measure (if provided) to ensure
-                # that heating and cooling segments will only be competed
-                # with heating and cooling segments of other measures that
-                # apply to that same pairing (e.g., CAC + resistance, vs.
-                # CAC + fossil-based heating, vs. HPs). NOTE: this approach
-                # assumes that any overlaps in cooling segments across these
-                # measures will be handled exogenously via market scaling
-                # fractions - for example, a measure that applies to resistance
-                # heating plus CAC cooling is constrained to 32% of CAC market
-                # and competes only with other CAC + resistance heat measures
-                # with that same constraint, while a measure that applies to
-                # fossil heating plus CAC is constrained to the remaining 68%
-                # of the CAC market and competes only with other CAC + fossil
+                # Further utilize information about which HVAC equipment is
+                # paired by the measure (if provided) to ensure that HVAC
+                # segments will only be competed with HVAC segments of other
+                # measures that apply to that same pairing (e.g., CAC +
+                # resistance, vs. CAC + fossil-based heating, vs. HPs). NOTE:
+                # this approach assumes that any overlaps in packaged cooling/
+                # ventilation/other segments across these measures are handled
+                # exogenously via market scaling fractions - for example, a
+                # measure that applies to resistance heating plus CAC cooling
+                # is constrained to 32% of CAC market and competes only with
+                # other CAC + resistance heat measures with that same
+                # constraint, while a measure that applies to fossil heating
+                # plus CAC is constrained to the remaining 68% of the CAC
+                # market and competes only with other CAC + fossil
                 # heating measures with that same constraint.
-                if "heating" in mskeys or "cooling" in mskeys:
+                if self.htcl_tech_link:
                     comp_tag_htcl_pair = self.htcl_tech_link
                 else:
                     comp_tag_htcl_pair = ""
@@ -4158,101 +4165,9 @@ class Measure(object):
                             hp_rate = hp_rate_dat[
                                 mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
                         except KeyError:
-                            if hp_eu_key == "cooling":
-                                # HP conversion rates for NGHP cooling msegs
-                                # are not directly addressed in the exogenous
-                                # file structure but should be set to the same
-                                # as NGHP heating
-                                if "NGHP" in mskeys:
-                                    try:
-                                        hp_rate = hp_rate_dat[mskeys[3]][
-                                            "heating"][mskeys[-2]][mskeys[-1]]
-                                    except KeyError:
-                                        hp_rate = None
-                                # HP conversion rates for electric cooling
-                                # msegs attached to heating msegs that are fuel
-                                # switching from fossil to electric and subject
-                                # to the HP rates should be subject to the same
-                                # rates; attach cooling scaling to NG rates (
-                                # NG most prevalent fossil-based heating
-                                # technology)
-                                elif "fossil" in comp_tag_exog:
-                                    # Separately handle different bldg. types
-                                    if bldg_sect == "residential":
-                                        try:
-                                            hp_rate = hp_rate_dat[
-                                                "natural gas"]["heating"][
-                                                "furnace (NG)"][mskeys[-1]]
-                                        except KeyError:
-                                            try:
-                                                hp_rate = hp_rate_dat[
-                                                    "natural gas"]["heating"][
-                                                    "all"][mskeys[-1]]
-                                            except KeyError:
-                                                hp_rate = None
-                                    elif any([mskeys[-2] in x for x in [
-                                        self.handyvars.com_RTU_fs_tech,
-                                            self.handyvars.com_nRTU_fs_tech]]):
-                                        # Determine whether the current cooling
-                                        # tech. falls into switch from an RTU
-                                        # or other tech.
-                                        if mskeys[-2] in \
-                                                self.handyvars.com_RTU_fs_tech:
-                                            tech_key = "RTUs"
-                                        else:
-                                            tech_key = "all other"
-                                        # Try resultant tech. key
-                                        try:
-                                            hp_rate = hp_rate_dat[
-                                                "natural gas"]["heating"][
-                                                tech_key][mskeys[-1]]
-                                        except KeyError:
-                                            hp_rate = None
-                                    else:
-                                        hp_rate = None
-                                # HP conversion rates for electric cooling
-                                # msegs attached to electric resistance heating
-                                # msegs that are subject to the HP rates should
-                                # be subject to the same rates
-                                elif "elec" in comp_tag_exog:
-                                    # Separately handle different bldg. types
-                                    if bldg_sect == "residential":
-                                        try:
-                                            hp_rate = hp_rate_dat[
-                                                "electricity"]["heating"][
-                                                "resistance heat"][mskeys[-1]]
-                                        except KeyError:
-                                            try:
-                                                hp_rate = hp_rate_dat[
-                                                    "electricity"]["heating"][
-                                                    "all"][mskeys[-1]]
-                                            except KeyError:
-                                                hp_rate = None
-                                    elif any([mskeys[-2] in x for x in [
-                                        self.handyvars.com_RTU_fs_tech,
-                                            self.handyvars.com_nRTU_fs_tech]]):
-                                        # Determine whether the current cooling
-                                        # tech. falls into switch from an RTU
-                                        # or other tech.
-                                        if mskeys[-2] in \
-                                                self.handyvars.com_RTU_fs_tech:
-                                            tech_key = "RTUs"
-                                        else:
-                                            tech_key = "all other"
-                                        # Try resultant tech. key
-                                        try:
-                                            hp_rate = hp_rate_dat[
-                                                "electricity"]["heating"][
-                                                tech_key][mskeys[-1]]
-                                        except KeyError:
-                                            hp_rate = None
-                                    else:
-                                        hp_rate = None
-                                else:
-                                    hp_rate = None
                             # Handle switch from commercial heating in RTUs vs.
                             # other technologies
-                            elif hp_eu_key == "heating" and \
+                            if hp_eu_key == "heating" and \
                                 bldg_sect == "commercial" and any([
                                     mskeys[-2] in x for x in [
                                         self.handyvars.com_RTU_fs_tech,
@@ -4290,6 +4205,11 @@ class Measure(object):
                                         hp_eu_key][tech_key][mskeys[-1]]
                                 except KeyError:
                                     hp_rate = None
+                            # Cases where no direct exogenous rate is found
+                            # for the mseg but the mseg is linked to another
+                            # mseg that does have a rate; set flag
+                            elif self.linked_htcl_tover:
+                                hp_rate = "linked"
                             else:
                                 hp_rate = None
                 else:
@@ -4743,18 +4663,7 @@ class Measure(object):
                         # baseline lifetime data are available - set baseline
                         # lifetime to 10 to ensure that all subsequent stock
                         # and energy impact calculations will continue for that
-                        # baseline segment. Note: this marks a special
-                        # exception to the general rule that baseline
-                        # market segments without complete unit-level cost,
-                        # performance, and/or lifetime data will be removed
-                        # from further analysis. The exception is needed to
-                        # handle ECMs that apply to baseline market segments
-                        # with poor technology-level data - for example,
-                        # residential vacancy sensors that reduce MELs
-                        # energy use by turning off power draws to circuits
-                        # when an occupant isn't home. The user will now be
-                        # able to evaluate such measures given measure relative
-                        # performance, incremental cost, and lifetime data
+                        # baseline segment.
                         if (self.measure_type == "add-on" or
                             "secondary heating" in mskeys) and \
                                 perf_units == "relative savings (constant)":
@@ -4803,14 +4712,11 @@ class Measure(object):
                                     "; if lifetime data are missing, " +
                                     "lifetime is set to 10 years")
 
-                        # Additionally, include an exception for lighting
-                        # cases, where some segments of lighting energy use
-                        # at or near zero contribution lack any cost,
-                        # performance, and lifetime data. In such cases, set
-                        # the baseline cost and performance to the measure cost
-                        # and performance; if lifetime data are not available,
-                        # set the baseline lifetime to 10 years.
-                        elif "lighting" in mskeys:
+                        # In all other cases, to avoid removing any msegs,
+                        # set the baseline cost and performance to the measure
+                        # cost and performance; if lifetime data are not
+                        # available, set the baseline lifetime to 10 years.
+                        else:
                             # Set baseline performance/units to measure
                             # performance/units
                             perf_base = {yr: perf_meas for
@@ -4852,23 +4758,6 @@ class Measure(object):
                                     "remain in analysis at same cost/" +
                                     "performance as ECM; if lifetime data " +
                                     "are missing, lifetime is set to 10 years")
-                        # For all other cases, record missing baseline data; if
-                        # in verbose mode and the user has not already been
-                        # warned about missing data for the given technology,
-                        # print warning; exclude technologies without data from
-                        # further analysis
-                        else:
-                            if mskeys[-2] is not None and \
-                                    mskeys[-2] not in cpl_warn:
-                                cpl_warn.append(mskeys[-2])
-                                verboseprint(
-                                    opts.verbose,
-                                    "WARNING: ECM '" + self.name +
-                                    "' missing valid baseline "
-                                    "cost/performance/lifetime data " +
-                                    "for technology '" + str(mskeys[-2]) +
-                                    "'; removing technology from analysis")
-                            continue
                 else:
                     # Set baseline cost and performance characteristics for any
                     # remaining secondary microsegments to that of the measure
@@ -8114,7 +8003,7 @@ class Measure(object):
                 initiate_linked_dat = False
 
             # If the current mseg tech. serves as an anchor for linking
-            # heating/cooling turnover and linking data have not yet been
+            # heating/cooling/other turnover and linking data have not yet been
             # initiated, initiate these data as zero (they will be updated
             # later on below)
             if initiate_linked_dat and linked_htcl_tover_anchor_tech:
@@ -8127,7 +8016,7 @@ class Measure(object):
                     dict.fromkeys(self.handyvars.aeo_years, 0)
                     for n in range(6))
             # If the current mseg. tech. does not serve as an anchor for
-            # linking heating/cooling turnover, check whether applicable
+            # linking heating/cooling/other turnover, check whether applicable
             # linking data have already been initiated for this mseg's region,
             # building type, and structure type, as would be expected. If so,
             # use those data to determine stock turnover fractions for the
@@ -8135,15 +8024,15 @@ class Measure(object):
             # unlinked turnover calculations for the mseg
             elif not linked_htcl_tover_anchor_tech:
                 # Set contingency value for linked diffusion fraction
-                # in cases where the total stock for the linked segment is zero
-                # (or has otherwise been screened out due to missing EIA data).
+                # in cases where total stock for the linked segment is zero.
                 # When exogenous switching rates are used and the measure is
                 # switching away from the baseline technology, this
                 # translates to zero conversions of the anchor segment and
                 # that should be carried through to the linked segment;
                 # otherwise, full diffusion for the linked segment should
                 # be assumed
-                if hp_rate and (self.fuel_switch_to == "electricity" or (
+                if hp_rate is not None and (
+                    self.fuel_switch_to == "electricity" or (
                         self.tech_switch_to not in [None, "NA"])):
                     null_val = 0
                 else:
@@ -8198,7 +8087,7 @@ class Measure(object):
                         str(mskeys) +
                         " for measure '" + self.name + "' with " +
                         self.linked_htcl_tover_anchor_tech + " " +
-                        self.handyvars.link_htcl_tover_anchor_eu +
+                        self.linked_htcl_tover_anchor_eu +
                         " turnover rates; unlinking turnover")
         # In cases where no secondary heating/cooling microsegment is present,
         # and there are no linked stock turnover rates for primary heating and
@@ -13626,6 +13515,7 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             # Delete individual measure attributes used to link heating/
             # cooling microsegment turnover and switching rates
             del m.linked_htcl_tover
+            del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
