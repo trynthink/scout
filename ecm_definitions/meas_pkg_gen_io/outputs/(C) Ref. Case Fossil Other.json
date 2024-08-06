@@ -13,7 +13,8 @@
   ],
   "fuel_type": [
     "natural gas",
-    "distillate"
+    "distillate",
+    "other fuel"
   ],
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
@@ -53,6 +54,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2024-08-05 07:05:12"
+    "timestamp": "2024-08-06 12:12:30"
   }
 }

@@ -4742,7 +4742,6 @@ class Measure(object):
                                     "remain in analysis with cost of zero; " +
                                     "; if lifetime data are missing, " +
                                     "lifetime is set to 10 years")
-
                         # In all other cases, to avoid removing any msegs,
                         # set the baseline cost and performance to the measure
                         # cost and performance; if lifetime data are not
@@ -13794,6 +13793,11 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                     elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood" in mskeys[-2]):
                         out_fuel_save = f[0]
+                    # Assign commercial other fuel to Distillate/Other
+                    elif f[0] == "Distillate/Other" and (
+                        mskeys[2] in self.handyvars.in_all_map['bldg_type'][
+                            'commercial']):
+                        out_fuel_save = f[0]
                     # All other tech. goes to propane
                     elif f[0] == "Propane":
                         out_fuel_save = f[0]
@@ -13831,6 +13835,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             mskeys[-2] is not None and "wood"
                                 in mskeys[-2]):
                             out_fuel_gain = f[0]
+                        # Assign commercial other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                            mskeys[2] in self.handyvars.in_all_map[
+                                'bldg_type']['commercial']):
+                            out_fuel_save = f[0]
                         # All other tech. goes to propane
                         elif f[0] == "Propane":
                             out_fuel_gain = f[0]
