@@ -10,10 +10,10 @@ ecm_prep:
     null
   alt_ref_carb: (string) Specify alternate reference grid scnenario
     for baseline electricity emissions intensities (rather than
-    AEO). 'MidCaseTCExpire' refers to the Standard Scenarios Mid
-    Case and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual
-    scenario. Allowed values are {DECARB-bau, MidCaseTCExpire,
-    null}. Default null
+    AEO). 'MidCase' refers to the Standard Scenarios Mid Case
+    and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual
+    scenario. Allowed values are {DECARB-bau, MidCase, null}.
+    Default null
   alt_regions: (string) Specify an alternative region breakdown.
     Allowed values are {AIA, EMM, State}. Default EMM
   captured_energy: (boolean) If true, enable captured energy calculation.

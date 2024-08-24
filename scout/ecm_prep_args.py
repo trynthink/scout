@@ -73,25 +73,11 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         opts.adopt_scn_restrict = ['Technical potential', 'Max adoption potential']
 
     # Screen for cases where user desires time-sensitive valuation metrics
-    # or hourly sector-level load shapes but EMM regions are not used (such
-    # options require baseline data to be resolved by EMM region)
+    # or hourly sector-level load shapes but EMM or state regions are not used
+    # (such options require baseline data to be resolved by EMM region)
     opts.tsv_metrics = False
     if opts.tsv_type:
         opts.tsv_metrics = True
-    if (opts.alt_regions != "EMM") and any([
-            x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
-        opts.alt_regions = "EMM"
-        # Craft custom warning message based on the option provided
-        if all([x is not False for x in [opts.tsv_metrics, opts.sect_shapes]]):
-            warn_text = "tsv metrics and sector-level 8760 savings shapes"
-        elif opts.tsv_metrics is not False:
-            warn_text = "tsv metrics"
-        else:
-            warn_text = "sector-level 8760 load shapes"
-        warnings.warn(
-            f"WARNING: Analysis regions were set to EMM to allow {warn_text}; "  # noqa: E702
-            "ensure that ECM data reflect these EMM regions")
-
     # Set fugitive emissions to include, if any, and whether to use typical refrigerants
     # (including representation of expected phase-out years) or user-defined low-GWP refrigerants
     if opts.fugitive_emissions:
@@ -152,15 +138,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     if opts.grid_decarb_level and opts.grid_assessment_timing:
         opts.grid_decarb = True
         # Ensure that if alternate grid decarbonization scenario to be used,
-        # EMM regional breakouts are set (grid decarb data use this resolution)
-        if opts.alt_regions == "State":
-            opts.alt_regions = "EMM"
-            warnings.warn(
-                "WARNING: Analysis regions were set to EMM to ensure "
-                "ECM data reflect EMM regions to match alternative grid "
-                "decarbonization scenario geographical breakdown")
-        # Ensure that if alternate grid decarbonization scenario to be used,
-        # EMM regional breakouts are set (grid decarb data use this resolution)
+        # fossil fuel equivalency method not used for site-source conversion
         if opts.captured_energy is True:
             opts.captured_energy = False
             warnings.warn(
@@ -175,6 +153,17 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                     "must be set run alternate grid decarbonization scenarios.")
         opts.grid_decarb = False
 
+    if (opts.alt_regions not in ["EMM", "State"]) and any([
+            x is not False for x in [
+            opts.tsv_metrics, opts.sect_shapes, opts.grid_decarb]]):
+        opts.alt_regions = "EMM"
+        # Craft custom warning message based on the option provided
+        warn_text = (
+            "tsv metrics, sector-level 8760 savings shapes, and/or "
+            "high grid decarbonization user inputs")
+        warnings.warn(
+            f"WARNING: Analysis regions were set to EMM to allow {warn_text}; "  # noqa: E702
+            "ensure that ECM data reflect these EMM regions")
     # Set time-sensitive efficiency values
     if opts.tsv_average_days and (opts.tsv_power_agg != "average" and opts.tsv_type == "power"):
         opts.tsv_average_days = None
