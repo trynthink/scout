@@ -132,15 +132,18 @@ class UsefulInputFiles(object):
         ss_data_altreg_nonfs (tuple): Base-case emissions/price data, EMM– or
             state-resolved, to assign in certain cases to non-fuel switching
             microsegments under high grid decarb case.
-        tsv_load_data (tuple): Time sensitive energy demand data.
-        tsv_cost_data (tuple): Time sensitive electricity price data.
-        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data.
+        tsv_load_data (tuple): Time sensitive energy demand data, EMM- or
+            state-resolved.
+        tsv_cost_data (tuple): Time sensitive electricity price data, EMM- or
+            state-resolved.
+        tsv_carbon_data (tuple): Time sensitive average CO2 emissions data,
+            EMM- or state-resolved.
         tsv_cost_data_nonfs (tuple): Time sensitive electricity price data to
             assign in certain cases to non-fuel switching microsegments under
-            high grid decarb case.
+            high grid decarb case, EMM- or state-resolved.
         tsv_carbon_data_nonfs (tuple): Time sensitive average CO2 emissions
             data to assign in certain cases to non-fuel switching microsegments
-            under high grid decarb case.
+            under high grid decarb case, EMM- or state-resolved.
         tsv_shape_data (tuple): Custom hourly savings shape data.
         tsv_metrics_data_tot (tuple): Total system load data by EMM region.
         tsv_metrics_data_net (tuple): Net system load shape data by EMM region.
@@ -161,6 +164,7 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt"
             self.state_aia_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt"
+            self.tsv_load_data = None
         elif opts.alt_regions == 'EMM':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
@@ -169,12 +173,16 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_EMM_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
+            self.tsv_load_data = fp.TSV_DATA / "tsv_load.gz"
+            # self.tsv_load_data = fp.TSV_DATA / "tsv_load_emm.gz"  # UNCOMMENT
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_State_ColSums.txt"
+            self.tsv_load_data = None
+            # self.tsv_load_data = fp.TSV_DATA / "tsv_load_state.gz"  # UNCOMMENT
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -197,7 +205,6 @@ class UsefulInputFiles(object):
         self.ecm_eff_fs_splt_data = fp.EFF_FS_SPLIT
         self.run_setup = fp.GENERATED / "run_setup.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
-        self.tsv_load_data = fp.TSV_DATA / "tsv_load.json"
         self.tsv_shape_data = (
             fp.ECM_DEF / "energyplus_data" / "savings_shapes")
         self.tsv_metrics_data_tot_ref = fp.TSV_DATA / "tsv_hrs_tot_ref.csv"
@@ -228,7 +235,7 @@ class UsefulInputFiles(object):
         grid_decarb_level_suffix = get_suffix(opts.grid_decarb_level)
         # Toggle EMM emissions and price data based on whether or not a grid decarbonization
         # scenario is used
-        if opts.alt_regions == 'EMM':
+        if opts.alt_regions in ['EMM', "State"]:
             emission_var_map = {}  # Map UsefulInputFiles instance vars to filenames suffixes
             if opts.grid_decarb_level:
                 # Set grid decarbonization case
@@ -248,49 +255,53 @@ class UsefulInputFiles(object):
                 self.ss_data_altreg_nonfs = None
             # Set filepaths for EMM region emissions and prices
             for var, filesuffix in emission_var_map.items():
-                filepath = fp.CONVERT_DATA / f"emm_region_emissions_prices{filesuffix}.json"
+                if opts.alt_regions == "EMM":
+                    filepath = fp.CONVERT_DATA / f"emm_region_emissions_prices{filesuffix}.json"
+                else:
+                    filepath = fp.CONVERT_DATA / f"state_emissions_prices{filesuffix}.json"
                 setattr(self, var, filepath)
-        # Ensure that state-level regions are not being used alongside a high grid
-        # decarbonization scenario (incompatible currently)
-        elif opts.alt_regions == 'State':
-            if opts.grid_decarb:
-                raise ValueError("Unsupported regional breakout for use with alternate grid"
-                                 f" decarbonization scenario ({opts.alt_regions})")
-            else:
-                self.ss_data_altreg = fp.CONVERT_DATA / "state_emissions_prices.json"
-                self.ss_data_altreg_nonfs = None
 
-        # Set site-source conversions files for grid decarbonization case
+        # Set site-source conversions and TSV files for grid decarbonization case
         if opts.grid_decarb:
             self.ss_data = (fp.CONVERT_DATA /
                             f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
             # Update tsv data file suffixes for DECARB levels
             if "DECARB" in grid_decarb_level_suffix:
-                grid_decarb_level_suffix = {"-DECARB-mid": "-95by2050",
-                                            "-DECARB-high": "-100by2035"}[grid_decarb_level_suffix]
-            self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost{grid_decarb_level_suffix}.json"
-            self.tsv_carbon_data = fp.TSV_DATA / f"tsv_carbon{grid_decarb_level_suffix}.json"
+                grid_decarb_level_suffix = {
+                    "-DECARB-mid": "-95by2050",
+                    "-DECARB-high": "-100by2035"}[grid_decarb_level_suffix]
+            self.tsv_cost_data = (
+                fp.TSV_DATA /
+                f"tsv_cost-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json")
+            self.tsv_carbon_data = (
+                fp.TSV_DATA /
+                f"tsv_carbon-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json")
 
-        # Set site-source conversions for non-fuel switching measures before grid decarbonization
+        # Set site-source conversions and TSV files for non-fuel switching measures
+        # before grid decarbonization
         if opts.grid_assessment_timing and opts.grid_assessment_timing == "before":
             self.ss_data_nonfs = (fp.CONVERT_DATA /
                                   f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
-            self.tsv_cost_data_nonfs = fp.TSV_DATA / "tsv_cost-MidCaseTCExpire.json"
-            self.tsv_carbon_data_nonfs = fp.TSV_DATA / "tsv_carbon-MidCaseTCExpire.json"
-        # Set site-source conversions for non-fuel switching measures after grid decarbonization
+            self.tsv_cost_data_nonfs = (fp.TSV_DATA /
+                                        f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json")
+            self.tsv_carbon_data_nonfs = (fp.TSV_DATA /
+                                          f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
+        # Set site-source conversions and TSV files for non-fuel switching measures
+        # after grid decarbonization
         elif (not opts.grid_decarb or
                 (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
 
-        # Set site-source conversions for captured energy method
+        # Set site-source conversions and TSV files for captured energy method
         if opts.captured_energy:
             self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
         elif not opts.grid_decarb:
             self.ss_data = (fp.CONVERT_DATA /
                             f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
-            self.tsv_cost_data = fp.TSV_DATA / "tsv_cost-MidCaseTCExpire.json"
-            self.tsv_carbon_data = fp.TSV_DATA / "tsv_carbon-MidCaseTCExpire.json"
+            self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json"
+            self.tsv_carbon_data = (fp.TSV_DATA /
+                                    f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
 
@@ -2118,10 +2129,10 @@ class Measure(object):
             if self.usr_opts["alt_regions"] != "EMM":
                 raise ValueError(
                     "Measure '" + self.name + "' has time sensitive "
-                    "assessment features (see 'tsv_features' attribute) but "
+                    "savings features (see 'tsv_features' attribute) but "
                     "regions are not set to EMM; try running 'ecm_prep.py' "
-                    "again with the --alt_regions option included and select "
-                    "EMM regions when prompted.")
+                    "again with the --alt_regions option included and set "
+                    "to EMM regions.")
             if (self.fuel_type not in ["electricity", ["electricity"]]) and \
                     self.fuel_switch_to != "electricity":
                 raise ValueError(
@@ -7027,10 +7038,10 @@ class Measure(object):
                         "Baseline load data are of unexpected length " +
                         "(" + str(len(base_load_hourly)) + " elements) for " +
                         "end use " + mskeys[4] + ", EPlus building type " +
-                        bldg + ", and EMM region " + mskeys[1] + ". Check "
-                        "file ./supporting_data/tsv_data/tsv_load.gz to "
-                        "ensure that 8760 data values are available for this "
-                        "microsegment")
+                        bldg + ", and region " + mskeys[1] + ". Check "
+                        "file ./supporting_data/tsv_data/tsv_load.gz"
+                        " to ensure that 8760 data values are available for "
+                        "this microsegment")
 
                 # Initialize efficient load shape as equal to base load
                 eff_load_hourly = copy.deepcopy(base_load_hourly)

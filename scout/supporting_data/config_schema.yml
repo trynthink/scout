@@ -139,8 +139,8 @@ properties:
 
       alt_ref_carb:
         type: ["string", "null"]
-        enum: [MidCaseTCExpire, DECARB-bau, null]
-        description: Specify alternate reference grid scnenario for baseline electricity emissions intensities (rather than AEO). 'MidCaseTCExpire' refers to the Standard Scenarios Mid Case and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual scenario.
+        enum: [MidCase, DECARB-bau, null]
+        description: Specify alternate reference grid scnenario for baseline electricity emissions intensities (rather than AEO). 'MidCase' refers to the Standard Scenarios Mid Case and 'DECARB-bau' refers to the ReEDS "DECARB" business-as-usual scenario.
 
       grid_decarb:
         type: object

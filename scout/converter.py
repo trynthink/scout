@@ -34,7 +34,8 @@ import argparse
 import pandas as pd
 from backoff import on_exception, expo
 from collections import OrderedDict
-from scout.config import FilePaths as fp
+from pathlib import Path
+from scout.constants import FilePaths as fp
 
 
 class UsefulVars(object):
@@ -42,18 +43,20 @@ class UsefulVars(object):
 
     Attributes:
         emm_state_map (str): Weights for mapping from EMM regions to states.
-        state_baseline_data (str): Path to state-level baseline data.
+        state_baseline_files (list): List of state-level baseline data files.
         state_conv_file (str): Path to location for writing state-level
             conversions JSON file output.
         metadata (str): Path to AEO data year range metadata file.
     """
 
     def __init__(self):
-        self.emm_state_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_ColSums.txt"
-        self.state_baseline_data = (
-            fp.CONVERT_DATA / "EIA_State_Emissions_Prices_Baselines_2020.csv")
-        self.state_conv_file = (
-            fp.CONVERT_DATA / "state_emissions_prices.json")
+        self.emm_state_map = fp.CONVERT_DATA / "geo_map" / (
+            "EMM_State_ColSums.txt")
+        # Set path to state-level baseline data
+        self.state_baseline_files = list(Path(fp.CONVERT_DATA).glob(
+            'EIA_State_Emissions_Prices_Baselines_*.csv'))
+        # Set state conversion file path
+        self.state_conv_file = fp.CONVERT_DATA / "state_emissions_prices.json"
         self.metadata = fp.METADATA_PATH
 
 
@@ -224,10 +227,15 @@ class EIAQueries(object):
             'rsid_com_energy']
 
         self.data_table_ids = [
-            24, 24, 24, 24, 24,  # Table 17. Renewable Energy Consumption by Sector and Source
-            2, 2, 2, 2, 2, 2,  # Table 2. Energy Consumption by Sector and Source
-            17, 17,  # Table 18. Energy-Related Carbon Dioxide Emissions by Sector and Source
-            3, 3,  # Table 3. Energy Prices by Sector and Source
+            # Table 17. Renewable Energy Consumption by Sector and Source
+            24, 24, 24, 24, 24,
+            # Table 2. Energy Consumption by Sector and Source
+            2, 2, 2, 2, 2, 2,
+            # Table 18. Energy-Related Carbon Dioxide Emissions by Sector and
+            # Source
+            17, 17,
+            # Table 3. Energy Prices by Sector and Source
+            3, 3,
             2, 2,
             17, 17,
             3, 3,
@@ -250,8 +258,9 @@ class EIAQueries(object):
                 'elec_enduse_price_res_' + reg,
                 'elec_enduse_price_com_' + reg])
 
-        self.data_table_ids_emm = [62] * len(self.data_series_emm)
-        # Table 54. Electric Power Projections by Electricity Market Module Region
+        self.data_table_ids_emm = ["62"] * len(self.data_series_emm)
+        # Table 54. Electric Power Projections by Electricity Market Module
+        # Region
 
         self.query = []
         self.query_emm = []
@@ -262,27 +271,27 @@ class EIAQueries(object):
             if series_id in self.nonstandard_query_reqd:
                 qstr = (
                     'https://api.eia.gov/v2/aeo/' + yr +
-                    '/data/?frequency=annual&data[0]=value&facets[scenario][]=' +
-                    scen + '&facets[seriesId][]=' + series_id +
+                    '/data/?frequency=annual&data[0]=value&facets[scenario][]='
+                    + scen + '&facets[seriesId][]=' + series_id +
                     '&facets[seriesId][]=' + series_id +
-                    '&sort[0][column]=period&sort[0][direction]=desc&offset=0' +
-                    '&length=5000')
+                    '&sort[0][column]=period&sort[0][direction]=desc&offset=0'
+                    + '&length=5000')
             else:
                 qstr = (
                     'https://api.eia.gov/v2/aeo/' + yr +
-                    '/data/?frequency=annual&data[0]=value&facets[scenario][]=' +
-                    scen + '&facets[seriesId][]=' + series_id +
-                    '&sort[0][column]=period&sort[0][direction]=desc&offset=0' +
-                    '&length=5000')
+                    '/data/?frequency=annual&data[0]=value&facets[scenario][]='
+                    + scen + '&facets[seriesId][]=' + series_id +
+                    '&sort[0][column]=period&sort[0][direction]=desc&offset=0'
+                    + '&length=5000')
             self.query.append(qstr)
 
         for series_id in self.data_series_emm:
             self.query_emm.append(
                 'https://api.eia.gov/v2/aeo/' + yr +
-                '/data/?frequency=annual&data[0]=value&facets[scenario][]=' +
-                scen + '&facets[seriesId][]=' + series_id +
-                '&sort[0][column]=period&sort[0][direction]=desc&offset=0' +
-                '&length=5000')
+                '/data/?frequency=annual&data[0]=value&facets[scenario][]='
+                + scen + '&facets[seriesId][]=' + series_id +
+                '&sort[0][column]=period&sort[0][direction]=desc&offset=0'
+                + '&length=5000')
 
 
 # https://stackoverflow.com/questions/22786068/
@@ -310,13 +319,15 @@ def api_query(api_key, query_str, expect_table_id):
     try:
         data = response.json()['response']['data']
         # Extract only the required data in the API response
-        data = [[str(x['period']), x['value']] for x in data if x['tableId'] == expect_table_id]
+        data = [[str(x['period']), x['value']] for x in data if
+                x['tableId'] == expect_table_id]
     except KeyError:
         if response.status_code == 429:  # API rate limit exceeded
             raise Exception('Rate limit reached')
-        else:  # Any other response, such as a malformed header or no data returned
+        else:
+            # Any other response, e.g., malformed header or no data returned
             print('\nAttempted query invalid: ' + query_str)
-
+    # print(query_str + '&api_key=' + api_key)
     return data
 
 
@@ -488,7 +499,8 @@ def updater(conv, api_key, aeo_yr, scen, restrict, web):
         # Residential electricity CO2 intensities [Mt CO2/quads]
         try:
             co2_res_ints = (z['elec_res_co2'] /
-                            (z['elec_res_energy_site']+z['elec_res_energy_loss']))
+                            (z['elec_res_energy_site'] +
+                             z['elec_res_energy_loss']))
             for idx, year in enumerate(yrs):
                 conv['electricity']['CO2 intensity']['data']['residential'][
                      year] = (round(co2_res_ints[idx]/capnrg[idx], 6))
@@ -499,7 +511,8 @@ def updater(conv, api_key, aeo_yr, scen, restrict, web):
         # Commercial electricity CO2 intensities [Mt CO2/quads]
         try:
             co2_com_ints = (z['elec_com_co2'] /
-                            (z['elec_com_energy_site']+z['elec_com_energy_loss']))
+                            (z['elec_com_energy_site'] +
+                             z['elec_com_energy_loss']))
             for idx, year in enumerate(yrs):
                 conv['electricity']['CO2 intensity']['data']['commercial'][
                      year] = (round(co2_com_ints[idx]/capnrg[idx], 6))
@@ -729,7 +742,8 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
 
     # Get data via EIA API
     dq = EIAQueries(aeo_yr, scen)
-    z, yrs = data_getter(api_key, dq.data_names_emm, dq.query_emm, dq.data_table_ids_emm)
+    z, yrs = data_getter(api_key, dq.data_names_emm, dq.query_emm,
+                         dq.data_table_ids_emm)
 
     # Emissions conversion factor from short tons to metric tons
     conv_factor = 0.90718474
@@ -740,11 +754,14 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
         # Update only if the CO2 intensities are based on EIA data, not Cambium
         if not restrict:
             try:
-                co2_ints = ((z['elec_co2_total_' + key] * conv_factor) /
+                co2_ints = ((z['elec_co2_total_' + key].astype('float') *
+                             conv_factor) /
                             # account for T&D losses by multiplying sales by 5%
-                            (z['elec_sales_total_' + key] * 1.05))
+                            (z['elec_sales_total_' + key].astype('float') * \
+                             1.05))
                 for idx, year in enumerate(yrs):
-                    conv['CO2 intensity of electricity']['data'][value][year] = (
+                    conv['CO2 intensity of electricity'][
+                        'data'][value][year] = (
                         round(co2_ints[idx], 6))
                 # Ensure years are ordered chronologically
                 conv['CO2 intensity of electricity']['data'][value] = (
@@ -753,14 +770,15 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
 
             except KeyError:
                 print('\nDue to failed data retrieval from the API, '
-                      'electricity CO2 emissions intensities were not updated.')
+                      'electricity CO2 emissions intensities were '
+                      'not updated.')
 
         # Residential electricity prices [$/kWh site]
         try:
             for idx, year in enumerate(yrs):
                 conv['End-use electricity price']['data']['residential'][
                     value][year] = (round((z['elec_enduse_price_res_' + key][
-                        idx] / 100), 6))
+                        idx].astype('float') / 100), 6))
             # Ensure years are ordered chronologically
             conv['End-use electricity price']['data']['residential'][value] = (
                 OrderedDict(sorted(conv['End-use electricity price']['data'][
@@ -775,7 +793,7 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
             for idx, year in enumerate(yrs):
                 conv['End-use electricity price']['data']['commercial'][value][
                     year] = (round((z['elec_enduse_price_com_' + key][
-                                idx] / 100), 6))
+                                idx].astype('float') / 100), 6))
             # Ensure years are ordered chronologically
             conv['End-use electricity price']['data']['commercial'][value] = (
                 OrderedDict(sorted(conv['End-use electricity price']['data'][
@@ -806,12 +824,40 @@ def updater_state(conv_emm, aeo_min):
         State-level conversion factors dict to be exported to JSON.
     """
 
+    # Check if any state_baseline_data is available;
+    # if no data file exists, prompt user to run
+    # state_baseline_data_updater.py to create one
+    # if multiple exist, ask user to specify year of data file
+    if not UsefulVars().state_baseline_files:
+        print('\nNo state baseline data available. Please run '
+              'state_baseline_data_updater.py to create one.')
+        sys.exit(1)
+    elif len(UsefulVars().state_baseline_files) > 1:
+        print("Multiple state baseline data files found:")
+        for i, file in enumerate(UsefulVars().state_baseline_files, start=1):
+            print(f"{i}: {file}")
+        while True:
+            try:
+                file_index = int(input("Enter the number of the file to "
+                                       "use: "))
+                if 1 <= file_index <= len(UsefulVars().state_baseline_files):
+                    state_baseline_data = UsefulVars().state_baseline_files[
+                        file_index - 1]
+                    break
+                else:
+                    print("Invalid input. Please enter a valid number.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+    else:
+        state_baseline_data = UsefulVars().state_baseline_files[0]
+
     # Load and clean state baselines data from CSV
     # Drop AK and HI and rename columns
-    state_baselines = pd.read_csv(UsefulVars().state_baseline_data).set_index('State')
+    state_baselines = pd.read_csv(state_baseline_data).set_index('State')
 
     # Load and clean EMM to State mapping file
-    emm_state_map = pd.read_csv(UsefulVars().emm_state_map, delimiter="\t").dropna(
+    emm_state_map = pd.read_csv(UsefulVars().emm_state_map,
+                                delimiter="\t").dropna(
         axis=0).set_index('EMM').drop(
         ['AK', 'HI'], axis=1).sort_index()
 
@@ -893,8 +939,10 @@ def updater_state(conv_emm, aeo_min):
         'Base year data from EIA State Electricity Data website, '
         'projected to 2050 using sales-weighted average trends in '
         'CO2 intensity for EMM regions that comprise a given state.')
-    conv_emm['End-use electricity price']['data']['residential'] = state_price_res_proj
-    conv_emm['End-use electricity price']['data']['commercial'] = state_price_com_proj
+    conv_emm['End-use electricity price']['data']['residential'] = \
+        state_price_res_proj
+    conv_emm['End-use electricity price']['data']['commercial'] = \
+        state_price_com_proj
     conv_emm['End-use electricity price']['source'] = (
         'Base year data from EIA State Electricity Data website, '
         'projected to 2050 using sales-weighted average trends in '
@@ -961,7 +1009,8 @@ def main():
     elif opts.f.startswith('site_source'):
         geography = 'national'
     else:
-        print('The file name provided does not correspond to an expected conversion file.')
+        print('The file name provided does not correspond to an expected '
+              'conversion file.')
 
     # If not provided as a command-line argument, ask the user to
     # specify the desired report year, informing the user about
@@ -1013,7 +1062,8 @@ def main():
         method_text = conv['site-source calculation method']
 
         print('\nATTENTION: SITE-SOURCE CONVERSIONS FOR ELECTRICITY '
-              'WILL BE CALCULATED USING THE ' + method_text.upper() + ' METHOD.')
+              'WILL BE CALCULATED USING THE ' + method_text.upper() +
+              ' METHOD.')
 
         if opts.f.endswith('web.json'):
             make_web_version = True
@@ -1030,7 +1080,8 @@ def main():
         conv.move_to_end('updated_to_aeo_year', last=False)
 
         # Update site-source and CO2 emissions conversions
-        conv = updater(conv, api_key, year, scenario, restrict_update, make_web_version)
+        conv = updater(conv, api_key, year, scenario, restrict_update,
+                       make_web_version)
 
         # Exclude years that are not covered in AEO metadata year range
         fuels = ['CO2 price', 'electricity', 'natural gas', 'propane',
