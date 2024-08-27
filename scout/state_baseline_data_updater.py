@@ -99,7 +99,7 @@ def generate_query_string(key, freq):
         },
         'retail-sales': {
             'url': f'{base_url}/{key}/data/',
-            'frequency': freq[1],
+            'frequency': freq[0],
             'data': [f'data[0]={DATA_SERIES_DICT[key][0]}'],
             'sort': '&sort[0][column]=period&start=2015&sort[0][direction]='
                     'desc&offset=0&length=5000'
@@ -182,10 +182,10 @@ def clean_retail_sales_data(data):
     df.columns = ['period', 'stateid', 'stateDescription', 'commercial',
                   'residential']
     df['period'] = pd.to_datetime(df['period'])
-    # resample from monthly to annual data (filling in missing monthly
-    # values with the last value) using the annual average
-    df = df.set_index('period').sort_index(ascending=True).ffill().groupby(
-        ['stateid', 'stateDescription']).resample('YE').mean().reset_index()
+    # # resample from monthly to annual data (filling in missing monthly
+    # # values with the last value) using the annual average
+    # df = df.set_index('period').sort_index(ascending=True).ffill().groupby(
+    #     ['stateid', 'stateDescription']).resample('YE').mean().reset_index()
     df['period'] = df['period'].dt.year.astype(str)
     # convert prices to $/kWh
     df[['residential', 'commercial']] = df[['residential', 'commercial']] / 100

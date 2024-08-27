@@ -1312,6 +1312,19 @@ class UsefulVars(object):
         # Initialize handy TSV variables if selected region setting supports
         # TSV (EMM, state)
         if opts.alt_regions in ["EMM", "State"]:
+            # Set a dict that maps EMM region names to region
+            # numbers as defined by EIA
+            # (https://www.eia.gov/outlooks/aeo/pdf/f2.pdf); this mapping is
+            # required to support both savings shape calculations and
+            # TSV metrics calculations
+            emm_region_names = [
+                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+            self.emm_name_num_map = {
+                name: (ind + 1) for ind, name in enumerate(
+                    emm_region_names)}
             if opts.alt_regions == "EMM":
                 self.tsv_climate_regions = [
                     "2A", "2B", "3A", "3B", "3C", "4A", "4B",
@@ -1479,17 +1492,6 @@ class UsefulVars(object):
                     dtype="<i4", encoding="latin1", skip_header=1)
                 # Find unique set of projection years in system peak/take data
                 sysload_dat_yrs = numpy.unique(sysload_dat["Year"])
-                # Set a dict that maps EMM region names to region
-                # numbers as defined by EIA
-                # (https://www.eia.gov/outlooks/aeo/pdf/f2.pdf)
-                emm_region_names = [
-                    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-                self.emm_name_num_map = {
-                    name: (ind + 1) for ind, name in enumerate(
-                        emm_region_names)}
                 # Initialize a set of dicts that will store representative
                 # system load data for the summer, winter, and intermediate
                 # seasons by projection year
@@ -1548,7 +1550,6 @@ class UsefulVars(object):
                 }
             else:
                 self.tsv_metrics_data = None
-                self.emm_name_num_map = None
             self.tsv_hourly_price, self.tsv_hourly_emissions = ({
                 reg: None for reg in valid_regions
             } for n in range(2))
