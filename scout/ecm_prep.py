@@ -37,7 +37,7 @@ def configure_ecm_prep_logger():
 
     # Change to FileHandler from StreamHandler
     logger.handlers.clear()  # Remove default StreamHandler
-    filehandler = logging.FileHandler(err_f_name, mode='a')
+    filehandler = logging.FileHandler(err_f_name, mode='a', delay=True)
     # Set new handler to match root formatter
     root_format = logging.getLogger().handlers[0].formatter
     filehandler.setFormatter(root_format)
@@ -173,16 +173,14 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_EMM_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
-            self.tsv_load_data = fp.TSV_DATA / "tsv_load.gz"
-            # self.tsv_load_data = fp.TSV_DATA / "tsv_load_emm.gz"  # UNCOMMENT
+            self.tsv_load_data = fp.TSV_DATA / "tsv_load_EMM.gz"
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_State_ColSums.txt"
-            self.tsv_load_data = None
-            # self.tsv_load_data = fp.TSV_DATA / "tsv_load_state.gz"  # UNCOMMENT
+            self.tsv_load_data = fp.TSV_DATA / "tsv_load_State.gz"
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -387,7 +385,7 @@ class UsefulVars(object):
             regional breakouts in measure performance, cost, or mkt. scaling.
         months (str): Month sequence for accessing time-sensitive data.
         tsv_feature_types (list): Possible types of TSV features.
-        tsv_climate_regions (list): Possible ASHRAE/IECC climate regions for
+        tsv_climate_regions (list): Possible ASHRAE climate regions for
             time-sensitive analysis and metrics.
         tsv_nerc_regions (list): Possible NERC regions for time-sensitive data.
         tsv_metrics_data (str): Includes information on max/min net system load
@@ -400,6 +398,8 @@ class UsefulVars(object):
         emm_name_num_map (dict): Maps EMM region names to EIA region numbers.
         cz_emm_map (dict): Maps climate zones to EMM region net system load
             shape data.
+        state_emm_map (dict): Maps states to the EMM region with the largest
+            geographical overlap.
         health_scn_names (list): List of public health data scenario names.
         health_scn_data (numpy.ndarray): Public health cost data.
         env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
@@ -1309,70 +1309,99 @@ class UsefulVars(object):
         # Set valid types of TSV feature types
         self.tsv_feature_types = ["shed", "shift", "shape"]
 
-        # Use EMM region setting as a proxy for desired time-sensitive
-        # valuation (TSV) and associated need to initialize handy TSV variables
-        if opts.alt_regions == "EMM":
-            self.tsv_climate_regions = [
-                "2A", "2B", "3A", "3B", "3C", "4A", "4B",
-                "4C", "5A", "5B", "5C", "6A", "6B", "7"]
-            self.tsv_nerc_regions = [
-                "FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
-            # Set a dict that maps each ASH climate zone to an EMM region
-            # in the climate zone with the most representative set of
-            # min/max system load hour and peak/take system load hour
-            # windows to use for that climate zone. For most climates, two
-            # of these representative regions is assumed to account for
-            # varying types of renewable mixes (e.g., high solar vs. low
-            # solar, which yield differences in net load shapes and net
-            # peak/take periods). In these cases, the terminal value is
-            # formatted as a list with the EMM region number with the
-            # representative load hour data stored in the first element,
-            # and all other EMM regions in the climate that are covered
-            # by that representative load hour data stored in the second
-            # element. NOTE: the selection of representative EMM regions
-            # for each ASH region is based on the plots found here:
-            # https://drive.google.com/drive/folders/
-            # 1JSoQb78LgooUD_uXqBOzAC7Nl7eLJZnc?usp=sharing
-            self.cz_emm_map = {
-                "2A": {
-                    "set 1": [2, (1, 2, 17)],
-                    "set 2": [6, (6, 15)]},
-                "2B": {
-                    "set 1": [20, (1, 20)]},
-                "3A": {
-                    "set 1": [15, (6, 13, 14, 15, 16)],
-                    "set 2": [1, (1, 17)]},
-                "3B": {
-                    "set 1": [22, (21, 22)],
-                    "set 2": [25, (1, 17, 20, 25)]},
-                "3C": {
-                    "set 1": [21, (21, 22)]},
-                "4A": {
-                    "set 1": [10, (4, 8, 10, 11, 17, 18)],
-                    "set 2": [16, (6, 13, 14, 15, 16)]},
-                "4B": {
-                    "set 1": [20, (1, 17, 20, 24)],
-                    "set 2": [21, (21, 22)]},
-                "4C": {
-                    "set 1": [23, (23,)],
-                    "set 2": [21, (21,)]},
-                "5A": {
-                    "set 1": [11, (3, 4, 7, 9, 10, 11, 18, 19, 24)],
-                    "set 2": [5, (5, 12, 14)]},
-                "5B": {
-                    "set 1": [24, (20, 23, 24, 25)],
-                    "set 2": [21, (21,)]},
-                "5C": {
-                    "set 1": [23, (23,)]},
-                "6A": {
-                    "set 1": [3, (3, 5, 19)],
-                    "set 2": [7, (7, 9, 10, 24)]},
-                "6B": {
-                    "set 1": [23, (3, 19, 23, 24, 25)],
-                    "set 2": [22, (21, 22)]},
-                "7": {
-                    "set 1": [3, (3, 19)],
-                    "set 2": [24, (7, 24, 25)]}}
+        # Initialize handy TSV variables if selected region setting supports
+        # TSV (EMM, state)
+        if opts.alt_regions in ["EMM", "State"]:
+            if opts.alt_regions == "EMM":
+                self.tsv_climate_regions = [
+                    "2A", "2B", "3A", "3B", "3C", "4A", "4B",
+                    "4C", "5A", "5B", "5C", "6A", "6B", "7"]
+                self.tsv_nerc_regions = [
+                    "FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
+                # Set a dict that maps each ASH climate zone to an EMM region
+                # in the climate zone with the most representative set of
+                # min/max system load hour and peak/take system load hour
+                # windows to use for that climate zone. For most climates, two
+                # of these representative regions is assumed to account for
+                # varying types of renewable mixes (e.g., high solar vs. low
+                # solar, which yield differences in net load shapes and net
+                # peak/take periods). In these cases, the terminal value is
+                # formatted as a list with the EMM region number with the
+                # representative load hour data stored in the first element,
+                # and all other EMM regions in the climate that are covered
+                # by that representative load hour data stored in the second
+                # element. NOTE: the selection of representative EMM regions
+                # for each ASH region is based on the plots found here:
+                # https://drive.google.com/drive/folders/
+                # 1JSoQb78LgooUD_uXqBOzAC7Nl7eLJZnc?usp=sharing
+                self.cz_emm_map = {
+                    "2A": {
+                        "set 1": [2, (1, 2, 17)],
+                        "set 2": [6, (6, 15)]},
+                    "2B": {
+                        "set 1": [20, (1, 20)]},
+                    "3A": {
+                        "set 1": [15, (6, 13, 14, 15, 16)],
+                        "set 2": [1, (1, 17)]},
+                    "3B": {
+                        "set 1": [22, (21, 22)],
+                        "set 2": [25, (1, 17, 20, 25)]},
+                    "3C": {
+                        "set 1": [21, (21, 22)]},
+                    "4A": {
+                        "set 1": [10, (4, 8, 10, 11, 17, 18)],
+                        "set 2": [16, (6, 13, 14, 15, 16)]},
+                    "4B": {
+                        "set 1": [20, (1, 17, 20, 24)],
+                        "set 2": [21, (21, 22)]},
+                    "4C": {
+                        "set 1": [23, (23,)],
+                        "set 2": [21, (21,)]},
+                    "5A": {
+                        "set 1": [11, (3, 4, 7, 9, 10, 11, 18, 19, 24)],
+                        "set 2": [5, (5, 12, 14)]},
+                    "5B": {
+                        "set 1": [24, (20, 23, 24, 25)],
+                        "set 2": [21, (21,)]},
+                    "5C": {
+                        "set 1": [23, (23,)]},
+                    "6A": {
+                        "set 1": [3, (3, 5, 19)],
+                        "set 2": [7, (7, 9, 10, 24)]},
+                    "6B": {
+                        "set 1": [23, (3, 19, 23, 24, 25)],
+                        "set 2": [22, (21, 22)]},
+                    "7": {
+                        "set 1": [3, (3, 19)],
+                        "set 2": [24, (7, 24, 25)]}}
+                self.state_emm_map = None
+            elif opts.alt_regions == "State":
+                # Set a dict that maps each state to the EMM region with the
+                # largest geographical overlap with that state; this is
+                # necessary to calculate TSV metrics (summarized by EMM region)
+                # when the user desires state-resolved outputs. See Scout
+                # geography mapping file https://docs.google.com/spreadsheets/
+                # d/13n4abgODUrZ5w4CY1xrvg7APvNJtNVty8sPJn2vM4yU/
+                # edit?gid=1157237940#gid=1157237940, sheets
+                # "EMM_State_ColSums" and "State_EMM-EMF37" for basis.
+                self.state_emm_map = {
+                    "AL": "SRSE", "AK": "TRE", "AZ": "SRSG", "AR": "MISS",
+                    "CA": "CASO", "CO": "RMRG", "CT": "ISNE", "DE": "PJME",
+                    "DC": "PJMD", "FL": "FRCC", "GA": "SRSE", "HI": "TRE",
+                    "ID": "BASN", "IL": "PJMC", "IN": "MISC", "IA": "MISW",
+                    "KS": "SPPC", "KY": "SRCE", "LA": "MISS", "ME": "ISNE",
+                    "MD": "PJME", "MA": "ISNE", "MI": "MISE", "MN": "MISW",
+                    "MS": "MISS", "MO": "MISC", "MT": "NWPP", "NE": "SPPN",
+                    "NV": "BASN", "NH": "ISNE", "NJ": "PJME", "NM": "SRSG",
+                    "NY": "NYCW", "NC": "SRCA", "ND": "SPPN", "OH": "PJMW",
+                    "OK": "SPPS", "OR": "NWPP", "PA": "PJME", "RI": "ISNE",
+                    "SC": "SRCA", "SD": "SPPN", "TN": "SRCE", "TX": "TRE",
+                    "UT": "BASN", "VT": "ISNE", "VA": "PJMD", "WA": "NWPP",
+                    "WV": "PJMW", "WI": "MISW", "WY": "BASN"
+                }
+                self.tsv_climate_regions, self.tsv_nerc_regions, \
+                    self.cz_emm_map = (None for n in range(3))
+
             if opts.tsv_metrics is not False:
                 # Develop weekend day flags
                 wknd_day_flags = [0 for n in range(365)]
@@ -1453,16 +1482,19 @@ class UsefulVars(object):
                 # Set a dict that maps EMM region names to region
                 # numbers as defined by EIA
                 # (https://www.eia.gov/outlooks/aeo/pdf/f2.pdf)
+                emm_region_names = [
+                    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
+                    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
+                    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
+                    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
                 self.emm_name_num_map = {
-                    name: (ind + 1) for ind, name in enumerate(valid_regions)}
+                    name: (ind + 1) for ind, name in enumerate(
+                        emm_region_names)}
                 # Initialize a set of dicts that will store representative
                 # system load data for the summer, winter, and intermediate
                 # seasons by projection year
                 sysld_sum, sysld_wint, sysld_int = ({
-                    str(yr): {key: {key_sub: None for
-                              key_sub in self.cz_emm_map[key].keys()} if
-                              type(self.cz_emm_map[key]) is dict else None
-                              for key in self.cz_emm_map.keys()} for yr in
+                    str(yr): {reg: None for reg in valid_regions} for yr in
                     sysload_dat_yrs} for n in range(3))
                 # Fill in the dicts with seasonal system load data by year
                 # Loop through all projection years available in the system
@@ -1473,28 +1505,11 @@ class UsefulVars(object):
                     sysload_dat_yr = sysload_dat[
                         numpy.where((sysload_dat["Year"] == sys_yr))]
                     # Loop through all climate zones
-                    for cz in self.cz_emm_map.keys():
-                        # Handle climate zones with one representative system
-                        # load shape differently than those with more than one
-                        # such shape
-                        if type(self.cz_emm_map[cz]) == int:
-                            # Fill in seasonal system load data
-                            sysld_sum[sys_yr_str][cz], \
-                                sysld_wint[sys_yr_str][cz], \
-                                sysld_int[sys_yr_str][cz] = self.set_peak_take(
-                                    sysload_dat_yr, self.cz_emm_map[cz])
-                        else:
-                            # Loop through the multiple EMM regions with
-                            # representative system load data for the current
-                            # climate zone
-                            for set_v in self.cz_emm_map[cz].keys():
-                                # Fill in seasonal system load data
-                                sysld_sum[sys_yr_str][cz][set_v], \
-                                    sysld_wint[sys_yr_str][cz][set_v], \
-                                    sysld_int[sys_yr_str][cz][set_v] = \
-                                    self.set_peak_take(
-                                        sysload_dat_yr,
-                                        self.cz_emm_map[cz][set_v][0])
+                    for reg in emm_region_names:
+                        sysld_sum[sys_yr_str][reg], \
+                            sysld_wint[sys_yr_str][reg], \
+                            sysld_int[sys_yr_str][reg] = self.set_peak_take(
+                                sysload_dat_yr, self.emm_name_num_map[reg])
                 self.tsv_metrics_data = {
                     "season days": {
                         "all": {
@@ -1520,45 +1535,20 @@ class UsefulVars(object):
                         "winter": sysld_wint,
                         "intermediate": sysld_int
                     },
+                    # Note: these currently correspond to the days in which the
+                    # overall Scout buildings sector winter and summer
+                    # baseline load peaks, given the tsv_load shape data
+                    # (which are based on EULP)
                     "peak days": {
-                        "summer": {
-                            "2A": 199,
-                            "2B": 186,
-                            "3A": 192,
-                            "3B": 171,
-                            "3C": 220,
-                            "4A": 192,
-                            "4B": 206,
-                            "4C": 241,
-                            "5A": 199,
-                            "5B": 178,
-                            "5C": 206,
-                            "6A": 186,
-                            "6B": 220,
-                            "7": 206},
-                        "winter": {
-                            "2A": 24,
-                            "2B": 17,
-                            "3A": 31,
-                            "3B": 10,
-                            "3C": 10,
-                            "4A": 31,
-                            "4B": 339,
-                            "4C": 38,
-                            "5A": 26,
-                            "5B": 10,
-                            "5C": 12,
-                            "6A": 10,
-                            "6B": 17,
-                            "7": 31}
+                        "summer": 183,
+                        "winter": 1
                     },
                     "hourly index": list(enumerate(
                         itertools.product(range(365), range(24))))
                 }
             else:
                 self.tsv_metrics_data = None
-                self.emm_name_num_map = {
-                    name: (ind + 1) for ind, name in enumerate(valid_regions)}
+                self.emm_name_num_map = None
             self.tsv_hourly_price, self.tsv_hourly_emissions = ({
                 reg: None for reg in valid_regions
             } for n in range(2))
@@ -2123,13 +2113,17 @@ class Measure(object):
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
+            # Flag for custom annual savings shape data
+            has_ann_shp = (
+                "shape" in self.tsv_features.keys() and
+                "custom_annual_savings" in self.tsv_features["shape"].keys())
             # If TSV features are present, ensure that EMM regions are selected
             # and that the measure only applies to electricity (and no fuel
             # switching is selected)
-            if self.usr_opts["alt_regions"] != "EMM":
+            if has_ann_shp and self.usr_opts["alt_regions"] != "EMM":
                 raise ValueError(
-                    "Measure '" + self.name + "' has time sensitive "
-                    "savings features (see 'tsv_features' attribute) but "
+                    "Measure '" + self.name + "' has custom savings shape "
+                    "features (see 'tsv_features' attribute) but "
                     "regions are not set to EMM; try running 'ecm_prep.py' "
                     "again with the --alt_regions option included and set "
                     "to EMM regions.")
@@ -2143,9 +2137,7 @@ class Measure(object):
                     "restrict the measure's fuel type to electricity.")
             # If the ECM is assigned a custom savings shape, load the
             # associated custom savings shape data from a CSV file
-            if "shape" in self.tsv_features.keys() and \
-                "custom_annual_savings" in \
-                    self.tsv_features["shape"].keys():
+            if has_ann_shp:
                 # Retrieve custom savings shapes for all applicable
                 # end use, building type, and climate zone combinations
                 # and store within a dict for use in 'apply_tsv' function
@@ -2365,27 +2357,6 @@ class Measure(object):
                 print("Data import complete")
         except AttributeError:
             self.tsv_features = None
-        # Check to ensure that the proper EMM regions are defined in the
-        # measure 'climate_zone' attribute if time sensitive ECM features
-        # and/or output metrics are desired
-        valid_tsv_regions = [
-            'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-            'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-            'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-            'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-        if ((self.tsv_features is not None or
-             self.usr_opts["tsv_metrics"] is not False) and ((
-                type(self.climate_zone) == list and any([
-                    x not in valid_tsv_regions for x in self.climate_zone])) or
-            (type(self.climate_zone) != list and self.climate_zone != "all"
-                and (self.climate_zone not in valid_tsv_regions)))):
-            raise ValueError(
-                "Invalid 'climate_zone' attribute value(s) for ECM '" +
-                self.name + "' given desired time sensitive valuation "
-                "operations/outputs. Currently, only EMM regions are "
-                "supported for time sensitive valuation. This issue can "
-                "be addressed by ensuring all ECM 'climate_zone' values "
-                "reflect one of the EMM regions.")
         self.markets = {}
 
         for adopt_scheme in handyvars.adopt_schemes:
@@ -6641,20 +6612,27 @@ class Measure(object):
                 # Key in the appropriate load shape data
                 load_fact = tsv_data["load"][bldg_sect][eu]
 
-            # Find weights needed to map ASHRAE/IECC climate zones to EMM
+            # Find weights needed to map ASHRAE climate zones to EMM
             # region, and EnergyPlus building type to Scout building type
 
-            # Find ASHRAE/IECC -> EMM weighting factors for current EMM region
-            ash_czone_wts = [[x["ASHRAE"], x[mskeys[1]]] for x in
-                             self.handyvars.ash_emm_map if (
-                                numpy.isfinite(x[mskeys[1]]) and
-                                x[mskeys[1]] != 0)]
-            # Check to ensure that region weighting factors sum to 1
-            if round(sum([x[1] for x in ash_czone_wts]), 2) != 1:
-                raise ValueError(
-                    "ASHRAE climate -> EMM region weights for region " +
-                    mskeys[1] + " and building type " + mskeys[2] +
-                    " do not sum to 1")
+            # Find ASHRAE -> EMM weighting factors for current EMM region
+            # that will be used to map custom hourly savings shape resolved by
+            # ASHRAE zones to EMM-resolved metrics; if regions are not set to
+            # EMM, this weighting is not needed as such savings shapes are not
+            # supported for non-EMM regions
+            if opts.alt_regions == "EMM":
+                ash_czone_wts = [[x["ASHRAE"], x[mskeys[1]]] for x in
+                                 self.handyvars.ash_emm_map if (
+                                    numpy.isfinite(x[mskeys[1]]) and
+                                    x[mskeys[1]] != 0)]
+                # Check to ensure that region weighting factors sum to 1
+                if round(sum([x[1] for x in ash_czone_wts]), 2) != 1:
+                    raise ValueError(
+                        "ASHRAE climate -> EMM region weights for region " +
+                        mskeys[1] + " and building type " + mskeys[2] +
+                        " do not sum to 1")
+            else:
+                ash_czone_wts = ""
 
             # Find EnergyPlus -> Scout building type weighting factors for
             # current building type. Note that residential buildings map
@@ -6950,17 +6928,19 @@ class Measure(object):
                         "represented building types"] or load_fact[x][
                         "represented building types"] == "all")][0]
 
-            # Calculations for TSV metric outputs and/or any measures with
-            # time sensitive valuation features are based on data with ASHRAE
-            # climate zone breakouts, which must be mapped into the EMM
-            # region breakouts of the Scout microsegments. In these cases,
-            # find list of applicable ASHRAE regions and weights for mapping
-            # into the EMM region of the current microsegment, then implement
-            # the mapping via for loop below. In cases where TSV metrics
-            # or measure features are not present, set the list to a single
-            # region of "None" with weight of 1 (effectively avoiding mapping)
-            if opts.tsv_metrics is not False or len(
-                    tsv_adjustments.keys()) != 0:
+            # Calculations for any measures with custom savings shape features
+            # that are mapped to ASHRAE climate zone breakouts, which must in
+            # turn be mapped into the EMM region breakouts of the Scout
+            # microsegments. In these cases, find list of applicable ASHRAE
+            # regions and weights for mapping into the EMM region of the
+            # current microsegment, then implement the mapping via for loop
+            # below. In cases where TSV metrics or measure features are not
+            # present, set the list to a single region of "None" with weight of
+            # 1 (effectively avoiding mapping)
+            if ash_cz_wts and all([
+                    len(x.keys()) != 0 and "shape" in x.keys()
+                    and "custom_annual_savings" in x["shape"].keys()
+                    for x in [tsv_adjustments]]):
                 # Ensure that all applicable ASHRAE climate zones are
                 # represented in the keys for time sensitive metrics data; if
                 # a zone is not represented, remove it from the weighting and
@@ -6976,8 +6956,8 @@ class Measure(object):
             else:
                 ash_cz_wts = [[None, 1]]
 
-            # Loop through all ASHRAE/IECC climate zones (which load profiles
-            # are broken out by) that map to the current EMM region
+            # Loop through all ASHRAE climate zones (which load savings
+            # profiles are broken out by) that map to the current EMM region
             for cz in ash_cz_wts:
                 # Set the climate zone key to use in keying in savings
                 # shape information
@@ -6985,24 +6965,18 @@ class Measure(object):
                 # Flag for cases where multiple sets of system load shape
                 # information are germane to the current climate zone
                 if cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == int:
-                    mult_sysshp = False
-                    mult_sysshp_key_metrics, mult_sysshp_key_save = (
-                        "set 1" for n in range(2))
+                    mult_sysshp_key_save = "set 1"
                 elif cz[0] and type(self.handyvars.cz_emm_map[cz[0]]) == dict:
-                    mult_sysshp = True
                     # Given multiple possible system load shape data
-                    # sets, find the key for the set that is representative
-                    # of the current EMM region; initialize separate keys to
-                    # use in retrieving TSV metrics data vs. savings shape
-                    # data (the approaches to keying in these different types
-                    # of data differ below)
-                    mult_sysshp_key_metrics, mult_sysshp_key_save = ([
+                    # sets for us in calculating representative savings shapes,
+                    # find the key for the set that is representative
+                    # of the current EMM region
+                    mult_sysshp_key_save = [
                         y[0] for y in self.handyvars.cz_emm_map[cz[0]].items()
                         if self.handyvars.emm_name_num_map[mskeys[1]]
-                        in y[1][1]][0] for n in range(2))
+                        in y[1][1]][0]
                 elif not cz[0]:  # Case with no TSV mapping from ASH -> EMM
-                    mult_sysshp, mult_sysshp_key_metrics, \
-                        mult_sysshp_key_save = (None for n in range(3))
+                    mult_sysshp_key_save = None
                 else:
                     raise ValueError(
                         "Unable to determine representative utility system "
@@ -7039,8 +7013,21 @@ class Measure(object):
                         "(" + str(len(base_load_hourly)) + " elements) for " +
                         "end use " + mskeys[4] + ", EPlus building type " +
                         bldg + ", and region " + mskeys[1] + ". Check "
-                        "file ./supporting_data/tsv_data/tsv_load.gz"
+                        "file ./supporting_data/tsv_data/tsv_load_[region].gz"
                         " to ensure that 8760 data values are available for "
+                        "this microsegment")
+                # Ensure that retrieved baseline load data sum to 1, unless
+                # the data are all zeros (occurs for mobile homes in DC in
+                # 2024 end use load data)
+                elif round(sum(base_load_hourly), 2) != 1 and any([
+                        x != 0 for x in base_load_hourly]):
+                    raise ValueError(
+                        "Baseline load data do not sum to 1 " +
+                        "(" + str(round(sum(base_load_hourly), 2)) + ") for " +
+                        "end use " + mskeys[4] + ", EPlus building type " +
+                        bldg + ", and region " + mskeys[1] + ". Check "
+                        "file ./supporting_data/tsv_data/tsv_load_[region].gz"
+                        " to ensure that 8760 values are correct for "
                         "this microsegment")
 
                 # Initialize efficient load shape as equal to base load
@@ -7378,6 +7365,12 @@ class Measure(object):
                 # Further adjust baseline and efficient load shapes
                 # to account for time sensitive valuation (TSV) output metrics
                 if opts.tsv_metrics is not False:
+                    # If necessary, map state regions to the EMM resolution of
+                    # TSV output metrics data
+                    if opts.alt_regions == "State":
+                        tsvmets_reg = self.handyvars.state_emm_map[mskeys[1]]
+                    else:
+                        tsvmets_reg = mskeys[1]
 
                     # Set legible name for each TSV metrics input
 
@@ -7428,7 +7421,7 @@ class Measure(object):
                     else:
                         tsv_metrics_days = [
                             self.handyvars.tsv_metrics_data[
-                                "peak days"][season][cz[0]]]
+                                "peak days"][season]]
 
                     # Set applicable daily hour range
                     # NOTE: for now, use peak/take periods from 2050 only
@@ -7440,64 +7433,34 @@ class Measure(object):
                             tsv_metrics_hrs = list(range(1, 25))
                         # Peak hours only
                         elif hours == "peak":
-                            # Handle one set of net load shape data differently
-                            # than multiple sets
-                            if mult_sysshp is False:
-                                tsv_metrics_hrs = \
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]]["peak range"]
-                            else:
-                                tsv_metrics_hrs = \
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]][mult_sysshp_key_metrics][
-                                        "peak range"]
+                            tsv_metrics_hrs = \
+                                self.handyvars.tsv_metrics_data[
+                                    "system load hours"][season]["2050"][
+                                    tsvmets_reg]["peak range"]
                         # Take hours only
                         else:
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_sysshp is False:
-                                tsv_metrics_hrs = \
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]]["take range"]
-                            else:
-                                tsv_metrics_hrs = \
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]][mult_sysshp_key_metrics][
-                                        "take range"]
+                            tsv_metrics_hrs = \
+                                self.handyvars.tsv_metrics_data[
+                                    "system load hours"][season]["2050"][
+                                    tsvmets_reg]["take range"]
                     # Maximum calc type (pertains only to a max/min hour)
                     else:
                         # All hours (assume max peak hour) or max peak hour
                         if hours == "all" or hours == "peak":
                             # Handle one set of net load shape data differently
                             # than multiple sets
-                            if mult_sysshp is False:
-                                tsv_metrics_hrs = [
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]]["max"]]
-                            else:
-                                tsv_metrics_hrs = [
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]][mult_sysshp_key_metrics]["max"]]
+                            tsv_metrics_hrs = [
+                                self.handyvars.tsv_metrics_data[
+                                    "system load hours"][season]["2050"][
+                                    tsvmets_reg]["max"]]
                         # Min take hour
                         else:
-                            # Handle one set of net load shape data differently
-                            # than multiple sets
-                            if mult_sysshp is False:
-                                tsv_metrics_hrs = [
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]]["min"]]
-                            else:
-                                tsv_metrics_hrs = [
-                                    self.handyvars.tsv_metrics_data[
-                                        "system load hours"][season]["2050"][
-                                        cz[0]][mult_sysshp_key_metrics]["min"]]
+                            tsv_metrics_hrs = [
+                                self.handyvars.tsv_metrics_data[
+                                    "system load hours"][season]["2050"][
+                                    tsvmets_reg]["min"]]
 
                     # Determine number of days to average over; if peak day
                     # only, set this number to one
@@ -12983,6 +12946,10 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             'One or more ECMs require EnergyPlus data for ECM performance; '
             'EnergyPlus-based ECM performance data are currently unsupported.')
 
+    # Initialize list with indices of measures to remove from further
+    # preparation due to Exceptions
+    remove_inds = []
+
     # Check that all Measure objects have valid market inputs before proceeding
     for m_ind, m in enumerate(meas_update_objs):
         # Try/except allows continuation past malformed ECMs
@@ -12992,8 +12959,8 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             m.check_meas_inputs()
         except Exception:
             prep_error(m.name, handyvars, handyfiles)
-            # Remove the measure object from the preparation list
-            del meas_update_objs[m_ind]
+            # Add measure index to removal list
+            remove_inds.append(m_ind)
 
     # Finalize 'markets' attribute for all Measure objects
     for m_ind, m in enumerate(meas_update_objs):
@@ -13004,8 +12971,13 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                 ctrb_ms_pkg_prep, tsv_data_nonfs)
         except Exception:
             prep_error(m.name, handyvars, handyfiles)
-            # Remove the measure object from the preparation list
-            del meas_update_objs[m_ind]
+            # Add measure index to removal list
+            remove_inds.append(m_ind)
+
+    # Remove measure objects with exceptions from further preparation
+    meas_update_objs = [
+        m for m_ind, m in enumerate(meas_update_objs) if
+        m_ind not in remove_inds]
 
     return meas_update_objs
 
@@ -14032,7 +14004,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # commercial building vintages to Scout building vintages)
         cbecs_sf_byvint = Utils.load_json(handyfiles.cbecs_sf_byvint)[
             "commercial square footage by vintage"]
-        if (opts.alt_regions == 'EMM' and ((
+        if (opts.alt_regions in ['EMM', 'State'] and ((
                 opts.tsv_metrics is not False or any([
                 ("tsv_features" in m.keys() and m["tsv_features"] is not None)
                 for m in meas_toprep_indiv])) or
