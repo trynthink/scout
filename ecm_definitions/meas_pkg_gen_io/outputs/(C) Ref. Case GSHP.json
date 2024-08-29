@@ -18,8 +18,7 @@
   "technology": [
     "comm_GSHP-heat",
     "comm_GSHP-cool",
-    "CAV_Vent",
-    "VAV_Vent"
+    "all ventilation"
   ],
   "htcl_tech_link": null,
   "tech_switch_to": null,
@@ -67,6 +66,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-06 12:12:30"
+    "timestamp": "2024-08-28 09:21:06"
   }
 }
