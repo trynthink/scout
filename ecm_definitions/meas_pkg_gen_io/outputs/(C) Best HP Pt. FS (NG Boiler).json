@@ -21,6 +21,7 @@
   "technology": [
     "gas_boiler",
     "gas_chiller",
+    "rooftop_AC",
     "scroll_chiller",
     "reciprocating_chiller",
     "centrifugal_chiller",
@@ -95,21 +96,22 @@
   "market_scaling_fractions": {
     "gas_boiler": 1.0,
     "gas_chiller": 1.0,
-    "scroll_chiller": 1.0,
-    "reciprocating_chiller": 1.0,
-    "centrifugal_chiller": 1.0,
-    "screw_chiller": 1.0,
+    "rooftop_AC": 0.16,
+    "scroll_chiller": 0.61,
+    "reciprocating_chiller": 0.61,
+    "centrifugal_chiller": 0.61,
+    "screw_chiller": 0.61,
     "CAV_Vent": 0.26,
     "VAV_Vent": 0.54
   },
   "market_scaling_fractions_source": {
-    "notes": "Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
+    "notes": "Cooling equipment multiples determined by square feet in which given cooling system (e.g., RTAC, chiller) is pared with given heating system for the measure. Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
     "source_data": null
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-06 12:12:30"
+    "timestamp": "2024-08-28 09:21:06"
   }
 }

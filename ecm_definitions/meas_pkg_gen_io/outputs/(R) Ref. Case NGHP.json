@@ -1,6 +1,6 @@
 {
   "name": "(R) Ref. Case NGHP",
-  "_description": "Ref. case air source heat pump heating and cooling",
+  "_description": "Ref. case gas-driven heat pump heating and cooling",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -56,6 +56,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-06 12:12:30"
+    "timestamp": "2024-08-28 09:21:06"
   }
 }

@@ -19,6 +19,10 @@
     "elec_boiler",
     "electric_res-heat",
     "rooftop_AC",
+    "scroll_chiller",
+    "reciprocating_chiller",
+    "centrifugal_chiller",
+    "screw_chiller",
     "CAV_Vent",
     "VAV_Vent"
   ],
@@ -57,21 +61,22 @@
   "market_scaling_fractions": {
     "elec_boiler": 1.0,
     "electric_res-heat": 1.0,
-    "rooftop_AC": 0.34,
+    "rooftop_AC": 0.3,
+    "scroll_chiller": 0.24,
+    "reciprocating_chiller": 0.24,
+    "centrifugal_chiller": 0.24,
+    "screw_chiller": 0.24,
     "CAV_Vent": 0.25,
     "VAV_Vent": 0.3
   },
   "market_scaling_fractions_source": {
-    "notes": [
-      "Includes all resistance-based heating in commercial buildings",
-      "cooling multiple of 34% was determined by dividing square feet in which cooling equipment is packaged AND heating equipment is electric or none (120416960 sf) by square feet with same cooling constraint and heating across all fuel types (357885079 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
-    ],
+    "notes": "Includes all resistance-based heating in commercial buildings. Cooling equipment multiples determined by square feet in which given cooling system (e.g., RTAC, chiller) is pared with given heating system for the measure. Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
     "source_data": null
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-06 12:12:30"
+    "timestamp": "2024-08-28 09:21:06"
   }
 }
