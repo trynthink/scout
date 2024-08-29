@@ -761,7 +761,7 @@ class UsefulVars(object):
 
         # Technology anchor – list order assigns priority for which technology
         # in a measure's definition serves as the anchor
-        self.link_htcl_tover_anchor_tech_opts = {
+        self.htcl_anchor_tech_opts = {
             "residential": {
                 "heating": [
                     "resistance heat", "furnace (NG)", "boiler (NG)",
@@ -2099,6 +2099,12 @@ class Measure(object):
         handyvars (object): Global variables useful across class methods.
         retro_rate (float or list): Stock retrofit rate specific to the ECM.
         tech_switch_to (str, None): Technology switch to flag.
+        hp_convert_flag (boolean): Flag for whether tech switching is to HP.
+        add_cool_anchor_tech (str, None): For tech switching to HPs in homes
+            without existing cooling, all cooling additions will be reflected
+            in this cooling technology segment for a given region, building
+            type, and building vintage combination (avoids double counting
+            when there are multiple cooling techs in the measure definition).
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs)
@@ -2202,6 +2208,10 @@ class Measure(object):
             self.tech_switch_to
         except AttributeError:
             self.tech_switch_to = None
+        self.hp_convert_flag = (
+            self.tech_switch_to not in [
+                None, "NA", "same"] and "HP" in self.tech_switch_to)
+        self.add_cool_anchor_tech = None
         # Check for flag for heating and cooling equipment pairing, if not
         # there or not applicable set to blank string
         try:
@@ -2871,7 +2881,7 @@ class Measure(object):
                 # calculations (these are specified by building sector and by
                 # the anchor end use set in UsefulVars class earlier)
                 linked_htcl_tover_anchor_tech_list = [
-                    x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
+                    x for x in self.handyvars.htcl_anchor_tech_opts[
                         bldg_sect][self.linked_htcl_tover_anchor_eu]]
                 # Find the first in the ordered list of candidate technologies
                 # that the measure applies to, use as anchor for linked
@@ -2888,6 +2898,32 @@ class Measure(object):
                     "'technology' attribute to ensure one or more items "
                     "are included in the following list: " +
                     str(linked_htcl_tover_anchor_tech_list))
+
+            # If HP conversions are flagged, determine in which cooling/mseg
+            # any additions in homes that don't have existing cooling will
+            # be reflected (such cases are determined later on the basis of
+            # cooling market scaling being set to zero)
+            if self.hp_convert_flag:
+                try:
+                    # Pull the ordered list of candidate technologies to serve
+                    # as anchor for additional cooling accounting under
+                    # switching to HPs (these are specified by building sector)
+                    add_cool_anchor_tech_list = [
+                        x for x in self.handyvars.htcl_anchor_tech_opts[
+                            bldg_sect]["cooling"]]
+                    self.add_cool_anchor_tech = [
+                        x for x in add_cool_anchor_tech_list if x in
+                        self.technology["primary"]][0]
+                except IndexError:
+                    # Throw error if no anchor technology could be determined
+                    raise ValueError(
+                        "Cannot find anchor technology to add new cooling "
+                        "under heating conversion to HP for "
+                        "measure '" + self.name + "'. Check measure "
+                        "'technology' attribute to ensure one or more items "
+                        "are included in the following list: " +
+                        str(add_cool_anchor_tech_list))
+
             # Given no error after the calculations above, reset the iterable
             # that determines how measure msegs are looped through to ensure
             # that msegs with the the anchor end use and technology for linked
@@ -5651,9 +5687,7 @@ class Measure(object):
                     if mskeys[4] in ["heating", "cooling", "secondary heating",
                                      "water heating"]:
                         # Flag for HP measure (requires special handling)
-                        hp_flag = ((
-                            self.tech_switch_to not in [None, "NA"] and
-                            "HP" in self.tech_switch_to) or any([
+                        hp_flag = (self.hp_convert_flag or any([
                                 x in self.name for x in [
                                     "HP", "heat pump", "Heat Pump"]]))
 
@@ -8001,7 +8035,8 @@ class Measure(object):
                 secnd_adj_mktshr["adjusted energy (competed and captured)"][
                     secnd_mseg_adjkey] = dict.fromkeys(
                         self.handyvars.aeo_years, 0)
-            linked_htcl_tover_anchor_tech = None
+            linked_htcl_tover_anchor_tech, total_hp_converts = (
+                None for n in range(2))
         # Handle case where turnover/switching calculations for the current
         # primary mseg are flagged as being linked to those of another mseg
         elif self.linked_htcl_tover:
@@ -8023,6 +8058,7 @@ class Measure(object):
                         "original competed stock", "adjusted competed stock",
                         "cumulative captured stock",
                         "cumulative competed stock", "heat pump conversions"]]
+
             # Determine whether linked turnover data for the current
             # combination of region, building type, and structure type have
             # already been updated at least once (those keys for linking
@@ -8119,6 +8155,40 @@ class Measure(object):
                         self.linked_htcl_tover_anchor_tech + " " +
                         self.linked_htcl_tover_anchor_eu +
                         " turnover rates; unlinking turnover")
+
+            # Determine whether added heating unit data for the current
+            # combination of region, building type, and structure type have
+            # already been updated at least once (those keys for linking
+            # will be present in the market data pulled above)
+            if self.hp_convert_flag and "heating" in mskeys and \
+                    htcl_lnk_adjkey not in total_hp_converts.keys():
+                total_hp_converts[htcl_lnk_adjkey] = {
+                    "total": (dict.fromkeys(self.handyvars.aeo_years, 0)),
+                    "competed": (dict.fromkeys(self.handyvars.aeo_years, 0))}
+            # For cooling segments under switching to HPs in homes that do
+            # not already have cooling (signified by a cooling market scaling
+            # fraction of zero), pull previously prepared number of heating
+            # units that are converted to HPs, which will also serve as the
+            # number of additional cooling units to represent in below calcs.
+            elif self.hp_convert_flag and (
+                "cooling" in mskeys and mkt_scale_frac == 0) and (
+                    self.add_cool_anchor_tech == mskeys[-2]):
+                # Ensure that the total number of heating units that converted
+                # to heat pumps (and thus added a cooling unit) has already
+                # been determined for the current cooling microsegment; if
+                # so, pull the data; otherwise throw an error
+                if htcl_lnk_adjkey in total_hp_converts.keys():
+                    new_cool_units = {comp_tot_key: {
+                        yr: total_hp_converts[htcl_lnk_adjkey][
+                            comp_tot_key][yr] for yr in
+                        self.handyvars.aeo_years} for comp_tot_key in [
+                        "total", "competed"]}
+                else:
+                    raise ValueError(
+                        "No data available to calculate cooling additions "
+                        "under heating conversions to heat pumps in homes "
+                        "without existing cooling for cooling microsegment " +
+                        str(mskeys) + " for measure '" + self.name + "'")
         # In cases where no secondary heating/cooling microsegment is present,
         # and there are no linked stock turnover rates for primary heating and
         # cooling microsegments, set relevant adjustment variables to None
@@ -8341,9 +8411,25 @@ class Measure(object):
 
             # Total stock, energy, and carbon markets after accounting for any
             # sub-market scaling
-            stock_total_sbmkt[yr] = stock_total_init[yr] * mkt_scale_frac
-            energy_total_sbmkt[yr] = energy_total_init[yr] * mkt_scale_frac
-            carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
+
+            # Special handling is needed when cooling additions under heat
+            # pump conversions in homes without existing cooling are being
+            # calculated; such cases are flagged by a market scaling fraction
+            # of zero, but scaling baseline segments to zero would nullify
+            # further calculations that are needed to determine the per unit
+            # energy/carbon/cost/refrigerants of the added measure cooling
+            # units (which begin with the baseline segment estimates).
+            # Therefore, in such cases we temporarily remove the market
+            # scaling of the baseline segments here and reset those segments
+            # to zero at the end of this function
+            if not new_cool_units:
+                stock_total_sbmkt[yr] = stock_total_init[yr] * mkt_scale_frac
+                energy_total_sbmkt[yr] = energy_total_init[yr] * mkt_scale_frac
+                carb_total_sbmkt[yr] = carb_total_init[yr] * mkt_scale_frac
+            else:
+                stock_total_sbmkt[yr] = stock_total_init[yr]
+                energy_total_sbmkt[yr] = energy_total_init[yr]
+                carb_total_sbmkt[yr] = carb_total_init[yr]
             # Total fugitive emissions markets after accounting for any
             # sub-market scaling
             if f_meth_assess:
@@ -9599,6 +9685,123 @@ class Measure(object):
                     carb_tot_comp_base + carb_tot_uncomp_base
                 fs_energy_cost_eff_remain[yr] = \
                     energy_cost_tot_comp_base + energy_cost_tot_uncomp_base
+
+            # Update efficient energy, carbon, cost, and refrigerant
+            # outputs to reflect new cooling additions under HP switching
+            # in homes that do not have existing cooling
+            if new_cool_units:
+                # Update competed data
+                # Case where measure has competed-captured stock: use stock
+                # data to back out per unit energy/carbon/cost/refrigerants
+                if stock_compete_meas[yr] != 0:
+                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = [
+                        energy_compete_eff[yr] / stock_compete_meas[yr],
+                        carb_compete_eff[yr] / stock_compete_meas[yr],
+                        energy_compete_cost_eff[yr] / stock_compete_meas[yr]]
+                    if f_refr_assess:
+                        f_r_unit_comp = frefr_compete_eff[yr] / \
+                            stock_total_meas[yr]
+                # If no competed-captured stock is available, try overall
+                # competed stock
+                elif stock_compete_sbmkt[yr] != 0:
+                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = [
+                        energy_total_sbmkt[yr] / stock_compete_sbmkt[yr],
+                        carb_total_sbmkt[yr] / stock_compete_sbmkt[yr],
+                        energy_total_cost[yr] / stock_compete_sbmkt[yr]]
+                    if f_refr_assess:
+                        f_r_unit_comp = frefr_total[yr] / \
+                            stock_compete_sbmkt[yr]
+                # If no stock data are available, set to zero
+                else:
+                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = (
+                        0 for n in range(3))
+                    if f_refr_assess:
+                        f_r_unit_comp = 0
+
+                # Update total data
+                # Case where measure has total-captured stock: use stock
+                # data to back out per unit energy/carbon/cost/refrigerants
+                if stock_total_meas[yr] != 0:
+                    uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = [
+                        (energy_compete_eff[yr] + energy_tot_uncomp_meas) /
+                        stock_total_meas[yr],
+                        (carb_compete_eff[yr] + carb_tot_uncomp_meas) /
+                        stock_total_meas[yr],
+                        (energy_compete_cost_eff[yr] +
+                         energy_cost_tot_uncomp_meas) / stock_total_meas[yr]]
+                    if f_refr_assess:
+                        f_r_unit_tot = (
+                            frefr_compete_eff[yr] + frefr_tot_uncomp_meas) / \
+                            stock_total_meas[yr]
+                # If no total-captured stock is available, try overall
+                # competed stock
+                elif stock_total_sbmkt[yr] != 0:
+                    uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = [
+                        energy_total_sbmkt[yr] / stock_total_sbmkt[yr],
+                        carb_total_sbmkt[yr] / stock_total_sbmkt[yr],
+                        energy_total_cost[yr] / stock_total_sbmkt[yr]]
+                    if f_refr_assess:
+                        f_r_unit_tot = frefr_total[yr] / stock_total_sbmkt[yr]
+                # If no stock data are available, set to zero
+                else:
+                    uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = (
+                        0 for n in range(3))
+                    if f_refr_assess:
+                        f_r_unit_tot = 0
+
+                # Finalize efficient energy, carbon, cost, and refrigerant
+                # outputs by multiplying per unit data by number of added
+                # units under HP electrification
+
+                # Energy
+                # Reset competed and total energy
+                energy_compete_eff[yr] = \
+                    new_cool_units["competed"][yr] * uec_eff_yr_comp
+                energy_total_eff[yr] = \
+                    new_cool_units["total"][yr] * uec_eff_yr_tot
+                energy_total_eff_capt[yr] = \
+                    new_cool_units["total"][yr] * uec_eff_yr_tot
+                # Carbon
+                # Reset competed and total carbon
+                carb_compete_eff[yr] = \
+                    new_cool_units["competed"][yr] * ci_eff_yr_comp
+                carb_total_eff[yr] = \
+                    new_cool_units["total"][yr] * ci_eff_yr_tot
+                # Energy costs
+                # Reset competed and total energy costs
+                energy_compete_cost_eff[yr] = \
+                    new_cool_units["competed"][yr] * uecst_eff_yr_comp
+                energy_total_eff_cost[yr] = \
+                    new_cool_units["total"][yr] * uecst_eff_yr_tot
+                # Carbon costs
+                # Reset competed and total carbon costs
+                carb_compete_cost_eff[yr] = \
+                    carb_compete_eff[yr] * self.handyvars.ccosts[yr]
+                carb_total_eff_cost[yr] = \
+                    carb_total_eff[yr] * self.handyvars.ccosts[yr]
+                # Refrigerants
+                if f_refr_assess:
+                    # Reset competed and total refrigerant leakage emissions
+                    frefr_compete_eff[yr] = \
+                        new_cool_units["competed"][yr] * f_r_unit_comp
+                    frefr_total_eff[yr] = \
+                        new_cool_units["total"][yr] * f_r_unit_tot
+
+                # Reset measure stock values to # of added cooling units
+                stock_compete_meas[yr] = new_cool_units["competed"][yr]
+                stock_total_meas[yr] = new_cool_units["total"][yr]
+
+                # Reset all baseline cooling segment values to zeros for this
+                # special case (the full segment values were used for the
+                # calculations above, but such segments by definition have
+                # no cooling in the baseline)
+                stock_total, energy_total, carb_total, fmeth_total, \
+                    frefr_total, stock_compete, energy_compete, carb_compete, \
+                    fmeth_compete, frefr_compete, stock_total_cost, \
+                    energy_total_cost, carb_total_cost, stock_compete_cost, \
+                    energy_compete_cost, carb_compete_cost = ({
+                        yr: 0 for yr in self.handyvars.aeo_years} for
+                        n in range(16))
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total, fmeth_total,
