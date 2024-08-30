@@ -17,7 +17,7 @@
     "electricity"
   ],
   "fuel_switch_to": "electricity",
-  "backup_fuel_fraction": "2023.2 Heat Pump RTU with Original Fuel Backup",
+  "backup_fuel_fraction": "RTU_other_fossil.csv",
   "technology": [
     "oil_furnace",
     "res_type_central_AC",
@@ -144,6 +144,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-28 09:21:06"
+    "timestamp": "2024-08-29 16:25:20"
   }
 }
