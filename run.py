@@ -2171,7 +2171,8 @@ class Engine(object):
                             fs_eff_splt_var = 1
                         # Efficient-captured energy all with switched to fuel
                         elif var_sub == "efficient-captured":
-                            fs_eff_splt_var = 0
+                            fs_eff_splt_var = adj_out_break[
+                                "efficient-captured fuel splits"][var][yr]
                         # Efficient energy may be split across base/switched
                         # to fuel
                         else:
@@ -2188,7 +2189,8 @@ class Engine(object):
                                 1 - adj_frac_t) * fs_eff_splt_var
                         else:
                             # Handle efficient captured energy case for fuel
-                            # switching, where no base fuel data will be
+                            # switching, where unless dual fuel characteristics
+                            # are present, no base fuel data will be
                             # reported (go to next variable in loop)
                             try:
                                 adj_out_break[
@@ -2267,11 +2269,10 @@ class Engine(object):
                                 if var_sub == "efficient":
                                     fs_eff_splt_var = adj_out_break[
                                         "efficient fuel splits"][var][yr]
-                                # Efficient-captured data not subject to fuel
-                                # splits (by definition all energy with
-                                # switched to fuel)
-                                else:
-                                    fs_eff_splt_var = 0
+                                elif var_sub == "efficient-captured":
+                                    fs_eff_splt_var = adj_out_break[
+                                        "efficient-captured fuel splits"][
+                                        var][yr]
                                 adj_out_break["switched fuel"][var][
                                     var_sub][yr] = \
                                     adj_out_break["switched fuel"][var][
@@ -2655,7 +2656,8 @@ class Engine(object):
                                 adj_frac_t = adj_frac_eff
                                 # Efficient-captured energy all with switched
                                 # to fuel
-                                fs_eff_splt_var = 0
+                                fs_eff_splt_var = adj_out_break[
+                                    "efficient-captured fuel splits"][var][yr]
                             else:
                                 adj_frac_t = adj_frac_eff
                                 # Efficient energy may be split across base/
@@ -2762,11 +2764,10 @@ class Engine(object):
                                     if var_sub == "efficient":
                                         fs_eff_splt_var = adj_out_break[
                                             "efficient fuel splits"][var][yr]
-                                    # Efficient-captured data not subject to
-                                    # fuel splits (by definition all energy w/
-                                    # switched to fuel)
-                                    else:
-                                        fs_eff_splt_var = 0
+                                    elif var_sub == "efficient-captured":
+                                        fs_eff_splt_var = adj_out_break[
+                                            "efficient-captured fuel splits"][
+                                            var][yr]
                                     adj_out_break["switched fuel"][var][
                                         var_sub][yr] = \
                                         adj_out_break["switched fuel"][var][
@@ -3013,6 +3014,9 @@ class Engine(object):
                     "baseline": None, "efficient": None, "savings": None}},
             "efficient fuel splits": {
                 "stock": None, "energy": None, "carbon": None, "cost": None
+            },
+            "efficient-captured fuel splits": {
+                "stock": None, "energy": None, "carbon": None, "cost": None
             }
         }
 
@@ -3021,7 +3025,9 @@ class Engine(object):
         if eff_capt:
             adj_out_break["base fuel"]["energy"]["efficient-captured"], \
                 adj_out_break["switched fuel"]["energy"][
-                    "efficient-captured"] = (None for n in range(2))
+                    "efficient-captured"], \
+                adj_out_break["efficient-captured fuel splits"]["energy"] = (
+                    None for n in range(3))
 
         # Add data from the current microsegment as appropriate to the
         # categories in the output breakout dict initialized above
@@ -3073,15 +3079,30 @@ class Engine(object):
                         # carbon that remains w/ the original fuel in each year
                         # for the contributing measure/mseg
                         adj_out_break["efficient fuel splits"][var] = {
-                            yr: (fs_eff_splt[var][0][yr] /
-                                 fs_eff_splt[var][1][yr]) if
-                            fs_eff_splt[var][1][yr] != 0 else 1
+                            yr: (fs_eff_splt[var][0][yr] +
+                                 fs_eff_splt[var][1][yr] /
+                                 fs_eff_splt[var][2][yr]) if
+                            fs_eff_splt[var][2][yr] != 0 else 1
                             for yr in self.handyvars.aeo_years}
+                        if var == "energy":
+                            adj_out_break[
+                                    "efficient-captured fuel splits"][var] = {
+                                yr: (fs_eff_splt[var][1][yr] /
+                                     fs_eff_splt[var][3][yr]) if
+                                fs_eff_splt[var][3][yr] != 0 else 1
+                                for yr in self.handyvars.aeo_years}
+                        else:
+                            adj_out_break["efficient-captured fuel splits"][
+                                var] = {
+                                yr: 1 for yr in self.handyvars.aeo_years}
                 else:
                     # All efficient stock/energy/cost/carbon remains with
                     # original base fuel type if there is no fuel switching
-                    adj_out_break["efficient fuel splits"][var] = {
-                        yr: 1 for yr in self.handyvars.aeo_years}
+                    adj_out_break["efficient fuel splits"][var], \
+                        adj_out_break["efficient-captured fuel splits"][
+                        var] = (
+                            {yr: 1 for yr in self.handyvars.aeo_years} for
+                            n in range(2))
         # Case where output breakouts are not split by fuel
         else:
             # Adjust stock/energy/carbon/cost data
@@ -3109,8 +3130,10 @@ class Engine(object):
                             raise ke
                 # No adjustment to efficient results required to account for
                 # fuel splits
-                adj_out_break["efficient fuel splits"][var] = {
-                    yr: 1 for yr in self.handyvars.aeo_years}
+                adj_out_break["efficient fuel splits"][var], \
+                    adj_out_break["efficient-captured fuel splits"][var] = (
+                        {yr: 1 for yr in self.handyvars.aeo_years} for
+                        n in range(2))
 
         # Set up lists that will be used to determine the energy, carbon,
         # and cost totals associated with the contributing microsegment that
@@ -3626,6 +3649,9 @@ class Engine(object):
                             if var_sub == "efficient":
                                 fs_eff_splt_var = adj_out_break[
                                     "efficient fuel splits"][var][yr]
+                            elif var_sub == "efficient-captured":
+                                fs_eff_splt_var = adj_out_break[
+                                    "efficient-captured fuel splits"][var][yr]
                             # Efficient-captured data not subject to fuel
                             # splits (by definition all energy with
                             # switched to fuel)
