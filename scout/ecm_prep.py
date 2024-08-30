@@ -8058,7 +8058,6 @@ class Measure(object):
                         "original competed stock", "adjusted competed stock",
                         "cumulative captured stock",
                         "cumulative competed stock", "heat pump conversions"]]
-
             # Determine whether linked turnover data for the current
             # combination of region, building type, and structure type have
             # already been updated at least once (those keys for linking
@@ -9334,6 +9333,18 @@ class Measure(object):
                 cum_capt_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_meas[yr]
                 cum_comp_htcl_lnk[htcl_lnk_adjkey][yr] += \
                     stock_comp_cum_sbmkt[yr]
+
+            # For heating msegs where the baseline technology is switching
+            # to a HP, record how many units make the switch; these data
+            # are used subsequently to account for adding cooling when there
+            # is no cooling in the baseline
+            if "heating" in mskeys and all(
+                [x for x in [self.linked_htcl_tover, self.hp_convert_flag,
+                             total_hp_converts]]):
+                total_hp_converts[htcl_lnk_adjkey]["competed"][yr] += \
+                    stock_compete_meas[yr]
+                total_hp_converts[htcl_lnk_adjkey]["total"][yr] += \
+                    stock_total_meas[yr]
 
             # Set the weighted overall relative performance and per unit
             # measure tech. refrigerant emissions (if applicable) for stock
