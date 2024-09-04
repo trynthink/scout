@@ -9147,6 +9147,34 @@ class Measure(object):
                         stock_compete_sbmkt, stock_compete, stock_total_meas,
                         stock_comp_cum_sbmkt]
 
+            # Handle cases where the variables needed to calculate cumulative
+            # captured and competed fractions below are linked to that of
+            # another microsegment (denoted by availability of linked data)
+
+            # Full linked data available
+            if cum_frac_linked and cum_frac_linked != 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        cum_frac_linked["original total stock"],
+                        cum_frac_linked["adjusted total stock"],
+                        cum_frac_linked["original competed stock"],
+                        cum_frac_linked["adjusted competed stock"],
+                        cum_frac_linked["cumulative captured stock"],
+                        cum_frac_linked["cumulative competed stock"]]
+            # Linked microsegment has zero values
+            elif cum_frac_linked and cum_frac_linked == 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = (
+                        {yr: 0 for yr in self.handyvars.aeo_years} for
+                        n in range(6))
+            # Not linked to another mseg; use data for this mseg
+            else:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        stock_total_sbmkt, stock_total,
+                        stock_compete_sbmkt, stock_compete, stock_total_meas,
+                        stock_comp_cum_sbmkt]
+
             # For primary microsegments only, update portion of stock captured
             # by efficient measure or competed in previous years
             if mskeys[0] == "primary" and yr != self.handyvars.aeo_years[0]:
