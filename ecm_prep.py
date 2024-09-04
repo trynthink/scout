@@ -8164,8 +8164,15 @@ class Measure(object):
                 yr: 0 for yr in self.handyvars.aeo_years} for n in range(7))
 
         # For measures that retain baseline fuel as backup, pull in the
-        # remaining fuel fraction for the current mseg's region
-        if isinstance(self.backup_fuel_fraction, pd.DataFrame):
+        # remaining fuel fraction for the current mseg's region; if not, set
+        # fraction to zero, indicating that measure-captured stock makes no
+        # use of existing baseline fuel. Check that the mseg pertains to the
+        # heating end use, the only one to which backup fuel fractions should
+        # be applied; if not, set fraction to 1
+        if isinstance(self.backup_fuel_fraction, pd.DataFrame) and \
+                "heating" in mskeys and (
+                    self.fuel_switch_to is not None and self.fuel_switch_to
+                    not in mskeys):
             remain_fuel_frac = self.backup_fuel_fraction[
                 self.backup_fuel_fraction["state"] ==
                 mskeys[1]]["remain_frac"].iloc[0]
@@ -9927,49 +9934,6 @@ class Measure(object):
             # year to that of the overall stock in the current year
             rel_perf_capt = rel_perf_overall
 
-            # For fuel switching measures where exogenous HP conversion
-            # rates have NOT been specified only, record the portion of total
-            # baseline stock, energy, carbon, and energy cost that remains with
-            # baseline fuel in the given year; for non-fuel switching measures,
-            # these variables are not used further in the routine
-            if self.fuel_switch_to is not None and not hp_rate:
-                fs_stk_eff_remain[yr] = \
-                    stock_total[yr] - stock_total_meas[yr]
-                fs_energy_eff_remain_base[yr] = \
-                    energy_tot_comp_base + energy_tot_uncomp_base
-                fs_energy_eff_remain_switch[yr] = \
-                    (energy_tot_comp_meas_mkt + energy_tot_uncomp_meas_mkt) * \
-                    tsv_energy_base * remain_fuel_frac
-                fs_carb_eff_remain_base[yr] = \
-                    carb_tot_comp_base + carb_tot_uncomp_base
-                fs_carb_eff_remain_switch[yr] = \
-                    (carb_tot_comp_meas_mkt + carb_tot_uncomp_meas_mkt) * \
-                    tsv_carb_base * remain_fuel_frac
-                fs_energy_cost_eff_remain_base[yr] = \
-                    energy_cost_tot_comp_base + energy_cost_tot_uncomp_base
-                fs_energy_cost_eff_remain_switch[yr] = \
-                    (energy_cost_tot_comp_meas_mkt +
-                     energy_cost_tot_uncomp_meas) * tsv_ecost_base * \
-                    cost_energy_base[yr] * remain_fuel_frac
-            # For fuel switching measures with exogenous HP conversion rates
-            # specified, the only baseline energy/carbon/cost that can remain
-            # with the baseline fuel is that from duel fuel backup operation
-            # for the converted efficient equipment, b/c of the way the markets
-            # are specified (the baseline for such measures is constrained to
-            # only the stock/energy/carbon/cost that switches to the new tech
-            # in each year)
-            elif self.fuel_switch_to is not None and hp_rate:
-                fs_energy_eff_remain_switch[yr] = \
-                    (energy_tot_comp_meas_mkt + energy_tot_uncomp_meas_mkt) * \
-                    tsv_energy_base * remain_fuel_frac
-                fs_carb_eff_remain_switch[yr] = \
-                    (carb_tot_comp_meas_mkt + carb_tot_uncomp_meas_mkt) * \
-                    tsv_carb_base * remain_fuel_frac
-                fs_energy_cost_eff_remain_switch[yr] = \
-                    (energy_cost_tot_comp_meas_mkt +
-                     energy_cost_tot_uncomp_meas) * tsv_ecost_base * \
-                    cost_energy_base[yr] * remain_fuel_frac
-
             # Update efficient energy, carbon, cost, and refrigerant
             # outputs to reflect new cooling additions under HP switching
             # in homes that do not have existing cooling
@@ -10086,6 +10050,48 @@ class Measure(object):
                     energy_compete_cost, carb_compete_cost = ({
                         yr: 0 for yr in self.handyvars.aeo_years} for
                         n in range(16))
+
+            # For fuel switching measures, record the portion of total
+            # baseline stock, energy, carbon, and energy cost that remains with
+            # baseline fuel in the given year; for non-fuel switching measures,
+            # these variables are not used further in the routine
+            if self.fuel_switch_to is not None:
+                # Handle results differently in cases where new cooling
+                # additions under HP switching are being calculated; in this
+                # case, remaining baseline stock/energy/carbon/cost is not
+                # applicable (since no baseline cooling stock existed) and
+                # remaining efficient results are all cooling associated with
+                # the switched to measure
+                # if not new_cool_units:
+                fs_stk_eff_remain[yr] = \
+                    stock_total[yr] - stock_total_meas[yr]
+                # For fuel switching measures with exogenous HP conversion
+                # rates specified, the only baseline energy/carbon/cost
+                # that can remain with the baseline fuel is that from duel
+                # fuel backup operation for the converted efficient
+                # equipment, b/c of the way the markets are specified
+                # (the baseline for such measures is constrained to only
+                # the stock/energy/carbon/cost that switches to the new
+                # tech in each year)
+                if not hp_rate:
+                    fs_energy_eff_remain_base[yr] = \
+                        energy_tot_comp_base + energy_tot_uncomp_base
+                    fs_carb_eff_remain_base[yr] = \
+                        carb_tot_comp_base + carb_tot_uncomp_base
+                    fs_energy_cost_eff_remain_base[yr] = \
+                        energy_cost_tot_comp_base + \
+                        energy_cost_tot_uncomp_base
+                fs_energy_eff_remain_switch[yr] = \
+                    (energy_tot_comp_meas_mkt +
+                     energy_tot_uncomp_meas_mkt) * \
+                    tsv_energy_base * remain_fuel_frac
+                fs_carb_eff_remain_switch[yr] = \
+                    (carb_tot_comp_meas_mkt + carb_tot_uncomp_meas_mkt) * \
+                    tsv_carb_base * remain_fuel_frac
+                fs_energy_cost_eff_remain_switch[yr] = \
+                    (energy_cost_tot_comp_meas_mkt +
+                     energy_cost_tot_uncomp_meas) * tsv_ecost_base * \
+                    cost_energy_base[yr] * remain_fuel_frac
 
         # Return partitioned stock, energy, and cost mseg information
         return [stock_total, energy_total, carb_total, fmeth_total,
@@ -14312,8 +14318,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             # measure) remains for captured stock by
                             # definition (all captured stock has been switched
                             # to measure)
-                            if key == "energy" and capt_e and \
-                                    swtch_tech_base_fuel:
+                            if key == "energy" and capt_e:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     key]["efficient-captured"][out_cz][
                                     out_bldg][out_eu][out_fuel_save][yr] += \
@@ -14344,7 +14349,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             out_fuel_save] = {
                                 yr: eff_data[ind][yr] for
                                 yr in self.handyvars.aeo_years}
-                        if key == "energy" and capt_e and swtch_tech_base_fuel:
+                        if key == "energy" and capt_e:
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "efficient-captured"][out_cz][out_bldg][
                                 out_eu][out_fuel_save] = {
@@ -14368,7 +14373,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                         # measure) remains for captured stock by
                         # definition (all captured stock has been switched
                         # to measure)
-                        if key == "energy" and capt_e and swtch_tech_base_fuel:
+                        if key == "energy" and capt_e:
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "efficient-captured"][out_cz][out_bldg][
                                 out_eu][out_fuel_save] = {
@@ -14407,13 +14412,17 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                      (eff_data_fs_base[ind][yr] +
                                       eff_data_fs_switch[(ind - 1)][yr]))
                                 # All captured efficient energy goes to
-                                # switched to fuel
+                                # switched to fuel, except in the case where
+                                # the switched to measure has dual fuel
+                                # operations that retains some existing fuel
                                 if key == "energy" and capt_e:
                                     self.markets[adopt_scheme][
                                         "mseg_out_break"][key][
                                         "efficient-captured"][
                                         out_cz][out_bldg][out_eu][
-                                        out_fuel_gain][yr] += capt_e[yr]
+                                        out_fuel_gain][yr] += (
+                                        capt_e[yr] -
+                                        eff_data_fs_switch[(ind-1)][yr])
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     key]["savings"][out_cz][out_bldg][out_eu][
                                     out_fuel_gain][yr] -= (
@@ -14454,14 +14463,18 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                          eff_data_fs_switch[(ind - 1)][yr]))
                                     for yr in self.handyvars.aeo_years}
                             # All captured efficient energy
-                            # goes to switched to fuel
+                            # goes to switched to fuel, except in the case
+                            # where the switched to measure has dual fuel
+                            # operations that retains some existing fuel
                             if key == "energy" and capt_e:
                                 self.markets[adopt_scheme][
                                     "mseg_out_break"][key][
                                     "efficient-captured"][
                                     out_cz][out_bldg][out_eu][
                                         out_fuel_gain] = {
-                                        yr: capt_e[yr] for yr in
+                                        yr: (capt_e[yr] -
+                                             eff_data_fs_switch[(ind-1)][yr])
+                                        for yr in
                                         self.handyvars.aeo_years}
                             self.markets[adopt_scheme][
                                 "mseg_out_break"][key]["savings"][out_cz][
