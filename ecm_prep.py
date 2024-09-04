@@ -2707,7 +2707,10 @@ class Measure(object):
                     "paired heat/cool mseg adjustments": {
                         "original total stock": {},
                         "adjusted total stock": {},
-                        "competed stock": {},
+                        "original competed stock": {},
+                        "adjusted competed stock": {},
+                        "cumulative captured stock": {},
+                        "cumulative competed stock": {},
                         "heat pump conversions": {}
                     }})])
             # Initialize efficient energy captured by measure if user does
@@ -8144,8 +8147,8 @@ class Measure(object):
         turnover_cap_not_reached = True
         # Initialize turnover fractions that may have already been determined
         # for heating/cooling msegs with linked turnover calculations
-        diffuse_frac_linked, comp_frac_diffuse_linked, new_cool_units = (
-            None for n in range(3))
+        diffuse_frac_linked, comp_frac_diffuse_linked, cum_frac_linked, \
+            new_cool_units = (None for n in range(4))
 
         # Initialize flag for whether measure is on the market in a given year
         # as false
@@ -8266,11 +8269,14 @@ class Measure(object):
             # Set shorthands for pulling linked turnover data from
             # measure market information
             total_htcl_lnk, total_htcl_lnk_adj, compete_htcl_lnk, \
+                compete_htcl_lnk_adj, cum_capt_htcl_lnk, cum_comp_htcl_lnk, \
                 total_hp_converts = [
                     self.markets[adopt_scheme]["mseg_adjust"][
                         "paired heat/cool mseg adjustments"][x] for x in [
                         "original total stock", "adjusted total stock",
-                        "competed stock", "heat pump conversions"]]
+                        "original competed stock", "adjusted competed stock",
+                        "cumulative captured stock",
+                        "cumulative competed stock", "heat pump conversions"]]
             # Determine whether linked turnover data for the current
             # combination of region, building type, and structure type have
             # already been updated at least once (those keys for linking
@@ -8287,9 +8293,12 @@ class Measure(object):
             if initiate_linked_dat and linked_htcl_tover_anchor_tech:
                 total_htcl_lnk[htcl_lnk_adjkey], \
                     total_htcl_lnk_adj[htcl_lnk_adjkey], \
-                    compete_htcl_lnk[htcl_lnk_adjkey] = (
+                    compete_htcl_lnk[htcl_lnk_adjkey], \
+                    compete_htcl_lnk_adj[htcl_lnk_adjkey], \
+                    cum_capt_htcl_lnk[htcl_lnk_adjkey], \
+                    cum_comp_htcl_lnk[htcl_lnk_adjkey] = (
                     dict.fromkeys(self.handyvars.aeo_years, 0)
-                    for n in range(3))
+                    for n in range(6))
             # If the current mseg. tech. does not serve as an anchor for
             # linking heating/cooling/other turnover, check whether applicable
             # linking data have already been initiated for this mseg's region,
@@ -8326,18 +8335,36 @@ class Measure(object):
                     # linked segment to zero since competition of the linked to
                     # segment is contingent on that of the anchor segment
                     comp_frac_diffuse_linked = {
-                        yr: compete_htcl_lnk[htcl_lnk_adjkey][yr] /
+                        yr: compete_htcl_lnk_adj[htcl_lnk_adjkey][yr] /
                         total_htcl_lnk_adj[htcl_lnk_adjkey][yr] if
                         total_htcl_lnk_adj[htcl_lnk_adjkey][yr] != 0
                         else 0 for yr in self.handyvars.aeo_years}
+                    # Pull all data needed to determine cumulative captured
+                    # and cumulative competed stock for the current mseg
+                    # based on values from linked anchor heating/cooling mseg
+                    cum_frac_linked = {
+                        "original total stock":
+                            total_htcl_lnk[htcl_lnk_adjkey],
+                        "adjusted total stock":
+                            total_htcl_lnk_adj[htcl_lnk_adjkey],
+                        "original competed stock":
+                            compete_htcl_lnk[htcl_lnk_adjkey],
+                        "adjusted competed stock":
+                            compete_htcl_lnk_adj[htcl_lnk_adjkey],
+                        "cumulative captured stock":
+                            cum_capt_htcl_lnk[htcl_lnk_adjkey],
+                        "cumulative competed stock":
+                            cum_comp_htcl_lnk[htcl_lnk_adjkey]}
                 else:
                     # When no data can be pulled for the linked anchor segment,
                     # set diffusion fraction to the null_val specified above
-                    # and competition fraction to zero
+                    # and competition fraction to zero; also set data needed
+                    # to determined cumulative stock fractions to zero
                     diffuse_frac_linked = {
                         yr: null_val for yr in self.handyvars.aeo_years}
                     comp_frac_diffuse_linked = {
                         yr: 0 for yr in self.handyvars.aeo_years}
+                    cum_frac_linked = 0
                     verboseprint(
                         opts.verbose,
                         "WARNING: No data available to link mseg " +
@@ -8386,8 +8413,9 @@ class Measure(object):
         else:
             secnd_mseg_adjkey, linked_htcl_tover_anchor_tech, \
                 htcl_lnk_adjkey, total_htcl_lnk, total_htcl_lnk_adj, \
-                compete_htcl_lnk, total_hp_converts = (
-                    None for n in range(7))
+                compete_htcl_lnk_adj, compete_htcl_lnk_adj, \
+                cum_capt_htcl_lnk, cum_comp_htcl_lnk, total_hp_converts = (
+                    None for n in range(10))
 
         # Set time sensitive energy scaling factors for all baseline stock
         # (does not depend on year)
@@ -9295,16 +9323,6 @@ class Measure(object):
                 carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse * \
                 tsv_carb_base
 
-            # For heating/cooling msegs that serve as the anchor for linked
-            # stock turnover and switching rates, update the linked rate
-            # data to reflect the above stock calculations for this mseg
-            if linked_htcl_tover_anchor_tech and htcl_lnk_adjkey and all([
-                    x for x in [total_htcl_lnk, total_htcl_lnk_adj,
-                                compete_htcl_lnk]]):
-                total_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_sbmkt[yr]
-                total_htcl_lnk_adj[htcl_lnk_adjkey][yr] += stock_total[yr]
-                compete_htcl_lnk[htcl_lnk_adjkey][yr] += stock_compete[yr]
-
             # Final competed fugitive emissions markets after accounting for
             # diffusion/conversion dynamics that restrict a measure's
             # access to it's full baseline market (after sub-mkt scaling), as
@@ -9339,6 +9357,34 @@ class Measure(object):
                 stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
                     diffuse_frac * comp_frac_diffuse
 
+            # Handle cases where the variables needed to calculate cumulative
+            # captured and competed fractions below are linked to that of
+            # another microsegment (denoted by availability of linked data)
+
+            # Full linked data available
+            if cum_frac_linked and cum_frac_linked != 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        cum_frac_linked["original total stock"],
+                        cum_frac_linked["adjusted total stock"],
+                        cum_frac_linked["original competed stock"],
+                        cum_frac_linked["adjusted competed stock"],
+                        cum_frac_linked["cumulative captured stock"],
+                        cum_frac_linked["cumulative competed stock"]]
+            # Linked microsegment has zero values
+            elif cum_frac_linked and cum_frac_linked == 0:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = (
+                        {yr: 0 for yr in self.handyvars.aeo_years} for
+                        n in range(6))
+            # Not linked to another mseg; use data for this mseg
+            else:
+                stk_tot_sbmkt, stk_tot_diff, stk_cmp_sbmkt, stk_cmp_diff, \
+                    stk_cum_m, stk_cum_cmp = [
+                        stock_total_sbmkt, stock_total,
+                        stock_compete_sbmkt, stock_compete, stock_total_meas,
+                        stock_comp_cum_sbmkt]
+
             # For primary microsegments only, update portion of stock captured
             # by efficient measure or competed in previous years
             if mskeys[0] == "primary" and yr != self.handyvars.aeo_years[0]:
@@ -9353,10 +9399,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a point value
                     try:
-                        if (stock_total[yr] - stock_compete[yr]) != 0:
-                            meas_cum_frac = \
-                                stock_total_meas[prev_yr] / (
-                                    stock_total[yr] - stock_compete[yr])
+                        if (stk_tot_diff[yr] - stk_cmp_diff[yr]) != 0:
+                            meas_cum_frac = stk_cum_m[prev_yr] / (
+                                stk_tot_diff[yr] - stk_cmp_diff[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
                         # 'unspecified' no stock data will be available; base
@@ -9368,10 +9413,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
-                        if all((stock_total[yr] - stock_compete[yr]) != 0):
-                            meas_cum_frac = (
-                                stock_total_meas[prev_yr] /
-                                (stock_total[yr] - stock_compete[yr]))
+                        if all((stk_tot_diff[yr] - stk_cmp_diff[yr]) != 0):
+                            meas_cum_frac = (stk_cum_m[prev_yr] / (
+                                stk_tot_diff[yr] - stk_cmp_diff[yr]))
                         else:
                             meas_cum_frac += (
                                 diffuse_frac * comp_frac_diffuse_meas)
@@ -9382,11 +9426,9 @@ class Measure(object):
                         comp_cum_frac, numpy.ndarray) and any(
                         comp_cum_frac != 1)):
                     try:
-                        if (stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]) != 0:
-                            comp_cum_frac = stock_comp_cum_sbmkt[prev_yr] / \
-                                (stock_total_sbmkt[yr] -
-                                 stock_compete_sbmkt[yr])
+                        if (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]) != 0:
+                            comp_cum_frac = stk_cum_cmp[prev_yr] / \
+                                (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
                         # 'unspecified' no stock data will be available; base
@@ -9397,11 +9439,9 @@ class Measure(object):
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
-                        if all((stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]) != 0):
-                            comp_cum_frac = (stock_comp_cum_sbmkt[prev_yr] / (
-                                stock_total_sbmkt[yr] -
-                                stock_compete_sbmkt[yr]))
+                        if all((stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]) != 0):
+                            comp_cum_frac = (stk_cum_cmp[prev_yr] / (
+                                stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]))
                         else:
                             comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
 
@@ -9543,6 +9583,22 @@ class Measure(object):
             elif not isinstance(stock_total_meas[yr], numpy.ndarray) and \
                     stock_total_meas[yr] < 0:
                 stock_total_meas[yr] = 0
+
+            # For heating/cooling msegs that serve as the anchor for linked
+            # stock turnover and switching rates, update the linked rate
+            # data to reflect the above stock calculations for this mseg
+            if linked_htcl_tover_anchor_tech and htcl_lnk_adjkey and all([
+                    x for x in [total_htcl_lnk, total_htcl_lnk_adj,
+                                compete_htcl_lnk, compete_htcl_lnk_adj,
+                                cum_capt_htcl_lnk, cum_comp_htcl_lnk]]):
+                total_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_sbmkt[yr]
+                total_htcl_lnk_adj[htcl_lnk_adjkey][yr] += stock_total[yr]
+                compete_htcl_lnk[htcl_lnk_adjkey][yr] += \
+                    stock_compete_sbmkt[yr]
+                compete_htcl_lnk_adj[htcl_lnk_adjkey][yr] += stock_compete[yr]
+                cum_capt_htcl_lnk[htcl_lnk_adjkey][yr] += stock_total_meas[yr]
+                cum_comp_htcl_lnk[htcl_lnk_adjkey][yr] += \
+                    stock_comp_cum_sbmkt[yr]
 
             # For heating msegs where the baseline technology is switching
             # to a HP, record how many units make the switch; these data
