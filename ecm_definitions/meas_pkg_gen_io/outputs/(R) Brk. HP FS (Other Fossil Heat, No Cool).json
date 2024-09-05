@@ -114,11 +114,41 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 0.2,
-    "cooling": 0.0
+    "BA_Hot-Humid": {
+      "heating": 0.02,
+      "cooling": 0.0
+    },
+    "BA_Mixed-Humid": {
+      "heating": 0.05,
+      "cooling": 0.0
+    },
+    "BA_Very Cold": {
+      "heating": 0.47,
+      "cooling": 0.0
+    },
+    "BA_Subarctic": {
+      "heating": 0.89,
+      "cooling": 0.0
+    },
+    "BA_Cold": {
+      "heating": 0.17,
+      "cooling": 0.0
+    },
+    "BA_Hot-Dry": {
+      "heating": 0.07,
+      "cooling": 0.0
+    },
+    "BA_Mixed-Dry": {
+      "heating": 0.18,
+      "cooling": 0.0
+    },
+    "BA_Marine": {
+      "heating": 0.42,
+      "cooling": 0.0
+    }
   },
   "market_scaling_fractions_source": {
-    "notes": "Heating multiple of 20% was determined as proportion of total homes with non-NG fossil-based heating that DO NOT have cooling systems (483 homes out of 2,451 homes with non-NG fossil heating and cooling). Cooling multiple zeroes out cooling segment.",
+    "notes": "Heating multiples determined as proportions of total homes with non-NG fossil-based heating that DO NOT have cooling systems in each BA climate zone. Cooling multiple zeroes out cooling segment.",
     "source_data": {
       "title": "RECS 2020 Microdata",
       "author": "U.S. Energy Information Administration",
@@ -131,6 +161,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-29 16:25:20"
+    "timestamp": "2024-09-05 16:27:58"
   }
 }
