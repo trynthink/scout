@@ -3269,6 +3269,9 @@ class Engine(object):
         # Competed stock market share (adjustment for current year only)
         adj_c = adj_fracs[yr] + added_sbmkt_fracs[yr]
 
+        # Determine whether efficient-captured energy is being reported
+        eff_capt = ("efficient-captured" in adj["energy"]["total"].keys())
+
         # For non-technical potential cases only, add a flag for measures
         # with market entry years that begin after the minimum market entry
         # year across competing measures. Such measures' efficient data require
@@ -3287,8 +3290,13 @@ class Engine(object):
             # in years before measure entered market) for use in subsequent
             # measure-captured stock adjustment for measures that enter the
             # market after the minimum market entry year across competing
-            # measures
+            # measures; if efficient-captured energy is reported, also
+            # initialize trackers of the stock that is measure-captured
+            # and competed since measure entered market
             cum_compete_stk = 0
+            if eff_capt:
+                stk_capt_since_entry, stk_cmp_since_entry = (
+                    0 for n in range(2))
         else:
             delay_entry_adj = False
             rp_adj, save_c, tot_c = (None for n in range(3))
@@ -3326,6 +3334,10 @@ class Engine(object):
                     # For measures with delayed market entry, add current year
                     # competed stock value to tracker of cumulative competed
                     # stock (including in years before measure entered market)
+                    # and, if efficient-captured energy is reported and measure
+                    # has entered market, add current year measure-captured
+                    # and competed stock values to trackers of those
+                    # variables since measure entered market
                     if delay_entry_adj:
                         cum_compete_stk += adj_stk_trk["competed"]["all"][wyr]
                         # Ensure cumulative competed stock never exceeds
@@ -3333,6 +3345,12 @@ class Engine(object):
                         # includes measure-on-measure replacements)
                         if cum_compete_stk > adj_stk_trk["total"]["all"][yr]:
                             cum_compete_stk = adj_stk_trk["total"]["all"][yr]
+                        if eff_capt and \
+                                int(wyr) >= int(measure.market_entry_year):
+                            stk_capt_since_entry += \
+                                adj_stk_trk["competed"]["measure"][wyr]
+                            stk_cmp_since_entry += \
+                                adj_stk_trk["competed"]["all"][wyr]
 
                     # If needed, update efficient data adjustment for measures
                     # with delayed market entry; adjustment represents the
@@ -3401,7 +3419,8 @@ class Engine(object):
         # Initialize baseline and efficient data market share adjustment
         # fractions using the overall adjustment fraction calculated above
         adj_t_b, adj_t_e = ({
-            v: adj_frac_t for v in ["stock", "energy", "carbon", "cost"]}
+            v: adj_frac_t for v in [
+                "stock", "energy", "energy-captured", "carbon", "cost"]}
             for n in range(2))
 
         # If necessary, implement adjustment to ensure that measure-captured
@@ -3463,6 +3482,32 @@ class Engine(object):
                     # Further scale efficient market share adjustment fraction
                     # on the basis of the factors calculated above
                     adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
+
+                    # In the special case of efficient energy use where
+                    # captured efficient energy is reported, develop a factor
+                    # that adjusts efficient-captured energy values to account
+                    # for missed competed stock in years before the measure was
+                    # on the market
+                    if var == "energy" and eff_capt:
+                        try:
+                            # Ratio to adjust efficient-captured to efficient
+                            # energy total
+                            e_ec_ratio = adj[var]["total"]["efficient"][yr] / \
+                                adj[var]["total"]["efficient-captured"][yr]
+                            # Ratio to determine what portion of efficient
+                            # energy was captured by measure since market entry
+                            # based on stock totals
+                            stk_capt_since_entry_ratio = \
+                                stk_capt_since_entry / stk_cmp_since_entry
+                        except (ZeroDivisionError, FloatingPointError):
+                            e_ec_ratio, stk_capt_since_entry_ratio = (
+                                1 for n in range(2))
+                        # Final ratio adjusts efficient-captured data to
+                        # efficient data and then scales down based on what
+                        # portion of efficient is measure-captured
+                        adj_t_e["energy-captured"] = \
+                            adj_t_e[var] * e_ec_ratio * \
+                            stk_capt_since_entry_ratio
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3535,7 +3580,12 @@ class Engine(object):
                 if var_sub == "baseline":
                     adj_t = adj_t_b[var]
                 else:
-                    adj_t = adj_t_e[var]
+                    # Draw unique adjustment fraction for efficient-captured
+                    # energy results
+                    if var == "energy" and var_sub == "efficient-captured":
+                        adj_t = adj_t_e["energy-captured"]
+                    else:
+                        adj_t = adj_t_e[var]
 
                 # Select correct fuel split data; for baseline case, all
                 # fuel remains with baseline fuel
@@ -3644,30 +3694,29 @@ class Engine(object):
                         # Loop through efficient and (if applicable) efficient-
                         # captured data and update
                         for var_sub in vs_list:
-                            # Efficient data subject to fuel splits (some may
-                            # remain with original fuel)
                             if var_sub == "efficient":
+                                # Efficient competition adjustment fraction
+                                adj_t = adj_t_e[var]
+                                # Efficient fuel splits
                                 fs_eff_splt_var = adj_out_break[
                                     "efficient fuel splits"][var][yr]
                             elif var_sub == "efficient-captured":
+                                # Efficient-captured comp. adj. fraction
+                                adj_t = adj_t_e["energy-captured"]
+                                # Efficient fuel splits
                                 fs_eff_splt_var = adj_out_break[
                                     "efficient-captured fuel splits"][var][yr]
-                            # Efficient-captured data not subject to fuel
-                            # splits (by definition all energy with
-                            # switched to fuel)
-                            else:
-                                fs_eff_splt_var = 0
                             adj_out_break["switched fuel"][var][
                                 var_sub][yr] = adj_out_break[
                                 "switched fuel"][var][var_sub][yr] - (
                                 adj[var]["total"][var_sub][yr]) * (
-                                1 - adj_t_e[var]) * (1 - fs_eff_splt_var)
+                                1 - adj_t) * (1 - fs_eff_splt_var)
                         # Update savings result
                         adj_out_break["switched fuel"][var]["savings"][yr] = \
                             adj_out_break["switched fuel"][var][
                                 "savings"][yr] + (
                             adj[var]["total"]["efficient"][yr]) * (
-                            1 - adj_t_e[var]) * (1 - adj_out_break[
+                            1 - adj_t) * (1 - adj_out_break[
                                 "efficient fuel splits"][var][yr])
 
         # Adjust the total and competed baseline stock captured, both overall
@@ -3774,14 +3823,14 @@ class Engine(object):
                 adj["carbon"]["total"][x][yr] = [
                 (x[yr] * adj_t[v]) for x, v in zip(
                     adjlist[3:5], ["energy", "carbon"])]
-            # Adjust captured efficient energy if these data are present
+            # Adjust efficient-captured energy if these data are present
             if x == "efficient":
                 try:
                     mast["energy"]["total"]["efficient-captured"][yr] = \
                         mastlist[10][yr] - (
-                        adjlist[10][yr] * (1 - adj_t["energy"]))
+                        adjlist[10][yr] * (1 - adj_t["energy-captured"]))
                     adj["energy"]["total"]["efficient-captured"][yr] = (
-                        adjlist[10][yr] * adj_t["energy"])
+                        adjlist[10][yr] * adj_t["energy-captured"])
                 except (KeyError, IndexError):
                     pass
 
