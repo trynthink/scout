@@ -90,11 +90,41 @@
     }
   },
   "market_scaling_fractions": {
-    "heating": 0.15,
-    "cooling": 0.0
+    "BA_Hot-Humid": {
+      "heating": 0.06,
+      "cooling": 0.0
+    },
+    "BA_Mixed-Humid": {
+      "heating": 0.07,
+      "cooling": 0.0
+    },
+    "BA_Very Cold": {
+      "heating": 0.38,
+      "cooling": 0.0
+    },
+    "BA_Subarctic": {
+      "heating": 0.8,
+      "cooling": 0.0
+    },
+    "BA_Cold": {
+      "heating": 0.13,
+      "cooling": 0.0
+    },
+    "BA_Hot-Dry": {
+      "heating": 0.1,
+      "cooling": 0.0
+    },
+    "BA_Mixed-Dry": {
+      "heating": 0.06,
+      "cooling": 0.0
+    },
+    "BA_Marine": {
+      "heating": 0.45,
+      "cooling": 0.0
+    }
   },
   "market_scaling_fractions_source": {
-    "notes": "Heating multiple of 15% was determined as proportion of total homes with electric non-HP heating that DO NOT have cooling systems (491 homes out of 3,327 homes with non-HP electric heating). Cooling multiple zeroes out cooling segment.",
+    "notes": "Heating multiples determined as proportions of total homes with electric non-HP heating that DO NOT have cooling systems in each BA climate zone. Cooling multiple zeroes out cooling segment.",
     "source_data": {
       "title": "RECS 2020 Microdata",
       "author": "U.S. Energy Information Administration",
@@ -107,6 +137,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-08-29 16:25:20"
+    "timestamp": "2024-09-05 16:27:58"
   }
 }
