@@ -9,7 +9,7 @@ def ecm_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
     """Parse arguments for ecm_prep.py
 
     Args:
-        args (list, optional): ecm_prep.py input arguments, if not provided, command line
+        args (list, optional):  ecm_prep.py input arguments, if not provided, command line
             arguments will be used in Config. Defaults to None.
     """
 
