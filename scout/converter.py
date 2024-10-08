@@ -35,7 +35,7 @@ import pandas as pd
 from backoff import on_exception, expo
 from collections import OrderedDict
 from pathlib import Path
-from scout.constants import FilePaths as fp
+from scout.config import FilePaths as fp
 
 
 class UsefulVars(object):
@@ -55,8 +55,6 @@ class UsefulVars(object):
         # Set path to state-level baseline data
         self.state_baseline_files = list(Path(fp.CONVERT_DATA).glob(
             'EIA_State_Emissions_Prices_Baselines_*.csv'))
-        # Set state conversion file path
-        self.state_conv_file = fp.CONVERT_DATA / "state_emissions_prices.json"
         self.metadata = fp.METADATA_PATH
 
 
@@ -806,7 +804,7 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
     return conv
 
 
-def updater_state(conv_emm, aeo_min):
+def updater_state(conv_emm, aeo_min, restrict):
     """Perform calculations using EIA data to generate state conversion
     factors JSON.
 
@@ -818,7 +816,8 @@ def updater_state(conv_emm, aeo_min):
     Args:
         conv_emm (dict): Data structure from conversion JSON data file
             populated with EMM region-structured conversion values.
-        aeo_min (str): Minimum (earliest) AEO data output year
+        aeo_min (str): Minimum (earliest) AEO data output year.
+        restrict (NoneType, bool): Flag no need to update emissions data.
 
     Returns:
         State-level conversion factors dict to be exported to JSON.
@@ -861,15 +860,16 @@ def updater_state(conv_emm, aeo_min):
         axis=0).set_index('EMM').drop(
         ['AK', 'HI'], axis=1).sort_index()
 
-    # Create dataframe of EMM emissions ratios from base year through 2050
-    # Get EMM emissions factors from EMM conversion file
-    emm_co2 = pd.DataFrame.from_dict(
-        conv_emm['CO2 intensity of electricity']['data'], orient='index')
-    # Divide each year in dataframe by base year
-    emm_co2_ratios = emm_co2.iloc[:, 1:].div(emm_co2[aeo_min], axis=0)
-    # Re-insert base year into new dataframe
-    emm_co2_ratios.insert(0, aeo_min, '')
-    emm_co2_ratios[aeo_min] = 1.0
+    if not restrict:
+        # Create dataframe of EMM emissions ratios from base year through 2050
+        # Get EMM emissions factors from EMM conversion file
+        emm_co2 = pd.DataFrame.from_dict(
+            conv_emm['CO2 intensity of electricity']['data'], orient='index')
+        # Divide each year in dataframe by base year
+        emm_co2_ratios = emm_co2.iloc[:, 1:].div(emm_co2[aeo_min], axis=0)
+        # Re-insert base year into new dataframe
+        emm_co2_ratios.insert(0, aeo_min, '')
+        emm_co2_ratios[aeo_min] = 1.0
 
     # Create dataframe of EMM price ratios for base year through 2050
     # Get prices from EMM conversion file
@@ -894,18 +894,19 @@ def updater_state(conv_emm, aeo_min):
     # projections based on EMM trends (base year ratios),
     # weighted using EMM to State mapping factors
 
-    # Emissions
-    state_co2 = {state:
-                 {yr: np.average(emm_co2_ratios.loc[:, yr],
-                                 weights=emm_state_map.loc[:, state]) for
-                  yr in emm_co2_ratios.columns} for
-                 state in emm_state_map.columns}
-    state_co2_proj = {state:
-                      {yr: state_co2[state][yr] *
-                       state_baselines.loc[state,
-                       'Emissions Rate (Mt/TWh)'] for
-                       yr in emm_co2_ratios.columns} for
-                      state in state_co2.keys()}
+    if not restrict:
+        # Emissions
+        state_co2 = {state:
+                     {yr: np.average(emm_co2_ratios.loc[:, yr],
+                                     weights=emm_state_map.loc[:, state]) for
+                      yr in emm_co2_ratios.columns} for
+                     state in emm_state_map.columns}
+        state_co2_proj = {state:
+                          {yr: state_co2[state][yr] *
+                           state_baselines.loc[state,
+                           'Emissions Rate (Mt/TWh)'] for
+                           yr in emm_co2_ratios.columns} for
+                          state in state_co2.keys()}
 
     # Prices - residential
     state_price_res = {state:
@@ -934,11 +935,12 @@ def updater_state(conv_emm, aeo_min):
                             state in state_price_com.keys()}
 
     # Update data fields to store state factors
-    conv_emm['CO2 intensity of electricity']['data'] = state_co2_proj
-    conv_emm['CO2 intensity of electricity']['source'] = (
-        'Base year data from EIA State Electricity Data website, '
-        'projected to 2050 using sales-weighted average trends in '
-        'CO2 intensity for EMM regions that comprise a given state.')
+    if not restrict:
+        conv_emm['CO2 intensity of electricity']['data'] = state_co2_proj
+        conv_emm['CO2 intensity of electricity']['source'] = (
+            'Base year data from EIA State Electricity Data website, '
+            'projected to 2050 using sales-weighted average trends in '
+            'CO2 intensity for EMM regions that comprise a given state.')
     conv_emm['End-use electricity price']['data']['residential'] = \
         state_price_res_proj
     conv_emm['End-use electricity price']['data']['commercial'] = \
@@ -1012,13 +1014,16 @@ def main():
         print('The file name provided does not correspond to an expected '
               'conversion file.')
 
+    # Set state conversion file to use on the basis of the emm file name
+    state_conv_file = opts.f.replace("emm_region_emissions", "state_emissions")
+
     # If not provided as a command-line argument, ask the user to
     # specify the desired report year, informing the user about
     # the valid year options
-    try:
+    if opts.y is not None:
         year = opts.y
-    except AttributeError:  # Year not provided as command line argument
-        while True:
+    else:  # Year not provided as command line argument
+        while opts.y is None:
             year = input('Please specify the desired AEO year. '
                          'Valid entries are: ' +
                          ', '.join(ValidQueries().years) + '.\n')
@@ -1030,10 +1035,10 @@ def main():
     # If not provided as a command-line argument, ask the user to
     # specify the desired AEO case or scenario, informing the user
     # about the valid scenario options
-    try:
+    if opts.s is not None:
         scenario = opts.s
-    except AttributeError:  # Scenario not provided as command line argument
-        while True:
+    else:  # Scenario not provided as command line argument
+        while opts.s is None:
             scenario = input('Please specify the desired AEO scenario. '
                              'Valid entries are: ' +
                              ', '.join(ValidQueries().cases[year]) + '.\n')
@@ -1045,15 +1050,22 @@ def main():
     # Get year of earliest AEO data
     aeo_min = aeo_min_extract()
 
-    # Import file contents
+    # Import file contents for the EMM file
     conv = json.load(open(fp.CONVERT_DATA / opts.f, 'r'))
-
-    # Determine if the conversion file has been updated using Cambium data
+    # Determine if the EMM conversion file has been updated using Cambium
     try:
         _ = conv['updated_to_cambium_year']
         restrict_update = True
     except KeyError:
         restrict_update = False
+    # Import file contents for the state file
+    conv_state = json.load(open(fp.CONVERT_DATA / state_conv_file, 'r'))
+    # Determine if the state conversion file has been updated using Cambium
+    try:
+        _ = conv['updated_to_cambium_year']
+        restrict_update_state = True
+    except KeyError:
+        restrict_update_state = False
 
     # Update routine specific to whether user is updating site-to-source
     # file or regional emission/price projections file
@@ -1160,18 +1172,27 @@ def main():
         with open(fp.CONVERT_DATA / opts.f, 'w') as js_out:
             json.dump(conv_emm, js_out, indent=5)
 
-        # Only update the state file if the EMM file imported does not
-        # include content updated using Cambium data
-        if not restrict_update:
-            print('\nUpdating state CO2 emissions and prices '
-                  'conversion factors.')
+        # Only update the state emissions data if these data have not already
+        # been updated using Cambium data. Always update state price data,
+        # which are currently based on the AEO projections that this routine
+        # pulls from and are not tied to Cambium updates.
+        if not restrict_update_state:
+            print('\nUpdating state CO2 emissions and prices.')
+            # Fully replace state emissions and electricity prices
+            conv_state = updater_state(
+                conv_emm, str(aeo_min), restrict_update_state)
+        else:
+            print('\nUpdating state prices.')
+            # Update state electricity prices and stitch into previously
+            # updated data
+            conv_state_price = \
+                updater_state(conv_emm, str(aeo_min), restrict_update_state)
+            conv_state['End-use electricity price'] = \
+                conv_state_price['End-use electricity price']
 
-            # Update state emissions and electricity price factors
-            conv_state = updater_state(conv_emm, str(aeo_min))
-
-            # Output updated state emissions/price projections data
-            with open(UsefulVars().state_conv_file, 'w') as js_out:
-                json.dump(conv_state, js_out, indent=5)
+        # Output updated state emissions/price projections data
+        with open(fp.CONVERT_DATA / state_conv_file, 'w') as js_out:
+            json.dump(conv_state, js_out, indent=2)
 
 
 if __name__ == '__main__':
