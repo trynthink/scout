@@ -771,19 +771,24 @@ class UsefulVars(object):
                 "heating": [
                     "resistance heat", "furnace (NG)", "boiler (NG)",
                     "furnace (distillate)", "boiler (distillate)",
-                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)"],
-                "cooling": ["central AC", "room AC"]
+                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)",
+                    "ASHP", "GSHP", "NGHP"],
+                "cooling": ["central AC", "ASHP", "GSHP", "NGHP", "room AC"]
             },
             "commercial": {
                 "heating": [
                     "elec_boiler", "electric_res-heat", "gas_boiler",
-                    "gas_furnace", "oil_boiler", "oil_furnace"],
+                    "gas_furnace", "oil_boiler", "oil_furnace",
+                    "rooftop_ASHP-heat", "comm_GSHP-heat",
+                    "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
                 "cooling": [
-                    "rooftop_AC", "centrifugal_chiller",
-                    "reciprocating_chiller", "screw_chiller",
-                    "res_type_central_AC", "scroll_chiller",
-                    "res_type_central_AC", "wall-window_room_AC",
-                    "gas_eng-driven_RTAC", "gas_chiller"]
+                    "rooftop_AC", "rooftop_ASHP-cool",
+                    "reciprocating_chiller", "scroll_chiller",
+                    "centrifugal_chiller", "screw_chiller",
+                    "res_type_central_AC", "comm_GSHP-cool",
+                    "gas_eng-driven_RTAC", "gas_chiller",
+                    "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                    "wall-window_room_AC"]
             }
         }
 
@@ -2806,14 +2811,11 @@ class Measure(object):
         # exogenous HP conversion rates for measures that apply to separate
         # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
         # as applicable. Such links are only needed for equipment microsegments
-        # (e.g., not envelope) and for technologies that are not already linked
-        # across heating/cooling end uses (e.g., not HPs)
+        # (e.g., not envelope)
         if (len(self.end_use["primary"]) > 1 and any([
             x in self.end_use["primary"] for x in [
                 "heating", "cooling"]])) and (
-                    "demand" not in self.technology_type["primary"]) and all([
-                (x is None or "HP" not in x)
-                for x in self.technology["primary"]]):
+                    "demand" not in self.technology_type["primary"]):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
             # Reset anchor end use for linked heating/cooling mseg turnover;
