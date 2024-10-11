@@ -343,7 +343,9 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # test_files/default_config.yml
     default_translated = {
         "ecm_directory": None,
-        "ecm_files": [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()],
+        "ecm_files": [
+            file.stem for file in fp.ECM_DEF.iterdir() if file.is_file() and
+            file.suffix == '.json' and file.stem != 'package_ecms'],
         "ecm_files_regex": [],
         "ecm_packages": [],
         "site_energy": False,
