@@ -36,7 +36,9 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     """
 
     # Set ECMs if subset is provided
-    ecm_dir_files = [file.stem for file in fp.ECM_DEF.iterdir() if file.is_file()]
+    ecm_dir_files = [
+        file.stem for file in fp.ECM_DEF.iterdir() if file.is_file() and
+        file.suffix == '.json' and file.stem != 'package_ecms']
     missing_ecms = []
     if opts.ecm_files is not None:
         missing_ecms = [ecm for ecm in opts.ecm_files if ecm not in ecm_dir_files]

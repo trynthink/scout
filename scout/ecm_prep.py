@@ -771,19 +771,24 @@ class UsefulVars(object):
                 "heating": [
                     "resistance heat", "furnace (NG)", "boiler (NG)",
                     "furnace (distillate)", "boiler (distillate)",
-                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)"],
-                "cooling": ["central AC", "room AC"]
+                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)",
+                    "ASHP", "GSHP", "NGHP"],
+                "cooling": ["central AC", "ASHP", "GSHP", "NGHP", "room AC"]
             },
             "commercial": {
                 "heating": [
                     "elec_boiler", "electric_res-heat", "gas_boiler",
-                    "gas_furnace", "oil_boiler", "oil_furnace"],
+                    "gas_furnace", "oil_boiler", "oil_furnace",
+                    "rooftop_ASHP-heat", "comm_GSHP-heat",
+                    "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
                 "cooling": [
-                    "rooftop_AC", "centrifugal_chiller",
-                    "reciprocating_chiller", "screw_chiller",
-                    "res_type_central_AC", "scroll_chiller",
-                    "res_type_central_AC", "wall-window_room_AC",
-                    "gas_eng-driven_RTAC", "gas_chiller"]
+                    "rooftop_AC", "rooftop_ASHP-cool",
+                    "reciprocating_chiller", "scroll_chiller",
+                    "centrifugal_chiller", "screw_chiller",
+                    "res_type_central_AC", "comm_GSHP-cool",
+                    "gas_eng-driven_RTAC", "gas_chiller",
+                    "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                    "wall-window_room_AC"]
             }
         }
 
@@ -2806,14 +2811,11 @@ class Measure(object):
         # exogenous HP conversion rates for measures that apply to separate
         # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
         # as applicable. Such links are only needed for equipment microsegments
-        # (e.g., not envelope) and for technologies that are not already linked
-        # across heating/cooling end uses (e.g., not HPs)
+        # (e.g., not envelope)
         if (len(self.end_use["primary"]) > 1 and any([
             x in self.end_use["primary"] for x in [
                 "heating", "cooling"]])) and (
-                    "demand" not in self.technology_type["primary"]) and all([
-                (x is None or "HP" not in x)
-                for x in self.technology["primary"]]):
+                    "demand" not in self.technology_type["primary"]):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
             # Reset anchor end use for linked heating/cooling mseg turnover;
@@ -8639,24 +8641,18 @@ class Measure(object):
                 elif any(comp_frac_diffuse < 0):
                     comp_frac_diffuse[numpy.where(comp_frac_diffuse < 0)] = 0
 
-            # If the measure is on the market, the competed fraction that
+            # If the measure has entered the market, the competed fraction that
             # is captured by the measure is the same as the competed fraction
             # above (all competed stock goes to measure); otherwise, this
-            # fraction is set to zero to preclude measure impacts on baseline
-            if measure_on_mkt:
+            # fraction is set to zero to preclude measure impacts on baseline.
+            # Note that for measures that have exited the market, the effects
+            # of the market exit on captured stock are reflected later in the
+            # competition routine, run.py
+            # if measure_on_mkt:
+            if measure_on_mkt or measure_exited_mkt:
                 comp_frac_diffuse_meas = comp_frac_diffuse
             else:
                 comp_frac_diffuse_meas = 0
-
-            # Flag a case where the measure is not currently on the market,
-            # but the measure has previously captured stock that is now
-            # turning over; in this case, the previously captured measure stock
-            # should be decremented by the current year's competed stock value
-            # (see use of this below)
-            if not measure_on_mkt and prev_capt_turnover:
-                decrmnt_meas_capt_stk = True
-            else:
-                decrmnt_meas_capt_stk = False
 
             # If applicable, pull baseline and efficient case refrigerant
             # leakage emissions on a per unit basis
@@ -8985,17 +8981,9 @@ class Measure(object):
                         stk_serv_cap_cnv * base_f_r_unit_yr * diffuse_frac * \
                         comp_frac_diffuse
 
-            # Final competed stock captured by the measure; special handling
-            # for stock of measures that have exited the market to ensure that
-            # captured stock continues to be assessed after market exit – the
-            # effects of the market exit on captured stock are reflected later
-            # in the competition routine, run.py
-            if not measure_exited_mkt:
-                stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
-                    diffuse_frac * comp_frac_diffuse_meas
-            else:
-                stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
-                    diffuse_frac * comp_frac_diffuse
+            # Final competed stock captured by the measure
+            stock_compete_meas[yr] = stock_total_sbmkt[yr] * \
+                diffuse_frac * comp_frac_diffuse_meas
 
             # Handle cases where the variables needed to calculate cumulative
             # captured and competed fractions below are linked to that of
@@ -9184,19 +9172,12 @@ class Measure(object):
                         # measure specifically and an efficient alternative (
                         # reflects all previously captured stock +
                         # captured competed stock from the current year).
-                        if not decrmnt_meas_capt_stk:
-                            stock_total_meas[yr] = stock_total_meas[
-                                str(int(yr) - 1)] + stock_compete_meas[yr]
-                        else:
-                            stock_total_meas[yr] = stock_total_meas[
-                                str(int(yr) - 1)] - stock_compete[yr]
+                        stock_total_meas[yr] = stock_total_meas[
+                            str(int(yr) - 1)] + stock_compete_meas[yr]
                         stock_comp_cum_sbmkt[yr] = stock_comp_cum_sbmkt[
                             str(int(yr) - 1)] + stock_compete_sbmkt[yr]
                     except KeyError:
-                        if not decrmnt_meas_capt_stk:
-                            stock_total_meas[yr] = stock_compete_meas[yr]
-                        else:
-                            stock_total_meas[yr] = 0
+                        stock_total_meas[yr] = stock_compete_meas[yr]
                         stock_comp_cum_sbmkt[yr] = stock_compete_sbmkt[yr]
                 # All other cases, including technical potential case where
                 # measure is not on the market (stock goes immediately to zero)
