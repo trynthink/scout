@@ -55,7 +55,7 @@ jobs:
       - name: Run and profile ecm_prep.py
         run: |
           branch_name="${{ github.ref }}"
-          if [[ $branch_name == 'refs/heads/master' ]]; then
+          if [[ $branch_name == $branch_name ]]; then
             psrecord --log memory_log_${step}.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py --run_step ecm_prep --yaml tests/integration_testing/integration_test.yml --with_profiler"
             (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_ecm_prep.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_ecm_prep.csv
             mv memory_log_ecm_prep.txt ./tests/integration_testing/results/
@@ -92,7 +92,7 @@ jobs:
       - name: Run and profile run.py
         run: |
           branch_name="${{ github.ref }}"
-          if [[ $branch_name == 'refs/heads/master' ]]; then
+          if [[ $branch_name == $branch_name ]]; then
             psrecord --log memory_log_${step}.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py --run_step run --yaml tests/integration_testing/integration_test.yml --with_profiler"
             (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_run.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_run.csv
             mv memory_log_run.txt ./tests/integration_testing/results/
