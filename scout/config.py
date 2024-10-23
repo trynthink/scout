@@ -34,7 +34,7 @@ class FilePaths:
     TSV_DATA = SUPPORTING_DATA / "tsv_data"
 
     # Non-package data:
-    _parent_dir = Path.cwd()  # parent dir of repo
+    _parent_dir = _root_dir.parents[0]  # parent dir of repo
     ECM_DEF = _parent_dir / "ecm_definitions"
     GENERATED = _parent_dir / "generated"
     ECM_COMP = GENERATED / "ecm_competition_data"

@@ -1,6 +1,7 @@
 description: Defines arguments for integration testing runs
 ecm_prep:
-  ecm_packages: ["*"]
+  ecm_packages: []
+  ecm_files: ["Best Com. ASHP, Env., PC (EE+DF-FS)", "Best Com. ASHP, Env., PC (EE+DF-FS) CC"]
   add_typ_eff: true
   rp_persist: true
   alt_regions: EMM
