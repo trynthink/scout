@@ -4,6 +4,7 @@
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -29,7 +30,7 @@
     "CAV_Vent",
     "VAV_Vent"
   ],
-  "htcl_tech_link": "ng heat+rtac",
+  "htcl_tech_link": "ng rtu+rtac or chiller",
   "tech_switch_to": null,
   "energy_efficiency": 0.0,
   "energy_efficiency_units": "relative savings (constant)",
@@ -74,12 +75,18 @@
   },
   "market_scaling_fractions_source": {
     "notes": "Heating multiple of 92% was determined by dividing square feet in which main heating equipment is gas packaged unit (14491406 sf) by square feet in shiwch main heating equipment is gas furnace or packaged unit (176461522 sf). Cooling equipment multiples determined by square feet in which given cooling system (e.g., RTAC, chiller) is pared with given heating system for the measure. Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
-    "source_data": null
+    "source_data": {
+      "title": "CBECS 2018 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/commercial/data/2018/index.php?view=microdata"
+    }
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

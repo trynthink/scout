@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2035,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -58,7 +59,7 @@
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "See 'Best' costs, but assuming that electrical upgrade costs ($7K) are avoided for existing.",
+    "notes": "See 'Best' costs.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
@@ -88,6 +89,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

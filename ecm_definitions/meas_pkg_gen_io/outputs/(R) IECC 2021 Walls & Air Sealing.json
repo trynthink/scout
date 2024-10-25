@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -22,25 +23,37 @@
   "htcl_tech_link": null,
   "tech_switch_to": null,
   "energy_efficiency": {
-    "AIA_CZ1": {
-      "wall": 25.0,
+    "IECC_CZ1": {
+      "wall": 13.0,
       "infiltration": 5.0
     },
-    "AIA_CZ2": {
-      "wall": 25.0,
+    "IECC_CZ2": {
+      "wall": 13.0,
       "infiltration": 5.0
     },
-    "AIA_CZ3": {
-      "wall": 25.0,
-      "infiltration": 5.0
+    "IECC_CZ3": {
+      "wall": 20.0,
+      "infiltration": 3.0
     },
-    "AIA_CZ4": {
-      "wall": 20.9,
-      "infiltration": 5.0
+    "IECC_CZ4": {
+      "wall": 30.0,
+      "infiltration": 3.0
     },
-    "AIA_CZ5": {
-      "wall": 15.0,
-      "infiltration": 5.0
+    "IECC_CZ5": {
+      "wall": 30.0,
+      "infiltration": 3.0
+    },
+    "IECC_CZ6": {
+      "wall": 30.0,
+      "infiltration": 3.0
+    },
+    "IECC_CZ7": {
+      "wall": 30.0,
+      "infiltration": 3.0
+    },
+    "IECC_CZ8": {
+      "wall": 30.0,
+      "infiltration": 3.0
     }
   },
   "energy_efficiency_units": {
@@ -48,7 +61,7 @@
     "infiltration": "ACH"
   },
   "energy_efficiency_source": {
-    "notes": "AIA weighting from: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ:Z7HK0:ec/edit#gid=743005927. Walls: see table R402.1.3, wood frame wall column, use R:values for CAV_Ventity insulation. Infiltration: see section R402.4.1.2 at 50 Pascals.",
+    "notes": "Walls: see table R402.1.3, wood frame wall column, use R:values for cavity insulation. Infiltration: see section R402.4.1.2 at 50 Pascals.",
     "source_data": {
       "title": "2021 International Energy Conservation Code",
       "author": "International Code Council",
@@ -105,6 +118,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

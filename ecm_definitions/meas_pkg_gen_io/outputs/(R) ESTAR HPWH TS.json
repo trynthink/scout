@@ -1,9 +1,10 @@
 {
   "name": "(R) ESTAR HPWH TS",
-  "_description": "ENERGY STAR electric storage heat pump water heater in 2024",
+  "_description": "ENERGY STAR electric storage heat pump water heater in 2024, switch from resistance",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -32,7 +33,7 @@
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Average of ENERGY STAR v4.0 retail (new) and total installed (existing) cost range",
+    "notes": "Average of ENERGY STAR v4.0 retail (new) and total installed (existing) cost range, assume use of existing electric WH circuit (no added circuit cost).",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
       "author": "U.S. Energy Information Administration",
@@ -62,6 +63,6 @@
     "name": "Chioke Harris",
     "organization": "NREL",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

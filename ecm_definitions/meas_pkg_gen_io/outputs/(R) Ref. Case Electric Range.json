@@ -4,6 +4,7 @@
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -59,6 +60,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

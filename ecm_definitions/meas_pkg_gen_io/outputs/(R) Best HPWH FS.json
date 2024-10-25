@@ -1,9 +1,10 @@
 {
   "name": "(R) Best HPWH FS",
-  "_description": "Highest efficiency residential heat pump water heater in 2024",
+  "_description": "Highest efficiency residential heat pump water heater in 2024, fuel switching",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -18,7 +19,7 @@
   "technology": "all",
   "htcl_tech_link": null,
   "tech_switch_to": "HPWH",
-  "energy_efficiency": 1.35,
+  "energy_efficiency": 3.73,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "High efficiency in 2022",
@@ -78,6 +79,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

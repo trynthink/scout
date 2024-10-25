@@ -16,6 +16,7 @@ def main(base_dir):
         "Measure Type": "measure_type",
         "Market Entry Year": "market_entry_year",
         "Market Exit Year": "market_exit_year",
+        "Global Market Exit Flag": "global_exit_flag",
         "Region": "climate_zone",
         "Building Type": "bldg_type",
         "Building Vintage": "structure_type",
@@ -126,7 +127,8 @@ def i_o_val(c, m_out, m, srce_flds, auth_flds):
     # Pull output initial value from CSV for current column
     val_i = m[c[0]]
     # Replace NA or NaN values with None
-    if val_i == "NA" or pd.isna(val_i) or val_i == "null" or not val_i:
+    if val_i != 0 and (
+            val_i == "NA" or pd.isna(val_i) or val_i == "null" or not val_i):
         val_f = None
     # Handle source data with multiple sources (each on newline in CSV)
     elif ("Source Details" in c[0] and
@@ -162,6 +164,10 @@ def i_o_val(c, m_out, m, srce_flds, auth_flds):
             val_f = float(val_i.strip())
         except ValueError:
             val_f = val_i.strip()
+    # Ensure that market entry and exit years are always integers
+    elif any([x in c[0] for x in [
+            "Market Entry Year", "Market Exit Year"]]):
+        val_f = int(val_i)
     # Otherwise finalize CSV value as-is for JSON
     else:
         val_f = val_i

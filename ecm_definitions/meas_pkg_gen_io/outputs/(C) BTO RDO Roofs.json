@@ -1,11 +1,25 @@
 {
   "name": "(C) BTO RDO Roofs",
   "_description": "Targeted cost and performance of commercial roofs in BTO R&D roadmap.",
-  "measure_type": "full service",
+  "measure_type": "add-on",
   "market_entry_year": 2040,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": [
+    "assembly",
+    "education",
+    "food sales",
+    "food service",
+    "health care",
+    "lodging",
+    "large office",
+    "small office",
+    "mercantile/service",
+    "warehouse",
+    "other",
+    "unspecified"
+  ],
   "structure_type": "all",
   "end_use": [
     "heating",
@@ -32,10 +46,7 @@
       "url": "https://www1.eere.energy.gov/buildings/pdfs/80170.pdf"
     }
   },
-  "installed_cost": {
-    "new": 4.2,
-    "existing": 3.51
-  },
+  "installed_cost": 0.55,
   "cost_units": "2022$/ft^2 roof",
   "installed_cost_source": {
     "notes": "Based on 10 year payback for given performance levels. Adds lowest incremental cost in roadmap to baseline component costs from Scout baseline cost database.",
@@ -74,6 +85,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

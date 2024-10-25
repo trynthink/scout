@@ -1,11 +1,25 @@
 {
   "name": "(C) 90.1-2022 Windows",
-  "_description": "Commercial window assembly that meets the ASHRAE performance standard in 2022",
+  "_description": "Commercial window assembly that meets the ASHRAE 90.1-2022 performance standard.",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": [
+    "assembly",
+    "education",
+    "food sales",
+    "food service",
+    "health care",
+    "lodging",
+    "large office",
+    "small office",
+    "mercantile/service",
+    "warehouse",
+    "other",
+    "unspecified"
+  ],
   "structure_type": "all",
   "end_use": [
     "heating",
@@ -21,25 +35,37 @@
   "htcl_tech_link": null,
   "tech_switch_to": null,
   "energy_efficiency": {
-    "AIA_CZ1": {
-      "windows conduction": 2.99,
-      "windows solar": 0.38
+    "IECC_CZ1": {
+      "windows conduction": 2.0,
+      "windows solar": 0.23
     },
-    "AIA_CZ2": {
-      "windows conduction": 2.78,
-      "windows solar": 0.38
+    "IECC_CZ2": {
+      "windows conduction": 2.2,
+      "windows solar": 0.25
     },
-    "AIA_CZ3": {
-      "windows conduction": 2.78,
+    "IECC_CZ3": {
+      "windows conduction": 2.4,
+      "windows solar": 0.25
+    },
+    "IECC_CZ4": {
+      "windows conduction": 2.8,
       "windows solar": 0.36
     },
-    "AIA_CZ4": {
-      "windows conduction": 2.45,
-      "windows solar": 0.27
+    "IECC_CZ5": {
+      "windows conduction": 2.8,
+      "windows solar": 0.38
     },
-    "AIA_CZ5": {
-      "windows conduction": 2.25,
-      "windows solar": 0.25
+    "IECC_CZ6": {
+      "windows conduction": 2.9,
+      "windows solar": 0.38
+    },
+    "IECC_CZ7": {
+      "windows conduction": 3.4,
+      "windows solar": 0.4
+    },
+    "IECC_CZ8": {
+      "windows conduction": 3.8,
+      "windows solar": 0.4
     }
   },
   "energy_efficiency_units": {
@@ -47,7 +73,7 @@
     "windows solar": "SHGC"
   },
   "energy_efficiency_source": {
-    "notes": "Based on the ASHRAE to AIA climate zone conversions here: https://docs.google.com/spreadsheets/d/1XdnJQ5ujLBfvRvkJ117dxpMlLdbBCzYSMQ:Z7HK0:ec/edit#gid=1968005613",
+    "notes": "Values for fixed vertical fenestration, based on assembly max. U",
     "source_data": {
       "title": "ANSI/ASHRAE/IES Standard 90.1-2022: Table 5.5:1 through Table 5.5:8 for fixed vertical fenestration",
       "author": "ASHRAE",
@@ -98,6 +124,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

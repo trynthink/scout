@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -14,10 +15,10 @@
   "technology": "all",
   "htcl_tech_link": null,
   "tech_switch_to": "induction",
-  "energy_efficiency": 0.82,
+  "energy_efficiency": 0.86,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": "Compare overall IAEC (kBtu/y) in 2022 of natural gas vs. electric cooking",
+    "notes": "Compare overall IAEC (kBtu/y) in 2022 of typical natural gas vs. high electric cooking",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencie",
       "author": "U.S. Energy Information Administration",
@@ -29,11 +30,11 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 770.0,
+  "installed_cost": 1050.0,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
     "notes": [
-      "Based on cost of typical electric ranges",
+      "Based on cost of high electric ranges",
       "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)"
     ],
     "source_data": {
@@ -65,6 +66,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

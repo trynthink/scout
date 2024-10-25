@@ -1,0 +1,81 @@
+{
+  "name": "(R) Min. Efficiency HPWH FS",
+  "_description": "Minimum efficiency 240V electric storage heat pump water heater, fuel switching",
+  "measure_type": "full service",
+  "market_entry_year": 2029,
+  "market_exit_year": null,
+  "global_exit_flag": "yes",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": [
+    "natural gas",
+    "distillate",
+    "other fuel"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": "all",
+  "htcl_tech_link": null,
+  "tech_switch_to": "HPWH",
+  "energy_efficiency": 2.3,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Based on electric storage water heater category requirements for 2029, assuming EIA typical capacity of 36 gallons",
+    "source_data": {
+      "title": "430.32 Energy and water conservation standards and their compliance dates",
+      "author": "U.S. Department of Energy",
+      "year": 2024,
+      "pages": null,
+      "url": "https://www.ecfr.gov/current/title-10/chapter-II/subchapter-D/part-430/subpart-C/section-430.32"
+    }
+  },
+  "installed_cost": {
+    "new": 1035.0,
+    "existing": 2250.0
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Average of typical product retail (new) and total installed (existing) cost range, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
+  },
+  "product_lifetime": 15.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for typical unit in 2022, rounded down from 15.1 years",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-10-25 05:57:34"
+  }
+}

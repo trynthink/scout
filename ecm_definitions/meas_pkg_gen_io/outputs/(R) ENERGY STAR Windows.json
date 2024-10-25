@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -22,25 +23,37 @@
   "htcl_tech_link": null,
   "tech_switch_to": null,
   "energy_efficiency": {
-    "AIA_CZ1": {
-      "windows conduction": 4.55,
-      "windows solar": 0.4
-    },
-    "AIA_CZ2": {
-      "windows conduction": 4.55,
-      "windows solar": 0.4
-    },
-    "AIA_CZ3": {
-      "windows conduction": 4.0,
-      "windows solar": 0.4
-    },
-    "AIA_CZ4": {
-      "windows conduction": 3.57,
-      "windows solar": 0.23
-    },
-    "AIA_CZ5": {
+    "IECC_CZ1": {
       "windows conduction": 3.125,
       "windows solar": 0.23
+    },
+    "IECC_CZ2": {
+      "windows conduction": 3.125,
+      "windows solar": 0.23
+    },
+    "IECC_CZ3": {
+      "windows conduction": 3.6,
+      "windows solar": 0.23
+    },
+    "IECC_CZ4": {
+      "windows conduction": 4.3,
+      "windows solar": 0.4
+    },
+    "IECC_CZ5": {
+      "windows conduction": 5.9,
+      "windows solar": 0.4
+    },
+    "IECC_CZ6": {
+      "windows conduction": 5.9,
+      "windows solar": 0.4
+    },
+    "IECC_CZ7": {
+      "windows conduction": 5.9,
+      "windows solar": 0.4
+    },
+    "IECC_CZ8": {
+      "windows conduction": 5.9,
+      "windows solar": 0.4
     }
   },
   "energy_efficiency_units": {
@@ -50,7 +63,7 @@
   "energy_efficiency_source": {
     "notes": [
       "See table 1",
-      "assumes 'Northern' maps to AIA climate zones 1 and 2, 'North:Central' maps to AIA climate zone 3, 'South:Central' maps to AIA climate zone 4, and 'Southern' maps to AIA climate zone 5."
+      "assumes 'Northern' maps to IECC climate zones 5, 6, 7, 8, 'North:Central' maps to IECC climate zone 4, 'South:Central' maps to IECC climate zone 3, and 'Southern' maps to IECC climate zones 1 and 2."
     ],
     "source_data": {
       "title": "ENERGY STAR Product Specification Residential Windows, Doors, and Skylights Version 7.0",
@@ -93,6 +106,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

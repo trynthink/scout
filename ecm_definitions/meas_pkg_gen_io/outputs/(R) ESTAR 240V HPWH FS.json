@@ -1,9 +1,10 @@
 {
   "name": "(R) ESTAR 240V HPWH FS",
-  "_description": "ENERGY STAR 240V electric storage heat pump water heater in 2024, new homes",
+  "_description": "ENERGY STAR 240V electric storage heat pump water heater in 2024, new homes fuel switching",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "new",
@@ -30,17 +31,29 @@
       "url": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Pt.ner%20Commitments.pdf"
     }
   },
-  "installed_cost": 1035.0,
+  "installed_cost": {
+    "new": 1035.0,
+    "existing": 2250.0
+  },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Average of ENERGY STAR v4.0 retail cost range",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
-      "author": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": 65,
-      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+    "notes": "Average of ENERGY STAR v4.0 retail (new) and total installed (existing) cost range, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -63,6 +76,6 @@
     "name": "Chioke Harris",
     "organization": "NREL",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

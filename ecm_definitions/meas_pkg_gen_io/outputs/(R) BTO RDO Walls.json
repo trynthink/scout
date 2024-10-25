@@ -1,35 +1,28 @@
 {
-  "name": "(C) BTO RDO Walls & Infiltration",
-  "_description": "Targeted cost and performance of commercial walls and air sealing in BTO R&D roadmap.",
-  "measure_type": "full service",
+  "name": "(R) BTO RDO Walls",
+  "_description": "Targeted cost and performance of residential walls in BTO R&D roadmap.",
+  "measure_type": "add-on",
   "market_entry_year": 2040,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": [
     "heating",
+    "secondary heating",
     "cooling"
   ],
   "fuel_type": "all",
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
-  "technology": [
-    "wall",
-    "infiltration"
-  ],
+  "technology": "wall",
   "htcl_tech_link": null,
   "tech_switch_to": null,
-  "energy_efficiency": {
-    "wall": 40.0,
-    "infiltration": 0.2
-  },
-  "energy_efficiency_units": {
-    "wall": "R value",
-    "infiltration": "CFM/ft^2 @ 0.3 in. w.c."
-  },
+  "energy_efficiency": 40.0,
+  "energy_efficiency_units": "R value",
   "energy_efficiency_source": {
-    "notes": "Wall: assumes 2 inch insulation thickness and corresponding objective to develop thin, high-R insulation",
+    "notes": "Target R-value doubled to assume 2 in. insulation thickness.",
     "source_data": {
       "title": "Opaque Envelopes: Pathway to Building Energy Efficiency and Demand Flexibility RDO Report",
       "author": "U.S. Department of Energy, Office of Energy Efficiency and Renewable Energy, Building Technologies Office",
@@ -41,34 +34,22 @@
       "url": "https://www1.eere.energy.gov/buildings/pdfs/80170.pdf"
     }
   },
-  "installed_cost": {
-    "wall": 3.01,
-    "infiltration": {
-      "new": 0.16,
-      "existing": 0.53
-    }
-  },
-  "cost_units": {
-    "wall": "2022$/ft^2 wall",
-    "infiltration": "2022$/ft^2 wall"
-  },
+  "installed_cost": 0.75,
+  "cost_units": "2022$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Based on 10 year payback for given performance levels. Adds lowest incremental cost in roadmap to baseline component costs from Scout baseline cost database.",
     "source_data": {
       "title": "Opaque Envelopes: Pathway to Building Energy Efficiency and Demand Flexibility RDO Report",
       "author": "U.S. Department of Energy, Office of Energy Efficiency and Renewable Energy, Building Technologies Office",
       "year": 2021,
-      "pages": [
-        24,
-        38
-      ],
+      "pages": 24,
       "url": "https://www1.eere.energy.gov/buildings/pdfs/80170.pdf"
     }
   },
   "product_lifetime": 100.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Assumed equal to the lifetime of the building",
+    "notes": "Assumed equal to the lifetime of the home",
     "source_data": null
   },
   "market_scaling_fractions": null,
@@ -80,6 +61,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

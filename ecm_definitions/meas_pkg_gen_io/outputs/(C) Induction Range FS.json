@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -14,7 +15,7 @@
   "technology": "all",
   "htcl_tech_link": null,
   "tech_switch_to": null,
-  "energy_efficiency": 0.4,
+  "energy_efficiency": 0.6,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
     "notes": [
@@ -68,6 +69,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

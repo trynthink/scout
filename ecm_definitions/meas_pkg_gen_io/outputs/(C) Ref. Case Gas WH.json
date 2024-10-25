@@ -1,9 +1,10 @@
 {
   "name": "(C) Ref. Case Gas WH",
-  "_description": "Typical commerical gas:fired storage water heater, 100:gal",
+  "_description": "Typical commerical gas-fired storage water heater, 100-gal",
   "measure_type": "add-on",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -38,7 +39,7 @@
   "product_lifetime": 10.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average life of typical 100:gal commercial gas:fired water heater",
+    "notes": "Average life of typical 100-gal commercial gas-fired water heater",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
@@ -56,6 +57,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

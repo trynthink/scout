@@ -1,11 +1,25 @@
 {
   "name": "(C) BTO RDO Windows",
-  "_description": "Targeted cost and performance of residential windows in BTO R&D roadmap.",
+  "_description": "Targeted cost and performance of residential windows in BTO R&D roadmap (adjust market entry from 2030 to 2035 to align with breakthrough HVAC equipment measures).",
   "measure_type": "full service",
-  "market_entry_year": 2030,
+  "market_entry_year": 2035,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
-  "bldg_type": "all commercial",
+  "bldg_type": [
+    "assembly",
+    "education",
+    "food sales",
+    "food service",
+    "health care",
+    "lodging",
+    "large office",
+    "small office",
+    "mercantile/service",
+    "warehouse",
+    "other",
+    "unspecified"
+  ],
   "structure_type": "all",
   "end_use": [
     "heating",
@@ -23,7 +37,11 @@
   "energy_efficiency": {
     "heating": {
       "windows conduction": 10.0,
-      "windows solar": 0.0
+      "windows solar": 0.65
+    },
+    "secondary heating": {
+      "windows conduction": 10.0,
+      "windows solar": 0.65
     },
     "cooling": {
       "windows conduction": 10.0,
@@ -31,14 +49,8 @@
     }
   },
   "energy_efficiency_units": {
-    "cooling": {
-      "windows conduction": "R value",
-      "windows solar": "SHGC"
-    },
-    "heating": {
-      "windows conduction": "R value",
-      "windows solar": "relative savings (constant)"
-    }
+    "windows conduction": "R value",
+    "windows solar": "SHGC"
   },
   "energy_efficiency_source": {
     "notes": [
@@ -101,6 +113,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }

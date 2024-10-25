@@ -4,6 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
+  "global_exit_flag": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -71,16 +72,14 @@
     "electricity": 0.0,
     "natural gas": {
       "new": 187.0,
-      "existing": 433.0
+      "existing": 239.0
     }
   },
   "cost_units": "2022$/kBtu/h heating",
   "installed_cost_source": {
     "notes": [
       "Uses residential system costs and normalizes by typical capacity of residential systems (36 kBtu/h)",
-      "Retail (new) and total installed (existing) for 'High' ASHPs in 2023",
-      "For existing buildings, added costs of $6300 are the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in the NV5 report",
-      "a new circuit cost of 700 $2022 using the upper bound (assuming a high amperage 240V circuit is required for the HVAC system) from the NV5 report."
+      "Retail (new) and total installed (existing) for 'High' ASHPs in 2023. No additional electrical infrastructure costs assumed for dual fuel residential measures."
     ],
     "source_data": [
       {
@@ -123,12 +122,18 @@
       "Heating multiple of 8% was determined by dividing square feet in which main heating equipment is gas furnace (14491406 sf) by square feet in which main heating equipment is gas furnace or packaged unit (176461522 sf)",
       "cooling multiple of 63% was determined by dividing square feet in which cooling equipment is residential split system or individual AC unit  AND heating equipment is natural gas (23128802 sf) by square feet with same cooling constraint and heating across all fossil fuel types (36556957 sf). Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure."
     ],
-    "source_data": null
+    "source_data": {
+      "title": "CBECS 2018 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/commercial/data/2018/index.php?view=microdata"
+    }
   },
   "_updated_by": {
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-09-05 16:27:58"
+    "timestamp": "2024-10-25 05:57:34"
   }
 }
