@@ -11406,6 +11406,8 @@ class MeasurePackage(Measure):
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
                     "efficient-captured"] = None
+                self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
+                    "efficient-captured-envelope"] = None
 
             # Add fugitive emissions key to output dict if fugitive
             # emissions option is set
@@ -11460,8 +11462,12 @@ class MeasurePackage(Measure):
             # variable
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme][
-                    "mseg_out_break"]["energy"]["efficient-captured"] = \
-                    copy.deepcopy(self.handyvars.out_break_in)
+                    "mseg_out_break"]["energy"]["efficient-captured"], \
+                    self.markets[adopt_scheme][
+                    "mseg_out_break"]["energy"][
+                    "efficient-captured-envelope"] = \
+                    (copy.deepcopy(self.handyvars.out_break_in) for n in
+                     range(2))
 
     def merge_measures(self, opts):
         """Merge the markets information of multiple individual measures.
@@ -11695,6 +11701,16 @@ class MeasurePackage(Measure):
                 # required for the current adoption scenario
                 if self.handyvars.full_dat_out[adopt_scheme]:
                     mseg_out_break_fin = m[adopt_scheme]["breakouts"]
+                    # If efficient-captured data for buildings with both
+                    # HVAC and envelope impacts are being isolated, add
+                    # a new branch to the energy breakout dict to use in
+                    # reporting these data
+                    if "efficient-captured-envelope" in \
+                        self.markets[adopt_scheme]["mseg_out_break"][
+                            "energy"].keys():
+                        mseg_out_break_fin["energy"][
+                            "efficient-captured-envelope"] = copy.deepcopy(
+                            mseg_out_break_fin["energy"]["efficient-captured"])
                     # Set shorthand for data used to track annual electricity
                     # use that concerns the measure's sector shape after
                     # package adjustments
@@ -11777,10 +11793,16 @@ class MeasurePackage(Measure):
                         # this reporting variable is not suppressed by user
                         if v == "energy" and self.usr_opts[
                                 "no_eff_capt"] is not True:
-                            # Merge out breaks for captured efficient energy
-                            self.merge_out_break(self.markets[adopt_scheme][
-                                "mseg_out_break"]["energy"]["efficient-captured"],
-                                mseg_out_break_fin["energy"]["efficient-captured"])
+                            # Merge out breaks for captured efficient energy;
+                            # for packages, includes variable that isolates
+                            # portion of efficient-captured energy where
+                            # HVAC/envelope are deployed together
+                            for v_sub in ["efficient-captured",
+                                          "efficient-captured-envelope"]:
+                                self.merge_out_break(
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"]["energy"][v_sub],
+                                    mseg_out_break_fin["energy"][v_sub])
 
                 # Adjust individual measure's contributing sector shape
                 # information to account for overlaps with other measures in
@@ -11971,6 +11993,31 @@ class MeasurePackage(Measure):
                                         len(cm_keys_dmd[m]))]) for
                                 m in range(len(dmd_match_ECMs))]) for yr in
                                 self.handyvars.aeo_years}
+                            if "efficient-captured" in m.markets[
+                                    adopt_scheme]["master_mseg"][
+                                    "energy"]["total"].keys():
+                                dmd_eff_capt = {yr: sum([sum([(
+                                    dmd_match_ECMs[m].markets[adopt_scheme][
+                                        "mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        cm_keys_dmd[m][k]]["energy"][
+                                        "total"]["efficient-captured"][yr])
+                                    for k in range(len(cm_keys_dmd[m]))]) for
+                                    m in range(len(dmd_match_ECMs))]) for yr in
+                                    self.handyvars.aeo_years}
+                                dmd_eff = {yr: sum([sum([(
+                                    dmd_match_ECMs[m].markets[adopt_scheme][
+                                        "mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        cm_keys_dmd[m][k]]["energy"][
+                                        "total"]["efficient"][yr])
+                                    for k in range(len(cm_keys_dmd[m]))]) for
+                                    m in range(len(dmd_match_ECMs))]) for yr in
+                                    self.handyvars.aeo_years}
+                            else:
+                                dmd_eff_capt, dmd_eff = (
+                                    None for n in range(2))
+
                             # If the user opts to include envelope costs in
                             # the total costs of the HVAC/envelope package,
                             # record those overlapping costs
@@ -12003,13 +12050,15 @@ class MeasurePackage(Measure):
                                     adopt_scheme]["data"].keys():
                                 # Data include the overlapping energy savings
                                 # and baselines recorded for the equipment/
-                                # envelope measures above, as well as the
-                                # total energy use that could have overlapped,
-                                # pulled from pre-calculated values
+                                # envelope measures above, as well as stock
+                                # and stock costs if available, pulled from
+                                # pre-calculated values
                                 self.htcl_overlaps[adopt_scheme]["data"][
                                         cm_key_store] = {
                                     "affected savings": dmd_save,
                                     "total affected": dmd_base,
+                                    "efficient-captured": dmd_eff_capt,
+                                    "total efficient": dmd_eff,
                                     "stock costs": dmd_stk_cost,
                                     "stock": dmd_stk}
 
@@ -12074,9 +12123,10 @@ class MeasurePackage(Measure):
             # operations in the loop
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions
-            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
-                msegs_meas_init, cm_key, adopt_scheme,
-                name_meas, htcl_key_match, overlap_meas)
+            base_adj, eff_adj, eff_adj_c, eff_capt_env_frac = \
+                self.find_base_eff_adj_fracs(
+                    msegs_meas_init, cm_key, adopt_scheme,
+                    name_meas, htcl_key_match, overlap_meas)
             # Adjust stock, energy, carbon, and energy/carbon cost data
             # based on savings contribution of the measure and overlapping
             # measure(s) in this contributing microsegment, as well as the
@@ -12087,8 +12137,8 @@ class MeasurePackage(Measure):
                     tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
                     tot_eff_orig_ecost, tot_save_orig_ecost = \
                     self.make_base_eff_adjs(
-                            k, cm_key, msegs_meas, base_adj,
-                            eff_adj, eff_adj_c)
+                        k, cm_key, msegs_meas, base_adj,
+                        eff_adj, eff_adj_c, eff_capt_env_frac)
                 # Make adjustments to energy/carbon/cost output breakouts if
                 # full data reporting is required for the current adoption
                 # scenario
@@ -12098,7 +12148,7 @@ class MeasurePackage(Measure):
                         tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
                         tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                         tot_save_orig_ecost, key_list, fuel_switch_to,
-                        fs_eff_splt)
+                        fs_eff_splt, eff_capt_env_frac)
             # Special handling for cost merge when add-on measure is packaged
             if meas_typ == "add-on":
                 # Determine whether any of the measures overlapping with the
@@ -12261,7 +12311,8 @@ class MeasurePackage(Measure):
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions; directly
             # overlapping measures are none in this case
-            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
+            base_adj, eff_adj, eff_adj_c, eff_capt_env_frac = \
+                self.find_base_eff_adj_fracs(
                     msegs_meas_init, cm_key, adopt_scheme, name_meas,
                     htcl_key_match, overlap_meas="")
             # Adjust energy, carbon, and energy/carbon cost data based on
@@ -12274,7 +12325,8 @@ class MeasurePackage(Measure):
                     tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
                     tot_eff_orig_ecost, tot_save_orig_ecost = \
                     self.make_base_eff_adjs(
-                        k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
+                        k, cm_key, msegs_meas, base_adj,
+                        eff_adj, eff_adj_c, eff_capt_env_frac)
                 # Make adjustments to energy/carbon/cost output breakouts if
                 # full data reporting is required for the current adoption
                 # scenario
@@ -12285,7 +12337,7 @@ class MeasurePackage(Measure):
                         tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
                         tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                         tot_save_orig_ecost, key_list, fuel_switch_to,
-                        fs_eff_splt)
+                        fs_eff_splt, eff_capt_env_frac)
 
             # If necessary, adjust fugitive emissions data
 
@@ -12566,6 +12618,11 @@ class MeasurePackage(Measure):
             # for the overlapping tech type in the current contributing mseg
             overlp_data = self.htcl_overlaps[adopt_scheme]["data"][
                 htcl_key_match]
+            # If efficient-captured data are reported, initialize dict that
+            # isolates the fraction of efficient-captured energy where both
+            # envelope and HVAC measures are having an impact
+            if overlp_data["efficient-captured"]:
+                eff_capt_env_frac = {yr: 0 for yr in self.handyvars.aeo_years}
 
             # Loop through all years in the modeling time horizon and use
             # data above to develop baseline/efficient adjustment factors
@@ -12594,6 +12651,53 @@ class MeasurePackage(Measure):
                     elif overlp_data["affected savings"][yr] > 0 and \
                             rp_overlp_htcl[yr] < 0:
                         rp_overlp_htcl[yr] = 0
+
+                    # If needed to isolate efficient-captured totals for cases
+                    # where both envelope and HVAC measures are having impacts,
+                    # pull the ratio of the efficient-captured energy use for
+                    # all overlapping envelope measures vs. the total efficient
+                    # energy use for these measures (this is later applied
+                    # to the efficient-captured totals for the pkg.)
+                    if overlp_data["efficient-captured"]:
+                        # Find efficient-captured-envelope fraction for the
+                        # overlapping measure(s); handle zero denominator
+                        try:
+                            eff_capt_env_frac[yr] = (
+                                overlp_data["efficient-captured"][yr] /
+                                overlp_data["total efficient"][yr])
+                            # Ensure that total efficient-captured energy is
+                            # never greater than total efficient energy for
+                            # overlapping envelope measures in a given region,
+                            # building type/vintage, and end use combination
+                            if eff_capt_env_frac[yr] > 1:
+                                eff_capt_env_frac[yr] = 1
+                            # In certain cases with aggressive envelope
+                            # improvements where the measure enters the market
+                            # later in the horizon, total efficient energy
+                            # (representing energy use of all the baseline
+                            # stock captured before the measure entered the
+                            # market) will be positive while total efficient-
+                            # captured energy (representing energy use of all
+                            # the stock the measure captures after market entry
+                            # ) will be negative – or vice versa, depending on
+                            # the direction of the env. component impact. For
+                            # this case, compare the absolute value of the
+                            # efficient-captured to the absolute value of the
+                            # total sum of efficient-captured and total
+                            # efficient values, to avoid a negative fraction.
+                            elif eff_capt_env_frac[yr] < 0:
+                                eff_capt_env_frac[yr] = (abs(overlp_data[
+                                    "efficient-captured"][yr]) / (
+                                    abs(overlp_data[
+                                        "efficient-captured"][yr]) +
+                                    abs(overlp_data["total efficient"][yr])))
+                        except ZeroDivisionError:
+                            eff_capt_env_frac[yr] = 0
+                        # Handle numpy NaNs
+                        if not numpy.isfinite(eff_capt_env_frac[yr]):
+                            eff_capt_env_frac[yr] = 0
+                    else:
+                        eff_capt_env_frac = None
 
             # Overlapping envelope measures only affect the efficient case
             # energy/carbon results for an HVAC equipment measure; set base
@@ -12820,15 +12924,18 @@ class MeasurePackage(Measure):
             # Implement competed efficient adjustment
             eff_adj_comp = {yr: base_adj[yr] * rp_overlp_comp[yr]
                             for yr in self.handyvars.aeo_years}
+            eff_capt_env_frac = None
         # If neither case 1 or 2 above, set baseline/efficient adjustments to 1
         else:
             base_adj, eff_adj, eff_adj_comp = (
               {yr: 1 for yr in self.handyvars.aeo_years} for n in range(2))
+            eff_capt_env_frac = None
 
-        return base_adj, eff_adj, eff_adj_comp
+        return base_adj, eff_adj, eff_adj_comp, eff_capt_env_frac
 
     def make_base_eff_adjs(
-            self, k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c):
+            self, k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c,
+            eff_capt_env_frac):
         """Apply overlap adjustments for measure mseg in a package.
 
         Args:
@@ -12840,6 +12947,8 @@ class MeasurePackage(Measure):
             base_adj (dict): Overlap adjustments for baseline data.
             eff_adj (dict): Overlap adjustments for total efficient data.
             eff_adj_c (dict): Overlap adjustments for competed efficient data.
+            eff_capt_env_frac (dict): Efficient-captured portion of efficient
+                energy total across all envelope measures in HVAC/envelope pkg.
 
         Returns:
             Adjusted baseline/efficient energy and carbon data that accounts
@@ -12909,6 +13018,16 @@ class MeasurePackage(Measure):
             self.adj_pkg_mseg_keyvals(
                 mseg_cost_adj, base_adj, eff_adj, eff_adj_c,
                 base_eff_flag=None, comp_flag=None)
+        # If necessary, for energy, add further tracking to isolate
+        # efficient-captured data where both envelope and HVAC measures are
+        # having impacts within an HVAC/envelope pkg.; calculated as
+        # efficient-captured total for the HVAC/envelope pkg. multiplied by
+        # the efficient-captured portion of the efficient total across all
+        # envelope measures that contribute to the package
+        if k == "energy" and eff_capt_env_frac:
+            mseg_adj["total"]["efficient-captured-envelope"] = {
+                yr: mseg_adj["total"]["efficient-captured"][yr] *
+                eff_capt_env_frac[yr] for yr in self.handyvars.aeo_years}
 
         return mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
             tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
@@ -12918,7 +13037,7 @@ class MeasurePackage(Measure):
             self, k, cm_key, msegs_ecarb, msegs_ecarb_cost, mseg_out_break_adj,
             tot_base_orig, tot_eff_orig, tot_eff_capt_orig, tot_save_orig,
             tot_base_orig_ecost, tot_eff_orig_ecost, tot_save_orig_ecost,
-            key_list, fuel_switch_to, fs_eff_splt):
+            key_list, fuel_switch_to, fs_eff_splt, eff_capt_env_frac):
         """Adjust output breakouts after removing energy/carbon data overlaps.
 
         Args:
@@ -12941,6 +13060,8 @@ class MeasurePackage(Measure):
                 measure switches to (if applicable).
             fs_eff_splt (dict): If applicable, the fuel splits for efficient-
                 case measure energy/carb/cost (used to adj. output breakouts).
+            eff_capt_env_frac (dict): Efficient-captured portion of efficient
+                energy total across all envelope measures in HVAC/envelope pkg.
 
         Returns:
             Updated energy, carbon, and energy cost output breakouts adjusted
@@ -13108,11 +13229,29 @@ class MeasurePackage(Measure):
             # efficient case remains w/ original fuel by definition
             if k != "stock":
                 fs_eff_splt_var = {
-                    yr: (fs_eff_splt[k][0][yr] / fs_eff_splt[k][1][yr]) if
-                    fs_eff_splt[k][1][yr] != 0 else 1
+                    yr: ((fs_eff_splt[k][0][yr] + fs_eff_splt[k][1][yr]) /
+                         fs_eff_splt[k][2][yr]) if
+                    fs_eff_splt[k][2][yr] != 0 else 1
                     for yr in self.handyvars.aeo_years}
+                # Check for whether baseline fuel use is present in the
+                # efficient-captured stock (e.g., for dual fuel measure
+                # operations) – this is signified by a boolean flag in the
+                # last element of the fs_eff_splt["energy"] variable.
+                # If so, pull fraction of efficient-captured energy that
+                # remains serviced by original fuel; if not, set to None
+                if eff_capt and fs_eff_splt[k][-1]:
+                    fs_eff_splt_var_capt = {
+                        yr: fs_eff_splt[k][1][yr] / fs_eff_splt[k][3][yr] if
+                        fs_eff_splt[k][3][yr] != 0 else 1
+                        for yr in self.handyvars.aeo_years}
+                elif eff_capt:
+                    fs_eff_splt_var_capt = {
+                        yr: 0 for yr in self.handyvars.aeo_years}
+                else:
+                    fs_eff_splt_var_capt = None
             else:
                 fs_eff_splt_var = {yr: 0 for yr in self.handyvars.aeo_years}
+                fs_eff_splt_var_capt = None
             # Stock/energy/carbon; original fuel
             mseg_out_break_adj[k]["baseline"][
                 out_cz][out_bldg][out_eu][out_fuel_save], \
@@ -13129,9 +13268,31 @@ class MeasurePackage(Measure):
                         eff_orig[yr] - eff_adj[yr]) * fs_eff_splt_var[yr] for
                  yr in self.handyvars.aeo_years}]
 
-            # Note: no measure-captured efficient energy in the base fuel
-            # needs adjustment here given that by definition fuel switching
-            # measures only operate via switched to fuel (no data to adjust)
+            # If measure-captured efficient energy is partially serviced by
+            # baseline fuel, update results accordingly; otherwise, no
+            # adjustment is needed
+            if eff_capt and fs_eff_splt[k][-1]:
+                # Remove adjusted efficient-captured case that remains with
+                # base fuel
+                mseg_out_break_adj[k]["efficient-captured"][
+                    out_cz][out_bldg][out_eu][out_fuel_save] = {
+                    yr: mseg_out_break_adj[k]["efficient-captured"][
+                        out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) *
+                        fs_eff_splt_var_capt[yr] for
+                    yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked; calculated as the efficient-captured
+                # total for the HVAC/envelope pkg. multiplied by the efficient-
+                # captured portion of the efficient total across all envelope
+                # measures that contribute to the package
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_save] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_save][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
 
             # No savings breakouts for stock variable
             if k != "stock":
@@ -13168,6 +13329,15 @@ class MeasurePackage(Measure):
                         out_cz][out_bldg][out_eu][out_fuel_gain][yr] - (
                             eff_capt_orig[yr] - eff_capt_adj[yr])
                     for yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_gain][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted efficient is added to the existing savings for
@@ -13273,6 +13443,15 @@ class MeasurePackage(Measure):
                         out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                             eff_capt_orig[yr] - eff_capt_adj[yr]) for
                     yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_save] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_save][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted
@@ -13343,6 +13522,15 @@ class MeasurePackage(Measure):
                             out_cz][out_bldg][out_eu][yr] - (
                                 eff_capt_orig[yr] - eff_capt_adj[yr]) for
                         yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted

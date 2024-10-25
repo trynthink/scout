@@ -2040,6 +2040,9 @@ class Engine(object):
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base, adj_stk_trk = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
+            # Determine whether efficient-captured energy is being reported
+            eff_capt = (
+                "efficient-captured" in adj["energy"]["total"].keys())
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
             # competed market share for an associated primary contributing
@@ -2117,9 +2120,7 @@ class Engine(object):
                         else "" for v in ["baseline", "efficient"]]
                     # Energy data may include unique efficient captured
                     # tracking if efficient breakout data are present
-                    if "efficient" in vs_list and var == "energy" and \
-                            "efficient-captured" in adj_out_break[
-                            "base fuel"]["energy"].keys():
+                    if "efficient" in vs_list and var == "energy" and eff_capt:
                         vs_list.append("efficient-captured")
                     for var_sub in [x for x in vs_list if x]:
                         # Select correct fuel split data
@@ -2213,9 +2214,7 @@ class Engine(object):
                             # Update efficient result
                             # Energy data may include efficient-captured
                             # tracking
-                            if var == "energy" and "efficient-captured" in \
-                                adj_out_break["switched fuel"][
-                                    "energy"].keys():
+                            if var == "energy" and eff_capt:
                                 vs_list = ["efficient", "efficient-captured"]
                             else:
                                 vs_list = ["efficient"]
@@ -2452,6 +2451,9 @@ class Engine(object):
                 mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                     adj_list_eff, adj_list_base, adj_stk_trk = \
                     self.compete_adj_dicts(m, mseg, adopt_scheme)
+                # Determine whether efficient-captured energy is being reported
+                eff_capt = (
+                    "efficient-captured" in adj["energy"]["total"].keys())
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -2600,8 +2602,7 @@ class Engine(object):
                         # Energy data may include unique efficient captured
                         # tracking if efficient breakout data are present
                         if "efficient" in vs_list and var == "energy" and \
-                                "efficient-captured" in adj_out_break[
-                                "base fuel"]["energy"].keys():
+                                eff_capt:
                             vs_list.append("efficient-captured")
                         for var_sub in [x for x in vs_list if x]:
                             # Set appropriate post-competition adjustment frac.
@@ -2706,10 +2707,7 @@ class Engine(object):
                                 # Update efficient result
                                 # Energy data may include efficient-captured
                                 # tracking
-                                if var == "energy" and \
-                                    "efficient-captured" in \
-                                    adj_out_break["switched fuel"][
-                                        "energy"].keys():
+                                if var == "energy" and eff_capt:
                                     vs_list = ["efficient",
                                                "efficient-captured"]
                                 else:
@@ -3002,8 +3000,9 @@ class Engine(object):
                 elif var != "energy":
                     var_list = ["baseline", "efficient", "savings"]
                 else:  # efficient captured data for energy
-                    var_list = ["baseline", "efficient",
-                                "efficient-captured", "savings"]
+                    var_list = ["baseline", "efficient", "savings"]
+                    if eff_capt:
+                        var_list.extend(["efficient-captured"])
                 # Adjust stock/energy/carbon/cost data
                 for var_sub in var_list:
                     # Handle case where potential efficient-captured energy
@@ -4147,7 +4146,7 @@ class Engine(object):
         # Initialize markets and savings totals across all ECMs
 
         # Set total # of market variables that could be reported across ECMs
-        n_vars_all = 15
+        n_vars_all = 16
         # Initialize summary variable values at zero
         summary_vals_all_ecms = [{
             yr: 0 for yr in focus_yrs} for n in range(n_vars_all)]
@@ -4175,8 +4174,32 @@ class Engine(object):
             # Set competed measure markets and savings and financial metrics
             mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
             # Set shorthand for efficient-captured market data if these are
-            # available, and if they are not, set shorthand to None
-            eff_capt = mkts["energy"]["total"].get("efficient-captured", "")
+            # available, and if they are not set shorthand to None
+            try:
+                eff_capt = mkts["energy"]["total"]["efficient-captured"]
+                # Recalculate efficient-captured-envelope data based on
+                # adjusted efficient captured data, if applicable
+                try:
+                    # Check if efficient-captured-envelope data are in keys
+                    eff_capt_env = mkts["energy"]["total"][
+                        "efficient-captured-envelope"]
+                    # Reset these data based on the original (pre-competition)
+                    # ratio between efficient-captured-envelope and
+                    # efficient-captured, applied to adjusted (post-comp.)
+                    # efficient-captured data
+                    pre_comp_mkts = m.markets[adopt_scheme][
+                        "uncompeted"]["master_mseg"]["energy"]["total"]
+                    eff_capt_env = {
+                        yr: (eff_capt[yr] * (
+                             pre_comp_mkts["efficient-captured-envelope"][yr] /
+                             pre_comp_mkts["efficient-captured"][yr])) if
+                        pre_comp_mkts["efficient-captured"][yr] != 0
+                        else 0 for yr in self.handyvars.aeo_years}
+                except KeyError:
+                    eff_capt_env = ""
+            except KeyError:
+                eff_capt, eff_capt_env = ("" for n in range(2))
+
             save = m.savings[adopt_scheme]["competed"]
             metrics_finance = m.financial_metrics
 
@@ -4190,7 +4213,7 @@ class Engine(object):
                 mkts["cost"]["carbon"]["total"]["baseline"],
                 mkts["stock"]["total"]["measure"],
                 mkts["energy"]["total"]["efficient"],
-                eff_capt,
+                eff_capt, eff_capt_env,
                 mkts["carbon"]["total"]["efficient"],
                 mkts["cost"]["energy"]["total"]["efficient"],
                 mkts["cost"]["carbon"]["total"]["efficient"],
@@ -4209,10 +4232,13 @@ class Engine(object):
             # Order the year entries in the above markets, savings,
             # and portfolio metrics outputs
             summary_vals_init = [OrderedDict(
-                sorted(x.items())) for x in summary_vals]
+                sorted(x.items())) if isinstance(x, dict) else x
+                for x in summary_vals]
             # Apply focus year range, if applicable
             summary_vals = [{
-                yr: summary_vals_init[v][yr] for yr in focus_yrs}
+                yr: summary_vals_init[v][yr] if
+                isinstance(summary_vals_init[v], dict) else 0
+                for yr in focus_yrs}
                 for v in range(len(summary_vals))]
             # Add ECM markets and savings totals to totals across all ECMs
             summary_vals_all_ecms = [{
@@ -4275,33 +4301,34 @@ class Engine(object):
 
             # Mean of outputs
             stk_base_avg, energy_base_avg, carb_base_avg, \
-                energy_cost_base_avg,  carb_cost_base_avg, stk_eff_avg, \
-                energy_eff_avg, energy_eff_capt_avg, carb_eff_avg, \
-                energy_cost_eff_avg, carb_cost_eff_avg, energy_save_avg, \
-                energy_costsave_avg, carb_save_avg, carb_costsave_avg, \
-                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, \
-                irr_e_avg, irr_ec_avg, payback_e_avg, \
-                payback_ec_avg = [{
+                energy_cost_base_avg, carb_cost_base_avg, stk_eff_avg, \
+                energy_eff_avg, energy_eff_capt_avg, energy_eff_capt_avg_env, \
+                carb_eff_avg, energy_cost_eff_avg, carb_cost_eff_avg, \
+                energy_save_avg, energy_costsave_avg, carb_save_avg, \
+                carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, \
+                irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg = [{
                     k: numpy.mean(v) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
             # 5th percentile of outputs
             stk_base_low, energy_base_low, carb_base_low, \
                 energy_cost_base_low, carb_cost_base_low, stk_eff_low, \
-                energy_eff_low, energy_eff_capt_low, carb_eff_low, \
-                energy_cost_eff_low, carb_cost_eff_low, energy_save_low, \
-                energy_costsave_low, carb_save_low, carb_costsave_low, \
-                cce_low, cce_c_low, ccc_low, ccc_e_low, \
+                energy_eff_low, energy_eff_capt_low, energy_eff_capt_low_env, \
+                carb_eff_low, energy_cost_eff_low, carb_cost_eff_low, \
+                energy_save_low, energy_costsave_low, carb_save_low, \
+                carb_costsave_low, cce_low, cce_c_low, ccc_low, ccc_e_low, \
                 irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = [{
                     k: numpy.percentile(v, 5) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
             # 95th percentile of outputs
             stk_base_high, energy_base_high, carb_base_high, \
                 energy_cost_base_high, carb_cost_base_high, stk_eff_high, \
-                energy_eff_high, energy_eff_capt_high, carb_eff_high, \
+                energy_eff_high, energy_eff_capt_high, \
+                energy_eff_capt_high_env, carb_eff_high, \
                 energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
-                energy_costsave_high, carb_save_high, carb_costsave_high, \
-                cce_high, cce_c_high, ccc_high, ccc_e_high, \
-                irr_e_high, irr_ec_high, payback_e_high, payback_ec_high = [{
+                energy_costsave_high, carb_save_high, \
+                carb_costsave_high, cce_high, cce_c_high, \
+                ccc_high, ccc_e_high, irr_e_high, irr_ec_high, \
+                payback_e_high, payback_ec_high = [{
                     k: numpy.percentile(v, 95) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
 
@@ -4338,7 +4365,7 @@ class Engine(object):
                             n in range(2))
 
                 # Add efficient-captured data to reporting if present
-                if eff_capt and energy_eff_capt_avg is not None:
+                if eff_capt:
                     self.output_ecms[m.name][
                         "Markets and Savings (Overall)"][adopt_scheme][
                         "Efficient Energy Use, Measure (MMBtu)"], \
@@ -4347,6 +4374,19 @@ class Engine(object):
                             adopt_scheme][
                             "Efficient Energy Use, Measure (MMBtu)"] = (
                                 energy_eff_capt_avg for n in range(2))
+                    # Add efficient-captured-envelope data to reporting if
+                    # present
+                    if eff_capt_env:
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure-"
+                            "Envelope (MMBtu)"], \
+                            self.output_ecms[m.name][
+                                "Markets and Savings (by Category)"][
+                                adopt_scheme][
+                                "Efficient Energy Use, Measure-"
+                                "Envelope (MMBtu)"] = (
+                                    energy_eff_capt_avg_env for n in range(2))
                 # Determine stock units, if necessary (for the Scout stock
                 # reporting option and/or for mapping to GCAM data format)
                 if opts.report_stk is True or opts.gcam_out is True:
@@ -4452,6 +4492,11 @@ class Engine(object):
                 if eff_capt:
                     mkt_eff_keys.append(
                         "Efficient Energy Use, Measure (MMBtu)")
+                    # Add efficient-captured-envelope to efficient breakout
+                    # names if present
+                    if eff_capt_env:
+                        mkt_eff_keys.append(
+                            "Efficient Energy Use, Measure-Envelope (MMBtu)")
                 # Add baseline/efficient keys for stock reporting, if needed
                 if opts.report_stk is True:
                     mkt_base_keys.append(base_stk_key)
@@ -4478,7 +4523,7 @@ class Engine(object):
                             ("Avoided CO2 Emissions (MMTons)".
                                 translate(sub), carb_save_avg)
                             ]) for n in range(2))
-                if eff_capt and energy_eff_capt_avg is not None:
+                if eff_capt:
                     self.output_ecms[m.name][
                         "Markets and Savings (Overall)"][adopt_scheme][
                         "Efficient Energy Use, Measure (MMBtu)"], \
@@ -4487,6 +4532,18 @@ class Engine(object):
                             adopt_scheme][
                             "Efficient Energy Use, Measure (MMBtu)"] = (
                                 energy_eff_capt_avg for n in range(2))
+                    if eff_capt_env:
+                        self.output_ecms[m.name][
+                            "Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure-"
+                            "Envelope (MMBtu)"], \
+                            self.output_ecms[m.name][
+                                "Markets and Savings (by Category)"][
+                                adopt_scheme][
+                                "Efficient Energy Use, Measure-"
+                                "Envelope (MMBtu)"] = (
+                                    energy_eff_capt_avg_env for n in range(2))
+
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
                 mkt_base_keys = [
@@ -4501,6 +4558,11 @@ class Engine(object):
                 if eff_capt:
                     mkt_eff_keys.append(
                         "Efficient Energy Use, Measure (MMBtu)")
+                    # Add efficient-captured-envelope to efficient breakout
+                    # names if present
+                    if eff_capt_env:
+                        mkt_eff_keys.append(
+                            "Efficient Energy Use, Measure-Envelope (MMBtu)")
                 # Record list of savings variable names for use in finalizing
                 # output breakouts below
                 save_keys = [
@@ -4657,7 +4719,7 @@ class Engine(object):
                 m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                     "energy"]["efficient"], energy_eff_avg, focus_yrs,
                 divide=True)
-            # Calculate efficient captured energy fractions by output breakout
+            # Calculate efficient-captured energy fractions by output breakout
             # category if efficient-captured energy data are present
             if eff_capt:
                 frac_eff_energy_capt = self.out_break_walk(
@@ -4847,6 +4909,16 @@ class Engine(object):
                         mkt_sv[
                             "Efficient Energy Use, Measure (high) (MMBtu)"] = \
                             energy_eff_capt_high
+                        # Record efficient-captured-envelope data if present
+                        if eff_capt_env:
+                            mkt_sv[
+                                "Efficient Energy Use, Measure-Envelope"
+                                " (low) (MMBtu)"] = \
+                                energy_eff_capt_low_env
+                            mkt_sv[
+                                "Efficient Energy Use, Measure-Envelope"
+                                " (high) (MMBtu)"] = \
+                                energy_eff_capt_high_env
 
             # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
@@ -5428,7 +5500,8 @@ class Engine(object):
         stock_base_all_avg, energy_base_all_avg, carb_base_all_avg, \
             energy_cost_base_all_avg, carb_cost_base_all_avg, \
             stock_eff_all_avg, energy_eff_all_avg, energy_eff_all_capt_avg, \
-            carb_eff_all_avg, energy_cost_eff_all_avg, carb_cost_eff_all_avg, \
+            energy_eff_all_capt_avg_env, carb_eff_all_avg, \
+            energy_cost_eff_all_avg, carb_cost_eff_all_avg, \
             energy_save_all_avg, energy_costsave_all_avg, carb_save_all_avg, \
             carb_costsave_all_avg = [{
                 k: numpy.mean(v) if v is not None else v
@@ -5437,7 +5510,8 @@ class Engine(object):
         stock_base_all_low, energy_base_all_low, carb_base_all_low, \
             energy_cost_base_all_low, carb_cost_base_all_low, \
             stock_eff_all_low, energy_eff_all_low, energy_eff_all_capt_low, \
-            carb_eff_all_low, energy_cost_eff_all_low, carb_cost_eff_all_low, \
+            energy_eff_all_capt_low_env, carb_eff_all_low, \
+            energy_cost_eff_all_low, carb_cost_eff_all_low, \
             energy_save_all_low, energy_costsave_all_low, carb_save_all_low, \
             carb_costsave_all_low = [{
                 k: numpy.percentile(v, 5) if v is not None else v
@@ -5446,10 +5520,11 @@ class Engine(object):
         stock_base_all_high, energy_base_all_high, carb_base_all_high, \
             energy_cost_base_all_high, carb_cost_base_all_high, \
             stock_eff_all_high, energy_eff_all_high, \
-            energy_eff_all_capt_high, carb_eff_all_high, \
-            energy_cost_eff_all_high, carb_cost_eff_all_high, \
-            energy_save_all_high, energy_costsave_all_high, \
-            carb_save_all_high, carb_costsave_all_high = [{
+            energy_eff_all_capt_high, energy_eff_all_capt_high_env, \
+            carb_eff_all_high, energy_cost_eff_all_high, \
+            carb_cost_eff_all_high, energy_save_all_high, \
+            energy_costsave_all_high, carb_save_all_high, \
+            carb_costsave_all_high = [{
                 k: numpy.percentile(v, 95) if v is not None else v
                 for k, v in z.items()} for z in summary_vals_all_ecms]
 
@@ -5479,6 +5554,13 @@ class Engine(object):
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                 adopt_scheme]["Efficient Energy Use, Measure (MMBtu)"] = \
                 energy_eff_all_capt_avg
+            # Record efficient-captured-envelope data across all ECMs if
+            # present
+            if eff_capt_env and energy_eff_all_capt_avg_env is not None:
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                    adopt_scheme][
+                        "Efficient Energy Use, Measure-Envelope (MMBtu)"] = \
+                    energy_eff_all_capt_avg_env
 
         # Record updated (post-competed) fugitive emissions results across all
         # ECMs if applicable
@@ -5553,6 +5635,21 @@ class Engine(object):
                     "Markets and Savings (Overall)"][adopt_scheme][
                     "Efficient Energy Use, Measure (high) (MMBtu)"] = \
                     [energy_eff_all_capt_low, energy_eff_all_capt_high]
+                # Record low/high efficient-captured-envelope data across all
+                # ECMs if present
+                if eff_capt_env and all([x is not None for x in [
+                        energy_eff_all_capt_low_env,
+                        energy_eff_all_capt_high_env]]):
+                    self.output_all["All ECMs"][
+                        "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Energy Use, Measure-Envelope"
+                        " (low) (MMBtu)"], \
+                        self.output_all["All ECMs"][
+                        "Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Energy Use, Measure-Envelope"
+                        "(high) (MMBtu)"] = [
+                        energy_eff_all_capt_low_env,
+                        energy_eff_all_capt_high_env]
 
     def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide,
                        mkt_frac=False):
