@@ -2979,11 +2979,11 @@ class Engine(object):
         # Breakout data may include reporting of efficient-captured energy;
         # initialize if needed
         if eff_capt:
+            # Efficient-captured base and switched to fuel breakouts,
+            # pre-competition
             adj_out_break["base fuel"]["energy"]["efficient-captured"], \
                 adj_out_break["switched fuel"]["energy"][
-                    "efficient-captured"], \
-                adj_out_break["efficient-captured fuel splits"]["energy"] = (
-                    None for n in range(3))
+                    "efficient-captured"] = (None for n in range(2))
 
         # Add data from the current microsegment as appropriate to the
         # categories in the output breakout dict initialized above
@@ -3037,8 +3037,8 @@ class Engine(object):
                         # carbon that remains w/ the original fuel in each year
                         # for the contributing measure/mseg
                         adj_out_break["efficient fuel splits"][var] = {
-                            yr: (fs_eff_splt[var][0][yr] +
-                                 fs_eff_splt[var][1][yr] /
+                            yr: ((fs_eff_splt[var][0][yr] +
+                                  fs_eff_splt[var][1][yr]) /
                                  fs_eff_splt[var][2][yr]) if
                             fs_eff_splt[var][2][yr] != 0 else 1
                             for yr in self.handyvars.aeo_years}
@@ -5627,7 +5627,7 @@ class Engine(object):
             # Record low/high efficient-captured data across all ECMs if
             # present
             if eff_capt and all([x is not None for x in [
-                    energy_cost_eff_all_low, energy_cost_eff_all_high]]):
+                    energy_eff_all_capt_low, energy_eff_all_capt_high]]):
                 self.output_all["All ECMs"]["Markets and Savings (Overall)"][
                     adopt_scheme][
                     "Efficient Energy Use, Measure (low) (MMBtu)"], \
