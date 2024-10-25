@@ -103,6 +103,8 @@ class UsefulInputFiles(object):
         aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
         state_emm_map (tuple): Maps states to EMM regions.
         state_aia_map (tuple): Maps states to AIA regions.
+        htcl_totals (tuple): Heating/cooling energy totals by climate zone,
+            building type, and structure type.
         metadata (str) = Baseline metadata inc. min/max for year range.
         glob_vars (str) = Global settings from ecm_prep to use later in run
         cost_convert_in (tuple): Database of measure cost unit conversions.
@@ -164,6 +166,21 @@ class UsefulInputFiles(object):
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt"
             self.state_aia_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt"
             self.tsv_load_data = None
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
         elif opts.alt_regions == 'EMM':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
@@ -173,6 +190,21 @@ class UsefulInputFiles(object):
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
             self.tsv_load_data = fp.TSV_DATA / "tsv_load_EMM.gz"
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_emm.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_emm.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm.json"
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
@@ -180,6 +212,21 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_State_ColSums.txt"
             self.tsv_load_data = fp.TSV_DATA / "tsv_load_State.gz"
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_state.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_state.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -414,6 +461,8 @@ class UsefulVars(object):
         env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
             sensitive valuation for heating (no load shapes for these gains).
         skipped_ecms (int): List of names for ECMs skipped due to errors.
+        htcl_totals (dict): Heating/cooling energy totals by climate zone,
+            building type, and structure type.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1713,6 +1762,14 @@ class UsefulVars(object):
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
         self.skipped_ecms = []
+        # Import total absolute heating and cooling energy use data, used in
+        # calculating overall envelope relative performance for packages
+        with open(path.join(base_dir, *handyfiles.htcl_totals), 'r') as msi:
+            try:
+                self.htcl_totals = json.load(msi)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.htcl_totals)
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -11946,10 +12003,15 @@ class MeasurePackage(Measure):
                         # Determine which, if any, envelope ECMs overlap with
                         # the region, building type/vintage, fuel type, and
                         # end use for the current contributing mseg for the
-                        # equipment ECM
+                        # equipment ECM. Avoid case where "heating" end use
+                        # erroneously generates a match for "secondary heating"
+                        # (b/c "heating" will be in the mseg for the latter)
                         dmd_match_ECMs = [
                             x for x in self.contributing_ECMs_env if
-                            any([all([k in z for k in cm_key_match]) for z in
+                            any([all([(k != "heating" and k in z) or
+                                      (k == "heating" and k in z and
+                                      "secondary heating" not in z)
+                                      for k in cm_key_match]) for z in
                                 x.markets[adopt_scheme]["mseg_adjust"][
                                 "contributing mseg keys and values"].keys()])]
                         # If an overlap is identified, record all necessary
@@ -11964,7 +12026,10 @@ class MeasurePackage(Measure):
                             cm_keys_dmd = [[x for x in z.markets[adopt_scheme][
                                 "mseg_adjust"][
                                 "contributing mseg keys and values"].keys()
-                                if all([k in x for k in cm_key_match])] for
+                                if all([(k != "heating" and k in x) or
+                                        (k == "heating" and k in x and
+                                        "secondary heating" not in x) for
+                                        k in cm_key_match])] for
                                 z in dmd_match_ECMs]
                             # Record envelope energy savings across all
                             # envelope measures that overlap with current mseg
@@ -11982,16 +12047,14 @@ class MeasurePackage(Measure):
                                         len(cm_keys_dmd[m]))]) for
                                 m in range(len(dmd_match_ECMs))]) for yr in
                                 self.handyvars.aeo_years}
-                            # Record envelope energy baselines across all
-                            # envelope measures that overlap with current mseg
-                            dmd_base = {yr: sum([sum([
-                                dmd_match_ECMs[m].markets[adopt_scheme][
-                                    "mseg_adjust"][
-                                    "contributing mseg keys and values"][
-                                    cm_keys_dmd[m][k]]["energy"][
-                                    "total"]["baseline"][yr] for k in range(
-                                        len(cm_keys_dmd[m]))]) for
-                                m in range(len(dmd_match_ECMs))]) for yr in
+                            # Record baseline demand for the given region,
+                            # building type/vintage, and end use combination
+                            # to use as denominator for relative savings
+                            # calculation below
+                            dmd_base = {
+                                yr: self.handyvars.htcl_totals[
+                                    keys[1]][keys[2]][keys[-1]][
+                                    keys[3]][keys[4]][yr] for yr in
                                 self.handyvars.aeo_years}
                             if "efficient-captured" in m.markets[
                                     adopt_scheme]["master_mseg"][
@@ -12606,14 +12669,12 @@ class MeasurePackage(Measure):
         # resultant adjustment fractions will be applied to the equipment
         # measure's energy, energy cost and carbon data only
         if not overlap_meas and htcl_key_match:
-            # Initialize estimates of the portion of total potential
-            # overlapping energy use in the current microsegment that is
-            # affected by measure(s) of the overlapping tech type; the savings
-            # of these overlapping measure(s); the portion of total overlapping
-            # savings that the current measure contributes; and the relative
-            # performance of the overlapping measure(s)
-            save_overlp_htcl, rp_overlp_htcl = ({
-                yr: 1 for yr in self.handyvars.aeo_years} for n in range(2))
+            # Initialize estimates of total savings fraction for measures in
+            # the overlapping tech. type;
+            save_overlp_htcl = {yr: 0 for yr in self.handyvars.aeo_years}
+            # Initialize estimates of total relative performance fraction for
+            # measures in the overlapping tech. type (1-savings frac.)
+            rp_overlp_htcl = {yr: 1 for yr in self.handyvars.aeo_years}
             # Set shorthand for total savings and affected energy use
             # for the overlapping tech type in the current contributing mseg
             overlp_data = self.htcl_overlaps[adopt_scheme]["data"][
