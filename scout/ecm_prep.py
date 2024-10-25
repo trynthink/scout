@@ -8013,9 +8013,13 @@ class Measure(object):
         stock_total_hp_convert_frac = 0
         turnover_cap_not_reached = True
         # Initialize turnover fractions that may have already been determined
-        # for heating/cooling msegs with linked turnover calculations
-        diffuse_frac_linked, comp_frac_diffuse_linked, cum_frac_linked, new_cool_units = (
-            None for n in range(4))
+        # for heating/cooling msegs with linked turnover calculations; also
+        # initialize variables needed to calculate added cooling under
+        # electrification to heat pumps
+        diffuse_frac_linked, comp_frac_diffuse_linked, cum_frac_linked, \
+            new_cool_units, uec_eff_yr, ci_eff_yr, uecst_eff_yr, \
+            uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = (
+                None for n in range(10))
 
         # Initialize flag for whether measure is on the market in a given year
         # as false
@@ -9766,60 +9770,46 @@ class Measure(object):
             # outputs to reflect new cooling additions under HP switching
             # in homes that do not have existing cooling
             if new_cool_units:
-                # Update competed data
-                # Case where measure has competed-captured stock: use stock
-                # data to back out per unit energy/carbon/cost/refrigerants
+                # Calculate unit performance metrics for energy/carbon/cost.
+
+                # Competed efficient-captured stock
+                # Use competed stock as basis for calculating metrics, if
+                # available. If not available and the unit metrics have
+                # been calculated in a previous year, use those values;
+                # otherwise, set to zero
                 if stock_compete_meas[yr] != 0:
-                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = [
-                        energy_compete_eff[yr] / stock_compete_meas[yr],
-                        carb_compete_eff[yr] / stock_compete_meas[yr],
-                        energy_compete_cost_eff[yr] / stock_compete_meas[yr]]
+                    uec_eff_yr, ci_eff_yr, uecst_eff_yr = [
+                        energy_tot_comp_meas / stock_compete_meas[yr],
+                        carb_tot_comp_meas / stock_compete_meas[yr],
+                        energy_cost_tot_comp_meas / stock_compete_meas[yr]]
+                    # Unit metric for refrigerants, if needed
                     if f_refr_assess:
-                        f_r_unit_comp = frefr_compete_eff[yr] / \
-                            stock_total_meas[yr]
-                # If no competed-captured stock is available, try overall
-                # competed stock
-                elif stock_compete_sbmkt[yr] != 0:
-                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = [
-                        energy_total_sbmkt[yr] / stock_compete_sbmkt[yr],
-                        carb_total_sbmkt[yr] / stock_compete_sbmkt[yr],
-                        energy_total_cost[yr] / stock_compete_sbmkt[yr]]
-                    if f_refr_assess:
-                        f_r_unit_comp = frefr_total[yr] / \
-                            stock_compete_sbmkt[yr]
-                # If no stock data are available, set to zero
-                else:
-                    uec_eff_yr_comp, ci_eff_yr_comp, uecst_eff_yr_comp = (
+                        f_r_unit = frefr_tot_comp_meas / stock_compete_meas[yr]
+                elif all([not x for x in [
+                        uec_eff_yr, ci_eff_yr, uecst_eff_yr]]):
+                    uec_eff_yr, ci_eff_yr, uecst_eff_yr = (
                         0 for n in range(3))
                     if f_refr_assess:
-                        f_r_unit_comp = 0
-
-                # Update total data
-                # Case where measure has total-captured stock: use stock
-                # data to back out per unit energy/carbon/cost/refrigerants
+                        f_r_unit = 0
+                # Total efficient-captured stock; use total efficient-captured
+                # stock as basis for calculating metrics, if available. If not
+                # available and the unit metrics have been calculated in a
+                # previous year, use those values; otherwise, set to zero
                 if stock_total_meas[yr] != 0:
                     uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = [
-                        (energy_compete_eff[yr] + energy_tot_uncomp_meas) /
-                        stock_total_meas[yr],
-                        (carb_compete_eff[yr] + carb_tot_uncomp_meas) /
-                        stock_total_meas[yr],
-                        (energy_compete_cost_eff[yr] +
-                         energy_cost_tot_uncomp_meas) / stock_total_meas[yr]]
+                        ((energy_tot_comp_meas + energy_tot_uncomp_meas) /
+                         stock_total_meas[yr]),
+                        ((carb_tot_comp_meas + carb_tot_uncomp_meas) /
+                         stock_total_meas[yr]),
+                        ((energy_cost_tot_comp_meas +
+                          energy_cost_tot_uncomp_meas) / stock_total_meas[yr])]
+                    # Unit metric for refrigerants, if needed
                     if f_refr_assess:
                         f_r_unit_tot = (
-                            frefr_compete_eff[yr] + frefr_tot_uncomp_meas) / \
-                            stock_total_meas[yr]
-                # If no total-captured stock is available, try overall
-                # competed stock
-                elif stock_total_sbmkt[yr] != 0:
-                    uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = [
-                        energy_total_sbmkt[yr] / stock_total_sbmkt[yr],
-                        carb_total_sbmkt[yr] / stock_total_sbmkt[yr],
-                        energy_total_cost[yr] / stock_total_sbmkt[yr]]
-                    if f_refr_assess:
-                        f_r_unit_tot = frefr_total[yr] / stock_total_sbmkt[yr]
-                # If no stock data are available, set to zero
-                else:
+                            frefr_tot_comp_meas +
+                            frefr_tot_uncomp_meas) / stock_total_meas[yr]
+                elif all([not x for x in [
+                        uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot]]):
                     uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = (
                         0 for n in range(3))
                     if f_refr_assess:
@@ -9832,7 +9822,7 @@ class Measure(object):
                 # Energy
                 # Reset competed and total energy
                 energy_compete_eff[yr] = \
-                    new_cool_units["competed"][yr] * uec_eff_yr_comp
+                    new_cool_units["competed"][yr] * uec_eff_yr
                 energy_total_eff[yr] = \
                     new_cool_units["total"][yr] * uec_eff_yr_tot
                 energy_total_eff_capt[yr] = \
@@ -9840,13 +9830,13 @@ class Measure(object):
                 # Carbon
                 # Reset competed and total carbon
                 carb_compete_eff[yr] = \
-                    new_cool_units["competed"][yr] * ci_eff_yr_comp
+                    new_cool_units["competed"][yr] * ci_eff_yr
                 carb_total_eff[yr] = \
                     new_cool_units["total"][yr] * ci_eff_yr_tot
                 # Energy costs
                 # Reset competed and total energy costs
                 energy_compete_cost_eff[yr] = \
-                    new_cool_units["competed"][yr] * uecst_eff_yr_comp
+                    new_cool_units["competed"][yr] * uecst_eff_yr
                 energy_total_eff_cost[yr] = \
                     new_cool_units["total"][yr] * uecst_eff_yr_tot
                 # Carbon costs
@@ -9859,13 +9849,9 @@ class Measure(object):
                 if f_refr_assess:
                     # Reset competed and total refrigerant leakage emissions
                     frefr_compete_eff[yr] = \
-                        new_cool_units["competed"][yr] * f_r_unit_comp
+                        new_cool_units["competed"][yr] * f_r_unit
                     frefr_total_eff[yr] = \
                         new_cool_units["total"][yr] * f_r_unit_tot
-
-                # Reset measure stock values to # of added cooling units
-                stock_compete_meas[yr] = new_cool_units["competed"][yr]
-                stock_total_meas[yr] = new_cool_units["total"][yr]
 
                 # Reset all baseline cooling segment values to zeros for this
                 # special case (the full segment values were used for the
