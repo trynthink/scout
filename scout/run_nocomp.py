@@ -3,18 +3,19 @@ from __future__ import annotations
 import json
 import numpy
 import copy
-import sys
 from numpy.linalg import LinAlgError
 from collections import OrderedDict, defaultdict
 import gzip
-import pickle
-from os import getcwd, path
+# import pickle
 from ast import literal_eval
 import math
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
-from plots import run_plot
 from datetime import datetime
+from scout.plots import run_plot
+from scout.config import FilePaths as fp
+from scout.config import Config
+import warnings
 import itertools
 
 
@@ -47,93 +48,66 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
-        self.glob_vars = "glob_run_vars.json"
-        self.meas_summary_data = \
-            ("supporting_data", "ecm_prep.json")
-        self.meas_compete_data = ("supporting_data", "ecm_competition_data")
-        self.meas_eff_fs_splt_data = ("supporting_data", "eff_fs_splt_data")
-        self.active_measures = "run_setup.json"
-        self.meas_engine_out_ecms = ("results", "ecm_results.json")
-        self.meas_engine_out_agg = ("results", "agg_results.json")
-        self.comp_fracs_out = ("results", "comp_fracs.json")
-        self.gcam_in = ("supporting_data/stock_energy_tech_data",
-                        "msegs_emm_gcam_ref.json")
-        self.gcam_out = ("results", "msegs_emm_gcam_alt.json")
-        self.gcam_map = ("supporting_data/convert_data", "gcam_map.json")
-        self.cpi_data = ("supporting_data", "convert_data", "cpi.csv")
+        self.glob_vars = fp.GENERATED / "glob_run_vars.json"
+        self.meas_summary_data = fp.GENERATED / "ecm_prep.json"
+        self.meas_compete_data = fp.ECM_COMP
+        self.meas_eff_fs_splt_data = fp.EFF_FS_SPLIT
+        self.active_measures = fp.GENERATED / "run_setup.json"
+        self.meas_engine_out_ecms = fp.RESULTS / "ecm_results.json"
+        self.meas_engine_out_agg = fp.RESULTS / "agg_results.json"
+        self.comp_fracs_out = fp.RESULTS / "comp_fracs.json"
+        self.gcam_in = fp.STOCK_ENERGY / "msegs_emm_gcam_ref.json"
+        self.gcam_out = fp.RESULTS / "msegs_emm_gcam_alt.json"
+        self.gcam_map = fp.CONVERT_DATA / "gcam_map.json"
+        self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
         # (captured energy site-source conversion) are needed
         if regions == "AIA":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_cz.json")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site.json"
             elif energy_out[0] == "fossil_equivalent":
                 # Further condition the file based on whether a high grid
                 # decarb case has been selected by the user
                 if grid_decarb is True:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_decarb.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
                 else:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "EMM":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_emm.gz")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site_emm.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_emm.json"
             elif energy_out[0] == "fossil_equivalent":
                 # Further condition the file based on whether a high grid
                 # decarb case has been selected by the user
                 if grid_decarb is True:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_emm_decarb.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
                 else:
-                    self.htcl_totals = (
-                        "supporting_data", "stock_energy_tech_data",
-                        "htcl_totals_emm.json")
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce_emm.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_emm.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
                     "energy) are currently supported)")
         elif regions == "State":
-            self.msegs_in = ("supporting_data", "stock_energy_tech_data",
-                             "mseg_res_com_state.gz")
+            self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             if energy_out[0] == "site":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-site_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_state.json"
             elif energy_out[0] == "fossil_equivalent":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
             elif energy_out[0] == "captured":
-                self.htcl_totals = (
-                    "supporting_data", "stock_energy_tech_data",
-                    "htcl_totals-ce_state.json")
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_state.json"
             else:
                 raise ValueError(
                     "Unsupported user option type (site, source "
@@ -145,43 +119,28 @@ class UsefulInputFiles(object):
         # calculation method to determine which site-source
         # conversions to select
         if grid_decarb is not False:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-100by2035.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
         elif energy_out[0] == "captured":
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions-ce.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
         else:
-            self.ss_data = ("supporting_data", "convert_data",
-                            "site_source_co2_conversions.json")
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions.json"
         # Use the user-specified grid_decarb flag and region selection
         # to select the correct electricity price and CO2 intensity data
         if regions == 'EMM':
             if grid_decarb is not False:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices-100by2035.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices-100by2035.json"
             else:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "emm_region_emissions_prices.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices.json"
         elif regions == 'State':
-            self.elec_price_co2 = (
-                "supporting_data", "convert_data",
-                "state_emissions_prices.json")
+            self.elec_price_co2 = fp.CONVERT_DATA / "state_emissions_prices.json"
         else:
             if grid_decarb is not False:
-                self.elec_price_co2 = (
-                    "supporting_data", "convert_data",
-                    "site_source_co2_conversions-100by2035.json")
+                self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
             else:
                 if energy_out[0] == 'captured':
-                    self.elec_price_co2 = (
-                        "supporting_data", "convert_data",
-                        "site_source_co2_conversions-ce.json")
+                    self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
                 else:
-                    self.elec_price_co2 = (
-                        "supporting_data", "convert_data",
-                        "site_source_co2_conversions.json")
+                    self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions.json"
 
 
 class UsefulVars(object):
@@ -211,14 +170,13 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, base_dir, handyfiles, gcam_out, brkout, regions):
+    def __init__(self, handyfiles, gcam_out, brkout, regions):
         # Pull in global variable settings from ecm_prep
-        with open(path.join(base_dir, handyfiles.glob_vars), 'r') as gv:
+        with open(handyfiles.glob_vars, 'r') as gv:
             try:
                 gvars = json.load(gv)
             except ValueError:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.glob_vars + "'")
+                raise ValueError(f"Error reading in '{handyfiles.glob_vars}'")
         self.adopt_schemes = gvars["adopt_schemes"]
         self.retro_rate = gvars["retro_rate"]
         self.aeo_years = gvars["aeo_years"]
@@ -334,7 +292,7 @@ class UsefulVars(object):
         # Import CPI data to use in cost conversions
         try:
             cpi = numpy.genfromtxt(
-                path.join(base_dir, *handyfiles.cpi_data),
+                handyfiles.cpi_data,
                 names=True, delimiter=',',
                 dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
             # Ensure that consumer price date is in expected format
@@ -2957,7 +2915,7 @@ class Engine(object):
             mast_list_eff.append(mast["energy"]["total"]["efficient-captured"])
             eff_capt = True
         except KeyError:
-            eff_capt = ""
+            eff_capt = False
 
         # Add total-baseline and competed-baseline overall fugitive emissions
         # totals to the lists above, if applicable
@@ -3047,8 +3005,9 @@ class Engine(object):
                     try:
                         adj_out_break["base fuel"][var][var_sub] = \
                             m.markets[adopt_scheme]["competed"][
-                                "mseg_out_break"][var][var_sub][out_cz][
-                                out_bldg][out_eu][out_fuel_save]
+                                "mseg_out_break"][
+                                var][var_sub][out_cz][out_bldg][out_eu][
+                                out_fuel_save]
                     except KeyError as ke:
                         if var_sub == "efficient-captured":
                             continue
@@ -3099,14 +3058,14 @@ class Engine(object):
                     # data are not present
                     try:
                         adj_out_break["base fuel"][var][var_sub] = \
-                            m.markets[adopt_scheme]["competed"][
-                            "mseg_out_break"][
+                            m.markets[adopt_scheme]["competed"]["mseg_out_break"][
                                 var][var_sub][out_cz][out_bldg][out_eu]
                     except KeyError as ke:
                         if var_sub == "efficient-captured":
                             continue
                         else:
                             raise ke
+
                 # No adjustment to efficient results required to account for
                 # fuel splits
                 adj_out_break["efficient fuel splits"][var] = {
@@ -3118,13 +3077,301 @@ class Engine(object):
         adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
             "contributing mseg keys and values"][mseg_key]
 
-        # Set up separate set of stock data needed to determine stock
-        # turnover adjustments as part of the measure competition calculations;
-        # separate data are needed because the 'adj' data above are further
-        # adjusted with competition, where stock data before competition
-        # adjustments are needed for the turnover calculations
-        adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-            "contributing mseg keys and values"][mseg_key]["stock"]
+        # Set up separate set of stock data needed to determine stock turnover
+        # adjustments as part of the measure competition calculations
+
+        # Handle case where an equipment measure has multiple end uses that
+        # include heating and/or cooling and the contributing microsegment
+        # needs to be anchored on the stock turnover of the heating equipment
+        # (or cooling if not available). Such measures might include, for
+        # example, HP measures, HVAC + envelope packages, or controls measures
+        # spanning heating/cooling and other end uses
+        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
+            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
+            or ("heating" not in m.end_use["primary"] and (
+                "cooling" in m.end_use["primary"] and
+                "cooling" not in mseg_key))):
+            # Decompose contributing microsegment key information into a list,
+            # to be modified per comment above
+            key_list = list(literal_eval(mseg_key))
+            # Strip any additional information that is added to the
+            # EIA technology name to further distinguish msegs with exogenous
+            # rates and/or specific heating and cooling pairings
+            if "-" in key_list[-2]:
+                tch_apnd = ("-" + key_list[-2].split("-")[-1])
+            else:
+                tch_apnd = ""
+            # Determine the building type of the contributing microsegment
+            if any([x in mseg_key for x in [
+                    "single family home", "mobile home",
+                    "multi family home"]]):
+                mseg_bldg_sect = "residential"
+            else:
+                mseg_bldg_sect = "commercial"
+            # Case 1: heating is in the measure end uses, while heating is not
+            # in the current contributing microsegment
+            if "heating" in m.end_use["primary"] and (
+                    "heating" not in mseg_key):
+                # Reset end use
+                key_list[4] = "heating"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the heating
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
+                    if any([x in mseg_key for x in [
+                            "room AC", "central AC"]]) or \
+                            "cooling" not in mseg_key:
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+                        if "resistance heat" in m.technology["primary"]:
+                            # Reset tech.
+                            key_list[-2] = "resistance heat"
+                            # Reset fuel
+                            key_list[3] = "electricity"
+                        else:
+                            # Initialize list of heating technologies that
+                            # would be expected for a non-HP cooling tech.
+                            tech_search = [x for x in [
+                                "furnace (NG)", "boiler (NG)",
+                                "furnace (distillate)", "boiler (distillate)",
+                                "furnace (LPG)", "furnace (kerosene)",
+                                "stove (wood)"] if x
+                                in m.technology["primary"]]
+                            # If the microsegment is non-cooling (e.g.,
+                            # secondary heating), expand to all commercial
+                            # heating tech.
+                            if "cooling" not in mseg_key:
+                                tech_search.extend(["ASHP", "GSHP", "NGHP"])
+                            if len(tech_search) == 0:
+                                raise ValueError(
+                                    "Contributing microsegment " + mseg_key +
+                                    " for measure " + m.name +
+                                    " has unexpected heating technology "
+                                    "information for stock turnover "
+                                    "calculations")
+                            else:
+                                # Reset tech.
+                                key_list[-2] = tech_search[0]
+                                # Reset fuel
+                                if "NG" in tech_search[0]:
+                                    key_list[3] = "natural gas"
+                                elif "distillate" in tech_search[0]:
+                                    key_list[3] = "distillate"
+                                elif any([x in tech_search[0] for x in [
+                                        "LPG", "kerosene", "wood"]]):
+                                    key_list[3] = "other fuel"
+                                else:
+                                    key_list[3] = "electricity"
+                    # Cooling tech. is HP; heating tech. is identical and no
+                    # further action is needed
+                    elif any([x in mseg_key for x in [
+                            "ASHP", "GSHP", "NGHP"]]):
+                        pass
+                    # If unexpected tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
+                            "unexpected technology information for stock "
+                            "turnover calculations")
+                # Commercial case
+                else:
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
+                    if any([x in mseg_key for x in [
+                            "rooftop_AC", "scroll_chiller",
+                            "res_type_central_AC", "reciprocating_chiller",
+                            "centrifugal_chiller", "wall-window_room_AC",
+                            "screw_chiller", "gas_chiller",
+                            "gas_eng-driven_RTAC"]]) or \
+                            "cooling" not in mseg_key:
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+
+                        # Initialize list of heating technologies that would
+                        # be expected for a non-HP cooling tech.
+                        tech_search = [x for x in [
+                            "elec_boiler", "electric_res-heat", "gas_boiler",
+                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
+                            m.technology["primary"]]
+                        # If the microsegment is non-cooling (e.g.,
+                        # ventilation), expand to all commercial heating tech.
+                        if "cooling" not in mseg_key:
+                            tech_search.extend([
+                                "rooftop_ASHP-heat", "comm_GSHP-heat",
+                                "gas_eng-driven_RTHP-heat",
+                                "res_type_gasHP-heat"])
+                        if len(tech_search) == 0:
+                            raise ValueError(
+                                "Contributing microsegment " + mseg_key +
+                                " for measure " + m.name + " has unexpected "
+                                "heating technology information for stock "
+                                "turnover calculations")
+                        else:
+                            # Reset tech.
+                            key_list[-2] = tech_search[0]
+                            # Reset fuel
+                            if "elec" in tech_search[0] or any([
+                                    x in tech_search[0] for
+                                    x in ["ASHP", "GSHP"]]):
+                                key_list[3] = "electricity"
+                            elif "gas" in tech_search[0]:
+                                key_list[3] = "natural gas"
+                            else:
+                                key_list[3] = "distillate"
+                    # Cooling tech. is HP; select analogous heating HP tech.
+                    # name
+                    elif "comm_GSHP-cool" in mseg_key:
+                        key_list[-2] = "comm_GSHP-heat"
+                    elif "rooftop_ASHP-cool" in mseg_key:
+                        key_list[-2] = "rooftop_ASHP-heat"
+                    elif "gas_eng-driven_RTHP-cool" in mseg_key:
+                        key_list[-2] = "gas_eng-driven_RTHP-heat"
+                    elif "res_type_gasHP-cool" in mseg_key:
+                        key_list[-2] = "res_type_gasHP-heat"
+                    # If unexpected tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
+                            "unexpected technology information for stock "
+                            "turnover calculations")
+            # Case 2: heating is not in the measure end uses, cooling is in the
+            # measure end uses, and cooling is not in the current contributing
+            # microsegment
+            elif "heating" not in m.end_use["primary"] and (
+                    "cooling" in m.end_use["primary"] and "cooling" not in
+                    mseg_key):
+                # Reset end use
+                key_list[4] = "cooling"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the cooling
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                        "central AC", "ASHP", "GSHP", "NGHP", "room AC"] if
+                        x in m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if tech_search[0] == "NGHP":
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+                # Commercial case
+                else:
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                         "rooftop_AC", "rooftop_ASHP-cool",
+                         "reciprocating_chiller", "scroll_chiller",
+                         "centrifugal_chiller", "screw_chiller",
+                         "res_type_central_AC", "comm_GSHP-cool",
+                         "gas_eng-driven_RTAC", "gas_chiller",
+                         "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                         "wall-window_room_AC"] if x in
+                        m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if "gas" in tech_search[0]:
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+            else:
+                raise ValueError(
+                    "Contributing microsegment " + mseg_key +
+                    " for measure " + m.name +
+                    " has unexpected information for stock turnover "
+                    "calculations")
+            # After making the adjustments above, convert the modified
+            # contributing microsegment information back into a string
+            # to use in keying in needed stock data
+            mseg_key_stk_trk = str(tuple(key_list))
+            # For HP measures with exogenously-specified switching
+            # rates or representing replacement of specific heating and
+            # cooling pairs, the heating technology will be specified in
+            # contributing microsegment data with an appended competition info.
+            # to distinguish such considerations; develop alternate stock data
+            # keys to switch to to handle this case
+            if tch_apnd:
+                key_list_alt1 = copy.deepcopy(key_list)
+                key_list_alt1[-2] = (key_list_alt1[-2] + tch_apnd)
+                mseg_key_stk_trk_alt1 = str(tuple(key_list_alt1))
+            else:
+                mseg_key_stk_trk_alt1 = None
+        # Handle all other cases, where stock data will be available for
+        # the contributing microsegment to be adjusted as-is
+        else:
+            # Use contributing microsegment info. as-is to key in stock data
+            mseg_key_stk_trk = mseg_key
+            # Alternate stock data key does not apply in this case
+            mseg_key_stk_trk_alt1 = None
+
+        # Pull data for stock turnover calculations for the current
+        # contributing microsegment, using the data key information from above;
+        # note that these calculations rely on pre-competition (unadjusted)
+        # stock data that will be common to all measures that compete for
+        # the microsegment
+
+        # Handle case where data are keyed in with additional tech. information
+        # that distinguishes segments with exogenous switching rates and
+        # specifics heating/cooling pairs (use alternate data key from above)
+        try:
+            adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
+                "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
+        except KeyError:
+            try:
+                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
+                    "mseg_adjust"]["contributing mseg keys and values"][
+                    mseg_key_stk_trk_alt1]["stock"]
+            except KeyError:
+                # Handle case where expected microsegment stock data to be
+                # linked to the stock turnover calculations for the current
+                # microsegment is not available; key in stock data with the
+                # current microsegment stock info.
+                try:
+                    adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
+                        "mseg_adjust"][
+                        "contributing mseg keys and values"][
+                        mseg_key]["stock"]
+                except KeyError:
+                    raise ValueError(
+                        "Stock turnover data could not be keyed in "
+                        "for contributing microsegment " + mseg_key +
+                        " for measure " + m.name + " using the "
+                        "keys " + mseg_key_stk_trk + ", " +
+                        mseg_key_stk_trk_alt1 + ", or" + mseg_key)
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
@@ -3246,6 +3493,9 @@ class Engine(object):
         # Competed stock market share (adjustment for current year only)
         adj_c = adj_fracs[yr] + added_sbmkt_fracs[yr]
 
+        # Determine whether efficient-captured energy is being reported
+        eff_capt = ("efficient-captured" in adj["energy"]["total"].keys())
+
         # For non-technical potential cases only, add a flag for measures
         # with market entry years that begin after the minimum market entry
         # year across competing measures. Such measures' efficient data require
@@ -3264,8 +3514,13 @@ class Engine(object):
             # in years before measure entered market) for use in subsequent
             # measure-captured stock adjustment for measures that enter the
             # market after the minimum market entry year across competing
-            # measures
+            # measures; if efficient-captured energy is reported, also
+            # initialize trackers of the stock that is measure-captured
+            # and competed since measure entered market
             cum_compete_stk = 0
+            if eff_capt:
+                stk_capt_since_entry, stk_cmp_since_entry = (
+                    0 for n in range(2))
         else:
             delay_entry_adj = False
             rp_adj, save_c, tot_c = (None for n in range(3))
@@ -3303,6 +3558,10 @@ class Engine(object):
                     # For measures with delayed market entry, add current year
                     # competed stock value to tracker of cumulative competed
                     # stock (including in years before measure entered market)
+                    # and, if efficient-captured energy is reported and measure
+                    # has entered market, add current year measure-captured
+                    # and competed stock values to trackers of those
+                    # variables since measure entered market
                     if delay_entry_adj:
                         cum_compete_stk += adj_stk_trk["competed"]["all"][wyr]
                         # Ensure cumulative competed stock never exceeds
@@ -3310,6 +3569,12 @@ class Engine(object):
                         # includes measure-on-measure replacements)
                         if cum_compete_stk > adj_stk_trk["total"]["all"][yr]:
                             cum_compete_stk = adj_stk_trk["total"]["all"][yr]
+                        if eff_capt and \
+                                int(wyr) >= int(measure.market_entry_year):
+                            stk_capt_since_entry += \
+                                adj_stk_trk["competed"]["measure"][wyr]
+                            stk_cmp_since_entry += \
+                                adj_stk_trk["competed"]["all"][wyr]
 
                     # If needed, update efficient data adjustment for measures
                     # with delayed market entry; adjustment represents the
@@ -3378,7 +3643,8 @@ class Engine(object):
         # Initialize baseline and efficient data market share adjustment
         # fractions using the overall adjustment fraction calculated above
         adj_t_b, adj_t_e = ({
-            v: adj_frac_t for v in ["stock", "energy", "carbon", "cost"]}
+            v: adj_frac_t for v in [
+                "stock", "energy", "energy-captured", "carbon", "cost"]}
             for n in range(2))
 
         # If necessary, implement adjustment to ensure that measure-captured
@@ -3440,6 +3706,31 @@ class Engine(object):
                     # Further scale efficient market share adjustment fraction
                     # on the basis of the factors calculated above
                     adj_t_e[var] = adj_t_b[var] * b_e_ratio * rp_adj[var]
+
+                    # In the special case of efficient energy use where
+                    # captured efficient energy is reported, develop a factor
+                    # that adjusts efficient-captured energy values to account
+                    # for missed competed stock in years before the measure was
+                    # on the market
+                    if var == "energy" and eff_capt:
+                        try:
+                            # Ratio to adjust efficient-captured to efficient
+                            # energy total
+                            e_ec_ratio = adj[var]["total"]["efficient"][yr] / \
+                                adj[var]["total"]["efficient-captured"][yr]
+                            # Ratio to determine what portion of efficient
+                            # energy was captured by measure since market entry
+                            # based on stock totals
+                            stk_capt_since_entry_ratio = \
+                                stk_capt_since_entry / stk_cmp_since_entry
+                        except (ZeroDivisionError, FloatingPointError):
+                            e_ec_ratio, stk_capt_since_entry_ratio = 1, 1
+                        # Final ratio adjusts efficient-captured data to
+                        # efficient data and then scales down based on what
+                        # portion of efficient is measure-captured
+                        adj_t_e["energy-captured"] = \
+                            adj_t_e[var] * e_ec_ratio * \
+                            stk_capt_since_entry_ratio
 
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
@@ -3512,7 +3803,12 @@ class Engine(object):
                 if var_sub == "baseline":
                     adj_t = adj_t_b[var]
                 else:
-                    adj_t = adj_t_e[var]
+                    # Draw unique adjustment fraction for efficient-captured
+                    # energy results
+                    if var == "energy" and var_sub == "efficient-captured":
+                        adj_t = adj_t_e["energy-captured"]
+                    else:
+                        adj_t = adj_t_e[var]
 
                 # Select correct fuel split data; for baseline case, all
                 # fuel remains with baseline fuel
@@ -3544,7 +3840,8 @@ class Engine(object):
                     # variable)
                     try:
                         adj_out_break["base fuel"][var][var_sub][yr] = \
-                            adj_out_break["base fuel"][var][var_sub][yr] - (
+                            adj_out_break["base fuel"][var][
+                                var_sub][yr] - (
                             adj[var]["total"][adj_key][yr]) * (
                                 1 - adj_t) * fs_eff_splt_var
                     except KeyError:
@@ -3748,14 +4045,14 @@ class Engine(object):
                 adj["carbon"]["total"][x][yr] = [
                 (x[yr] * adj_t[v]) for x, v in zip(
                     adjlist[3:5], ["energy", "carbon"])]
-            # Adjust captured efficient energy if these data are present
+            # Adjust efficient-captured energy if these data are present
             if x == "efficient":
                 try:
                     mast["energy"]["total"]["efficient-captured"][yr] = \
                         mastlist[10][yr] - (
-                        adjlist[10][yr] * (1 - adj_t["energy"]))
+                        adjlist[10][yr] * (1 - adj_t["energy-captured"]))
                     adj["energy"]["total"]["efficient-captured"][yr] = (
-                        adjlist[10][yr] * adj_t["energy"])
+                        adjlist[10][yr] * adj_t["energy-captured"])
                 except (KeyError, IndexError):
                     pass
 
@@ -3853,11 +4150,8 @@ class Engine(object):
             # Set competed measure markets and savings and financial metrics
             mkts = m.markets[adopt_scheme]["competed"]["master_mseg"]
             # Set shorthand for efficient-captured market data if these are
-            # available, and if they are not set shorthand to None
-            try:
-                eff_capt = mkts["energy"]["total"]["efficient-captured"]
-            except KeyError:
-                eff_capt = ""
+            # available, and if they are not, set shorthand to None
+            eff_capt = mkts["energy"]["total"].get("efficient-captured", "")
             save = m.savings[adopt_scheme]["competed"]
             metrics_finance = m.financial_metrics
 
@@ -3956,12 +4250,13 @@ class Engine(object):
 
             # Mean of outputs
             stk_base_avg, energy_base_avg, carb_base_avg, \
-                energy_cost_base_avg, carb_cost_base_avg, stk_eff_avg, \
+                energy_cost_base_avg,  carb_cost_base_avg, stk_eff_avg, \
                 energy_eff_avg, energy_eff_capt_avg, carb_eff_avg, \
                 energy_cost_eff_avg, carb_cost_eff_avg, energy_save_avg, \
                 energy_costsave_avg, carb_save_avg, carb_costsave_avg, \
-                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, irr_e_avg, \
-                irr_ec_avg, payback_e_avg, payback_ec_avg = [{
+                cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, \
+                irr_e_avg, irr_ec_avg, payback_e_avg, \
+                payback_ec_avg = [{
                     k: numpy.mean(v) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
             # 5th percentile of outputs
@@ -3970,19 +4265,18 @@ class Engine(object):
                 energy_eff_low, energy_eff_capt_low, carb_eff_low, \
                 energy_cost_eff_low, carb_cost_eff_low, energy_save_low, \
                 energy_costsave_low, carb_save_low, carb_costsave_low, \
-                cce_low, cce_c_low, ccc_low, ccc_e_low, irr_e_low, \
-                irr_ec_low, payback_e_low, payback_ec_low = [{
+                cce_low, cce_c_low, ccc_low, ccc_e_low, \
+                irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = [{
                     k: numpy.percentile(v, 5) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
             # 95th percentile of outputs
             stk_base_high, energy_base_high, carb_base_high, \
                 energy_cost_base_high, carb_cost_base_high, stk_eff_high, \
                 energy_eff_high, energy_eff_capt_high, carb_eff_high, \
-                energy_cost_eff_high, carb_cost_eff_high, \
-                energy_save_high, energy_costsave_high, carb_save_high, \
-                carb_costsave_high, cce_high, cce_c_high, \
-                ccc_high, ccc_e_high, irr_e_high, irr_ec_high, \
-                payback_e_high, payback_ec_high = [{
+                energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
+                energy_costsave_high, carb_save_high, carb_costsave_high, \
+                cce_high, cce_c_high, ccc_high, ccc_e_high, \
+                irr_e_high, irr_ec_high, payback_e_high, payback_ec_high = [{
                     k: numpy.percentile(v, 95) if v is not None else None
                     for k, v in z.items()} for z in summary_vals]
 
@@ -4017,6 +4311,7 @@ class Engine(object):
                             ("CO2 Cost Savings (USD)".
                                 translate(sub), carb_costsave_avg)]) for
                             n in range(2))
+
                 # Add efficient-captured data to reporting if present
                 if eff_capt and energy_eff_capt_avg is not None:
                     self.output_ecms[m.name][
@@ -5304,6 +5599,26 @@ class Engine(object):
         return orig_dict
 
 
+def measure_opts_match(option_dicts: list[dict]) -> bool:
+    """Checks if a list of measure options have common argument values, excluding those that
+        do not influence final results
+
+    Args:
+        option_dicts (list[dict]): List of dictionaries containing user options for measures
+
+    Returns:
+        bool: if True, then all options dicts are alike, otherwise False
+    """
+
+    ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
+                   "ecm_packages", "ecm_files_regex"]
+    keys_to_check = [key for key in option_dicts[0].keys() if key not in ignore_opts]
+    if any(opts[x] != option_dicts[0][x] for opts in option_dicts[1:] for x in keys_to_check):
+        return False
+
+    return True
+
+
 def main(opts: argparse.NameSpace):  # noqa: F821
     """Import, finalize, and write out measure savings and financial metrics.
 
@@ -5313,10 +5628,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         of key results to an output JSON.
     """
 
-    base_dir = getcwd()
-
-    # Set function that only prints message when in verbose mode
-    verboseprint = print if opts.verbose else lambda *a, **k: None
+    # # Set function that only prints message when in verbose mode
+    # verboseprint = print if opts.verbose else lambda *a, **k: None
 
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
@@ -5331,24 +5644,51 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # and AIA regions and a baseline grid scenario)
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
+    # Instantiate useful variables object
+    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout="basic")
+
+    # If a user desires trimmed down results, collect information about whether
+    # they want to restrict to certain years of focus
+    if opts.trim_results is True:
+        # Flag trimmed results format
+        trim_out = True
+        trim_yrs = []
+        while trim_yrs is not False and ((len(trim_yrs) == 0) or any([
+            x < int(handyvars.aeo_years[0]) or x > int(handyvars.aeo_years[-1])
+                for x in trim_yrs])):
+            # Initialize focus year range input
+            trim_yrs_init = input(
+                "Enter years of focus for the outputs, with a space in "
+                "between each (or hit return to use all years): ")
+            # Finalize focus year range input; if not provided, assume False
+            if trim_yrs_init:
+                trim_yrs = list(map(int, trim_yrs_init.split()))
+                if any([x < int(handyvars.aeo_years[0]) or
+                        x > int(handyvars.aeo_years[-1]) for x in trim_yrs]):
+                    print('Please try again. Enter focus years between '
+                          + handyvars.aeo_years[0] + ' and ' +
+                          handyvars.aeo_years[-1])
+            else:
+                trim_yrs = False
+    else:
+        trim_out, trim_yrs = (False for n in range(2))
 
     # Import measure files
-    with open(path.join(base_dir, *handyfiles.meas_summary_data), 'r') as mjs:
+    with open(handyfiles.meas_summary_data, 'r') as mjs:
         try:
             meas_summary = json.load(mjs)
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" + handyfiles.meas_summary_data +
-                "': " + str(e)) from None
+                f"Error reading in '{handyfiles.meas_summary_data}': {str(e)}") from None
 
     # Import list of all unique active measures
-    with open(path.join(base_dir, handyfiles.active_measures), 'r') as am:
+    with open(handyfiles.active_measures, 'r') as am:
         try:
-            active_meas_all = numpy.unique(json.load(am)["active"])
+            run_setup = json.load(am)
+            active_meas_all = numpy.unique(run_setup["active"])
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" + handyfiles.active_measures +
-                "': " + str(e)) from None
+                f"Error reading in '{handyfiles.active_measures}': {str(e)}") from None
     print('ECM attributes data load complete')
 
     active_ecms_w_jsons = 0
@@ -5357,11 +5697,22 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # that do not have a matching ECM definition, which will be excluded
     for mn in active_meas_all:
         if mn not in [m["name"] for m in meas_summary]:
-            print("WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
-                  "list does not match any of the ECM names found in " +
-                  "./ecm_definitions JSONs and will not be simulated")
+            warnings.warn(
+                "WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
+                "list does not match any of the ECM names found in " +
+                f"{fp.ECM_DEF} JSONs and will not be simulated")
         else:
             active_ecms_w_jsons += 1
+
+    # Warn the user if skipped ECMs remain in the run_setup file (may need
+    # to be edited and re-prepared)
+    if len(run_setup["skipped"]) != 0:
+        warnings.warn(
+            f"WARNING: Run setup file ({handyfiles.active_measures}) "
+            "indicates ECM preparation routine skipped over some measures. "
+            "Check names of these measures under the 'skipped' key within "
+            "this setup file and if needed, edit their measure definitions "
+            f"in {fp.ECM_DEF} and re-prepare via ecm_prep.")
 
     # After verifying that there are active measures to simulate with
     # corresponding JSON definitions, loop through measures data in JSON,
@@ -5411,8 +5762,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         regions = "AIA"
 
     # Instantiate useful variables object
-    handyvars = UsefulVars(
-        base_dir, handyfiles, opts.gcam_out, brkout, regions)
+    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout, regions)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -5447,24 +5797,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Check to ensure that all active/valid measure definitions used consistent
     # user option settings
     try:
-        if not all([all([
-            m.usr_opts[x] == measures_objlist[0].usr_opts[x] for
-            x in measures_objlist[0].usr_opts.keys()])
-                for m in measures_objlist[1:]]):
+        if not measure_opts_match([m.usr_opts for m in measures_objlist]):
             raise ValueError(
-                "Attempting to compete measures with different user option "
-                "settings. To address this issue, ensure that all active ECMs "
-                "in ./run_setup.json were prepared using the same command "
-                "line options, or delete the file "
-                "./supporting_data/ecm_prep.json and rerun ecm_prep.py with "
-                "desired command line options.")
+                "Attempting to compete measures with different user option settings. To address"
+                f" this issue, ensure that all active ECMs in {fp.GENERATED / 'run_setup.json'}"
+                " were prepared using the same command line options, or delete the file"
+                " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
     except AttributeError:
         raise ValueError(
-            "One or more active ECMs lacks information needed to determine "
-            "what energy units or conversions were used in its definition. "
-            "To address this issue, delete the file "
-            "./supporting_data/ecm_prep.json and rerun ecm_prep.py "
-            "with desired command line options.")
+            "One or more active ECMs lacks information needed to determine what energy units or"
+            " conversions were used in its definition. To address this issue, delete the file"
+            " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
 
     # Set a flag for the type of user option desired (site, source-fossil
     # fuel equivalent, source-captured energy)
@@ -5528,8 +5871,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(
-            base_dir, handyfiles, opts.gcam_out, brkout, regions)
+        handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout, regions)
 
     # # Load and set competition data for active measure objects; suppress
     # # new line if not in verbose mode ('Data load complete' is appended to
@@ -5543,20 +5885,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     #     # Assemble file name for measure competition data
     #     meas_file_name = m.name + ".pkl.gz"
     #     # Assemble folder path for measure competition data
-    #     comp_folder_name = path.join(*handyfiles.meas_compete_data)
-    #     with gzip.open(path.join(
-    #             base_dir, comp_folder_name, meas_file_name), 'r') as zp:
+    #     comp_folder_name = handyfiles.meas_compete_data
+    #     with gzip.open(comp_folder_name / meas_file_name, 'r') as zp:
     #         try:
     #             meas_comp_data = pickle.load(zp)
     #         except Exception as e:
     #             raise Exception(
-    #                 "Error reading in competition data of " +
-    #                 "ECM '" + m.name + "': " + str(e)) from None
+    #                 f"Error reading in competition data of ECM '{m.name}': {str(e)}") from None
     #     # Assemble folder path for measure efficient fuel split data
-    #     fs_splt_folder_name = path.join(*handyfiles.meas_eff_fs_splt_data)
+    #     fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
     #     try:
-    #         with gzip.open(path.join(
-    #                 base_dir, fs_splt_folder_name, meas_file_name), 'r') as zp:
+    #         with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
     #             meas_eff_fs_data = pickle.load(zp)
     #     except FileNotFoundError:
     #         meas_eff_fs_data = None
@@ -5579,13 +5918,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Import total absolute heating and cooling energy use data, used in
     # removing overlaps between supply-side and demand-side heating/cooling
     # ECMs in the analysis
-    with open(path.join(base_dir, *handyfiles.htcl_totals), 'r') as msi:
-        try:
-            htcl_totals = json.load(msi)
-        except ValueError as e:
-            raise ValueError(
-                "Error reading in '" +
-                handyfiles.htcl_totals + "': " + str(e)) from None
+    # with open(handyfiles.htcl_totals, 'r') as msi:
+    #     try:
+    #         htcl_totals = json.load(msi)
+    #     except ValueError as e:
+    #         raise ValueError(
+    #             f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
 
     # Print message to console; if in verbose mode, print to new line,
     # otherwise append to existing message on the console
@@ -5600,14 +5938,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # is also specified, as this is required for the GCAM reporting
         opts.report_stk = True
         # Import GCAM reference case data
-        with open(path.join(base_dir, *handyfiles.gcam_in), 'r') as gc:
+        with open(handyfiles.gcam_in, 'r') as gc:
             try:
                 gcam_in = json.load(gc)
             except ValueError:
                 raise ValueError(
                     "Error reading in '" + handyfiles.gcam_in + "'")
         # Import GCAM mapping support file
-        with open(path.join(base_dir, *handyfiles.gcam_map), 'r') as gc_map:
+        with open(handyfiles.gcam_map, 'r') as gc_map:
             try:
                 gcam_map = json.load(gc_map)
             except ValueError:
@@ -5630,9 +5968,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
               "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "uncompeted")
         print("Calculations complete")
-        # Update each measure's competed markets to reflect the
-        # removal of savings overlaps with competing measures,
-        # and print progress update to user
+        # # Update each measure's competed markets to reflect the
+        # # removal of savings overlaps with competing measures,
+        # # and print progress update to user
         # print("Competing ECMs for '" + adopt_scheme + "' scenario...",
         #       end="", flush=True)
         # a_run.compete_measures(adopt_scheme, htcl_totals)
@@ -5648,7 +5986,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
         # Write outputs to revised GCAM file if applicable
         if opts.gcam_out is True:
-            with open(path.join(base_dir, *handyfiles.gcam_out), 'w') as gco:
+            with open(handyfiles.gcam_out, 'w') as gco:
                 json.dump(a_run.gcam_in, gco, indent=2)
         print("Results finalized")
 
@@ -5658,37 +5996,34 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Import baseline microsegments
     if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
-        bjszip = path.join(base_dir, *handyfiles.msegs_in)
+        bjszip = handyfiles.msegs_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
             msegs = json.loads(zip_ref.read().decode('utf-8'))
     else:
-        with open(path.join(base_dir, *handyfiles.msegs_in), 'r') as msi:
+        with open(handyfiles.msegs_in, 'r') as msi:
             try:
                 msegs = json.load(msi)
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.msegs_in + "': " + str(e)) from None
+                    f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
 
     # Import site-source conversions
-    with open(path.join(base_dir, *handyfiles.ss_data), 'r') as ss:
+    with open(handyfiles.ss_data, 'r') as ss:
         try:
             cost_ss_carb = json.load(ss)
             ss_conv = cost_ss_carb['electricity'][
                 'site to source conversion']['data']
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.ss_data + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.ss_data}': {str(e)}") from None
 
     # Import electricity price and CO2 emissions intensity
-    with open(path.join(base_dir, *handyfiles.elec_price_co2), 'r') as ece:
+    with open(handyfiles.elec_price_co2, 'r') as ece:
         try:
             elec_cost_carb = json.load(ece)
         except ValueError as e:
             raise ValueError(
-                "Error reading in '" +
-                handyfiles.elec_price_co2 + "': " + str(e)) from None
+                f"Error reading in '{handyfiles.elec_price_co2}': + {str(e)}") from None
     # Extract separate price and CO2 emissions intensity variables
     try:
         elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
@@ -5800,18 +6135,15 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     a_run.output_all = round_values(a_run.output_all, 6)
 
     # Write summary outputs for individual measures to a JSON
-    with open(path.join(
-            base_dir, *handyfiles.meas_engine_out_ecms), "w") as jso:
+    with open(handyfiles.meas_engine_out_ecms, "w") as jso:
         json.dump(a_run.output_ecms, jso, indent=2)
     # Write summary outputs across all measures to a JSON
-    with open(path.join(
-            base_dir, *handyfiles.meas_engine_out_agg), "w") as jso:
+    with open(handyfiles.meas_engine_out_agg, "w") as jso:
         json.dump(a_run.output_all, jso, indent=2)
     print("Data writing complete")
     # Write competition adjustment fractions to a JSON, if applicable
     if a_run.output_ecms_cfs is not None:
-        with open(path.join(
-                base_dir, *handyfiles.comp_fracs_out), "w") as jso:
+        with open(handyfiles.comp_fracs_out, "w") as jso:
             json.dump(a_run.output_ecms_cfs, jso, indent=2)
 
     # Do not plot for the case where a user has trimmed down the results
@@ -5824,41 +6156,29 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         print("Plotting complete")
 
 
-def parse_args(args: list) -> argparse.NameSpace:  # noqa: F821
-    """Parse arguments for run.py
+def parse_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
+    """Parse arguments for run.py using Config class
 
     Args:
-        args (list): run.py input arguments
+        args (list, optional): run.py input arguments, if not provided, command line arguments
+            will be used in Config. Defaults to None.
+
+    Returns:
+        argparse.NameSpace: Arguments object to be used in main()
     """
 
-    # Handle option user-specified execution arguments
-    parser = ArgumentParser()
-    parser.add_argument("--verbose", action="store_true", dest="verbose",
-                        help="print all warnings to stdout")
-    # Optional flag to calculate site (rather than source) user opts
-    parser.add_argument("--mkt_fracs", action="store_true",
-                        help="Flag market penetration outputs")
-    # Optional flag to trim down results output size
-    parser.add_argument("--trim_results", action="store_true",
-                        help="Reduce results file size")
-    # Optional flag to trim down results output size
-    parser.add_argument("--report_stk", action="store_true",
-                        help="Report baseline/measure stock data")
-    # Optional flag to report competition adjustment fractions
-    parser.add_argument("--report_cfs", action="store_true",
-                        help="Report competition adjustment fractions")
-    # Optional flag to prepare output data in format for integration in GCAM
-    parser.add_argument("--gcam_out", action="store_true",
-                        help="Prepare output data in GCAM format")
+    # Retrieve config file and CLI arguments
+    parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+    config = Config(parser, "run", args)
+    opts = config.parse_args()
 
-    opts = parser.parse_args(args)
     return opts
 
 
 if __name__ == '__main__':
     import time
     start_time = time.time()
-    opts = parse_args(sys.argv[1:])
+    opts = parse_args()
     main(opts)
 
     hours, rem = divmod(time.time() - start_time, 3600)

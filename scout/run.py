@@ -18,6 +18,7 @@ from scout.config import Config
 import warnings
 import itertools
 
+
 class UsefulInputFiles(object):
     """Class of input files to be opened by this routine.
 
@@ -4733,7 +4734,7 @@ class Engine(object):
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_stk), mkt_save_brk[k],
                             focus_yrs, divide=False)
-                   # Energy results excluding efficient captured
+                    # Energy results excluding efficient captured
                     elif "Energy Use" in k and "Measure" not in k:
                         mkt_save_brk[k] = self.out_break_walk(
                             copy.deepcopy(frac_eff_energy), mkt_save_brk[k],
@@ -5937,14 +5938,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # is also specified, as this is required for the GCAM reporting
         opts.report_stk = True
         # Import GCAM reference case data
-        with open(path.join(base_dir, *handyfiles.gcam_in), 'r') as gc:
+        with open(handyfiles.gcam_in, 'r') as gc:
             try:
                 gcam_in = json.load(gc)
             except ValueError:
                 raise ValueError(
                     "Error reading in '" + handyfiles.gcam_in + "'")
         # Import GCAM mapping support file
-        with open(path.join(base_dir, *handyfiles.gcam_map), 'r') as gc_map:
+        with open(handyfiles.gcam_map, 'r') as gc_map:
             try:
                 gcam_map = json.load(gc_map)
             except ValueError:
@@ -5985,7 +5986,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
         # Write outputs to revised GCAM file if applicable
         if opts.gcam_out is True:
-            with open(path.join(base_dir, *handyfiles.gcam_out), 'w') as gco:
+            with open(handyfiles.gcam_out, 'w') as gco:
                 json.dump(a_run.gcam_in, gco, indent=2)
         print("Results finalized")
 
