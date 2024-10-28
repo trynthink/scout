@@ -64,6 +64,10 @@ properties:
             type: ["string", "null"]
             enum: [summer, winter, intermediate, null]
             description: Season of focus for time-sensitve metrics.
+          tsv_wnt_pk_hr:
+            type: ["string", "null"]
+            enum: [high electrify, no high electrify, null]
+            description: Define whether to set generic 9AM winter peak hour to capture effects of high electrification. 
           tsv_energy_agg:
             type: ["string", "null"]
             enum: [sum, average, null]

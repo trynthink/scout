@@ -355,6 +355,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "tsv_daily_hr_restrict": None,
         "tsv_sys_shape_case": None,
         "tsv_season": None,
+        "tsv_wnt_pk_hr": None,
         "tsv_energy_agg": None,
         "tsv_power_agg": None,
         "tsv_average_days": None,
@@ -402,6 +403,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "tsv_daily_hr_restrict": "all",
         "tsv_sys_shape_case": "total reference",
         "tsv_season": "summer",
+        "tsv_wnt_pk_hr": None,
         "tsv_energy_agg": "average",
         "tsv_power_agg": None,
         "tsv_average_days": "weekdays",
@@ -429,7 +431,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "retro_set": ["3", 1.2, 2030],
         "exog_hp_rates": ["aggressive", "2"],
         "grid_decarb": True,
-        "tsv_metrics": ["1", "1", "1", "2", "1", "2"],
+        "tsv_metrics": ["1", "1", "1", "2", "1", "0", "2"],
     }
 
     def tearDown(self):
@@ -460,7 +462,6 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         self.assertEqual(args.alt_regions, "EMM")
         self.assertEqual(args.detail_brkout, "6")
         self.assertEqual(args.ecm_files, ["Best Com. Air Sealing (Exist)"])
-
         cli_args = [
             "--detail_brkout",
             "buildings",
