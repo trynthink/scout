@@ -149,6 +149,10 @@ ecm_prep:
       in energy and `power` is the change in power (e.g., single
       hour GW). Required if running tsv_metrics. Allowed values
       are {energy, power, null}. Default null
+    tsv_wnt_pk_hr: (string) Define whether to set generic 9AM
+      winter peak hour to capture effects of high electrification.
+      Allowed values are {high electrify, no high electrify, null}.
+      Default null
   verbose: (boolean) If true, enable verbose mode. Default False
 run:
   mkt_fracs: (boolean) If true, flag market penetration outputs.
