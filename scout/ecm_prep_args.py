@@ -194,13 +194,23 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                  "net renewable reference": "3",
                  "net renewable high renewables": "4"}.get(opts.tsv_sys_shape_case, "0")
     season = {"summer": "1", "winter": "2", "intermediate": "3"}.get(opts.tsv_season)
+    if opts.tsv_wnt_pk_hr and (
+        opts.tsv_season != "winter" or opts.tsv_type != "power" or
+            opts.tsv_daily_hr_restrict != "peak"):
+        opts.tsv_wnt_pk_hr = None
+        warnings.warn(
+            "WARNING: argument tsv_wnt_pk_hr was provided but is not applicable,"
+            " argument will be ignored")
+    gen_wnt_pk = {"high electrify": "1", "no high electrify": "2"}.get(opts.tsv_wnt_pk_hr, "0")
+
     if opts.tsv_type == "energy":
         calc_type = {"sum": "1", "average": "2"}[opts.tsv_energy_agg]
     elif opts.tsv_type == "power":
         calc_type = {"peak": "1", "average": "2"}[opts.tsv_power_agg]
     day_type = {"all": "1", "weekdays": "2", "weekends": "3"}.get(opts.tsv_average_days, "0")
     if output_type is not None:
-        opts.tsv_metrics = [output_type, hours, season, calc_type, sys_shape, day_type]
+        opts.tsv_metrics = [
+            output_type, hours, season, calc_type, sys_shape, gen_wnt_pk, day_type]
     else:
         opts.tsv_metrics = False
 
