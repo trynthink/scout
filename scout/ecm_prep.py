@@ -258,6 +258,7 @@ class UsefulInputFiles(object):
         self.health_data = fp.CONVERT_DATA / "epa_costs.csv"
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
+        self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -1764,7 +1765,7 @@ class UsefulVars(object):
         self.skipped_ecms = []
         # Import total absolute heating and cooling energy use data, used in
         # calculating overall envelope relative performance for packages
-        with open(path.join(base_dir, *handyfiles.htcl_totals), 'r') as msi:
+        with open(handyfiles.htcl_totals, 'r') as msi:
             try:
                 self.htcl_totals = json.load(msi)
             except ValueError:
@@ -2571,6 +2572,35 @@ class Measure(object):
         except AttributeError:
             self.tsv_features = None
 
+        # Test for whether a user has set dual fuel characteristics for the
+        # given measure, and if so load in relevant data. If no
+        # "backup_fuel_fraction" data are present, set this parameter to
+        # None
+        try:
+            self.backup_fuel_fraction
+            # Retrieve backup fuel fraction data
+            if isinstance(self.backup_fuel_fraction, str):
+                # Determine the CSV file name, which is stored in the parameter
+                csv_bkup_fuel_file_name = self.backup_fuel_fraction
+                # Assuming the standard location for ECM savings shape CSV
+                # files, import custom savings shape data as numpy array and
+                # store it in the ECM's custom savings shape attribute for
+                # subsequent use in the 'apply_tsv' function
+                try:
+                    self.backup_fuel_fraction = \
+                        pd.read_csv(join(
+                            handyfiles.backup_fuel_data,
+                            csv_bkup_fuel_file_name))
+                except OSError:
+                    raise OSError(
+                        "Backup fuel fraction data file indicated in "
+                        "'backup_fuel_fraction' attribute of measure '" +
+                        self.name + "' not found; "
+                        "looking for file " + join(
+                            handyfiles.backup_fuel_data,
+                            csv_bkup_fuel_file_name) + ". ")
+        except AttributeError:
+            self.backup_fuel_fraction = None
         self.markets = {}
 
         for adopt_scheme in handyvars.adopt_schemes_prep:
@@ -6068,8 +6098,12 @@ class Measure(object):
                      add_energy_cost_compete, add_carb_cost_compete,
                      add_stock_cost_compete_meas, add_energy_cost_compete_eff,
                      add_carb_cost_compete_eff, add_fs_stk_eff_remain,
-                     add_fs_energy_eff_remain, add_fs_carb_eff_remain,
-                     add_fs_energy_cost_eff_remain,
+                     add_fs_energy_eff_remain_base,
+                     add_fs_carb_eff_remain_base,
+                     add_fs_energy_cost_eff_remain_base,
+                     add_fs_energy_eff_remain_switch,
+                     add_fs_carb_eff_remain_switch,
+                     add_fs_energy_cost_eff_remain_switch,
                      mkt_scale_frac_fin, warn_list] = \
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys, bldg_sect,
@@ -6214,9 +6248,12 @@ class Measure(object):
                             add_energy_total_eff, add_energy_total_eff_capt,
                             add_energy_cost_eff, add_carb_total_eff,
                             add_fs_stk_eff_remain,
-                            add_fs_energy_eff_remain,
-                            add_fs_energy_cost_eff_remain,
-                            add_fs_carb_eff_remain)
+                            add_fs_energy_eff_remain_base,
+                            add_fs_energy_cost_eff_remain_base,
+                            add_fs_carb_eff_remain_base,
+                            add_fs_energy_eff_remain_switch,
+                            add_fs_energy_cost_eff_remain_switch,
+                            add_fs_carb_eff_remain_switch)
 
                     # Check for whether detailed contributing mseg data
                     # are needed for current adoption scenario, and if so,
@@ -9488,22 +9525,39 @@ class Measure(object):
             # energy/carbon remaining after measure implementation plus
             # non-competed energy/carbon.
 
-            # Set common variables for the efficient energy calculations
-
             # Competed energy captured by measure
-            energy_tot_comp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
-                tsv_energy_eff * comp_frac_diffuse_meas * \
-                rel_perf[yr] * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+
+            # Initialize the applicable competed mkt. that goes to the measure
+            energy_tot_comp_meas_mkt = \
+                energy_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse_meas
+            # Then apply measure TSV, performance, and site-source ratio vs.
+            # baseline to only the portion of the competed-captured market that
+            # is not serviced with the baseline fuel/tech. This will be 100%
+            # when measure is not dual fuel with original fuel backup, and
+            # less than 100% when there is original fuel backup (per attribute
+            # "backup_fuel_fraction" and associated CSV input. The portion
+            # of the market that is serviced by the baseline fuel as backup is
+            # subject to baseline (not measure) performance characteristics.
+            # Repeat this approach for non-competed market and all variables
+            # below (carbon, methane/refrigerants, costs)
+            energy_tot_comp_meas = (
+                energy_tot_comp_meas_mkt * tsv_energy_eff * rel_perf[yr] * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])) * \
+                (1 - remain_fuel_frac) + \
+                energy_tot_comp_meas_mkt * tsv_energy_base * remain_fuel_frac
             # Competed energy not captured by measure
             energy_tot_comp_base = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_base * (
                     comp_frac_diffuse - comp_frac_diffuse_meas)
             # Uncompeted energy captured by measure
-            energy_tot_uncomp_meas = energy_total_sbmkt[yr] * diffuse_frac * \
-                tsv_energy_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
-                rel_perf_capt * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr])
+            energy_tot_uncomp_meas_mkt = \
+                energy_total_sbmkt[yr] * diffuse_frac * (
+                    1 - comp_frac_diffuse) * meas_cum_frac
+            energy_tot_uncomp_meas = (
+                energy_tot_uncomp_meas_mkt * tsv_energy_eff * rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr])) * \
+                (1 - remain_fuel_frac) + \
+                energy_tot_uncomp_meas_mkt * tsv_energy_base * remain_fuel_frac
             # Uncompeted energy not captured by measure
             energy_tot_uncomp_base = energy_total_sbmkt[yr] * diffuse_frac * \
                 tsv_energy_base * (1 - comp_frac_diffuse) * (
@@ -9570,20 +9624,25 @@ class Measure(object):
             # Set common variables for the carbon calculations
 
             # Competed carbon captured by measure
-            carb_tot_comp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
-                tsv_carb_eff * comp_frac_diffuse_meas * rel_perf[yr] * \
-                (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                intensity_carb_ratio
+            carb_tot_comp_meas_mkt = \
+                carb_total_sbmkt[yr] * diffuse_frac * comp_frac_diffuse_meas
+            carb_tot_comp_meas = (
+                carb_tot_comp_meas_mkt * tsv_carb_eff * rel_perf[yr] *
+                (site_source_conv_meas[yr] / site_source_conv_base[yr]) *
+                intensity_carb_ratio) * (1 - remain_fuel_frac) + \
+                carb_tot_comp_meas_mkt * tsv_carb_base * remain_fuel_frac
             # Competed carbon not captured by measure
             carb_tot_comp_base = carb_total_sbmkt[yr] * diffuse_frac * \
                 tsv_carb_base * (
                     comp_frac_diffuse - comp_frac_diffuse_meas)
             # Uncompeted carbon captured by measure
-            carb_tot_uncomp_meas = carb_total_sbmkt[yr] * diffuse_frac * \
-                tsv_carb_eff * (1 - comp_frac_diffuse) * meas_cum_frac * \
-                rel_perf_capt * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                intensity_carb_ratio
+            carb_tot_uncomp_meas_mkt = carb_total_sbmkt[yr] * diffuse_frac * \
+                (1 - comp_frac_diffuse) * meas_cum_frac
+            carb_tot_uncomp_meas = (
+                carb_tot_uncomp_meas_mkt * tsv_carb_eff * rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) *
+                intensity_carb_ratio) * (1 - remain_fuel_frac) + \
+                carb_tot_uncomp_meas_mkt * tsv_carb_base * remain_fuel_frac
             # Uncompeted carbon not captured by measure
             carb_tot_uncomp_base = carb_total_sbmkt[yr] * diffuse_frac * \
                 tsv_carb_base * (1 - comp_frac_diffuse) * (
@@ -9610,21 +9669,29 @@ class Measure(object):
                     lkg_fmeth_ratio = 1
 
                 # Competed fugitive methane captured by measure
-                fmeth_tot_comp_meas = fmeth_total_sbmkt[yr] * diffuse_frac * \
-                    tsv_energy_eff * comp_frac_diffuse_meas * rel_perf[yr] * \
-                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                    lkg_fmeth_ratio
+                fmeth_tot_comp_meas_mkt = fmeth_total_sbmkt[yr] * \
+                    diffuse_frac * comp_frac_diffuse_meas
+                fmeth_tot_comp_meas = (
+                    fmeth_tot_comp_meas_mkt * tsv_energy_eff * rel_perf[yr] *
+                    (site_source_conv_meas[yr] / site_source_conv_base[yr]) *
+                    lkg_fmeth_ratio) * (1 - remain_fuel_frac) + \
+                    fmeth_tot_comp_meas_mkt * tsv_energy_base * \
+                    remain_fuel_frac
                 # Competed fugitive methane not captured by measure
                 fmeth_tot_comp_base = fmeth_total_sbmkt[yr] * diffuse_frac * \
                     tsv_energy_base * (
                         comp_frac_diffuse - comp_frac_diffuse_meas)
                 # Uncompeted fugitive methane captured by measure
-                fmeth_tot_uncomp_meas = fmeth_total_sbmkt[yr] * \
-                    diffuse_frac * tsv_energy_eff * (1 - comp_frac_diffuse) * \
-                    meas_cum_frac * rel_perf_capt * (
+                fmeth_tot_uncomp_meas_mkt = fmeth_total_sbmkt[yr] * \
+                    diffuse_frac * (1 - comp_frac_diffuse) * meas_cum_frac
+                fmeth_tot_uncomp_meas = (
+                    fmeth_tot_uncomp_meas_mkt * tsv_energy_eff *
+                    rel_perf_capt * (
                         site_source_conv_meas[yr] /
-                        site_source_conv_base[yr]) * \
-                    lkg_fmeth_ratio
+                        site_source_conv_base[yr]) * lkg_fmeth_ratio) * \
+                    (1 - remain_fuel_frac) + \
+                    fmeth_tot_uncomp_meas_mkt * tsv_energy_base * \
+                    remain_fuel_frac
                 # Uncompeted fugitive methane not captured by measure
                 fmeth_tot_uncomp_base = fmeth_total_sbmkt[yr] * \
                     diffuse_frac * tsv_energy_base * \
@@ -9643,15 +9710,21 @@ class Measure(object):
                         0 for n in range(2))
                 else:
                     # # Competed fugitive refrigerants captured by measure
-                    frefr_tot_comp_meas = stock_total_sbmkt[yr] * \
+                    frefr_tot_comp_meas_mkt = stock_total_sbmkt[yr] * \
                         stk_serv_cap_cnv * diffuse_frac * \
-                        comp_frac_diffuse_meas * base_f_r_unit_yr * \
-                        rel_frefr_yr
+                        comp_frac_diffuse_meas * base_f_r_unit_yr
+                    frefr_tot_comp_meas = frefr_tot_comp_meas_mkt * \
+                        rel_frefr_yr * (1 - remain_fuel_frac) + \
+                        frefr_tot_comp_meas_mkt * remain_fuel_frac
                     # Uncompeted fugitive refrigerants captured by measure
-                    frefr_tot_uncomp_meas = stock_total_sbmkt[yr] * \
+                    frefr_tot_uncomp_meas_mkt = stock_total_sbmkt[yr] * \
                         stk_serv_cap_cnv * diffuse_frac * (
                             1 - comp_frac_diffuse) * \
-                        meas_cum_frac * base_f_r_unit_capt * rel_frefr_capt
+                        meas_cum_frac * base_f_r_unit_capt
+                    frefr_tot_uncomp_meas = (
+                        frefr_tot_uncomp_meas_mkt * rel_frefr_capt *
+                        (1 - remain_fuel_frac)) + frefr_tot_uncomp_meas_mkt * \
+                        remain_fuel_frac
                 # Check for flag to force baseline refrig. emissions to zero
                 if f_refr["baseline"][1] is True:
                     frefr_tot_comp_base, frefr_tot_uncomp_base = (
@@ -9720,22 +9793,31 @@ class Measure(object):
             # Set common variables for the energy cost calculations
 
             # Competed energy cost captured by measure
-            energy_cost_tot_comp_meas = energy_total_sbmkt[yr] * \
-                diffuse_frac * tsv_ecost_eff * comp_frac_diffuse_meas * \
+            energy_cost_tot_comp_meas_mkt = energy_total_sbmkt[yr] * \
+                diffuse_frac * comp_frac_diffuse_meas
+            energy_cost_tot_comp_meas = (
+                energy_cost_tot_comp_meas_mkt * tsv_ecost_eff *
                 rel_perf[yr] * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                cost_energy_meas[yr]
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) *
+                cost_energy_meas[yr]) * (1 - remain_fuel_frac) + \
+                energy_cost_tot_comp_meas_mkt * tsv_ecost_base * \
+                cost_energy_base[yr] * remain_fuel_frac
             # Competed energy cost remaining with baseline
             energy_cost_tot_comp_base = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_base * (
                     comp_frac_diffuse - comp_frac_diffuse_meas) * \
                 cost_energy_base[yr]
             # Total energy cost captured by measure
-            energy_cost_tot_uncomp_meas = energy_total_sbmkt[yr] * \
-                diffuse_frac * tsv_ecost_eff * (
-                    1 - comp_frac_diffuse) * meas_cum_frac * rel_perf_capt * (
-                    site_source_conv_meas[yr] / site_source_conv_base[yr]) * \
-                cost_energy_meas[yr]
+            energy_cost_tot_uncomp_meas_mkt = energy_total_sbmkt[yr] * \
+                diffuse_frac * (
+                    1 - comp_frac_diffuse) * meas_cum_frac
+            energy_cost_tot_uncomp_meas = (
+                energy_cost_tot_uncomp_meas_mkt *
+                tsv_ecost_eff * rel_perf_capt * (
+                    site_source_conv_meas[yr] / site_source_conv_base[yr]) *
+                cost_energy_meas[yr]) * (1 - remain_fuel_frac) + \
+                energy_cost_tot_uncomp_meas_mkt * tsv_ecost_base * \
+                cost_energy_base[yr] * remain_fuel_frac
             # Total energy cost remaining with baseline
             energy_cost_tot_uncomp_base = energy_total_sbmkt[yr] * \
                 diffuse_frac * tsv_ecost_base * (
@@ -9919,8 +10001,11 @@ class Measure(object):
                 carb_total_eff_cost, stock_compete_cost, energy_compete_cost,
                 carb_compete_cost, stock_compete_cost_eff,
                 energy_compete_cost_eff, carb_compete_cost_eff,
-                fs_stk_eff_remain, fs_energy_eff_remain, fs_carb_eff_remain,
-                fs_energy_cost_eff_remain, mkt_scale_frac_fin, warn_list]
+                fs_stk_eff_remain, fs_energy_eff_remain_base,
+                fs_carb_eff_remain_base, fs_energy_cost_eff_remain_base,
+                fs_energy_eff_remain_switch, fs_carb_eff_remain_switch,
+                fs_energy_cost_eff_remain_switch, mkt_scale_frac_fin,
+                warn_list]
 
     def check_meas_inputs(self):
         """Check for valid inputs for key measure characteristics.
@@ -14103,6 +14188,8 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             del m.linked_htcl_tover
             del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
+            # Delete info. about dual fuel fractions
+            del m.backup_fuel_fraction
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -14183,9 +14270,12 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                   add_carb_total, add_stock_total_meas, add_energy_total_eff,
                   add_energy_total_eff_capt, add_energy_cost_eff,
                   add_carb_total_eff, add_fs_stk_eff_remain,
-                  add_fs_energy_eff_remain, add_fs_energy_cost_eff_remain,
-                  add_fs_carb_eff_remain):
-
+                  add_fs_energy_eff_remain_base,
+                  add_fs_energy_cost_eff_remain_base,
+                  add_fs_carb_eff_remain_base,
+                  add_fs_energy_eff_remain_switch,
+                  add_fs_energy_cost_eff_remain_switch,
+                  add_fs_carb_eff_remain_switch):
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -14208,15 +14298,27 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
         add_fs_stk_eff_remain (dict): Portion of efficient mseg stock that is
             served by base fuel after measure application (applies to fuel
             switching measures)
-        add_fs_energy_eff_remain (dict): Portion of efficient mseg energy that
-            is served by base fuel after measure application (applies to fuel
-            switching measures)
-        add_fs_energy_cost_eff_remain (dict): Portion of efficient mseg energy
-            cost that is associated with base fuel after measure application
-            (applies to fuel switching measures)
-        add_fs_carb_eff_remain (dict): Portion of efficient mseg carbon that is
-            from base fuel after measure application (applies to fuel switching
-            measures)
+        add_fs_energy_eff_remain_base (dict): Portion of efficient mseg energy
+            that is served by base fuel by baseline technology
+            after measure application (applies to fuel switching measures)
+        add_fs_energy_cost_eff_remain_base (dict): Portion of efficient mseg
+            energy cost that is served by base fuel by baseline technology
+            application (applies to fuel switching measures)
+        add_fs_carb_eff_remain_base (dict): Portion of efficient mseg carbon
+            that is served by base fuel by baseline technology after measure
+            application (applies to fuel switching measures)
+        add_fs_energy_eff_remain_switch (dict): Portion of efficient mseg
+            energy that is served by base fuel and switched to technology
+            after measure application (applies to fuel switching measures with
+            dual fuel operation)
+        add_fs_energy_cost_eff_remain_switch (dict): Portion of efficient mseg
+            energy cost that is associated with base fuel and switched to
+            technology after measure application (applies to fuel switching
+            measures with dual fuel operation)
+        add_fs_carb_eff_remain_switch (dict): Portion of efficient mseg carbon
+            that is from base fuel and switched to technology after measure
+            application (applies to fuel switching measures with dual fuel
+            operation)
 
     Returns:
         Updated measure market breakouts by region, building type, end use, and
@@ -14283,11 +14385,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                         mskeys[-2] is not None and any(
                             [x in mskeys[-2] for x in ["coal", "kerosene"]])):
                         out_fuel_save = f[0]
-                    # Assign commercial other fuel to Distillate/Other
-                    elif f[0] == "Distillate/Other" and (
-                        mskeys[2] in self.handyvars.in_all_map['bldg_type'][
-                            'commercial']):
-                        out_fuel_save = f[0]
                     # Assign wood tech.
                     elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood" in mskeys[-2]):
@@ -14323,12 +14420,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                 x in mskeys[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_gain = f[0]
-                        # Assign commercial other fuel to
-                        # Distillate/Other
-                        elif f[0] == "Distillate/Other" and (
-                            mskeys[2] in self.handyvars.in_all_map[
-                                'bldg_type']['commercial']):
-                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             mskeys[-2] is not None and "wood"
@@ -14365,7 +14456,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     # the measure applies to. Note that savings breakouts are not provided for
     # stock data as "savings" is not meaningful in this context.
     try:
-        # Define data indexing and reporting variables
         breakout_vars = ["stock", "energy", "cost", "carbon"]
         # Create a shorthand for baseline and efficient stock/energy/carbon/
         # cost data to add to the breakout dict
@@ -14373,30 +14463,47 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                      add_energy_cost, add_carb_total]
         eff_data = [add_stock_total_meas, add_energy_total_eff,
                     add_energy_cost_eff, add_carb_total_eff]
-
         # Create a shorthand for efficient captured energy data to add to the
         # breakout dict
         if add_energy_total_eff_capt:
             capt_e = add_energy_total_eff_capt
         else:
             capt_e = ""
+        # Flag whether or not any captured efficient energy remains with
+        # baseline fuel, for fuel switching cases
+        swtch_tech_base_fuel = \
+            any([x != 0 for x in add_fs_energy_eff_remain_switch.values()])
+
         # For a fuel switching case where the user desires that the outputs
         # be split by fuel, create shorthands for any efficient-case
         # stock/energy/carbon/cost that remains with the baseline fuel
         if self.fuel_switch_to is not None and out_fuel_save:
-            eff_data_fs = [add_fs_stk_eff_remain,
-                           add_fs_energy_eff_remain,
-                           add_fs_energy_cost_eff_remain,
-                           add_fs_carb_eff_remain]
+            eff_data_fs_base = [add_fs_stk_eff_remain,
+                                add_fs_energy_eff_remain_base,
+                                add_fs_energy_cost_eff_remain_base,
+                                add_fs_carb_eff_remain_base]
+            eff_data_fs_switch = [add_fs_energy_eff_remain_switch,
+                                  add_fs_energy_cost_eff_remain_switch,
+                                  add_fs_carb_eff_remain_switch]
             # Record the efficient energy that has not yet fuel switched and
             # total efficient energy for the current mseg for later use in
             # packaging and/or competing measures
             self.eff_fs_splt[adopt_scheme][
                 str(contrib_mseg_key)] = {
-                    "energy": [add_fs_energy_eff_remain, add_energy_total_eff],
-                    "cost": [add_fs_energy_cost_eff_remain,
-                             add_energy_cost_eff],
-                    "carbon": [add_fs_carb_eff_remain, add_carb_total_eff]}
+                    "energy": [
+                        add_fs_energy_eff_remain_base,
+                        add_fs_energy_eff_remain_switch,
+                        add_energy_total_eff,
+                        add_energy_total_eff_capt,
+                        swtch_tech_base_fuel],
+                    "cost": [
+                        add_fs_energy_cost_eff_remain_base,
+                        add_fs_energy_cost_eff_remain_switch,
+                        add_energy_cost_eff],
+                    "carbon": [
+                        add_fs_carb_eff_remain_base,
+                        add_fs_carb_eff_remain_switch,
+                        add_carb_total_eff]}
         # Handle case where output breakout includes fuel type breakout or not
         if out_fuel_save:
             # Update results for the baseline fuel; handle case where results
@@ -14411,9 +14518,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                         # Efficient and savings; if there is fuel switching,
                         # only the portion of the efficient case results that
                         # have not yet switched (due to stock turnover
-                        # limitations) remain, and savings are the delta
-                        # between what remains unswitched in the efficient
-                        # case and the baseline
+                        # limitations or dual fuel settings) remain, and
+                        # savings are the delta between what remains
+                        # unswitched in the efficient case and the baseline
                         if not out_fuel_gain:
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "efficient"][out_cz][out_bldg][out_eu][
@@ -14429,9 +14536,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                     out_fuel_save][yr] += (
                                         base_data[ind][yr] - eff_data[ind][yr])
                         else:
-                            # Note that efficient-captured variable is not
-                            # relevant for the original fuel (measure captured
-                            # is only of the switched to fuel), and not updated
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "efficient"][out_cz][out_bldg][out_eu][
                                 out_fuel_save][yr] += \
@@ -14452,7 +14556,8 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                     key]["savings"][out_cz][out_bldg][out_eu][
                                     out_fuel_save][yr] += (
                                         base_data[ind][yr] -
-                                        eff_data_fs[ind][yr])
+                                        (eff_data_fs_base[ind][yr] +
+                                         eff_data_fs_switch[(ind-1)][yr]))
             except KeyError:
                 for ind, key in enumerate(breakout_vars):
                     # Baseline; add in baseline data as-is
@@ -14484,9 +14589,6 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                     base_data[ind][yr] - eff_data[ind][yr]) for
                                     yr in self.handyvars.aeo_years}
                     else:
-                        # Note that efficient-captured variable is not relevant
-                        # for the original fuel measure captured is only of the
-                        # switched to fuel), and not updated
                         self.markets[adopt_scheme]["mseg_out_break"][key][
                             "efficient"][out_cz][out_bldg][out_eu][
                             out_fuel_save] = {
@@ -14508,7 +14610,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "savings"][out_cz][out_bldg][out_eu][
                                 out_fuel_save] = {yr: (
-                                    base_data[ind][yr] - eff_data_fs[ind][yr])
+                                    base_data[ind][yr] - (
+                                        eff_data_fs_base[ind][yr] +
+                                        eff_data_fs_switch[(ind - 1)][yr]))
                                     for yr in self.handyvars.aeo_years}
             # In a fuel switching case, update results for the fuel being
             # switched/added to
@@ -14530,7 +14634,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     key]["efficient"][out_cz][out_bldg][
                                     out_eu][out_fuel_gain][yr] += \
-                                    (eff_data[ind][yr] - eff_data_fs[ind][yr])
+                                    (eff_data[ind][yr] -
+                                     (eff_data_fs_base[ind][yr] +
+                                      eff_data_fs_switch[(ind - 1)][yr]))
                                 # All captured efficient energy goes to
                                 # switched to fuel, except in the case where
                                 # the switched to measure has dual fuel
@@ -14547,7 +14653,8 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                                     key]["savings"][out_cz][out_bldg][out_eu][
                                     out_fuel_gain][yr] -= (
                                         eff_data[ind][yr] -
-                                        eff_data_fs[ind][yr])
+                                        (eff_data_fs_base[ind][yr] +
+                                         eff_data_fs_switch[(ind - 1)][yr]))
                             else:
                                 self.markets[adopt_scheme]["mseg_out_break"][
                                     key]["efficient"][out_cz][out_bldg][
@@ -14576,8 +14683,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "efficient"][out_cz][out_bldg][out_eu][
                                     out_fuel_gain] = {
-                                    yr: (eff_data[ind][yr] -
-                                         eff_data_fs[ind][yr])
+                                    yr: (eff_data[ind][yr] - (
+                                         eff_data_fs_base[ind][yr] +
+                                         eff_data_fs_switch[(ind - 1)][yr]))
                                     for yr in self.handyvars.aeo_years}
                             # All captured efficient energy
                             # goes to switched to fuel, except in the case
@@ -14596,8 +14704,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                             self.markets[adopt_scheme][
                                 "mseg_out_break"][key]["savings"][out_cz][
                                     out_bldg][out_eu][out_fuel_gain] = {
-                                    yr: -(eff_data[ind][yr] -
-                                          eff_data_fs[ind][yr])
+                                    yr: -(eff_data[ind][yr] - (
+                                          eff_data_fs_base[ind][yr] +
+                                          eff_data_fs_switch[(ind - 1)][yr]))
                                     for yr in self.handyvars.aeo_years}
                         else:
                             self.markets[adopt_scheme]["mseg_out_break"][key][
