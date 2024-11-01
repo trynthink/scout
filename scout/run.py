@@ -2945,12 +2945,12 @@ class Engine(object):
                              fs_eff_splt[var][1][yr]) if
                         fs_eff_splt[var][1][yr] != 0 else 1
                         for yr in self.handyvars.aeo_years}
-            else:
-                # All efficient energy remains with original base fuel type
-                # if there is no fuel switching
-                for var in ["energy", "cost", "carbon"]:
-                    adj_out_break["efficient fuel splits"][var] = {
-                        yr: 1 for yr in self.handyvars.aeo_years}
+                else:
+                    # All efficient energy remains with original base fuel type
+                    # if there is no fuel switching
+                    for var in ["energy", "cost", "carbon"]:
+                        adj_out_break["efficient fuel splits"][var] = {
+                            yr: 1 for yr in self.handyvars.aeo_years}
         # Case where output breakouts are not split by fuel
         else:
             # Adjust energy/carbon/cost data
