@@ -446,6 +446,8 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         cli_args = [
             "--ecm_files",
             "Best Com. Air Sealing (Exist)",
+            "--ecm_directory",
+            "tests/test_files/ecm_definitions",
             "--add_typ_eff",
             "--alt_regions",
             "EMM",
@@ -472,6 +474,21 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         args = ecm_args(cli_args)
         self.assertEqual(args.detail_brkout, "3")
         self.assertEqual(args.retro_set, ["3", 2.0, 2030])
+
+    def test_missing_ecms(self):
+        # Test that missing ECM(s) are omitted from the ECM file list
+        with self.assertWarns(UserWarning) as warning_context:
+            cli_args = [
+                "--ecm_files",
+                "Non-Existent ECM",
+                "Best Com. Air Sealing (Exist)",
+                "--ecm_directory",
+                "tests/test_files/ecm_definitions",
+            ]
+            args = ecm_args(cli_args)
+            self.assertEqual(args.ecm_files, ["Best Com. Air Sealing (Exist)"])
+            self.assertIn("The following ECMs specified with the `ecm_files` argument are not "
+                          "present in", str(warning_context.warnings[0]))
 
     def test_translate_from_empty_cfg(self):
         # Translation of empty yml (default args)

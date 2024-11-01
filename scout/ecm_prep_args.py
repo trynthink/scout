@@ -46,6 +46,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
         msg = ("WARNING: The following ECMs specified with the `ecm_files` argument are not"
                f" present in {fp.ECM_DEF} and will not be prepared: {missing_ecms}")
         warnings.warn(msg)
+        opts.ecm_files = list(set(opts.ecm_files) - set(missing_ecms))
 
     # Find matches to `ecm_files_regex`, warn if none found
     ecm_file_matches = [file for file in ecm_dir_files if
