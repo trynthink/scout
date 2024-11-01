@@ -5,8 +5,7 @@ import re
 import itertools
 import json
 from collections import OrderedDict
-from os import listdir, getcwd, stat
-from os.path import isfile, join
+from os import getcwd, stat
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -1935,12 +1934,13 @@ class EPlusGlobals(object):
             'building_type', 'climate_zone', 'template', 'measure']
         # Set EnergyPlus data file name list, given local directory
         self.eplus_perf_files = [
-            f for f in listdir(eplus_dir) if
-            isfile(join(eplus_dir, f)) and '_scout_' in f]
+           f.name for f in eplus_dir.iterdir()
+           if f.is_file() and '_scout_' in f.name
+        ]
         # Import the first of the EnergyPlus measure performance files and use
         # it to establish EnergyPlus vintage categories
         eplus_file = numpy.genfromtxt(
-            (eplus_dir + '/' + self.eplus_perf_files[0]), names=True,
+            (eplus_dir / self.eplus_perf_files[0]), names=True,
             dtype=self.eplus_coltypes, delimiter=",", missing_values='')
         self.eplus_vintages = numpy.unique(eplus_file['template'])
         # Determine appropriate weights for mapping EnergyPlus vintages to the
@@ -2630,7 +2630,7 @@ class Measure(object):
             bldg_type_names.extend(handydicts.bldgtype[x].keys())
         # Find all EnergyPlus files including the relevant building type
         # name(s)
-        eplus_perf_in = [(eplus_dir + '/' + x) for x in eplus_files if any([
+        eplus_perf_in = [(eplus_dir / x) for x in eplus_files if any([
             y.lower() in x for y in bldg_type_names])]
 
         # Import EnergyPlus input file as array and use it to fill a dict
@@ -13201,7 +13201,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         # fully supported in the future
 
         # Set default directory for EnergyPlus simulation output files
-        # eplus_dir = base_dir + '/ecm_definitions/energyplus_data'
+        # eplus_dir = fp.ECM_DEF / "energyplus_data"
         # # Set EnergyPlus global variables
         # handyeplusvars = EPlusGlobals(eplus_dir, cbecs_sf_byvint)
         # # Fill in EnergyPlus-based measure performance information

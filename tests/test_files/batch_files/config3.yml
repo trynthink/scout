@@ -1,6 +1,6 @@
 description: Configuration file for testing, arguments differ from the other .ymls files in /test_files
 ecm_prep:
-  ecm_directory: ../../../ecm_definitions
+  ecm_directory: ../ecm_definitions
   ecm_files: ["Best Com. ASHP, Env., PC (EE+DF-FS) CC", "Best Com. ASHP, Env., PC (EE+DF-FS)"]
   ecm_files_regex: []
   ecm_packages: []
