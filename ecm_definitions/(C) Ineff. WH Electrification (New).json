@@ -1,9 +1,9 @@
 {
-  "name": "(C) Ineff. WH Electrification",
+  "name": "(C) Ineff. WH Electrification (New)",
   "_description": "Represents switch to electric commercial water heating technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric commercial water heating technologies currently (or soon to be) on the market, from AEO 2023",
   "climate_zone": "all",
   "bldg_type": "all commercial",
-  "structure_type": "all",
+  "structure_type": "new",
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate"],
   "technology": "all",
@@ -13,10 +13,10 @@
     "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.98,
+  "energy_efficiency": 1.14,
   "energy_efficiency_units": "BTU out/BTU in",
   "energy_efficiency_source": {
-    "notes": "Assumes resistance backup on-peak.",
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
     "source_data": {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,

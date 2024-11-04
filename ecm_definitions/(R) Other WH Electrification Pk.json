@@ -1,0 +1,54 @@
+{ 
+  "name": "(R) Other WH Electrification Pk",
+  "_description": "Represents switch to electric residential WH technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential WH technologies currently (or soon to be) on the market, from AEO 2023",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["electricity"],
+  "technology": ["electric WH", "solar WH"],
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": null,
+    "source_data": null},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": null,
+  "installed_cost": 0,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": null,
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH and electric resistance storage WH. New/replacement sales numbers drawn from AEO microdata files, available from EIA upon request.",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": [62, 65],
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  },
+  "measure_type": "add-on",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "tech_switch_to": "same",
+  "_description": "Reference case residential WH tech. not covered by other measures (no savings, no incremental cost)",
+  "_notes": null, 
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 14 15:09:37 EDT 2021"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Thu Jun  8 12:31:13 EDT 2023"
+  }]
+}

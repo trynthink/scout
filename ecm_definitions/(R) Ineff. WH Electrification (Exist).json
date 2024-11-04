@@ -1,9 +1,9 @@
 { 
-  "name": "(R) Ineff. WH Electrification",
+  "name": "(R) Ineff. WH Electrification (Exist)",
   "_description": "Represents switch to electric residential WH technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential WH technologies currently (or soon to be) on the market, from AEO 2023",
   "climate_zone": "all",
   "bldg_type": "all residential",
-  "structure_type": "all",
+  "structure_type": "existing",
   "end_use": "water heating",
   "fuel_type": ["natural gas", "distillate", "other fuel"],
   "technology": "all",
@@ -13,7 +13,7 @@
     "source_data": null},
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 0.92,
+  "energy_efficiency": 1.35,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH (3.33 UEF) and electric resistance storage (0.92) WH. New/replacement sales numbers for 2023 are drawn from AEO 2023 microdata files, (~82% resistance, ~18% HPWH in 2023 across all sales), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounted for via the savings shape data in `tsv_features`",

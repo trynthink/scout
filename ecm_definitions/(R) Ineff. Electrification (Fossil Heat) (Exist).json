@@ -1,13 +1,13 @@
 {
-  "name": "(R) Ineff. Electrification (Fossil Heat)",
+  "name": "(R) Ineff. Electrification (Fossil Heat) (Exist)",
   "_description": "Represents switch to electric residential HVAC technologies with efficiency levels determined by a sales-weighted average of the efficiencies/costs of typical electric residential HVAC technologies currently (or soon to be) on the market, from AEO 2023",
   "climate_zone": "all",
   "bldg_type": "all residential",
-  "structure_type": "all",
-  "end_use": "heating",
+  "structure_type": "existing",
+  "end_use": ["heating", "cooling"],
   "fuel_type": "all",
   "technology": ["boiler (NG)", "furnace (NG)", "boiler (distillate)",
-                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP"],
+                 "furnace (distillate)", "furnace (kerosene)", "furnace (LPG)", "NGHP", "central AC", "room AC"],
   "market_entry_year": 2023,
   "market_entry_year_source": {
     "notes": "Assume historical penetration is captured in baseline",
@@ -15,10 +15,10 @@
   },
   "market_exit_year": null,
   "market_exit_year_source": null,
-  "energy_efficiency": 1,
+  "energy_efficiency": 1.77,
   "energy_efficiency_units": "COP",
   "energy_efficiency_source": {
-    "notes": "Assumes resistance backup on-peak.",
+    "notes": "Sales-weighted combinations in 2023 of heating and cooling efficiencies (COP) for typical ASHPs (4.48 cool/2.52 heat), GSHPs (5 cool/3.6 heat), and electric resistance + central AC (4.43 cool/1 heat). New/replacement sales numbers drawn from AEO 2023 microdata files (~43% resistance/~53% ASHP/~4% GSHP), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounted for via the savings shape data in `tsv_features`.",
     "source_data": {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
         "author": null,
@@ -99,8 +99,10 @@
   "measure_type": "full service",
   "fuel_switch_to": "electricity",
   "tech_switch_to": "ASHP",
-  "market_scaling_fractions": null,
-  "market_scaling_fractions_source": null,
+  "market_scaling_fractions": {
+    "heating": 1,
+    "cooling": 0.69},
+  "market_scaling_fractions_source": "share of res cooling paired with fossil heating in RECS 2020 data",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
