@@ -1,9 +1,7 @@
 {
   "name": "(R) Gas Boilers, CC",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW",
-                   "PJMC", "PJMW", "MISE", "PJME", "NYUP",
-                   "NYCW", "ISNE"],
-  "bldg_type": ["single family home", "mobile home"],
+  "climate_zone": "cold climates",
+  "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": ["heating"],
   "fuel_type": "natural gas",
@@ -23,9 +21,12 @@
   "product_lifetime_source": null,
   "measure_type": "add-on",
   "fuel_switch_to": null,
-  "market_scaling_fractions": 0.83,
-  "market_scaling_fractions_source": "RECS 2020",
-  "_description": "Measure for segmentation analysis",
+  "market_scaling_fractions": {
+    "single family home": 1,
+    "mobile home": 1,
+    "multi family home": 0.15},
+  "market_scaling_fractions_source": "RECS 2020 microtables, map to NEMS building types, restrict EQUIPM to steam/hot water and fuel to propane/fuel oil, then find portion space heat BTUs by building type that DOES NOT serve multiple housing units (HEAT APT)",
+  "_description": "Measure for segmentation analysis - boiler not shared",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

@@ -1,8 +1,6 @@
 {
   "name": "(C) Gas Boilers, non-CC (Exist)",
-  "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD",
-                   "SRCA", "SRSE", "SRCE", "SPPS", "SPPC",
-                   "SRSG", "CANO", "CASO"],
+  "climate_zone": "warm climates",
   "bldg_type": "all commercial",
   "structure_type": "existing",
   "end_use": ["heating"],

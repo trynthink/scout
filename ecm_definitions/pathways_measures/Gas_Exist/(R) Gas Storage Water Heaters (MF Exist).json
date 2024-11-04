@@ -1,7 +1,7 @@
 {
   "name": "(R) Gas Storage Water Heaters (MF Exist)",
   "climate_zone": "all",
-  "bldg_type": ["multi family home"],
+  "bldg_type": "all residential",
   "structure_type": "existing",
   "end_use": ["water heating"],
   "fuel_type": "natural gas",
@@ -21,9 +21,13 @@
   "product_lifetime_source": null,
   "measure_type": "add-on",
   "fuel_switch_to": null,
-  "market_scaling_fractions": 0.12,
-  "market_scaling_fractions_source": "RECS 2020",
-  "_description": "Measure for segmentation analysis",
+  "market_scaling_fractions": {
+    "single family home": 0,
+    "multi family home": 0.59,
+    "mobile home": 0
+  },
+  "market_scaling_fractions_source": "RECS 2020, restrict to gas WH fuel and map to NEMS building type, fraction of WH consumption that is shared",
+  "_description": "Measure for segmentation analysis - shared WH",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",

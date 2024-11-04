@@ -1,8 +1,6 @@
 {
   "name": "(R) Gas Furnaces, CC (New)",
-  "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW",
-                   "PJMC", "PJMW", "MISE", "PJME", "NYUP",
-                   "NYCW", "ISNE"],
+  "climate_zone": "cold climates",
   "bldg_type": "all residential",
   "structure_type": "new",
   "end_use": ["heating"],

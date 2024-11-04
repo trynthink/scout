@@ -1,7 +1,7 @@
 {
   "name": "(R) Gas Storage Water Heaters (New)",
   "climate_zone": "all",
-  "bldg_type": ["single family home", "mobile home"],
+  "bldg_type": "all residential",
   "structure_type": "new",
   "end_use": ["water heating"],
   "fuel_type": "natural gas",
@@ -21,9 +21,13 @@
   "product_lifetime_source": null,
   "measure_type": "add-on",
   "fuel_switch_to": null,
-  "market_scaling_fractions": 0.76,
-  "market_scaling_fractions_source": "RECS 2020",
-  "_description": "Measure for segmentation analysis",
+  "market_scaling_fractions": {
+    "single family home": 0.89,
+    "multi family home": 0.30,
+    "mobile home": 0.71
+  },
+  "market_scaling_fractions_source": "RECS 2020, restrict to gas fossil WH fuel and map to NEMS building type, fraction of WH consumption that is not shared and 40 gal or more",
+  "_description": "Measure for segmentation analysis - individual large WH",
   "_notes": null,
   "_added_by": {
     "name": "Jared Langevin",
