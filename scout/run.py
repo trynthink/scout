@@ -5650,7 +5650,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout="basic")
+    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout="basic", regions="AIA")
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
