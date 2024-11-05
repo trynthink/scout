@@ -86,31 +86,31 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     # (including or excluding representation of expected phase-out years) or user-defined
     # low-GWP refrigerants
     if opts.fugitive_emissions:
-        input_var = [0, None, None]
+        input_var = ['0', None, None]
         refrigerants = ["refrigerant" in elem for elem in opts.fugitive_emissions]
         methane = ["methane" in elem for elem in opts.fugitive_emissions]
         if all(methane):
-            input_var[0] = 1
+            input_var[0] = '1'
         elif all(refrigerants):
-            input_var[0] = 2
+            input_var[0] = '2'
         elif any(methane) and any(refrigerants):
-            input_var[0] = 3
+            input_var[0] = '3'
 
         for emission in opts.fugitive_emissions:
             if emission == "typical refrigerant":  # Includes representation of phase-out years
-                input_var[1] = 2
+                input_var[1] = '2'
             elif emission == "low-gwp refrigerant":
-                input_var[1] = 3
+                input_var[1] = '3'
             elif emission == "typical refrigerant no phaseout":
-                input_var[1] = 1
+                input_var[1] = '1'
 
         for emission in opts.fugitive_emissions:
             if emission == "methane-low":  # Lower bound methane leakage
-                input_var[2] = 1
+                input_var[2] = '1'
             elif emission == "methane-mid":  # Mid-range methane leakage
-                input_var[2] = 2
+                input_var[2] = '2'
             elif emission == "methane-high":  # Upper bound methane leakage
-                input_var[2] = 3
+                input_var[2] = '3'
 
         opts.fugitive_emissions = input_var
     else:
