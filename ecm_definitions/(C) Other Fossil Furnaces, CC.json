@@ -33,8 +33,9 @@
       "mercantile/service": 0,
       "warehouse": 0.66,
       "other": 0,
-      "unspecified": 0}, 
-  "market_scaling_fractions_source": "CBECS 2018 microdata; find consumption of non-gas fossil RTU / non-gas fossil RTU + non-gas fossil furnace (MAINHT equip / MFHTBTU consumption); map CBECS activity types to AEO building types based on Appendix B in https://www.aceee.org/sites/default/files/proceedings/ssb24/pdfs/Analyzing%20the%20long-term%20effects%20of%20building%20age%20on%20commercial%20building%20energy%20use%20and%20floorspace.pdf",\
+      "unspecified": 0
+  }, 
+  "market_scaling_fractions_source": "CBECS 2018 microdata; find consumption of non-gas fossil RTU / non-gas fossil RTU + non-gas fossil furnace (MAINHT equip / MFHTBTU consumption); map CBECS activity types to AEO building types based on Appendix B in https://www.aceee.org/sites/default/files/proceedings/ssb24/pdfs/Analyzing%20the%20long-term%20effects%20of%20building%20age%20on%20commercial%20building%20energy%20use%20and%20floorspace.pdf",
   "_description": "Measure for segmentation analysis",
   "_notes": null,
   "_added_by": {
