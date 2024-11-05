@@ -5911,57 +5911,58 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     if regions != "AIA":
         handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout, regions)
 
-    # Load and set competition data for active measure objects; suppress
-    # new line if not in verbose mode ('Data load complete' is appended to
-    # this message on the same line of the console upon data load completion)
-    if opts.verbose:
-        print('Importing ECM competition data...')
-    else:
-        print('Importing ECM competition data...', end="", flush=True)
+    # Load and set competition data for active measure objects (provided competition is not
+    # suppressed by user); suppress new line if not in verbose mode ('Data load complete' is
+    # appended to this message on the same line of the console upon data load completion)
+    if opts.no_comp is not True:
+        if opts.verbose:
+            print('Importing ECM competition data...')
+        else:
+            print('Importing ECM competition data...', end="", flush=True)
 
-    for m in measures_objlist:
-        # Assemble file name for measure competition data
-        meas_file_name = m.name + ".pkl.gz"
-        # Assemble folder path for measure competition data
-        comp_folder_name = handyfiles.meas_compete_data
-        with gzip.open(comp_folder_name / meas_file_name, 'r') as zp:
+        for m in measures_objlist:
+            # Assemble file name for measure competition data
+            meas_file_name = m.name + ".pkl.gz"
+            # Assemble folder path for measure competition data
+            comp_folder_name = handyfiles.meas_compete_data
+            with gzip.open(comp_folder_name / meas_file_name, 'r') as zp:
+                try:
+                    meas_comp_data = pickle.load(zp)
+                except Exception as e:
+                    raise Exception(
+                        f"Error reading in competition data of ECM '{m.name}': {str(e)}") from None
+            # Assemble folder path for measure efficient fuel split data
+            fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
             try:
-                meas_comp_data = pickle.load(zp)
-            except Exception as e:
-                raise Exception(
-                    f"Error reading in competition data of ECM '{m.name}': {str(e)}") from None
-        # Assemble folder path for measure efficient fuel split data
-        fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
-        try:
-            with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
-                meas_eff_fs_data = pickle.load(zp)
-        except FileNotFoundError:
-            meas_eff_fs_data = None
-        for adopt_scheme in handyvars.adopt_schemes:
-            # Reset measure microsegment data attribute to imported values;
-            # initialize an uncompeted and post-competition copy of these data
-            # (the former of which will be used to establish a common set of
-            # stock turnover constraints in the competition, the latter of
-            # which will be adjusted by the competition)
-            m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
-                meas_comp_data[adopt_scheme]
-            m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
-                copy.deepcopy(
-                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
-            # Reset measure fuel split attribute to imported values
-            m.eff_fs_splt = meas_eff_fs_data
-        # Print data import message for each ECM if in verbose mode
-        verboseprint("Imported ECM '" + m.name + "' competition data")
+                with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
+                    meas_eff_fs_data = pickle.load(zp)
+            except FileNotFoundError:
+                meas_eff_fs_data = None
+            for adopt_scheme in handyvars.adopt_schemes:
+                # Reset measure microsegment data attribute to imported values;
+                # initialize an uncompeted and post-competition copy of these data
+                # (the former of which will be used to establish a common set of
+                # stock turnover constraints in the competition, the latter of
+                # which will be adjusted by the competition)
+                m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
+                    meas_comp_data[adopt_scheme]
+                m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
+                    copy.deepcopy(
+                        m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
+                # Reset measure fuel split attribute to imported values
+                m.eff_fs_splt = meas_eff_fs_data
+            # Print data import message for each ECM if in verbose mode
+            verboseprint("Imported ECM '" + m.name + "' competition data")
 
-    # Import total absolute heating and cooling energy use data, used in
-    # removing overlaps between supply-side and demand-side heating/cooling
-    # ECMs in the analysis
-    with open(handyfiles.htcl_totals, 'r') as msi:
-        try:
-            htcl_totals = json.load(msi)
-        except ValueError as e:
-            raise ValueError(
-                f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
+        # Import total absolute heating and cooling energy use data, used in
+        # removing overlaps between supply-side and demand-side heating/cooling
+        # ECMs in the analysis
+        with open(handyfiles.htcl_totals, 'r') as msi:
+            try:
+                htcl_totals = json.load(msi)
+            except ValueError as e:
+                raise ValueError(
+                    f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
 
     # Print message to console; if in verbose mode, print to new line,
     # otherwise append to existing message on the console
@@ -6009,10 +6010,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Update each measure's competed markets to reflect the
         # removal of savings overlaps with competing measures,
         # and print progress update to user
-        print("Competing ECMs for '" + adopt_scheme + "' scenario...",
-              end="", flush=True)
-        a_run.compete_measures(adopt_scheme, htcl_totals)
-        print("Competition complete")
+        if opts.no_comp is not True:
+            print("Competing ECMs for '" + adopt_scheme + "' scenario...",
+                  end="", flush=True)
+            a_run.compete_measures(adopt_scheme, htcl_totals)
+            print("Competition complete")
         # Calculate each measure's competed measure savings and metrics
         # using updated competed markets, and print progress update to user
         print("Calculating competed '" + adopt_scheme +

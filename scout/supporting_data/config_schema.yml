@@ -243,6 +243,10 @@ properties:
         type: boolean
         default: false
         description: If true, report competition adjustment fractions.
+      no_comp:
+        type: boolean
+        default: false
+        description: If true, suppress measure competition.
       gcam_out:
         type: boolean
         default: false

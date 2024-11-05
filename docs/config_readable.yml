@@ -159,6 +159,8 @@ run:
     Default False
   mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
+  no_comp: (boolean) If true, suppress measure competition. Default
+    False
   report_cfs: (boolean) If true, report competition adjustment
     fractions. Default False
   report_stk: (boolean) If true, report baseline/measure stock
