@@ -382,6 +382,11 @@ class Measure(object):
                 # Methane and refrigerants
                 elif self.usr_opts["fugitive_emissions"][0] == '3':
                     self.fug_e = ["methane", "refrigerants"]
+                # Raise error for unexpected setting
+                else:
+                    raise ValueError(
+                        "Unexpected settings for 'fugitive_emissions' under 'usr_opts' "
+                        "attribute for measure '" + self.name + "'")
             else:
                 self.fug_e = ""
         except (AttributeError, KeyError):
