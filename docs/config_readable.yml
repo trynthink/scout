@@ -155,6 +155,8 @@ ecm_prep:
       Default null
   verbose: (boolean) If true, enable verbose mode. Default False
 run:
+  gcam_out: (boolean) If true, add reporting in GCAM data format.
+    Default False
   mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
   report_cfs: (boolean) If true, report competition adjustment

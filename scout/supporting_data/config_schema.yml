@@ -243,4 +243,8 @@ properties:
         type: boolean
         default: false
         description: If true, report competition adjustment fractions.
+      gcam_out:
+        type: boolean
+        default: false
+        description: If true, add reporting in GCAM data format.
 
