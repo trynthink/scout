@@ -4329,7 +4329,7 @@ class Engine(object):
                                 energy_eff_capt_avg for n in range(2))
                 # Determine stock units, if necessary (for the Scout stock
                 # reporting option and/or for mapping to GCAM data format)
-                if opts.report_stk is True or opts.gcam_out is True:
+                if self.opts.report_stk is True or self.opts.gcam_out is True:
                     # Determine correct units to use for stock reporting
                     # Envelope tech.; use units of ft^2 floor
                     if "demand" in m.technology_type["primary"]:
@@ -4433,7 +4433,7 @@ class Engine(object):
                     mkt_eff_keys.append(
                         "Efficient Energy Use, Measure (MMBtu)")
                 # Add baseline/efficient keys for stock reporting, if needed
-                if opts.report_stk is True:
+                if self.opts.report_stk is True:
                     mkt_base_keys.append(base_stk_key)
                     mkt_eff_keys.append(meas_stk_key)
                 # Record list of savings variable names for use in finalizing
@@ -4669,8 +4669,8 @@ class Engine(object):
                     "carbon"]["efficient"], carb_eff_avg, focus_yrs,
                 divide=True)
             # Add stock breakouts if desired
-            if any([x is True for x in [opts.mkt_fracs, opts.report_stk]]):
-                if opts.report_stk is True:
+            if any([x is True for x in [self.opts.mkt_fracs, self.opts.report_stk]]):
+                if self.opts.report_stk is True:
                     # Calculate baseline stock fractions by breakout category
                     frac_base_stk = self.out_break_walk(
                         m.markets[adopt_scheme]["competed"]["mseg_out_break"][
@@ -4679,19 +4679,19 @@ class Engine(object):
                 # Case with market penetration fractions/breakouts; copy
                 # measure stock totals to avoid manipulation via "frac_eff_stk"
                 # calculation
-                if all([x is True for x in [opts.mkt_fracs, opts.report_stk]]):
+                if all([x is True for x in [self.opts.mkt_fracs, self.opts.report_stk]]):
                     eff_stk = copy.deepcopy(m.markets[adopt_scheme][
                         "competed"]["mseg_out_break"]["stock"]["efficient"])
                 else:
                     eff_stk = m.markets[adopt_scheme][
                         "competed"]["mseg_out_break"]["stock"]["efficient"]
-                if opts.report_stk is True:
+                if self.opts.report_stk is True:
                     # Calculate efficient stock fractions by breakout category
                     frac_eff_stk = self.out_break_walk(
                         m.markets[adopt_scheme]["competed"][
                             "mseg_out_break"]["stock"]["efficient"],
                         stk_eff_avg, focus_yrs, divide=True)
-                if opts.mkt_fracs is True:
+                if self.opts.mkt_fracs is True:
                     # Calculate market penetration percentages for the current
                     # measure and scenario by output breakout category; divide
                     # post-competition measure stock by the total stock that
@@ -4900,7 +4900,7 @@ class Engine(object):
                     adopt_scheme]["Stock Penetration (%)"] = frac_mkt_stk
             # If a user desires stock data as an output, calculate and report
             # these data for the baseline and measure cases
-            if opts.report_stk is True:
+            if self.opts.report_stk is True:
                 # Set baseline and measure stock keys, including units that
                 # are calculated above
                 base_stk_uc_key, base_stk_c_key, meas_stk_key = [
@@ -4990,7 +4990,7 @@ class Engine(object):
 
             # If a user desires output compatible with GCAM format, assess
             # impacts of measures on GCAM baselines stock/energy segments.
-            if opts.gcam_out is True:
+            if self.opts.gcam_out is True:
                 # Create list of applicable Scout measure microsegments to
                 # iterate over
                 ms_lists = [m.climate_zone, m.bldg_type,
