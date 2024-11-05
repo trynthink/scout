@@ -112,7 +112,8 @@ class TestConfig(unittest.TestCase, Utils):
             "trim_results": False,
             "report_stk": False,
             "report_cfs": False,
-            "gcam_out": False
+            "gcam_out": False,
+            "no_comp": False
         },
     }
 
