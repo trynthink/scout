@@ -1,0 +1,28 @@
+description: Assess annual fugitive refrigerant emissions under high inefficient electrification.
+ecm_prep:
+  ecm_files: [
+    "(R) Ineff. WH Electrification (Exist)",
+    "(C) Ineff. Electrification (Fossil Heat) (Exist)",
+    "(C) Ineff. WH Electrification (Exist)",
+    "(R) Ineff. Electrification (Fossil Heat) (Exist)",
+    "(R) Ineff. WH Electrification (New)",
+    "(C) Ineff. Electrification (Fossil Heat) (New)",
+    "(C) Ineff. WH Electrification (New)",
+    "(R) Ineff. Electrification (Fossil Heat) (New)"]
+  site_energy: true
+  no_scnd_lgt: true
+  alt_regions: EMM
+  alt_ref_carb: MidCase
+  detail_brkout: [buildings, fuel types]
+  fugitive_emissions: [low-gwp refrigerant]
+  alt_regions: EMM
+  retrofits:
+    retrofit_type: increasing
+    retrofit_multiplier: 4
+    retrofit_mult_year: 2035
+  exog_hp_rates: 
+    exog_hp_rate_scenario: most aggressive
+    switch_all_retrofit_hp: true
+
+run:
+  no_comp: true
