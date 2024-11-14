@@ -8767,6 +8767,9 @@ class Measure(object):
                         retro_convert = retro_frac * hp_rate[yr]
                         # Remaining retrofits
                         retro_remain = retro_frac * (1 - hp_rate[yr])
+                    # Case with exogenous rates but no early retrofits
+                    else:
+                        retro_convert, retro_remain = [retro_frac, 0]
 
                     # If full conversion has not yet been achieved, calculate
                     # annual conversion fraction on the basis of external
