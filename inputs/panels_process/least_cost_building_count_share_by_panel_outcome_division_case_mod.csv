@@ -1,0 +1,702 @@
+,build_existing_model.census_division,case_name,case,outcome,building_count,division_total,division_share,share_type
+0,East North Central,BAU,2,management,21,4192,0.005009541984732824,building_count
+1,East North Central,BAU,2,no_management,95,4192,0.022662213740458015,building_count
+2,East North Central,BAU,2,replacement,29,4192,0.00691793893129771,building_count
+3,East North Central,BAU,2,smart_panel,1,4192,0.00023854961832061068,building_count
+4,East North Central,BAU with Env.,9,management,91,4192,0.021708015267175574,building_count
+5,East North Central,BAU with Env.,9,no_management,443,4192,0.10567748091603053,building_count
+6,East North Central,BAU with Env.,9,replacement,145,4192,0.03458969465648855,building_count
+7,East North Central,BAU with Env.,9,smart_panel,16,4192,0.003816793893129771,building_count
+8,East North Central,BAU with HPWH,3,management,1,4192,0.00023854961832061068,building_count
+9,East North Central,BAU with HPWH,3,no_management,10,4192,0.002385496183206107,building_count
+10,East North Central,BAU with HPWH,3,replacement,6,4192,0.0014312977099236641,building_count
+11,East North Central,BAU with HPWH with Env.,10,management,1,4192,0.00023854961832061068,building_count
+12,East North Central,BAU with HPWH with Env.,10,no_management,26,4192,0.006202290076335878,building_count
+13,East North Central,BAU with HPWH with Env.,10,replacement,38,4192,0.009064885496183206,building_count
+14,East North Central,BAU with HPWH with Env.,10,smart_panel,1,4192,0.00023854961832061068,building_count
+15,East North Central,"High Eff HP
+with HPWH and Env.",12,management,5,4192,0.0011927480916030535,building_count
+16,East North Central,"High Eff HP
+with HPWH and Env.",12,no_management,28,4192,0.006679389312977099,building_count
+17,East North Central,"High Eff HP
+with HPWH and Env.",12,replacement,31,4192,0.0073950381679389315,building_count
+18,East North Central,High Eff and Low-voltage,7,management,11,4192,0.0026240458015267176,building_count
+19,East North Central,High Eff and Low-voltage,7,no_management,94,4192,0.022423664122137404,building_count
+20,East North Central,High Eff and Low-voltage,7,replacement,12,4192,0.0028625954198473282,building_count
+21,East North Central,"High Eff and Low-voltage
+with Env.",14,management,167,4192,0.039837786259541985,building_count
+22,East North Central,"High Eff and Low-voltage
+with Env.",14,no_management,444,4192,0.10591603053435114,building_count
+23,East North Central,"High Eff and Low-voltage
+with Env.",14,replacement,85,4192,0.020276717557251907,building_count
+24,East North Central,"High Eff and Low-voltage
+with Env.",14,smart_panel,10,4192,0.002385496183206107,building_count
+25,East North Central,High Eff. HP,4,management,6,4192,0.0014312977099236641,building_count
+26,East North Central,High Eff. HP,4,no_management,49,4192,0.011688931297709924,building_count
+27,East North Central,High Eff. HP,4,replacement,14,4192,0.0033396946564885495,building_count
+28,East North Central,High Eff. HP,4,smart_panel,1,4192,0.00023854961832061068,building_count
+29,East North Central,"High Eff. HP
+ With HPWH",5,management,2,4192,0.00047709923664122136,building_count
+30,East North Central,"High Eff. HP
+ With HPWH",5,no_management,10,4192,0.002385496183206107,building_count
+31,East North Central,"High Eff. HP
+ With HPWH",5,replacement,5,4192,0.0011927480916030535,building_count
+32,East North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,18,4192,0.004293893129770993,building_count
+33,East North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,10,4192,0.002385496183206107,building_count
+34,East North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,smart_panel,1,4192,0.00023854961832061068,building_count
+35,East North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,16,4192,0.003816793893129771,building_count
+36,East North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,86,4192,0.02051526717557252,building_count
+37,East North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,64,4192,0.015267175572519083,building_count
+38,East North Central,High Efficiency HP with Env.,11,management,68,4192,0.016221374045801526,building_count
+39,East North Central,High Efficiency HP with Env.,11,no_management,205,4192,0.04890267175572519,building_count
+40,East North Central,High Efficiency HP with Env.,11,replacement,88,4192,0.02099236641221374,building_count
+41,East North Central,High Efficiency HP with Env.,11,smart_panel,14,4192,0.0033396946564885495,building_count
+42,East North Central,Inefficient,1,management,141,4192,0.033635496183206104,building_count
+43,East North Central,Inefficient,1,no_management,230,4192,0.05486641221374046,building_count
+44,East North Central,Inefficient,1,replacement,22,4192,0.005248091603053435,building_count
+45,East North Central,Inefficient,1,smart_panel,5,4192,0.0011927480916030535,building_count
+46,East North Central,Low-voltage,6,management,40,4192,0.009541984732824428,building_count
+47,East North Central,Low-voltage,6,no_management,92,4192,0.02194656488549618,building_count
+48,East North Central,Low-voltage,6,replacement,16,4192,0.003816793893129771,building_count
+49,East North Central,"Low-voltage
+(HPWH and dryer only)",16,management,2,4192,0.00047709923664122136,building_count
+50,East North Central,"Low-voltage
+(HPWH and dryer only)",16,no_management,24,4192,0.0057251908396946565,building_count
+51,East North Central,"Low-voltage
+(HPWH and dryer only)",16,replacement,15,4192,0.00357824427480916,building_count
+52,East North Central,Low-voltage with Env.,13,management,236,4192,0.05629770992366412,building_count
+53,East North Central,Low-voltage with Env.,13,no_management,531,4192,0.12666984732824427,building_count
+54,East North Central,Low-voltage with Env.,13,replacement,130,4192,0.03101145038167939,building_count
+55,East North Central,Low-voltage with Env.,13,smart_panel,2,4192,0.00047709923664122136,building_count
+56,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,26,4192,0.006202290076335878,building_count
+57,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,121,4192,0.028864503816793893,building_count
+58,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,91,4192,0.021708015267175574,building_count
+59,East South Central,BAU,2,management,15,1631,0.009196811771919068,building_count
+60,East South Central,BAU,2,no_management,127,1631,0.07786633966891478,building_count
+61,East South Central,BAU,2,replacement,13,1631,0.00797057020232986,building_count
+62,East South Central,BAU,2,smart_panel,1,1631,0.0006131207847946045,building_count
+63,East South Central,BAU with Env.,9,management,28,1631,0.017167381974248927,building_count
+64,East South Central,BAU with Env.,9,no_management,343,1631,0.21030042918454936,building_count
+65,East South Central,BAU with Env.,9,replacement,35,1631,0.02145922746781116,building_count
+66,East South Central,BAU with Env.,9,smart_panel,2,1631,0.001226241569589209,building_count
+67,East South Central,BAU with HPWH,3,management,7,1631,0.004291845493562232,building_count
+68,East South Central,BAU with HPWH,3,no_management,76,1631,0.04659717964438995,building_count
+69,East South Central,BAU with HPWH,3,replacement,5,1631,0.0030656039239730227,building_count
+70,East South Central,BAU with HPWH with Env.,10,management,3,1631,0.0018393623543838135,building_count
+71,East South Central,BAU with HPWH with Env.,10,no_management,84,1631,0.05150214592274678,building_count
+72,East South Central,BAU with HPWH with Env.,10,replacement,6,1631,0.003678724708767627,building_count
+73,East South Central,"High Eff HP
+with HPWH and Env.",12,management,28,1631,0.017167381974248927,building_count
+74,East South Central,"High Eff HP
+with HPWH and Env.",12,no_management,98,1631,0.060085836909871244,building_count
+75,East South Central,"High Eff HP
+with HPWH and Env.",12,replacement,4,1631,0.002452483139178418,building_count
+76,East South Central,High Eff and Low-voltage,7,management,14,1631,0.008583690987124463,building_count
+77,East South Central,High Eff and Low-voltage,7,no_management,18,1631,0.011036174126302882,building_count
+78,East South Central,High Eff and Low-voltage,7,replacement,3,1631,0.0018393623543838135,building_count
+79,East South Central,"High Eff and Low-voltage
+with Env.",14,management,10,1631,0.0061312078479460455,building_count
+80,East South Central,"High Eff and Low-voltage
+with Env.",14,no_management,26,1631,0.01594114040465972,building_count
+81,East South Central,"High Eff and Low-voltage
+with Env.",14,replacement,3,1631,0.0018393623543838135,building_count
+82,East South Central,High Eff. HP,4,management,9,1631,0.005518087063151441,building_count
+83,East South Central,High Eff. HP,4,no_management,23,1631,0.014101778050275904,building_count
+84,East South Central,High Eff. HP,4,replacement,5,1631,0.0030656039239730227,building_count
+85,East South Central,"High Eff. HP
+ With HPWH",5,management,46,1631,0.028203556100551808,building_count
+86,East South Central,"High Eff. HP
+ With HPWH",5,no_management,137,1631,0.08399754751686082,building_count
+87,East South Central,"High Eff. HP
+ With HPWH",5,replacement,7,1631,0.004291845493562232,building_count
+88,East South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,10,1631,0.0061312078479460455,building_count
+89,East South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,18,1631,0.011036174126302882,building_count
+90,East South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,3,1631,0.0018393623543838135,building_count
+91,East South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,6,1631,0.003678724708767627,building_count
+92,East South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,24,1631,0.014714898835070508,building_count
+93,East South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,4,1631,0.002452483139178418,building_count
+94,East South Central,High Efficiency HP with Env.,11,management,15,1631,0.009196811771919068,building_count
+95,East South Central,High Efficiency HP with Env.,11,no_management,45,1631,0.027590435315757205,building_count
+96,East South Central,High Efficiency HP with Env.,11,replacement,7,1631,0.004291845493562232,building_count
+97,East South Central,Inefficient,1,management,22,1631,0.0134886572654813,building_count
+98,East South Central,Inefficient,1,no_management,67,1631,0.041079092581238506,building_count
+99,East South Central,Inefficient,1,replacement,1,1631,0.0006131207847946045,building_count
+100,East South Central,Inefficient,1,smart_panel,1,1631,0.0006131207847946045,building_count
+101,East South Central,Low-voltage,6,management,9,1631,0.005518087063151441,building_count
+102,East South Central,Low-voltage,6,no_management,23,1631,0.014101778050275904,building_count
+103,East South Central,Low-voltage,6,replacement,13,1631,0.00797057020232986,building_count
+104,East South Central,"Low-voltage
+(HPWH and dryer only)",16,no_management,18,1631,0.011036174126302882,building_count
+105,East South Central,"Low-voltage
+(HPWH and dryer only)",16,replacement,8,1631,0.004904966278356836,building_count
+106,East South Central,Low-voltage with Env.,13,management,25,1631,0.015328019619865114,building_count
+107,East South Central,Low-voltage with Env.,13,no_management,64,1631,0.03923973022685469,building_count
+108,East South Central,Low-voltage with Env.,13,replacement,21,1631,0.012875536480686695,building_count
+109,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,4,1631,0.002452483139178418,building_count
+110,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,25,1631,0.015328019619865114,building_count
+111,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,22,1631,0.0134886572654813,building_count
+112,Middle Atlantic,BAU,2,management,13,3578,0.0036333147009502517,building_count
+113,Middle Atlantic,BAU,2,no_management,51,3578,0.014253773057574064,building_count
+114,Middle Atlantic,BAU,2,replacement,16,3578,0.004471771939631079,building_count
+115,Middle Atlantic,BAU,2,smart_panel,1,3578,0.00027948574622694243,building_count
+116,Middle Atlantic,BAU with Env.,9,management,58,3578,0.01621017328116266,building_count
+117,Middle Atlantic,BAU with Env.,9,no_management,293,3578,0.08188932364449412,building_count
+118,Middle Atlantic,BAU with Env.,9,replacement,105,3578,0.029346003353828955,building_count
+119,Middle Atlantic,BAU with Env.,9,smart_panel,9,3578,0.002515371716042482,building_count
+120,Middle Atlantic,BAU with HPWH,3,management,4,3578,0.0011179429849077697,building_count
+121,Middle Atlantic,BAU with HPWH,3,no_management,4,3578,0.0011179429849077697,building_count
+122,Middle Atlantic,BAU with HPWH,3,replacement,6,3578,0.0016769144773616546,building_count
+123,Middle Atlantic,BAU with HPWH with Env.,10,management,5,3578,0.001397428731134712,building_count
+124,Middle Atlantic,BAU with HPWH with Env.,10,no_management,16,3578,0.004471771939631079,building_count
+125,Middle Atlantic,BAU with HPWH with Env.,10,replacement,28,3578,0.007825600894354388,building_count
+126,Middle Atlantic,"High Eff HP
+with HPWH and Env.",12,management,2,3578,0.0005589714924538849,building_count
+127,Middle Atlantic,"High Eff HP
+with HPWH and Env.",12,no_management,23,3578,0.006428172163219676,building_count
+128,Middle Atlantic,"High Eff HP
+with HPWH and Env.",12,replacement,23,3578,0.006428172163219676,building_count
+129,Middle Atlantic,"High Eff HP
+with HPWH and Env.",12,smart_panel,1,3578,0.00027948574622694243,building_count
+130,Middle Atlantic,High Eff and Low-voltage,7,management,19,3578,0.005310229178311906,building_count
+131,Middle Atlantic,High Eff and Low-voltage,7,no_management,38,3578,0.010620458356623811,building_count
+132,Middle Atlantic,High Eff and Low-voltage,7,replacement,7,3578,0.001956400223588597,building_count
+133,Middle Atlantic,"High Eff and Low-voltage
+with Env.",14,management,213,3578,0.059530463946338735,building_count
+134,Middle Atlantic,"High Eff and Low-voltage
+with Env.",14,no_management,459,3578,0.12828395751816657,building_count
+135,Middle Atlantic,"High Eff and Low-voltage
+with Env.",14,replacement,45,3578,0.01257685858021241,building_count
+136,Middle Atlantic,"High Eff and Low-voltage
+with Env.",14,smart_panel,2,3578,0.0005589714924538849,building_count
+137,Middle Atlantic,High Eff. HP,4,management,5,3578,0.001397428731134712,building_count
+138,Middle Atlantic,High Eff. HP,4,no_management,20,3578,0.005589714924538848,building_count
+139,Middle Atlantic,High Eff. HP,4,replacement,6,3578,0.0016769144773616546,building_count
+140,Middle Atlantic,"High Eff. HP
+ With HPWH",5,management,7,3578,0.001956400223588597,building_count
+141,Middle Atlantic,"High Eff. HP
+ With HPWH",5,no_management,14,3578,0.003912800447177194,building_count
+142,Middle Atlantic,"High Eff. HP
+ With HPWH",5,replacement,3,3578,0.0008384572386808273,building_count
+143,Middle Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,1,3578,0.00027948574622694243,building_count
+144,Middle Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,6,3578,0.0016769144773616546,building_count
+145,Middle Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,4,3578,0.0011179429849077697,building_count
+146,Middle Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,17,3578,0.0047512576858580215,building_count
+147,Middle Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,77,3578,0.021520402459474567,building_count
+148,Middle Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,41,3578,0.011458915595304639,building_count
+149,Middle Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,smart_panel,1,3578,0.00027948574622694243,building_count
+150,Middle Atlantic,High Efficiency HP with Env.,11,management,66,3578,0.0184460592509782,building_count
+151,Middle Atlantic,High Efficiency HP with Env.,11,no_management,151,3578,0.04220234768026831,building_count
+152,Middle Atlantic,High Efficiency HP with Env.,11,replacement,48,3578,0.013415315818893237,building_count
+153,Middle Atlantic,High Efficiency HP with Env.,11,smart_panel,3,3578,0.0008384572386808273,building_count
+154,Middle Atlantic,Inefficient,1,management,189,3578,0.05282280603689212,building_count
+155,Middle Atlantic,Inefficient,1,no_management,273,3578,0.07629960871995528,building_count
+156,Middle Atlantic,Inefficient,1,replacement,36,3578,0.010061486864169928,building_count
+157,Middle Atlantic,Inefficient,1,smart_panel,15,3578,0.004192286193404136,building_count
+158,Middle Atlantic,Low-voltage,6,management,39,3578,0.010899944102850754,building_count
+159,Middle Atlantic,Low-voltage,6,no_management,69,3578,0.019284516489659027,building_count
+160,Middle Atlantic,Low-voltage,6,replacement,19,3578,0.005310229178311906,building_count
+161,Middle Atlantic,Low-voltage,6,smart_panel,1,3578,0.00027948574622694243,building_count
+162,Middle Atlantic,"Low-voltage
+(HPWH and dryer only)",16,management,2,3578,0.0005589714924538849,building_count
+163,Middle Atlantic,"Low-voltage
+(HPWH and dryer only)",16,no_management,10,3578,0.002794857462269424,building_count
+164,Middle Atlantic,"Low-voltage
+(HPWH and dryer only)",16,replacement,7,3578,0.001956400223588597,building_count
+165,Middle Atlantic,Low-voltage with Env.,13,management,264,3578,0.0737842370039128,building_count
+166,Middle Atlantic,Low-voltage with Env.,13,no_management,472,3578,0.13191727221911684,building_count
+167,Middle Atlantic,Low-voltage with Env.,13,replacement,94,3578,0.02627166014533259,building_count
+168,Middle Atlantic,Low-voltage with Env.,13,smart_panel,1,3578,0.00027948574622694243,building_count
+169,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,26,3578,0.0072666294019005035,building_count
+170,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,83,3578,0.023197316936836222,building_count
+171,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,66,3578,0.0184460592509782,building_count
+172,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,smart_panel,1,3578,0.00027948574622694243,building_count
+173,Mountain,BAU,2,management,45,1977,0.02276176024279211,building_count
+174,Mountain,BAU,2,no_management,231,1977,0.11684370257966616,building_count
+175,Mountain,BAU,2,replacement,37,1977,0.018715225088517955,building_count
+176,Mountain,BAU,2,smart_panel,3,1977,0.0015174506828528073,building_count
+177,Mountain,BAU with Env.,9,management,58,1977,0.02933737986848761,building_count
+178,Mountain,BAU with Env.,9,no_management,260,1977,0.13151239251390998,building_count
+179,Mountain,BAU with Env.,9,replacement,52,1977,0.026302478502781994,building_count
+180,Mountain,BAU with Env.,9,smart_panel,4,1977,0.0020232675771370764,building_count
+181,Mountain,BAU with HPWH,3,management,1,1977,0.0005058168942842691,building_count
+182,Mountain,BAU with HPWH,3,no_management,30,1977,0.015174506828528073,building_count
+183,Mountain,BAU with HPWH,3,replacement,6,1977,0.0030349013657056147,building_count
+184,Mountain,BAU with HPWH with Env.,10,no_management,13,1977,0.0065756196256954984,building_count
+185,Mountain,BAU with HPWH with Env.,10,replacement,22,1977,0.01112797167425392,building_count
+186,Mountain,"High Eff HP
+with HPWH and Env.",12,management,1,1977,0.0005058168942842691,building_count
+187,Mountain,"High Eff HP
+with HPWH and Env.",12,no_management,20,1977,0.010116337885685382,building_count
+188,Mountain,"High Eff HP
+with HPWH and Env.",12,replacement,1,1977,0.0005058168942842691,building_count
+189,Mountain,High Eff and Low-voltage,7,management,6,1977,0.0030349013657056147,building_count
+190,Mountain,High Eff and Low-voltage,7,no_management,15,1977,0.007587253414264037,building_count
+191,Mountain,High Eff and Low-voltage,7,replacement,4,1977,0.0020232675771370764,building_count
+192,Mountain,"High Eff and Low-voltage
+with Env.",14,management,16,1977,0.008093070308548306,building_count
+193,Mountain,"High Eff and Low-voltage
+with Env.",14,no_management,28,1977,0.014162873039959535,building_count
+194,Mountain,"High Eff and Low-voltage
+with Env.",14,replacement,5,1977,0.0025290844714213456,building_count
+195,Mountain,High Eff. HP,4,management,12,1977,0.006069802731411229,building_count
+196,Mountain,High Eff. HP,4,no_management,20,1977,0.010116337885685382,building_count
+197,Mountain,High Eff. HP,4,replacement,3,1977,0.0015174506828528073,building_count
+198,Mountain,"High Eff. HP
+ With HPWH",5,management,12,1977,0.006069802731411229,building_count
+199,Mountain,"High Eff. HP
+ With HPWH",5,no_management,52,1977,0.026302478502781994,building_count
+200,Mountain,"High Eff. HP
+ With HPWH",5,replacement,2,1977,0.0010116337885685382,building_count
+201,Mountain,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,6,1977,0.0030349013657056147,building_count
+202,Mountain,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,8,1977,0.004046535154274153,building_count
+203,Mountain,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,4,1977,0.0020232675771370764,building_count
+204,Mountain,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,5,1977,0.0025290844714213456,building_count
+205,Mountain,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,16,1977,0.008093070308548306,building_count
+206,Mountain,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,4,1977,0.0020232675771370764,building_count
+207,Mountain,High Efficiency HP with Env.,11,management,8,1977,0.004046535154274153,building_count
+208,Mountain,High Efficiency HP with Env.,11,no_management,31,1977,0.01568032372281234,building_count
+209,Mountain,High Efficiency HP with Env.,11,replacement,6,1977,0.0030349013657056147,building_count
+210,Mountain,Inefficient,1,management,74,1977,0.03743045017703591,building_count
+211,Mountain,Inefficient,1,no_management,190,1977,0.09610520991401113,building_count
+212,Mountain,Inefficient,1,replacement,22,1977,0.01112797167425392,building_count
+213,Mountain,Inefficient,1,smart_panel,9,1977,0.004552352048558422,building_count
+214,Mountain,Low-voltage,6,management,45,1977,0.02276176024279211,building_count
+215,Mountain,Low-voltage,6,no_management,112,1977,0.05665149215983814,building_count
+216,Mountain,Low-voltage,6,replacement,34,1977,0.01719777440566515,building_count
+217,Mountain,"Low-voltage
+(HPWH and dryer only)",16,management,4,1977,0.0020232675771370764,building_count
+218,Mountain,"Low-voltage
+(HPWH and dryer only)",16,no_management,27,1977,0.013657056145675266,building_count
+219,Mountain,"Low-voltage
+(HPWH and dryer only)",16,replacement,23,1977,0.01163378856853819,building_count
+220,Mountain,Low-voltage with Env.,13,management,82,1977,0.041476985331310064,building_count
+221,Mountain,Low-voltage with Env.,13,no_management,154,1977,0.07789580171977745,building_count
+222,Mountain,Low-voltage with Env.,13,replacement,47,1977,0.023773394031360646,building_count
+223,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,18,1977,0.009104704097116844,building_count
+224,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,55,1977,0.0278199291856348,building_count
+225,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,33,1977,0.01669195751138088,building_count
+226,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,smart_panel,1,1977,0.0005058168942842691,building_count
+227,New England,BAU,2,management,2,1310,0.0015267175572519084,building_count
+228,New England,BAU,2,no_management,13,1310,0.009923664122137405,building_count
+229,New England,BAU with Env.,9,management,8,1310,0.0061068702290076335,building_count
+230,New England,BAU with Env.,9,no_management,91,1310,0.06946564885496183,building_count
+231,New England,BAU with Env.,9,replacement,28,1310,0.021374045801526718,building_count
+232,New England,BAU with Env.,9,smart_panel,2,1310,0.0015267175572519084,building_count
+233,New England,BAU with HPWH,3,no_management,1,1310,0.0007633587786259542,building_count
+234,New England,BAU with HPWH,3,replacement,1,1310,0.0007633587786259542,building_count
+235,New England,BAU with HPWH with Env.,10,management,3,1310,0.0022900763358778627,building_count
+236,New England,BAU with HPWH with Env.,10,no_management,20,1310,0.015267175572519083,building_count
+237,New England,BAU with HPWH with Env.,10,replacement,9,1310,0.006870229007633588,building_count
+238,New England,"High Eff HP
+with HPWH and Env.",12,management,4,1310,0.0030534351145038168,building_count
+239,New England,"High Eff HP
+with HPWH and Env.",12,no_management,20,1310,0.015267175572519083,building_count
+240,New England,"High Eff HP
+with HPWH and Env.",12,replacement,13,1310,0.009923664122137405,building_count
+241,New England,"High Eff HP
+with HPWH and Env.",12,smart_panel,1,1310,0.0007633587786259542,building_count
+242,New England,High Eff and Low-voltage,7,management,5,1310,0.003816793893129771,building_count
+243,New England,High Eff and Low-voltage,7,no_management,30,1310,0.022900763358778626,building_count
+244,New England,High Eff and Low-voltage,7,replacement,6,1310,0.004580152671755725,building_count
+245,New England,High Eff and Low-voltage,7,smart_panel,1,1310,0.0007633587786259542,building_count
+246,New England,"High Eff and Low-voltage
+with Env.",14,management,68,1310,0.051908396946564885,building_count
+247,New England,"High Eff and Low-voltage
+with Env.",14,no_management,207,1310,0.15801526717557252,building_count
+248,New England,"High Eff and Low-voltage
+with Env.",14,replacement,27,1310,0.020610687022900764,building_count
+249,New England,"High Eff and Low-voltage
+with Env.",14,smart_panel,2,1310,0.0015267175572519084,building_count
+250,New England,High Eff. HP,4,no_management,18,1310,0.013740458015267175,building_count
+251,New England,High Eff. HP,4,replacement,1,1310,0.0007633587786259542,building_count
+252,New England,"High Eff. HP
+ With HPWH",5,no_management,1,1310,0.0007633587786259542,building_count
+253,New England,"High Eff. HP
+ With HPWH",5,replacement,2,1310,0.0015267175572519084,building_count
+254,New England,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,1,1310,0.0007633587786259542,building_count
+255,New England,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,3,1310,0.0022900763358778627,building_count
+256,New England,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,6,1310,0.004580152671755725,building_count
+257,New England,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,17,1310,0.012977099236641221,building_count
+258,New England,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,82,1310,0.06259541984732825,building_count
+259,New England,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,21,1310,0.01603053435114504,building_count
+260,New England,High Efficiency HP with Env.,11,management,26,1310,0.01984732824427481,building_count
+261,New England,High Efficiency HP with Env.,11,no_management,80,1310,0.061068702290076333,building_count
+262,New England,High Efficiency HP with Env.,11,replacement,27,1310,0.020610687022900764,building_count
+263,New England,High Efficiency HP with Env.,11,smart_panel,2,1310,0.0015267175572519084,building_count
+264,New England,Inefficient,1,management,19,1310,0.01450381679389313,building_count
+265,New England,Inefficient,1,no_management,46,1310,0.035114503816793895,building_count
+266,New England,Inefficient,1,replacement,4,1310,0.0030534351145038168,building_count
+267,New England,Inefficient,1,smart_panel,1,1310,0.0007633587786259542,building_count
+268,New England,Low-voltage,6,management,5,1310,0.003816793893129771,building_count
+269,New England,Low-voltage,6,no_management,28,1310,0.021374045801526718,building_count
+270,New England,Low-voltage,6,replacement,2,1310,0.0015267175572519084,building_count
+271,New England,"Low-voltage
+(HPWH and dryer only)",16,management,3,1310,0.0022900763358778627,building_count
+272,New England,"Low-voltage
+(HPWH and dryer only)",16,no_management,11,1310,0.008396946564885497,building_count
+273,New England,"Low-voltage
+(HPWH and dryer only)",16,replacement,3,1310,0.0022900763358778627,building_count
+274,New England,Low-voltage with Env.,13,management,59,1310,0.0450381679389313,building_count
+275,New England,Low-voltage with Env.,13,no_management,154,1310,0.11755725190839694,building_count
+276,New England,Low-voltage with Env.,13,replacement,26,1310,0.01984732824427481,building_count
+277,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,14,1310,0.010687022900763359,building_count
+278,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,61,1310,0.046564885496183206,building_count
+279,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,25,1310,0.019083969465648856,building_count
+280,Pacific,BAU,2,management,60,4131,0.014524328249818447,building_count
+281,Pacific,BAU,2,no_management,280,4131,0.06778019849915275,building_count
+282,Pacific,BAU,2,replacement,58,4131,0.014040183974824498,building_count
+283,Pacific,BAU,2,smart_panel,9,4131,0.002178649237472767,building_count
+284,Pacific,BAU with Env.,9,management,40,4131,0.009682885499878963,building_count
+285,Pacific,BAU with Env.,9,no_management,292,4131,0.07068506414911643,building_count
+286,Pacific,BAU with Env.,9,replacement,23,4131,0.005567659162430404,building_count
+287,Pacific,BAU with HPWH,3,management,5,4131,0.0012103606874848704,building_count
+288,Pacific,BAU with HPWH,3,no_management,68,4131,0.01646090534979424,building_count
+289,Pacific,BAU with HPWH,3,replacement,10,4131,0.002420721374969741,building_count
+290,Pacific,BAU with HPWH with Env.,10,management,1,4131,0.0002420721374969741,building_count
+291,Pacific,BAU with HPWH with Env.,10,no_management,19,4131,0.0045993706124425075,building_count
+292,Pacific,BAU with HPWH with Env.,10,replacement,6,4131,0.0014524328249818446,building_count
+293,Pacific,BAU with HPWH with Env.,10,smart_panel,1,4131,0.0002420721374969741,building_count
+294,Pacific,"High Eff HP
+with HPWH and Env.",12,management,7,4131,0.0016945049624788188,building_count
+295,Pacific,"High Eff HP
+with HPWH and Env.",12,no_management,13,4131,0.0031469377874606633,building_count
+296,Pacific,High Eff and Low-voltage,7,management,22,4131,0.00532558702493343,building_count
+297,Pacific,High Eff and Low-voltage,7,no_management,41,4131,0.009924957637375938,building_count
+298,Pacific,High Eff and Low-voltage,7,replacement,4,4131,0.0009682885499878964,building_count
+299,Pacific,"High Eff and Low-voltage
+with Env.",14,management,16,4131,0.0038731541999515854,building_count
+300,Pacific,"High Eff and Low-voltage
+with Env.",14,no_management,31,4131,0.007504236262406197,building_count
+301,Pacific,"High Eff and Low-voltage
+with Env.",14,replacement,3,4131,0.0007262164124909223,building_count
+302,Pacific,High Eff. HP,4,management,11,4131,0.002662793512466715,building_count
+303,Pacific,High Eff. HP,4,no_management,35,4131,0.008472524812394093,building_count
+304,Pacific,High Eff. HP,4,replacement,2,4131,0.0004841442749939482,building_count
+305,Pacific,"High Eff. HP
+ With HPWH",5,management,9,4131,0.002178649237472767,building_count
+306,Pacific,"High Eff. HP
+ With HPWH",5,no_management,53,4131,0.012829823287339627,building_count
+307,Pacific,"High Eff. HP
+ With HPWH",5,replacement,3,4131,0.0007262164124909223,building_count
+308,Pacific,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,4,4131,0.0009682885499878964,building_count
+309,Pacific,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,26,4131,0.006293875574921327,building_count
+310,Pacific,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,1,4131,0.0002420721374969741,building_count
+311,Pacific,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,1,4131,0.0002420721374969741,building_count
+312,Pacific,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,10,4131,0.002420721374969741,building_count
+313,Pacific,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,4,4131,0.0009682885499878964,building_count
+314,Pacific,High Efficiency HP with Env.,11,management,6,4131,0.0014524328249818446,building_count
+315,Pacific,High Efficiency HP with Env.,11,no_management,83,4131,0.020091987412248852,building_count
+316,Pacific,High Efficiency HP with Env.,11,replacement,1,4131,0.0002420721374969741,building_count
+317,Pacific,Inefficient,1,management,444,4131,0.1074800290486565,building_count
+318,Pacific,Inefficient,1,no_management,609,4131,0.14742193173565724,building_count
+319,Pacific,Inefficient,1,replacement,70,4131,0.016945049624788187,building_count
+320,Pacific,Inefficient,1,smart_panel,27,4131,0.006535947712418301,building_count
+321,Pacific,Low-voltage,6,management,305,4131,0.0738320019365771,building_count
+322,Pacific,Low-voltage,6,no_management,611,4131,0.14790607601065117,building_count
+323,Pacific,Low-voltage,6,replacement,40,4131,0.009682885499878963,building_count
+324,Pacific,Low-voltage,6,smart_panel,2,4131,0.0004841442749939482,building_count
+325,Pacific,"Low-voltage
+(HPWH and dryer only)",16,management,34,4131,0.00823045267489712,building_count
+326,Pacific,"Low-voltage
+(HPWH and dryer only)",16,no_management,94,4131,0.022754780924715567,building_count
+327,Pacific,"Low-voltage
+(HPWH and dryer only)",16,replacement,33,4131,0.007988380537400145,building_count
+328,Pacific,Low-voltage with Env.,13,management,160,4131,0.03873154199951585,building_count
+329,Pacific,Low-voltage with Env.,13,no_management,340,4131,0.0823045267489712,building_count
+330,Pacific,Low-voltage with Env.,13,replacement,21,4131,0.005083514887436456,building_count
+331,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,12,4131,0.002904865649963689,building_count
+332,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,58,4131,0.014040183974824498,building_count
+333,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,13,4131,0.0031469377874606633,building_count
+334,South Atlantic,BAU,2,management,47,5392,0.008716617210682493,building_count
+335,South Atlantic,BAU,2,no_management,657,5392,0.12184718100890207,building_count
+336,South Atlantic,BAU,2,replacement,53,5392,0.009829376854599406,building_count
+337,South Atlantic,BAU,2,smart_panel,3,5392,0.000556379821958457,building_count
+338,South Atlantic,BAU with Env.,9,management,89,5392,0.01650593471810089,building_count
+339,South Atlantic,BAU with Env.,9,no_management,977,5392,0.18119436201780414,building_count
+340,South Atlantic,BAU with Env.,9,replacement,76,5392,0.014094955489614243,building_count
+341,South Atlantic,BAU with Env.,9,smart_panel,8,5392,0.001483679525222552,building_count
+342,South Atlantic,BAU with HPWH,3,management,26,5392,0.004821958456973294,building_count
+343,South Atlantic,BAU with HPWH,3,no_management,350,5392,0.06491097922848665,building_count
+344,South Atlantic,BAU with HPWH,3,replacement,22,5392,0.004080118694362018,building_count
+345,South Atlantic,BAU with HPWH with Env.,10,management,18,5392,0.0033382789317507417,building_count
+346,South Atlantic,BAU with HPWH with Env.,10,no_management,158,5392,0.0293026706231454,building_count
+347,South Atlantic,BAU with HPWH with Env.,10,replacement,15,5392,0.002781899109792285,building_count
+348,South Atlantic,"High Eff HP
+with HPWH and Env.",12,management,47,5392,0.008716617210682493,building_count
+349,South Atlantic,"High Eff HP
+with HPWH and Env.",12,no_management,190,5392,0.03523738872403561,building_count
+350,South Atlantic,"High Eff HP
+with HPWH and Env.",12,replacement,9,5392,0.0016691394658753709,building_count
+351,South Atlantic,High Eff and Low-voltage,7,management,41,5392,0.007603857566765578,building_count
+352,South Atlantic,High Eff and Low-voltage,7,no_management,83,5392,0.015393175074183977,building_count
+353,South Atlantic,High Eff and Low-voltage,7,replacement,15,5392,0.002781899109792285,building_count
+354,South Atlantic,"High Eff and Low-voltage
+with Env.",14,management,24,5392,0.004451038575667656,building_count
+355,South Atlantic,"High Eff and Low-voltage
+with Env.",14,no_management,68,5392,0.012611275964391691,building_count
+356,South Atlantic,"High Eff and Low-voltage
+with Env.",14,replacement,10,5392,0.00185459940652819,building_count
+357,South Atlantic,"High Eff and Low-voltage
+with Env.",14,smart_panel,1,5392,0.000185459940652819,building_count
+358,South Atlantic,High Eff. HP,4,management,38,5392,0.007047477744807121,building_count
+359,South Atlantic,High Eff. HP,4,no_management,113,5392,0.020956973293768544,building_count
+360,South Atlantic,High Eff. HP,4,replacement,13,5392,0.002410979228486647,building_count
+361,South Atlantic,"High Eff. HP
+ With HPWH",5,management,142,5392,0.026335311572700297,building_count
+362,South Atlantic,"High Eff. HP
+ With HPWH",5,no_management,551,5392,0.10218842729970326,building_count
+363,South Atlantic,"High Eff. HP
+ With HPWH",5,replacement,17,5392,0.003152818991097923,building_count
+364,South Atlantic,"High Eff. HP
+ With HPWH",5,smart_panel,1,5392,0.000185459940652819,building_count
+365,South Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,30,5392,0.00556379821958457,building_count
+366,South Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,71,5392,0.013167655786350149,building_count
+367,South Atlantic,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,8,5392,0.001483679525222552,building_count
+368,South Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,10,5392,0.00185459940652819,building_count
+369,South Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,24,5392,0.004451038575667656,building_count
+370,South Atlantic,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,5,5392,0.000927299703264095,building_count
+371,South Atlantic,High Efficiency HP with Env.,11,management,22,5392,0.004080118694362018,building_count
+372,South Atlantic,High Efficiency HP with Env.,11,no_management,114,5392,0.021142433234421366,building_count
+373,South Atlantic,High Efficiency HP with Env.,11,replacement,11,5392,0.002040059347181009,building_count
+374,South Atlantic,High Efficiency HP with Env.,11,smart_panel,4,5392,0.000741839762611276,building_count
+375,South Atlantic,Inefficient,1,management,105,5392,0.019473293768545993,building_count
+376,South Atlantic,Inefficient,1,no_management,374,5392,0.0693620178041543,building_count
+377,South Atlantic,Inefficient,1,replacement,37,5392,0.006862017804154303,building_count
+378,South Atlantic,Inefficient,1,smart_panel,6,5392,0.001112759643916914,building_count
+379,South Atlantic,Low-voltage,6,management,32,5392,0.005934718100890208,building_count
+380,South Atlantic,Low-voltage,6,no_management,112,5392,0.020771513353115726,building_count
+381,South Atlantic,Low-voltage,6,replacement,29,5392,0.005378338278931751,building_count
+382,South Atlantic,"Low-voltage
+(HPWH and dryer only)",16,management,14,5392,0.0025964391691394658,building_count
+383,South Atlantic,"Low-voltage
+(HPWH and dryer only)",16,no_management,44,5392,0.008160237388724036,building_count
+384,South Atlantic,"Low-voltage
+(HPWH and dryer only)",16,replacement,29,5392,0.005378338278931751,building_count
+385,South Atlantic,Low-voltage with Env.,13,management,72,5392,0.013353115727002967,building_count
+386,South Atlantic,Low-voltage with Env.,13,no_management,230,5392,0.04265578635014837,building_count
+387,South Atlantic,Low-voltage with Env.,13,replacement,35,5392,0.006491097922848665,building_count
+388,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,12,5392,0.002225519287833828,building_count
+389,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,67,5392,0.012425816023738873,building_count
+390,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,33,5392,0.006120178041543026,building_count
+391,West North Central,BAU,2,management,6,1889,0.0031762837480148226,building_count
+392,West North Central,BAU,2,no_management,67,1889,0.035468501852832186,building_count
+393,West North Central,BAU,2,replacement,18,1889,0.009528851244044468,building_count
+394,West North Central,BAU,2,smart_panel,2,1889,0.0010587612493382743,building_count
+395,West North Central,BAU with Env.,9,management,29,1889,0.015352038115404976,building_count
+396,West North Central,BAU with Env.,9,no_management,316,1889,0.16728427739544732,building_count
+397,West North Central,BAU with Env.,9,replacement,81,1889,0.04287983059820011,building_count
+398,West North Central,BAU with Env.,9,smart_panel,8,1889,0.004235044997353097,building_count
+399,West North Central,BAU with HPWH,3,management,1,1889,0.0005293806246691371,building_count
+400,West North Central,BAU with HPWH,3,no_management,7,1889,0.0037056643726839597,building_count
+401,West North Central,BAU with HPWH,3,replacement,9,1889,0.004764425622022234,building_count
+402,West North Central,BAU with HPWH with Env.,10,no_management,11,1889,0.005823186871360508,building_count
+403,West North Central,BAU with HPWH with Env.,10,replacement,13,1889,0.006881948120698782,building_count
+404,West North Central,"High Eff HP
+with HPWH and Env.",12,management,4,1889,0.0021175224986765486,building_count
+405,West North Central,"High Eff HP
+with HPWH and Env.",12,no_management,25,1889,0.013234515616728428,building_count
+406,West North Central,"High Eff HP
+with HPWH and Env.",12,replacement,17,1889,0.008999470619375331,building_count
+407,West North Central,High Eff and Low-voltage,7,management,5,1889,0.0026469031233456856,building_count
+408,West North Central,High Eff and Low-voltage,7,no_management,43,1889,0.022763366860772894,building_count
+409,West North Central,High Eff and Low-voltage,7,replacement,8,1889,0.004235044997353097,building_count
+410,West North Central,"High Eff and Low-voltage
+with Env.",14,management,46,1889,0.024351508734780307,building_count
+411,West North Central,"High Eff and Low-voltage
+with Env.",14,no_management,154,1889,0.08152461619904712,building_count
+412,West North Central,"High Eff and Low-voltage
+with Env.",14,replacement,45,1889,0.02382212811011117,building_count
+413,West North Central,"High Eff and Low-voltage
+with Env.",14,smart_panel,2,1889,0.0010587612493382743,building_count
+414,West North Central,High Eff. HP,4,management,3,1889,0.0015881418740074113,building_count
+415,West North Central,High Eff. HP,4,no_management,43,1889,0.022763366860772894,building_count
+416,West North Central,High Eff. HP,4,replacement,13,1889,0.006881948120698782,building_count
+417,West North Central,"High Eff. HP
+ With HPWH",5,no_management,20,1889,0.010587612493382742,building_count
+418,West North Central,"High Eff. HP
+ With HPWH",5,replacement,2,1889,0.0010587612493382743,building_count
+419,West North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,3,1889,0.0015881418740074113,building_count
+420,West North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,15,1889,0.007940709370037057,building_count
+421,West North Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,9,1889,0.004764425622022234,building_count
+422,West North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,15,1889,0.007940709370037057,building_count
+423,West North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,57,1889,0.030174695606140816,building_count
+424,West North Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,39,1889,0.020645844362096346,building_count
+425,West North Central,High Efficiency HP with Env.,11,management,21,1889,0.01111699311805188,building_count
+426,West North Central,High Efficiency HP with Env.,11,no_management,176,1889,0.09317098994176813,building_count
+427,West North Central,High Efficiency HP with Env.,11,replacement,58,1889,0.03070407623080995,building_count
+428,West North Central,High Efficiency HP with Env.,11,smart_panel,13,1889,0.006881948120698782,building_count
+429,West North Central,Inefficient,1,management,14,1889,0.007411328745367919,building_count
+430,West North Central,Inefficient,1,no_management,83,1889,0.04393859184753838,building_count
+431,West North Central,Inefficient,1,replacement,18,1889,0.009528851244044468,building_count
+432,West North Central,Inefficient,1,smart_panel,4,1889,0.0021175224986765486,building_count
+433,West North Central,Low-voltage,6,management,1,1889,0.0005293806246691371,building_count
+434,West North Central,Low-voltage,6,no_management,24,1889,0.01270513499205929,building_count
+435,West North Central,Low-voltage,6,replacement,7,1889,0.0037056643726839597,building_count
+436,West North Central,"Low-voltage
+(HPWH and dryer only)",16,management,5,1889,0.0026469031233456856,building_count
+437,West North Central,"Low-voltage
+(HPWH and dryer only)",16,no_management,8,1889,0.004235044997353097,building_count
+438,West North Central,"Low-voltage
+(HPWH and dryer only)",16,replacement,11,1889,0.005823186871360508,building_count
+439,West North Central,Low-voltage with Env.,13,management,35,1889,0.018528321863419798,building_count
+440,West North Central,Low-voltage with Env.,13,no_management,132,1889,0.0698782424563261,building_count
+441,West North Central,Low-voltage with Env.,13,replacement,50,1889,0.026469031233456855,building_count
+442,West North Central,Low-voltage with Env.,13,smart_panel,2,1889,0.0010587612493382743,building_count
+443,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,21,1889,0.01111699311805188,building_count
+444,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,37,1889,0.019587083112758072,building_count
+445,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,33,1889,0.017469560614081524,building_count
+446,West South Central,BAU,2,management,36,3107,0.011586739620212423,building_count
+447,West South Central,BAU,2,no_management,345,3107,0.11103958802703573,building_count
+448,West South Central,BAU,2,replacement,36,3107,0.011586739620212423,building_count
+449,West South Central,BAU,2,smart_panel,5,3107,0.0016092693916961698,building_count
+450,West South Central,BAU with Env.,9,management,63,3107,0.02027679433537174,building_count
+451,West South Central,BAU with Env.,9,no_management,612,3107,0.1969745735436112,building_count
+452,West South Central,BAU with Env.,9,replacement,49,3107,0.015770840038622464,building_count
+453,West South Central,BAU with Env.,9,smart_panel,5,3107,0.0016092693916961698,building_count
+454,West South Central,BAU with HPWH,3,management,7,3107,0.002252977148374638,building_count
+455,West South Central,BAU with HPWH,3,no_management,91,3107,0.029288702928870293,building_count
+456,West South Central,BAU with HPWH,3,replacement,10,3107,0.0032185387833923397,building_count
+457,West South Central,BAU with HPWH with Env.,10,management,5,3107,0.0016092693916961698,building_count
+458,West South Central,BAU with HPWH with Env.,10,no_management,65,3107,0.02092050209205021,building_count
+459,West South Central,BAU with HPWH with Env.,10,replacement,10,3107,0.0032185387833923397,building_count
+460,West South Central,"High Eff HP
+with HPWH and Env.",12,management,12,3107,0.0038622465400708077,building_count
+461,West South Central,"High Eff HP
+with HPWH and Env.",12,no_management,64,3107,0.020598648213710977,building_count
+462,West South Central,"High Eff HP
+with HPWH and Env.",12,replacement,2,3107,0.000643707756678468,building_count
+463,West South Central,High Eff and Low-voltage,7,management,23,3107,0.007402639201802382,building_count
+464,West South Central,High Eff and Low-voltage,7,no_management,45,3107,0.014483424525265529,building_count
+465,West South Central,High Eff and Low-voltage,7,replacement,10,3107,0.0032185387833923397,building_count
+466,West South Central,High Eff and Low-voltage,7,smart_panel,1,3107,0.000321853878339234,building_count
+467,West South Central,"High Eff and Low-voltage
+with Env.",14,management,16,3107,0.005149662053427744,building_count
+468,West South Central,"High Eff and Low-voltage
+with Env.",14,no_management,46,3107,0.014805278403604764,building_count
+469,West South Central,"High Eff and Low-voltage
+with Env.",14,replacement,6,3107,0.0019311232700354038,building_count
+470,West South Central,High Eff. HP,4,management,33,3107,0.010621177985194722,building_count
+471,West South Central,High Eff. HP,4,no_management,44,3107,0.014161570646926296,building_count
+472,West South Central,High Eff. HP,4,replacement,10,3107,0.0032185387833923397,building_count
+473,West South Central,"High Eff. HP
+ With HPWH",5,management,30,3107,0.00965561635017702,building_count
+474,West South Central,"High Eff. HP
+ With HPWH",5,no_management,143,3107,0.04602510460251046,building_count
+475,West South Central,"High Eff. HP
+ With HPWH",5,replacement,4,3107,0.001287415513356936,building_count
+476,West South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,management,16,3107,0.005149662053427744,building_count
+477,West South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,no_management,21,3107,0.0067589314451239136,building_count
+478,West South Central,"High Eff. and Low-voltage
+(HPWH and dryer only)",17,replacement,4,3107,0.001287415513356936,building_count
+479,West South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,management,11,3107,0.003540392661731574,building_count
+480,West South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,no_management,14,3107,0.004505954296749276,building_count
+481,West South Central,"High Eff. and Low-voltage 
+ with Env. (HPWH and dryer only)",19,replacement,5,3107,0.0016092693916961698,building_count
+482,West South Central,High Efficiency HP with Env.,11,management,17,3107,0.0054715159317669775,building_count
+483,West South Central,High Efficiency HP with Env.,11,no_management,95,3107,0.03057611844222723,building_count
+484,West South Central,High Efficiency HP with Env.,11,replacement,11,3107,0.003540392661731574,building_count
+485,West South Central,High Efficiency HP with Env.,11,smart_panel,1,3107,0.000321853878339234,building_count
+486,West South Central,Inefficient,1,management,68,3107,0.02188606372706791,building_count
+487,West South Central,Inefficient,1,no_management,280,3107,0.09011908593498552,building_count
+488,West South Central,Inefficient,1,replacement,20,3107,0.006437077566784679,building_count
+489,West South Central,Inefficient,1,smart_panel,3,3107,0.0009655616350177019,building_count
+490,West South Central,Low-voltage,6,management,49,3107,0.015770840038622464,building_count
+491,West South Central,Low-voltage,6,no_management,129,3107,0.041519150305761185,building_count
+492,West South Central,Low-voltage,6,replacement,20,3107,0.006437077566784679,building_count
+493,West South Central,"Low-voltage
+(HPWH and dryer only)",16,management,7,3107,0.002252977148374638,building_count
+494,West South Central,"Low-voltage
+(HPWH and dryer only)",16,no_management,24,3107,0.007724493080141615,building_count
+495,West South Central,"Low-voltage
+(HPWH and dryer only)",16,replacement,15,3107,0.00482780817508851,building_count
+496,West South Central,Low-voltage with Env.,13,management,92,3107,0.029610556807209528,building_count
+497,West South Central,Low-voltage with Env.,13,no_management,262,3107,0.08432571612487931,building_count
+498,West South Central,Low-voltage with Env.,13,replacement,35,3107,0.01126488574187319,building_count
+499,West South Central,Low-voltage with Env.,13,smart_panel,2,3107,0.000643707756678468,building_count
+500,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,13,3107,0.0041841004184100415,building_count
+501,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,46,3107,0.014805278403604764,building_count
+502,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,18,3107,0.005793369810106212,building_count
+503,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,smart_panel,1,3107,0.000321853878339234,building_count

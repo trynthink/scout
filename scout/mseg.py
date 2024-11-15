@@ -55,7 +55,7 @@ class UsefulVars(object):
         self.aeo_metadata = fp.METADATA_PATH
         self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
         self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
-        self.panel_upg_dat = fp.INPUTS / 'panel_solution_shares.json'
+        self.panel_upg_dat = fp.INPUTS / 'panels_process' / 'panel_solution_shares.json'
 
 
 class SkipLines(object):
