@@ -2077,6 +2077,8 @@ class Measure(object):
             upgrade; invokes supporting data on whether or not a panel upgrade
             or other load/space control solution is needed to avoid an upgrade
             for a given microsegment.
+        ref_analogue (booleane): Flag for whether measure should serve as basis
+            for a copy of measure with reference case performance/cost.
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2184,6 +2186,13 @@ class Measure(object):
                 self.panel_upgrade = ""
         except AttributeError:
             self.panel_upgrade = ""
+        # Check for reference case analogue attribute, and if not there set None
+        try:
+            self.ref_analogue
+            if self.ref_analogue is None:
+                self.ref_analogue = ""
+        except AttributeError:
+            self.ref_analogue = ""
         # Check for flag for heating and cooling equipment pairing, if not
         # there or not applicable set to blank string
         try:
@@ -2223,7 +2232,7 @@ class Measure(object):
         # once the elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
                 self.usr_opts["add_typ_eff"] is not False and
-                any([x in self.name for x in ["Ref. Case", "Min. Eff."]])):
+                "Analogue" in self.name):
             self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
@@ -2753,11 +2762,8 @@ class Measure(object):
         self.fill_attr()
 
         # Flag the auto-generation of reference case technology analogues for
-        # all of the current measure's applicable markets, if applicable –
-        # exclude 'Ref. Case' switching of fossil-based heat or resistance heat
-        # to HPs under exogenous switching rates, since the competing Ref. Case
-        # analogue will be a min. efficiency HP and this is manually defined
-        if (opts.add_typ_eff is True and "Ref. Case" in self.name):
+        # all of the current measure's applicable markets, if applicable
+        if (opts.add_typ_eff is True and "Analogue" in self.name):
             agen_ref = True
         else:
             agen_ref = ""
@@ -4007,6 +4013,25 @@ class Measure(object):
                     if mskeys[i] is not None:
                         mseg = {}
                     break
+
+            # Special case where baseline data are further nested to indicate
+            # where panel upgrades are/are not necessary under various efficiency
+            # and load management strategies
+            if self.panel_upgrade and any([x in mseg.keys() for x in [
+                    "low efficiency upgrade", "moderate efficiency upgrade",
+                    "high efficiency upgrade"]]):
+                try:
+                    # Measure panel_upgrade attribute includes sub-segmentation information
+                    # in two list elements: 1) level of efficiency represented by upgrade and
+                    # 2) panel replacement outcome (replace, no replace, manage)
+                    mseg = mseg[self.panel_upgrade[0]][self.panel_upgrade[1]]
+                except KeyError:
+                    if self.panel_upgrade:
+                        raise ValueError(
+                            "Baseline mseg data lack information needed to assess "
+                            "'panel_upgrade' attribute for measure '" + self.name + "'")
+                    else:
+                        pass
 
             # Continue loop if key chain doesn't yield "stock"/"energy" keys
             if any([x not in list(mseg.keys()) for x in ["stock", "energy"]]):
@@ -13509,6 +13534,8 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             del m.linked_htcl_tover
             del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
+            del m.panel_upgrade
+            del m.ref_analogue
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -14476,14 +14503,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # should be added (user option is present, measure is in
                 # ESTAR/IECC/90.1 tier, measure applies to equipment
                 # not envelope components
-                if opts is not None and opts.add_typ_eff is True and \
-                    any([x in meas_dict["name"] for x in [
-                        "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and (
-                        not ((isinstance(meas_dict["technology"], list)
-                              and all([x in handyvars.demand_tech for
-                                       x in meas_dict["technology"]])) or
-                             meas_dict["technology"] in
-                             handyvars.demand_tech)):
+                if meas_dict["ref_analogue"] and meas_dict["ref_analogue"] is True:
                     add_ref_meas = True
                 else:
                     add_ref_meas = ""
@@ -14497,23 +14517,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # as these are already baked into the energy use totals for
                 # typical/BAU HVAC equipment measures
                 if add_ref_meas:
-                    # Find substring in existing measure name to replace
-                    if "ENERGY STAR" in meas_dict["name"]:
-                        name_substr = "ENERGY STAR"
-                    elif "ESTAR" in meas_dict["name"]:
-                        name_substr = "ESTAR"
-                    elif "IECC c. 2021" in meas_dict["name"]:
-                        name_substr = "IECC c. 2021"
-                    elif "90.1 c. 2019" in meas_dict["name"]:
-                        name_substr = "90.1 c. 2019"
-                    else:
-                        name_substr = ""
                     # Determine unique measure copy name
-                    if name_substr:
-                        new_name = meas_dict["name"].replace(
-                            name_substr, "Ref. Case")
-                    else:
-                        new_name = meas_dict["name"] + " Ref. Case"
+                    new_name = meas_dict["name"] + " (Ref. Analogue)"
                     # Copy the measure
                     new_meas = copy.deepcopy(meas_dict)
                     # Set the copied measure name to the name above
