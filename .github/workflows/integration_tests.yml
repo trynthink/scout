@@ -72,6 +72,17 @@ jobs:
           fi
           rm -rf ./tests/integration_testing/results/*
           mv ./results/* ./tests/integration_testing/results/
+      - name: Compare integration test results
+        run: |
+          #FIXME temporarily pull from ci_outputs
+          git fetch
+          git show origin/ci_outputs:tests/integration_testing/results/agg_results.json > tests/integration_testing/results/agg_results_master.json
+          git show origin/ci_outputs:tests/integration_testing/results/ecm_results.json > tests/integration_testing/results/ecm_results_master.json
+          git show origin/ci_outputs:tests/integration_testing/results/plots/tech_potential/Summary_Data-TP.xlsx > tests/integration_testing/results/plots/tech_potential/Summary_Data-TP_master.xlsx
+          git show origin/ci_outputs:tests/integration_testing/results/plots/max_adopt_potential/Summary_Data-MAP.xlsx > tests/integration_testing/results/plots/tech_potential/Summary_Data-MAP_master.xlsx
+
+          python tests/integration_testing/compare_results.py -d tests/integration_testing/results --baseline_suffix _master
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
