@@ -15,12 +15,17 @@ class ScoutCompare():
         with open(file_path, 'r') as file:
             return json.load(file)
 
+    @staticmethod
+    def load_summary_report(file_path):
+        df = pd.read_excel(file_path, index_col=list(range(5)))
+        return df
+
     def compare_dict_keys(self, dict1, dict2, paths, path='', key_diffs=None):
         """Compares nested keys across two dictionaries by recursively searching each level
 
         Args:
-            dict1 (dict): dictionary to compare
-            dict2 (dict): dictionary to compare
+            dict1 (dict): baseline dictionary to compare
+            dict2 (dict): new dictionary to compare
             paths (list): paths to the original files from which the dictionaries are imported
             path (str, optional): current dictionary path at whcih to compare. Defaults to ''.
             key_diffs (pd.DataFrame, optional): existing summary of difference. Defaults to None.
@@ -62,8 +67,8 @@ class ScoutCompare():
             values at common paths. Both thresholds must be met to report results.
 
         Args:
-            dict1 (dict): dictionary to compare
-            dict2 (dict): dictionary to compare
+            dict1 (dict): baseline dictionary to compare
+            dict2 (dict): new dictionary to compare
             percent_threshold (int, optional): the percent difference threshold at which
                                                differences are reported. Defaults to 10.
             abs_threshold (int, optional): the abosolute difference threshold at which differences
@@ -104,12 +109,12 @@ class ScoutCompare():
             return
         df.to_csv(output_path, index=False)
 
-    def compare_jsons(self, json1_path, json2_path, write_reports=True):
+    def compare_jsons(self, json1_path, json2_path, output_dir=True):
         """Compare two jsons and report differences in keys and in values
 
         Args:
-            json1_path (Path): json file to compare
-            json2_path (Path): json file to compare
+            json1_path (Path): baseline json file to compare
+            json2_path (Path): new json file to compare
             write_reports (bool, optional): _description_. Defaults to True.
         """
         json1 = self.load_json(json1_path)
@@ -117,20 +122,30 @@ class ScoutCompare():
 
         # Compare differences in json keys
         key_diffs = self.compare_dict_keys(json1, json2, [json1_path, json2_path])
-        if write_reports:
-            out_path = json2_path.parent / f"{json2_path.stem}_key_diffs.csv"
-            self.write_dict_key_report(key_diffs, out_path)
+        if output_dir is None:
+            output_dir = json2_path.parent
+        self.write_dict_key_report(key_diffs, output_dir / f"{json2_path.stem}_key_diffs.csv")
 
         # Compare differences in json values
         val_diffs = self.compare_dict_values(json1, json2)
-        if write_reports:
-            out_path = json2_path.parent / f"{json2_path.stem}_value_diffs.csv"
-            self.write_dict_value_report(val_diffs, out_path)
+        self.write_dict_value_report(val_diffs, output_dir / f"{json2_path.stem}_value_diffs.csv")
 
-    def compare_summary_reports(self, report1_path, report2_path, write_reports=True):
-        # Compare Summary_Data-TP.xlsx and Summary_Data-MAP.xlsx with baseline files
-        pass
+    def compare_summary_reports(self, report1_path, report2_path, output_dir=None):
+        """Compare Summary_Data-TP.xlsx and Summary_Data-MAP.xlsx with baseline files
 
+        Args:
+            report1_path (Path): baseline summary report to compare
+            report2_path (Path): new summary report to compare
+            output_dir (Path, optional): _description_. Defaults to None.
+        """
+
+        report1 = self.load_summary_report(report1_path)
+        report2 = self.load_summary_report(report2_path)
+
+        diff = ((report2 - report1)/report1).round(2)
+        if output_dir is None:
+            output_dir = report2_path.parent
+        diff.to_csv(output_dir / f"{report2_path.stem}_percent_diffs.csv")
 
 def main():
     parser = argparse.ArgumentParser(description="Compare results files for Scout.")
@@ -140,38 +155,30 @@ def main():
                         help="Path to the baseline summary report (Excel file)")
     parser.add_argument("--summary-new", type=Path,
                         help="Path to the new summary report (Excel file)")
-    parser.add_argument("-d", "--directory", type=Path,
-                        help="Directory containing files to compare")
-    parser.add_argument("--baseline_suffix", type=str, default="_master",
-                        help="If using the --directory argument, specify the suffix for the "
-                        "baseline files (e.g., '_master')")
+    parser.add_argument("--new-dir", type=Path, help="Directory containing files to compare")
+    parser.add_argument("--base-dir", type=Path, help="Directory containing files to compare")
     parser.add_argument("--threshold", type=float, default=10,
                         help="Threshold for percent difference")
     args = parser.parse_args()
 
     compare = ScoutCompare()
-    if args.directory:
+    if args.base_dir and args.new_dir:
         # Compare all files
-        results_dir = args.directory.resolve()
-        agg_results_json_base = results_dir / f"agg_results{args.baseline_suffix}.json"
-        agg_results_json = results_dir / "agg_results.json"
-        compare.compare_jsons(agg_results_json_base, agg_results_json)
+        base_dir = args.base_dir.resolve()
+        new_dir = args.new_dir.resolve()
+        agg_json_base = base_dir / "agg_results.json"
+        agg_json_new = new_dir / "agg_results.json"
+        compare.compare_jsons(agg_json_base, agg_json_new, output_dir=new_dir)
+        ecm_json_base = base_dir / "ecm_results.json"
+        ecm_json_new = new_dir / "ecm_results.json"
+        compare.compare_jsons(ecm_json_base, ecm_json_new, output_dir=new_dir)
 
-        ecm_results_json_base = results_dir / f"ecm_results{args.baseline_suffix}.json"
-        ecm_results_json = results_dir / "ecm_results.json"
-        compare.compare_jsons(ecm_results_json_base, ecm_results_json)
-
-        plots_dir = results_dir / "plots"
-        summary_tp_base = plots_dir / "tech_potential" / \
-            f"Summary_Data-TP{args.baseline_suffix}.xlsx"
-        summary_tp = plots_dir / "tech_potential" / "Summary_Data-TP.xlsx"
-        compare.compare_summary_reports(summary_tp_base, summary_tp)
-
-        summary_map_base = (plots_dir / "max_adopt_potential" /
-                            f"Summary_Data-MAP{args.baseline_suffix}.xlsx")
-        summary_map = plots_dir / "tech_potential" / "Summary_Data-MAP.xlsx"
-        compare.compare_summary_reports(summary_map_base, summary_map)
-
+        summary_tp_base = base_dir / "Summary_Data-TP.xlsx"
+        summary_tp_new = new_dir / "plots" / "tech_potential" / "Summary_Data-TP.xlsx"
+        compare.compare_summary_reports(summary_tp_base, summary_tp_new, output_dir=new_dir)
+        summary_map_base = base_dir / "Summary_Data-MAP.xlsx"
+        summary_map_new = new_dir / "plots" / "max_adopt_potential" / "Summary_Data-MAP.xlsx"
+        compare.compare_summary_reports(summary_map_base, summary_map_new, output_dir=new_dir)
     else:
         # Compare only as specified by the arguments
         if args.json_baseline and args.json_new:
