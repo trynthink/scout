@@ -101,6 +101,7 @@ class ScoutCompare():
         if diff_report.empty:
             return
         diff_report.to_csv(output_path, index=False)
+        print(f"Wrote dictionary key report to {output_path}")
 
     def write_dict_value_report(self, diff_report, output_path):
         df = pd.DataFrame(columns=["Results path", "Percent difference"],
@@ -108,6 +109,7 @@ class ScoutCompare():
         if df.empty:
             return
         df.to_csv(output_path, index=False)
+        print(f"Wrote dictionary value report to {output_path}")
 
     def compare_jsons(self, json1_path, json2_path, output_dir=True):
         """Compare two jsons and report differences in keys and in values
@@ -145,7 +147,9 @@ class ScoutCompare():
         diff = ((report2 - report1)/report1).round(2)
         if output_dir is None:
             output_dir = report2_path.parent
-        diff.to_csv(output_dir / f"{report2_path.stem}_percent_diffs.csv")
+        output_path = output_dir / f"{report2_path.stem}_percent_diffs.csv"
+        diff.to_csv(output_path)
+        print(f"Wrote Summary_Data percent difference report to {output_path}")
 
 
 def main():
