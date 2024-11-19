@@ -147,6 +147,7 @@ class ScoutCompare():
             output_dir = report2_path.parent
         diff.to_csv(output_dir / f"{report2_path.stem}_percent_diffs.csv")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Compare results files for Scout.")
     parser.add_argument("--json-baseline", type=Path, help="Path to the baseline JSON file")
