@@ -17,8 +17,8 @@ class ScoutCompare():
 
     @staticmethod
     def load_summary_report(file_path):
-        df = pd.read_excel(file_path, index_col=list(range(5)))
-        return df
+        reports = pd.read_excel(file_path, sheet_name=None, index_col=list(range(5)))
+        return reports
 
     def compare_dict_keys(self, dict1, dict2, paths, path='', key_diffs=None):
         """Compares nested keys across two dictionaries by recursively searching each level
@@ -42,12 +42,12 @@ class ScoutCompare():
         only_in_dict2 = keys2 - keys1
 
         if only_in_dict1:
-            new_row = pd.DataFrame({"Results file": paths[0].stem,
+            new_row = pd.DataFrame({"Results file": f"{paths[0].parent.name}/{paths[0].name}",
                                     "Unique key": str(only_in_dict1),
                                     "Found at": path[2:]}, index=[0])
             key_diffs = pd.concat([key_diffs, new_row], ignore_index=True)
         if only_in_dict2:
-            new_row = pd.DataFrame({"Results file": paths[1].stem,
+            new_row = pd.DataFrame({"Results file": f"{paths[0].parent.name}/{paths[0].name}",
                                     "Unique key": str(only_in_dict2),
                                     "Found at": path[2:]}, index=[0])
             key_diffs = pd.concat([key_diffs, new_row], ignore_index=True)
@@ -141,14 +141,16 @@ class ScoutCompare():
             output_dir (Path, optional): _description_. Defaults to None.
         """
 
-        report1 = self.load_summary_report(report1_path)
-        report2 = self.load_summary_report(report2_path)
-
-        diff = ((report2 - report1)/report1).round(2)
+        reports1 = self.load_summary_report(report1_path)
+        reports2 = self.load_summary_report(report2_path)
         if output_dir is None:
             output_dir = report2_path.parent
-        output_path = output_dir / f"{report2_path.stem}_percent_diffs.csv"
-        diff.to_csv(output_path)
+        output_path = output_dir / f"{report2_path.stem}_percent_diffs.xlsx"
+        with pd.ExcelWriter(output_path) as writer:
+            for (output_type, report1), (_, report2) in zip(reports1.items(), reports2.items()):
+                diff = ((report2 - report1)/report1).round(2)
+                diff = diff.reset_index()
+                diff.to_excel(writer, sheet_name=output_type, index=False)
         print(f"Wrote Summary_Data percent difference report to {output_path}")
 
 

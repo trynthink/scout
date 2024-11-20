@@ -70,7 +70,6 @@ jobs:
           branch_name="${{ github.ref }}"
           git pull origin $branch_name
           if [[ $(git diff --exit-code origin/master ./tests/integration_testing/results/agg_results.json ./tests/integration_testing/results/ecm_results.json) ]]; then
-            echo "comparing CI results"
             mkdir tests/integration_testing/base_results
             git show origin/ci_outputs:tests/integration_testing/results/agg_results.json > tests/integration_testing/base_results/agg_results.json
             git show origin/ci_outputs:tests/integration_testing/results/ecm_results.json > tests/integration_testing/base_results/ecm_results.json
@@ -78,8 +77,6 @@ jobs:
             git show origin/ci_outputs:tests/integration_testing/results/plots/max_adopt_potential/Summary_Data-MAP.xlsx > tests/integration_testing/base_results/Summary_Data-MAP.xlsx
 
             python tests/integration_testing/compare_results.py --base-dir tests/integration_testing/base_results --new-dir tests/integration_testing/results
-          else
-            echo "No chages to results files, skipping results comparison"
           fi
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
