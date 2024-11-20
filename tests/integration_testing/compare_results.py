@@ -48,7 +48,7 @@ class ScoutCompare():
                                     "Found at": path[2:]}, index=[0])
             key_diffs = pd.concat([key_diffs, new_row], ignore_index=True)
         if only_in_dict2:
-            new_row = pd.DataFrame({"Results file": f"{paths[0].parent.name}/{paths[0].name}",
+            new_row = pd.DataFrame({"Results file": f"{paths[1].parent.name}/{paths[1].name}",
                                     "Unique key": str(only_in_dict2),
                                     "Found at": path[2:]}, index=[0])
             key_diffs = pd.concat([key_diffs, new_row], ignore_index=True)
