@@ -66,9 +66,8 @@ jobs:
       - name: Compare integration test results
         run: |
           #FIXME temporarily pull from ci_outputs
-          git fetch  #FIXME: remove
+          git fetch origin master ci_outputs
           branch_name="${{ github.ref }}"
-          git pull origin $branch_name
           if [[ $(git diff --exit-code origin/master ./tests/integration_testing/results/agg_results.json ./tests/integration_testing/results/ecm_results.json) ]]; then
             mkdir tests/integration_testing/base_results
             git show origin/ci_outputs:tests/integration_testing/results/agg_results.json > tests/integration_testing/base_results/agg_results.json
