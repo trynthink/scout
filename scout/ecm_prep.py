@@ -2459,7 +2459,12 @@ class Measure(object):
                                     css_dict[eu_key][bd_key][cz_key][v_key] = {
                                         "CSV base frac. annual": base_l_frac,
                                         "CSV relative change": rel_chg}
-
+                    # Account for case where legacy CSV end use name "pool heaters and pumps"
+                    # is still used (current Scout baseline separates the two)
+                    if "pool" in eu_key:
+                        css_dict["pool heaters"], css_dict["pool pumps"] = (
+                            css_dict["pool heaters and pumps"] for n in range(2))
+                        del css_dict["pool heaters and pumps"]
                 # Set custom savings shape information to populated dict
                 self.tsv_features["shape"]["custom_annual_savings"] = \
                     css_dict
@@ -2718,8 +2723,8 @@ class Measure(object):
         # of heat pump HVAC) and a list of the climate zones, building types,
         # and structure type of removed primary microsegments (used to remove
         # associated secondary microsegments)
-        stk_energy_warn, cpl_warn, consume_warn, hp_warn, removed_primary = (
-            [] for n in range(5))
+        stk_energy_warn, cpl_warn, consume_warn, hp_warn, removed_primary, save_shp_warn = (
+            [] for n in range(6))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -3960,7 +3965,7 @@ class Measure(object):
                             # alternate regions into the current mseg region,
                             # to arrive at a final market scaling value for
                             # that region
-                            if all([type(x) != dict for
+                            if all([not isinstance(x, dict) for
                                     x in mkt_scale_frac[0].values()]):
                                 mkt_scale_frac = sum([x * y for x, y in zip(
                                     mkt_scale_frac[0].values(),
@@ -5900,7 +5905,7 @@ class Measure(object):
                     # Pull TSV scaling fractions and shapes
                     tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
                         tsv_data, mskeys, bldg_sect, convert_data, opts,
-                        cost_energy_meas)
+                        cost_energy_meas, save_shp_warn)
                 else:
                     tsv_scale_fracs = {
                         "energy": {"baseline": 1, "efficient": 1},
@@ -6319,7 +6324,7 @@ class Measure(object):
 
     def gen_tsv_facts(
             self, tsv_data, mskeys, bldg_sect, cost_conv, opts,
-            cost_energy_meas):
+            cost_energy_meas, save_shp_warn):
         """Set annual re-weighting factors and hourly load fractions for TSV.
 
         Args:
@@ -6330,6 +6335,7 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             cost_energy_meas (dict): Annual retail electricity rates for the
                 region the measure applies to.
+            save_shp_warn (list): Tracks previous warnings on missing savings shape data.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions annual
@@ -6547,7 +6553,7 @@ class Measure(object):
             updated_tsv_fracs, updated_tsv_shapes = self.apply_tsv(
                 load_fact, ash_czone_wts, eplus_bldg_wts, cost_fact_hourly,
                 carbon_fact_hourly, mskeys, bldg_sect, eu, opts, cost_yr_map,
-                carb_yr_map)
+                carb_yr_map, save_shp_warn)
             # Set adjustment factors for current combination of
             # region, building type, and end use such that they
             # need not be calculated again for this combination in
@@ -6575,7 +6581,7 @@ class Measure(object):
 
     def apply_tsv(self, load_fact, ash_cz_wts, eplus_bldg_wts,
                   cost_fact_hourly, carbon_fact_hourly, mskeys, bldg_sect,
-                  eu, opts, cost_yr_map, carb_yr_map):
+                  eu, opts, cost_yr_map, carb_yr_map, save_shp_warn):
         """Apply time varying efficiency levels to base load profile.
 
         Args:
@@ -6590,6 +6596,7 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             cost_yr_map (dict): Mapping 8760 TSV price data years -> AEO years.
             carb_yr_map (dict): Mapping 8760 TSV carbon data yrs. -> AEO years.
+            save_shp_warn (list): Tracks previous warnings on missing savings shape data.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions re-
@@ -7090,22 +7097,31 @@ class Measure(object):
                             if len(custom_hr_save_shape) == 0 or sum(
                                     custom_hr_save_shape[
                                         "CSV base frac. annual"]) == 0:
-                                warnings.warn(
-                                    "Measure '" + self.name + "', requires "
-                                    "custom savings shape data, but none were "
-                                    "found or all values were zero for the "
-                                    "combination of climate "
-                                    "zone " + load_fact_climate_key +
-                                    " (system load " + mult_sysshp_key_save +
-                                    "), building type " +
-                                    load_fact_bldg_key + ", and end use " +
-                                    eu + ". Assuming savings are zero for "
-                                    "this combination. If this is "
-                                    "unexpected, check that 8760 hourly "
-                                    "savings fractions are available for "
-                                    "all baseline market segments the "
-                                    "measure applies to in "
-                                    f"{fp.ECM_DEF / 'energy_plus_data' / 'savings_shapes'}.")
+                                # Register mseg info. that generated warning
+                                mseg_warn = str((
+                                    load_fact_climate_key, mult_sysshp_key_save,
+                                    load_fact_bldg_key, eu))
+                                # Warn user if hasn't been done already for this mseg info.
+                                if mseg_warn not in save_shp_warn:
+                                    save_shp_warn.append(mseg_warn)
+                                    verboseprint(
+                                        opts.verbose,
+                                        "WARNING: Measure '" + self.name + "', requires "
+                                        "custom savings shape data, but none were "
+                                        "found or all values were zero for the "
+                                        "combination of climate "
+                                        "zone " + load_fact_climate_key +
+                                        " (system load " + mult_sysshp_key_save +
+                                        "), building type " +
+                                        load_fact_bldg_key + ", and end use " +
+                                        eu + ". Assuming savings are zero for "
+                                        "this combination. If this is "
+                                        "unexpected, check that 8760 hourly "
+                                        "savings fractions are available for "
+                                        "all baseline market segments the "
+                                        "measure applies to in "
+                                        f"{fp.ECM_DEF / 'energy_plus_data' / 'savings_shapes'}.")
+
                             else:
                                 # Develop an adjustment from the generic
                                 # baseline load shape for the current climate,
