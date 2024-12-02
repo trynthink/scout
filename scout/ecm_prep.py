@@ -416,6 +416,7 @@ class UsefulVars(object):
         env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
             sensitive valuation for heating (no load shapes for these gains).
         skipped_ecms (int): List of names for ECMs skipped due to errors.
+        save_shp_warn (list): Tracks missing savings shape error history.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1684,6 +1685,7 @@ class UsefulVars(object):
             "windows solar", "equipment gain", "people gain",
             "other heat gain")
         self.skipped_ecms = []
+        self.save_shp_warn = []
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -2723,8 +2725,8 @@ class Measure(object):
         # of heat pump HVAC) and a list of the climate zones, building types,
         # and structure type of removed primary microsegments (used to remove
         # associated secondary microsegments)
-        stk_energy_warn, cpl_warn, consume_warn, hp_warn, removed_primary, save_shp_warn = (
-            [] for n in range(6))
+        stk_energy_warn, cpl_warn, consume_warn, hp_warn, removed_primary = (
+            [] for n in range(5))
 
         # Initialize flags for invalid information about sub-market fraction
         # source, URL, and derivation
@@ -5905,7 +5907,7 @@ class Measure(object):
                     # Pull TSV scaling fractions and shapes
                     tsv_scale_fracs, tsv_shapes = self.gen_tsv_facts(
                         tsv_data, mskeys, bldg_sect, convert_data, opts,
-                        cost_energy_meas, save_shp_warn)
+                        cost_energy_meas)
                 else:
                     tsv_scale_fracs = {
                         "energy": {"baseline": 1, "efficient": 1},
@@ -6324,7 +6326,7 @@ class Measure(object):
 
     def gen_tsv_facts(
             self, tsv_data, mskeys, bldg_sect, cost_conv, opts,
-            cost_energy_meas, save_shp_warn):
+            cost_energy_meas):
         """Set annual re-weighting factors and hourly load fractions for TSV.
 
         Args:
@@ -6335,7 +6337,6 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             cost_energy_meas (dict): Annual retail electricity rates for the
                 region the measure applies to.
-            save_shp_warn (list): Tracks previous warnings on missing savings shape data.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions annual
@@ -6553,7 +6554,7 @@ class Measure(object):
             updated_tsv_fracs, updated_tsv_shapes = self.apply_tsv(
                 load_fact, ash_czone_wts, eplus_bldg_wts, cost_fact_hourly,
                 carbon_fact_hourly, mskeys, bldg_sect, eu, opts, cost_yr_map,
-                carb_yr_map, save_shp_warn)
+                carb_yr_map)
             # Set adjustment factors for current combination of
             # region, building type, and end use such that they
             # need not be calculated again for this combination in
@@ -6581,7 +6582,7 @@ class Measure(object):
 
     def apply_tsv(self, load_fact, ash_cz_wts, eplus_bldg_wts,
                   cost_fact_hourly, carbon_fact_hourly, mskeys, bldg_sect,
-                  eu, opts, cost_yr_map, carb_yr_map, save_shp_warn):
+                  eu, opts, cost_yr_map, carb_yr_map):
         """Apply time varying efficiency levels to base load profile.
 
         Args:
@@ -6596,7 +6597,6 @@ class Measure(object):
             opts (object): Stores user-specified execution options.
             cost_yr_map (dict): Mapping 8760 TSV price data years -> AEO years.
             carb_yr_map (dict): Mapping 8760 TSV carbon data yrs. -> AEO years.
-            save_shp_warn (list): Tracks previous warnings on missing savings shape data.
 
         Returns:
             Dict of microsegment-specific energy, cost, and emissions re-
@@ -7101,9 +7101,10 @@ class Measure(object):
                                 mseg_warn = str((
                                     load_fact_climate_key, mult_sysshp_key_save,
                                     load_fact_bldg_key, eu))
+                                print(self.handyvars.save_shp_warn.append(mseg_warn))
                                 # Warn user if hasn't been done already for this mseg info.
-                                if mseg_warn not in save_shp_warn:
-                                    save_shp_warn.append(mseg_warn)
+                                if mseg_warn not in self.handyvars.save_shp_warn:
+                                    self.handyvars.save_shp_warn.append(mseg_warn)
                                     verboseprint(
                                         opts.verbose,
                                         "WARNING: Measure '" + self.name + "', requires "
