@@ -1289,7 +1289,7 @@ Batches of configuration files can also be run using the run_batch.py module. Th
 
 **Windows** ::
 
-   py -3 scout/run_batch.py --batch <config_directory>
+   python scout\run_batch.py --batch <config_directory>
 
 **Mac** ::
 
@@ -1315,7 +1315,7 @@ To run the pre-processing script |html-filepath| ecm_prep.py\ |html-fp-end|, ope
 **Windows** ::
 
    cd Documents\projects\scout-run_scheme
-   py -3 scout/ecm_prep.py
+   python scout\ecm_prep.py
 
 **Mac** ::
 
@@ -1340,7 +1340,7 @@ Users may include a range of additional options alongside the |html-filepath| ec
 
 **Windows** ::
 
-   py -3 scout/ecm_prep.py <additional option 1> <additional option 2> ... <additional option N>
+   python scout\ecm_prep.py <additional option 1> <additional option 2> ... <additional option N>
 
 **Mac** ::
 
@@ -1670,7 +1670,7 @@ To run the module, open a Terminal window (Mac) or command prompt (Windows) if o
 **Windows** ::
 
    cd Documents\projects\scout-run_scheme
-   py -3 run_setup.py
+   python run_setup.py
 
 **Mac** ::
 
@@ -1711,7 +1711,7 @@ To run the uncompeted and competed ECM calculations, open a Terminal window (Mac
 **Windows** ::
 
    cd Documents\projects\scout-run_scheme
-   py -3 run.py
+   python run.py
 
 **Mac** ::
 
@@ -1740,7 +1740,7 @@ Users may include additional options alongside the |html-filepath| run.py |html-
 
 **Windows** ::
 
-   py -3 run.py <additional option> <additional option 2> ... <additional option N>
+   python run.py <additional option> <additional option 2> ... <additional option N>
 
 **Mac** ::
 
