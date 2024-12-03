@@ -44,7 +44,7 @@ Mac OS
 0. (Optional) Install a package manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Mac OS ships with Python already installed. Installing and using a package manager will make it easy to ensure that any additional installations of Python do not interfere with the version of Python included with the operating system. Homebrew_ is a popular package manager, but there are other options, such as MacPorts and Fink.
+Installing and using a package manager will make it easy to ensure that multiple installations of Python do not interfere with each other. Homebrew_ is a popular package manager, but there are other options, such as MacPorts and Fink.
 
 .. _Homebrew website:
 .. _Homebrew: http://brew.sh
@@ -58,21 +58,35 @@ If you are using a package manager other than Homebrew, follow the documentation
 
 .. _Python Software Foundation installer: https://www.python.org/downloads/
 
-1. Install Python 3
-~~~~~~~~~~~~~~~~~~~
+1. Set Up a Python Virtual Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In a Terminal window, at the command prompt (a line terminated with a $ character and a flashing cursor), type::
+In a Terminal window, at the command prompt (a line terminated with a $ character and a flashing cursor), install Python by typing::
 
    brew install python3
 
+A virtual environment should be used to ensure that package dependencies are isolated for Scout. Common tools for managing virtual environments include `venv`_, `virtualenv`_, and `conda`_. To create and activate a virtual environment named ``.scout_env`` using the standard Python module, ``venv``, navigate to the Scout installation directory and run the following commands::
+
+   python3 -m venv .scout_env
+   source .scout_env/Scripts/activate
+
+This will activate the new Python environment where the Scout package will be installed. To check that the environment was set up correctly, run ``which python``, and ensure that the path points to the new environment directory.
+
+.. note::
+   Each time you intend on running Scout, the virtual environment must be activated.
+
+.. _venv: https://docs.python.org/3/library/venv.html
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
+.. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
 2. Install Scout Python package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Once Python 3 is fully installed, pip3 [#f1]_ is the tool you will use to install add-ons specific to Python 3. We recommend using a virtual environment, such as ``venv``, ``vitualenv``, or ``conda`` to run Scout. Create and activate an environment and run the following from your Scout installation directory to install the Scout package::
+Once Python 3 is fully installed and a virtual environment is activated, pip3 [#f1]_ is the tool you will use to install add-ons specific to Python 3. Run the following from your Scout installation directory to install the Scout package::
 
    pip3 install .
 
 .. note::
-   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``pip3 install -e ".[dev]"`` to install in editable mode with developer depedendencies.
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or ``.py`` files, run ``pip3 install -e ".[dev]"`` to install in editable mode with developer depedendencies.
 
 The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
@@ -164,8 +178,8 @@ Some of the software prerequisites for Scout have different versions for 32-bit 
 
 .. _these instructions: https://support.microsoft.com/en-us/help/827218/how-to-determine-whether-a-computer-is-running-a-32-bit-version-or-64-bit-version-of-the-windows-operating-system
 
-1. Install Python 3
-~~~~~~~~~~~~~~~~~~~
+1. Set Up a Python Virtual Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tip::
    If you have 64-bit Windows installed on your computer, downloading and installing the 64-bit version of Python is recommended. 
@@ -174,24 +188,37 @@ Download the executable installer for Windows available on the Python Software F
 
 .. _downloads page: https://www.python.org/downloads/
 
-2. Install Scout Python package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A virtual environment should be used to ensure that package dependencies are isolated for Scout. Common tools for managing virtual environments include `venv`_, `virtualenv`_, and `conda`_. Begin by `opening a command prompt`_ window. To create and activate a virtual environment named ``.scout_env`` using the standard Python module, ``venv``, navigate to the Scout installation directory and run the following commands::
 
-Once Python 3 installation is complete, the Scout package and its dependencies can be installed. pip [#f1]_ is the tool you will use to install add-ons specific to Python 3. Begin by `opening a command prompt`_ window. We recommend using a virtual environment, such as ``venv``, ``vitualenv``, or ``conda`` to run Scout. Create and activate an environment and run the following from your Scout installation directory to install the Scout package::
+   py -3 -m venv .scout_env
+   .scout_env\Scripts\activate
 
-   py -3 -m pip install .
+This will activate the new Python environment where the Scout package will be installed. To check that the environment was set up correctly, run ``where python``, and ensure that the first path returned points to the new environment directory.
 
 .. note::
-   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or .py modules, run ``py -3 -m pip install -e ".[dev]"`` to install in editable mode with developer depedendencies.
+   Each time you intend on running Scout, the virtual environment must be activated.
 
 .. _Open a command prompt:
 .. _opening a command prompt: http://www.digitalcitizen.life/7-ways-launch-command-prompt-windows-7-windows-8
+.. _venv: https://docs.python.org/3/library/venv.html
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
+.. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+2. Install Scout Python package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once Python 3 is installed and a virtual environment is activated, the Scout package and its dependencies can be installed. pip [#f1]_ is the tool you will use to install add-ons specific to Python 3. Run the following from your Scout installation directory to install the Scout package::
+
+   python -m pip install .
+
+.. note::
+   For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or ``.py`` files, run ``python -m pip install -e ".[dev]"`` to install in editable mode with developer depedendencies.
 
 The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
 .. code-block:: shell
 
-   py -3 -m pip list
+   python -m pip list
 
 3. Install a text editor
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,8 +252,8 @@ We will use Package Control to install the additional features needed for checki
 
 Before proceeding further, `open a command prompt`_ window and type the following commands to use pip to install the pycodestyle and pyflakes packages::
 
-   py -3 -m pip install pycodestyle
-   py -3 -m pip install pyflakes
+   python -m pip install pycodestyle
+   python -m pip install pyflakes
 
 Once you have 
 

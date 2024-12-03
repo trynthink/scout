@@ -50,8 +50,8 @@ Scout scenarios can be defined by directly passing arguments to Python scripts, 
 
 **Windows** ::
 
-   py -3 scout/ecm_prep.py --yaml <my_config.yml>
-   py -3 scout/run.py --yaml <my_config.yml>
+   python scout\ecm_prep.py --yaml <my_config.yml>
+   python scout\run.py --yaml <my_config.yml>
 
 **Mac** ::
 
@@ -67,7 +67,7 @@ Batches of configuration files can also be run with the use of the run_batch.py 
 
 **Windows** ::
 
-   py -3 scout/run_batch.py --batch <config_directory>
+   python scout\run_batch.py --batch <config_directory>
 
 **Mac** ::
 
@@ -81,7 +81,7 @@ To prepare measures for :ref:`EIA Electricity Market Module (EMM) <emm-reg>` reg
 
 **Windows** ::
 
-   py -3 scout/ecm_prep.py
+   python scout\ecm_prep.py
 
 **Mac** ::
 
@@ -103,7 +103,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-ecm-li
 
 **Windows** ::
 
-   py -3 scout/run_setup.py
+   python scout\run_setup.py
 
 **Mac** ::
 
@@ -118,7 +118,7 @@ Enter the following command line argument (see Local Execution :ref:`tuts-analys
 
 **Windows** ::
 
-   py -3 scout/run.py
+   python scout\run.py
 
 **Mac** ::
 
