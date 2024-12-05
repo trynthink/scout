@@ -171,32 +171,38 @@ class UsefulVars(object):
         self.out_break_enduses = gvars["out_break_enduses"]
         self.out_break_fuels = gvars["out_break_fuels"]
         self.out_break_eus_w_fsplits = gvars["out_break_eus_w_fsplits"]
+        # Set risk-free interest rate to current long-term 10 year Treasury bond yield (
+        # https://home.treasury.gov/resource-center/data-chart-center/interest-rates/
+        # TextView?type=daily_treasury_yield_curve&field_tdr_date_value_month=202412). This
+        # is added to the commercial time preferences below to determine consumer choice
+        risk_free_rate = 0.0419
         # Set commercial time prefs and region in/out name pairs as unique
         # attributes for the UsefulVars class in run.py
         self.com_timeprefs = {
-            "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
+            "rates": [x + risk_free_rate for x in [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0]],
             "distributions": {
                 "heating": {
-                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    key: [0.263, 0.236, 0.198, 0.187, 0.097, 0.017, 0.002]
                     for key in self.aeo_years},
                 "cooling": {
-                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
-                    for key in self.aeo_years},
-                "water heating": {
-                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004]
+                    key: [0.233, 0.225, 0.174, 0.178, 0.105, 0.075, 0.01]
                     for key in self.aeo_years},
                 "ventilation": {
-                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
-                    for key in self.aeo_years},
-                "cooking": {
-                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
+                    key: [0.264, 0.236, 0.197, 0.187, 0.097, 0.017, 0.002]
                     for key in self.aeo_years},
                 "lighting": {
-                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
+                    key: [0.256, 0.24, 0.20, 0.189, 0.075, 0.019, 0.021]
+                    for key in self.aeo_years},
+                "water heating": {
+                    key: [0.262, 0.262, 0.213, 0.164, 0.087, 0.01, 0.002]
+                    for key in self.aeo_years},
+                "cooking": {
+                    key: [0.259, 0.263, 0.215, 0.165, 0.084, 0.011, 0.003]
                     for key in self.aeo_years},
                 "refrigeration": {
-                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
+                    key: [0.258, 0.263, 0.215, 0.164, 0.085, 0.012, 0.003]
                     for key in self.aeo_years}}}
+
         self.region_inout_namepairs = {
             "AIA": [
                 ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
@@ -289,7 +295,7 @@ class Measure(object):
         # Read Measure object attributes from measures input JSON
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.savings, self.financial_metrics = ({} for n in range(2))
+        self.savings = {}
         self.update_results = {"savings": {}, "financial metrics": True}
         self.eff_fs_splt = {}
         # Determine whether fugitive emissions should be assessed for the
@@ -506,7 +512,7 @@ class Engine(object):
                 # Initialize measure financial metrics
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
 
-    def calc_savings_metrics(self, adopt_scheme, comp_scheme):
+    def calc_savings_metrics(self, adopt_scheme, comp_scheme, opts):
         """Calculate and update measure savings and financial metrics.
 
         Notes:
@@ -519,6 +525,7 @@ class Engine(object):
         Args:
             adopt_scheme (string): Assumed consumer adoption scenario.
             comp_scheme (string): Assumed measure competition scenario.
+            opts (object): Stores user-specified execution options.
         """
         # Find all active measures that require savings updates
         measures_update = [m for m in self.measures if m.update_results[
@@ -885,7 +892,7 @@ class Engine(object):
                                     esave_tmp_unit[x], ecostsave_tmp_unit[x],
                                     csave_tmp_unit[x], ccostsave_tmp_unit[x],
                                     scost_meas_tmp[x], ecost_meas_tmp[x],
-                                    ccost_meas_tmp[x])
+                                    ccost_meas_tmp[x], opts)
                     else:
                         # Run measure energy/carbon/cost savings and lifetime
                         # inputs through "metric_update" function to yield
@@ -907,7 +914,7 @@ class Engine(object):
                                 ccostsave_unit[yr],
                                 scostmeas_unit[yr],
                                 ecost_meas_unit[yr],
-                                ccost_meas_unit[yr])
+                                ccost_meas_unit[yr], opts)
 
                 # Set measure financial metrics dict to update (across years)
                 metrics_finance = m.financial_metrics
@@ -941,7 +948,7 @@ class Engine(object):
 
     def metric_update(self, m, life_base, life_meas, scost_base,
                       scost_meas_delt, esave, ecostsave, csave, ccostsave,
-                      scost_meas, ecost_meas, ccost_meas):
+                      scost_meas, ecost_meas, ccost_meas, opts):
         """Calculate measure financial metrics for a given year.
 
         Notes:
@@ -972,6 +979,7 @@ class Engine(object):
             scost_meas (float): Per unit measure capital cost in given year.
             ecost_meas (float): Per unit measure energy cost in given year.
             ccost_meas (float): Per unit measure carbon cost in given year.
+            opts (object): Stores user-specified execution options.
 
         Returns:
             Consumer and portfolio-level financial metrics for the given
@@ -1125,26 +1133,41 @@ class Engine(object):
         # Check whether measure applies to commercial sector
         if any([x not in ["single family home", "multi family home",
                           "mobile home"] for x in m.bldg_type]):
-            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                {} for n in range(3))
-            # Set unit cost values under 7 discount rate categories
-            try:
-                for ind, tps in enumerate(
-                        self.handyvars.com_timeprefs["rates"]):
-                    unit_cost_s_com["rate " + str(ind + 1)], \
-                        unit_cost_e_com["rate " + str(ind + 1)], \
-                        unit_cost_c_com["rate " + str(ind + 1)] = \
-                        [npf.npv(tps, x) for x in [
-                         cashflows_s_tot, cashflows_e_tot,
-                         cashflows_c_tot]]
-                    if any([not math.isfinite(x) for x in [
-                            unit_cost_s_com["rate " + str(ind + 1)],
-                            unit_cost_e_com["rate " + str(ind + 1)],
-                            unit_cost_c_com["rate " + str(ind + 1)]]]):
-                        raise (ValueError)
-            except ValueError:
+            if opts.high_res_comp is False:
                 unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                    None for n in range(3))
+                    {} for n in range(3))
+                # Set unit cost values under 7 discount rate categories
+                try:
+                    for ind, tps in enumerate(
+                            self.handyvars.com_timeprefs["rates"]):
+                        unit_cost_s_com["rate " + str(ind + 1)], \
+                            unit_cost_e_com["rate " + str(ind + 1)], \
+                            unit_cost_c_com["rate " + str(ind + 1)] = \
+                            [npf.npv(tps, x) for x in [
+                             cashflows_s_tot, cashflows_e_tot,
+                             cashflows_c_tot]]
+                        if any([not math.isfinite(x) for x in [
+                                unit_cost_s_com["rate " + str(ind + 1)],
+                                unit_cost_e_com["rate " + str(ind + 1)],
+                                unit_cost_c_com["rate " + str(ind + 1)]]]):
+                            raise (ValueError)
+                except ValueError:
+                    unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
+                        None for n in range(3))
+            else:
+                # Finalize annual energy and carbon costs
+                unit_cost_e_com, unit_cost_c_com = [ecost_meas, ccost_meas]
+                # Annualize unit stock costs under 7 hurdle rates, where hurdle rate is 7 distinct
+                # time preference premiums over the risk-free interest rate plus the risk-free rate
+                unit_cost_s_com = {}
+                for ind, tps in enumerate(self.handyvars.com_timeprefs["rates"]):
+                    try:
+                        unit_cost_s_com["rate " + str(ind + 1)] = \
+                            scost_meas * (tps / (1 - ((1 + tps) ** -life_meas)))
+                    # If hurdle rate is zero, annualize stock costs by dividing by lifetime
+                    except ZeroDivisionError:
+                        unit_cost_s_com = scost_meas / life_meas
+
         # If measure does not apply to commercial sector, set commercial
         # unit costs to 'None'
         else:
@@ -1211,7 +1234,7 @@ class Engine(object):
         # Return updated payback period value in years
         return payback_val
 
-    def compete_measures(self, adopt_scheme, htcl_totals):
+    def compete_measures(self, adopt_scheme, htcl_totals, opts):
         """Compete/apportion total stock/energy/carbon/cost across measures.
 
         Notes:
@@ -1278,11 +1301,11 @@ class Engine(object):
                 if len(measures_adj) > 1 and any(x in msu for x in (
                         'single family home', 'multi family home',
                         'mobile home')):
-                    self.compete_res_primary(measures_adj, msu, adopt_scheme)
+                    self.compete_res_primary(measures_adj, msu, adopt_scheme, opts)
                 elif len(measures_adj) > 1 and all(x not in msu for x in (
                         'single family home', 'multi family home',
                         'mobile home')):
-                    self.compete_com_primary(measures_adj, msu, adopt_scheme)
+                    self.compete_com_primary(measures_adj, msu, adopt_scheme, opts)
             # If the current contributing microsegment is of the 'secondary'
             # type, adjust the microsegment across applicable measures as
             # needed to reflect competition of associated primary
@@ -1291,9 +1314,9 @@ class Engine(object):
                 # Determine the climate zone, building type, and structure type
                 # needed to link the secondary microsegment and associated3
                 # primary microsegment(s)
-                cz_bldg_struct = literal_eval(msu)
+                mseg_separate = literal_eval(msu)
                 secnd_mseg_adjkey = str((
-                    cz_bldg_struct[1], cz_bldg_struct[2], cz_bldg_struct[-1]))
+                    mseg_separate[1], mseg_separate[2], mseg_separate[-1]))
                 # Determine the subset of measures pertaining to the given
                 # secondary microsegment that require total energy/carbon/cost
                 # adjustments due to changes in associated primary
@@ -1344,7 +1367,7 @@ class Engine(object):
             # demand-side heating/cooling ECMs
             self.htcl_adj(measures_htcl_adj, adopt_scheme, htcl_adj_data)
 
-    def compete_res_primary(self, measures_adj, mseg_key, adopt_scheme):
+    def compete_res_primary(self, measures_adj, mseg_key, adopt_scheme, opts):
         """Apportion stock/energy/carbon/cost across residential measures.
 
         Notes:
@@ -1358,6 +1381,7 @@ class Engine(object):
                 (mseg type->czone->bldg->fuel->end use->technology type
                  ->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
+            opts (object): Stores user-specified execution options.
         """
         # Initialize list of dicts that each store the annual market fractions
         # captured by competing measures; also initialize a dict that sums
@@ -1366,18 +1390,65 @@ class Engine(object):
         mkt_fracs = [{} for meas in range(0, len(measures_adj))]
         mkt_fracs_tot = dict.fromkeys(self.handyvars.aeo_years, 0)
 
-        # Loop through competing measures and calculate market shares for each
-        # based on their annualized capital and operating costs.
+        # Find mseg key to use in pulling stock and stock cost data (in some cases, like cooling
+        # msegs for heat pump tech, stock cost and stock turnover information for the current
+        # msegs should be linked to another microsegment – heating msegs, in the HP case)
+        stk_cost_dat_keys = [self.find_join_keys(m, mseg_key) for m in measures_adj]
 
-        # Set abbreviated names for the dictionaries containing measure
-        # capital and operating cost values, accessed further below
+        # Calculate the total annualized cost (capital + operating) needed to
+        # determine market shares below. Handle calculation differently depending on whether
+        # costs are determined on aggregate across all contributing microsegments for the measure
+        # or are specific to the current contributing microsegment's cost data
+        if opts.high_res_comp is False:
+            # Set abbreviated names for the dictionaries containing measure
+            # capital and operating cost values, accessed further below
 
-        # Unit capital cost dictionary
-        unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
-            "residential"] for m in measures_adj]
-        # Unit operating cost dictionary
-        unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
-            "residential"] for m in measures_adj]
+            # Unit upfront capital cost dictionary (calculated across all measure segments)
+            unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
+                "residential"] for m in measures_adj]
+            # Unit annual operating cost dictionary (calculated across all measure segments)
+            unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
+                "residential"] for m in measures_adj]
+        else:
+            # Shorthand for mseg-specific energy cost data
+            markets_uc_ecost = [
+                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                    "contributing mseg keys and values"][mseg_key]["cost"]["energy"]["competed"][
+                    "efficient"] for m_ind, m in enumerate(measures_adj)]
+            # Shorthand for mseg-specific stock/stock cost data
+            try:
+                markets_uc_stk = [
+                    m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                        "contributing mseg keys and values"][
+                        stk_cost_dat_keys[m_ind][0]] for m_ind, m in enumerate(measures_adj)]
+            except KeyError:
+                try:
+                    markets_uc_stk = [
+                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            stk_cost_dat_keys[m_ind][1]] for m_ind, m in enumerate(measures_adj)]
+                except KeyError:
+                    # Handle case where expected microsegment stock data to be linked to the stock
+                    # data for the current microsegment is not available; key in stock data with
+                    # current microsegment info.
+                    markets_uc_stk = [m.markets["Technical potential"]["uncompeted"][
+                        "mseg_adjust"]["contributing mseg keys and values"][
+                            mseg_key] for m_ind, m in enumerate(measures_adj)]
+            # Shorthand for number of units captured by measure
+            n_units = [markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
+                       for m_ind, m in enumerate(measures_adj)]
+            # Unit upfront capital cost dictionary (calculated for current mseg only)
+            unit_cost_s_in = [{
+                yr: (markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr] /
+                     n_units[m_ind][yr]) * self.handyvars.cost_convert["stock"]
+                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
+                for m_ind, m in enumerate(measures_adj)]
+            # Unit annual operating cost dictionary (calculated for current mseg only)
+            unit_cost_e_in = [{
+                yr: (markets_uc_ecost[m_ind][yr] / n_units[m_ind][yr]) *
+                self.handyvars.cost_convert["energy"]
+                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
+                for m_ind, m in enumerate(measures_adj)]
 
         # Find the year range in which at least one measure that applies
         # to the competed primary microsegment is on the market
@@ -1486,25 +1557,25 @@ class Engine(object):
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
         # carbon, and cost impacts
-        for ind, m in enumerate(measures_adj):
+        for m_ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
                 # market share and stock turnover rates
                 self.compete_adj(
-                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
+                    mkt_fracs[m_ind], added_sbmkt_fracs[m_ind], mast,
                     adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, adj_stk_trk)
 
-    def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme):
+    def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme, opts):
         """Apportion stock/energy/carbon/cost across commercial measures.
 
         Notes:
@@ -1518,6 +1589,7 @@ class Engine(object):
                 (mseg type->czone->bldg->fuel->end use->technology type
                  ->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
+            opts (object): Stores user-specified execution options.
         """
         # Initialize list of dicts that each store the annual market fractions
         # captured by competing measures; also initialize a dict that records
@@ -1527,18 +1599,93 @@ class Engine(object):
         mkt_fracs = [{} for meas in range(0, len(measures_adj))]
         tot_cost = [{} for meas in range(0, len(measures_adj))]
 
+        # Find mseg key to use in pulling stock and stock cost data (in some cases, like cooling
+        # msegs for heat pump tech, stock cost and stock turnover information for the current
+        # msegs should be linked to another microsegment – heating msegs, in the HP case)
+        stk_cost_dat_keys = [self.find_join_keys(m, mseg_key) for m in measures_adj]
+
         # Calculate the total annualized cost (capital + operating) needed to
-        # determine market shares below
+        # determine market shares below. Handle calculation differently depending on whether
+        # costs are determined on aggregate across all contributing microsegments for the measure
+        # or are specific to the current contributing microsegment's cost data
+        if opts.high_res_comp is False:
+            # Set abbreviated names for the dictionaries containing measure
+            # capital and operating cost values, accessed further below
 
-        # Set abbreviated names for the dictionaries containing measure
-        # capital and operating cost values, accessed further below
-
-        # Unit stock cost dictionary
-        unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
-                     "commercial"] for m in measures_adj]
-        # Unit operating cost dictionary
-        unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
-            "commercial"] for m in measures_adj]
+            # Unit stock cost dictionary
+            unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
+                         "commercial"] for m in measures_adj]
+            # Unit operating cost dictionary
+            unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
+                "commercial"] for m in measures_adj]
+            # Legacy commercial competition calculations (used when user does not specify
+            # high-resolution competition option) summarize energy costs across all discount
+            # rate bins; flag for handling below
+            op_cost_rate_bins = True
+        else:
+            # Shorthand for mseg-specific energy cost data
+            markets_uc_ecost = [
+                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                    "contributing mseg keys and values"][mseg_key]["cost"]["energy"]["competed"][
+                    "efficient"] for m_ind, m in enumerate(measures_adj)]
+            # Shorthand for mseg-specific stock/stock cost data
+            try:
+                markets_uc_stk = [
+                    m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                        "contributing mseg keys and values"][
+                        stk_cost_dat_keys[m_ind][0]] for m_ind, m in enumerate(measures_adj)]
+            except KeyError:
+                try:
+                    markets_uc_stk = [
+                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                            "contributing mseg keys and values"][
+                            stk_cost_dat_keys[m_ind][1]] for m_ind, m in enumerate(measures_adj)]
+                except KeyError:
+                    # Handle case where expected microsegment stock data to be linked to the stock
+                    # data for the current microsegment is not available; key in stock data with
+                    # current microsegment stock info.
+                    markets_uc_stk = [m.markets["Technical potential"]["uncompeted"][
+                        "mseg_adjust"]["contributing mseg keys and values"][
+                            mseg_key] for m_ind, m in enumerate(measures_adj)]
+            # Shorthand for number of units captured by measure
+            n_units = [markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
+                       for m_ind, m in enumerate(measures_adj)]
+            # Measure lifetime (mseg-specific). If the measure lifetime is less than 1 year, set it
+            # to 1 year (a minimum for measure lifetime to work in below calculations)
+            life_meas = [markets_uc_stk[m_ind]["lifetime"]["measure"] if
+                         markets_uc_stk[m_ind]["lifetime"]["measure"] >= 1 else 1 for
+                         m_ind, m in enumerate(measures_adj)]
+            # Unit upfront capital cost dictionary (calculated for current mseg only, not annual)
+            unit_cost_s_in_unadj = [{
+                yr: (markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr] /
+                     n_units[m_ind][yr]) * self.handyvars.cost_convert["stock"]
+                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
+                for m_ind, m in enumerate(measures_adj)]
+            # Annualize unit upfront costs
+            unit_cost_s_in = [{yr: {} for yr in self.handyvars.aeo_years} for m in measures_adj]
+            # Set unit cost values under 7 hurdle rates, where hurdle rate is 7 distinct time
+            # preference premiums over the risk-free interest rate plus the risk-free rate
+            for m_ind, m in enumerate(measures_adj):
+                for yr in self.handyvars.aeo_years:
+                    for ind, tps in enumerate(self.handyvars.com_timeprefs["rates"]):
+                        try:
+                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = \
+                                unit_cost_s_in_unadj[m_ind][yr] * (
+                                    tps / (1 - ((1 + tps) ** -life_meas[m_ind])))
+                        # If hurdle rate is zero, annualize stock costs by dividing by lifetime
+                        except ZeroDivisionError:
+                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = \
+                                (unit_cost_s_in_unadj[m_ind][yr] / life_meas[m_ind])
+            # Unit annual operating cost dictionary (calculated for current mseg only)
+            unit_cost_e_in = [{
+                yr: (markets_uc_ecost[m_ind][yr] / n_units[m_ind][yr]) *
+                self.handyvars.cost_convert["energy"]
+                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
+                for m_ind, m in enumerate(measures_adj)]
+            # Updated commercial competition calculations (used when user specifies
+            # high-resolution competition option) summarize energy costs across all discount
+            # rate bins; flag for handling below
+            op_cost_rate_bins = False
 
         # Find the year range in which at least one measure that applies
         # to the competed primary microsegment is on the market
@@ -1615,8 +1762,12 @@ class Engine(object):
                         try:
                             for c_l in range(0, len(tot_cost[ind][yr])):
                                 for dr in sorted(cap_cost[c_l].keys()):
-                                    tot_cost[ind][yr][c_l].append(
-                                        cap_cost[c_l][dr] + op_cost[c_l][dr])
+                                    if op_cost_rate_bins:
+                                        tot_cost[ind][yr][c_l].append(
+                                            cap_cost[c_l][dr] + op_cost[c_l][dr])
+                                    else:
+                                        tot_cost[ind][yr][c_l].append(
+                                            cap_cost[c_l][dr] + op_cost[c_l])
                         except AttributeError:
                             pass
                     # Handle cases where capital and/or operating cost inputs
@@ -1633,8 +1784,11 @@ class Engine(object):
                         # Handle case where cost is None
                         try:
                             for dr in sorted(cap_cost.keys()):
-                                tot_cost[ind][yr].append(
-                                    cap_cost[dr] + op_cost[dr])
+                                if op_cost_rate_bins:
+                                    tot_cost[ind][yr].append(
+                                        cap_cost[dr] + op_cost[dr])
+                                else:
+                                    tot_cost[ind][yr].append(cap_cost[dr] + op_cost)
                         except AttributeError:
                             pass
 
@@ -1765,20 +1919,20 @@ class Engine(object):
         # Loop through competing measures and apply competed market shares
         # and gains from sub-market fractions to each ECM's total energy,
         # carbon, and cost impacts
-        for ind, m in enumerate(measures_adj):
+        for m_ind, m in enumerate(measures_adj):
             # Set measure markets and market adjustment information
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
+                self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
                 # market share and stock turnover rates
                 self.compete_adj(
-                    mkt_fracs[ind], added_sbmkt_fracs[ind], mast,
+                    mkt_fracs[m_ind], added_sbmkt_fracs[m_ind], mast,
                     adj_out_break, adj, mast_list_base, mast_list_eff,
                     adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
                     mkt_entry_yrs, adj_stk_trk)
@@ -1959,7 +2113,8 @@ class Engine(object):
             # contributing secondary energy/carbon/cost information for measure
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme)
+                self.compete_adj_dicts(
+                    m, mseg_key, adopt_scheme, stk_cost_dat_keys=[mseg_key, None])
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
             # competed market share for an associated primary contributing
@@ -2370,7 +2525,9 @@ class Engine(object):
                 # carbon, and cost data to remove the overlaps
                 mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                     adj_list_eff, adj_list_base, adj_stk_trk = \
-                    self.compete_adj_dicts(m, mseg, adopt_scheme)
+                    self.compete_adj_dicts(
+                        m, mseg, adopt_scheme, stk_cost_dat_keys=[mseg, None])
+
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -2661,7 +2818,286 @@ class Engine(object):
                                     1 - adj_frac_eff) * (1 - adj_out_break[
                                         "efficient fuel splits"][var][yr])
 
-    def compete_adj_dicts(self, m, mseg_key, adopt_scheme):
+    def find_join_keys(self, m, mseg_key):
+        """Finalize keys for pulling stock/stock cost data for competition calculations.
+
+        Notes:
+            In some cases, measure stock/stock cost calculations for a given microsegment
+            are linked to that of another microsegment (e.g., for heat pumps, the cooling
+            segment stock and stock cost data are linked to the heating markets for the
+            measure). This function determines the mseg key information to try for pulling
+            those linked stock/stock cost data.
+
+        Args:
+            m (object): Measure needing market overlap adjustments.
+            mseg_key (string): Key for competed market microsegment.
+
+        Returns:
+            List including an mseg key string to try when linking stock/stock
+            cost data to the current mseg, and if applicable, and alternate mseg key to try.
+        """
+
+        # Handle case where an equipment measure has multiple end uses that
+        # include heating and/or cooling and the contributing microsegment
+        # needs to be anchored on the stock turnover of the heating equipment
+        # (or cooling if not available). Such measures might include, for
+        # example, HP measures, HVAC + envelope packages, or controls measures
+        # spanning heating/cooling and other end uses
+        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
+            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
+            or ("heating" not in m.end_use["primary"] and (
+                "cooling" in m.end_use["primary"] and
+                "cooling" not in mseg_key))):
+            # Decompose contributing microsegment key information into a list,
+            # to be modified per comment above
+            key_list = list(literal_eval(mseg_key))
+            # Strip any additional information that is added to the
+            # EIA technology name to further distinguish msegs with exogenous
+            # rates and/or specific heating and cooling pairings
+            if "-" in key_list[-2]:
+                tch_apnd = ("-" + key_list[-2].split("-")[-1])
+            else:
+                tch_apnd = ""
+            # Determine the building type of the contributing microsegment
+            if any([x in mseg_key for x in [
+                    "single family home", "mobile home",
+                    "multi family home"]]):
+                mseg_bldg_sect = "residential"
+            else:
+                mseg_bldg_sect = "commercial"
+            # Case 1: heating is in the measure end uses, while heating is not
+            # in the current contributing microsegment
+            if "heating" in m.end_use["primary"] and (
+                    "heating" not in mseg_key):
+                # Reset end use
+                key_list[4] = "heating"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the heating
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
+                    if any([x in mseg_key for x in [
+                            "room AC", "central AC"]]) or \
+                            "cooling" not in mseg_key:
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+                        if "resistance heat" in m.technology["primary"]:
+                            # Reset tech.
+                            key_list[-2] = "resistance heat"
+                            # Reset fuel
+                            key_list[3] = "electricity"
+                        else:
+                            # Initialize list of heating technologies that
+                            # would be expected for a non-HP cooling tech.
+                            tech_search = [x for x in [
+                                "furnace (NG)", "boiler (NG)",
+                                "furnace (distillate)", "boiler (distillate)",
+                                "furnace (LPG)", "furnace (kerosene)",
+                                "stove (wood)"] if x
+                                in m.technology["primary"]]
+                            # If the microsegment is non-cooling (e.g.,
+                            # secondary heating), expand to all commercial
+                            # heating tech.
+                            if "cooling" not in mseg_key:
+                                tech_search.extend(["ASHP", "GSHP", "NGHP"])
+                            if len(tech_search) == 0:
+                                raise ValueError(
+                                    "Contributing microsegment " + mseg_key +
+                                    " for measure " + m.name +
+                                    " has unexpected heating technology "
+                                    "information for stock turnover "
+                                    "calculations")
+                            else:
+                                # Reset tech.
+                                key_list[-2] = tech_search[0]
+                                # Reset fuel
+                                if "NG" in tech_search[0]:
+                                    key_list[3] = "natural gas"
+                                elif "distillate" in tech_search[0]:
+                                    key_list[3] = "distillate"
+                                elif any([x in tech_search[0] for x in [
+                                        "LPG", "kerosene", "wood"]]):
+                                    key_list[3] = "other fuel"
+                                else:
+                                    key_list[3] = "electricity"
+                    # Cooling tech. is HP; heating tech. is identical and no
+                    # further action is needed
+                    elif any([x in mseg_key for x in [
+                            "ASHP", "GSHP", "NGHP"]]):
+                        pass
+                    # If unexpected tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
+                            "unexpected technology information for stock "
+                            "turnover calculations")
+                # Commercial case
+                else:
+                    # Non-cooling tech. or cooling tech. is non-HP; find
+                    # appropriate heating tech. to switch to
+                    if any([x in mseg_key for x in [
+                            "rooftop_AC", "scroll_chiller",
+                            "res_type_central_AC", "reciprocating_chiller",
+                            "centrifugal_chiller", "wall-window_room_AC",
+                            "screw_chiller", "gas_chiller",
+                            "gas_eng-driven_RTAC"]]) or \
+                            "cooling" not in mseg_key:
+                        # Set tech. to first in list of heating
+                        # technologies that the measure applies to, and set
+                        # the fuel as appropriate to the selected tech.
+
+                        # Initialize list of heating technologies that would
+                        # be expected for a non-HP cooling tech.
+                        tech_search = [x for x in [
+                            "elec_boiler", "electric_res-heat", "gas_boiler",
+                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
+                            m.technology["primary"]]
+                        # If the microsegment is non-cooling (e.g.,
+                        # ventilation), expand to all commercial heating tech.
+                        if "cooling" not in mseg_key:
+                            tech_search.extend([
+                                "rooftop_ASHP-heat", "comm_GSHP-heat",
+                                "gas_eng-driven_RTHP-heat",
+                                "res_type_gasHP-heat"])
+                        if len(tech_search) == 0:
+                            raise ValueError(
+                                "Contributing microsegment " + mseg_key +
+                                " for measure " + m.name + " has unexpected "
+                                "heating technology information for stock "
+                                "turnover calculations")
+                        else:
+                            # Reset tech.
+                            key_list[-2] = tech_search[0]
+                            # Reset fuel
+                            if "elec" in tech_search[0] or any([
+                                    x in tech_search[0] for
+                                    x in ["ASHP", "GSHP"]]):
+                                key_list[3] = "electricity"
+                            elif "gas" in tech_search[0]:
+                                key_list[3] = "natural gas"
+                            else:
+                                key_list[3] = "distillate"
+                    # Cooling tech. is HP; select analogous heating HP tech.
+                    # name
+                    elif "comm_GSHP-cool" in mseg_key:
+                        key_list[-2] = "comm_GSHP-heat"
+                    elif "rooftop_ASHP-cool" in mseg_key:
+                        key_list[-2] = "rooftop_ASHP-heat"
+                    elif "gas_eng-driven_RTHP-cool" in mseg_key:
+                        key_list[-2] = "gas_eng-driven_RTHP-heat"
+                    elif "res_type_gasHP-cool" in mseg_key:
+                        key_list[-2] = "res_type_gasHP-heat"
+                    # If unexpected tech. is present, throw error
+                    else:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name + " has "
+                            "unexpected technology information for stock "
+                            "turnover calculations")
+            # Case 2: heating is not in the measure end uses, cooling is in the
+            # measure end uses, and cooling is not in the current contributing
+            # microsegment
+            elif "heating" not in m.end_use["primary"] and (
+                    "cooling" in m.end_use["primary"] and "cooling" not in
+                    mseg_key):
+                # Reset end use
+                key_list[4] = "cooling"
+                # Ensure the contributing microsegment information is
+                # structured to have the same "supply" key as the cooling
+                # microsegment that will ultimately be pulled for stock
+                # turnover calculations
+                if "supply" not in key_list:
+                    key_list = key_list[:5] + ["supply"] + key_list[5:]
+                # Residential case
+                if mseg_bldg_sect == "residential":
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                        "central AC", "ASHP", "GSHP", "NGHP", "room AC"] if
+                        x in m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if tech_search[0] == "NGHP":
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+                # Commercial case
+                else:
+                    # Set tech. to first in list of cooling
+                    # technologies that the measure applies to, and set
+                    # the fuel as appropriate to the selected tech.
+                    tech_search = [x for x in [
+                         "rooftop_AC", "rooftop_ASHP-cool",
+                         "reciprocating_chiller", "scroll_chiller",
+                         "centrifugal_chiller", "screw_chiller",
+                         "res_type_central_AC", "comm_GSHP-cool",
+                         "gas_eng-driven_RTAC", "gas_chiller",
+                         "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
+                         "wall-window_room_AC"] if x in
+                        m.technology["primary"]]
+                    if len(tech_search) == 0:
+                        raise ValueError(
+                            "Contributing microsegment " + mseg_key +
+                            " for measure " + m.name +
+                            " has unexpected cooling technology "
+                            "information for stock turnover calculations")
+                    else:
+                        # Reset tech.
+                        key_list[-2] = tech_search[0]
+                        # Reset fuel
+                        if "gas" in tech_search[0]:
+                            key_list[3] = "natural gas"
+                        else:
+                            key_list[3] = "electricity"
+            else:
+                raise ValueError(
+                    "Contributing microsegment " + mseg_key +
+                    " for measure " + m.name +
+                    " has unexpected information for stock turnover "
+                    "calculations")
+            # After making the adjustments above, convert the modified
+            # contributing microsegment information back into a string
+            # to use in keying in needed stock data
+            stk_cost_dat_key = str(tuple(key_list))
+            # For HP measures with exogenously-specified switching
+            # rates or representing replacement of specific heating and
+            # cooling pairs, the heating technology will be specified in
+            # contributing microsegment data with an appended competition info.
+            # to distinguish such considerations; develop alternate stock data
+            # keys to switch to to handle this case
+            if tch_apnd:
+                key_list_alt1 = copy.deepcopy(key_list)
+                key_list_alt1[-2] = (key_list_alt1[-2] + tch_apnd)
+                stk_cost_dat_key_alt = str(tuple(key_list_alt1))
+            else:
+                stk_cost_dat_key_alt = None
+        # Handle all other cases, where stock data will be available for
+        # the contributing microsegment to be adjusted as-is
+        else:
+            # Use contributing microsegment info. as-is to key in stock data
+            stk_cost_dat_key = mseg_key
+            # Alternate stock data key does not apply in this case
+            stk_cost_dat_key_alt = None
+
+        return [stk_cost_dat_key, stk_cost_dat_key_alt]
+
+    def compete_adj_dicts(self, m, mseg_key, adopt_scheme, stk_cost_dat_keys):
         """Set the initial measure market data needed to adjust for overlaps.
 
         Notes:
@@ -2673,6 +3109,7 @@ class Engine(object):
             m (object): Measure needing market overlap adjustments.
             mseg_key (string): Key for competed market microsegment.
             adopt_scheme (string): Assumed consumer adoption scenario.
+            stk_cost_dat_keys (string): Keys used to link stock/stock cost data across msegs.
 
         Returns:
             Lists of initial measure master microsegment data and contributing
@@ -2987,264 +3424,6 @@ class Engine(object):
         # Set up separate set of stock data needed to determine stock turnover
         # adjustments as part of the measure competition calculations
 
-        # Handle case where an equipment measure has multiple end uses that
-        # include heating and/or cooling and the contributing microsegment
-        # needs to be anchored on the stock turnover of the heating equipment
-        # (or cooling if not available). Such measures might include, for
-        # example, HP measures, HVAC + envelope packages, or controls measures
-        # spanning heating/cooling and other end uses
-        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
-            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
-            or ("heating" not in m.end_use["primary"] and (
-                "cooling" in m.end_use["primary"] and
-                "cooling" not in mseg_key))):
-            # Decompose contributing microsegment key information into a list,
-            # to be modified per comment above
-            key_list = list(literal_eval(mseg_key))
-            # Strip any additional information that is added to the
-            # EIA technology name to further distinguish msegs with exogenous
-            # rates and/or specific heating and cooling pairings
-            if "-" in key_list[-2]:
-                tch_apnd = ("-" + key_list[-2].split("-")[-1])
-            else:
-                tch_apnd = ""
-            # Determine the building type of the contributing microsegment
-            if any([x in mseg_key for x in [
-                    "single family home", "mobile home",
-                    "multi family home"]]):
-                mseg_bldg_sect = "residential"
-            else:
-                mseg_bldg_sect = "commercial"
-            # Case 1: heating is in the measure end uses, while heating is not
-            # in the current contributing microsegment
-            if "heating" in m.end_use["primary"] and (
-                    "heating" not in mseg_key):
-                # Reset end use
-                key_list[4] = "heating"
-                # Ensure the contributing microsegment information is
-                # structured to have the same "supply" key as the heating
-                # microsegment that will ultimately be pulled for stock
-                # turnover calculations
-                if "supply" not in key_list:
-                    key_list = key_list[:5] + ["supply"] + key_list[5:]
-                # Residential case
-                if mseg_bldg_sect == "residential":
-                    # Non-cooling tech. or cooling tech. is non-HP; find
-                    # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "room AC", "central AC"]]) or \
-                            "cooling" not in mseg_key:
-                        # Set tech. to first in list of heating
-                        # technologies that the measure applies to, and set
-                        # the fuel as appropriate to the selected tech.
-                        if "resistance heat" in m.technology["primary"]:
-                            # Reset tech.
-                            key_list[-2] = "resistance heat"
-                            # Reset fuel
-                            key_list[3] = "electricity"
-                        else:
-                            # Initialize list of heating technologies that
-                            # would be expected for a non-HP cooling tech.
-                            tech_search = [x for x in [
-                                "furnace (NG)", "boiler (NG)",
-                                "furnace (distillate)", "boiler (distillate)",
-                                "furnace (LPG)", "furnace (kerosene)",
-                                "stove (wood)"] if x
-                                in m.technology["primary"]]
-                            # If the microsegment is non-cooling (e.g.,
-                            # secondary heating), expand to all commercial
-                            # heating tech.
-                            if "cooling" not in mseg_key:
-                                tech_search.extend(["ASHP", "GSHP", "NGHP"])
-                            if len(tech_search) == 0:
-                                raise ValueError(
-                                    "Contributing microsegment " + mseg_key +
-                                    " for measure " + m.name +
-                                    " has unexpected heating technology "
-                                    "information for stock turnover "
-                                    "calculations")
-                            else:
-                                # Reset tech.
-                                key_list[-2] = tech_search[0]
-                                # Reset fuel
-                                if "NG" in tech_search[0]:
-                                    key_list[3] = "natural gas"
-                                elif "distillate" in tech_search[0]:
-                                    key_list[3] = "distillate"
-                                elif any([x in tech_search[0] for x in [
-                                        "LPG", "kerosene", "wood"]]):
-                                    key_list[3] = "other fuel"
-                                else:
-                                    key_list[3] = "electricity"
-                    # Cooling tech. is HP; heating tech. is identical and no
-                    # further action is needed
-                    elif any([x in mseg_key for x in [
-                            "ASHP", "GSHP", "NGHP"]]):
-                        pass
-                    # If unexpected tech. is present, throw error
-                    else:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
-                            "unexpected technology information for stock "
-                            "turnover calculations")
-                # Commercial case
-                else:
-                    # Non-cooling tech. or cooling tech. is non-HP; find
-                    # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "rooftop_AC", "scroll_chiller",
-                            "res_type_central_AC", "reciprocating_chiller",
-                            "centrifugal_chiller", "wall-window_room_AC",
-                            "screw_chiller", "gas_chiller",
-                            "gas_eng-driven_RTAC"]]) or \
-                            "cooling" not in mseg_key:
-                        # Set tech. to first in list of heating
-                        # technologies that the measure applies to, and set
-                        # the fuel as appropriate to the selected tech.
-
-                        # Initialize list of heating technologies that would
-                        # be expected for a non-HP cooling tech.
-                        tech_search = [x for x in [
-                            "elec_boiler", "electric_res-heat", "gas_boiler",
-                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
-                            m.technology["primary"]]
-                        # If the microsegment is non-cooling (e.g.,
-                        # ventilation), expand to all commercial heating tech.
-                        if "cooling" not in mseg_key:
-                            tech_search.extend([
-                                "rooftop_ASHP-heat", "comm_GSHP-heat",
-                                "gas_eng-driven_RTHP-heat",
-                                "res_type_gasHP-heat"])
-                        if len(tech_search) == 0:
-                            raise ValueError(
-                                "Contributing microsegment " + mseg_key +
-                                " for measure " + m.name + " has unexpected "
-                                "heating technology information for stock "
-                                "turnover calculations")
-                        else:
-                            # Reset tech.
-                            key_list[-2] = tech_search[0]
-                            # Reset fuel
-                            if "elec" in tech_search[0] or any([
-                                    x in tech_search[0] for
-                                    x in ["ASHP", "GSHP"]]):
-                                key_list[3] = "electricity"
-                            elif "gas" in tech_search[0]:
-                                key_list[3] = "natural gas"
-                            else:
-                                key_list[3] = "distillate"
-                    # Cooling tech. is HP; select analogous heating HP tech.
-                    # name
-                    elif "comm_GSHP-cool" in mseg_key:
-                        key_list[-2] = "comm_GSHP-heat"
-                    elif "rooftop_ASHP-cool" in mseg_key:
-                        key_list[-2] = "rooftop_ASHP-heat"
-                    elif "gas_eng-driven_RTHP-cool" in mseg_key:
-                        key_list[-2] = "gas_eng-driven_RTHP-heat"
-                    elif "res_type_gasHP-cool" in mseg_key:
-                        key_list[-2] = "res_type_gasHP-heat"
-                    # If unexpected tech. is present, throw error
-                    else:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
-                            "unexpected technology information for stock "
-                            "turnover calculations")
-            # Case 2: heating is not in the measure end uses, cooling is in the
-            # measure end uses, and cooling is not in the current contributing
-            # microsegment
-            elif "heating" not in m.end_use["primary"] and (
-                    "cooling" in m.end_use["primary"] and "cooling" not in
-                    mseg_key):
-                # Reset end use
-                key_list[4] = "cooling"
-                # Ensure the contributing microsegment information is
-                # structured to have the same "supply" key as the cooling
-                # microsegment that will ultimately be pulled for stock
-                # turnover calculations
-                if "supply" not in key_list:
-                    key_list = key_list[:5] + ["supply"] + key_list[5:]
-                # Residential case
-                if mseg_bldg_sect == "residential":
-                    # Set tech. to first in list of cooling
-                    # technologies that the measure applies to, and set
-                    # the fuel as appropriate to the selected tech.
-                    tech_search = [x for x in [
-                        "central AC", "ASHP", "GSHP", "NGHP", "room AC"] if
-                        x in m.technology["primary"]]
-                    if len(tech_search) == 0:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
-                    else:
-                        # Reset tech.
-                        key_list[-2] = tech_search[0]
-                        # Reset fuel
-                        if tech_search[0] == "NGHP":
-                            key_list[3] = "natural gas"
-                        else:
-                            key_list[3] = "electricity"
-                # Commercial case
-                else:
-                    # Set tech. to first in list of cooling
-                    # technologies that the measure applies to, and set
-                    # the fuel as appropriate to the selected tech.
-                    tech_search = [x for x in [
-                         "rooftop_AC", "rooftop_ASHP-cool",
-                         "reciprocating_chiller", "scroll_chiller",
-                         "centrifugal_chiller", "screw_chiller",
-                         "res_type_central_AC", "comm_GSHP-cool",
-                         "gas_eng-driven_RTAC", "gas_chiller",
-                         "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
-                         "wall-window_room_AC"] if x in
-                        m.technology["primary"]]
-                    if len(tech_search) == 0:
-                        raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
-                    else:
-                        # Reset tech.
-                        key_list[-2] = tech_search[0]
-                        # Reset fuel
-                        if "gas" in tech_search[0]:
-                            key_list[3] = "natural gas"
-                        else:
-                            key_list[3] = "electricity"
-            else:
-                raise ValueError(
-                    "Contributing microsegment " + mseg_key +
-                    " for measure " + m.name +
-                    " has unexpected information for stock turnover "
-                    "calculations")
-            # After making the adjustments above, convert the modified
-            # contributing microsegment information back into a string
-            # to use in keying in needed stock data
-            mseg_key_stk_trk = str(tuple(key_list))
-            # For HP measures with exogenously-specified switching
-            # rates or representing replacement of specific heating and
-            # cooling pairs, the heating technology will be specified in
-            # contributing microsegment data with an appended competition info.
-            # to distinguish such considerations; develop alternate stock data
-            # keys to switch to to handle this case
-            if tch_apnd:
-                key_list_alt1 = copy.deepcopy(key_list)
-                key_list_alt1[-2] = (key_list_alt1[-2] + tch_apnd)
-                mseg_key_stk_trk_alt1 = str(tuple(key_list_alt1))
-            else:
-                mseg_key_stk_trk_alt1 = None
-        # Handle all other cases, where stock data will be available for
-        # the contributing microsegment to be adjusted as-is
-        else:
-            # Use contributing microsegment info. as-is to key in stock data
-            mseg_key_stk_trk = mseg_key
-            # Alternate stock data key does not apply in this case
-            mseg_key_stk_trk_alt1 = None
-
         # Pull data for stock turnover calculations for the current
         # contributing microsegment, using the data key information from above;
         # note that these calculations rely on pre-competition (unadjusted)
@@ -3256,29 +3435,19 @@ class Engine(object):
         # specifics heating/cooling pairs (use alternate data key from above)
         try:
             adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key_stk_trk]["stock"]
+                "contributing mseg keys and values"][stk_cost_dat_keys[0]]["stock"]
         except KeyError:
             try:
                 adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
                     "mseg_adjust"]["contributing mseg keys and values"][
-                    mseg_key_stk_trk_alt1]["stock"]
+                    stk_cost_dat_keys[1]]["stock"]
             except KeyError:
                 # Handle case where expected microsegment stock data to be
                 # linked to the stock turnover calculations for the current
                 # microsegment is not available; key in stock data with the
                 # current microsegment stock info.
-                try:
-                    adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
-                        "mseg_adjust"][
-                        "contributing mseg keys and values"][
-                        mseg_key]["stock"]
-                except KeyError:
-                    raise ValueError(
-                        "Stock turnover data could not be keyed in "
-                        "for contributing microsegment " + mseg_key +
-                        " for measure " + m.name + " using the "
-                        "keys " + mseg_key_stk_trk + ", " +
-                        mseg_key_stk_trk_alt1 + ", or" + mseg_key)
+                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
+                    "contributing mseg keys and values"][mseg_key]["stock"]
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
@@ -5267,6 +5436,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
             # Reset measure fuel split attribute to imported values
             m.eff_fs_splt = meas_eff_fs_data
+        # Add in technical potential data needed to support mseg-specific cost/competition
+        # calculations, if these data have not already been pulled in
+        if opts.high_res_comp is True and \
+                "Technical potential" not in handyvars.adopt_schemes:
+            m.markets["Technical potential"]["uncompeted"]["mseg_adjust"] = \
+                meas_comp_data["Technical potential"]
         # Print data import message for each ECM if in verbose mode
         verboseprint("Imported ECM '" + m.name + "' competition data")
 
@@ -5297,7 +5472,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # and print progress update to user
         print("Calculating uncompeted '" + adopt_scheme +
               "' savings/metrics...", end="", flush=True)
-        a_run.calc_savings_metrics(adopt_scheme, "uncompeted")
+        a_run.calc_savings_metrics(adopt_scheme, "uncompeted", opts)
         print("Calculations complete")
         # Update each measure's competed markets to reflect the
         # removal of savings overlaps with competing measures,
@@ -5310,7 +5485,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # using updated competed markets, and print progress update to user
         print("Calculating competed '" + adopt_scheme +
               "' savings/metrics...", end="", flush=True)
-        a_run.calc_savings_metrics(adopt_scheme, "competed")
+        a_run.calc_savings_metrics(adopt_scheme, "competed", opts)
         print("Calculations complete")
         print("Finalizing results...", end="", flush=True)
         # Write selected outputs to a summary JSON file for post-processing

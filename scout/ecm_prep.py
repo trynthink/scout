@@ -3977,7 +3977,7 @@ class Measure(object):
                             # alternate regions into the current mseg region,
                             # to arrive at a final market scaling value for
                             # that region
-                            if all([type(x) != dict for
+                            if all([not isinstance(x, dict) for
                                     x in mkt_scale_frac[0].values()]):
                                 mkt_scale_frac = sum([x * y for x, y in zip(
                                     mkt_scale_frac[0].values(),
@@ -6127,15 +6127,15 @@ class Measure(object):
                             add_fs_energy_cost_eff_remain,
                             add_fs_carb_eff_remain)
 
+                    # Record contributing microsegment data needed for ECM
+                    # competition in the analysis engine
+                    contrib_mseg_key_str = str(contrib_mseg_key)
+
                     # Check for whether detailed contributing mseg data
                     # are needed for current adoption scenario, and if so,
                     # prepare data
                     if self.handyvars.full_dat_out[adopt_scheme] or \
                             self.name in ctrb_ms_pkg_prep:
-                        # Record contributing microsegment data needed for ECM
-                        # competition in the analysis engine
-                        contrib_mseg_key_str = str(contrib_mseg_key)
-
                         # Case with no existing 'windows' contributing mseg
                         # for the current climate zone, building type, fuel,
                         # and end use (create new 'contributing mseg keys and
@@ -6185,6 +6185,44 @@ class Measure(object):
                             "contributing mseg keys and values"][
                             contrib_mseg_key_str]["sub-market scaling"] = \
                             mkt_scale_frac_fin
+                    else:
+                        # If full detailed data are not needed for current scenario, restrict
+                        # data to only those necessary to support high resolution competition
+                        # calculations, (measure capital costs, energy costs, lifetime) should user
+                        # opt for these calculations in the run module
+                        add_dict_limited = {
+                            "stock": {"competed": {"measure": add_dict[
+                                "stock"]["competed"]["measure"]}},
+                            "cost": {
+                                "stock": {"competed": {"efficient": add_dict[
+                                    "cost"]["stock"]["competed"]["efficient"]}},
+                                "energy": {"competed": {"efficient": add_dict[
+                                    "cost"]["energy"]["competed"]["efficient"]}}},
+                            "lifetime": {"measure": add_dict["lifetime"]["measure"]}}
+                        # Case with no existing 'windows' contributing mseg
+                        # for the current climate zone, building type, fuel,
+                        # and end use (create new 'contributing mseg keys and
+                        # values' and 'competed choice parameters' microsegment
+                        # information)
+                        if contrib_mseg_key_str not in self.markets[
+                            adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"].keys():
+                            # Register limited contributing microsegment info. on stock and
+                            # costs for potential later use in determining unit stock and energy
+                            self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                contrib_mseg_key_str] = add_dict_limited
+                        # Case with existing 'windows' contributing mseg
+                        # for the current climate zone, building type, fuel,
+                        # and end use (add to existing 'contributing mseg keys
+                        # and values' information)
+                        else:
+                            self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                contrib_mseg_key_str] = self.add_keyvals(
+                                    self.markets[adopt_scheme]["mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        contrib_mseg_key_str], add_dict_limited)
 
                     # Add all updated contributing microsegment stock, energy
                     # carbon, cost, and lifetime information to existing master
@@ -6242,12 +6280,16 @@ class Measure(object):
                 # Shorthand for contributing microsegment information
                 contrib_msegs = self.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"]
-                for key in contrib_msegs.keys():
-                    contrib_msegs[key]["lifetime"]["baseline"] = {yr: (
-                        contrib_msegs[key]["lifetime"]["baseline"][yr] /
-                        contrib_msegs[key]["stock"]["total"]["all"][yr]) if
-                        contrib_msegs[key]["stock"]["total"]["all"][yr] != 0
-                        else 10 for yr in self.handyvars.aeo_years}
+                # Renormalize baseline lifetime data for each contributing microsegment; note that
+                # when scenario does not require full detailed data preparation, base life
+                # data for each mseg are not prepared
+                if self.handyvars.full_dat_out[adopt_scheme] or self.name in ctrb_ms_pkg_prep:
+                    for key in contrib_msegs.keys():
+                        contrib_msegs[key]["lifetime"]["baseline"] = {yr: (
+                            contrib_msegs[key]["lifetime"]["baseline"][yr] /
+                            contrib_msegs[key]["stock"]["total"]["all"][yr]) if
+                            contrib_msegs[key]["stock"]["total"]["all"][yr] != 0
+                            else 10 for yr in self.handyvars.aeo_years}
 
                 # In microsegments where square footage must be used as stock,
                 # the square footages (or number of households, in the
@@ -13488,12 +13530,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             if not isinstance(m, MeasurePackage):
                 del m.markets[adopt_scheme]["mseg_adjust"][
                     "paired heat/cool mseg adjustments"]
-            # Add remaining contributing microsegment data to
-            # competition data dict, if the adoption scenario will be competed
-            # in the run.py module, then delete from measure
+            # Add fuel splits and sector shape data, if applicable and the adoption scenario will
+            # be competed in the run.py module, then delete from measure
             if full_dat_out[adopt_scheme]:
-                comp_data_dict[adopt_scheme] = \
-                    m.markets[adopt_scheme]["mseg_adjust"]
                 # If applicable, add efficient fuel split data to fuel split
                 # data dict
                 if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
@@ -13509,6 +13548,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
                 # If adoption scenario will not be competed in the run.py
                 # module, remove detailed mseg breakouts
                 del m.markets[adopt_scheme]["mseg_out_break"]
+            # Add remaining contributing microsegment data to competition data dict, then delete
+            # from measure
+            comp_data_dict[adopt_scheme] = m.markets[adopt_scheme]["mseg_adjust"]
             del m.markets[adopt_scheme]["mseg_adjust"]
         # Delete info. about efficient fuel splits for fuel switch measures
         del m.eff_fs_splt
