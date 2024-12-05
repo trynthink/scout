@@ -251,4 +251,8 @@ properties:
         type: boolean
         default: false
         description: If true, add reporting in GCAM data format.
+      high_res_comp:
+        type: boolean
+        default: false
+        description: If true, resolve competition cost data to each market microsegment (rather than averaging across all applicable markets).
 
