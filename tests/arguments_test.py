@@ -113,7 +113,8 @@ class TestConfig(unittest.TestCase, Utils):
             "report_stk": False,
             "report_cfs": False,
             "gcam_out": False,
-            "no_comp": False
+            "no_comp": False,
+            "high_res_comp": False
         },
     }
 
