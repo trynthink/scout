@@ -2,324 +2,324 @@
   "new england": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.5619510417299398,
-        "panel replacement": 0.43804895827006013,
-        "panel management": 0.0
+        "no panel management": 0.004346630250040139,
+        "panel replacement": 0.001441467201358077,
+        "panel management": 0.0009689149415952576
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.2783385022761485,
-        "panel replacement": 0.7216614977238515,
-        "panel management": 0.0
+        "no panel management": 0.09260192514193874,
+        "panel replacement": 0.08077920328410856,
+        "panel management": 0.02511315320814014
       },
       "high efficiency upgrade": {
-        "no panel management": 0.5229723639163902,
-        "panel replacement": 0.3453830347628869,
-        "panel management": 0.13164460132072275
+        "no panel management": 0.34648321412105326,
+        "panel replacement": 0.32334298924608845,
+        "panel management": 0.1249225026056773
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.5,
-        "panel replacement": 0.5,
-        "panel management": 0.0
+        "no panel management": 0.004170141784820684,
+        "panel replacement": 0.0009035307200444815,
+        "panel management": 0.0009035307200444815
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.3333333333333333,
-        "panel replacement": 0.6666666666666666,
-        "panel management": 0.0
+        "no panel management": 0.10668612732832916,
+        "panel replacement": 0.07374200722824575,
+        "panel management": 0.027105921601334446
       },
       "high efficiency upgrade": {
-        "no panel management": 0.5263157894736842,
-        "panel replacement": 0.34210526315789475,
-        "panel management": 0.13157894736842105
+        "no panel management": 0.3798999165971643,
+        "panel replacement": 0.28148457047539616,
+        "panel management": 0.12510425354462051
       }
     }
   },
   "mid atlantic": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.2833699844314945,
-        "panel replacement": 0.46062953332738255,
-        "panel management": 0.2560004822411229
+        "no panel management": 0.024364335896325005,
+        "panel replacement": 0.010983705824613797,
+        "panel management": 0.00993095100195697
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.5646018639089652,
-        "panel replacement": 0.13387055896428884,
-        "panel management": 0.30152757712674594
+        "no panel management": 0.1269367174539288,
+        "panel replacement": 0.11415568521759639,
+        "panel management": 0.04400063622413397
       },
       "high efficiency upgrade": {
-        "no panel management": 0.44926757799437556,
-        "panel replacement": 0.47633394555515957,
-        "panel management": 0.07439847645046488
+        "no panel management": 0.27718124736717215,
+        "panel replacement": 0.2578849741924579,
+        "panel management": 0.13456174682181507
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.2857142857142857,
-        "panel replacement": 0.42857142857142855,
-        "panel management": 0.2857142857142857
+        "no panel management": 0.020563171545016672,
+        "panel replacement": 0.006695601545545969,
+        "panel management": 0.008177631927168793
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.5833333333333334,
-        "panel replacement": 0.125,
-        "panel management": 0.2916666666666667
+        "no panel management": 0.1421425924945747,
+        "panel replacement": 0.10501243846927434,
+        "panel management": 0.04816598740274176
       },
       "high efficiency upgrade": {
-        "no panel management": 0.46938775510204084,
-        "panel replacement": 0.46938775510204084,
-        "panel management": 0.061224489795918366
+        "no panel management": 0.29730588048483564,
+        "panel replacement": 0.2282856084264013,
+        "panel management": 0.1436510877044408
       }
     }
   },
   "east north central": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.4720129139385545,
-        "panel replacement": 0.44452357718458824,
-        "panel management": 0.0834635088768572
+        "no panel management": 0.01710017176301288,
+        "panel replacement": 0.004323677221882174,
+        "panel management": 0.005314116683038509
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.5467823528138996,
-        "panel replacement": 0.31454313347902285,
-        "panel management": 0.1386745137070775
+        "no panel management": 0.13611104830691945,
+        "panel replacement": 0.14598546306602808,
+        "panel management": 0.04531673618422287
       },
       "high efficiency upgrade": {
-        "no panel management": 0.3993011296945889,
-        "panel replacement": 0.528415008335099,
-        "panel management": 0.07228386197031202
+        "no panel management": 0.2586773230220658,
+        "panel replacement": 0.2791064846059281,
+        "panel management": 0.10806497914690207
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.5882352941176471,
-        "panel replacement": 0.35294117647058826,
-        "panel management": 0.058823529411764705
+        "no panel management": 0.0134752034166636,
+        "panel replacement": 0.0024667722101542654,
+        "panel management": 0.00406833327197084
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.5882352941176471,
-        "panel replacement": 0.29411764705882354,
-        "panel management": 0.11764705882352941
+        "no panel management": 0.1527005633076838,
+        "panel replacement": 0.13707153639409447,
+        "panel management": 0.048138875593682115
       },
       "high efficiency upgrade": {
-        "no panel management": 0.4375,
-        "panel replacement": 0.484375,
-        "panel management": 0.078125
+        "no panel management": 0.2817090681491845,
+        "panel replacement": 0.2503957880784949,
+        "panel management": 0.1099738595780715
       }
     }
   },
   "west north central": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.29107673774037485,
-        "panel replacement": 0.6687248532188952,
-        "panel management": 0.040198409040730014
+        "no panel management": 0.038657976836811124,
+        "panel replacement": 0.010553509906601302,
+        "panel management": 0.009905623678014824
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.8088583776719721,
-        "panel replacement": 0.1911416223280278,
-        "panel management": 0.0
+        "no panel management": 0.17322035502924008,
+        "panel replacement": 0.22919898931832086,
+        "panel management": 0.04833088032527615
       },
       "high efficiency upgrade": {
-        "no panel management": 0.4509935993645326,
-        "panel replacement": 0.46895202075031944,
-        "panel management": 0.080054379885148
+        "no panel management": 0.19852281027003105,
+        "panel replacement": 0.23610382781952846,
+        "panel management": 0.055506026816176106
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.4117647058823529,
-        "panel replacement": 0.5294117647058824,
-        "panel management": 0.058823529411764705
+        "no panel management": 0.02952794399468106,
+        "panel replacement": 0.00598380851812742,
+        "panel management": 0.007117994446399938
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.9090909090909091,
-        "panel replacement": 0.09090909090909091,
-        "panel management": 0.0
+        "no panel management": 0.20865110094254763,
+        "panel replacement": 0.20869021080214323,
+        "panel management": 0.052602761156087446
       },
       "high efficiency upgrade": {
-        "no panel management": 0.5434782608695652,
-        "panel replacement": 0.3695652173913043,
-        "panel management": 0.08695652173913043
+        "no panel management": 0.22429504478078924,
+        "panel replacement": 0.20517032343853886,
+        "panel management": 0.0579608119206852
       }
     }
   },
   "south atlantic": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.8438282835108525,
-        "panel replacement": 0.08220686742655903,
-        "panel management": 0.07396484906258845
+        "no panel management": 0.10424831972343306,
+        "panel replacement": 0.008992300000123077,
+        "panel management": 0.03922977581414096
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7359013438397412,
-        "panel replacement": 0.03386632193927578,
-        "panel management": 0.2302323342209831
+        "no panel management": 0.2896184984861236,
+        "panel replacement": 0.05800019425713792,
+        "panel management": 0.041528730950295224
       },
       "high efficiency upgrade": {
-        "no panel management": 0.7412032485239645,
-        "panel replacement": 0.045273644831647815,
-        "panel management": 0.21352310664438776
+        "no panel management": 0.37572315827809616,
+        "panel replacement": 0.04157412016277667,
+        "panel management": 0.04108490232787341
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.8793969849246231,
-        "panel replacement": 0.05527638190954774,
-        "panel management": 0.06532663316582915
+        "no panel management": 0.08844795189778279,
+        "panel replacement": 0.006027809094325442,
+        "panel management": 0.032453964674934235
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7749648382559775,
-        "panel replacement": 0.02390998593530239,
-        "panel management": 0.2011251758087201
+        "no panel management": 0.3100488538143555,
+        "panel replacement": 0.05295753476136791,
+        "panel management": 0.04251033446072905
       },
       "high efficiency upgrade": {
-        "no panel management": 0.7723577235772358,
-        "panel replacement": 0.036585365853658534,
-        "panel management": 0.1910569105691057
+        "no panel management": 0.3924088688462984,
+        "panel replacement": 0.0354152574220218,
+        "panel management": 0.03972942502818489
       }
     }
   },
   "east south central": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.8240246333358926,
-        "panel replacement": 0.08247167186058726,
-        "panel management": 0.0935036948035202
+        "no panel management": 0.06682505963244052,
+        "panel replacement": 0.010437524570573677,
+        "panel management": 0.02467102922287282
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.6755335206635112,
-        "panel replacement": 0.044143821122975095,
-        "panel management": 0.2803226582135136
+        "no panel management": 0.294193698559412,
+        "panel replacement": 0.08231479139967406,
+        "panel management": 0.05017490073394258
       },
       "high efficiency upgrade": {
-        "no panel management": 0.7194418383035578,
-        "panel replacement": 0.041968556023296445,
-        "panel management": 0.23858960567314572
+        "no panel management": 0.3832410727039499,
+        "panel replacement": 0.04869455549501979,
+        "panel management": 0.03944736768211462
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.8636363636363636,
-        "panel replacement": 0.056818181818181816,
-        "panel management": 0.07954545454545454
+        "no panel management": 0.054702223897474554,
+        "panel replacement": 0.00687900490011308,
+        "panel management": 0.020071617037316247
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7210526315789474,
-        "panel replacement": 0.03684210526315789,
-        "panel management": 0.24210526315789474
+        "no panel management": 0.31379570297776105,
+        "panel replacement": 0.07571617037316246,
+        "panel management": 0.05112137203166227
       },
       "high efficiency upgrade": {
-        "no panel management": 0.7538461538461538,
-        "panel replacement": 0.03076923076923077,
-        "panel management": 0.2153846153846154
+        "no panel management": 0.39799283829626836,
+        "panel replacement": 0.041792310591782886,
+        "panel management": 0.0379287598944591
       }
     }
   },
   "west south central": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.7855322851501454,
-        "panel replacement": 0.1498165114913068,
-        "panel management": 0.06465120335854783
+        "no panel management": 0.14189970371451174,
+        "panel replacement": 0.010361543574427826,
+        "panel management": 0.04629806981758885
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7457516261714067,
-        "panel replacement": 0.041242052348825275,
-        "panel management": 0.21300632147976797
+        "no panel management": 0.2599870920281131,
+        "panel replacement": 0.05779100103458933,
+        "panel management": 0.05620802748248065
       },
       "high efficiency upgrade": {
-        "no panel management": 0.7885722570372532,
-        "panel replacement": 0.029483299576252786,
-        "panel management": 0.18194444338649407
+        "no panel management": 0.27408436753601484,
+        "panel replacement": 0.06788906562090025,
+        "panel management": 0.08548112919137343
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.8425925925925926,
-        "panel replacement": 0.09259259259259259,
-        "panel management": 0.06481481481481481
+        "no panel management": 0.11903727739594777,
+        "panel replacement": 0.008431487774342727,
+        "panel management": 0.03858044405835612
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.807909604519774,
-        "panel replacement": 0.022598870056497175,
-        "panel management": 0.1694915254237288
+        "no panel management": 0.2815350417741894,
+        "panel replacement": 0.0566953677917167,
+        "panel management": 0.06188201027108511
       },
       "high efficiency upgrade": {
-        "no panel management": 0.8205128205128205,
-        "panel replacement": 0.02564102564102564,
-        "panel management": 0.15384615384615385
+        "no panel management": 0.2868494340683206,
+        "panel replacement": 0.06073226193822019,
+        "panel management": 0.08625667492782135
       }
     }
   },
   "mountain": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.7657706401711714,
-        "panel replacement": 0.20658562900247326,
-        "panel management": 0.027643730826355347
+        "no panel management": 0.10752704147306089,
+        "panel replacement": 0.012765599210350293,
+        "panel management": 0.03922787529433755
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.738571794642529,
-        "panel replacement": 0.02641536289060168,
-        "panel management": 0.23501284246686938
+        "no panel management": 0.2229268430027624,
+        "panel replacement": 0.09073747994909251,
+        "panel management": 0.05712042067164357
       },
       "high efficiency upgrade": {
-        "no panel management": 0.847631776591535,
-        "panel replacement": 0.10565143304771979,
-        "panel management": 0.04671679036074523
+        "no panel management": 0.2879232434585858,
+        "panel replacement": 0.10487245816988708,
+        "panel management": 0.07689903877028
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.8108108108108109,
-        "panel replacement": 0.16216216216216217,
-        "panel management": 0.02702702702702703
+        "no panel management": 0.09801722411375927,
+        "panel replacement": 0.010054075705988383,
+        "panel management": 0.035289405167234125
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7878787878787878,
-        "panel replacement": 0.030303030303030304,
-        "panel management": 0.18181818181818182
+        "no panel management": 0.24033647105948328,
+        "panel replacement": 0.08291608251552172,
+        "panel management": 0.06072501502102944
       },
       "high efficiency upgrade": {
-        "no panel management": 0.9090909090909091,
-        "panel replacement": 0.045454545454545456,
-        "panel management": 0.045454545454545456
+        "no panel management": 0.3033046264770679,
+        "panel replacement": 0.09128780292409373,
+        "panel management": 0.07806929701582214
       }
     }
   },
   "pacific": {
     "energy": {
       "low efficiency upgrade": {
-        "no panel management": 0.7844636149393026,
-        "panel replacement": 0.15295771582880585,
-        "panel management": 0.06257866923189155
+        "no panel management": 0.16171643629105623,
+        "panel replacement": 0.024316060693783677,
+        "panel management": 0.08880581130959973
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.7909001642864673,
-        "panel replacement": 0.0507005963034163,
-        "panel management": 0.15839923941011644
+        "no panel management": 0.12863931246457144,
+        "panel replacement": 0.022798438769782943,
+        "panel management": 0.03931550257497074
       },
       "high efficiency upgrade": {
-        "no panel management": 0.6322721856562388,
-        "panel replacement": 0.0,
-        "panel management": 0.36772781434376123
+        "no panel management": 0.3212895980578263,
+        "panel replacement": 0.05573821408616372,
+        "panel management": 0.15738062575224526
       }
     },
     "stock": {
       "low efficiency upgrade": {
-        "no panel management": 0.8192771084337349,
-        "panel replacement": 0.12048192771084337,
-        "panel management": 0.060240963855421686
+        "no panel management": 0.14597103681362167,
+        "panel replacement": 0.024257203362638775,
+        "panel management": 0.09330680870179041
       },
       "moderate efficiency upgrade": {
-        "no panel management": 0.8153846153846154,
-        "panel replacement": 0.046153846153846156,
-        "panel management": 0.13846153846153847
+        "no panel management": 0.1245802049241695,
+        "panel replacement": 0.018866713726496825,
+        "panel management": 0.03980833814627051
       },
       "high efficiency upgrade": {
-        "no panel management": 0.65,
-        "panel replacement": 0.0,
-        "panel management": 0.35
+        "no panel management": 0.33498042738882117,
+        "panel replacement": 0.0480010267599307,
+        "panel management": 0.17022824017626045
       }
     }
   }

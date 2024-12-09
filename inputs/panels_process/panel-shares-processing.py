@@ -5,11 +5,11 @@ import json
 def load_and_preprocess_data():
     # Load energy and stock data
     panel_shares_energy = pd.read_csv(
-        'least_cost_energy_weighted_share_by_panel_outcome_division_case_mod.csv').drop(
-        columns=['Unnamed: 0'])
+        'least_cost_energy_weighted_share_by_panel_outcome_census_division_case_mod_top_3.csv').\
+        drop(columns=['Unnamed: 0'])
     panel_shares_stock = pd.read_csv(
-        'least_cost_building_count_share_by_panel_outcome_division_case_mod.csv').drop(
-        columns=['Unnamed: 0'])
+        'least_cost_building_count_share_by_panel_outcome_census_division_case_mod_top_3.csv').\
+        drop(columns=['Unnamed: 0'])
 
     # Rename columns and assign units
     panel_shares_energy = panel_shares_energy.rename(
@@ -25,14 +25,13 @@ def load_and_preprocess_data():
 
 def process_panel_shares(panel_shares):
     # Query panels data for different cases
-    low = panel_shares.query('case == 3')
-    med = panel_shares.query('case == 5')
-    high = panel_shares.query('case == 12')
+    low = panel_shares.query('case == 1')
+    med = panel_shares.query('case == 9')
+    high = panel_shares.query('case == 18')
     full = pd.concat([low, med, high])
 
     # Update outcome column
     full['outcome'] = full['outcome'].replace({
-        'smart_panel': 'panel management',
         'management': 'panel management',
         'no_management': 'no panel management',
         'replacement': 'panel replacement'
@@ -52,9 +51,9 @@ def process_panel_shares(panel_shares):
         'build_existing_model.census_division',
         'case_name', 'case', 'share_type', 'outcome']).unstack().stack(
         'outcome', future_stack=True).fillna(0).reset_index()
-    # Recalculate outcome shares
+    # Recalculate outcome shares; note that they are share across all cases within each CDIV
     full_upd['outcome_share'] = full_upd.groupby([
-        'build_existing_model.census_division', 'case_name', 'share_type'])['value'].transform(
+        'build_existing_model.census_division', 'share_type'])['value'].transform(
         lambda x: x / x.sum())
     # Update share_type values
     full_upd['share_type'] = full_upd['share_type'].replace(
@@ -63,9 +62,9 @@ def process_panel_shares(panel_shares):
     full_upd = full_upd.rename(
         columns={'build_existing_model.census_division': 'cdiv'})
     full_upd['resstock_upgrade'] = full_upd['case'].map({
-        3: 'low efficiency upgrade',
-        5: 'moderate efficiency upgrade',
-        12: 'high efficiency upgrade'
+        1: 'low efficiency upgrade',
+        9: 'moderate efficiency upgrade',
+        18: 'high efficiency upgrade'
     })
 
     return full_upd

@@ -1,0 +1,109 @@
+,ochre_status,nec_version,ev_level,build_existing_model.census_division,case_name,case,outcome,energy_mbtu,division_total,division_share,share_type
+0,post_ochre,nec_2023,L0,East North Central,BAU with Env.,9,management,168820.033,3725335.212,0.045316736,energy_weighted
+1,post_ochre,nec_2023,L0,East North Central,BAU with Env.,9,no_management,507059.281,3725335.212,0.136111048,energy_weighted
+2,post_ochre,nec_2023,L0,East North Central,BAU with Env.,9,replacement,543844.786,3725335.212,0.145985463,energy_weighted
+3,post_ochre,nec_2023,L0,East North Central,Inefficient,1,management,19796.866,3725335.212,0.005314117,energy_weighted
+4,post_ochre,nec_2023,L0,East North Central,Inefficient,1,no_management,63703.872,3725335.212,0.017100172,energy_weighted
+5,post_ochre,nec_2023,L0,East North Central,Inefficient,1,replacement,16107.147,3725335.212,0.004323677,energy_weighted
+6,post_ochre,nec_2023,L0,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,402578.272,3725335.212,0.108064979,energy_weighted
+7,post_ochre,nec_2023,L0,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,963659.74,3725335.212,0.258677323,energy_weighted
+8,post_ochre,nec_2023,L0,East North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,1039765.215,3725335.212,0.279106485,energy_weighted
+9,post_ochre,nec_2023,L0,East South Central,BAU with Env.,9,management,63802.268,1271597.294,0.050174901,energy_weighted
+10,post_ochre,nec_2023,L0,East South Central,BAU with Env.,9,no_management,374095.911,1271597.294,0.294193699,energy_weighted
+11,post_ochre,nec_2023,L0,East South Central,BAU with Env.,9,replacement,104671.266,1271597.294,0.082314791,energy_weighted
+12,post_ochre,nec_2023,L0,East South Central,Inefficient,1,management,31371.614,1271597.294,0.024671029,energy_weighted
+13,post_ochre,nec_2023,L0,East South Central,Inefficient,1,no_management,84974.565,1271597.294,0.06682506,energy_weighted
+14,post_ochre,nec_2023,L0,East South Central,Inefficient,1,replacement,13272.328,1271597.294,0.010437525,energy_weighted
+15,post_ochre,nec_2023,L0,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,50161.166,1271597.294,0.039447368,energy_weighted
+16,post_ochre,nec_2023,L0,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,487328.311,1271597.294,0.383241073,energy_weighted
+17,post_ochre,nec_2023,L0,East South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,61919.865,1271597.294,0.048694555,energy_weighted
+18,post_ochre,nec_2023,L0,Middle Atlantic,BAU with Env.,9,management,105990.621,2408842.919,0.044000636,energy_weighted
+19,post_ochre,nec_2023,L0,Middle Atlantic,BAU with Env.,9,no_management,305770.613,2408842.919,0.126936717,energy_weighted
+20,post_ochre,nec_2023,L0,Middle Atlantic,BAU with Env.,9,replacement,274983.114,2408842.919,0.114155685,energy_weighted
+21,post_ochre,nec_2023,L0,Middle Atlantic,Inefficient,1,management,23922.101,2408842.919,0.009930951,energy_weighted
+22,post_ochre,nec_2023,L0,Middle Atlantic,Inefficient,1,no_management,58689.858,2408842.919,0.024364336,energy_weighted
+23,post_ochre,nec_2023,L0,Middle Atlantic,Inefficient,1,replacement,26458.022,2408842.919,0.010983706,energy_weighted
+24,post_ochre,nec_2023,L0,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,324138.111,2408842.919,0.134561747,energy_weighted
+25,post_ochre,nec_2023,L0,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,667686.085,2408842.919,0.277181247,energy_weighted
+26,post_ochre,nec_2023,L0,Middle Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,621204.394,2408842.919,0.257884974,energy_weighted
+27,post_ochre,nec_2023,L0,Mountain,BAU with Env.,9,management,84233.139,1474658.94,0.057120421,energy_weighted
+28,post_ochre,nec_2023,L0,Mountain,BAU with Env.,9,no_management,328741.062,1474658.94,0.222926843,energy_weighted
+29,post_ochre,nec_2023,L0,Mountain,BAU with Env.,9,replacement,133806.836,1474658.94,0.09073748,energy_weighted
+30,post_ochre,nec_2023,L0,Mountain,Inefficient,1,management,57847.737,1474658.94,0.039227875,energy_weighted
+31,post_ochre,nec_2023,L0,Mountain,Inefficient,1,no_management,158565.713,1474658.94,0.107527041,energy_weighted
+32,post_ochre,nec_2023,L0,Mountain,Inefficient,1,replacement,18824.905,1474658.94,0.012765599,energy_weighted
+33,post_ochre,nec_2023,L0,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,113399.855,1474658.94,0.076899039,energy_weighted
+34,post_ochre,nec_2023,L0,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,424588.585,1474658.94,0.287923243,energy_weighted
+35,post_ochre,nec_2023,L0,Mountain,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,154651.108,1474658.94,0.104872458,energy_weighted
+36,post_ochre,nec_2023,L0,New England,BAU with Env.,9,management,22481.2,895196.227,0.025113153,energy_weighted
+37,post_ochre,nec_2023,L0,New England,BAU with Env.,9,no_management,82896.894,895196.227,0.092601925,energy_weighted
+38,post_ochre,nec_2023,L0,New England,BAU with Env.,9,replacement,72313.238,895196.227,0.080779203,energy_weighted
+39,post_ochre,nec_2023,L0,New England,Inefficient,1,management,867.369,895196.227,0.000968915,energy_weighted
+40,post_ochre,nec_2023,L0,New England,Inefficient,1,no_management,3891.087,895196.227,0.00434663,energy_weighted
+41,post_ochre,nec_2023,L0,New England,Inefficient,1,replacement,1290.396,895196.227,0.001441467,energy_weighted
+42,post_ochre,nec_2023,L0,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,111830.153,895196.227,0.124922503,energy_weighted
+43,post_ochre,nec_2023,L0,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,310170.466,895196.227,0.346483214,energy_weighted
+44,post_ochre,nec_2023,L0,New England,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,289455.424,895196.227,0.323342989,energy_weighted
+45,post_ochre,nec_2023,L0,Pacific,BAU with Env.,9,management,80805.04,2055297.14,0.039315503,energy_weighted
+46,post_ochre,nec_2023,L0,Pacific,BAU with Env.,9,no_management,264392.011,2055297.14,0.128639312,energy_weighted
+47,post_ochre,nec_2023,L0,Pacific,BAU with Env.,9,replacement,46857.566,2055297.14,0.022798439,energy_weighted
+48,post_ochre,nec_2023,L0,Pacific,Inefficient,1,management,182522.33,2055297.14,0.088805811,energy_weighted
+49,post_ochre,nec_2023,L0,Pacific,Inefficient,1,no_management,332375.329,2055297.14,0.161716436,energy_weighted
+50,post_ochre,nec_2023,L0,Pacific,Inefficient,1,replacement,49976.73,2055297.14,0.024316061,energy_weighted
+51,post_ochre,nec_2023,L0,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,323463.95,2055297.14,0.157380626,energy_weighted
+52,post_ochre,nec_2023,L0,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,660345.592,2055297.14,0.321289598,energy_weighted
+53,post_ochre,nec_2023,L0,Pacific,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,114558.592,2055297.14,0.055738214,energy_weighted
+54,post_ochre,nec_2023,L0,South Atlantic,BAU with Env.,9,management,159970.276,3852038.633,0.041528731,energy_weighted
+55,post_ochre,nec_2023,L0,South Atlantic,BAU with Env.,9,no_management,1115621.645,3852038.633,0.289618498,energy_weighted
+56,post_ochre,nec_2023,L0,South Atlantic,BAU with Env.,9,replacement,223418.989,3852038.633,0.058000194,energy_weighted
+57,post_ochre,nec_2023,L0,South Atlantic,Inefficient,1,management,151114.612,3852038.633,0.039229776,energy_weighted
+58,post_ochre,nec_2023,L0,South Atlantic,Inefficient,1,no_management,401568.555,3852038.633,0.10424832,energy_weighted
+59,post_ochre,nec_2023,L0,South Atlantic,Inefficient,1,replacement,34638.687,3852038.633,0.0089923,energy_weighted
+60,post_ochre,nec_2023,L0,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,158260.631,3852038.633,0.041084902,energy_weighted
+61,post_ochre,nec_2023,L0,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,1447300.121,3852038.633,0.375723158,energy_weighted
+62,post_ochre,nec_2023,L0,South Atlantic,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,160145.117,3852038.633,0.04157412,energy_weighted
+63,post_ochre,nec_2023,L0,West North Central,BAU with Env.,9,management,97415.761,2015600.799,0.04833088,energy_weighted
+64,post_ochre,nec_2023,L0,West North Central,BAU with Env.,9,no_management,349143.086,2015600.799,0.173220355,energy_weighted
+65,post_ochre,nec_2023,L0,West North Central,BAU with Env.,9,replacement,461973.666,2015600.799,0.229198989,energy_weighted
+66,post_ochre,nec_2023,L0,West North Central,Inefficient,1,management,19965.783,2015600.799,0.009905624,energy_weighted
+67,post_ochre,nec_2023,L0,West North Central,Inefficient,1,no_management,77919.049,2015600.799,0.038657977,energy_weighted
+68,post_ochre,nec_2023,L0,West North Central,Inefficient,1,replacement,21271.663,2015600.799,0.01055351,energy_weighted
+69,post_ochre,nec_2023,L0,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,111877.992,2015600.799,0.055506027,energy_weighted
+70,post_ochre,nec_2023,L0,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,400142.735,2015600.799,0.19852281,energy_weighted
+71,post_ochre,nec_2023,L0,West North Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,475891.064,2015600.799,0.236103828,energy_weighted
+72,post_ochre,nec_2023,L0,West South Central,BAU with Env.,9,management,133718.788,2378998.054,0.056208027,energy_weighted
+73,post_ochre,nec_2023,L0,West South Central,BAU with Env.,9,no_management,618508.786,2378998.054,0.259987092,energy_weighted
+74,post_ochre,nec_2023,L0,West South Central,BAU with Env.,9,replacement,137484.679,2378998.054,0.057791001,energy_weighted
+75,post_ochre,nec_2023,L0,West South Central,Inefficient,1,management,110143.018,2378998.054,0.04629807,energy_weighted
+76,post_ochre,nec_2023,L0,West South Central,Inefficient,1,no_management,337579.119,2378998.054,0.141899704,energy_weighted
+77,post_ochre,nec_2023,L0,West South Central,Inefficient,1,replacement,24650.092,2378998.054,0.010361544,energy_weighted
+78,post_ochre,nec_2023,L0,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,management,203359.44,2378998.054,0.085481129,energy_weighted
+79,post_ochre,nec_2023,L0,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,no_management,652046.177,2378998.054,0.274084368,energy_weighted
+80,post_ochre,nec_2023,L0,West South Central,"Low-voltage with Env.
+(HPWH and dryer only)",18,replacement,161507.955,2378998.054,0.067889066,energy_weighted
