@@ -1,0 +1,75 @@
+{
+  "name": "(R) Best HP Dryer FS",
+  "_description": "Fuel switch from gas to HP dryer (assume maps to best available category)",
+  "ref_analogue": true,
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "global_exit_flag": null,
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "end_use": "drying",
+  "fuel_type": "natural gas",
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": "all",
+  "htcl_tech_link": null,
+  "tech_switch_to": null,
+  "energy_efficiency": 11.0,
+  "energy_efficiency_units": "CEF",
+  "energy_efficiency_source": {
+    "notes": "High (2022) using D2 testing method.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 97,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 1810.0,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed (existing) cost for High dryer in 2022. Add $700 for new 240V circuit cost from NV5 report",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 98,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 13.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for gas residential clothes dryer",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 98,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+  ]
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "LBNL",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "2024-11-12 22:13:46"
+  }
+}

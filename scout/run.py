@@ -2854,7 +2854,7 @@ class Engine(object):
             # Strip any additional information that is added to the
             # EIA technology name to further distinguish msegs with exogenous
             # rates and/or specific heating and cooling pairings
-            if "-" in key_list[-2]:
+            if key_list[-2] and "-" in key_list[-2]:
                 tch_apnd = ("-" + key_list[-2].split("-")[-1])
             else:
                 tch_apnd = ""
@@ -5479,7 +5479,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # and print progress update to user
         print("Competing ECMs for '" + adopt_scheme + "' scenario...",
               end="", flush=True)
-        a_run.compete_measures(adopt_scheme, htcl_totals)
+        a_run.compete_measures(adopt_scheme, htcl_totals, opts)
         print("Competition complete")
         # Calculate each measure's competed measure savings and metrics
         # using updated competed markets, and print progress update to user

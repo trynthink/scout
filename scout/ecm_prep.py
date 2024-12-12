@@ -2232,7 +2232,7 @@ class Measure(object):
         # once the elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
                 self.usr_opts["add_typ_eff"] is not False and
-                "Analogue" in self.name):
+                "Ref. CF" in self.name):
             self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
@@ -2763,7 +2763,7 @@ class Measure(object):
 
         # Flag the auto-generation of reference case technology analogues for
         # all of the current measure's applicable markets, if applicable
-        if (opts.add_typ_eff is True and "Analogue" in self.name):
+        if (opts.add_typ_eff is True and "Ref. CF" in self.name):
             agen_ref = True
         else:
             agen_ref = ""
@@ -3031,6 +3031,12 @@ class Measure(object):
                             mskeys_swtch_tech = "ASHP"
                         elif "GSHP" in self.tech_switch_to:
                             mskeys_swtch_tech = "GSHP"
+                        # Assume that res. cooling tech. remains the same for switch to resistance
+                        elif "resistance heat" in self.tech_switch_to:
+                            if "cooling" in mskeys:
+                                mskeys_swtch_tech = mskeys[-2]
+                            else:
+                                mskeys_swtch_tech = "resistance heat"
                         else:
                             mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
@@ -3067,6 +3073,10 @@ class Measure(object):
                         elif "GSHP" in self.tech_switch_to and \
                                 mskeys[4] == "cooling":
                             mskeys_swtch_tech = "comm_GSHP-cool"
+                        elif "electric_res-heat" in self.tech_switch_to:
+                            mskeys_swtch_tech = "electric_res-heat"
+                        elif "electric boiler" in self.tech_switch_to:
+                            mskeys_swtch_tech = "electric boiler"
                         else:
                             mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
@@ -14545,7 +14555,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # should be added (user option is present, measure is in
                 # ESTAR/IECC/90.1 tier, measure applies to equipment
                 # not envelope components
-                if meas_dict["ref_analogue"] and meas_dict["ref_analogue"] is True:
+                if opts is not None and opts.add_typ_eff is True and (
+                        "ref_analogue" in meas_dict.keys() and meas_dict["ref_analogue"] is True):
                     add_ref_meas = True
                 else:
                     add_ref_meas = ""
@@ -14560,7 +14571,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # typical/BAU HVAC equipment measures
                 if add_ref_meas:
                     # Determine unique measure copy name
-                    new_name = meas_dict["name"] + " (Ref. Analogue)"
+                    new_name = meas_dict["name"] + " (Ref. CF)"
                     # Copy the measure
                     new_meas = copy.deepcopy(meas_dict)
                     # Set the copied measure name to the name above

@@ -1,1 +1,117 @@
-[]
+[{
+    "name": "Moderate Efficiency, No Panel, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), No Panel-Mod",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "Moderate Efficiency, Replace Panel, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), Panel-Mod",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "Moderate Efficiency, Load Manage, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), Manage-Mod",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "High Efficiency, No Panel, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), No Panel-High",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "High Efficiency, Replace Panel, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), Panel-High",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "High Efficiency, Load Manage, Basic Env.",
+    "contributing_ECMs": [
+      "(R) Min. ASHP FS (NG), Manage-High",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  }
+
+
+]

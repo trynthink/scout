@@ -1,0 +1,77 @@
+{
+  "name": "(R) Ref. Case Resist. WH FS",
+  "_description": "Typical residential electric resistance storage water heater, fuel switching",
+  "ref_analogue": false,
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "global_exit_flag": "yes",
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "end_use": "water heating",
+  "fuel_type": [
+    "natural gas"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": "all",
+  "htcl_tech_link": null,
+  "tech_switch_to": "electric WH",
+  "energy_efficiency": 0.92,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Minimum efficiency performance in 2022",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 62,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 1605.0,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed (existing) cost range, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
+  },
+  "product_lifetime": 15.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for typical residential electric resistance storage water heaters rounded down from 15.1 years",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 62,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2024-11-12 22:13:46"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "(R) Resist. FS (NG), No Panel-Low",
+  "_description": "Switch from gas furnace/WH/drying/cooking to resistance heating/WH/drying/cooking w/o panel replacement",
+  "panel_upgrade": ["low efficiency upgrade", "no panel management"],
+  "ref_analogue": true,
+  "htcl_tech_link": "ng furnace+cac&rac-lowno",
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "ref_analogue": true,
+  "end_use": [
+    "heating",
+    "cooling"
+  ],
+  "fuel_type": [
+    "natural gas",
+    "electricity"
+  ],
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": [
+    "furnace (NG)",
+    "central AC",
+    "room AC"
+  ],
+  "tech_switch_to": "resistance heat",
+  "energy_efficiency": {
+    "heating": 1,
+    "cooling": 0
+  },
+  "energy_efficiency_units": {
+      "heating": "COP",
+      "cooling": "relative savings (constant)"
+  },
+  "energy_efficiency_source": {
+    "notes": "Based on EIA ER furnace heating data (p. 23).  Other end uses represent typical resistance-based performance for category, relative to typical gas where applicable.",
+    "source_data": "https://www.eia.gov/analysis/studies/buildings/equipcosts/"
+  },
+  "installed_cost": {
+    "electricity": 0.0,
+    "natural gas": 1480
+  },
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "based on EIA ER furnace heating data (p. 23); avoids panel upgrade cost of $7K from NV5 report (see BSS assumptions)",
+    "source_data": "https://www.eia.gov/analysis/studies/buildings/equipcosts/"
+  },
+  "product_lifetime": 22,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "based on EIA ER furnace heating data (p. 23)",
+    "source_data": "https://www.eia.gov/analysis/studies/buildings/equipcosts/"
+  },
+  "market_scaling_fractions": {
+    "heating": 1, 
+    "cooling": 0.49
+  },
+  "market_scaling_fractions_source": {
+    "notes": "Cooling multiple of 49% was determined as a proportion of total homes with a cooling system (16,171 homes) where there is heating via natural gas other than steam/hot water (7,845 homes).",
+    "source_data": {
+      "title": "RECS 2020 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/residential/data/2020/index.php?view=microdata"
+    }
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Wed Dec 11 11:06:21 EST 2024"
+  }
+}

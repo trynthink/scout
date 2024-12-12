@@ -1183,13 +1183,14 @@ def panel_upgrade_calc(panel_input_file, json_results):
     with open(panel_input_file) as f:
         panel_solution_shares = json.load(f)
 
-    # Define impacted building type, fuel type and end use
-    # NOTE: not including tech type, so NGHP will be included for now. Can
-    # modify if needed.
-    fuel = 'natural gas'
-    end_use = 'heating'
+    # Define impacted fuel types
+    fuels = ["natural gas", "electricity"]
+    # Define impacted end uses
+    end_uses = ["heating", "cooling"]
+    # Define impacted tech types
+    techs = ["furnace (NG)", "central AC", "room AC"]
 
-    # Create funciton to multiply terminal dictionary values by a factor that
+    # Create function to multiply terminal dictionary values by a factor that
     # represents the panel solution share for a given EE upgrade level
     def multiply_dict(d, factor):
         return {k: int(v * factor) if isinstance(v, int) else v * factor for k,
@@ -1197,51 +1198,54 @@ def panel_upgrade_calc(panel_input_file, json_results):
 
     # Function to process a single building type within a census division
     def process_bldg_type(bldg_data, region_shares):
-        # Check if the required keys exist in the building data
-        if fuel in bldg_data and end_use in bldg_data[fuel] and \
-                'supply' in bldg_data[fuel][end_use]:
-            supply_data = bldg_data[fuel][end_use]['supply']
-            new_supply_data = {}
+        # Loop through affected fuels
+        for fuel in [x for x in bldg_data if x in fuels]:
+            # Loop through affected end uses
+            for end_use in [y for y in bldg_data[fuel] if y in end_uses]:
+                # Ensure that update does not pertain to envelope ("demand") heat/cool data
+                if 'supply' in bldg_data[fuel][end_use]:
+                    # Iterate through each technology in the supply data
+                    # for tech, tech_data in supply_data.items():
+                    for tech, tech_data in [
+                        (x, y) for x, y in bldg_data[fuel][end_use]['supply'].items()
+                            if x in techs]:
+                        # Initialize replacement data dict
+                        new_supply_data_tech = {}
 
-            # Ensure supply_data is a dictionary before processing
-            if isinstance(supply_data, dict):
-                # Iterate through each technology in the supply data
-                for tech, tech_data in supply_data.items():
-                    new_supply_data[tech] = {}
+                        # Process each efficiency upgrade level
+                        for upgrade_level, upgrade_shares in region_shares[
+                                'energy'].items():
+                            new_supply_data_tech[upgrade_level] = {}
 
-                    # Process each efficiency upgrade level
-                    for upgrade_level, upgrade_shares in region_shares[
-                            'energy'].items():
-                        new_supply_data[tech][upgrade_level] = {}
+                            # Process each panel management option
+                            for panel_option, share in upgrade_shares.items():
+                                # Get the corresponding stock and energy shares
+                                stock_share = region_shares['stock'][
+                                    upgrade_level][panel_option]
+                                energy_share = region_shares['energy'][
+                                    upgrade_level][panel_option]
 
-                        # Process each panel management option
-                        for panel_option, share in upgrade_shares.items():
-                            # Get the corresponding stock and energy shares
-                            stock_share = region_shares['stock'][
-                                upgrade_level][panel_option]
-                            energy_share = region_shares['energy'][
-                                upgrade_level][panel_option]
+                                # Extract original stock and energy data
+                                original_stock = tech_data.get('stock', {})
+                                original_energy = tech_data.get('energy', {})
 
-                            # Extract original stock and energy data
-                            original_stock = tech_data.get('stock', {})
-                            original_energy = tech_data.get('energy', {})
+                                # Apply shares to calculate new stock and
+                                # energy data
+                                new_stock = multiply_dict(original_stock,
+                                                          stock_share)
+                                new_energy = multiply_dict(original_energy,
+                                                           energy_share)
 
-                            # Apply shares to calculate new stock and
-                            # energy data
-                            new_stock = multiply_dict(original_stock,
-                                                      stock_share)
-                            new_energy = multiply_dict(original_energy,
-                                                       energy_share)
+                                # Store the new data in the restructured format
+                                # new_supply_data[tech][upgrade_level][
+                                new_supply_data_tech[upgrade_level][
+                                    panel_option] = {
+                                    'stock': new_stock,
+                                    'energy': new_energy
+                                }
 
-                            # Store the new data in the restructured format
-                            new_supply_data[tech][upgrade_level][
-                                panel_option] = {
-                                'stock': new_stock,
-                                'energy': new_energy
-                            }
-
-            # Replace the old supply data with the new restructured data
-            bldg_data[fuel][end_use]['supply'] = new_supply_data
+                        # Replace the old tech data with the new restructured data
+                        bldg_data[fuel][end_use]['supply'][tech] = new_supply_data_tech
 
         return bldg_data
 
@@ -1249,8 +1253,10 @@ def panel_upgrade_calc(panel_input_file, json_results):
     for region, region_data in json_results.items():
         # Check if share data exists for the current region
         if region in panel_solution_shares:
-            # Apply the processing function to the CDIV data
-            for bldg_type, bldg_data in region_data.items():
+            # Apply the processing function to the CDIV data; limit to single family homes,
+            # which is the scope of the panels analysis
+            for bldg_type, bldg_data in [
+                    (x, y) for x, y in region_data.items() if x == "single family home"]:
                 json_results[region][bldg_type] = \
                     process_bldg_type(bldg_data, panel_solution_shares[region])
         else:
