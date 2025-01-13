@@ -39,7 +39,7 @@ def pretty(low, high, n):
     return numpy.arange(miny, maxy+0.5*d, d)
 
 
-def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
+def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bps_objlist):
     # Set base directory
     # Set uncompeted ECM energy, carbon, and cost data
     uncompete_results = meas_summary
@@ -61,6 +61,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Combine the 'All ECMs' name with the ordered list of the individual
     # ECM names
     meas_names = ['All ECMs'] + meas_names_no_all
+    # If codes/BPS measures are present, add them to the measure set to be plotted
+    if codes_bps_objlist is not None:
+        meas_names.extend([mcbps.name for mcbps in codes_bps_objlist])
     # Set years in modeling time horizon and reorganize in ascending order
     years = list(a_run.output_all[meas_names[0]]
                  ['Markets and Savings (Overall)'][adopt_scenarios[0]]
@@ -588,8 +591,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                         uc_name_ind = uc
 
                 # Set the appropriate database of ECM financial metrics data
-                # (used across both competition schemes)
-                if meas_names[m] == "All ECMs":
+                # (used across both competition schemes for individual measures;
+                # not relevant to aggregated data across all ECMs or to codes/BPS
+                # measure data
+                if meas_names[m] == "All ECMs" or any([
+                        x in meas_names[m] for x in ["Codes", "Standards"]]):
                     results_database_finmets = numpy.nan
                 else:
                     results_database_finmets = compete_results[1][
@@ -612,8 +618,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                     # Find data for uncompeted energy, carbon, and/or cost;
                     # exclude the 'All ECMs' case
                     # (only competed data may be summed across all ECMs)
+                    # and the codes/BPS measures, which do not have uncompeted data
                     if comp_schemes[cp] == "uncompeted" and \
-                       meas_names[m] != "All ECMs":
+                       meas_names[m] != "All ECMs" and not any([
+                            x in meas_names[m] for x in ["Codes", "Standards"]]):
                         # Set the appropriate database of uncompeted energy,
                         # carbon, or cost totals (access keys vary based on
                         # plotted variable)
@@ -814,25 +822,20 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                         # dict to the building class; otherwise
                                         # proceed to next region
                                         try:
-                                            r_agg_temp = \
-                                                results_database_agg[czone]
+                                            r_agg_temp = results_database_agg[czone]
                                         except KeyError:
                                             continue
                                         # Loop through all building classes
                                         for levtwo in range(len(
                                                 results_agg[1, 0])):
-                                            # Set the building class name to
-                                            # use in proceeding down to the
-                                            # end use level of the dict
+                                            # Set the building class name to use in proceeding down
+                                            # to the end use level of the dict
                                             bldg = results_agg[1, 0][levtwo]
-                                            # If the region/building type are
-                                            # valid, reduce the dict to the end
-                                            # use level; otherwise proceed to
+                                            # If the region/building type are valid, reduce the
+                                            # dict to the end use level; otherwise proceed to
                                             # the next building type
                                             try:
-                                                r_agg_temp = \
-                                                    results_database_agg[
-                                                        czone][bldg]
+                                                r_agg_temp = results_database_agg[czone][bldg]
                                             except KeyError:
                                                 continue
                                             # Loop through all end uses
@@ -842,78 +845,56 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                 # in retrieving data values
                                                 euse = results_agg[2, 0][
                                                     levthree]
-                                                # Reset the predefined
-                                                # 'Electronics' end use name
-                                                # (short for later use in plot
-                                                # legends) to the longer
-                                                # 'Computers and Electronics'
-                                                # name used in the dict
+                                                # Reset the predefined 'Electronics' end use name
+                                                # (short for later use in plot legends) to the
+                                                # longer 'Computers and Electronics' name used in
+                                                # the dict
                                                 if euse == "Electronics":
-                                                    euse = ("Computers and "
-                                                            "Electronics")
+                                                    euse = ("Computers and Electronics")
 
-                                                # If the region/building type/
-                                                # end use are valid, reduce the
-                                                # dict to the final level;
-                                                # otherwise proceed to
-                                                # the next end use
+                                                # If the region/building type/end use are valid,
+                                                # reduce the dict to the final level; otherwise
+                                                # proceed to the next end use
                                                 try:
                                                     r_agg_temp = \
-                                                        results_database_agg[
-                                                            czone][bldg][euse]
+                                                        results_database_agg[czone][bldg][euse]
                                                 except KeyError:
                                                     continue
 
-                                                # If data values exist, add
-                                                # them to the ECM's
-                                                # energy/carbon/cost
-                                                # savings-by-filter variable
+                                                # If data values exist, add them to the ECM's
+                                                # energy/carbon/cost savings-by-filter variable
                                                 # vector initialized above
 
                                                 if len(r_agg_temp) != 0:
 
-                                                    # Determine which index to
-                                                    # use in adding the
-                                                    # retrieved data to
-                                                    # the ECM's energy/carbon/
-                                                    # cost savings-by-filter
-                                                    # variable vector
+                                                    # Determine which index to use in adding the
+                                                    # retrieved data to the ECM's energy/carbon/
+                                                    # cost savings-by-filter variable vector
                                                     if fv == 0:
                                                         index = levone
                                                     elif fv == 1:
                                                         index = levtwo
                                                     else:
                                                         index = levthree
-                                                    # Add retrieved data to
-                                                    # ECM's savings-by-filter
-                                                    # variable vector; handle
-                                                    # case where end use
-                                                    # savings are further split
-                                                    # out by fuel type
+                                                    # Add retrieved data to ECM's savings-by-filter
+                                                    # variable vector; handle case where end use
+                                                    # savings are further split out by fuel type
 
-                                                    if any([
-                                                        str(years[yr]) in x
-                                                        for x in list(
-                                                            r_agg_temp.keys())]
-                                                           ):
-                                                        add_val[index] = \
-                                                            add_val[index] + \
-                                                            r_agg_temp[
-                                                            str(years[yr])]
+                                                    if any([str(years[yr]) in x for x in list(
+                                                            r_agg_temp.keys())]):
+                                                        add_val[index] = add_val[index] + \
+                                                            r_agg_temp[str(years[yr])]
                                                     else:
                                                         for fuel in ftypes_out:
-                                                            if fuel in (
-                                                                r_agg_temp.
-                                                                    keys()):
-                                                                add_val[
-                                                                    index] = \
-                                                                    add_val[
-                                                                    index] + \
-                                                                    r_agg_temp[
-                                                                    fuel][str(
-                                                                        years[
-                                                                            yr]
-                                                                            )]
+                                                            # Ensure fuel split data are available
+                                                            if fuel in (r_agg_temp.keys()):
+                                                                try:
+                                                                    add_val[index] = \
+                                                                        add_val[index] + \
+                                                                        r_agg_temp[fuel][str(
+                                                                            years[yr])]
+                                                                except KeyError:
+                                                                    continue
 
                                     # Add ECM's savings-by-filter variable
                                     # vector data to the aggregated total for
@@ -923,13 +904,13 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                             results_agg[fv, 1][fvo][yr] + \
                                             add_val[fvo]
 
-                                # If cycling through the year in which
-                                # snapshots of ECM cost effectiveness are taken
-                                # retrieve the ECM's competed financial
-                                # metrics, savings, and filter variable data
-                                # needed to develop those snapshots for the
-                                # cost effectiveness plots
-                                if str(years[yr]) == snap_yr:
+                                # If cycling through the year in which snapshots of ECM cost
+                                # effectiveness are taken retrieve the ECM's competed financial
+                                # metrics, savings, and filter variable data needed to develop
+                                # those snapshots for the cost effectiveness plots. Exclude codes/
+                                # BPS ECMs (no cost effectiveness data attached to these ECMs)
+                                if str(years[yr]) == snap_yr and not any([
+                                        x in meas_names[m] for x in ["Codes", "Standards"]]):
                                     # Retrieve ECM competed portfolio-level
                                     # and consumer-level financial metrics data
                                     for fm in range(len(fin_metrics)):

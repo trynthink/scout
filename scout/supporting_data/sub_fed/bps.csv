@@ -1,0 +1,7 @@
+description,state(s),building type(s),onsite pct fossil reduction,EUI pct reduction,EUI benchmark year,start year,applicable fraction,fraction notes
+"State-wide building performance standard, using option 2 compliance pathway (EUI % reduction vs. benchmark year)",CO,"all commercial, multi family home",,13,2021,2026,1,
+"State-wide building performance standard, using option 2 compliance pathway (EUI % reduction vs. benchmark year)",CO,"all commercial, multi family home",,29,2021,2030,1,
+Large commercial buildings (50K square feet),DC,"assembly, education, health care, lodging, large office, warehouse, other, multi family home",,20,2021,2026,1,
+Smaller buildings (down to 10K square feet),DC,"food sales, food service, small office, mercantile/service",,20,2027,2032,1,
+State-wide building performance standard that focuses on net direct onsite emissions targets; EUI targets to be added 2027,MD,"assembly, education, health care, lodging, large office, warehouse, other, multi family home",20,,2025,2030,,
+State-wide building performance standard that focuses on net direct onsite emissions targets; EUI targets to be added 2027,MD,"assembly, education, health care, lodging, large office, warehouse, other, multi family home",100,,2025,2040,,
