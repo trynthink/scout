@@ -2303,19 +2303,19 @@ class Measure(object):
                 self.market_exit_year) > (int(
                     self.handyvars.aeo_years[-1]) + 1)):
             self.market_exit_year = int(self.handyvars.aeo_years[-1]) + 1
-        # Check for flag that measure should be removed from market under
-        # user-specified increased in global minimum performance floor
+        # Check for flag that measure is of a minimum efficiency level. Such measures will be
+        # removed from market under user-specified increased in global minimum performance floor
         try:
-            self.global_exit_flag
+            self.min_eff_elec_flag
         except AttributeError:
-            self.global_exit_flag = None
+            self.min_eff_elec_flag = None
         # If a global year by which an elevated performance floor is
         # implemented has been imposed by the user and the measure is flagged
-        # for removal under the global minimum floor, or the measure has been
-        # added as a reference case copy of existing measures in the analysis,
+        # for removal under an increase in the global minimum efficiency floor, or the measure has
+        # been added as a reference case copy of existing measures in the analysis,
         # remove measure from the market once elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
-                self.global_exit_flag or (
+                self.min_eff_elec_flag is not None or (
                     self.usr_opts["add_typ_eff"] is not False and
                 any([x in self.name for x in ["Ref. Case", "Min. Eff."]]))):
             self.market_exit_year = self.usr_opts["floor_start"]
