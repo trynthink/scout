@@ -16,7 +16,7 @@ def main(base_dir):
         "Measure Type": "measure_type",
         "Market Entry Year": "market_entry_year",
         "Market Exit Year": "market_exit_year",
-        "Global Market Exit Flag": "global_exit_flag",
+        "Minimum Efficiency Electric Flag": "min_eff_elec_flag",
         "Region": "climate_zone",
         "Building Type": "bldg_type",
         "Building Vintage": "structure_type",

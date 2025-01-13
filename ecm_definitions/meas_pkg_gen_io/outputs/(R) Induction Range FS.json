@@ -4,7 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
-  "global_exit_flag": null,
+  "min_eff_elec_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -30,20 +30,29 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 1050.0,
+  "installed_cost": 1750.0,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
     "notes": [
       "Based on cost of high electric ranges",
-      "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)"
+      "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source). Add $700 new circuit cost from NV5 report."
     ],
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": 94,
-      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 94,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
   },
   "product_lifetime": 17.0,
   "product_lifetime_units": "years",
@@ -66,6 +75,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-11-12 22:13:46"
+    "timestamp": "2025-01-13 15:20:42"
   }
 }

@@ -4,7 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
-  "global_exit_flag": null,
+  "min_eff_elec_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "new",
@@ -31,13 +31,10 @@
       "url": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Pt.ner%20Commitments.pdf"
     }
   },
-  "installed_cost": {
-    "new": 1035.0,
-    "existing": 2250.0
-  },
+  "installed_cost": 1035.0,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Average of ENERGY STAR v4.0 retail (new) and total installed (existing) cost range, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "notes": "Average of ENERGY STAR v4.0 retail (new) cost range, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
@@ -76,6 +73,6 @@
     "name": "Chioke Harris",
     "organization": "NREL",
     "email": "chioke.harris@nrel.gov",
-    "timestamp": "2024-11-12 22:13:46"
+    "timestamp": "2025-01-13 15:20:42"
   }
 }

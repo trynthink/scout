@@ -4,7 +4,7 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
-  "global_exit_flag": "yes",
+  "min_eff_elec_flag": "yes",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -14,7 +14,7 @@
   "backup_fuel_fraction": null,
   "technology": "all",
   "htcl_tech_link": null,
-  "tech_switch_to": null,
+  "tech_switch_to": "electric range",
   "energy_efficiency": 0.82,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
@@ -30,12 +30,17 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 770.0,
+  "installed_cost": 1470.0,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
     "notes": [
       "Based on cost of typical electric ranges",
-      "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)"
+      "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)",
+      "add $700 cost for new circuit based on NV5 report.\nService Upgrades for Electrification Retrofits Study Final Report",
+      "NV5 and Redwood Energy",
+      "2022",
+      "33",
+      "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
     ],
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -66,6 +71,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2024-11-12 22:13:46"
+    "timestamp": "2025-01-13 15:20:42"
   }
 }

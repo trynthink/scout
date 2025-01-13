@@ -4,34 +4,49 @@
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
-  "global_exit_flag": "yes",
+  "min_eff_elec_flag": "yes",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "drying",
   "fuel_type": "natural gas",
-  "fuel_switch_to": null,
+  "fuel_switch_to": "electricity",
   "backup_fuel_fraction": null,
   "technology": "all",
   "htcl_tech_link": null,
-  "tech_switch_to": null,
-  "energy_efficiency": 0.0,
+  "tech_switch_to": "electric dryer",
+  "energy_efficiency": 0.11,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": [
-      "Ref. case performance",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details"
-    ],
-    "source_data": null
+    "notes": "Compare typical NG CEF to typical electric CEF using D2 test method.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 97,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
-  "installed_cost": 0.0,
+  "installed_cost": 1410.0,
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": [
-      "Ref. case cost (no additional cost)",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details."
-    ],
-    "source_data": null
+    "notes": "Based on cost of typical electric dryers, plus cost of additional circuit from NV5 report.",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
+        "author": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 97,
+        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+        "author": "NV5 and Redwood Energy",
+        "year": 2022,
+        "pages": 33,
+        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
+      }
+    ]
   },
   "product_lifetime": 13.0,
   "product_lifetime_units": "years",
@@ -54,6 +69,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2024-11-12 22:13:46"
+    "timestamp": "2025-01-13 15:20:42"
   }
 }
