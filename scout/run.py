@@ -18,6 +18,7 @@ from scout.config import Config
 import warnings
 import itertools
 import pandas as pd
+from operator import itemgetter
 
 
 class UsefulInputFiles(object):
@@ -46,6 +47,10 @@ class UsefulInputFiles(object):
         cpi_data (tuple). Consumer Price Index (CPI) data.
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
+        state_appl_regs (tuple): State/sub-state appliance restrictions inputs.
+        state_codes (tuple): State/sub-state codes inputs.
+        state_codes_lag (tuple): State-level deltas between latest vs. current enacted code.
+        state_bps (tuple): State/sub-state BPS inputs.
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
@@ -61,7 +66,10 @@ class UsefulInputFiles(object):
         self.gcam_out = fp.RESULTS / "msegs_emm_gcam_alt.json"
         self.gcam_map = fp.CONVERT_DATA / "gcam_map.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
-        self.state_appl_regs = fp.SUB_FED / "state_appl_regs.csv"
+        self.state_appl_regs = fp.SUB_FED / "appl_regs.csv"
+        self.state_codes = fp.SUB_FED / "codes.csv"
+        self.state_codes_lag = fp.SUB_FED / "codes_lag.csv"
+        self.state_bps = fp.SUB_FED / "bps.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -345,62 +353,245 @@ class UsefulVars(object):
             # Calculate ratio of metric year CPI index to common year CPI index
             self.cost_convert[metr] = cpi_row_cmn / cpi_row_metr
 
-        # Import/finalize input data on sub-federal regulations on certain types of appliances
-        self.import_state_regs(handyfiles)
+        # Import/finalize input data on sub-federal appliance regulations, codes, and BPS
+        # if state regions are used
+        state_vars = ["state_appl_regs", "state_codes", "state_bps"]
+        if regions == "State":
+            self.import_state_data(handyfiles, state_vars)
+        else:
+            for k in state_vars:
+                setattr(self, k, None)
 
-    def import_state_regs(self, handyfiles):
-        """Import and further prepare sub-federal appliance regulation data.
+    def import_state_data(self, handyfiles, state_vars):
+        """Import and further prepare sub-federal adoption driver data.
 
         Args:
             handyfiles (object): File paths.
+            state_vars (list): State-level adoption drivers to read in data for.
         """
 
-        # Try importing sub-federal appliance regulation data; if not available,
-        # set to empty list
-        try:
-            state_regs_dat = pd.read_csv(handyfiles.state_appl_regs)
-            # Initialize regulated segments list
-            self.state_appl_reg_segs = []
-            for index, row in state_regs_dat.iterrows():
-                # Set applicable state(s), building type(s), building vintage(s), fuel type(s).
-                # end use(s), and tech(s)
-                state, bldg, vint, fuel, eu, tech = [
-                    [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                    for x in row.values[1:-3]]
-                # Set start year and applicability fraction
-                yr, frac = [[row.values[-3]], [row.values[-2]]]
-                # Check for bundle of U.S. Climate Alliance (UCSA) states
-                if len(state) == 1 and state[0].lower() == "usca":
-                    state = ["AZ", "CA", "CO", "CT", "DE", "HI", "IL", "ME", "MD", "MA", "MI",
-                             "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
-                # Fill out 'all' entries across building type categories when present
-                for b_ind, b in enumerate(bldg):
-                    if b == "all residential":
-                        bldg.extend(["single family home", "multi family home", "mobile home"])
-                        # Remove original 'all' entry
-                        bldg.remove(bldg[b_ind])
-                    elif b == "all commercial":
-                        bldg.extend(["assembly", "education", "food sales", "food service",
-                                     "health care", "lodging", "large office", "small office",
-                                     "mercantile/service", "warehouse", "other", "unspecified"])
-                        # Remove original 'all' entry
-                        bldg.remove(bldg[b_ind])
-                # Fill out 'all' entries for building vintage
-                if len(vint) == 1 and vint[0] == "all":
-                    vint = ["new", "existing"]
-                # Fill out 'all' entries for fuel type
-                if len(fuel) == 1 and fuel[0] == "all fossil":
-                    fuel = ["natural gas", "distillate", "other fuel"]
-                # Fill out 'all' entries for end use
-                if len(eu) == 1 and eu[0] == "all fossil":
-                    eu = ["heating", "water heating", "cooking", "drying"]
-                # Put final data together into a list
-                mseg_params = [x for x in [state, bldg, vint, fuel, eu, tech, yr, frac]]
-                # Put all combinations of the list elements into unique rows
-                self.state_appl_reg_segs.extend(list(itertools.product(*mseg_params)))
-        except FileNotFoundError:
-            # Set regulated segments list to empty
-            self.state_appl_reg_segs = []
+        # State-level adoption inputs: additional appliance regulations, codes, and BPS
+        for k in state_vars:
+            # Try importing state-level adoption input data; if not available, set to empty list
+            try:
+                # Read in variable-specific data
+                state_regs_dat = pd.read_csv(getattr(handyfiles, k))
+                # Initialize segment-specific list of state-level inputs
+                state_dat_init = []
+                for index, row in state_regs_dat.iterrows():
+                    # Set applicable state(s), building type(s)
+                    state, bldg = [
+                        [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
+                        for x in row.values[1:3]]
+                    # Set start year and applicability fraction
+                    start_yr, apply_frac = [[row.values[-3]], [row.values[-2]]]
+                    # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
+                    # included in the USCA but not currently run in Scout simulations, add in
+                    # subsequently)
+                    if len(state) == 1 and state[0].lower() == "usca":
+                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
+                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                    # Remove 'unspecified' from building types if present (not supported)
+                    bldg = [x for x in bldg if x != "unspecified"]
+                    # Fill out 'all' entries across building type categories when present
+                    for b_ind, b in enumerate(bldg):
+                        # List all residential and commercial building types (note: this could
+                        # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
+                        # from that module to ensure consistency)
+                        res = ["single family home", "multi family home", "mobile home"]
+                        # Note: exclude 'unspecified' from being affected by state-level drivers
+                        com = ["assembly", "education", "food sales", "food service",
+                               "health care", "lodging", "large office", "small office",
+                               "mercantile/service", "warehouse", "other"]
+                        if "all" in b:
+                            if b == "all residential":
+                                bldg.extend(res)
+                            elif b == "all commercial":
+                                bldg.extend(com)
+                            elif b == "all":
+                                bldg.extend(res + com)
+                            # Remove original 'all' entry
+                            bldg.remove(bldg[b_ind])
+
+                    # Set variable-specific parameters
+
+                    # Appliance regulations: unique vintage, fuel, end use, and tech columns
+                    if "appl_regs" in k:
+                        vint, fuel, eu, tech = [
+                            [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
+                            for x in row.values[3:-3]]
+                        # Fill out 'all' entries for building vintage
+                        if len(vint) == 1 and vint[0] == "all":
+                            vint = ["new", "existing"]
+                        # Fill out 'all' entries for fuel type
+                        if len(fuel) == 1 and fuel[0] == "all fossil":
+                            fuel = ["natural gas", "distillate", "other fuel"]
+                        # Fill out 'all' entries for end use
+                        if len(eu) == 1 and eu[0] == "all fossil":
+                            eu = ["heating", "water heating", "cooking", "drying"]
+                        params = [x for x in [
+                            state, bldg, vint, fuel, eu, tech, start_yr, apply_frac]]
+                    # Codes and BPS: unique onsite restrictions and energy reduction columns
+                    else:
+                        vint, fuel, eu, tech = [None for n in range(4)]
+                        # Onsite restrictions apply to both codes and BPS
+                        onsite_reduce = [row.values[3]]
+                        if "codes" in k:
+                            # Find flags for energy gains from updating code to latest, as
+                            # well as energy gains from stretch code adoption (if applicable)
+                            lag_pct_reduce, strtch_pct_reduce = [[x] for x in row.values[4:6]]
+                            params = [x for x in [
+                                state, bldg, onsite_reduce,  lag_pct_reduce, strtch_pct_reduce,
+                                start_yr, apply_frac]]
+                        elif "bps" in k:
+                            # Find EUI reduction targets and year to benchmark those targets
+                            # against
+                            eui_pct_reduce, eui_bnch_yr = [[x] for x in row.values[4:6]]
+                            params = [x for x in [
+                                state, bldg, onsite_reduce, eui_pct_reduce, eui_bnch_yr,
+                                start_yr, apply_frac]]
+                    # Iterate all expanded parameter info. into a list of lists with every
+                    # possible combination of each parameter
+                    iterable = list(map(list, itertools.product(*params)))
+
+                    # In the codes case, further iterate through each row in the iterable
+                    # and pull in additional data concerning specific energy gains by updating to
+                    # the latest code edition in each state
+                    if "codes" in k:
+                        # Read in potential energy gains from reductions in lag in code adoption
+                        # by state/building type
+                        lag_potentials = pd.read_csv(handyfiles.state_codes_lag)
+                        # Set the index to update in each row of the iterable
+                        lag_col = 3
+                        # Loop through the iterable rows and update the information
+                        for ind_r, row in enumerate(iterable):
+                            # Determine applicable state and building type of the row to use
+                            # in pulling potential energy gain data (potential energy gains are
+                            # broken out in the data by state and residential vs. commercial)
+                            state_row, bldg_row = row[0:2]
+                            if bldg_row in ["single family home", "mobile home",
+                                            "multi family home"]:
+                                bldg_row = "residential"
+                            else:
+                                bldg_row = "commercial"
+                            # Find flag for whether or not a code update to latest
+                            # edition is assumed (original inputs can be 'none', 'stretch', or
+                            # 'adopt current'), where latter two flag an update
+                            flag_code_update = any(
+                                [x in row[lag_col] for x in ["current", "stretch"]])
+                            # If there is a code update flag, find the potential energy gain
+                            # value from updating the code, for the current state and building type
+                            if flag_code_update:
+                                flag_code_update = lag_potentials[
+                                    (lag_potentials["State"] == state_row) &
+                                    (lag_potentials["Bldg Type"] == bldg_row)][
+                                    "Lag Potential"].iloc[0]
+                            # Otherwise, set value to zero
+                            else:
+                                flag_code_update = 0
+                            # Reset to value in original iterable row
+                            iterable[ind_r][lag_col] = flag_code_update
+                    # Update segment-specific list of state-level inputs and reset attribute
+                    state_dat_init.extend(iterable)
+                    setattr(self, k, state_dat_init)
+
+            except FileNotFoundError:
+                # Set segment-specific list of state-level inputs to empty list
+                setattr(self, k, [])
+
+
+class Codes_BPS_Measure(object):
+    """Class representing code/BPS measures.
+
+    Attributes:
+        reg_brk (list): Applicable region breakouts for the measure.
+        bldg_vnt_brk (list): Applicable building type/vintage breakouts for the measure.
+        end_use_brk (list): Applicable end use breakouts for the measure.
+        markets (dict): Data grouped by adoption scheme on:
+            a) 'master_mseg': a measure's master market microsegments (stock,
+               energy, carbon, cost),
+            b) 'mseg_out_break': master microsegment breakdowns by key
+               variables (climate zone, building class, end use, fuel),
+        savings (dict): Energy, carbon, and stock, energy, and carbon cost
+            savings for measure over baseline technology case.
+    """
+
+    def __init__(self, handyvars, name):
+        self.name = name
+        self.reg_brk, self.bldg_vnt_brk, self.end_use_brk = ([] for n in range(3))
+        self.markets, self.savings = ({} for n in range(2))
+        # Loop through adoption schemes and initialize measure markets and savings
+        for adopt_scheme in handyvars.adopt_schemes:
+            self.markets[adopt_scheme] = OrderedDict([(
+                "master_mseg", OrderedDict([(
+                    "stock", {
+                        "total": {
+                            "all": {}, "measure": {}}}),
+                    (
+                    "energy", {
+                        "total": {
+                            "baseline": {}, "efficient": {}}}),
+                    (
+                    "carbon", {
+                        "total": {
+                            "baseline": {}, "efficient": {}}}),
+                    (
+                    "cost", {
+                        "stock": {
+                            "total": {
+                                "baseline": {}, "efficient": {}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {}, "efficient": {}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {}, "efficient": {}}}})]))])
+            self.savings[adopt_scheme] = {
+                    "energy": {
+                        "savings": {},
+                        "cost savings": {}},
+                    "carbon": {
+                        "savings": {}}
+                    }
+
+        # Establish a dictionary nested by output breakout categories (region, building type/
+        # vintage, end use) with blank values at terminal leaf nodes; this dict will
+        # eventually store broken out results data for the codes/BPS measure
+        # Determine all possible outcome category combinations
+        out_levels = [
+            handyvars.out_break_czones.keys(), handyvars.out_break_bldgtypes.keys(),
+            handyvars.out_break_enduses.keys()]
+        out_levels_keys = list(itertools.product(*out_levels))
+        # Create dictionary using outcome category combinations as key chains
+        out_break_in = OrderedDict()
+        for kc in out_levels_keys:
+            current_level = out_break_in
+            for ind, elem in enumerate(kc):
+                # If fuel splits are desired and applicable for the current
+                # end use breakout, add the fuel splits to the dict vals
+                if len(handyvars.out_break_fuels.keys()) != 0 and (
+                        elem in handyvars.out_break_eus_w_fsplits) and \
+                        elem not in current_level:
+                    current_level[elem] = OrderedDict(
+                        [(x, OrderedDict()) for x in
+                         handyvars.out_break_fuels.keys()])
+                # Otherwise, set dict vals to another empty dict
+                elif elem not in current_level:
+                    current_level[elem] = OrderedDict()
+                current_level = current_level[elem]
+
+        # Add market breakout information
+
+        # Add energy, carbon, and cost breakouts
+        self.markets[adopt_scheme]["mseg_out_break"] = {key: {
+            "baseline": copy.deepcopy(out_break_in),
+            "efficient": copy.deepcopy(out_break_in),
+            "savings": copy.deepcopy(out_break_in)} for
+            key in ["energy", "carbon", "cost"]}
+        # Add stock breakouts
+        self.markets[adopt_scheme][
+            "mseg_out_break"]["stock"] = {
+                key: copy.deepcopy(out_break_in) for key in ["baseline", "efficient"]}
 
 
 class Measure(object):
@@ -2111,18 +2302,19 @@ class Engine(object):
         """
 
         # Look for any state (or local)-level appliance restrictions on the current microsegment
-        state_appl_regs = (len(self.handyvars.state_appl_reg_segs) != 0)
+        state_appl_regs = (
+            self.handyvars.state_appl_regs is not None and len(self.handyvars.state_appl_regs) != 0)
         if state_appl_regs:
             # Separate out components of the mseg information; use mseg information that accounts
             # for any links/dependencies between mseg and other msegs the measure applies to (
             # assume that first measure in the competing set is representative of links for all)
             mseg_separate = literal_eval(stk_cost_dat_keys[0][0])
             # Shorthand for current mseg region, bldg. type, bldg. vintage, fuel, end use, tech.
-            ctb_mseg_params_notech = (mseg_separate[1], mseg_separate[2], mseg_separate[-1],
-                                      mseg_separate[3], mseg_separate[4])
+            ctb_mseg_params_notech = [mseg_separate[1], mseg_separate[2], mseg_separate[-1],
+                                      mseg_separate[3], mseg_separate[4]]
             # Determine which (if any) rows in restrictions data apply to current mseg information
             restrict_rows_no_tech = [
-                x for x in self.handyvars.state_appl_reg_segs if x[:-3] == ctb_mseg_params_notech]
+                x for x in self.handyvars.state_appl_regs if x[:-3] == ctb_mseg_params_notech]
             # If tech column does not cover "all" technologies, further check for tech restrictions
             if not any([x[-3] == "all" for x in restrict_rows_no_tech]):
                 # Assume that tech names in input file map to standard Scout/EIA technology names;
@@ -5934,6 +6126,23 @@ class Engine(object):
                 ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
                 ("Efficient CO2 Cost (USD)".translate(sub),
                  carb_cost_eff_all_avg)])
+        # Add in data from codes and BPS measures, if applicable
+        for m in [x for x in self.output_ecms if any([y in x for y in ["Codes", "Standards"]])]:
+            # Pull codes/BPS measure results data
+            results_dat_codes_bps = self.output_ecms[m][
+                "Markets and Savings (Overall)"][adopt_scheme]
+            # Pull all aggregated measure data (pre-codes/BPS integration)
+            results_dat_all_ecms = self.output_all["All ECMs"]["Markets and Savings (Overall)"][
+                adopt_scheme]
+            # Loop through all codes/BPS output metrics and add to aggregated data. Note that
+            # codes/BPS outputs will not include CO2 cost savings, since only energy costs are
+            # broken out in a way that allows these costs to be allocated to the codes/BPS measures
+            for met in results_dat_codes_bps.keys():
+                # Ensure that terminal node was reached (projection year keys) before adding data
+                if self.handyvars.aeo_years[0] in results_dat_codes_bps[met].keys():
+                    for yr in self.handyvars.aeo_years:
+                        results_dat_all_ecms[met][yr] += results_dat_codes_bps[met][yr]
+
         # Record efficient-captured data across all ECMs if present
         if eff_capt and energy_eff_all_capt_avg is not None:
             self.output_all["All ECMs"]["Markets and Savings (Overall)"][
@@ -6105,6 +6314,936 @@ class Engine(object):
                 del orig_dict[k]
         return orig_dict
 
+    def process_codes_bps(self, adopt_scheme, msegs, handyvars):
+        """Read in and apply the effects of codes/BPS to measure stock/energy/carbon/energy costs.
+
+        Args:
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            msegs: Baseline stock, energy, and square footage data for building microsegments.
+            handyvars (object): Global variables useful across class methods.
+        """
+        # Compile all codes/BPS policies into a master list
+        codes_plus_bps_list = \
+            [x + ["code"] for x in self.handyvars.state_codes] + \
+            [y + ["bps"] for y in self.handyvars.state_bps]
+        # Initialize separate code/BPS measure instances; data from existing measures in the
+        # analysis will be pulled into these code/BPS measures to reflect code/BPS impacts
+        codes_measure, bps_measure = [Codes_BPS_Measure(handyvars, name) for name in [
+            "Building Codes", "Building Performance Standards"]]
+        # Ensure that codes/BPS are ordered by start year such that their impacts are reflected
+        # with the proper staging in cases where there are multiple start years per affected segment
+        codes_plus_bps_list = sorted(codes_plus_bps_list, key=itemgetter(-2))
+
+        # Loop through codes and BPS policies one-by-one and reflect their effects
+        for code_std in codes_plus_bps_list:
+            # Set up conditions from input data: flag for code vs. standard, region and building
+            # type, settings for level of onsite emissions reductions (if applicable), the years
+            # the code/BPS is in effect, and the portion of the state the code/BPS applies to
+            code_std_flag = code_std[-1]
+            reg, bldg = code_std[0:2]
+            onsite_reduce = code_std[2]
+            start_yr = code_std[-3]
+            apply_frac = code_std[-2]
+            # Handle blank applicability factor input
+            if numpy.isnan(apply_frac):
+                apply_frac = 1
+            # Initialize a variable used to track additional code/BPS-driven relative energy
+            # improvements over what is already achieved in the efficient case
+            added_energy_reduce_frac = None
+
+            # Determine code/BPS-specific information and the relative level of energy reduction
+            # from the base case that the code/BPS requires, which is handled differently for codes
+            # vs. BPS.
+            if code_std_flag == "code":
+                # Set codes/BPS measure to update to codes measure
+                m_cdbps = codes_measure
+                # Determine the year range for which the current code onsite reduction applies
+                apply_yrs = [yr for yr in self.handyvars.aeo_years if int(yr) >= start_yr]
+                # For codes, set applicable building vintage to new (assume codes only apply to new
+                # buildings)
+                vint = "new"
+                # For new building codes, energy use improvements apply only to new buildings
+                # constructed after the starting year of the policy and not to buildings that were
+                # constructed before the policy starting year but after the starting year in the
+                # model time horizon (classified as 'new' in Scout). Find the latest in the year
+                # range for which the codes do not apply, to be assessed further below
+                prior_yr_rmv = str(start_yr - 1)
+                # If year is before model time horizon, set to None
+                if prior_yr_rmv not in self.handyvars.aeo_years:
+                    prior_yr_rmv = None
+                # Set the energy index improvement level from updating to the current code in the
+                # given state/building type, if applicable. (Note that this will already have been
+                # processed into a fraction format.) If state does not update code or its code is
+                # already consistent with the latest version, this will be set to zero. Stretch code
+                # adoption is applied on top of this gain
+                lag_reduce = code_std[3]
+                # For cases with stretch code adoption, set the energy index improvement level
+                # beyond current base code that is represented by stretch code
+                stretch = code_std[4]
+                # Finalize energy index gain by adding the stretch code adoption impact on top
+                # of the impact from updating to the latest code version, if applicable
+                if not numpy.isnan(stretch) and lag_reduce != 0:
+                    impact_thres_tyr = lag_reduce * (1 + (stretch / 100))
+                elif lag_reduce == 0:
+                    impact_thres_tyr = (stretch / 100)
+                else:
+                    impact_thres_tyr = 0
+                # Breakout energy index impact by year, for further application below
+                impact_thres = {yr: impact_thres_tyr if yr in apply_yrs else 0
+                                for yr in self.handyvars.aeo_years}
+            else:
+                # Set codes/BPS measure to update to BPS measure
+                m_cdbps = bps_measure
+                # Set year to use in benchmarking EUI improvements in the BPS target year
+                bench_yr = code_std[4]
+                # Determine the year range for which the current BPS onsite reduction applies
+                apply_yrs = [yr for yr in self.handyvars.aeo_years if int(yr) >= bench_yr]
+                # BPS applies to existing buildings only
+                vint = "existing"
+                # New building applicability constraint (see above for codes) not relevant for BPS
+                prior_yr_rmv = None
+                # If benchmark year is before available data in year range, set to earliest
+                # year in year range
+                if str(bench_yr) not in self.handyvars.aeo_years:
+                    bench_yr_fin = self.handyvars.aeo_years[0]
+                else:
+                    bench_yr_fin = str(bench_yr)
+                # Convert raw input data (in percentage units) to fraction
+                if not numpy.isnan(code_std[3]):
+                    impact_thres_tyr = code_std[3] / 100
+                else:
+                    impact_thres_tyr = 0
+                # Breakout energy index impact by year, for further application below
+                impact_thres = {}
+                for yr in self.handyvars.aeo_years:
+                    # For BPS, assume compliance/progress towards reduction begins in
+                    # the benchmark year and proceeds linearly towards the target reduction
+                    if int(yr) >= bench_yr and int(yr) < start_yr:
+                        frac_yr = (int(yr) - bench_yr) / (start_yr - bench_yr)
+                        impact_thres[yr] = impact_thres_tyr * frac_yr
+                    elif int(yr) >= start_yr:
+                        impact_thres[yr] = impact_thres_tyr
+                    else:
+                        impact_thres[yr] = 0
+
+            # Translate region and building type names in input data to the naming conventions
+            # used in the Scout breakout data, which will be pulled from in applying codes/BPS
+            reg_brk = [out_reg for out_reg, in_reg in self.handyvars.out_break_czones.items() if
+                       reg in in_reg][0]
+            bldg_vnt_brk = [out_bldg_vnt for out_bldg_vnt, in_bldg_vnt in
+                            self.handyvars.out_break_bldgtypes.items() if
+                            (bldg in in_bldg_vnt and vint in in_bldg_vnt)][0]
+
+            # Apply onsite emissions reduction requirements, if any, to measure data that applies
+            # to the current region/bldg/vintage combination
+            if not numpy.isnan(onsite_reduce):
+                # Convert onsite reduction input to a fraction (input as a percentage when there)
+                onsite_reduce_frac_tyr = onsite_reduce / 100
+                # Breakout onsite reduction requirements by year
+                onsite_reduce_frac = {}
+                for yr in self.handyvars.aeo_years:
+                    if code_std_flag == "bps" and not numpy.isnan(bench_yr) and \
+                            int(yr) >= bench_yr and int(yr) < start_yr:
+                        # For BPS, assume compliance/progress towards reduction begins in
+                        # the benchmark year and proceeds linearly towards the target reduction
+                        frac_yr = (int(yr) - bench_yr) / (start_yr - bench_yr)
+                        onsite_reduce_frac[yr] = onsite_reduce_frac_tyr * frac_yr
+                    elif int(yr) >= start_yr:
+                        onsite_reduce_frac[yr] = onsite_reduce_frac_tyr
+                    else:
+                        onsite_reduce_frac[yr] = 0
+                # Pull electric measure stock/energy/carbon/energy cost data from all min.
+                # efficiency measures in the current set to use in determining the relative
+                # efficiency of switching from fossil-based to electric equipment to reduce onsite
+                # emissions (electrification is assumed method of to meet such code/BPS provisions)
+                rel_elec_eff_init = self.sum_unit_elec_data(
+                    reg_brk, bldg_vnt_brk, reg, bldg, vint, adopt_scheme, apply_yrs)
+                # Finalize unit relative electric efficiency data; divide electric energy/carb/cost
+                # by stock, do the same for fossil energy/carb/cost, and then compare the unit-
+                # level electric performance to the unit-level fossil performance. Handle zeros.
+                rel_elec_eff = {var: {eu: {
+                    yr: ((rel_elec_eff_init["electric"][var][eu][yr] /
+                          rel_elec_eff_init["electric"]["stock"][eu][yr]) /
+                         (rel_elec_eff_init["fossil"][var][eu][yr] /
+                          rel_elec_eff_init["fossil"]["stock"][eu][yr]))
+                    if all([x != 0 for x in [
+                        rel_elec_eff_init["fossil"][var][eu][yr],
+                        rel_elec_eff_init["fossil"]["stock"][eu][yr]]]) else None
+                    for yr in apply_yrs} for eu in rel_elec_eff_init[
+                        "electric"][var].keys()} for var in ["stock", "energy", "carbon", "cost"]}
+                # Apply the effects of the onsite reduction
+                self.apply_code_bps_impacts(
+                    reg_brk, bldg_vnt_brk, adopt_scheme, apply_yrs, apply_frac, onsite_reduce_frac,
+                    rel_elec_eff, added_energy_reduce_frac, prior_yr_rmv, m_cdbps)
+                # Reset onsite reduction levels to null after processing above to ensure they aren't
+                # applied twice when energy reductions are subsequently processed by the same
+                # function below
+                onsite_reduce_frac = None
+            else:
+                onsite_reduce_frac, rel_elec_eff = (None for n in range(2))
+
+            # Determine how much (if any) additional energy reductions must be reflected to
+            # meet a code/BPS requirement for a given region/bldg/vintage, after having already
+            # reflected the performance impacts of electrification from codes/BPS above
+            if impact_thres_tyr != 0:
+                # Sum efficient and base-case energy use for current region/building type/vintage
+                # and across all measures; these sums will be compared to determine the relative
+                # overall energy improvement in the efficient case vs. the baseline, which in turn
+                # is compared against the improvement required by the code/BPS
+                energy_sums = self.sum_energy_data(
+                    reg_brk, bldg_vnt_brk, adopt_scheme, prior_yr_rmv)
+
+                # Finalize determination of relative energy reduction in the efficient case. For
+                # BPS, this is normalized by sf and compared to a benchmark baseline year. For
+                # codes, this is relative to the baseline energy use in each year.
+                if code_std_flag == "bps" and (
+                        not numpy.isnan(impact_thres_tyr) and impact_thres_tyr != 0):
+                    # Further normalize energy sums by square foot (to get EUI) if BPS is being
+                    # assessed, since BPS generally target EUI reductions and this is the metric
+                    # used in the input data for this policy
+                    energy_sums_sf = self.sf_norm(
+                        energy_sums, msegs[reg][bldg]["total square footage"])
+                    energy_reduce_frac = {
+                        yr: 1 - (energy_sums_sf["efficient"][str(start_yr)] /
+                                 energy_sums_sf["baseline"][bench_yr_fin]) if
+                        (yr in apply_yrs and energy_sums_sf["baseline"][bench_yr_fin] != 0) else 0
+                        for yr in self.handyvars.aeo_years}
+                elif (not numpy.isnan(impact_thres_tyr) and impact_thres_tyr != 0):
+                    energy_reduce_frac = {
+                        yr: 1 - (energy_sums["efficient"][yr] / energy_sums["baseline"][yr])
+                        if (yr in apply_yrs and energy_sums["baseline"][yr] != 0) else 0
+                        for yr in self.handyvars.aeo_years}
+                # When there are no energy reductions required, set the relative reduction to null
+                else:
+                    energy_reduce_frac = ""
+
+                # Determine additional fractional energy (and carbon/cost) reduction vs. baseline
+                # that must be applied to meet codes/BPS requirements in each year, if any; if
+                # relative reduction in efficient case already meets or exceeds code/BPS
+                # requirement, set to zero
+                if energy_reduce_frac:
+                    added_energy_reduce_frac = {
+                        yr: impact_thres[yr] - energy_reduce_frac[yr] if
+                        impact_thres[yr] > energy_reduce_frac[yr] else 0 for
+                        yr in self.handyvars.aeo_years}
+                    # Apply additional energy reduction requirements to the efficient case data for
+                    # a given region/bldg/vintage
+                    self.apply_code_bps_impacts(
+                        reg_brk, bldg_vnt_brk, adopt_scheme, apply_yrs, apply_frac,
+                        onsite_reduce_frac, rel_elec_eff, added_energy_reduce_frac, prior_yr_rmv,
+                        m_cdbps)
+
+            # Ensure that no blank codes or BPS measures are returned and written out
+            fin_code_bps_meas = [m for m in [codes_measure, bps_measure] if len(m.reg_brk) != 0]
+
+        return fin_code_bps_meas
+
+    def apply_code_bps_impacts(
+            self, reg_brk, bldg_vnt_brk, adopt_scheme, apply_yrs, apply_frac, onsite_reduce_frac,
+            rel_elec_eff, added_energy_reduce_frac, prior_yr_rmv, m_cdbps):
+        """Apply both onsite emissions and energy reduction impacts of code/BPS.
+
+        Args:
+            reg_brk (str): Region name used for current mseg in Scout breakout data.
+            bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            apply_yrs (list): Applicable years range for code/BPS policy.
+            apply_frac (float): Applicable portion of energy (or buildings) affected by code/BPS.
+            onsite_reduce_frac (float or NoneType): Frac. of onsite emissions removed via code/BPS.
+            rel_elec_eff (dict): Pre-determined relative unit-level relative efficiency given
+                switch from fossil to electric equipment in given region/bldg/vint.
+            added_energy_reduce_frac (float): Added portion of baseline energy use to remove to
+                meet code/BPS.
+            prior_yr_rmv (str): Year before policy goes into affect (all stock/energy/carbon/cost
+                from this yr. is removed from policy impact in the case of new building additions.
+            m_cdbps (object): Code or BPS measure data to modify to reflect specific policy impacts.
+        """
+
+        # Set shorthands for applicable code/BPS measure region, building type/vintage, and end use
+        # breakout categories; these will be updated as the measure is adjusted below
+        cdbps_regs, cdbps_bldgs, cdbps_eus = [
+            m_cdbps.reg_brk, m_cdbps.bldg_vnt_brk, m_cdbps.end_use_brk]
+
+        # Loop through all existing non-code/BPS measures and adjust their data and the code/BPS
+        # measure data to reflect the impacts of code/BPS policy
+        for m in self.measures:
+            # Loop through four metrics that are broken out in measure data. (Note that costs
+            # denote energy costs only, and carbon costs are not broken out/won't be adjusted)
+            for var in ["stock", "energy", "carbon", "cost"]:
+                # Shorthands for breakout baseline/efficient data for existing measures (all
+                # post-competition)
+                brk_dat_base, brk_dat_eff = [
+                    m.markets[adopt_scheme]["competed"]["mseg_out_break"][var][x] for x in [
+                        "baseline", "efficient"]]
+                # Shorthands for breakout base/eff data for code/BPS measure
+                brk_dat_cdbps_base, brk_dat_cdbps_eff = [
+                    m_cdbps.markets[adopt_scheme]["mseg_out_break"][var][x] for x in [
+                        "baseline", "efficient"]]
+                # Pull shorthands for savings breakouts and high-level master markets/savings data
+                # conditionally based on metric
+                if var == "stock":
+                    # Breakouts for existing and code/BPS measure stock savings are not applicable
+                    brk_dat_save, brk_dat_cdbps_save = (None for n in range(2))
+                    # Shorthands for existing and code/BPS measure master base/eff markets data
+                    mast_dat_base, mast_dat_cdbps_base = [
+                        m.markets[adopt_scheme]["competed"]["master_mseg"][var]["total"]["all"],
+                        m_cdbps.markets[adopt_scheme]["master_mseg"][var]["total"]["all"]]
+                    mast_dat_eff, mast_dat_cdbps_eff = [
+                        m.markets[adopt_scheme]["competed"]["master_mseg"][var]["total"]["measure"],
+                        m_cdbps.markets[adopt_scheme]["master_mseg"][var]["total"]["measure"]]
+                    # Savings data are N/A for stock
+                    mast_dat_save, mast_dat_cdbps_save = (None for n in range(2))
+                else:
+                    # Shorthand breakouts for existing and code/BPS measure energy/carb/ecost save
+                    brk_dat_save, brk_dat_cdbps_save = [
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][var]["savings"],
+                        m_cdbps.markets[adopt_scheme]["mseg_out_break"][var]["savings"]]
+                    # Shorthands for existing and code/BPS measure master markets/savings
+                    if var != "cost":
+                        mast_shrt, mast_shrt_cdbps = [
+                            m.markets[adopt_scheme]["competed"]["master_mseg"][var]["total"],
+                            m_cdbps.markets[adopt_scheme]["master_mseg"][var]["total"]]
+                        save_shrt, save_shrt_cdbps = [
+                            m.savings[adopt_scheme]["competed"][var]["savings"],
+                            m_cdbps.savings[adopt_scheme][var]["savings"]]
+                    else:
+                        mast_shrt, mast_shrt_cdbps = [
+                            m.markets[adopt_scheme][
+                                "competed"]["master_mseg"][var]["energy"]["total"],
+                            m_cdbps.markets[adopt_scheme]["master_mseg"][var]["energy"]["total"]]
+                        save_shrt, save_shrt_cdbps = [
+                            m.savings[adopt_scheme]["competed"]["energy"]["cost savings"],
+                            m_cdbps.savings[adopt_scheme]["energy"]["cost savings"]]
+                    mast_dat_base, mast_dat_cdbps_base = [
+                        mast_shrt["baseline"], mast_shrt_cdbps["baseline"]]
+                    mast_dat_eff, mast_dat_cdbps_eff = [
+                        mast_shrt["efficient"], mast_shrt_cdbps["efficient"]]
+                    mast_dat_save, mast_dat_cdbps_save = [save_shrt, save_shrt_cdbps]
+                # Apply any onsite energy reduction (e.g., electrification) requirements,
+                # leveraging data shorthands above
+                if onsite_reduce_frac:
+                    self.apply_onsite_reduce(
+                        brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
+                        mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
+                        mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk,
+                        bldg_vnt_brk, apply_yrs, apply_frac, onsite_reduce_frac, rel_elec_eff[var],
+                        prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus)
+                # Apply any additional energy reduction requirements, leveraging data shorthands
+                # above. Note that stock remains the same for code reductions, such that per unit
+                # energy/carb/cost will be reduced
+                elif var != "stock":
+                    self.apply_energy_reduce(
+                        brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
+                        mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
+                        mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk,
+                        bldg_vnt_brk, apply_yrs, apply_frac, added_energy_reduce_frac, prior_yr_rmv,
+                        cdbps_regs, cdbps_bldgs, cdbps_eus)
+
+        return
+
+    def apply_onsite_reduce(
+            self,  brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
+            mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
+            mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk, bldg_vnt_brk,
+            apply_yrs, apply_frac, onsite_reduce_frac, rel_elec_eff, prior_yr_rmv, var, cdbps_regs,
+            cdbps_bldgs, cdbps_eus):
+        """Apply onsite emissions reductions required via code/BPS.
+
+        Args:
+            brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
+            brk_dat_base (dict): Baseline stock/energy/carbon/ecost breakouts for indiv. measure.
+            brk_dat_save (dict): Energy/carbon/ecost savings breakouts for indiv. measure.
+            mast_dat_eff (dict): Master efficient data for indiv. measure.
+            mast_dat_base (dict): Master baseline data for indiv. measure.
+            mast_dat_save (dict): Master savings data for indiv. measure.
+            brk_dat_cdbps_eff (dict): Eff. stock/energy/carbon/cost breakouts for codes/BPS measure.
+            brk_dat_cdbps_base (dict): Base stock/energy/carbon/cost breaks for codes/BPS measure.
+            brk_dat_cdbps_save (dict): Energy/carbon/ecost savings breakouts for codes/BPS measure.
+            mast_dat_cdbps_eff (dict): Master efficient data for codes/BPS measure.
+            mast_dat_cdbps_base (dict): Master baseline data for codes/BPS measure.
+            mast_dat_cdbps_save (dict): Master savings data for codes/BPS measure.
+            reg_brk (str): Region name used for current mseg in Scout breakout data.
+            bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+            apply_yrs (list): Applicable years range for code/BPS policy.
+            apply_frac (float): Applicable portion of energy (or buildings) affected by code/BPS.
+            onsite_reduce_frac (float or NoneType): Frac. of onsite emissions removed via code/BPS.
+            rel_elec_eff (dict): Pre-determined relative unit-level relative efficiency given
+                switch from fossil to electric equipment in given region/bldg/vint.
+            prior_yr_rmv (str): Year before policy goes into affect (all stock/energy/carbon/cost
+                from this yr. is removed from policy impact in the case of new building additions.)
+            var (string): Metric being updated (e.g., stock, energy, carbon, cost).
+            cdbps_regs (list): Applicable region categories for codes/BPS measure.
+            cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
+            cdbps_eus (list): Applicable end use categories for codes/BPS measure.
+        """
+
+        # Loop through all applicable end uses for the given region/building type/vintage breakout
+        for eu in brk_dat_base[reg_brk][bldg_vnt_brk].keys():
+            # Ensure that all electric unit performance data are complete/non-null for end use;
+            # if not, move on to next end use
+            if eu not in rel_elec_eff.keys() or any([
+                    x is None for x in rel_elec_eff[eu].values()]):
+                continue
+
+            # If no fuel breakouts are present for the given end use, no onsite reductions
+            # are reflected b/c there is no opportunity for electrification/onsite reductions
+            if self.handyvars.aeo_years[0] in brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys():
+                continue
+            # Reflect onsite fuel reductions/conversions to electricity when applicable
+            else:
+                # Set electric and non-electric keys
+                elec_key = "Electric"
+                nelec_keys = [
+                    x for x in brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys() if x != elec_key]
+                # Reflect onsite reductions/conversions in breakout and master data for both
+                # the existing measure and the codes/BPS measure
+                for fossil_fuel in nelec_keys:
+                    # Ensure that terminal node w/ year keys is reached under fuel type
+                    if self.handyvars.aeo_years[0] in brk_dat_base[reg_brk][bldg_vnt_brk][eu][
+                            fossil_fuel].keys():
+                        # For new building codes, onsite reductions apply only to the stock/energy/
+                        # carbon/cost from new buildings constructed after the starting year and
+                        # not to buildings that were constructed after the starting year in the
+                        # model time horizon (classified as 'new' in Scout) but before the starting
+                        # year of the code provision. Set inapplicable result for base/eff case.
+                        if prior_yr_rmv:
+                            na_base, na_eff = [
+                                brk_dat_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel][prior_yr_rmv],
+                                brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][prior_yr_rmv]]
+                        else:
+                            na_base, na_eff = (0 for n in range(2))
+                        # Pull number of converted fossil units and converted energy/carbon/cost
+                        # totals for all applicable years of code/BPS. Note that converted units
+                        # are subject to the onsite reduction fraction, which may be specified as
+                        # less than 100% (e.g., to represent a 'soft' onsite restriction where
+                        # a builder has a strong financial incentive to electrify but is not 100%
+                        # required to do so by the regulation); also subject to applicability
+                        # fraction, which can be used to represent, e.g., sub-state/local codes
+                        # that affect a percentage of the state's energy use. Remove inapplicable
+                        # portion of stock/energy/carbon/cost from result (see 'prior_yr_rmv').
+                        convert_fossil_base, convert_fossil_eff = [{
+                            yr: (brk[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -
+                                 na) * onsite_reduce_frac[yr] * apply_frac for yr in apply_yrs}
+                            for brk, na in zip([brk_dat_base, brk_dat_eff],
+                                               [na_base, na_eff])]
+                        # When looping through energy data, check to ensure that relative
+                        # performance of electric vs. fossil-based equipment is always less than
+                        # 1; if not, throw error.
+                        for yr in apply_yrs:
+                            if var == "energy" and not isinstance(
+                                rel_elec_eff[eu][yr], numpy.ndarray) and \
+                                rel_elec_eff[eu][yr] > 1 or isinstance(
+                                    rel_elec_eff[eu][yr], numpy.ndarray) and any(
+                                    rel_elec_eff[eu][yr]) > 1:
+                                raise ValueError(
+                                    "Conversion to electric tech. at relative efficiency of >1 (" +
+                                    str(rel_elec_eff[eu][yr]) + ") for year " + yr + " in region "
+                                    + reg_brk + ", building type " + bldg_vnt_brk + " and end use "
+                                    + eu)
+                        # Determine the added electric energy from converted fossil units. For
+                        # accounting purposes, set the baseline for converted units to the same
+                        # efficiency as the fossil units. Converted units are assessed an
+                        # efficient-case performance improvement consistent with switching to a
+                        # minimum level of comparable electric equipment performance on the market
+                        # in a given year (calculated previously).
+                        added_elec_base = {yr: convert_fossil_base[yr] * 1 for yr in apply_yrs}
+                        added_elec_eff = {
+                            yr: convert_fossil_eff[yr] * rel_elec_eff[eu][yr] for yr in apply_yrs}
+                        # Shorthand for code/BPS breakout data to update, further restricted by
+                        # region, end use, building type, and fuel type (converted baseline is
+                        # added to the fossil fuel in the code/BPS measure, converted efficient is
+                        # added to the electric fuel in the code/BPS measure)
+                        brk_dat_cdbps_base = \
+                            brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel]
+                        brk_dat_cdbps_eff = \
+                            brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][elec_key]
+                        # Shorthand for code/BPS savings breakout data to update (if applicable,
+                        # note that the stock metric won't have this), distinguished
+                        # by the same fuels as for the base/eff data above
+                        if brk_dat_cdbps_save is not None:
+                            brk_dat_cdbps_save_bfuel = \
+                                brk_dat_cdbps_save[reg_brk][bldg_vnt_brk][eu][fossil_fuel]
+                            brk_dat_cdbps_save_efuel = \
+                                brk_dat_cdbps_save[reg_brk][bldg_vnt_brk][eu][elec_key]
+                        # Check if code/BPS measure breakout data have not already been updated/
+                        # added to for current region/bldg/vint/end use/fuel; if not, initialize
+                        # these data as zero
+                        if len(brk_dat_cdbps_base.keys()) == 0:
+                            for yr in self.handyvars.aeo_years:
+                                brk_dat_cdbps_base[yr], brk_dat_cdbps_eff[yr] = (
+                                    0 for n in range(2))
+                                # Initialize savings data if applicable
+                                if brk_dat_cdbps_save is not None:
+                                    brk_dat_cdbps_save_bfuel[yr], brk_dat_cdbps_save_efuel[yr] = (
+                                        0 for n in range(2))
+                        # Check if code/BPS measure master base/eff and savings have not already
+                        # been updated/added to for current region/bldg/vint/end use/fuel; if not,
+                        # initialize these data as zero
+                        if len(mast_dat_cdbps_base.keys()) == 0:
+                            for yr in self.handyvars.aeo_years:
+                                mast_dat_cdbps_base[yr], mast_dat_cdbps_eff[yr] = (
+                                    0 for n in range(2))
+                                # Initialize savings data if applicable
+                                if mast_dat_cdbps_save is not None:
+                                    mast_dat_cdbps_save[yr] = 0
+                        # Update both the existing measure and code/BPS measure data to reflect
+                        # the effect of the onsite emission reduction policy
+                        for yr in apply_yrs:
+                            # Remove stock/energy/carbon/cost from the fossil breakout and
+                            # master data of the existing measure
+                            brk_dat_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -= \
+                                convert_fossil_base[yr]
+                            brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -= \
+                                convert_fossil_eff[yr]
+                            # Only update savings breakout data if applicable (N/A for stock)
+                            if brk_dat_save:
+                                brk_dat_save[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -= \
+                                    (convert_fossil_base[yr] - convert_fossil_eff[yr])
+                            mast_dat_base[yr] -= convert_fossil_base[yr]
+                            mast_dat_eff[yr] -= convert_fossil_eff[yr]
+                            # Only update master savings data if applicable
+                            if mast_dat_save:
+                                mast_dat_save[yr] -= (
+                                    convert_fossil_base[yr] - convert_fossil_eff[yr])
+
+                            # Add stock/energy/carbon/cost to the fossil/electric breakout and
+                            # master data for the codes/BPS measure
+                            brk_dat_cdbps_base[yr] += added_elec_base[yr]  # This will be fossil
+                            brk_dat_cdbps_eff[yr] += added_elec_eff[yr]  # This will be electric
+                            # Only update savings breakout data if applicable
+                            if brk_dat_cdbps_save is not None:
+                                brk_dat_cdbps_save_bfuel[yr] += added_elec_base[yr]
+                                brk_dat_cdbps_save_efuel[yr] -= added_elec_eff[yr]
+                            mast_dat_cdbps_base[yr] += added_elec_base[yr]
+                            mast_dat_cdbps_eff[yr] += added_elec_eff[yr]
+                            # Only update master savings data if applicable
+                            if mast_dat_cdbps_save is not None:
+                                mast_dat_cdbps_save[yr] += (
+                                    added_elec_base[yr] - added_elec_eff[yr])
+
+                        # If calculations have proceeded to this point, append to measure
+                        # category data
+                        for cdbps_orig, cdbps_update in zip(
+                                [cdbps_regs, cdbps_bldgs, cdbps_eus], [reg_brk, bldg_vnt_brk, eu]):
+                            if cdbps_update not in cdbps_orig:
+                                cdbps_orig.append(cdbps_update)
+
+    def apply_energy_reduce(
+            self, brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
+            mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
+            mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk, bldg_vnt_brk,
+            apply_yrs, apply_frac, added_energy_reduce_frac, prior_yr_rmv, cdbps_regs, cdbps_bldgs,
+            cdbps_eus):
+        """Apply additional energy reduction impacts needed to meet code/BPS.
+
+        Args:
+            brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
+            brk_dat_base (dict): Baseline stock/energy/carbon/ecost breakouts for indiv. measure.
+            brk_dat_save (dict): Energy/carbon/ecost savings breakouts for indiv. measure.
+            mast_dat_eff (dict): Master efficient data for indiv. measure.
+            mast_dat_base (dict): Master baseline data for indiv. measure.
+            mast_dat_save (dict): Master savings data for indiv. measure.
+            brk_dat_cdbps_eff (dict): Eff. stock/energy/carbon/cost breakouts for codes/BPS measure.
+            brk_dat_cdbps_base (dict): Base stock/energy/carbon/cost breaks for codes/BPS measure.
+            brk_dat_cdbps_save (dict): Energy/carbon/ecost savings breakouts for codes/BPS measure.
+            mast_dat_cdbps_eff (dict): Master efficient data for codes/BPS measure.
+            mast_dat_cdbps_base (dict): Master baseline data for codes/BPS measure.
+            mast_dat_cdbps_save (dict): Master savings data for codes/BPS measure.
+            reg_brk (str): Region name used for current mseg in Scout breakout data.
+            bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+            apply_yrs (list): Applicable years range for code/BPS policy.
+            apply_frac (float): Applicable portion of energy (or buildings) affected by code/BPS.
+            added_energy_reduce_frac (float): Added portion of baseline energy use to remove to
+                meet code/BPS.
+            prior_yr_rmv (str): Year before policy goes into affect (all energy/carbon/cost
+                from this yr. is removed from policy impact in the case of new building additions.)
+            cdbps_regs (list): Applicable region categories for codes/BPS measure.
+            cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
+            cdbps_eus (list): Applicable end use categories for codes/BPS measure.
+        """
+
+        # Loop through all end uses for the given region and building type/vintage breakout
+        for eu in brk_dat_base[reg_brk][bldg_vnt_brk].keys():
+            # Handle fuel breakouts vs. no fuel breakouts; ensure that terminal node w/
+            # projection year keys is reached in either case
+            if self.handyvars.aeo_years[0] in \
+                    brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys():
+                # Update energy data to reflect policy
+                self.adjust_data(
+                    brk_dat_eff[reg_brk][bldg_vnt_brk][eu],
+                    brk_dat_base[reg_brk][bldg_vnt_brk][eu],
+                    brk_dat_save[reg_brk][bldg_vnt_brk][eu],
+                    mast_dat_eff, mast_dat_base, mast_dat_save,
+                    brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu],
+                    brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu],
+                    brk_dat_cdbps_save[reg_brk][bldg_vnt_brk][eu],
+                    mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
+                    reg_brk, bldg_vnt_brk, eu, apply_yrs, apply_frac, added_energy_reduce_frac,
+                    prior_yr_rmv, cdbps_regs, cdbps_bldgs, cdbps_eus)
+            else:
+                # Loop through fuel types under end use breakout
+                for fuel in brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys():
+                    # Ensure that terminal node w/ year keys is reached under fuel type
+                    if self.handyvars.aeo_years[0] in \
+                            brk_dat_base[reg_brk][bldg_vnt_brk][eu][fuel].keys():
+                        # Update energy data to reflect policy
+                        self.adjust_data(
+                            brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fuel],
+                            brk_dat_base[reg_brk][bldg_vnt_brk][eu][fuel],
+                            brk_dat_save[reg_brk][bldg_vnt_brk][eu][fuel],
+                            mast_dat_eff, mast_dat_base, mast_dat_save,
+                            brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][fuel],
+                            brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu][fuel],
+                            brk_dat_cdbps_save[reg_brk][bldg_vnt_brk][eu][fuel],
+                            mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
+                            reg_brk, bldg_vnt_brk, eu, apply_yrs, apply_frac,
+                            added_energy_reduce_frac, prior_yr_rmv, cdbps_regs, cdbps_bldgs,
+                            cdbps_eus)
+
+    def adjust_data(self, brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff,
+                    mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
+                    brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base,
+                    mast_dat_cdbps_save, reg_brk, bldg_vnt_brk, eu, apply_yrs,
+                    apply_frac, added_energy_reduce_frac, prior_yr_rmv, cdbps_regs,
+                    cdbps_bldgs, cdbps_eus):
+        """Make the actual adjustments to reflect additional energy reductions to meet code/BPS.
+
+        brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
+        brk_dat_base (dict): Baseline stock/energy/carbon/ecost breakouts for indiv. measure.
+        brk_dat_save (dict): Energy/carbon/ecost savings breakouts for indiv. measure.
+        mast_dat_eff (dict): Master efficient data for indiv. measure.
+        mast_dat_base (dict): Master baseline data for indiv. measure.
+        mast_dat_save (dict): Master savings data for indiv. measure.
+        brk_dat_cdbps_eff (dict): Eff. stock/energy/carbon/cost breakouts for codes/BPS measure.
+        brk_dat_cdbps_base (dict): Base stock/energy/carbon/cost breaks for codes/BPS measure.
+        brk_dat_cdbps_save (dict): Energy/carbon/ecost savings breakouts for codes/BPS measure.
+        mast_dat_cdbps_eff (dict): Master efficient data for codes/BPS measure.
+        mast_dat_cdbps_base (dict): Master baseline data for codes/BPS measure.
+        mast_dat_cdbps_save (dict): Master savings data for codes/BPS measure.
+        reg_brk (str): Region name used for current mseg in Scout breakout data.
+        bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+        eu (str): End use for current mseg in breakout data.
+        apply_yrs (list): Applicable years range for code/BPS policy.
+        apply_frac (float): Applicable portion of energy (or buildings) affected by code/BPS.
+        added_energy_reduce_frac (float): Added portion of baseline energy use to remove to
+            meet code/BPS.
+        prior_yr_rmv (str): Year before policy goes into affect (all energy/carbon/cost
+            from this yr. is removed from policy impact in the case of new building additions.)
+        cdbps_regs (list): Applicable region categories for codes/BPS measure.
+        cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
+        cdbps_eus (list): Applicable end use categories for codes/BPS measure.
+        """
+
+        # Determine energy/carbon/cost data that should be removed from the additional energy
+        # savings impacts (relevant to codes for new buildings built in years before code went
+        # into effect); uniquely determined for baseline vs. efficient case
+        if prior_yr_rmv:
+            na_base, na_eff = [brk_dat_base[prior_yr_rmv], brk_dat_eff[prior_yr_rmv]]
+        else:
+            na_base, na_eff = (0 for n in range(2))
+        # Determine absolute energy/carbon/ecost reductions that result from the additional
+        # energy reductions required in the code/BPS
+        reduce_base, reduce_eff = [
+            {yr: (brk[yr] - na) * apply_frac * added_energy_reduce_frac[yr] for yr in apply_yrs}
+            for brk, na in zip([brk_dat_base, brk_dat_eff], [na_base, na_eff])]
+        # Reflect reductions as removals from the original measure breakout and master data
+        for yr in apply_yrs:
+            # Ensure that results are never below zero after removal
+            brk_dat_base[yr], brk_dat_eff[yr] = [
+                (brk[yr] - reduce_base[yr]) if (brk[yr] - reduce_base[yr]) >= 0 else 0 for
+                brk in [brk_dat_base, brk_dat_eff]]
+            brk_dat_save[yr] = (brk_dat_base[yr] - brk_dat_eff[yr])
+        for yr in apply_yrs:
+            mast_dat_base[yr], mast_dat_eff[yr] = [
+                (mast_dat[yr] - reduction[yr]) for mast_dat, reduction in zip(
+                    [mast_dat_base, mast_dat_eff], [reduce_base, reduce_eff])]
+            mast_dat_save[yr] = mast_dat_base[yr] - mast_dat_eff[yr]
+
+        # Add reduced baseline segment to code/BPS measure breakouts and master data; note that
+        # since the whole segment is removed, efficient segment values are set to zero to reflect
+        # the correct savings amounts
+        # Initialize code/BPS breakout data if it hasn't already been added to, otherwise add to it
+        if len(brk_dat_cdbps_base.keys()) == 0:
+            for yr in self.handyvars.aeo_years:
+                # Additional reductions are zero in years outside the applicable year window
+                if yr in apply_yrs:
+                    brk_dat_cdbps_base[yr] = reduce_base[yr]
+                else:
+                    brk_dat_cdbps_base[yr] = 0
+                # Set efficient case to zero
+                brk_dat_cdbps_eff[yr] = 0
+                brk_dat_cdbps_save[yr] = (brk_dat_cdbps_base[yr] - brk_dat_cdbps_eff[yr])
+        else:
+            for yr in apply_yrs:
+                brk_dat_cdbps_base[yr] += reduce_base[yr]
+                brk_dat_cdbps_save[yr] += (brk_dat_cdbps_base[yr] - brk_dat_cdbps_eff[yr])
+        # Initialize code/BPS master data if it hasn't already been added to, otherwise add to it
+        if len(mast_dat_cdbps_base.keys()) == 0:
+            for yr in self.handyvars.aeo_years:
+                # Additional reductions are zero in years outside the applicable year window
+                if yr in apply_yrs:
+                    mast_dat_cdbps_base[yr] = reduce_base[yr]
+                else:
+                    mast_dat_cdbps_base[yr] = 0
+                mast_dat_cdbps_eff[yr] = 0
+                mast_dat_cdbps_save[yr] = (mast_dat_cdbps_base[yr] - mast_dat_cdbps_eff[yr])
+        else:
+            for yr in apply_yrs:
+                mast_dat_cdbps_base[yr] += reduce_base[yr]
+                mast_dat_cdbps_save[yr] += (mast_dat_cdbps_base[yr] - mast_dat_cdbps_eff[yr])
+
+        # If calculations have proceeded to this point, append to measure category data
+        for cdbps_orig, cdbps_update in zip([
+                cdbps_regs, cdbps_bldgs, cdbps_eus], [reg_brk, bldg_vnt_brk, eu]):
+            if cdbps_update not in cdbps_orig:
+                cdbps_orig.append(cdbps_update)
+
+    def sum_unit_elec_data(self, reg_brk, bldg_vnt_brk, reg, bldg, vint, adopt_scheme, apply_yrs):
+        """Find relative performance improvement by end use from min. efficiency electrification.
+
+        Args:
+            reg_brk (str): Region name used for current mseg in Scout breakout data.
+            bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+            reg (str): Region name used in Scout input measure definitions for current mseg.
+            bldg (str): Building type name used in Scout input measure defs. for current mseg.
+            vint (str): Building vintage name used in Scout input measure defs. for current mseg.
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            apply_yrs (list): Applicable years range for code/BPS policy.
+
+        Returns:
+            Sums of electric (efficient-case) and fossil (baseline-case) stock/energy/cost/carbon
+            data by end use, pulled from benchmark minimum efficiency measures in the analysis that
+            represent each end use and are applicable to the current region, building, type, and
+            vintage being assessed for the code/BPS policy in applicable years for policy.
+        """
+
+        # Initialize set of metrics to sum breakout data for.
+        metrics = ["stock", "energy", "carbon", "cost"]
+        # Initialize electric and fossil equipment performance data, broken out by metric
+        rel_elec_eff_init = {
+            "electric": {var: {} for var in metrics},
+            "fossil": {var: {} for var in metrics}}
+        # Determine the measures in the current analysis to use as benchmarks for relative
+        # performance gains from minimum efficiency electrification. Choose all measures that fuel
+        # switch to an electric technology at a minimum electric efficiency level and apply to the
+        # current region and building type, and that are on the market by the time the code/BPS
+        # policy goes into effect.
+        unit_elec_meas_reg_bldg = [m for m in self.measures if (
+            m.fuel_switch_to == "electricity" and (m.min_eff_elec_flag is not None or any([
+                x in m.name for x in ["Min.", "min.", "Minimum", "minimum"]])) and
+            reg in m.climate_zone and bldg in m.bldg_type and vint in m.structure_type and
+            m.market_entry_year <= int(apply_yrs[0]))]
+        # If no minimum efficiency measure benchmarks were discovered, throw an error to notify
+        # the user that the current code/BPS policy can't be assessed with available data
+        if len(unit_elec_meas_reg_bldg) == 0:
+            raise ValueError(
+                "Active minimum efficiency electrification measure with market entry by code/BPS "
+                "effective year is required in analysis to calculate effects of code-/BPS-driven "
+                "electrification in region " + reg_brk + " and building type/vintage " +
+                bldg_vnt_brk + ", but is not present. Add such a measure to analysis and ensure "
+                "that either its name includes 'Min.' or 'Minimum' or that its"
+                "min_eff_elec_flag attribute is set to 'yes'.")
+        # Loop through applicable measures and add to stock/energy/carbon/ecost data; break out the
+        # data by end use and year for later processing
+        for m in unit_elec_meas_reg_bldg:
+            # Shorthand for original min. electric efficiency FS measure breakout data. Use the
+            # uncompeted data for the measure for the calculations to avoid potential case where
+            # measure was competed out and values are zeros.
+            brk_dat = m.markets[adopt_scheme]["uncompeted"]["mseg_out_break"]
+            # Loop through and pull data for all metrics
+            for met in metrics:
+                # Loop through applicable efficient-case end uses for current data
+                for eu in brk_dat[met]["baseline"][reg_brk][bldg_vnt_brk].keys():
+                    # Initialize end use-level information if not already present
+                    if eu not in rel_elec_eff_init["electric"][met].keys():
+                        rel_elec_eff_init["electric"][met][eu], \
+                            rel_elec_eff_init["fossil"][met][eu] = (
+                                {yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+                    # Further restrict shorthand data to the end use level and separate by
+                    # baseline and efficient cases
+                    brk_dat_eu_base, brk_dat_eu_eff = [
+                        brk_dat[met][x][reg_brk][bldg_vnt_brk][eu] for x in [
+                            "baseline", "efficient"]]
+                    # If there are no fuel breakouts in the data, continue to next end use
+                    if self.handyvars.aeo_years[0] in brk_dat_eu_base.keys():
+                        continue
+                    else:
+                        # Set electric and non-electric keys
+                        elec_key = "Electric"
+                        nelec_keys = [x for x in brk_dat_eu_base.keys() if x != elec_key]
+                        # Ensure that terminal projection year keys have been reached before
+                        # adding data
+                        if "Electric" in brk_dat_eu_eff.keys() and \
+                                self.handyvars.aeo_years[0] in brk_dat_eu_eff["Electric"].keys():
+                            # Add to electric performance data
+                            rel_elec_eff_init["electric"][met][eu] = {
+                                yr: rel_elec_eff_init["electric"][met][eu][yr] +
+                                brk_dat_eu_eff["Electric"][yr] for yr in apply_yrs}
+                            # Add to fossil performance data
+                            for fuel in nelec_keys:
+                                if self.handyvars.aeo_years[0] in brk_dat_eu_base[fuel].keys():
+                                    rel_elec_eff_init["fossil"][met][eu] = {
+                                        yr: rel_elec_eff_init["fossil"][met][eu][yr] +
+                                        brk_dat_eu_base[fuel][yr] for yr in apply_yrs}
+        return rel_elec_eff_init
+
+    def sum_energy_data(self, reg_brk, bldg_vnt_brk, adopt_scheme, prior_yr_rmv):
+        """Sum energy use across all measure data and a given region, building type and vintage.
+
+        reg_brk (str): Region name used for current mseg in Scout breakout data.
+        bldg_vnt_brk (str): Building type and vintage uses for current mseg in breakout data.
+        adopt_scheme (string): Assumed consumer adoption scenario.
+        prior_yr_rmv (str): Year before policy goes into affect (all stock/energy/carbon/cost
+            from this yr. is removed from policy impact in the case of new building additions.)
+
+        Returns:
+            Dict of baseline/efficient case energy use sums across applicable regions, building
+            types, and building vintages of the code/BPS policy, in applicable years for policy.
+        """
+
+        # Initialize energy sums for base and efficient cases
+        energy_sums = {
+            "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
+            "efficient": {yr: 0 for yr in self.handyvars.aeo_years}
+        }
+
+        # Loop through all measures and sum energy across given regions, building types/vintages
+        # of focus for the current code/BPS policy
+        for m in self.measures:
+            # Shorthand for measure energy breakout data
+            brk_dat = m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"]
+            # Loop through baseline and efficient energy cases
+            for out in ["baseline", "efficient"]:
+                # Loop through end uses
+                for eu in brk_dat[out][reg_brk][bldg_vnt_brk].keys():
+                    # Further constrain shorthand to current end use
+                    brk_dat_eu = brk_dat[out][reg_brk][bldg_vnt_brk][eu]
+                    # Check if year keys have been reached (no further fuel type breakout for end
+                    # use); if so, proceed with sum
+                    if self.handyvars.aeo_years[0] in brk_dat_eu.keys():
+                        # Find any new energy use data that the code/BPS does not apply to b/c
+                        # it was incurred before it went into effect
+                        if prior_yr_rmv:
+                            energy_na = brk_dat_eu[prior_yr_rmv]
+                        else:
+                            energy_na = 0
+                        # Add in energy use data, less inapplicable energy
+                        energy_sums[out] = {
+                            yr: energy_sums[out][yr] + (
+                                brk_dat_eu[yr] - energy_na)
+                            for yr in self.handyvars.aeo_years}
+                    # Otherwise loop through assumed further fuel type breakouts and sum across
+                    else:
+                        for fuel in brk_dat_eu.keys():
+                            # Handle cases where energy data are broken out by fuel but null
+                            try:
+                                # Find any new energy use data that the code/BPS does not apply to
+                                # b/c it was incurred before it went into effect
+                                if prior_yr_rmv:
+                                    energy_na = brk_dat_eu[fuel][prior_yr_rmv]
+                                else:
+                                    energy_na = 0
+                                add_energy = {
+                                    yr: (brk_dat_eu[fuel][yr] - energy_na) for
+                                    yr in self.handyvars.aeo_years}
+                            except KeyError:
+                                add_energy = {yr: 0 for yr in self.handyvars.aeo_years}
+
+                            # Add in energy use data, less inapplicable energy
+                            energy_sums[out] = {
+                                yr: energy_sums[out][yr] + add_energy[yr]
+                                for yr in self.handyvars.aeo_years}
+
+        return energy_sums
+
+    def sf_norm(self, dict1, sf):
+        """Divide a dict's key values by a single square footage number.
+
+        Args:
+            dict1 (dict): Dictionary with values to divide.
+            reduce_num (float): Factor to divide dict values by.
+
+        Returns:
+            An updated dict with all original values divided by the square footage number.
+        """
+        for (k, i) in dict1.items():
+            if isinstance(i, dict):
+                self.sf_norm(i, sf)
+            else:
+                # Handle zero values
+                if sf != 0:
+                    # Multiply input square footage data from AEO by 1M (AEO reports in MSF)
+                    dict1[k] = dict1[k] / (sf[k] * 1e6)
+                else:
+                    dict1[k] = 0
+        return dict1
+
+    def finalize_codes_bps_outputs(self, cbps, adopt_scheme, handyvars):
+        """Format codes/BPS measure data in a dict consistent w/ individual ECM result format.
+
+        Args:
+            cbps (object): Codes/BPS measure object.
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            handyvars (object): Global variables useful across class methods.
+
+        Returns:
+            Code/BPS results dict that reflects final formatting.
+        """
+
+        # Set up subscript translator for carbon variable strings
+        sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+        # Initialize final dict
+        codes_bps_dict_out = {}
+        # Add applicable regions, building classes, and end uses
+        codes_bps_dict_out["Filter Variables"] = OrderedDict([
+            ("Applicable Regions", cbps.reg_brk),
+            ("Applicable Building Classes", cbps.bldg_vnt_brk),
+            ("Applicable End Uses", cbps.end_use_brk)])
+        # Initialize markets data
+        codes_bps_dict_out["Markets and Savings (Overall)"], \
+            codes_bps_dict_out["Markets and Savings (by Category)"] = (
+                OrderedDict() for n in range(2))
+        # Loop through adoption schemes and finalize format of markets data
+        for adopt_scheme in handyvars.adopt_schemes:
+            # Shorthands for measure's high-level markets, savings, and breakout data
+            cbps_mkt, cbps_save, cbps_brk = [
+                cbps.markets[adopt_scheme]["master_mseg"], cbps.savings[adopt_scheme],
+                cbps.markets[adopt_scheme]["mseg_out_break"]]
+            # Finalize measure overall markets and savings
+            codes_bps_dict_out["Markets and Savings (Overall)"][
+                adopt_scheme] = OrderedDict([
+                    ("Baseline Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["baseline"]),
+                    ("Efficient Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["efficient"]),
+                    ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                        cbps_mkt["carbon"]["total"]["baseline"]),
+                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                        cbps_mkt["carbon"]["total"]["efficient"]),
+                    ("Baseline Energy Cost (USD)",
+                     cbps_mkt["cost"]["energy"]["total"]["baseline"]),
+                    ("Efficient Energy Cost (USD)",
+                     cbps_mkt["cost"]["energy"]["total"]["efficient"]),
+                    ("Energy Savings (MMBtu)", cbps_save["energy"]["savings"]),
+                    ("Energy Cost Savings (USD)", cbps_save["energy"]["cost savings"]),
+                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
+                        cbps_save["carbon"]["savings"])])
+            # Finalize measure markets and savings broken out by region, building sector, and end
+            # use categories
+            codes_bps_dict_out["Markets and Savings (by Category)"][
+                adopt_scheme] = OrderedDict([
+                    ("Baseline Energy Use (MMBtu)", cbps_brk["energy"]["baseline"]),
+                    ("Efficient Energy Use (MMBtu)", cbps_brk["energy"]["efficient"]),
+                    ("Baseline CO2 Emissions (MMTons)".translate(sub),
+                        cbps_brk["carbon"]["baseline"]),
+                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
+                        cbps_brk["carbon"]["efficient"]),
+                    ("Baseline Energy Cost (USD)", cbps_brk["cost"]["baseline"]),
+                    ("Efficient Energy Cost (USD)", cbps_brk["cost"]["efficient"]),
+                    ("Energy Savings (MMBtu)", cbps_brk["energy"]["savings"]),
+                    ("Energy Cost Savings (USD)", cbps_brk["cost"]["savings"]),
+                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
+                     cbps_brk["carbon"]["savings"])])
+        return codes_bps_dict_out
+
 
 def measure_opts_match(option_dicts: list[dict]) -> bool:
     """Checks if a list of measure options have common argument values, excluding those that
@@ -6238,9 +7377,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         raise ValueError(
             "Active measures were found but all tagged for removal.")
 
+    # Set flag for fuel splits
+    split_fuel = (meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True)
+
     # Set a flag for detailed breakouts
-    if (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and
-            meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True):
+    if (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and split_fuel is True):
         brkout = "detail"
     elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '2':
         brkout = "detail_reg"
@@ -6250,7 +7391,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         brkout = "detail_fuel"
     elif (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '5' or (
             meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and
-            meas_summary_restrict[0]["usr_opts"]["split_fuel"] is not True)):
+            split_fuel is not True)):
         brkout = "detail_reg_bldg"
     elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '6':
         brkout = "detail_reg_fuel"
@@ -6473,6 +7614,19 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     a_run = Engine(handyvars, opts, measures_objlist, energy_out, brkout,
                    gcam_in, gcam_map)
 
+    # Import baseline microsegments
+    if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
+        bjszip = handyfiles.msegs_in
+        with gzip.GzipFile(bjszip, 'r') as zip_ref:
+            msegs = json.loads(zip_ref.read().decode('utf-8'))
+    else:
+        with open(handyfiles.msegs_in, 'r') as msi:
+            try:
+                msegs = json.load(msi)
+            except ValueError as e:
+                raise ValueError(
+                    f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
+
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
     for adopt_scheme in handyvars.adopt_schemes:
@@ -6496,8 +7650,35 @@ def main(opts: argparse.NameSpace):  # noqa: F821
               "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "competed", opts)
         print("Calculations complete")
+        # Add the effects of codes and standards, if applicable
+        if any([len(x) != 0 for x in [a_run.handyvars.state_codes, a_run.handyvars.state_bps]]) \
+                and all([x in brkout for x in ["reg", "bldg"]]) and split_fuel is True:
+            print("Post-processing impacts of state-level codes and/or performance standards...",
+                  end="", flush=True)
+            cbpslist = a_run.process_codes_bps(adopt_scheme, msegs, handyvars)
+            print("Calculations complete")
+        elif any([len(x) != 0 for x in [a_run.handyvars.state_codes, a_run.handyvars.state_bps]]):
+            warnings.warn(
+                "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
+                "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "
+                "apply the effects of codes and standards, but were not both used. These effects "
+                "were not applied.")
+            cbpslist = None
+        else:
+            cbpslist = None
+        # Finalize outputs
         print("Finalizing results...", end="", flush=True)
-        # Write selected outputs to a summary JSON file for post-processing
+        # Finalize formatting of and add codes/BPS measures to measure results output dict before
+        # those data are finalized/written out
+        if cbpslist is not None:
+            # Loop through available codes/BPS measure objects and finalize data format
+            for x in [y for y in cbpslist if y is not None]:
+                # Data are formatted as a dict that matches format of other individual measures
+                # in the analysis to facilitate plotting and other post-processing work
+                final_codes_bps_dict = a_run.finalize_codes_bps_outputs(x, adopt_scheme, handyvars)
+                a_run.output_ecms[x.name] = final_codes_bps_dict
+        else:
+            final_codes_bps_dict = None
         a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs)
         # Write outputs to revised GCAM file if applicable
         if opts.gcam_out is True:
@@ -6508,19 +7689,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Notify user that all analysis engine calculations are completed
     print("All calculations complete; writing output data...", end="",
           flush=True)
-
-    # Import baseline microsegments
-    if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
-        bjszip = handyfiles.msegs_in
-        with gzip.GzipFile(bjszip, 'r') as zip_ref:
-            msegs = json.loads(zip_ref.read().decode('utf-8'))
-    else:
-        with open(handyfiles.msegs_in, 'r') as msi:
-            try:
-                msegs = json.load(msi)
-            except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
 
     # Import site-source conversions
     with open(handyfiles.ss_data, 'r') as ss:
@@ -6667,7 +7835,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Notify user that the output data are being plotted
         print("Plotting output data...", end="", flush=True)
         # Execute plots
-        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions)
+        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, cbpslist)
         print("Plotting complete")
 
 
