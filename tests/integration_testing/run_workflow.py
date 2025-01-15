@@ -21,7 +21,7 @@ def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = F
     """Runs Scout workflow steps with optional profiling
 
     Args:
-        config (str, optional): Path to yml config file
+        config (str, optional): Path to yml  config file
         run_step (str, optional): Specify which step to run {ecm_prep, run}, if None
                                   then both run. Defaults to None.
         with_profiler (Bool, optional): Run workfow step(s) with profiler to track
