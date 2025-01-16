@@ -138,9 +138,4 @@ ecm_prep:
   detail_brkout: [regions]
   alt_ref_carb: MidCase
 run:
-  results_directory: null
-  verbose: false
-  mkt_fracs: false
-  trim_results: false
-  report_stk: false
-  report_cfs: false
+  report_stk: true

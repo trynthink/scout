@@ -497,8 +497,8 @@ class UsefulVars(object):
         self.regions = opts.alt_regions
         # Load metadata including AEO year range
         aeo_yrs = Utils.load_json(handyfiles.metadata)
-        # Set minimum modeling year to current year
-        aeo_min = 2018
+        # Set minimum modeling year
+        aeo_min = 2024
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -3175,7 +3175,12 @@ class Measure(object):
                         elif "GSHP" in self.tech_switch_to:
                             mskeys_swtch_tech = "GSHP"
                         else:
-                            mskeys_swtch_tech = self.tech_switch_to
+                            # Set to original cooling tech./fuel if not switching to HP
+                            if "cooling" in mskeys:
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [
+                                    mskeys[-2], mskeys[3]]
+                            else:
+                                mskeys_swtch_tech = "resistance heat"
                     # Water heating
                     elif mskeys[4] == "water heating":
                         mskeys_swtch_tech = "electric WH"
@@ -3211,7 +3216,12 @@ class Measure(object):
                                 mskeys[4] == "cooling":
                             mskeys_swtch_tech = "comm_GSHP-cool"
                         else:
-                            mskeys_swtch_tech = self.tech_switch_to
+                            # Set to original cooling tech./fuel if not switching to HP
+                            if "cooling" in mskeys:
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [
+                                    mskeys[-2], mskeys[3]]
+                            else:
+                                mskeys_swtch_tech = "elec_boiler"
                     # Water heating
                     elif mskeys[4] == "water heating":
                         mskeys_swtch_tech = "HP water heater"

@@ -108,7 +108,7 @@ class UsefulVars(object):
                     handyfiles.metadata + "': " + str(e)) from None
         # Set minimum AEO modeling year
         # aeo_min = aeo_yrs["min year"]
-        aeo_min = datetime.today().year
+        aeo_min = 2024
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years

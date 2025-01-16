@@ -14,6 +14,7 @@ ecm_prep:
     "(R) Ref. Case NG Heat, No Cooling",
     "(R) Ref. Case Resist. Heat, No Cooling",
     "(R) Ref. Case Secondary Electric Heating",
+    "(R) Ref. Case Secondary Fossil Heating",
     "(R) Electric FS (Secondary Fossil Heating)",
     "(R) Min. Efficiency ASHP FS (Other Fossil Furnace)",
     "(R) Ref. Case Elec. Boiler FS (Other Fossil Boiler)",
@@ -90,9 +91,4 @@ ecm_prep:
   detail_brkout: [regions]
   alt_ref_carb: MidCase
 run:
-  results_directory: null
-  verbose: false
-  mkt_fracs: false
-  trim_results: false
-  report_stk: false
-  report_cfs: false
+  report_stk: true
