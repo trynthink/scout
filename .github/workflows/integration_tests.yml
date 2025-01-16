@@ -50,7 +50,7 @@ jobs:
           pip install . psrecord
       - name: Run and profile workflow
         run: |
-          branch_name="${{ github.ref }}"
+          branch_name="${{ github.ref_name }}"
           if [[ $branch_name == 'refs/heads/master' ]]; then
             steps=("ecm_prep" "run")
             for step in "${steps[@]}"; do
@@ -69,7 +69,7 @@ jobs:
           path: ./tests/integration_testing/results/
       - name: Commit test results
         run: |
-          branch_name="${{ github.ref }}"
+          branch_name="${{ github.ref_name }}"
           git pull origin $branch_name
           git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
@@ -95,6 +95,8 @@ jobs:
                   "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                 }'
             done
+          else
+            echo "No changes to commit."
           fi
 
   stop-runner:
