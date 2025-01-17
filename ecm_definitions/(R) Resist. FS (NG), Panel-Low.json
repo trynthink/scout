@@ -41,11 +41,11 @@
   },
   "installed_cost": {
     "electricity": 0.0,
-    "natural gas": 8480
+    "natural gas": 3878.45
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "based on EIA ER furnace heating data (p. 23), plus panel upgrade cost of $7K from NV5 report (see BSS assumptions)",
+    "notes": "based on EIA ER furnace heating data (p. 23), plus panel upgrade cost of $2398 from Sean",
     "source_data": "https://www.eia.gov/analysis/studies/buildings/equipcosts/"
   },
   "product_lifetime": 22,

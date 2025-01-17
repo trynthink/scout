@@ -5,10 +5,10 @@ import json
 def load_and_preprocess_data():
     # Load energy and stock data
     panel_shares_energy = pd.read_csv(
-        'least_cost_energy_weighted_share_by_panel_outcome_census_division_case_mod_top_3.csv').\
+        'least_cost_energy_weighted_share_by_panel_outcome_CDIV_case_mod_top_3_BAU.csv').\
         drop(columns=['Unnamed: 0'])
     panel_shares_stock = pd.read_csv(
-        'least_cost_building_count_share_by_panel_outcome_census_division_case_mod_top_3.csv').\
+        'least_cost_building_count_share_by_panel_outcome_CDIV_case_mod_top_3_BAU.csv').\
         drop(columns=['Unnamed: 0'])
 
     # Rename columns and assign units
@@ -28,7 +28,8 @@ def process_panel_shares(panel_shares):
     low = panel_shares.query('case == 1')
     med = panel_shares.query('case == 9')
     high = panel_shares.query('case == 18')
-    full = pd.concat([low, med, high])
+    bau = panel_shares.query('case == 2')
+    full = pd.concat([low, med, high, bau])
 
     # Update outcome column
     full['outcome'] = full['outcome'].replace({
@@ -44,8 +45,8 @@ def process_panel_shares(panel_shares):
 
     # Group and sum values
     full_upd = full.groupby([
-        'build_existing_model.census_division', 'case_name', 'case', 'share_type', 'outcome'])[
-        'value'].sum().reset_index()
+        'build_existing_model.census_division', 'case_name', 'case', 'share_type', 'outcome',
+        'group'])['value'].sum().reset_index()
     # Ensure all outcomes exist for each combination
     full_upd = full_upd.set_index([
         'build_existing_model.census_division',
@@ -53,7 +54,7 @@ def process_panel_shares(panel_shares):
         'outcome', future_stack=True).fillna(0).reset_index()
     # Recalculate outcome shares; note that they are share across all cases within each CDIV
     full_upd['outcome_share'] = full_upd.groupby([
-        'build_existing_model.census_division', 'share_type'])['value'].transform(
+        'build_existing_model.census_division', 'share_type', 'group'])['value'].transform(
         lambda x: x / x.sum())
     # Update share_type values
     full_upd['share_type'] = full_upd['share_type'].replace(
@@ -64,7 +65,8 @@ def process_panel_shares(panel_shares):
     full_upd['resstock_upgrade'] = full_upd['case'].map({
         1: 'low efficiency upgrade',
         9: 'moderate efficiency upgrade',
-        18: 'high efficiency upgrade'
+        18: 'high efficiency upgrade',
+        2: 'bau'
     })
 
     return full_upd
@@ -87,7 +89,7 @@ def save_processed_data(full_upd):
         'south atlantic', 'east south central', 'west south central', 'mountain', 'pacific'
     ])
     panel_dict['resstock_upgrade'] = pd.Categorical(panel_dict['resstock_upgrade'], categories=[
-        'low efficiency upgrade', 'moderate efficiency upgrade', 'high efficiency upgrade'
+        'low efficiency upgrade', 'moderate efficiency upgrade', 'high efficiency upgrade', 'bau'
     ])
     panel_dict['outcome'] = pd.Categorical(panel_dict['outcome'], categories=[
         'no panel management', 'panel replacement', 'panel management'

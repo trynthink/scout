@@ -1,0 +1,69 @@
+{
+  "name": "(R) Best 120V HP Dryer FS, Panel-High",
+  "_description": "Fuel switch from gas to HP dryer (assume maps to best available category)",
+  "panel_upgrade": ["high efficiency upgrade", "panel replacement"],
+  "ref_analogue": true,
+  "measure_type": "full service",
+  "market_entry_year": 2024,
+  "market_exit_year": null,
+  "global_exit_flag": null,
+  "climate_zone": "all",
+  "bldg_type": "single family home",
+  "structure_type": "existing",
+  "end_use": "drying",
+  "fuel_type": "natural gas",
+  "fuel_switch_to": "electricity",
+  "backup_fuel_fraction": null,
+  "technology": "all",
+  "htcl_tech_link": null,
+  "tech_switch_to": null,
+  "energy_efficiency": 11.0,
+  "energy_efficiency_units": "CEF",
+  "energy_efficiency_source": {
+    "notes": "High (2022) using D2 testing method.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiency",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 97,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": 1110.0,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed (existing) cost for High dryer in 2022.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 98,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "product_lifetime": 13.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for gas residential clothes dryer",
+    "source_data": [
+      {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 98,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+  ]
+  },
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": {
+    "notes": null,
+    "source_data": null
+  },
+  "_updated_by": {
+    "name": "Handi Chandra Putra",
+    "organization": "LBNL",
+    "email": "hchandraputra@lbl.gov",
+    "timestamp": "2024-11-12 22:13:46"
+  }
+}

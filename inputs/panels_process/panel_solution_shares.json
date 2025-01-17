@@ -15,6 +15,11 @@
         "no panel management": 0.34648321412105326,
         "panel replacement": 0.32334298924608845,
         "panel management": 0.1249225026056773
+      },
+      "bau": {
+        "no panel management": 0.23671823401307665,
+        "panel replacement": 0.6404178436079873,
+        "panel management": 0.12286392237893612
       }
     },
     "stock": {
@@ -32,6 +37,11 @@
         "no panel management": 0.3798999165971643,
         "panel replacement": 0.28148457047539616,
         "panel management": 0.12510425354462051
+      },
+      "bau": {
+        "no panel management": 0.2902119426611556,
+        "panel replacement": 0.5711898689649108,
+        "panel management": 0.1385981883739337
       }
     }
   },
@@ -51,6 +61,11 @@
         "no panel management": 0.27718124736717215,
         "panel replacement": 0.2578849741924579,
         "panel management": 0.13456174682181507
+      },
+      "bau": {
+        "no panel management": 0.2227672407515808,
+        "panel replacement": 0.6198110516467833,
+        "panel management": 0.15742170760163593
       }
     },
     "stock": {
@@ -68,6 +83,11 @@
         "no panel management": 0.29730588048483564,
         "panel replacement": 0.2282856084264013,
         "panel management": 0.1436510877044408
+      },
+      "bau": {
+        "no panel management": 0.2682943256440478,
+        "panel replacement": 0.5532917999663243,
+        "panel management": 0.17841387438962789
       }
     }
   },
@@ -87,6 +107,11 @@
         "no panel management": 0.2586773230220658,
         "panel replacement": 0.2791064846059281,
         "panel management": 0.10806497914690207
+      },
+      "bau": {
+        "no panel management": 0.21793195997057532,
+        "panel replacement": 0.6539923247798282,
+        "panel management": 0.12807571524959652
       }
     },
     "stock": {
@@ -104,6 +129,11 @@
         "no panel management": 0.2817090681491845,
         "panel replacement": 0.2503957880784949,
         "panel management": 0.1099738595780715
+      },
+      "bau": {
+        "no panel management": 0.26509531411400133,
+        "panel replacement": 0.5915109399943657,
+        "panel management": 0.143393745891633
       }
     }
   },
@@ -123,6 +153,11 @@
         "no panel management": 0.19852281027003105,
         "panel replacement": 0.23610382781952846,
         "panel management": 0.055506026816176106
+      },
+      "bau": {
+        "no panel management": 0.2124101143472838,
+        "panel replacement": 0.7187203121367668,
+        "panel management": 0.06886957351594929
       }
     },
     "stock": {
@@ -140,6 +175,11 @@
         "no panel management": 0.22429504478078924,
         "panel replacement": 0.20517032343853886,
         "panel management": 0.0579608119206852
+      },
+      "bau": {
+        "no panel management": 0.2799135402192373,
+        "panel replacement": 0.6395965210231074,
+        "panel management": 0.0804899387576553
       }
     }
   },
@@ -159,6 +199,11 @@
         "no panel management": 0.37572315827809616,
         "panel replacement": 0.04157412016277667,
         "panel management": 0.04108490232787341
+      },
+      "bau": {
+        "no panel management": 0.5755965927220873,
+        "panel replacement": 0.28624085197794336,
+        "panel management": 0.1381625552999693
       }
     },
     "stock": {
@@ -176,6 +221,11 @@
         "no panel management": 0.3924088688462984,
         "panel replacement": 0.0354152574220218,
         "panel management": 0.03972942502818489
+      },
+      "bau": {
+        "no panel management": 0.6197534417422171,
+        "panel replacement": 0.24862090468652565,
+        "panel management": 0.13162565357125725
       }
     }
   },
@@ -195,6 +245,11 @@
         "no panel management": 0.3832410727039499,
         "panel replacement": 0.04869455549501979,
         "panel management": 0.03944736768211462
+      },
+      "bau": {
+        "no panel management": 0.5040506891706148,
+        "panel replacement": 0.3786916663001727,
+        "panel management": 0.11725764452921254
       }
     },
     "stock": {
@@ -212,6 +267,11 @@
         "no panel management": 0.39799283829626836,
         "panel replacement": 0.041792310591782886,
         "panel management": 0.0379287598944591
+      },
+      "bau": {
+        "no panel management": 0.5483428571428571,
+        "panel replacement": 0.33843809523809526,
+        "panel management": 0.11321904761904762
       }
     }
   },
@@ -231,6 +291,11 @@
         "no panel management": 0.27408436753601484,
         "panel replacement": 0.06788906562090025,
         "panel management": 0.08548112919137343
+      },
+      "bau": {
+        "no panel management": 0.5130429910168709,
+        "panel replacement": 0.2950797689440821,
+        "panel management": 0.191877240039047
       }
     },
     "stock": {
@@ -248,6 +313,11 @@
         "no panel management": 0.2868494340683206,
         "panel replacement": 0.06073226193822019,
         "panel management": 0.08625667492782135
+      },
+      "bau": {
+        "no panel management": 0.5475554368153888,
+        "panel replacement": 0.26673123163238044,
+        "panel management": 0.18571333155223083
       }
     }
   },
@@ -267,6 +337,11 @@
         "no panel management": 0.2879232434585858,
         "panel replacement": 0.10487245816988708,
         "panel management": 0.07689903877028
+      },
+      "bau": {
+        "no panel management": 0.43732066698784133,
+        "panel replacement": 0.39721931291593365,
+        "panel management": 0.16546002009622507
       }
     },
     "stock": {
@@ -284,6 +359,11 @@
         "no panel management": 0.3033046264770679,
         "panel replacement": 0.09128780292409373,
         "panel management": 0.07806929701582214
+      },
+      "bau": {
+        "no panel management": 0.4826161078679547,
+        "panel replacement": 0.346644624683577,
+        "panel management": 0.17073926744846826
       }
     }
   },
@@ -303,6 +383,11 @@
         "no panel management": 0.3212895980578263,
         "panel replacement": 0.05573821408616372,
         "panel management": 0.15738062575224526
+      },
+      "bau": {
+        "no panel management": 0.42499072501012414,
+        "panel replacement": 0.2772696253232608,
+        "panel management": 0.297739649666615
       }
     },
     "stock": {
@@ -320,6 +405,11 @@
         "no panel management": 0.33498042738882117,
         "panel replacement": 0.0480010267599307,
         "panel management": 0.17022824017626045
+      },
+      "bau": {
+        "no panel management": 0.44096366591516806,
+        "panel replacement": 0.24584491165521943,
+        "panel management": 0.31319142242961256
       }
     }
   }

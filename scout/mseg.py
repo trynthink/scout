@@ -1186,9 +1186,11 @@ def panel_upgrade_calc(panel_input_file, json_results):
     # Define impacted fuel types
     fuels = ["natural gas", "electricity"]
     # Define impacted end uses
-    end_uses = ["heating", "cooling"]
+    # end_uses = ["heating", "cooling"]
+    end_uses = ["heating", "cooling", 'water heating', 'cooking', 'drying']
     # Define impacted tech types
-    techs = ["furnace (NG)", "central AC", "room AC"]
+    # techs = ["furnace (NG)", "central AC", "room AC"]
+    techs = ["furnace (NG)", "central AC", "room AC", None]
 
     # Create function to multiply terminal dictionary values by a factor that
     # represents the panel solution share for a given EE upgrade level
@@ -1202,15 +1204,55 @@ def panel_upgrade_calc(panel_input_file, json_results):
         for fuel in [x for x in bldg_data if x in fuels]:
             # Loop through affected end uses
             for end_use in [y for y in bldg_data[fuel] if y in end_uses]:
-                # Ensure that update does not pertain to envelope ("demand") heat/cool data
-                if 'supply' in bldg_data[fuel][end_use]:
-                    # Iterate through each technology in the supply data
-                    # for tech, tech_data in supply_data.items():
+                # Initialize replacement data dict
+                new_supply_data_tech = {}
+
+                # Update pertains to non-heating/cooling 'supply' segment with no tech type
+                if all([x in ["stock", "energy"] for x in bldg_data[fuel][end_use].keys()]) and \
+                        None in techs:
+                    # Process each efficiency upgrade level
+                    for upgrade_level, upgrade_shares in region_shares['energy'].items():
+                        new_supply_data_tech[upgrade_level] = {}
+
+                        # Process each panel management option
+                        for panel_option, share in upgrade_shares.items():
+                            # Get the corresponding stock and energy shares
+                            stock_share = region_shares['stock'][
+                                upgrade_level][panel_option]
+                            energy_share = region_shares['energy'][
+                                upgrade_level][panel_option]
+
+                            # Extract original stock and energy data
+                            original_stock = bldg_data[fuel][end_use].get('stock', {})
+                            original_energy = bldg_data[fuel][end_use].get('energy', {})
+
+                            # Apply shares to calculate new stock and
+                            # energy data
+                            new_stock = multiply_dict(original_stock,
+                                                      stock_share)
+                            new_energy = multiply_dict(original_energy,
+                                                       energy_share)
+
+                            # Store the new data in the restructured format
+                            # new_supply_data[tech][upgrade_level][
+                            new_supply_data_tech[upgrade_level][
+                                panel_option] = {
+                                'stock': new_stock,
+                                'energy': new_energy
+                                }
+                    # Replace the old tech data with the new restructured data
+                    bldg_data[fuel][end_use] = new_supply_data_tech
+                # Update pertains to heating/cooling 'supply' segment or non-heating/cooling
+                # segment with tech type
+                else:
+                    if 'supply' in bldg_data[fuel][end_use].keys():
+                        bldg_data_eu_techlev = bldg_data[fuel][end_use]["supply"]
+                    elif 'demand' not in bldg_data[fuel][end_use].keys():
+                        bldg_data_eu_techlev = bldg_data[fuel][end_use]
+                    else:
+                        continue
                     for tech, tech_data in [
-                        (x, y) for x, y in bldg_data[fuel][end_use]['supply'].items()
-                            if x in techs]:
-                        # Initialize replacement data dict
-                        new_supply_data_tech = {}
+                            (x, y) for x, y in bldg_data_eu_techlev.items() if x in techs]:
 
                         # Process each efficiency upgrade level
                         for upgrade_level, upgrade_shares in region_shares[
@@ -1245,7 +1287,7 @@ def panel_upgrade_calc(panel_input_file, json_results):
                                 }
 
                         # Replace the old tech data with the new restructured data
-                        bldg_data[fuel][end_use]['supply'][tech] = new_supply_data_tech
+                        bldg_data[fuel][end_use]["supply"][tech] = new_supply_data_tech
 
         return bldg_data
 

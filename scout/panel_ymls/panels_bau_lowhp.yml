@@ -1,0 +1,29 @@
+description: Prep runs to determine the effects of avoided panel upgrades on HP FS measure adoption.
+ecm_prep:
+  site_energy: true
+  add_typ_eff: true
+  rp_persist: true
+  alt_regions: State
+  ecm_packages: []
+  ecm_files: [
+    "(R) Ref. Case Electric Range FS, Panel-BAU",
+    "(R) Ref. Case Electric Range FS, No Panel-BAU",
+    "(R) Ref. Case Electric Range FS, Manage-BAU",
+    "(R) Ref. Case Electric Dryer FS, Manage-BAU",
+    "(R) Ref. Case Electric Dryer FS, No Panel-BAU",
+    "(R) Ref. Case Electric Dryer FS, Panel-BAU",
+    "(R) Ref. Case Resist. WH FS, Panel-BAU",
+    "(R) Ref. Case Resist. WH FS, No Panel-BAU",
+    "(R) Ref. Case Resist. WH FS, Manage-BAU",
+    "(R) Min. ASHP FS (NG), Panel-BAU, Half $",
+    "(R) Min. ASHP FS (NG), No Panel-BAU, Half $",
+    "(R) Min. ASHP FS (NG), Manage-BAU, Half $"]
+  retrofits:
+    retrofit_type: constant
+  grid_decarb:
+    grid_assessment_timing: before
+    grid_decarb_level: 100by2035
+
+run:
+  high_res_comp: true
+  report_stk: true

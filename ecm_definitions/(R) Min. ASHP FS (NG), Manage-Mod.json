@@ -60,11 +60,11 @@
   },
   "installed_cost": {
     "electricity": 0.0,
-    "natural gas": 6810
+    "natural gas": 7285
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Existing cost for min. efficiency ASHPs in 2023, no panel upgrade costs",
+    "notes": "Existing cost for min. efficiency ASHPs in 2023, no panel upgrade costs, $475 cost for panel management from Sean",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",

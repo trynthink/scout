@@ -4029,12 +4029,13 @@ class Measure(object):
             # and load management strategies
             if self.panel_upgrade and any([x in mseg.keys() for x in [
                     "low efficiency upgrade", "moderate efficiency upgrade",
-                    "high efficiency upgrade"]]):
+                    "high efficiency upgrade", "bau"]]):
                 try:
                     # Measure panel_upgrade attribute includes sub-segmentation information
                     # in two list elements: 1) level of efficiency represented by upgrade and
                     # 2) panel replacement outcome (replace, no replace, manage)
                     mseg = mseg[self.panel_upgrade[0]][self.panel_upgrade[1]]
+                    comp_tag_panel = self.panel_upgrade[0] + self.panel_upgrade[1]
                 except KeyError:
                     if self.panel_upgrade:
                         raise ValueError(
@@ -4042,6 +4043,9 @@ class Measure(object):
                             "'panel_upgrade' attribute for measure '" + self.name + "'")
                     else:
                         pass
+                    comp_tag_panel = ""
+            else:
+                comp_tag_panel = ""
 
             # Continue loop if key chain doesn't yield "stock"/"energy" keys
             if any([x not in list(mseg.keys()) for x in ["stock", "energy"]]):
@@ -4167,17 +4171,19 @@ class Measure(object):
                     comp_tag_htcl_pair = ""
 
                 # Append additional competition tag(s) to existing mseg info.
-                if comp_tag_exog or comp_tag_htcl_pair:
+                if comp_tag_exog or comp_tag_htcl_pair or comp_tag_panel:
                     contrib_mseg_key = list(contrib_mseg_key)
                     # Tech info. is second to last mseg list element
                     try:
                         contrib_mseg_key[-2] = contrib_mseg_key[-2] + "-" + \
-                            comp_tag_exog + comp_tag_htcl_pair
+                            comp_tag_exog + comp_tag_htcl_pair + comp_tag_panel
                     # Handle Nonetype on technology
                     except TypeError:
                         contrib_mseg_key[-2] = \
-                            comp_tag_exog + "-" + comp_tag_htcl_pair
+                            "-" + comp_tag_exog + comp_tag_htcl_pair + comp_tag_panel
                     contrib_mseg_key = tuple(contrib_mseg_key)
+
+                # Append any panel upgrade competition information
 
                 # If applicable, determine the rate of conversion from baseline
                 # equipment to heat pumps (including fuel switching cases and

@@ -1,0 +1,58 @@
+description: Prep runs to determine the effects of avoided panel upgrades on HP FS measure adoption.
+ecm_prep:
+  site_energy: true
+  add_typ_eff: true
+  rp_persist: true
+  alt_regions: State
+  pkg_env_costs: exclude HVAC
+  ecm_packages: [
+    "Min. ASHP FS (NG) + Basic Env., No Panel-Mod Half $",
+    "Min. ASHP FS (NG) + Basic Env., Panel-Mod Half $",
+    "Min. ASHP FS (NG) + Basic Env., Manage-Mod Half $",
+    "Min. ASHP FS (NG) + Basic Env., No Panel-High Half $",
+    "Min. ASHP FS (NG) + Basic Env., Panel-High Half $",
+    "Min. ASHP FS (NG) + Basic Env., Manage-High Half $"]
+  ecm_files: [
+    "(R) Ref. Case Electric Dryer FS, Panel-Low",
+    "(R) Ref. Case Electric Dryer FS, No Panel-Low",
+    "(R) Ref. Case Electric Dryer FS, Manage-Low",
+    "(R) Ref. Case Resist. WH FS, No Panel-Low",
+    "(R) Ref. Case Resist. WH FS, Panel-Low",
+    "(R) Resist. FS (NG), Panel-Low",
+    "(R) Ref. Case Resist. WH FS, Manage-Low",
+    "(R) Resist. FS (NG), No Panel-Low",
+    "(R) Resist. FS (NG), Manage-Low",
+    "(R) Ref. Case Electric Range FS, Manage-Low",
+    "(R) Ref. Case Electric Range FS, No Panel-Low",
+    "(R) Ref. Case Electric Range FS, Panel-Low",
+    "(R) Ref. Case Resist. WH FS, Manage-Mod",
+    "(R) Ref. Case Resist. WH FS, Panel-Mod",
+    "(R) Ref. Case Resist. WH FS, No Panel-Mod",
+    "(R) Ref. Case Electric Dryer FS, No Panel-Mod",
+    "(R) Ref. Case Electric Dryer FS, Panel-Mod",
+    "(R) Ref. Case Electric Range FS, Manage-Mod",
+    "(R) Ref. Case Electric Range FS, No Panel-Mod",
+    "(R) Ref. Case Electric Range FS, Panel-Mod",
+    "(R) Ref. Case Electric Dryer FS, Manage-Mod",
+    "(R) Min. ASHP FS (NG), Manage-Mod, Half $",
+    "(R) Min. ASHP FS (NG), No Panel-Mod, Half $",
+    "(R) Min. ASHP FS (NG), Panel-Mod, Half $",
+    "(R) ESTAR 120V HPWH FS, Panel-High",
+    "(R) Best 120V HP Dryer FS, Manage-High",
+    "(R) Best 120V HP Dryer FS, No Panel-High",
+    "(R) Best 120V HP Dryer FS, Panel-High",
+    "(R) ESTAR 120V HPWH FS, Manage-High",
+    "(R) ESTAR 120V HPWH FS, No Panel-High",
+    "(R) Min. ASHP FS (NG), Manage-High, Half $",
+    "(R) Min. ASHP FS (NG), No Panel-High, Half $",
+    "(R) Min. ASHP FS (NG), Panel-High, Half $",
+    "(R) IECC 2021 Walls & Air Sealing"]
+  retrofits:
+    retrofit_type: constant
+  grid_decarb:
+    grid_assessment_timing: before
+    grid_decarb_level: 100by2035
+
+run:
+  high_res_comp: true
+  report_stk: true
