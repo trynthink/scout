@@ -2,7 +2,7 @@
 
 import json
 from collections import OrderedDict
-from datetime import datetime
+# from datetime import datetime
 import gzip
 from scout.config import FilePaths as fp
 
