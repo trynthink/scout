@@ -4216,8 +4216,8 @@ class Measure(object):
                         no_stk_mseg = ""
 
                 # Flag whether exogenous HP rates apply to current mseg.
-                # Assume only heating, water heating, and cooking end uses are
-                # covered by these exogenous rates (no secondary heating); do
+                # Assume only heating, secondary heating, water heating, and cooking
+                # end uses are covered by these exogenous rates; do
                 # not apply rates to wood stoves; and ensure that these rates
                 # are only assessed for equipment microsegments (e.g., they do
                 # not apply to envelope component heating energy msegs); are
@@ -4230,7 +4230,7 @@ class Measure(object):
                     ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
                         x in mskeys for x in [
-                        "heating", "water heating", "cooking"]]) or (
+                        "heating", "secondary heating", "water heating", "cooking"]]) or (
                             self.linked_htcl_tover and
                             self.linked_htcl_tover_anchor_eu == "heating")):
                     hp_rate_flag = True
@@ -12015,12 +12015,13 @@ class MeasurePackage(Measure):
             # Add energy data for current mseg, subtracting out any efficient-
             # case energy that remains with fossil fuel (not applicable to
             # sector shapes)
-            ((add_energy[s][yr] * (1 - (fs_eff_splt_energy[0][yr] /
-                                        fs_eff_splt_energy[1][yr]))
+            ((add_energy[s][yr] * (1 - (
+                (fs_eff_splt_energy[0][yr] + fs_eff_splt_energy[1][yr]) /
+                fs_eff_splt_energy[2][yr]))
               # Pull in fuel split as needed
               if (fs_eff_splt_energy and s == "efficient" and
                   "electricity" not in cm
-                  and fs_eff_splt_energy[1][yr] != 0)
+                  and fs_eff_splt_energy[2][yr] != 0)
               else add_energy[s][yr])
              # Only add energy data to sector shapes if data concerns
              # electricity mseg or fuel switching from fossil is occurring and
@@ -13458,7 +13459,8 @@ class MeasurePackage(Measure):
                     out_cz][out_bldg][out_eu][out_fuel_gain] = {
                     yr: mseg_out_break_adj[k]["efficient-captured"][
                         out_cz][out_bldg][out_eu][out_fuel_gain][yr] - (
-                            eff_capt_orig[yr] - eff_capt_adj[yr])
+                            eff_capt_orig[yr] - eff_capt_adj[yr]) * (
+                            1 - fs_eff_splt_var_capt[yr])
                     for yr in self.handyvars.aeo_years}
                 # Update efficient captured for envelope portion of pkg. if
                 # this is being tracked
@@ -13480,24 +13482,16 @@ class MeasurePackage(Measure):
                             eff_orig[yr] - eff_adj[yr]) * (
                             1 - fs_eff_splt_var[yr]))
                     for yr in self.handyvars.aeo_years}
-                # Measure-captured efficient energy for switched to fuel
-                # (if reported)
-                if eff_capt:
-                    mseg_out_break_adj[k]["efficient-captured"][
-                        out_cz][out_bldg][out_eu][out_fuel_gain] = {
-                        yr: mseg_out_break_adj[k]["efficient-captured"][
-                            out_cz][out_bldg][out_eu][out_fuel_gain][yr] - (
-                                eff_capt_orig[yr] - eff_capt_adj[yr])
-                        for yr in self.handyvars.aeo_years}
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
                                 tot_save_orig_ecost]]):
                 # Pull the fraction of efficient-case energy cost that remains
                 # w/ the orig. fuel in each year for the contrib. measure/mseg
                 fs_eff_splt_cost = {
-                    yr: (fs_eff_splt["cost"][0][yr] /
-                         fs_eff_splt["cost"][1][yr]) if
-                    fs_eff_splt["cost"][1][yr] != 0 else 1
+                    yr: ((fs_eff_splt["cost"][0][yr] +
+                          fs_eff_splt["cost"][1][yr]) /
+                         fs_eff_splt["cost"][2][yr]) if
+                    fs_eff_splt["cost"][2][yr] != 0 else 1
                     for yr in self.handyvars.aeo_years}
 
                 # Energy cost; original fuel
@@ -13593,15 +13587,6 @@ class MeasurePackage(Measure):
                             out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
                             save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
                         yr in self.handyvars.aeo_years}
-                # Measure-captured efficient energy (if reported)
-                if eff_capt:
-                    # Remove adjusted efficient
-                    mseg_out_break_adj[k]["efficient-captured"][
-                        out_cz][out_bldg][out_eu][out_fuel_save] = {
-                        yr: mseg_out_break_adj[k]["efficient-captured"][
-                            out_cz][out_bldg][out_eu][out_fuel_save][yr] - (
-                                eff_capt_orig[yr] - eff_capt_adj[yr]) for
-                        yr in self.handyvars.aeo_years}
 
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,
@@ -13671,14 +13656,6 @@ class MeasurePackage(Measure):
                         out_cz][out_bldg][out_eu][yr] - (
                         save_orig[yr] - (base_adj[yr] - eff_adj[yr])) for
                     yr in self.handyvars.aeo_years}
-                # Measure-captured efficient energy (if reported)
-                if eff_capt:
-                    mseg_out_break_adj[k][
-                        "efficient-captured"][out_cz][out_bldg][out_eu] = {
-                            yr: mseg_out_break_adj[k]["efficient-captured"][
-                                out_cz][out_bldg][out_eu][yr] - (
-                                    eff_capt_orig[yr] - eff_capt_adj[yr]) for
-                            yr in self.handyvars.aeo_years}
 
             # Energy costs
             if all([x for x in [tot_base_orig_ecost, tot_eff_orig_ecost,

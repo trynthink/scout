@@ -2640,16 +2640,26 @@ class Engine(object):
                                         "total"][var_sub][yr]) * (
                                         1 - adj_frac_t) * fs_eff_splt_var
                             else:
-                                # Handle efficient-captured energy case for
-                                # fuel switching, where no base fuel data will
-                                # be reported (go to next variable in loop)
+                                # Handle case where no base fuel data is reported, which is
+                                # conceivable for fuel switching (go to next variable in loop)
                                 try:
-                                    adj_out_break[
-                                        "base fuel"][var][var_sub][yr] = \
-                                        adj_out_break["base fuel"][var][
-                                            var_sub][yr] - (
-                                        adj[var]["total"][var_sub][yr]) * (
-                                        1 - adj_frac_t) * fs_eff_splt_var
+                                    # Ensure baseline result is not already zero before
+                                    # adjusting; if zero, no further adjustment required
+                                    if (not isinstance(
+                                        adj_out_break["base fuel"][var][var_sub][yr], numpy.ndarray)
+                                        and adj_out_break["base fuel"][var][var_sub][yr] != 0) or (
+                                        isinstance(
+                                            adj_out_break["base fuel"][var][var_sub][yr],
+                                            numpy.ndarray) and all(adj_out_break[
+                                                "base fuel"][var][var_sub][yr]) != 0):
+                                        adj_out_break[
+                                            "base fuel"][var][var_sub][yr] = \
+                                            adj_out_break["base fuel"][var][
+                                                var_sub][yr] - (
+                                            adj[var]["total"][var_sub][yr]) * (
+                                            1 - adj_frac_t) * fs_eff_splt_var
+                                    else:
+                                        continue
                                 except KeyError:
                                     continue
 
@@ -3862,15 +3872,23 @@ class Engine(object):
                             adj_key = "measure"
                     else:
                         adj_key = var_sub
-                    # Handle efficient-captured energy case for fuel switching,
-                    # where no base fuel data will be reported (skip to next
-                    # variable)
+                    # Handle case where no base fuel data is reported, which is conceivable
+                    # for fuel switching (go to next variable in loop)
                     try:
-                        adj_out_break["base fuel"][var][var_sub][yr] = \
-                            adj_out_break["base fuel"][var][
-                                var_sub][yr] - (
-                            adj[var]["total"][adj_key][yr]) * (
-                                1 - adj_t) * fs_eff_splt_var
+                        # Ensure baseline result is not already zero before adjusting; if zero, no
+                        # further adjustment required
+                        if (not isinstance(
+                                adj_out_break["base fuel"][var][var_sub][yr], numpy.ndarray)
+                            and adj_out_break["base fuel"][var][var_sub][yr] != 0) or (
+                            isinstance(adj_out_break["base fuel"][var][var_sub][yr], numpy.ndarray)
+                                and all(adj_out_break["base fuel"][var][var_sub][yr]) != 0):
+                            adj_out_break["base fuel"][var][var_sub][yr] = \
+                                adj_out_break["base fuel"][var][
+                                    var_sub][yr] - (
+                                adj[var]["total"][adj_key][yr]) * (
+                                    1 - adj_t) * fs_eff_splt_var
+                        else:
+                            continue
                     except KeyError:
                         continue
 
@@ -4995,6 +5013,95 @@ class Engine(object):
                 # the dict with these is calculated above
                 self.output_ecms[m.name]["Markets and Savings (by Category)"][
                     adopt_scheme]["Stock Penetration (%)"] = frac_mkt_stk
+            # If a user desires stock data as an output, calculate and report
+            # these data for the baseline and measure cases
+            if self.opts.report_stk is True:
+                # Set baseline and measure stock keys, including units that
+                # are calculated above
+                base_stk_uc_key, base_stk_c_key, meas_stk_key = [
+                    x + stk_units for x in [
+                        "Baseline Stock (Uncompeted)",
+                        "Baseline Stock (Competed)",
+                        "Measure Stock (Competed)"]]
+                # Report baseline stock and stock cost figures (all baseline
+                # stock/stock cost that the measure could affect/capture);
+                # report both uncompeted/competed versions
+                stk_base_uc = {yr: m.markets[adopt_scheme][
+                    "uncompeted"]["master_mseg"]["stock"][
+                    "total"]["all"][yr] for yr in focus_yrs}
+                stk_base_c = {
+                    yr: mkts["stock"]["total"]["all"][yr] for yr in focus_yrs}
+                stk_cost_base = {yr: mkts["cost"]["stock"]["total"][
+                    "baseline"][yr] for yr in focus_yrs}
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][base_stk_uc_key] = stk_base_uc
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][base_stk_c_key] = stk_base_c
+                # Report measure stock and stock cost figures
+                stk_meas, stk_cost_meas = [{yr: mkts["stock"]["total"][
+                        "measure"][yr] for yr in focus_yrs},
+                    {yr: mkts["cost"]["stock"]["total"][
+                        "efficient"][yr] for yr in focus_yrs}]
+                # Calculate average and low/high measure stock and stock
+                # cost figures
+                stk_meas_avg, stk_cost_meas_avg = [{
+                    k: numpy.mean(v) for k, v in sv.items()} for sv in [
+                        stk_meas, stk_cost_meas]]
+                stk_meas_low, stk_cost_meas_low = [{
+                    k: numpy.percentile(v, 5) for k, v in sv.items()} for sv
+                    in [stk_meas, stk_cost_meas]]
+                stk_meas_high, stk_cost_meas_high = [{
+                    k: numpy.percentile(v, 95) for k, v in stk_meas.items()}
+                    for sv in [stk_meas, stk_cost_meas]]
+                # Set the average measure stock output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][meas_stk_key] = stk_meas_avg
+                # Set the average measure stock cost output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][stk_cost_key_tot] = stk_cost_meas_avg
+                # Set the average measure incremental stock cost output
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][stk_cost_key_inc] = {
+                        yr: (stk_cost_meas_avg[yr] - stk_cost_base[yr])
+                        for yr in focus_yrs}
+                # Update stock cost data across all ECMs with data for
+                # current ECM
+                for yr in focus_yrs:
+                    # Add to total stock cost data (first element of list)
+                    stk_cost_all_ecms[0][yr] += stk_cost_meas_avg[yr]
+                    # Add to inc. stock cost data (second element of list)
+                    stk_cost_all_ecms[1][yr] += (
+                        stk_cost_meas_avg[yr] - stk_cost_base[yr])
+                # Set low/high measure stock outputs (as applicable)
+                if stk_meas_avg != stk_meas_low:
+                    meas_stk_key_low, stk_cost_key_tot_low, \
+                        stk_cost_key_inc_low = [x + " (low)" for x in [
+                            meas_stk_key, stk_cost_key_tot, stk_cost_key_inc]]
+                    meas_stk_key_high, stk_cost_key_tot_high, \
+                        stk_cost_key_inc_high = [x + " (high)" for x in [
+                            meas_stk_key, stk_cost_key_tot, stk_cost_key_inc]]
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][meas_stk_key_low] = stk_meas_low
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][meas_stk_key_high] = stk_meas_high
+                    # Set the low measure stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][stk_cost_key_tot_low] = \
+                        stk_meas_low
+                    # Set the low measure incremental stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][stk_cost_key_inc_low] = {
+                        yr: (stk_cost_meas_low[yr] - stk_cost_base[yr])
+                        for yr in focus_yrs}
+                    # Set the high measure stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][stk_cost_key_tot_high] = \
+                        stk_cost_meas_high
+                    # Set the high measure incremental stock cost output
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                        adopt_scheme][stk_cost_key_inc_high] = {
+                        yr: (stk_cost_meas_high[yr] - stk_meas_high[yr])
+                        for yr in focus_yrs}
 
             # If a user desires output compatible with GCAM format, assess
             # impacts of measures on GCAM baselines stock/energy segments.
