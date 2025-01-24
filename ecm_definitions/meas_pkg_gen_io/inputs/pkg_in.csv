@@ -13,10 +13,6 @@ Residential,"Mid, High, Breakthrough",(R) ES GSHP (NG Frn.) & Env.,"(R) ESTAR GS
 (R) IECC 2021 Walls & Air Sealing",,,,,,
 Residential,"Mid, High, Breakthrough",(R) ES HP TS (Resist.) & Env.,"(R) ESTAR HP TS (Resist.)
 (R) IECC 2021 Walls & Air Sealing",,,,,,
-Residential,"Mid, High, Breakthrough",(R) Ref. Case Scnd. Fossil Heat FS & Env.,"(R) Electric FS (Secondary Fossil Heating)
-(R) IECC 2021 Walls & Air Sealing",,,,,,
-Residential,"Mid, High, Breakthrough",(R) Ref. Case Scnd. Elec. Heat & Env.,"(R) Ref. Case Secondary Electric Heating
-(R) IECC 2021 Walls & Air Sealing",,,,,,
 Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, Oth. Fs. Ht.) & Env.","(C) ESTAR HP FS (RTU, Other Fossil Heat)
 (C) 90.1-2022 Walls & Air Sealing",,,,,,
 Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, NG Ht.) & Env.","(C) ESTAR HP FS (RTU, NG Heat)
@@ -34,14 +30,6 @@ Residential,"Mid, High, Breakthrough",(R) Bst. HP FS (NG Boiler) & Env.+,"(R) Be
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,
 Residential,"Mid, High, Breakthrough",(R) Bst. HP TS (Resist.) & Env.+,"(R) Best HP TS (Resist.)
-(R) IECC 2021 Walls & Air Sealing
-(R) IECC 2021 Roofs
-(R) ENERGY STAR Windows",,,,,,
-Residential,"Mid, High, Breakthrough",(R) Ref. Case Scnd. Fossil Heat FS & Env.+,"(R) Electric FS (Secondary Fossil Heating)
-(R) IECC 2021 Walls & Air Sealing
-(R) IECC 2021 Roofs
-(R) ENERGY STAR Windows",,,,,,
-Residential,"Mid, High, Breakthrough",(R) Ref. Case Scnd. Elec. Heat & Env.+,"(R) Ref. Case Secondary Electric Heating
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,
@@ -70,16 +58,6 @@ Residential,Breakthrough,(R) Brk. HP FS (NG Boiler) & Env.++,"(R) Brk. HP FS (NG
 (R) BTO RDO Windows
 (R) BTO RDO Foundations",,,,,,
 Residential,Breakthrough,(R) Brk. HP TS (Resist.) & Env.++,"(R) Brk. HP TS (Resist.)
-(R) BTO RDO Walls
-(R) BTO RDO Air Sealing
-(R) BTO RDO Windows
-(R) BTO RDO Foundations",,,,,,
-Residential,Breakthrough,(R) Ref. Case Scnd. Fossil Heat FS & Env.++,"(R) Electric FS (Secondary Fossil Heating)
-(R) BTO RDO Walls
-(R) BTO RDO Air Sealing
-(R) BTO RDO Windows
-(R) BTO RDO Foundations",,,,,,
-Residential,Breakthrough,(R) Ref. Case Scnd. Elec. Heat & Env.++,"(R) Ref. Case Secondary Electric Heating
 (R) BTO RDO Walls
 (R) BTO RDO Air Sealing
 (R) BTO RDO Windows

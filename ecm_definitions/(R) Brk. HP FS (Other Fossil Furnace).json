@@ -10,7 +10,8 @@
   "structure_type": "all",
   "end_use": [
     "heating",
-    "cooling"
+    "cooling",
+    "secondary heating"
   ],
   "fuel_type": [
     "distillate",
@@ -24,15 +25,21 @@
     "furnace (kerosene)",
     "furnace (LPG)",
     "central AC",
-    "room AC"
+    "room AC",
+    "all secondary heating"
   ],
   "htcl_tech_link": "other fossil furnace+cac&rac",
   "tech_switch_to": "ASHP",
   "energy_efficiency": {
     "cooling": 7.0,
-    "heating": 3.8
+    "heating": 3.8,
+    "secondary heating": 0.0
   },
-  "energy_efficiency_units": "COP",
+  "energy_efficiency_units": {
+    "heating": "COP",
+    "cooling": "COP",
+    "secondary heating": "relative savings (constant)"
+  },
   "energy_efficiency_source": {
     "notes": [
       "Ultra-high efficiency ASHP performance in 2023",
@@ -116,35 +123,43 @@
   "market_scaling_fractions": {
     "BA_Hot-Humid": {
       "heating": 0.98,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Mixed-Humid": {
       "heating": 0.95,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Very Cold": {
       "heating": 0.53,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Subarctic": {
       "heating": 0.11,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Cold": {
       "heating": 0.83,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Hot-Dry": {
       "heating": 0.93,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Mixed-Dry": {
       "heating": 0.82,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     },
     "BA_Marine": {
       "heating": 0.58,
-      "cooling": 0.08
+      "cooling": 0.08,
+      "secondary heating": 1.0
     }
   },
   "market_scaling_fractions_source": {
@@ -161,6 +176,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-13 15:20:42"
+    "timestamp": "2025-01-21 17:41:02"
   }
 }

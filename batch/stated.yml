@@ -14,7 +14,6 @@ ecm_prep:
     "(R) Ref. Case NG Heat, No Cooling",
     "(R) Ref. Case Resist. Heat, No Cooling",
     "(R) Ref. Case Secondary Electric Heating",
-    "(R) Ref. Case Secondary Fossil Heating",
     "(R) Min. Efficiency ASHP FS (Other Fossil Furnace)",
     "(R) Ref. Case Elec. Boiler FS (Other Fossil Boiler)",
     "(R) Min. Efficiency ASHP FS (NG Furnace)",

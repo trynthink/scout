@@ -133,44 +133,6 @@
     }
   },
   {
-    "name": "(R) Ref. Case Scnd. Fossil Heat FS & Env.",
-    "contributing_ECMs": [
-      "(R) Electric FS (Secondary Fossil Heating)",
-      "(R) IECC 2021 Walls & Air Sealing"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
-    "name": "(R) Ref. Case Scnd. Elec. Heat & Env.",
-    "contributing_ECMs": [
-      "(R) Ref. Case Secondary Electric Heating",
-      "(R) IECC 2021 Walls & Air Sealing"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
     "name": "(C) ES HP FS (RTU, Oth. Fs. Ht.) & Env.",
     "contributing_ECMs": [
       "(C) ESTAR HP FS (RTU, Other Fossil Heat)",
@@ -275,48 +237,6 @@
     "name": "(R) Bst. HP TS (Resist.) & Env.+",
     "contributing_ECMs": [
       "(R) Best HP TS (Resist.)",
-      "(R) IECC 2021 Walls & Air Sealing",
-      "(R) IECC 2021 Roofs",
-      "(R) ENERGY STAR Windows"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
-    "name": "(R) Ref. Case Scnd. Fossil Heat FS & Env.+",
-    "contributing_ECMs": [
-      "(R) Electric FS (Secondary Fossil Heating)",
-      "(R) IECC 2021 Walls & Air Sealing",
-      "(R) IECC 2021 Roofs",
-      "(R) ENERGY STAR Windows"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
-    "name": "(R) Ref. Case Scnd. Elec. Heat & Env.+",
-    "contributing_ECMs": [
-      "(R) Ref. Case Secondary Electric Heating",
       "(R) IECC 2021 Walls & Air Sealing",
       "(R) IECC 2021 Roofs",
       "(R) ENERGY STAR Windows"
@@ -464,50 +384,6 @@
     "name": "(R) Brk. HP TS (Resist.) & Env.++",
     "contributing_ECMs": [
       "(R) Brk. HP TS (Resist.)",
-      "(R) BTO RDO Walls",
-      "(R) BTO RDO Air Sealing",
-      "(R) BTO RDO Windows",
-      "(R) BTO RDO Foundations"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
-    "name": "(R) Ref. Case Scnd. Fossil Heat FS & Env.++",
-    "contributing_ECMs": [
-      "(R) Electric FS (Secondary Fossil Heating)",
-      "(R) BTO RDO Walls",
-      "(R) BTO RDO Air Sealing",
-      "(R) BTO RDO Windows",
-      "(R) BTO RDO Foundations"
-    ],
-    "benefits": {
-      "energy savings increase": null,
-      "cost reduction": null
-    },
-    "energy_savings_source": {
-      "notes": null,
-      "source_data": null
-    },
-    "cost_reduction_source": {
-      "notes": null,
-      "source_data": null
-    }
-  },
-  {
-    "name": "(R) Ref. Case Scnd. Elec. Heat & Env.++",
-    "contributing_ECMs": [
-      "(R) Ref. Case Secondary Electric Heating",
       "(R) BTO RDO Walls",
       "(R) BTO RDO Air Sealing",
       "(R) BTO RDO Windows",
