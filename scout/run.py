@@ -592,64 +592,6 @@ class Codes_BPS_Measure(object):
         self.markets[adopt_scheme][
             "mseg_out_break"]["stock"] = {
                 key: copy.deepcopy(out_break_in) for key in ["baseline", "efficient"]}
-=======
-        # Import/finalize input data on sub-federal regulations on certain types of appliances
-        self.import_state_regs(handyfiles)
-
-    def import_state_regs(self, handyfiles):
-        """Import and further prepare sub-federal appliance regulation data.
-
-        Args:
-            handyfiles (object): File paths.
-        """
-
-        # Try importing sub-federal appliance regulation data; if not available,
-        # set to empty list
-        try:
-            state_regs_dat = pd.read_csv(handyfiles.state_appl_regs)
-            # Initialize regulated segments list
-            self.state_appl_reg_segs = []
-            for index, row in state_regs_dat.iterrows():
-                # Set applicable state(s), building type(s), building vintage(s), fuel type(s).
-                # end use(s), and tech(s)
-                state, bldg, vint, fuel, eu, tech = [
-                    [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                    for x in row.values[1:-3]]
-                # Set start year and applicability fraction
-                yr, frac = [[row.values[-3]], [row.values[-2]]]
-                # Check for bundle of U.S. Climate Alliance (UCSA) states
-                if len(state) == 1 and state[0].lower() == "usca":
-                    state = ["AZ", "CA", "CO", "CT", "DE", "HI", "IL", "ME", "MD", "MA", "MI",
-                             "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
-                # Fill out 'all' entries across building type categories when present
-                for b_ind, b in enumerate(bldg):
-                    if b == "all residential":
-                        bldg.extend(["single family home", "multi family home", "mobile home"])
-                        # Remove original 'all' entry
-                        bldg.remove(bldg[b_ind])
-                    elif b == "all commercial":
-                        bldg.extend(["assembly", "education", "food sales", "food service",
-                                     "health care", "lodging", "large office", "small office",
-                                     "mercantile/service", "warehouse", "other", "unspecified"])
-                        # Remove original 'all' entry
-                        bldg.remove(bldg[b_ind])
-                # Fill out 'all' entries for building vintage
-                if len(vint) == 1 and vint[0] == "all":
-                    vint = ["new", "existing"]
-                # Fill out 'all' entries for fuel type
-                if len(fuel) == 1 and fuel[0] == "all fossil":
-                    fuel = ["natural gas", "distillate", "other fuel"]
-                # Fill out 'all' entries for end use
-                if len(eu) == 1 and eu[0] == "all fossil":
-                    eu = ["heating", "water heating", "cooking", "drying"]
-                # Put final data together into a list
-                mseg_params = [x for x in [state, bldg, vint, fuel, eu, tech, yr, frac]]
-                # Put all combinations of the list elements into unique rows
-                self.state_appl_reg_segs.extend(list(itertools.product(*mseg_params)))
-        except FileNotFoundError:
-            # Set regulated segments list to empty
-            self.state_appl_reg_segs = []
->>>>>>> 6062783 (Account for sub-federal appliance regulations.)
 
 
 class Measure(object):
@@ -2360,7 +2302,8 @@ class Engine(object):
         """
 
         # Look for any state (or local)-level appliance restrictions on the current microsegment
-        state_appl_regs = (len(self.handyvars.state_appl_reg_segs) != 0)
+        state_appl_regs = (
+            self.handyvars.state_appl_regs is not None and len(self.handyvars.state_appl_regs) != 0)
         if state_appl_regs:
             # Separate out components of the mseg information; use mseg information that accounts
             # for any links/dependencies between mseg and other msegs the measure applies to (
