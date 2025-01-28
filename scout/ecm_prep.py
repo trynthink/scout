@@ -14235,6 +14235,10 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             del m.linked_htcl_tover
             del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
+            # If backup fuel fraction data exist (will be dataframe), convert to simple flag for
+            # JSON write-out and subsequent use in run
+            if m.backup_fuel_fraction is not None:
+                m.backup_fuel_fraction = True
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
