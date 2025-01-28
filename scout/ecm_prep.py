@@ -3123,6 +3123,14 @@ class Measure(object):
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for ind, mskeys in enumerate(ms_iterable):
+            # For cases where secondary heating is paired with primary heating equipment, assume
+            # that secondary heating mseg fuel must match that of the primary heating tech
+            # and move to next key chain for any segments that don't meet this criterion
+            if "demand" not in mskeys and "secondary heating" in mskeys and "heating" in \
+                self.end_use["primary"] and all([x not in self.handyvars.in_all_map[
+                        "technology"]["residential"]["supply"][mskeys[3]]["heating"] for x in
+                    self.technology["primary"]]):
+                continue
             # Move to next key chain for 'unspecified' building type and 'new'
             # vintage; there are no new/existing floor space data for this
             # building type and all data are pulled into 'existing' key chains.
