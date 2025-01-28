@@ -5,6 +5,7 @@
   "market_entry_year": 2024,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
+  "ref_case_flag": null,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
@@ -136,6 +137,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-21 17:41:02"
+    "timestamp": "2025-01-28 12:05:22"
   }
 }

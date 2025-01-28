@@ -17,6 +17,7 @@ def main(base_dir):
         "Market Entry Year": "market_entry_year",
         "Market Exit Year": "market_exit_year",
         "Minimum Efficiency Electric Flag": "min_eff_elec_flag",
+        "Ref. Case Flag": "ref_case_flag",
         "Region": "climate_zone",
         "Building Type": "bldg_type",
         "Building Vintage": "structure_type",

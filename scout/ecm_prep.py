@@ -152,6 +152,7 @@ class UsefulInputFiles(object):
         hp_convert_rates (tuple): Fuel switching conversion rates.
         fug_emissions_dat (tuple): Refrigerant and supply chain methane leakage
             data to asses fugitive emissions sources.
+        incentives (tuple): Settings to modify federal and state measure incentives.
     """
 
     def __init__(self, opts):
@@ -259,6 +260,7 @@ class UsefulInputFiles(object):
         self.hp_convert_rates = fp.CONVERT_DATA / "hp_convert_rates.json"
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
         self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
+        self.incentives = fp.SUB_FED / "incentives.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -464,6 +466,7 @@ class UsefulVars(object):
         skipped_ecms (int): List of names for ECMs skipped due to errors.
         htcl_totals (dict): Heating/cooling energy totals by climate zone,
             building type, and structure type.
+        incentives (list): List of modifications to make to AEO incentive levels.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1771,6 +1774,142 @@ class UsefulVars(object):
             except ValueError:
                 raise ValueError(
                     "Error reading in '" + handyfiles.htcl_totals)
+        # Import/finalize input data on federal or sub-federal incentive level modifications
+        # if state regions are used
+        state_vars = ["incentives"]
+        if opts.alt_regions == "State":
+            self.import_state_data(handyfiles, state_vars, valid_regions)
+        else:
+            for k in state_vars:
+                setattr(self, k, None)
+
+    def import_state_data(self, handyfiles, state_vars, valid_regions):
+        """Import and further prepare sub-federal adoption driver data.
+
+        Args:
+            handyfiles (object): File paths.
+            state_vars (list): State-level adoption drivers to read in data for.
+            valid_regions (list): Full list of states run in Scout analyses.
+        """
+
+        # State-level adoption inputs: modifications to AEO equipment incentive levels
+        for k in state_vars:
+            # Try importing state-level adoption input data; if not available, set to empty list
+            try:
+                # Read in input-specific data
+                state_econ_dat = pd.read_csv(getattr(handyfiles, k))
+                # Initialize segment-specific list of state-level inputs
+                state_dat_init = []
+                # Loop through and finalize all rows in the data
+                for index, row in state_econ_dat.iterrows():
+                    # Set applicable state(s), building type(s), and vintage(s)
+                    state, bldg, vint = [
+                        [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
+                        for x in row.values[1:4]]
+                    # Set start and end years and applicability fraction
+                    start_yr, end_yr, apply_frac = [
+                        [row.values[-4]], [row.values[-3]], [row.values[-2]]]
+                    # Finalize applicability fraction if it is blank in the data
+                    if numpy.isnan(apply_frac):
+                        apply_frac = [1]
+                    # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
+                    # included in the USCA but not currently run in Scout simulations, add in
+                    # subsequently) or a row that applies to all states
+                    if len(state) == 1 and state[0].lower() == "usca":
+                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
+                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                    elif len(state) == 1 and state[0] == "all":
+                        state = valid_regions
+                    # Remove 'unspecified' from building types if present (not supported)
+                    bldg = [x for x in bldg if x != "unspecified"]
+                    # Fill out 'all' entries across building type categories when present
+                    for b_ind, b in enumerate(bldg):
+                        # List all residential and commercial building types (note: this could
+                        # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
+                        # from that module to ensure consistency)
+                        res = ["single family home", "multi family home", "mobile home"]
+                        # Note: exclude 'unspecified' from being affected by state-level drivers
+                        com = ["assembly", "education", "food sales", "food service",
+                               "health care", "lodging", "large office", "small office",
+                               "mercantile/service", "warehouse", "other"]
+                        if "all" in b:
+                            if b == "all residential":
+                                bldg.extend(res)
+                            elif b == "all commercial":
+                                bldg.extend(com)
+                            elif b == "all":
+                                bldg.extend(res + com)
+                            # Remove original 'all' entry
+                            bldg.remove(bldg[b_ind])
+                    # Fill out 'all' entries for building vintage
+                    if len(vint) == 1 and vint[0] == "all":
+                        vint = ["new", "existing"]
+                    # Set end use, technology, measure and baseline fuel data
+                    eu, tech, fuel, fuel_base = [
+                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                            [y.strip() for y in x.split(",")] if isinstance(x, str)
+                            else [x]) for x in row.values[4:8]]
+                    # Fill out 'all' entries for measure and base fuel type
+                    if len(fuel) == 1 and fuel[0] == "all":
+                        fuel = ["natural gas", "distillate", "other fuel", "electricity"]
+                    elif len(fuel) == 1 and fuel[0] == "all fossil":
+                        fuel = ["natural gas", "distillate", "other fuel"]
+                    if not isinstance(fuel_base[0], str):
+                        fuel_base = fuel
+                    elif len(fuel_base) == 1 and fuel_base[0] == "all":
+                        fuel_base = ["natural gas", "distillate", "other fuel", "electricity"]
+                    elif len(fuel_base) == 1 and fuel_base[0] == "all fossil":
+                        fuel_base = ["natural gas", "distillate", "other fuel"]
+                    # Fill out 'all fossil' entry for end use
+                    if len(eu) == 1 and eu[0] == "all fossil":
+                        eu = ["heating", "water heating", "cooking", "drying"]
+                    # Set backup fuel allowance (relevant to fuel switching incentives),
+                    # as well as the type of incentives modification (remove, extend, replace),
+                    # the scope of the modification (federal or non-federal incentives mod),
+                    # and, for extensions, the level of increase in incentive to pair w/ extension
+                    backup, mod, scope, increase = [x for x in row.values[8:-8]]
+                    # Finalize flag for backup allowance; blanks or negative tags set to no
+                    if not isinstance(backup, str) or backup in [
+                            "N", "n", "no", "No", "false", "False"]:
+                        backup = ["no"]
+                    else:
+                        backup = ["yes"]
+                    # Finalize type of modification; ensure that modification is tagged correctly
+                    if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
+                        raise ValueError(
+                            "Blank cells not allowed in column 'modification' in "
+                            "file " + handyfiles.incentives + ". Set to one of "
+                            "'remove' 'extend' or 'replace'")
+                    else:
+                        mod = [mod]
+                    # Finalize scope of modification; ensure scope is tagged correctly
+                    if not isinstance(scope, str) or scope not in ["federal", "non-federal", "all"]:
+                        scope = ["all"]
+                    else:
+                        scope = [scope]
+                    # Finalize increase on extension as number if it is left blank
+                    if numpy.isnan(increase):
+                        increase = [0]
+                    else:
+                        increase = [increase]
+                    # Set information needed to replace existing incentives: performance level
+                    # and units for replacement, as well as the incentive level to use (either
+                    # a % credit on installed cost or a rebate amount in $)
+                    perf_lev, perf_units, credit, rebate = [[x] for x in row.values[-8:-4]]
+                    params = [x for x in [
+                        state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, increase,
+                        perf_lev, perf_units, credit, rebate, start_yr, end_yr, apply_frac]]
+                    # Iterate all expanded parameter info. into a list of lists with every
+                    # possible combination of each parameter
+                    iterable = list(map(list, itertools.product(*params)))
+
+                    # Update segment/row-specific list of state-level inputs and reset attribute
+                    state_dat_init.extend(iterable)
+                    setattr(self, k, state_dat_init)
+
+            except FileNotFoundError:
+                # Set segment-specific list of state-level inputs to empty list
+                setattr(self, k, [])
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -2309,6 +2448,14 @@ class Measure(object):
             self.min_eff_elec_flag
         except AttributeError:
             self.min_eff_elec_flag = None
+        # Check for flag that measure is representative of the reference case. This flag is used
+        # to handle incentive calculations for reference case measures that are specified as
+        # add-ons with zero performance/cost improvement (such add-on measures are otherwise
+        # excluded from incentives calculations)
+        try:
+            self.ref_case_flag
+        except AttributeError:
+            self.ref_case_flag = None
         # If a global year by which an elevated performance floor is
         # implemented has been imposed by the user and the measure is flagged
         # for removal under an increase in the global minimum efficiency floor, or the measure has
@@ -4573,6 +4720,22 @@ class Measure(object):
                         if "dishwasher" in mskeys:
                             perf_base_units = "cycle/kWh"
 
+                        # Identify reference case measures that are specified as add-ons (e.g.,
+                        # add-ons with performance and cost of zero) and flag as reference case
+                        # add-on measure while setting performance values and units to use in
+                        # determining incentive levels to baseline values; this ensures that
+                        # incentives are processed for such measures below (add-on measures are
+                        # otherwise excluded from incentive calculations)
+                        if self.measure_type == "add-on" and self.ref_case_flag is not None:
+                            # Flag for reference case add-on that requires incentives calcs
+                            ref_addon = True
+                            # Setting performance/units for incentive calcs to that of baseline
+                            perf_meas_incents, perf_units_incents = [perf_base, perf_base_units]
+                        # Otherwise set performance/units for incentive calcs to that of measure
+                        else:
+                            ref_addon = False
+                            perf_meas_incents, perf_units_incents = [perf_meas, perf_units]
+
                         # Check for incentives information in costs; in this
                         # case, costs before incentives are under a sub-key
                         # and incentives under another sub-key
@@ -4582,15 +4745,14 @@ class Measure(object):
                             # Set baseline costs before incentives dict
                             cost_base_init = base_cpl["installed cost"][
                                 "before incentives"]
-                            # Ensure that add-on measures (e.g., controls)
-                            # are not assigned incentives that are meant
-                            # for equipment replacements to which the add-ons
-                            # are attached. Also do not proceed w/ incentives
-                            # data for measures with relative performance
+                            # Ensure that non ref. case add-on measures (e.g., controls) are not
+                            # assigned incentives that are meant for equipment replacements
+                            # to which the add-ons are attached. Also do not proceed
+                            # w/ incentives data for measures with relative performance
                             # units as these cannot be linked back to EIA
                             # incentives levels
-                            if (self.measure_type != "add-on" and
-                                    "relative savings" not in perf_units):
+                            if (self.measure_type != "add-on" or ref_addon) and \
+                                    "relative savings" not in perf_units_incents:
                                 # Pull out baseline incentives data
                                 cost_incentives = base_cpl["installed cost"][
                                     "incentives"]["by performance tier"]
@@ -4640,6 +4802,40 @@ class Measure(object):
                                 i_units_base, \
                                 i_units_meas = (
                                     "" for n in range(4))
+
+                        # If user has input incentive modifications, pull the relevant ones,
+                        # else set to empty list
+                        if self.handyvars.incentives is not None:
+                            # Pull any relevant incentives mod data that apply to current mseg
+                            incent_mod = [x for x in self.handyvars.incentives if (
+                                [x[0], x[1], x[2]] == [mskeys[1], mskeys[2], mskeys[-1]]
+                                # reg/bldg/vnt
+                                and (x[3] == "all" or x[3] == mskeys[4]))]  # end use
+                            # Distinguish between modifications that apply to an applicable base seg
+                            # vs. a segment that a measure switches to (the latter is only relevant
+                            # for fuel or technology switching measures)
+                            incent_mod_base = [
+                                x for x in incent_mod if x[5] == mskeys[3] and  # fuel
+                                (x[4] == "all" or x[4] == mskeys[-2])]  # tech
+                            # Fuel or tech switching case
+                            if base_cpl_swtch:
+                                # Pull data in the following cases: 1) tech switching (not fuel),
+                                # and incentive mod applies to original fuel and switched to tech.
+                                # 2) fuel switching without retaining original fuel backup, and
+                                # incentive mod applies to that fuel switch case. 3) fuel switching
+                                # with retaining original fuel backup, and incentive mod applies to
+                                # that fuel switch case and allows original fuel backup
+                                incent_mod_swtch = [x for x in incent_mod if ((
+                                    ((self.fuel_switch_to is None) or  # no fuel switch
+                                     (self.backup_fuel_fraction is None or  # no backup or backup ok
+                                      self.backup_fuel_fraction is not None and x[7] == "yes")) and
+                                    (x[5] == mskeys_swtch[3] and x[6] == mskeys[3])) and  # fuel
+                                    (x[4] == "all" or x[4] == mskeys_swtch[-2]))]  # tech
+                            # Non fuel or tech switching case
+                            else:
+                                incent_mod_swtch = []
+                        else:
+                            incent_mod_base, incent_mod_swtch = ([] for n in range(2))
 
                         # In some cases, typical cost data will be split
                         # further by new vs. existing keys; handle accordingly
@@ -5326,7 +5522,7 @@ class Measure(object):
 
                         # Set the baseline/measure performance units to
                         # check incentives performance units against
-                        i_unit_chk = [perf_base_units, perf_units]
+                        i_unit_chk = [perf_base_units, perf_units_incents]
                         # Initialize list of unit conversion factors to
                         # be applied below to address inconsistencies
                         i_unit_cnv = [None for n in range(2)]
@@ -5337,7 +5533,7 @@ class Measure(object):
                             # No inconsistency; set conversion factor to 1
                             if not i_unit or (i_unit == i_unit_chk[ind_u]):
                                 i_unit_cnv[ind_u] = 1
-                            # Inconsistency that can be address via units
+                            # Inconsistency that can be addressed via units
                             # conversion
                             elif i_unit != i_unit_chk[ind_u] and i_unit in \
                                     self.handyvars.tech_units_map.keys():
@@ -5382,71 +5578,13 @@ class Measure(object):
                                         mlt_m = 2
                                     else:
                                         mlt_m = 0
-
-                            # Loop through all years and find/apply incentives
-                            for yr in self.handyvars.aeo_years:
-                                # Handle inverted performance units (lower
-                                # is better performance/more incentives)
-                                if perf_base_units not in \
-                                        self.handyvars.inverted_relperf_list:
-                                    # Performance levels greater/equal to
-                                    # minimum (e.g., COP) get the incentive
-
-                                    # Handle case where measure switches from
-                                    # baseline segment (and thus uses different
-                                    # incentives information)
-                                    if not cost_incentives_meas:
-                                        base_val_yr, meas_val_yr = ([
-                                            x[1] * mlt_b * cnv_b for x in
-                                            cost_incentives[yr] if y >= x[0]]
-                                            for y in [
-                                                perf_base[yr], perf_meas])
-                                    else:
-                                        base_val_yr = [
-                                            x[1] * mlt_b * cnv_b for x in
-                                            cost_incentives[yr] if
-                                            perf_base[yr] >= x[0]]
-                                        meas_val_yr = [
-                                            x[1] * mlt_m * cnv_m for x in
-                                            cost_incentives_meas[yr]
-                                            if perf_meas >= x[0]]
-                                else:
-                                    # Performance levels less than/equal to
-                                    # maximum (e.g. kwh/yr) get the incentive
-
-                                    # Handle case where measure switches from
-                                    # baseline segment (and thus uses different
-                                    # incentives information)
-                                    if not cost_incentives_meas:
-                                        base_val_yr, meas_val_yr = (
-                                            [x[1] * mlt_b * cnv_b for x in
-                                             cost_incentives[yr] if y <= x[0]]
-                                            for y in [
-                                                perf_base[yr], perf_meas])
-                                    else:
-                                        base_val_yr = [
-                                            x[1] * mlt_b * cnv_b for x in
-                                            cost_incentives[yr]
-                                            if perf_base[yr] <= x[0]]
-                                        meas_val_yr = [
-                                            x[1] * mlt_m * cnv_m for x in
-                                            cost_incentives_meas[yr]
-                                            if perf_meas <= x[0]]
-                                # Apply the largest retrieved incentive level
-                                # to baseline and measure installed costs
-                                if len(base_val_yr) > 0:
-                                    cost_base[yr] -= max(base_val_yr)
-                                    # Ensure that baseline costs after
-                                    # incentives are never negative
-                                    if cost_base[yr] <= 0:
-                                        cost_base[yr] = 0
-                                if len(meas_val_yr) > 0:
-                                    cost_meas[yr] -= max(meas_val_yr)
-                                    # Ensure that measure costs after
-                                    # incentives are never negative
-                                    if cost_meas[yr] <= 0:
-                                        cost_meas[yr] = 0
-                                    meas_incent_flag = True
+                            # Finalize and apply incentives; update flag for an incentives
+                            # adjustment for the current mseg
+                            meas_incent_flag = self.apply_incentives(
+                                cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m,
+                                perf_meas_incents, perf_base, perf_units_incents,
+                                perf_base_units, cost_base, cost_meas, incent_mod_base,
+                                incent_mod_swtch, mskeys, meas_incent_flag)
                         else:
                             # Record suppression of incentives application
                             suppress_incent.append(mskeys)
@@ -6540,6 +6678,234 @@ class Measure(object):
                   bstk_msg + bcpl_msg + bcc_msg + cc_msg)
         else:
             print("Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
+
+    def apply_incentives(
+            self, cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m, perf_meas,
+            perf_base, perf_units, perf_base_units, cost_base, cost_meas,
+            incent_mod_base, incent_mod_swtch, mskeys, meas_incent_flag):
+        """Finalize incentive levels and reflect their effects on baseline/measure tech costs.
+
+        Args:
+            cost_incentives (dict): AEO reference case incentives info. for applicable base mseg.
+            cost_incentives_meas (dict): AEO ref. case incentives info. for switched to mseg.
+            cnv_b (float): Unit conversion to map baseline tech. incentives levels to measure units.
+            cnv_m (float): Unit conversion to map switched to tech. incentives to measure units.
+            mlt_b (float): Mult. to handle AEO HP cost (divide res. exist. by 2) in base incentives.
+            mlt_m (float): Multiplier to handle AEO HP cost in switched to incentives.
+            perf_meas (float): Measure performance level.
+            perf_base (float): Comparable baseline tech. performance level.
+            perf_units (str): Measure tech. performance units.
+            perf_base_units (str): Comparable baseline tech. performance units.
+            cost_base (dict): Unadjusted (by incentives) baseline installed costs by year.
+            cost_meas (dict): Unadjusted (by incentives) measure installed costs by year.
+            incent_mod_base (list): List of incentive mods to make to applicable baseline segment.
+            incent_mod_swtch (list): List of incentive mods to make to measure switched to segment.
+            mskeys (tuple): Current mseg information.
+            meas_incent_flag (boolean): Flag for whether measure costs were adjusted by incentives.
+
+        Returns:
+            Updated flag for incentives-based adjustment to measure costs.
+        """
+
+        # Residential segments will be broken out by federal/sub-federal branches; handle here
+        if self.handyvars.aeo_years[0] not in cost_incentives.keys():
+            seg_loop = cost_incentives.keys()
+        else:
+            seg_loop = ["all"]
+        # Loop through applicable fed/sub-fed branching of incentives and adjust costs accordingly
+        for seg in seg_loop:
+            # Initialize tracking of annual incentive amounts
+            base_val_yrs_max, meas_val_yrs_max = ([] for n in range(2))
+            # Loop through all years and find/apply incentives
+            for yr_str in self.handyvars.aeo_years:
+                # Convert year str to int for applicable year calculations below
+                yr_int = int(yr_str)
+                # Check for measure performance breakout by year
+                try:
+                    perf_meas_yr = perf_meas[yr_str]
+                except TypeError:
+                    perf_meas_yr = perf_meas
+
+                # Key in incentives data for the current year by fed/non-fed branch, if applicable
+                if seg != "all":
+                    cost_incentives_yr = cost_incentives[seg][yr_str]
+                    if cost_incentives_meas:
+                        cost_incentives_meas_yr = cost_incentives_meas[seg][yr_str]
+                else:
+                    cost_incentives_yr = cost_incentives[yr_str]
+                    if cost_incentives_meas:
+                        cost_incentives_meas_yr = cost_incentives_meas[yr_str]
+
+                # Handle inverted performance units (lower is better performance/more incentives)
+                if perf_base_units not in self.handyvars.inverted_relperf_list:
+                    # Performance levels greater/equal to minimum (e.g., COP) get the incentive
+
+                    # Handle case where measure switches from baseline segment (and thus uses
+                    # different incentives information)
+                    if not cost_incentives_meas:
+                        base_val_yr, meas_val_yr = ([
+                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y >= x[0]] for
+                            y in [perf_base[yr_str], perf_meas_yr])
+                    else:
+                        base_val_yr = [
+                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
+                            perf_base[yr_str] >= x[0]]
+                        meas_val_yr = [
+                            x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
+                            perf_meas_yr >= x[0]]
+                else:
+                    # Performance levels less than/equal to maximum (e.g. kwh/yr) get the incentive
+
+                    # Handle case where measure switches from baseline segment (and thus uses
+                    # different incentives information)
+                    if not cost_incentives_meas:
+                        base_val_yr, meas_val_yr = (
+                            [x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y <= x[0]]
+                            for y in [perf_base[yr_str], perf_meas_yr])
+                    else:
+                        base_val_yr = [
+                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
+                            perf_base[yr_str] <= x[0]]
+                        meas_val_yr = [
+                            x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
+                            perf_meas_yr <= x[0]]
+
+                # Set initial, unadjusted (AEO-based) incentives levels after calculations above
+                base_val_yr_max_init, meas_val_yr_max_init = [
+                    max(x) if len(x) >= 1 else False for x in [base_val_yr, meas_val_yr]]
+
+                # Set shorthands for incentives modifications that remove, extend, or replace
+                # AEO-based incentive levels for the current applicable base and switched to msegs
+                rmv_base, ext_base, rpl_base = [[
+                    x for x in incent_mod_base if (
+                        y in x[8] and (seg == "all" or x[9] == seg) and
+                        ((numpy.isnan(x[-3]) or x[-3] <= yr_int) and
+                         (numpy.isnan(x[-2]) or x[-2] >= yr_int)))] for y in [
+                    "remove", "extend", "replace"]]
+                rmv_swtch, ext_swtch, rpl_swtch = [[
+                    x for x in incent_mod_swtch if (
+                        y in x[8] and (seg == "all" or x[9] == seg) and
+                        ((numpy.isnan(x[-3]) or x[-3] <= yr_int) and
+                         (numpy.isnan(x[-2]) or x[-2] >= yr_int)))] for y in [
+                    "remove", "extend", "replace"]]
+                # Apply incentives mods to original incentives values pulled above
+                for val_adjs_i, val_adjs in enumerate([base_val_yr_max_init, meas_val_yr_max_init]):
+                    # Set appropriate supporting variables to use for adjustment of baseline or
+                    # switched to segment incentives
+                    if val_adjs_i == 0:
+                        rmv, ext, rpl, perf, units, cost = [
+                            rmv_base, ext_base, rpl_base, perf_base[yr_str], perf_base_units,
+                            cost_base[yr_str]]
+                    else:
+                        perf, units, cost = [perf_meas_yr, perf_units, cost_meas[yr_str]]
+                        # If there is no switching element of the measure, assign the measure's
+                        # incentives modifications to that of the baseline mseg
+                        if not incent_mod_swtch:
+                            rmv, ext, rpl = [rmv_base, ext_base, rpl_base]
+                        else:
+                            rmv, ext, rpl = [rmv_swtch, ext_swtch, rpl_swtch]
+
+                    # First, remove all segment incentives by setting incentives values to False
+                    # if user has specified this adjustment
+                    if len(rmv) != 0:
+                        if val_adjs_i == 0:
+                            base_val_yr_max = False
+                        else:
+                            meas_val_yr_max = False
+                    # If no removal is given, replace or extend segment incentives
+                    else:
+                        # Assess replacement incentives (if available) first
+                        if len(rpl) != 0:
+                            # Initialize list of replacement incentives
+                            rpl_vals = []
+                            # Loop through all available replacements for current mseg, add to list
+                            for r in rpl:
+                                # Determine which type of replacement incentive is give (% credit
+                                # against installed cost, or rebate against installed cost). Raise
+                                # error if both types are specified, and continue loop if none are
+                                if not all([numpy.isfinite(r[-5:-4])]):
+                                    if numpy.isfinite(r[-5]):
+                                        incent_lev = (r[-5] / 100) * cost
+                                    elif numpy.isfinite(r[-4]):
+                                        incent_lev = r[-4]
+                                    else:
+                                        continue
+                                else:
+                                    raise ValueError(
+                                        "Replacement incentives for measure " + self.name +
+                                        " and microsegment " + mskeys + " are given as both a "
+                                        " credit percentage on installed cost and as a rebate, "
+                                        " but only one is supported per incentive input")
+                                # Check performance of measure against incentive requirements,
+                                # and if measure meets performance, reflect incentive.  Account
+                                # for inverted performance units (e.g., lower number is better)
+                                if r[-6] == perf_base_units and ((
+                                    units not in self.handyvars.inverted_relperf_list
+                                    and perf >= r[-7]) or (
+                                    units in self.handyvars.inverted_relperf_list
+                                        and perf <= r[-7])):
+                                    # Set and account for applicability factor
+                                    appl_frac = r[-1]
+                                    rpl_vals.append(incent_lev * appl_frac)
+                                elif r[-6] != perf_base_units:
+                                    raise ValueError(
+                                        "Incentive units of " + r[-6] + " do not match required "
+                                        "units of " + units + " for measure " + self.name +
+                                        " and microsegment " + mskeys)
+                            # Determine the sum of replacement incentives to use based on data
+                            # assembled above; reset baseline or switched to mseg incentive
+                            # to this value.
+                            if val_adjs_i == 0:
+                                base_val_yr_max = sum(rpl_vals)
+                            else:
+                                meas_val_yr_max = sum(rpl_vals)
+
+                        # If no replacement incentives are available, assess incentive extensions,
+                        # provided that existing incentives are available to extend
+                        elif len(ext) != 0 and val_adjs:
+                            # If there are multiple candidate extensions for the current year,
+                            # choose the one with the greatest percentage increase on top of the
+                            # extension; if there is a tie, choose first element
+                            max_inc = max([e[-8] for e in ext])
+                            ext_row = [e for e in ext if e[-8] == max_inc][0]
+                            appl_frac = ext_row[-1]
+                            # Convert extension increase input to a fraction
+                            ext_incr_pct = ext_row[-8] / 100
+
+                            # Reflect the extension on the baseline or switched to mseg
+                            if val_adjs_i == 0:
+                                # Add current year incentive (before modifications by user) to
+                                # tracking of existing incentives across years to this point
+                                base_val_yrs_max.append(val_adjs)
+                                # Base extension/increase on maximum existing incentive level
+                                # across all years to this point
+                                max_to_extend = max(base_val_yrs_max)
+                                # Reflect extension/increase
+                                base_val_yr_max = \
+                                    (max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                            else:
+                                meas_val_yrs_max.append(val_adjs)
+                                max_to_extend = max(meas_val_yrs_max)
+                                meas_val_yr_max = (
+                                    max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                        else:
+                            base_val_yr_max, meas_val_yr_max = [
+                                base_val_yr_max_init, meas_val_yr_max_init]
+
+                # Apply largest incentive level to baseline and measure installed costs
+                if base_val_yr:
+                    cost_base[yr_str] -= base_val_yr_max
+                    # Ensure that baseline costs after incentives are never negative
+                    if cost_base[yr_str] <= 0:
+                        cost_base[yr_str] = 0
+                if meas_val_yr:
+                    cost_meas[yr_str] -= meas_val_yr_max
+                    # Ensure that measure costs after incentives are never negative
+                    if cost_meas[yr_str] <= 0:
+                        cost_meas[yr_str] = 0
+                    meas_incent_flag = True
+
+        return meas_incent_flag
 
     def gen_tsv_facts(
             self, tsv_data, mskeys, bldg_sect, cost_conv, opts,

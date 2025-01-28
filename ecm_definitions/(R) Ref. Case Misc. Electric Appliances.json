@@ -5,6 +5,7 @@
   "market_entry_year": 2024,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
+  "ref_case_flag": "yes",
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -61,6 +62,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-21 17:41:02"
+    "timestamp": "2025-01-28 12:05:22"
   }
 }

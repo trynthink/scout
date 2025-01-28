@@ -963,22 +963,22 @@ def fill_years_nlt_incent(match_list, project_dict, tech_dict_key):
     # Find non-federal existing incentives
     nf_exist = stitch(
         match_list, project_dict, "NF_REPL_SUB", incent_flag=True)
-    # Sum federal/non-federal new incentives
+    # Set federal/non-federal new incentives
     incent_new = {
-        yr: [x + y for x, y in zip(fed_new[yr], nf_new[yr])]
-        for yr in fed_new.keys()}
-    # Sum federal/non-federal existing incentives
+        "federal": {yr: fed_new[yr] for yr in fed_new.keys()},
+        "non-federal": {yr: nf_new[yr] for yr in nf_new.keys()}}
+    # Set federal/non-federal existing incentives
     incent_exist = {
-        yr: [x + y for x, y in zip(fed_exist[yr], nf_exist[yr])]
-        for yr in fed_exist.keys()}
+        "federal": {yr: fed_exist[yr] for yr in fed_exist.keys()},
+        "non-federal": {yr: nf_exist[yr] for yr in nf_exist.keys()}}
     # Combine everything together in an output dict
     output = {
-        "new": {
-            yr: [[x, y] for x, y in zip(perf[yr], incent_new[yr])] for
-            yr in perf.keys()},
-        "existing": {
-            yr: [[x, y] for x, y in zip(perf[yr], incent_exist[yr])] for
-            yr in perf.keys()}}
+        "new": {seg: {
+            yr: [[x, y] for x, y in zip(perf[yr], incent_new[seg][yr])] for
+            yr in perf.keys()} for seg in incent_new.keys()},
+        "existing": {seg: {
+            yr: [[x, y] for x, y in zip(perf[yr], incent_exist[seg][yr])] for
+            yr in perf.keys()} for seg in incent_exist.keys()}}
 
     # Return updated EIA incentives information for non-lighting technologies
     return output
