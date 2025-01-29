@@ -418,8 +418,9 @@ class UsefulVars(object):
         com_eqp_eus_nostk (list): Flags commercial equipment end uses for
             which no service demand data (which are used to represent com.
             "stock") are available and square footage should be used for stock.
-        res_lts_per_home (list): RECS 2015 Table HC5.1 number of lights per
-            household, by building type, used to get from $/home to $/bulb
+        res_units_per_home (list): RECS 2020 Table HC5.1 number of units per
+            household, by end use and building type, used to get from e.g., $/home to $/bulb
+            (lighting) or $/heating unit to $/customer (heating).
         cconv_tech_mltstage_map (dict): Maps measure cost units to cost
             conversion dict keys for demand-side heating/cooling
             technologies and controls technologies requiring multiple
@@ -1455,10 +1456,20 @@ class UsefulVars(object):
         self.com_eqp_eus_nostk = [
             "PCs", "non-PC office equipment", "MELs", "other",
             "unspecified"]
-        self.res_lts_per_home = {
-            "single family home": 36,
-            "multi family home": 15,
-            "mobile home": 19
+        # For lighting, take the upper bound on each bin of # of lights in the RECS HC5.1 data
+        # and do a weighted sum of portion of homes reporting that bin. For heating, use the
+        # AEO23 residential microtables to find number of primary heating units by building type
+        # and normalize by the number of homes by building type (account for division of ASHP and
+        # GSHP heating stock by 2 in the summary tables)
+        self.res_units_per_home = {
+            "lighting": {
+                "single family home": 8,
+                "multi family home": 6,
+                "mobile home": 6},
+            "heating": {
+                "single family home": 1.13,
+                "multi family home": 0.99,
+                "mobile home": 1.06}
         }
         # Assume that missing technology choice parameters come from the
         # appliances/MELs areas; default is thus the EIA choice parameters
@@ -5244,7 +5255,7 @@ class Measure(object):
                     # must be converted to $/unit via units/household RECS data
                     if sqft_subst != 1 and "lighting" in mskeys:
                         cost_meas = {yr: cost_meas[yr] /
-                                     self.handyvars.res_lts_per_home[mskeys[2]]
+                                     self.handyvars.res_units_per_home["lighting"][mskeys[2]]
                                      for yr in self.handyvars.aeo_years}
                     # Convert residential envelope baseline costs, which will
                     # be in $/ft^2 floor, to $/home (again, household is
