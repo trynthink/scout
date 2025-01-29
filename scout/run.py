@@ -7651,7 +7651,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         a_run.calc_savings_metrics(adopt_scheme, "competed", opts)
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
-        if any([len(x) != 0 for x in [a_run.handyvars.state_codes, a_run.handyvars.state_bps]]) \
+        if any([x is not None and len(x) != 0 for x in [
+                a_run.handyvars.state_codes, a_run.handyvars.state_bps]]) \
                 and all([x in brkout for x in ["reg", "bldg"]]) and split_fuel is True:
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
