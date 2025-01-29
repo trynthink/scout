@@ -153,6 +153,7 @@ class UsefulInputFiles(object):
         fug_emissions_dat (tuple): Refrigerant and supply chain methane leakage
             data to asses fugitive emissions sources.
         incentives (tuple): Settings to modify federal and state measure incentives.
+        rates (tuple): Settings to represent rate structures that support electric heating.
     """
 
     def __init__(self, opts):
@@ -261,6 +262,7 @@ class UsefulInputFiles(object):
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
         self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
         self.incentives = fp.SUB_FED / "incentives.csv"
+        self.rates = fp.SUB_FED / "rates.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -468,6 +470,7 @@ class UsefulVars(object):
         htcl_totals (dict): Heating/cooling energy totals by climate zone,
             building type, and structure type.
         incentives (list): List of modifications to make to AEO incentive levels.
+        rates (list): List of alternate rate structures to use for electric equipment.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1787,7 +1790,7 @@ class UsefulVars(object):
                     "Error reading in '" + handyfiles.htcl_totals)
         # Import/finalize input data on federal or sub-federal incentive level modifications
         # if state regions are used
-        state_vars = ["incentives"]
+        state_vars = ["incentives", "rates"]
         if opts.alt_regions == "State":
             self.import_state_data(handyfiles, state_vars, valid_regions)
         else:
@@ -1855,61 +1858,100 @@ class UsefulVars(object):
                     # Fill out 'all' entries for building vintage
                     if len(vint) == 1 and vint[0] == "all":
                         vint = ["new", "existing"]
-                    # Set end use, technology, measure and baseline fuel data
-                    eu, tech, fuel, fuel_base = [
+                    # Set applicable end use, technology, and fuel
+                    eu, tech, fuel = [
                         [x.strip()] if (isinstance(x, str) and "," not in x) else (
                             [y.strip() for y in x.split(",")] if isinstance(x, str)
-                            else [x]) for x in row.values[4:8]]
+                            else [x]) for x in row.values[4:7]]
                     # Fill out 'all' entries for measure and base fuel type
                     if len(fuel) == 1 and fuel[0] == "all":
                         fuel = ["natural gas", "distillate", "other fuel", "electricity"]
                     elif len(fuel) == 1 and fuel[0] == "all fossil":
                         fuel = ["natural gas", "distillate", "other fuel"]
-                    if not isinstance(fuel_base[0], str):
-                        fuel_base = fuel
-                    elif len(fuel_base) == 1 and fuel_base[0] == "all":
-                        fuel_base = ["natural gas", "distillate", "other fuel", "electricity"]
-                    elif len(fuel_base) == 1 and fuel_base[0] == "all fossil":
-                        fuel_base = ["natural gas", "distillate", "other fuel"]
                     # Fill out 'all fossil' entry for end use
                     if len(eu) == 1 and eu[0] == "all fossil":
                         eu = ["heating", "water heating", "cooking", "drying"]
-                    # Set backup fuel allowance (relevant to fuel switching incentives),
-                    # as well as the type of incentives modification (remove, extend, replace),
-                    # the scope of the modification (federal or non-federal incentives mod),
-                    # and, for extensions, the level of increase in incentive to pair w/ extension
-                    backup, mod, scope, increase = [x for x in row.values[8:-8]]
-                    # Finalize flag for backup allowance; blanks or negative tags set to no
-                    if not isinstance(backup, str) or backup in [
-                            "N", "n", "no", "No", "false", "False"]:
-                        backup = ["no"]
-                    else:
-                        backup = ["yes"]
-                    # Finalize type of modification; ensure that modification is tagged correctly
-                    if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
-                        raise ValueError(
-                            "Blank cells not allowed in column 'modification' in "
-                            "file " + handyfiles.incentives + ". Set to one of "
-                            "'remove' 'extend' or 'replace'")
-                    else:
-                        mod = [mod]
-                    # Finalize scope of modification; ensure scope is tagged correctly
-                    if not isinstance(scope, str) or scope not in ["federal", "non-federal", "all"]:
-                        scope = ["all"]
-                    else:
-                        scope = [scope]
-                    # Finalize increase on extension as number if it is left blank
-                    if numpy.isnan(increase):
-                        increase = [0]
-                    else:
-                        increase = [increase]
-                    # Set information needed to replace existing incentives: performance level
-                    # and units for replacement, as well as the incentive level to use (either
-                    # a % credit on installed cost or a rebate amount in $)
-                    perf_lev, perf_units, credit, rebate = [[x] for x in row.values[-8:-4]]
-                    params = [x for x in [
-                        state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, increase,
-                        perf_lev, perf_units, credit, rebate, start_yr, end_yr, apply_frac]]
+
+                    # Finalize variable-specific inputs
+                    if k == "incentives":
+                        # Set baseline fuel data (e.g., fuel switched from if applicable)
+                        fuel_base = [
+                            [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                                [y.strip() for y in x.split(",")] if isinstance(x, str)
+                                else [x]) for x in row.values[7:8]][0]
+                        # Fill out nan or all entries for base fuel
+                        if len(fuel_base) == 1:
+                            if not isinstance(fuel_base[0], str):
+                                fuel_base = fuel
+                            elif fuel_base[0] == "all":
+                                fuel_base = [
+                                    "natural gas", "distillate", "other fuel", "electricity"]
+                            elif fuel_base[0] == "all fossil":
+                                fuel_base = ["natural gas", "distillate", "other fuel"]
+                        # Set backup fuel allowance (relevant to fuel switching incentives),
+                        # as well as the type of incentives modification (remove, extend, replace),
+                        # the scope of the modification (federal or non-federal incentives mod),
+                        # and, for extensions, the level of increase in incentive to pair w/
+                        # extension
+                        backup, mod, scope, increase = [x for x in row.values[8:-8]]
+                        # Finalize flag for backup allowance; blanks or negative tags set to no
+                        if not isinstance(backup, str) or backup in [
+                                "N", "n", "no", "No", "false", "False"]:
+                            backup = ["no"]
+                        else:
+                            backup = ["yes"]
+                        # Finalize type of mod; ensure that modification is tagged correctly
+                        if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
+                            raise ValueError(
+                                "Blank cells not allowed in column 'modification' in "
+                                "file " + handyfiles.incentives + ", row " + str(index) +
+                                ". Set to one of 'remove' 'extend' or 'replace'")
+                        else:
+                            mod = [mod]
+                        # Finalize scope of modification; ensure scope is tagged correctly
+                        if not isinstance(scope, str) or scope not in [
+                                "federal", "non-federal", "all"]:
+                            scope = ["all"]
+                        else:
+                            scope = [scope]
+                        # Finalize increase on extension as number if it is left blank
+                        if numpy.isnan(increase):
+                            increase = [0]
+                        else:
+                            increase = [increase]
+                        # Set information needed to replace existing incentives: performance level
+                        # and units for replacement, as well as the incentive level to use (either
+                        # a % credit on installed cost or a rebate amount in $)
+                        perf_lev, perf_units, credit, rebate = [[x] for x in row.values[-8:-4]]
+                        # Pull all parameters together in a master list
+                        params = [x for x in [
+                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope,
+                            increase, perf_lev, perf_units, credit, rebate, start_yr, end_yr,
+                            apply_frac]]
+                    elif k == "rates":
+                        # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
+                        # and added fixed costs (annual, if applicable).
+                        # **** NOTE that currently, fixed costs are read in as a placeholder,
+                        # but not further used below since they affect the whole electricity bill
+                        # and can't be directly attributed to a specific measure *****
+                        vol_abs, vol_rel, fix_add = [[x] for x in row.values[7:10]]
+                        # Handle blank cells for each of the above
+                        if numpy.isnan(vol_abs[0]):
+                            vol_abs = [False]
+                        elif numpy.isnan(vol_rel[0]):
+                            vol_rel = [False]
+                        else:
+                            raise ValueError(
+                                "Pick either absolute OR relative volumetric rate reduction "
+                                " in file " + handyfiles.rates + "; both cannot be used but are "
+                                "present in row " + str(index) + ".")
+                        if numpy.isnan(fix_add[0]):
+                            fix_add[0] = [0]
+                        # Pull all parameters together in a master list
+                        params = [x for x in [
+                            state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
+                            start_yr, end_yr, apply_frac]]
+
                     # Iterate all expanded parameter info. into a list of lists with every
                     # possible combination of each parameter
                     iterable = list(map(list, itertools.product(*params)))
@@ -6811,7 +6853,7 @@ class Measure(object):
                         perf, units, cost = [perf_meas_yr, perf_units, cost_meas[yr_str]]
                         # If there is no switching element of the measure, assign the measure's
                         # incentives modifications to that of the baseline mseg
-                        if not incent_mod_swtch:
+                        if not cost_incentives_meas:
                             rmv, ext, rpl = [rmv_base, ext_base, rpl_base]
                         else:
                             rmv, ext, rpl = [rmv_swtch, ext_swtch, rpl_swtch]
@@ -10239,14 +10281,63 @@ class Measure(object):
 
             # Set common variables for the energy cost calculations
 
-            # Competed energy cost captured by measure
+            # Modify measure energy costs to reflect alternate rate structures,
+            # if applicable
+            if self.handyvars.rates is not None:
+                # Pull the alternate rate structure that applies to the current yr/mseg
+                alt_rates = [seg for seg in self.handyvars.rates if (
+                    ((numpy.isnan(seg[-3]) or seg[-3] <= int(yr)) and
+                     (numpy.isnan(seg[-2]) or seg[-2] >= int(yr))) and  # applies to current year
+                    (seg[0:3] == [mskeys[1], mskeys[2], mskeys[-1]]) and  # reg/bldg/vint
+                    seg[5] == mskeys[3] and  # fuel
+                    (seg[3] == "all" or seg[3] == mskeys[4]) and  # end use
+                    (seg[4] == "all" or seg[4] == mskeys[-2]))]  # tech
+                # If alternatives apply, pull data on modifications to volumetric energy rates;
+                # if no alternates apply, set modifications to zero
+                if len(alt_rates) != 0:
+                    # Pull rate information out of retrieved list
+                    alt_rate = alt_rates[0]
+                    # Pull absolute or relative modification to volumetric rate and any additional
+                    # fixed charges
+                    vol_abs, vol_rel, fix_add = alt_rate[6:9]
+                    # Abs volumetric reductions of electricity are in $/kWh, convert to the units of
+                    # fossil rates in Scout, $/MMBtu
+                    if vol_abs:
+                        kwh_mmbtu = 293.07107
+                        vol_reduce = vol_abs * kwh_mmbtu
+                    # Relative volumetric reductions are applied to unadjusted measure energy cost
+                    else:
+                        vol_reduce = cost_energy_meas[yr] - cost_energy_meas[yr] * (vol_rel / 100)
+                    apply_frac = alt_rate[-1]
+                    # ***** NOTE Leave placeholder for possible future handling of additional fixed
+                    # costs (not readily assigned to a single measure, apply across the bill) *****
+
+                    # # Determine the total added fixed costs to add across competed/captured and
+                    # # total/captured households/customers. Convert number of captured units to
+                    # # number of captured households/customers based on AEO data on number of
+                    # # primary heating units per household.
+                    # unit_to_home = self.handyvars.res_units_per_home["heating"][mskeys[2]]
+                    # fix_add_comp = (stock_compete_meas[yr] / unit_to_home) * fix_add
+                    # fix_add_tot = (stock_total_meas[yr] / unit_to_home) * fix_add
+
+                    # Adjust cost of energy for measure to reflect alternate rate information above,
+                    # taking into consideration applicability factors
+                    cost_energy_meas_yr_adj = (cost_energy_meas[yr] - vol_reduce) * apply_frac + (
+                        cost_energy_meas[yr] * (1 - apply_frac))
+                else:
+                    cost_energy_meas_yr_adj = cost_energy_meas[yr]
+            else:
+                cost_energy_meas_yr_adj = cost_energy_meas[yr]
+
+            # Competed energy cost captured by measure; reflect any alternate rate modifications
+            # to volumetric charges
             energy_cost_tot_comp_meas_mkt = energy_total_sbmkt[yr] * \
                 diffuse_frac * comp_frac_diffuse_meas
             energy_cost_tot_comp_meas = (
                 energy_cost_tot_comp_meas_mkt * tsv_ecost_eff *
                 rel_perf[yr] * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) *
-                cost_energy_meas[yr]) * (1 - remain_fuel_frac) + \
+                cost_energy_meas_yr_adj) * (1 - remain_fuel_frac) + \
                 energy_cost_tot_comp_meas_mkt * tsv_ecost_base * \
                 cost_energy_base[yr] * remain_fuel_frac
             # Competed energy cost remaining with baseline
@@ -10254,7 +10345,8 @@ class Measure(object):
                 diffuse_frac * tsv_ecost_base * (
                     comp_frac_diffuse - comp_frac_diffuse_meas) * \
                 cost_energy_base[yr]
-            # Total energy cost captured by measure
+            # Total energy cost captured by measure; reflect any alternate rate modifications
+            # to volumetric charges
             energy_cost_tot_uncomp_meas_mkt = energy_total_sbmkt[yr] * \
                 diffuse_frac * (
                     1 - comp_frac_diffuse) * meas_cum_frac
@@ -10262,7 +10354,7 @@ class Measure(object):
                 energy_cost_tot_uncomp_meas_mkt *
                 tsv_ecost_eff * rel_perf_capt * (
                     site_source_conv_meas[yr] / site_source_conv_base[yr]) *
-                cost_energy_meas[yr]) * (1 - remain_fuel_frac) + \
+                cost_energy_meas_yr_adj) * (1 - remain_fuel_frac) + \
                 energy_cost_tot_uncomp_meas_mkt * tsv_ecost_base * \
                 cost_energy_base[yr] * remain_fuel_frac
             # Total energy cost remaining with baseline
