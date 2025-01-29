@@ -6867,6 +6867,11 @@ class Measure(object):
                             meas_val_yr_max = False
                     # If no removal is given, replace or extend segment incentives
                     else:
+                        # Add to tracking of base and switched to incentives that weren't removed
+                        if val_adjs_i == 0 and val_adjs:
+                            base_val_yrs_max.append(val_adjs)
+                        elif val_adjs_i == 1 and val_adjs:
+                            meas_val_yrs_max.append(val_adjs)
                         # Assess replacement incentives (if available) first
                         if len(rpl) != 0:
                             # Initialize list of replacement incentives
@@ -6915,7 +6920,7 @@ class Measure(object):
 
                         # If no replacement incentives are available, assess incentive extensions,
                         # provided that existing incentives are available to extend
-                        elif len(ext) != 0 and val_adjs:
+                        elif len(ext) != 0:
                             # If there are multiple candidate extensions for the current year,
                             # choose the one with the greatest percentage increase on top of the
                             # extension; if there is a tie, choose first element
@@ -6927,20 +6932,23 @@ class Measure(object):
 
                             # Reflect the extension on the baseline or switched to mseg
                             if val_adjs_i == 0:
-                                # Add current year incentive (before modifications by user) to
-                                # tracking of existing incentives across years to this point
-                                base_val_yrs_max.append(val_adjs)
                                 # Base extension/increase on maximum existing incentive level
-                                # across all years to this point
-                                max_to_extend = max(base_val_yrs_max)
-                                # Reflect extension/increase
-                                base_val_yr_max = \
-                                    (max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                                # across all years to this point, if any are available; if not,
+                                # no extension is reflected
+                                if len(base_val_yrs_max) != 0:
+                                    max_to_extend = max(base_val_yrs_max)
+                                    # Reflect extension/increase
+                                    base_val_yr_max = \
+                                        (max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                                else:
+                                    base_val_yr_max = base_val_yr_max_init
                             else:
-                                meas_val_yrs_max.append(val_adjs)
-                                max_to_extend = max(meas_val_yrs_max)
-                                meas_val_yr_max = (
-                                    max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                                if len(meas_val_yrs_max) != 0:
+                                    max_to_extend = max(meas_val_yrs_max)
+                                    meas_val_yr_max = (
+                                        max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
+                                else:
+                                    meas_val_yr_max = meas_val_yr_max_init
                         else:
                             base_val_yr_max, meas_val_yr_max = [
                                 base_val_yr_max_init, meas_val_yr_max_init]
