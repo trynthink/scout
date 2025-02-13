@@ -14684,12 +14684,15 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                    m_exist[0]["pkg_env_costs"] is False)
             exst_pkg_env_mask_2 = (opts is None or opts.pkg_env_costs is False and
                                    m_exist[0]["pkg_env_costs"] is not False)
+            updated_contrib_mask = any(
+                contrib in meas_toprep_indiv_nopkg for contrib in m["contributing_ECMs"]
+            )
 
         # Check for conditions that would indicate a package needs to be processed
         # (condition a and previously inspected conditions b, c, and d)
         if len(m_exist) == 0 or name_mask or \
                 ((exst_ecms_mask or exst_engy_save_mask or exst_cost_red_mask) or
-                 (exst_pkg_env_mask_1 or exst_pkg_env_mask_2)):
+                 (exst_pkg_env_mask_1 or exst_pkg_env_mask_2 or updated_contrib_mask)):
 
             meas_toprep_package.append(m)
             # Add contributing ECMs to those needing updates
