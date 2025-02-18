@@ -32,15 +32,18 @@ indicates the year of the data.
 2) Run ./scout/converter.py separately to update each of the files beginning with "emm_region_"
 or "site_source in ./scout/supporting_data/convert_data, which will update all of the annual average
 emissions intensity, energy price, and site-source conversion values to reflect AEO projections
-pulled from the EIA API. For energy prices, electricity and gas prices are both broken out in the
-"state_" files, while only electricity prices are broken out in the "emm_region_" files. Electricity
-emissions intensities are also broken out in both of those files. Also note that updating the
-"emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
-select the latest AEO year available and use the following mapping between AEO case and the
-scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
-"-95by2050"; ref2023 -> all other files. Users may also enter pairs of scenarios, separated by a
-comma, that represent high gas/low electric price and low gas/high electric price futures, as
-follows: lowogs, lowmaclowZTC, highogs, highmachighZTC.
+pulled from the EIA API. Users are prompted to choose AEO cases separately for fossil fuels and
+electricity to support bounding sensitivity cases on prices (more below). Electricity
+and gas prices are both broken out in the "state_" files, while only electricity prices are broken
+out in the "emm_region_" files. Electricity emissions intensities are also broken out in both of
+those files. Also note that updating the "emm_region_" files will automatically update the files
+beginning "state_" as well. When prompted, select the latest AEO year available and use the
+following mapping between AEO case and the scenarios indicated in the file names being updated:
+lowZTC -> files with "-100by2035" and "-95by2050"; ref2023 -> all other files. Users may also enter
+pairs of scenarios that differ for electricity vs. fossil fuels and represent high gas/low electric
+price and low gas/high electric price futures, e.g., 'lowZTC' (low zero-carbon technology cost) for
+electricity and 'lowogs' (low oil and gas supply) for fossil (low electric/high gas rates), and
+'highZTC' for electricity and 'highogs' for fossil (high electric/low gas rates).
 
 3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
 "emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
@@ -109,16 +112,17 @@ class ValidQueries(object):
 
     def __init__(self):
         self.file_type = ['national', 'regional']
-        self.years = ['2018', '2019', '2020', '2021', '2022', '2023']
-        self.emm_years = ['2020', '2021', '2022', '2023']
+        self.years = ['2018', '2019', '2020', '2021', '2022', '2023', '2025']
+        self.emm_years = ['2020', '2021', '2022', '2023', '2025']
         self.cases = {
             '2018': ['ref2018', 'co2fee25'],
             '2019': ['ref2019'],
             '2020': ['ref2020', 'co2fee25', 'lowogs', 'lorencst'],
             '2021': ['ref2021', 'lowogs', 'lorencst'],
             '2022': ['ref2022', 'lowogs', 'lorencst'],
-            '2023': ['ref2023', 'lowogs', 'lowZTC', 'lowmaclowZTC', 'highogs, highmachighZTC',
-                     'lowogs, lowmaclowZTC']}
+            '2023': ['ref2023', 'lowogs', 'lowZTC', 'highogs', 'highZTC',
+                     'lowmaclowZTC', 'highmachighZTC'],
+            '2025': ['ref2025', 'lowogs', 'lowZTC', 'highogs', 'highZTC']}
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
@@ -483,7 +487,7 @@ def data_getter(api_key, series_names, api_urls, series_table):
     return mstr_data_dict, years
 
 
-def updater(conv, api_key, aeo_yr, scen, web):
+def updater(conv, api_key, aeo_yr, scen_elec, scen_gas, web):
     """Perform calculations using EIA data to update conversion factors JSON
 
     Using data from the AEO year and specified NEMS modeling scenario,
@@ -504,7 +508,8 @@ def updater(conv, api_key, aeo_yr, scen, web):
         api_key (str): EIA API key from system environment variable.
         aeo_yr (str): The desired year of the Annual Energy Outlook
             to query for data.
-        scen (str): The desired AEO "case" or scenario to query.
+        scen_elec (str): The desired AEO "case" or scenario to query for electricity.
+        scen_gas (str): The desired AEO "case" or scenario to query for fossil fuels.
         web (bool): If true, the data output should include "other
             fuel" instead of separate "distillate" and "propane" fields.
 
@@ -514,10 +519,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Get data via EIA API. Account for cases where user has specified two separate
     # scenarios to use in representing fossil vs. electric projections.
-    if isinstance(scen, list):
-        dq_foss, dq_elec = [EIAQueries(aeo_yr, x) for x in scen]
-    else:
-        dq_foss, dq_elec = (EIAQueries(aeo_yr, scen) for n in range(2))
+    dq_foss, dq_elec = [EIAQueries(aeo_yr, x) for x in [scen_elec, scen_gas]]
 
     z_foss, yrs_foss = \
         data_getter(api_key, dq_foss.data_names, dq_foss.query, dq_foss.data_table_ids)
@@ -772,7 +774,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
     return conv
 
 
-def updater_gastrend(conv, api_key, aeo_yr, scen):
+def updater_gastrend(conv, api_key, aeo_yr, scen_gas):
     """Pull AEO natural gas price projections for residential and commercial.
 
     Using data from the AEO year and specified NEMS modeling scenario, pull gas price forecasts
@@ -787,19 +789,11 @@ def updater_gastrend(conv, api_key, aeo_yr, scen):
         conv (dict): Data structure for gas price information.
         api_key (str): EIA API key from system environment variable.
         aeo_yr (str): The desired year of the Annual Energy Outlook to query for data.
-        scen (str): The desired AEO "case" or scenario to query.
+        scen_gas (str): The desired AEO "case" or scenario to query.
 
     Returns:
         Residential and commercial gas price forecast at the national level.
     """
-
-    # Get data via EIA API. Account for cases where user has specified two separate
-    # scenarios to use in representing fossil vs. electric projections. Scenarios are read in as a
-    # list with fossil scenario in 1st element and electricity scenario in the 2nd element.
-    if isinstance(scen, list):
-        scen_gas = scen[0]
-    else:
-        scen_gas = scen
 
     dq = EIAQueries(aeo_yr, scen_gas)
     z, yrs = data_getter(
@@ -823,7 +817,7 @@ def updater_gastrend(conv, api_key, aeo_yr, scen):
     return conv
 
 
-def updater_emm(conv, api_key, aeo_yr, scen):
+def updater_emm(conv, api_key, aeo_yr, scen_elec):
     """Perform calculations using EIA data to update EMM conversion factors
     JSON.
 
@@ -840,25 +834,18 @@ def updater_emm(conv, api_key, aeo_yr, scen):
         api_key (str): EIA API key from system environment variable.
         aeo_yr (str): The desired year of the Annual Energy Outlook
             to query for data.
-        scen (str): The desired AEO "case" or scenario to query.
+        scen_elec (str): The desired AEO "case" or scenario to query.
 
     Returns:
         Updated EMM conversion factors dict to be exported to the
         conversions JSON.
     """
 
-    # Get data via EIA API. Account for cases where user has specified two separate
-    # scenarios to use in representing fossil vs. electric projections. Scenarios are read in as a
-    # list with fossil scenario in 1st element and electricity scenario in the 2nd element.
-    if isinstance(scen, list):
-        scen_elec = scen[1]
-    else:
-        scen_elec = scen
     dq = EIAQueries(aeo_yr, scen_elec)
     z, yrs = data_getter(api_key, dq.data_names_emm, dq.query_emm,
                          dq.data_table_ids_emm)
-    # Set the year of AEO cost data (*** update manually with each AEO version ***)
-    aeo_cost_yr = 2022
+    # Set the year of AEO cost data (assume convention of using year before AEO year persists)
+    aeo_cost_yr = int(aeo_yr) - 1
 
     # Emissions conversion factor from short tons to metric tons
     conv_factor = 0.90718474
@@ -1152,8 +1139,10 @@ def main():
                         help="Name of file to be updated, without the path.")
     parser.add_argument('-y',
                         help="Desired AEO publication year")
-    parser.add_argument('-s',
-                        help="Desired AEO scenario in given year")
+    parser.add_argument('-s_e',
+                        help="Desired AEO electricity scenario in given year")
+    parser.add_argument('-s_g',
+                        help="Desired AEO fossil scenario in given year")
     opts = parser.parse_args()
 
     # Determine what file type is being updated based on the file name;
@@ -1164,8 +1153,8 @@ def main():
     elif opts.f.startswith('site_source'):
         geography = 'national'
     else:
-        raise ValueError(
-            "The file name provided does not correspond to an expected conversion file.")
+        print('The file name provided does not correspond to an expected '
+              'conversion file.')
 
     # Set state conversion file to use on the basis of the emm file name
     state_conv_file = opts.f.replace("emm_region_emissions", "state_emissions")
@@ -1185,29 +1174,33 @@ def main():
             else:
                 break
 
-    # If not provided as a command-line argument, ask the user to
-    # specify the desired AEO case or scenario, informing the user
-    # about the valid scenario options
-    if opts.s is not None:
-        scenario = opts.s
+    # If not provided as a command-line argument, ask the user to specify the desired AEO case or
+    # scenario, allowing for different scenarios to be used for electricity vs. fossil fuels,
+    # and informing the user about the valid scenario options
+    # Electricity
+    if opts.s_e is not None:
+        scenario_elec = opts.s_e
     else:  # Scenario not provided as command line argument
-        while opts.s is None:
-            scenario = input('Please specify the desired AEO scenario. '
-                             'Valid entries are: ' +
-                             ', '.join(ValidQueries().cases[year]) + '.\n'
-                             '(Note that the last four of these should be '
-                             'entered as pairs for crafting a low gas/high '
-                             'electric price scenario and vice versa, e.g., '
-                             'highogs, highmachighZTC OR lowogs, lowmaclowZTC.)\n')
-            if scenario not in ValidQueries().cases[year]:
+        while opts.s_e is None:
+            scenario_elec = input('Please specify the desired AEO electricity scenario. '
+                                  'Valid entries are: ' +
+                                  ', '.join(ValidQueries().cases[year]) + '.\n')
+            if scenario_elec not in ValidQueries().cases[year]:
                 print('Invalid scenario entered.')
             else:
                 break
-    # Account for cases where user has specified two separate scenarios to pull for fossil
-    # vs. electric projections. User will specify as string with natural gas scenario name followed
-    # by electricity scenario name, with comma separating the two. Pull out into a list.
-    if "," in scenario:
-        scenario = scenario.split(", ")
+    # Fossil fuels
+    if opts.s_g is not None:
+        scenario_gas = opts.s_g
+    else:  # Scenario not provided as command line argument
+        while opts.s_g is None:
+            scenario_gas = input('Please specify the desired AEO fossil fuel scenario. '
+                                 'Valid entries are: ' +
+                                 ', '.join(ValidQueries().cases[year]) + '.\n')
+            if scenario_gas not in ValidQueries().cases[year]:
+                print('Invalid scenario entered.')
+            else:
+                break
 
     # Get year of earliest AEO data
     aeo_min = aeo_min_extract()
@@ -1237,17 +1230,13 @@ def main():
         # added with the indicated keys to the beginning of the file
         conv = OrderedDict(conv)
         conv['updated_to_aeo_year'] = year
-        # Account for cases where user has specified two separate scenarios to pull for
-        # fossil vs. electric projections
-        if isinstance(scenario, list):
-            conv['updated_to_aeo_case'] = {"fossil fuels": scenario[0], "electricity": scenario[1]}
-        else:
-            conv['updated_to_aeo_case'] = scenario
+        # List scenarios user has specified for electricity vs. fossil fuels
+        conv['updated_to_aeo_case'] = {"fossil fuels": scenario_gas, "electricity": scenario_elec}
         conv.move_to_end('updated_to_aeo_case', last=False)
         conv.move_to_end('updated_to_aeo_year', last=False)
 
         # Update site-source and CO2 emissions conversions
-        conv = updater(conv, api_key, year, scenario, make_web_version)
+        conv = updater(conv, api_key, year, scenario_elec, scenario_gas, make_web_version)
 
         # Exclude years that are not covered in AEO metadata year range
         fuels = ['CO2 price', 'electricity', 'natural gas', 'propane',
@@ -1312,12 +1301,8 @@ def main():
         # added with the indicated keys to the beginning of the file
         conv = OrderedDict(conv)
         conv['updated_to_aeo_year'] = year
-        # Account for cases where user has specified two separate scenarios to pull for
-        # fossil vs. electric projections
-        if isinstance(scenario, list):
-            conv['updated_to_aeo_case'] = {"fossil fuels": scenario[0], "electricity": scenario[1]}
-        else:
-            conv['updated_to_aeo_case'] = scenario
+        # List scenarios user has specified for electricity vs. fossil fuels
+        conv['updated_to_aeo_case'] = {"fossil fuels": scenario_gas, "electricity": scenario_elec}
         conv.move_to_end('updated_to_aeo_case', last=False)
         conv.move_to_end('updated_to_aeo_year', last=False)
 
@@ -1325,12 +1310,12 @@ def main():
               'conversion factors.')
 
         # Update EMM region emissions and electricity price factors
-        conv_emm = updater_emm(conv, api_key, year, scenario)
+        conv_emm = updater_emm(conv, api_key, year, scenario_elec)
 
         # Pull national gas price projections for use in trending current state-level prices
         # subsequently through 2050
         conv_gas = {"residential": {}, "commercial": {}}
-        conv_gas = updater_gastrend(conv_gas, api_key, year, scenario)
+        conv_gas = updater_gastrend(conv_gas, api_key, year, scenario_gas)
 
         # Output updated EMM emissions/price projections data
         with open(fp.CONVERT_DATA / opts.f, 'w') as js_out:

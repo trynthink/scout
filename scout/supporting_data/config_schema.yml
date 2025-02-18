@@ -214,7 +214,6 @@ properties:
         type: boolean
         default: false
         description: If true, suppress reporting of ECM-captured efficient energy use.
-
       no_lnkd_costs:
         type: object
         properties:
@@ -274,7 +273,7 @@ properties:
         type: ["string", "null"]
         enum: [highelec_lowfossil, lowelec_highfossil, null]
         default: null
-        description: Use supply-side scenarios with relatively high electricity prices/low natural gas prices, or vice versa.
+        description: Use supply-side scenarios with relatively high electricity prices/low natural gas prices, or vice versa. Will not be assessed if grid_decarb_level is non-null.
       
   run:
     type: object
