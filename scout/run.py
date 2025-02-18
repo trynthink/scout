@@ -318,13 +318,16 @@ class UsefulVars(object):
             raise ValueError(
                 "Error reading in '" +
                 handyfiles.cpi_data + "': " + str(e)) from None
+        # Set present year for cost conversions
+        yr_before_current = str(datetime.today().year - 1)
         # Years of the baseline stock cost, energy cost, and carbon cost data
-        # *** Note: could eventually be pulled from baseline data files
+        # Note that energy cost data are already adjusted to the year before current in ecm_prep.
+        # *** Note: stock/carbon cost units could eventually be pulled from baseline data files
         # rather than hardcoded ***
-        cost_yrs = {"stock": "2017", "energy": "2021", "carbon": "2020"}
+        cost_yrs = {"stock": "2017", "energy": yr_before_current, "carbon": yr_before_current}
         # Desired common cost year; use year previous to current one to
         # ensure that full year of CPI data is available for averaging
-        self.common_cost_yr = str(datetime.today().year - 1)
+        self.common_cost_yr = yr_before_current
         # Initialize dict of conversions to reach common cost basis
         self.cost_convert = {key: None for key in cost_yrs.keys()}
         # Find array of rows in CPI dataset associated with current year
