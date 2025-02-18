@@ -1,55 +1,61 @@
 #!/usr/bin/env python
 """Module for updating supporting emissions and prices files with Cambium data.
 
-This module can be used to update annual and hourly electricity CO2 intensities
-for varying electricity system scenarios using data from the NREL Cambium
-database, available at: https://scenarioviewer.nrel.gov/. Cambium documentation
-for 2023 is available at: https://www.nrel.gov/docs/fy24osti/88507.pdf.
+This module can be used to update annual and hourly electricity CO2 intensities for varying
+electricity system scenarios using data from the NREL Cambium database, available at:
+https://scenarioviewer.nrel.gov/. Cambium documentation for 2023 is available at:
+https://www.nrel.gov/docs/fy24osti/88507.pdf.
 
 This module will update the following metrics for a given Cambium grid
 scenario:
 
-    1) Annual average electricity CO2 emissions rates of generation induced by
-    end-use load at the U.S. national scale, or for the EIA's 25 2020 EMM
-    regions, or for U.S. states.
+    1) Annual average electricity CO2 emissions rates of generation induced by end-use load at the
+    U.S. national scale, or for the EIA's 25 2020 EMM regions, or for U.S. states.
 
     2) Scaling fractions representing:
-        a) The shape of hourly average electricity CO2 emissions rates of
-        generation induced by a region's end-use load at the EIA's 25 2020 EMM
-        region scale.
-        b) The shape of hourly marginal end-use electricity costs, inclusive
-        of energy, capacity, operating reserve, and policy costs.
+        a) The shape of hourly average electricity CO2 emissions rates of generation induced by a
+        region's end-use load at the EIA's 25 2020 EMM region scale.
+        b) The shape of hourly marginal end-use electricity costs, inclusive of energy, capacity,
+        operating reserve, and policy costs.
 
-    In both cases, the fractions are calculated as the ratio of the hourly
-    value to the annual average in each EMM region in each year.
+    In both cases, the fractions are calculated as the ratio of the hourly value to the annual
+    average in each EMM region in each year.
 
-The module gives users the option to specify a Cambium scenario for which to
-output updated data. For the annual emissions rates, it gives the option to
-specify whether to update these data at the U.S. national or EMM region
-geographical resolution.
+The module gives users the option to specify a Cambium scenario for which to output updated data.
+For the annual emissions rates, it gives the option to specify whether to update these data at the
+U.S. national or EMM region geographical resolution.
 
-This module leaves intact any data in the input JSON files that have been
-updated with the converter.py module, which is used to query the EIA AEO API
-to update annual emissions and site-source factors, as well as retail
-electricity prices, using AEO data.
+This module leaves intact any data in the input JSON files that have been updated with the
+converter.py module, which is used to query the EIA AEO API to update annual emissions and
+site-source factors, as well as retail electricity prices, using AEO data.
 
-A typical workflow for using these two modules is as follows:
+The intended workflow for running this module with other routines is as follows:
 
-    1) Update "Reference Case" annual emissions and site-source factors,
-    as well as retail electricity prices, using the converter.py module.
+1) Run ./scout/state_baseline_data_updater.py to update the current snapshots of state-level
+emissions and energy prices from EIA's survey data (via the API). The result will be written to the
+file ./scout/supporting_data/convert_data/EIA_State_Emissions_Prices_Baselines_*.csv, where *
+indicates the year of the data.
 
-    2) Download Cambium data for a single (or multiple) scenarios. Please
-    note that Cambium data must be downloaded separately, as they are not
-    currently stored on the Scout repository. This module will prompt the
-    user to indicate the file path to the Cambium data folder (with guidance
-    as to how the directory should be structured.)
+2) Run ./scout/converter.py separately to update each of the files beginning with "emm_region_"
+or "site_source in ./scout/supporting_data/convert_data, which will update all of the annual average
+emissions intensity, energy price, and site-source conversion values to reflect AEO projections
+pulled from the EIA API. For energy prices, electricity and gas prices are both broken out in the
+"state_" files, while only electricity prices are broken out in the "emm_region_" files. Electricity
+emissions intensities are also broken out in both of those files. Also note that updating the
+"emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
+select the latest AEO year available and use the following mapping between AEO case and the
+scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
+"-95by2050"; ref2023 -> all other files.
 
-    3) Update "Alternate Grid Scenario" annual emissions factors, as well as
-    hourly emissions and price scaling factors, using this module.
+3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
+"emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
+reflecting AEO trends in the EMM- or state-level annual emissions intensity values to reflecting
+trends from the relevant Cambium scenario. This routine will also update hourly emissions and
+price scaling factors that are used in Scout for time-sensitive valuation of these variables.
+Cambium data are downloaded from https://scenarioviewer.nrel.gov/ to a folder that this routine
+reads in from, see prompts in routine for instructions about how to structure that folder, and use
+the latest available Cambium year when prompted.
 
-Note that retail electricity price projections for any "Alternate
-Grid Scenario" annual data are currently drawn from the AEO API using
-the "Low Macro and Low Zero-Carbon Technology Cost" side case.
 """
 
 import pandas as pd
