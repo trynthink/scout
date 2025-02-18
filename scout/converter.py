@@ -4,25 +4,51 @@
 
 This module can be used to update the following two files:
 
-1) Electricity site-source conversion factors and CO2 intensities
-and prices for electricity, natural gas, and "other" fuel stored in a
-JSON database. The module uses the EIA API to pull the required data
-and automate this process without first downloading AEO data tables.
+1) Electricity site-source conversion factors and CO2 intensities and prices for electricity,
+natural gas, and "other" fuel stored in a JSON database. The module uses the EIA API to pull
+the required data and automate this process without first downloading AEO data tables.
 
-2) CO2 intensities and retail electricity price projections for the
-EIA's 25 2020 EMM regions stored in a JSON database. The module uses
-the EIA API to pull the required regional EMM data and automate this
-process without first downloading AEO data tables.
+2) CO2 intensities and retail electricity price projections for the EIA's 25 2020 EMM regions or
+states stored in a JSON database. For states, gas price projections are included as well. The module
+uses the EIA API to pull the required regional EMM data and automate this process without first
+downloading AEO data tables.
 
-The module gives users the option to specify an EIA AEO year and
-an EIA AEO scenario for which to output updated site-source conversion
-factors or updated EMM region CO2 intensity and retail price projections.
+The module gives users the option to specify an EIA AEO year and an EIA AEO scenario for which to
+output updated site-source conversion factors or updated EMM region CO2 intensity and retail price
+projections.
 
-This module leaves intact any data in the JSON from years prior to
-the first year of available data for a particular AEO requested. For
-example, if AEO 2018 is requested, the first year of available data
-is 2016, so data already present in the conversions JSON file for
-years prior to 2016 would remain unchanged by this function.
+This module leaves intact any data in the JSON from years prior to the first year of available data
+for a particular AEO requested. For example, if AEO 2018 is requested, the first year of available
+data is 2016, so data already present in the conversions JSON file for years prior to 2016 would
+remain unchanged by this function.
+
+The intended workflow for running this module with other routines is as follows:
+
+1) Run ./scout/state_baseline_data_updater.py to update the current snapshots of state-level
+emissions and energy prices from EIA's survey data (via the API). The result will be written to the
+file ./scout/supporting_data/convert_data/EIA_State_Emissions_Prices_Baselines_*.csv, where *
+indicates the year of the data.
+
+2) Run ./scout/converter.py separately to update each of the files beginning with "emm_region_"
+or "site_source in ./scout/supporting_data/convert_data, which will update all of the annual average
+emissions intensity, energy price, and site-source conversion values to reflect AEO projections
+pulled from the EIA API. For energy prices, electricity and gas prices are both broken out in the
+"state_" files, while only electricity prices are broken out in the "emm_region_" files. Electricity
+emissions intensities are also broken out in both of those files. Also note that updating the
+"emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
+select the latest AEO year available and use the following mapping between AEO case and the
+scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
+"-95by2050"; ref2023 -> all other files.
+
+3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
+"emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
+reflecting AEO trends in the EMM- or state-level annual emissions intensity values to reflecting
+trends from the relevant Cambium scenario. This routine will also update hourly emissions and
+price scaling factors that are used in Scout for time-sensitive valuation of these variables.
+Cambium data are downloaded from https://scenarioviewer.nrel.gov/ to a folder that this routine
+reads in from, see prompts in routine for instructions about how to structure that folder, and use
+the latest available Cambium year when prompted.
+
 """
 
 import requests
@@ -129,18 +155,28 @@ class EIAQueries(object):
         data_table_ids (list): A list of the expected data tableId
             values corresponding to the tables for the requested data
             series from the EIA API.
+        data_series_gasprice (list): API key strings to obtain the desired
+            gas price projections EIA AEO for the scenario and
+            AEO release year specified by the user.
+        data_names_gasprice (list): A list of strings to use as keys for
+            the gas price data pulled from the AEO and added to a dict.
+        data_table_ids_gasprice (list): A list of the expected data tableId
+            values corresponding to the tables for the requested gas price data
+            series from the EIA API.
         data_series_emm (list): API key strings to obtain the desired
             data by EMM region from the EIA AEO for the scenario and
             AEO release year specified by the user.
         data_names_emm (list): A list of strings to use as keys for
             the EMM data pulled from the AEO and added to a dict.
         data_table_ids_emm (list): A list of the expected data tableId
-            values corresponding to the tables for the requested data
+            values corresponding to the tables for the requested EMM data
             series from the EIA API.
         nonstandard_query_reqd (list): A list of API series IDs whose
             API paths do not follow the same format as other data.
         query (list): Complete API path (URL) constructed for the
             AEO scenario and release year specified by the user.
+        query_gasprice (list): Complete API path (URL) constructed for gas
+            price data in the AEO scenario and release year specified by the user.
         query_emm (list): Complete API path (URL) constructed for
             each EMM region for the AEO scenario and release year
             specified by the user.
@@ -184,6 +220,9 @@ class EIAQueries(object):
             'cnsm_enu_comm_NA_prop_NA_NA_qbtu',
             'cnsm_enu_comm_NA_dfo_NA_NA_qbtu',
             'cnsm_enu_comm_NA_rfo_NA_NA_qbtu']
+        self.data_series_gasprice = [
+            'prce_real_resd_NA_ng_NA_NA_y13dlrpmmbtu',
+            'prce_real_comm_NA_ng_NA_NA_y13dlrpmmbtu']
 
         self.data_names = [
             'elec_renew_hydro',
@@ -223,23 +262,29 @@ class EIAQueries(object):
             'lpg_com_energy',
             'distl_com_energy',
             'rsid_com_energy']
+        self.data_names_gasprice = [
+            'ng_res_price',
+            'ng_com_price']
 
+        # Note: convert table number to string for API query
         self.data_table_ids = [
-            # Table 17. Renewable Energy Consumption by Sector and Source
-            24, 24, 24, 24, 24,
-            # Table 2. Energy Consumption by Sector and Source
-            2, 2, 2, 2, 2, 2,
-            # Table 18. Energy-Related Carbon Dioxide Emissions by Sector and
-            # Source
-            17, 17,
-            # Table 3. Energy Prices by Sector and Source
-            3, 3,
-            2, 2,
-            17, 17,
-            3, 3,
-            2, 17, 2, 17, 2, 17,
-            3, 3, 2, 2,
-            3, 3, 3, 2, 2, 2]
+            str(x) for x in [
+                # Table 17. Renewable Energy Consumption by Sector and Source
+                24, 24, 24, 24, 24,
+                # Table 2. Energy Consumption by Sector and Source
+                2, 2, 2, 2, 2, 2,
+                # Table 18. Energy-Related Carbon Dioxide Emissions by Sector and
+                # Source
+                17, 17,
+                # Table 3. Energy Prices by Sector and Source
+                3, 3,
+                2, 2,
+                17, 17,
+                3, 3,
+                2, 17, 2, 17, 2, 17,
+                3, 3, 2, 2,
+                3, 3, 3, 2, 2, 2]]
+        self.data_table_ids_gasprice = ["3"] * len(self.data_series_gasprice)
 
         self.data_series_emm = []
         self.data_names_emm = []
@@ -261,6 +306,7 @@ class EIAQueries(object):
         # Region
 
         self.query = []
+        self.query_gasprice = []
         self.query_emm = []
 
         self.nonstandard_query_reqd = self.data_series[0:5]
@@ -282,6 +328,14 @@ class EIAQueries(object):
                     '&sort[0][column]=period&sort[0][direction]=desc&offset=0'
                     + '&length=5000')
             self.query.append(qstr)
+
+        for series_id in self.data_series_gasprice:
+            self.query_gasprice.append(
+                    'https://api.eia.gov/v2/aeo/' + yr +
+                    '/data/?frequency=annual&data[0]=value&facets[scenario][]='
+                    + scen + '&facets[seriesId][]=' + series_id +
+                    '&sort[0][column]=period&sort[0][direction]=desc&offset=0'
+                    + '&length=5000')
 
         for series_id in self.data_series_emm:
             self.query_emm.append(
@@ -316,8 +370,9 @@ def api_query(api_key, query_str, expect_table_id):
 
     try:
         data = response.json()['response']['data']
-        # Extract only the required data in the API response
-        data = [[str(x['period']), x['value']] for x in data if
+        # Extract only the required data in the API response; ensure that
+        # all numbers are formatted as floats (in some cases, they are retrieved as strings)
+        data = [[str(x['period']), float(x['value'])] for x in data if
                 x['tableId'] == expect_table_id]
     except KeyError:
         if response.status_code == 429:  # API rate limit exceeded
@@ -425,7 +480,7 @@ def data_getter(api_key, series_names, api_urls, series_table):
     return mstr_data_dict, years
 
 
-def updater(conv, api_key, aeo_yr, scen, restrict, web):
+def updater(conv, api_key, aeo_yr, scen, web):
     """Perform calculations using EIA data to update conversion factors JSON
 
     Using data from the AEO year and specified NEMS modeling scenario,
@@ -447,9 +502,6 @@ def updater(conv, api_key, aeo_yr, scen, restrict, web):
         aeo_yr (str): The desired year of the Annual Energy Outlook
             to query for data.
         scen (str): The desired AEO "case" or scenario to query.
-        restrict (bool): If true, electricity CO2 emissions intensities
-            in the file are from Cambium and should not be updated with
-            EIA data.
         web (bool): If true, the data output should include "other
             fuel" instead of separate "distillate" and "propane" fields.
 
@@ -491,32 +543,30 @@ def updater(conv, api_key, aeo_yr, scen, restrict, web):
         print('\nDue to failed data retrieval from the API, electricity '
               'site-source conversion factors were not updated.')
 
-    # Only update electricity CO2 intensities if they are from EIA
-    # data, not Cambium data
-    if not restrict:
-        # Residential electricity CO2 intensities [Mt CO2/quads]
-        try:
-            co2_res_ints = (z['elec_res_co2'] /
-                            (z['elec_res_energy_site'] +
-                             z['elec_res_energy_loss']))
-            for idx, year in enumerate(yrs):
-                conv['electricity']['CO2 intensity']['data']['residential'][
-                     year] = (round(co2_res_ints[idx]/capnrg[idx], 6))
-        except KeyError:
-            print('\nDue to failed data retrieval from the API, residential '
-                  'electricity CO2 emissions intensities were not updated.')
+    # Update electricity CO2 intensities
+    # Residential electricity CO2 intensities [Mt CO2/quads]
+    try:
+        co2_res_ints = (z['elec_res_co2'] /
+                        (z['elec_res_energy_site'] +
+                         z['elec_res_energy_loss']))
+        for idx, year in enumerate(yrs):
+            conv['electricity']['CO2 intensity']['data']['residential'][
+                 year] = (round(co2_res_ints[idx]/capnrg[idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, residential '
+              'electricity CO2 emissions intensities were not updated.')
 
-        # Commercial electricity CO2 intensities [Mt CO2/quads]
-        try:
-            co2_com_ints = (z['elec_com_co2'] /
-                            (z['elec_com_energy_site'] +
-                             z['elec_com_energy_loss']))
-            for idx, year in enumerate(yrs):
-                conv['electricity']['CO2 intensity']['data']['commercial'][
-                     year] = (round(co2_com_ints[idx]/capnrg[idx], 6))
-        except KeyError:
-            print('\nDue to failed data retrieval from the API, commercial '
-                  'electricity CO2 emissions intensities were not updated.')
+    # Commercial electricity CO2 intensities [Mt CO2/quads]
+    try:
+        co2_com_ints = (z['elec_com_co2'] /
+                        (z['elec_com_energy_site'] +
+                         z['elec_com_energy_loss']))
+        for idx, year in enumerate(yrs):
+            conv['electricity']['CO2 intensity']['data']['commercial'][
+                 year] = (round(co2_com_ints[idx]/capnrg[idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, commercial '
+              'electricity CO2 emissions intensities were not updated.')
 
     # Residential natural gas CO2 intensities [Mt CO2/quads]
     try:
@@ -711,7 +761,51 @@ def updater(conv, api_key, aeo_yr, scen, restrict, web):
     return conv
 
 
-def updater_emm(conv, api_key, aeo_yr, scen, restrict):
+def updater_gastrend(conv, api_key, aeo_yr, scen):
+    """Pull AEO natural gas price projections for residential and commercial.
+
+    Using data from the AEO year and specified NEMS modeling scenario, pull gas price forecasts
+    in $/MMBtu.
+
+    In case of data missing from the record dict 'z' not obtained from the API due to invalid
+    series IDs, run each calculation and update in a try/except block to catch KeyErrors for
+    missing data and address them by not updating the original data and printing a warning to the
+    console for the user.
+
+    Args:
+        conv (dict): Data structure for gas price information.
+        api_key (str): EIA API key from system environment variable.
+        aeo_yr (str): The desired year of the Annual Energy Outlook to query for data.
+        scen (str): The desired AEO "case" or scenario to query.
+
+    Returns:
+        Residential and commercial gas price forecast at the national level.
+    """
+
+    # Get data via EIA API
+    dq = EIAQueries(aeo_yr, scen)
+    z, yrs = data_getter(
+        api_key, dq.data_names_gasprice, dq.query_gasprice, dq.data_table_ids_gasprice)
+
+    # Residential natural gas prices [$/MMBtu source]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['residential'][year] = (round(z['ng_res_price'][idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, residential '
+              'natural gas prices were not updated.')
+    # Commercial natural gas prices [$/MMBtu source]
+    try:
+        for idx, year in enumerate(yrs):
+            conv['commercial'][year] = (round(z['ng_com_price'][idx], 6))
+    except KeyError:
+        print('\nDue to failed data retrieval from the API, commercial '
+              'natural gas prices were not updated.')
+
+    return conv
+
+
+def updater_emm(conv, api_key, aeo_yr, scen):
     """Perform calculations using EIA data to update EMM conversion factors
     JSON.
 
@@ -729,9 +823,6 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
         aeo_yr (str): The desired year of the Annual Energy Outlook
             to query for data.
         scen (str): The desired AEO "case" or scenario to query.
-        restrict (bool): If true, electricity CO2 emissions intensities
-            in the file are from Cambium and should not be updated with
-            EIA data.
 
     Returns:
         Updated EMM conversion factors dict to be exported to the
@@ -742,6 +833,8 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
     dq = EIAQueries(aeo_yr, scen)
     z, yrs = data_getter(api_key, dq.data_names_emm, dq.query_emm,
                          dq.data_table_ids_emm)
+    # Set the year of AEO cost data (*** update manually with each AEO version ***)
+    aeo_cost_yr = 2022
 
     # Emissions conversion factor from short tons to metric tons
     conv_factor = 0.90718474
@@ -749,26 +842,24 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
     for key, value in ValidQueries().regions_dict.items():
 
         # Electricity CO2 intensities [Mt CO2/MWh]
-        # Update only if the CO2 intensities are based on EIA data, not Cambium
-        if not restrict:
-            try:
-                co2_ints = ((z['elec_co2_total_' + key].astype('float') *
-                             conv_factor) /
-                            # account for T&D losses by multiplying sales by 5%
-                            (z['elec_sales_total_' + key].astype('float') * 1.05))
-                for idx, year in enumerate(yrs):
-                    conv['CO2 intensity of electricity'][
-                        'data'][value][year] = (
-                        round(co2_ints[idx], 6))
-                # Ensure years are ordered chronologically
-                conv['CO2 intensity of electricity']['data'][value] = (
-                    OrderedDict(sorted(conv['CO2 intensity of electricity'][
-                        'data'][value].items())))
-
-            except KeyError:
-                print('\nDue to failed data retrieval from the API, '
-                      'electricity CO2 emissions intensities were '
-                      'not updated.')
+        try:
+            co2_ints = ((z['elec_co2_total_' + key].astype('float') *
+                         conv_factor) /
+                        # account for T&D losses by multiplying sales by 5%
+                        (z['elec_sales_total_' + key].astype('float') * \
+                         1.05))
+            for idx, year in enumerate(yrs):
+                conv['CO2 intensity of electricity'][
+                    'data'][value][year] = (
+                    round(co2_ints[idx], 6))
+            # Ensure years are ordered chronologically
+            conv['CO2 intensity of electricity']['data'][value] = (
+                OrderedDict(sorted(conv['CO2 intensity of electricity'][
+                    'data'][value].items())))
+        except KeyError:
+            print('\nDue to failed data retrieval from the API, '
+                  'electricity CO2 emissions intensities were '
+                  'not updated.')
 
         # Residential electricity prices [$/kWh site]
         try:
@@ -799,11 +890,13 @@ def updater_emm(conv, api_key, aeo_yr, scen, restrict):
         except KeyError:
             print('\nDue to failed data retrieval from the API, commercial '
                   'electricity prices were not updated.')
+        # Reset cost units
+        conv['End-use electricity price']['units'] = (str(aeo_cost_yr) + "$/kWh site")
 
     return conv
 
 
-def updater_state(conv_emm, aeo_min, restrict):
+def updater_state(conv_emm, aeo_min, conv_gas):
     """Perform calculations using EIA data to generate state conversion
     factors JSON.
 
@@ -816,11 +909,15 @@ def updater_state(conv_emm, aeo_min, restrict):
         conv_emm (dict): Data structure from conversion JSON data file
             populated with EMM region-structured conversion values.
         aeo_min (str): Minimum (earliest) AEO data output year.
-        restrict (NoneType, bool): Flag no need to update emissions data.
+        conv_gas (dict): National residential and commercial gas price forecasts
+            (used to project forward current state-level gas prices).
 
     Returns:
         State-level conversion factors dict to be exported to JSON.
     """
+
+    # Convert EIA present-day gas prices from $/MCF to $/MMBtu (used in Scout forecast)
+    mcf_mmbtu = (1 / 1.038)
 
     # Check if any state_baseline_data is available;
     # if no data file exists, prompt user to run
@@ -852,6 +949,13 @@ def updater_state(conv_emm, aeo_min, restrict):
     # Load and clean state baselines data from CSV
     # Drop AK and HI and rename columns
     state_baselines = pd.read_csv(state_baseline_data).set_index('State')
+    # Find the year of current snapshot data and ensure it is later than the AEO minimum year (AEO
+    # year range is used to project state-level emissions and costs)
+    anchor_yr = state_baselines["Year"].iloc[0]
+    if anchor_yr < int(aeo_min):
+        anchor_yr = aeo_min
+    else:
+        anchor_yr = str(anchor_yr)
 
     # Load and clean EMM to State mapping file
     emm_state_map = pd.read_csv(UsefulVars().emm_state_map,
@@ -859,16 +963,15 @@ def updater_state(conv_emm, aeo_min, restrict):
         axis=0).set_index('EMM').drop(
         ['AK', 'HI'], axis=1).sort_index()
 
-    if not restrict:
-        # Create dataframe of EMM emissions ratios from base year through 2050
-        # Get EMM emissions factors from EMM conversion file
-        emm_co2 = pd.DataFrame.from_dict(
-            conv_emm['CO2 intensity of electricity']['data'], orient='index')
-        # Divide each year in dataframe by base year
-        emm_co2_ratios = emm_co2.iloc[:, 1:].div(emm_co2[aeo_min], axis=0)
-        # Re-insert base year into new dataframe
-        emm_co2_ratios.insert(0, aeo_min, '')
-        emm_co2_ratios[aeo_min] = 1.0
+    # Create dataframe of EMM emissions ratios from base year through 2050
+    # Get EMM emissions factors from EMM conversion file
+    emm_co2 = pd.DataFrame.from_dict(
+        conv_emm['CO2 intensity of electricity']['data'], orient='index')
+    # Divide each year in dataframe by base year
+    emm_co2_ratios = emm_co2.iloc[:, 1:].div(emm_co2[aeo_min], axis=0)
+    # Re-insert base year into new dataframe
+    emm_co2_ratios.insert(0, aeo_min, '')
+    emm_co2_ratios[aeo_min] = 1.0
 
     # Create dataframe of EMM price ratios for base year through 2050
     # Get prices from EMM conversion file
@@ -893,62 +996,85 @@ def updater_state(conv_emm, aeo_min, restrict):
     # projections based on EMM trends (base year ratios),
     # weighted using EMM to State mapping factors
 
-    if not restrict:
-        # Emissions
-        state_co2 = {state:
-                     {yr: np.average(emm_co2_ratios.loc[:, yr],
-                                     weights=emm_state_map.loc[:, state]) for
-                      yr in emm_co2_ratios.columns} for
-                     state in emm_state_map.columns}
-        state_co2_proj = {state:
-                          {yr: state_co2[state][yr] *
-                           state_baselines.loc[state,
-                           'Emissions Rate (Mt/TWh)'] for
-                           yr in emm_co2_ratios.columns} for
-                          state in state_co2.keys()}
+    # Emissions
+    state_co2 = {state:
+                 {yr: np.average(emm_co2_ratios.loc[:, yr],
+                                 weights=emm_state_map.loc[:, state]) for
+                  yr in emm_co2_ratios.columns} for
+                 state in emm_state_map.columns}
+    state_co2_proj = {state:
+                      {yr: state_co2[state][yr] *
+                       state_baselines.loc[state,
+                       'Emissions Rate (Mt/TWh)'] for
+                       yr in emm_co2_ratios.columns} for
+                      state in state_co2.keys()}
 
-    # Prices - residential
-    state_price_res = {state:
-                       {yr: np.average(emm_price_res_ratios.loc[:, yr],
-                                       weights=emm_state_map.loc[:, state]) for
-                        yr in emm_price_res_ratios.columns} for
-                       state in emm_state_map.columns}
-    state_price_res_proj = {state:
-                            {yr: state_price_res[state][yr] *
-                             state_baselines.loc[state,
-                             'Residential Electricity Price ($/kWh)'] for
+    # Prices - residential electric and gas
+    state_elec_price_res = {state:
+                            {yr: np.average(emm_price_res_ratios.loc[:, yr],
+                                            weights=emm_state_map.loc[:, state]) for
                              yr in emm_price_res_ratios.columns} for
-                            state in state_price_res.keys()}
+                            state in emm_state_map.columns}
+    state_elec_price_res_proj = {state:
+                                 {yr: state_elec_price_res[state][yr] *
+                                  state_baselines.loc[state,
+                                  'Residential Electricity Price ($/kWh)'] for
+                                  yr in emm_price_res_ratios.columns} for
+                                 state in state_elec_price_res.keys()}
+    state_gas_price_res = {yr: (conv_gas["residential"][yr] /
+                                conv_gas["residential"][anchor_yr]) for
+                           yr in conv_gas["residential"].keys()}
+    state_gas_price_res_proj = {state:
+                                {yr: state_gas_price_res[yr] * state_baselines.loc[state,
+                                 'Residential Gas Price ($/MCF)'] * mcf_mmbtu for
+                                 yr in state_gas_price_res.keys()} for
+                                state in state_baselines.index}
 
-    # Prices - commercial
-    state_price_com = {state:
-                       {yr: np.average(emm_price_com_ratios.loc[:, yr],
-                                       weights=emm_state_map.loc[:, state]) for
-                        yr in emm_price_com_ratios.columns} for
-                       state in emm_state_map.columns}
-    state_price_com_proj = {state:
-                            {yr: state_price_com[state][yr] *
-                             state_baselines.loc[state,
-                             'Commercial Electricity Price ($/kWh)'] for
+    # Prices - commercial electric and gas
+    state_elec_price_com = {state:
+                            {yr: np.average(emm_price_com_ratios.loc[:, yr],
+                                            weights=emm_state_map.loc[:, state]) for
                              yr in emm_price_com_ratios.columns} for
-                            state in state_price_com.keys()}
+                            state in emm_state_map.columns}
+    state_elec_price_com_proj = {state:
+                                 {yr: state_elec_price_com[state][yr] *
+                                  state_baselines.loc[state,
+                                  'Commercial Electricity Price ($/kWh)'] for
+                                  yr in emm_price_com_ratios.columns} for
+                                 state in state_elec_price_com.keys()}
+    state_gas_price_com = {yr: (conv_gas["commercial"][yr] / conv_gas["commercial"][anchor_yr]) for
+                           yr in conv_gas["commercial"].keys()}
+    state_gas_price_com_proj = {state:
+                                {yr: state_gas_price_com[yr] * state_baselines.loc[state,
+                                 'Commercial Gas Price ($/MCF)'] * mcf_mmbtu for
+                                 yr in state_gas_price_com.keys()} for
+                                state in state_baselines.index}
 
     # Update data fields to store state factors
-    if not restrict:
-        conv_emm['CO2 intensity of electricity']['data'] = state_co2_proj
-        conv_emm['CO2 intensity of electricity']['source'] = (
-            'Base year data from EIA State Electricity Data website, '
-            'projected to 2050 using sales-weighted average trends in '
-            'CO2 intensity for EMM regions that comprise a given state.')
+    conv_emm['CO2 intensity of electricity']['data'] = state_co2_proj
+    conv_emm['CO2 intensity of electricity']['source'] = (
+        'Base year (' + anchor_yr + ') data from EIA State Electricity Data website, '
+        'projected to 2050 using sales-weighted average AEO trends in '
+        'CO2 intensity for EMM regions that comprise a given state.')
     conv_emm['End-use electricity price']['data']['residential'] = \
-        state_price_res_proj
+        state_elec_price_res_proj
     conv_emm['End-use electricity price']['data']['commercial'] = \
-        state_price_com_proj
+        state_elec_price_com_proj
+    conv_emm['End-use electricity price']['units'] = (str(anchor_yr) + "$/kWh site")
     conv_emm['End-use electricity price']['source'] = (
-        'Base year data from EIA State Electricity Data website, '
-        'projected to 2050 using sales-weighted average trends in '
+        'Base (' + anchor_yr + ') data from EIA State Electricity Data website, '
+        'projected to 2050 using sales-weighted average AEO trends in '
         'residential and commercial electricity prices for EMM regions '
         'that comprise a given state.')
+    conv_emm['End-use gas price'] = {
+        "data": {
+            "residential": state_gas_price_res_proj,
+            "commercial": state_gas_price_com_proj},
+        "source": (
+            'Base year (' + anchor_yr + ') data from EIA Natual Gas Annual, '
+            'projected to 2050 using national AEO trends in '
+            'residential and commercial gas prices.'),
+        "units": (anchor_yr + "$/MMBtu site")}
 
     return conv_emm
 
@@ -1051,20 +1177,8 @@ def main():
 
     # Import file contents for the EMM file
     conv = json.load(open(fp.CONVERT_DATA / opts.f, 'r'))
-    # Determine if the EMM conversion file has been updated using Cambium
-    try:
-        _ = conv['updated_to_cambium_year']
-        restrict_update = True
-    except KeyError:
-        restrict_update = False
     # Import file contents for the state file
     conv_state = json.load(open(fp.CONVERT_DATA / state_conv_file, 'r'))
-    # Determine if the state conversion file has been updated using Cambium
-    try:
-        _ = conv['updated_to_cambium_year']
-        restrict_update_state = True
-    except KeyError:
-        restrict_update_state = False
 
     # Update routine specific to whether user is updating site-to-source
     # file or regional emission/price projections file
@@ -1091,8 +1205,7 @@ def main():
         conv.move_to_end('updated_to_aeo_year', last=False)
 
         # Update site-source and CO2 emissions conversions
-        conv = updater(conv, api_key, year, scenario, restrict_update,
-                       make_web_version)
+        conv = updater(conv, api_key, year, scenario, make_web_version)
 
         # Exclude years that are not covered in AEO metadata year range
         fuels = ['CO2 price', 'electricity', 'natural gas', 'propane',
@@ -1165,29 +1278,21 @@ def main():
               'conversion factors.')
 
         # Update EMM region emissions and electricity price factors
-        conv_emm = updater_emm(conv, api_key, year, scenario, restrict_update)
+        conv_emm = updater_emm(conv, api_key, year, scenario)
+
+        # Pull national gas price projections for use in trending current state-level prices
+        # subsequently through 2050
+        conv_gas = {"residential": {}, "commercial": {}}
+        conv_gas = updater_gastrend(conv_gas, api_key, year, scenario)
 
         # Output updated EMM emissions/price projections data
         with open(fp.CONVERT_DATA / opts.f, 'w') as js_out:
             json.dump(conv_emm, js_out, indent=5)
 
-        # Only update the state emissions data if these data have not already
-        # been updated using Cambium data. Always update state price data,
-        # which are currently based on the AEO projections that this routine
-        # pulls from and are not tied to Cambium updates.
-        if not restrict_update_state:
-            print('\nUpdating state CO2 emissions and prices.')
-            # Fully replace state emissions and electricity prices
-            conv_state = updater_state(
-                conv_emm, str(aeo_min), restrict_update_state)
-        else:
-            print('\nUpdating state prices.')
-            # Update state electricity prices and stitch into previously
-            # updated data
-            conv_state_price = \
-                updater_state(conv_emm, str(aeo_min), restrict_update_state)
-            conv_state['End-use electricity price'] = \
-                conv_state_price['End-use electricity price']
+        # Update state emissions data
+        print('\nUpdating state CO2 emissions and prices.')
+        # Fully replace state emissions and electricity prices
+        conv_state = updater_state(conv_emm, str(aeo_min), conv_gas)
 
         # Output updated state emissions/price projections data
         with open(fp.CONVERT_DATA / state_conv_file, 'w') as js_out:
