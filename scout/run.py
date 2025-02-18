@@ -2049,6 +2049,10 @@ class Engine(object):
                             fs_eff_splt_var = 1
                         # Efficient-captured energy all with switched to fuel
                         elif var_sub == "efficient-captured":
+                            fs_eff_splt_var = adj_out_break[
+                                "efficient-captured fuel splits"][var][yr]
+                        # Efficient-captured energy all with switched to fuel
+                        elif var_sub == "efficient-captured":
                             fs_eff_splt_var = 0
                         # Efficient energy may be split across base/switched
                         # to fuel
@@ -2533,7 +2537,8 @@ class Engine(object):
                                 adj_frac_t = adj_frac_eff
                                 # Efficient-captured energy all with switched
                                 # to fuel
-                                fs_eff_splt_var = 0
+                                fs_eff_splt_var = adj_out_break[
+                                    "efficient-captured fuel splits"][var][yr]
                             else:
                                 adj_frac_t = adj_frac_eff
                                 # Efficient energy may be split across base/
@@ -2887,6 +2892,9 @@ class Engine(object):
                     "baseline": None, "efficient": None, "savings": None}},
             "efficient fuel splits": {
                 "energy": None, "carbon": None, "cost": None
+            },
+            "efficient-captured fuel splits": {
+                "stock": None, "energy": None, "carbon": None, "cost": None
             }
         }
 
@@ -2945,12 +2953,25 @@ class Engine(object):
                              fs_eff_splt[var][1][yr]) if
                         fs_eff_splt[var][1][yr] != 0 else 1
                         for yr in self.handyvars.aeo_years}
-                else:
-                    # All efficient energy remains with original base fuel type
-                    # if there is no fuel switching
-                    for var in ["energy", "cost", "carbon"]:
-                        adj_out_break["efficient fuel splits"][var] = {
+                    if var == "energy":
+                        adj_out_break[
+                                "efficient-captured fuel splits"][var] = {
+                            yr: (fs_eff_splt[var][0][yr] /
+                                 fs_eff_splt[var][1][yr]) if
+                            fs_eff_splt[var][1][yr] != 0 else 1
+                            for yr in self.handyvars.aeo_years}
+                    else:
+                        adj_out_break["efficient-captured fuel splits"][
+                            var] = {
                             yr: 1 for yr in self.handyvars.aeo_years}
+                else:
+                    # All efficient energy/cost/carbon remains with
+                    # original base fuel type if there is no fuel switching
+                    adj_out_break["efficient fuel splits"][var], \
+                        adj_out_break["efficient-captured fuel splits"][
+                        var] = (
+                            {yr: 1 for yr in self.handyvars.aeo_years} for
+                            n in range(2))
         # Case where output breakouts are not split by fuel
         else:
             # Adjust energy/carbon/cost data
@@ -2975,8 +2996,10 @@ class Engine(object):
                             raise ke
                 # No adjustment to efficient results required to account for
                 # fuel splits
-                adj_out_break["efficient fuel splits"][var] = {
-                    yr: 1 for yr in self.handyvars.aeo_years}
+                adj_out_break["efficient fuel splits"][var], \
+                    adj_out_break["efficient-captured fuel splits"][var] = (
+                        {yr: 1 for yr in self.handyvars.aeo_years} for
+                        n in range(2))
 
         # Set up lists that will be used to determine the energy, carbon,
         # and cost totals associated with the contributing microsegment that
