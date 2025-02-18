@@ -3,9 +3,37 @@
 This module can be used to update the following file:
 "EIA_State_Emissions_Prices_Baselines_{year}.csv"
 
-The module gives users the option to specify a data update
-year for which to query the EIA SEDS API to generate updated state-level
-baseline generation, emissions, and prices data.
+The module gives users the option to specify a data update year for which to query the EIA API
+to generate updated state-level baseline generation, emissions, and prices data.
+
+The intended workflow for running this module with other routines is as follows:
+
+1) Run ./scout/state_baseline_data_updater.py to update the current snapshots of state-level
+emissions and energy prices from EIA's survey data (via the API). The result will be written to the
+file ./scout/supporting_data/convert_data/EIA_State_Emissions_Prices_Baselines_*.csv, where *
+indicates the year of the data.
+
+2) Run ./scout/converter.py separately to update each of the files beginning with "emm_region_"
+or "site_source in ./scout/supporting_data/convert_data, which will update all of the annual average
+emissions intensity, energy price, and site-source conversion values to reflect AEO projections
+pulled from the EIA API. For energy prices, electricity and gas prices are both broken out in the
+"state_" files, while only electricity prices are broken out in the "emm_region_" files. Electricity
+emissions intensities are also broken out in both of those files. Also note that updating the
+"emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
+select the latest AEO year available and use the following mapping between AEO case and the
+scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
+"-95by2050"; ref2023 -> all other files.
+
+3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
+"emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
+reflecting AEO trends in the EMM- or state-level annual emissions intensity values to reflecting
+trends from the relevant Cambium scenario. This routine will also update hourly emissions and
+price scaling factors that are used in Scout for time-sensitive valuation of these variables.
+Cambium data are downloaded from https://scenarioviewer.nrel.gov/ to a folder that this routine
+reads in from, see prompts in routine for instructions about how to structure that folder, and use
+the latest available Cambium year when prompted.
+
+
 """
 
 import os
@@ -18,7 +46,7 @@ from urllib.parse import unquote
 from scout.config import FilePaths as fp
 
 # Constants
-VALID_UPDATE_YEARS = ['2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
+VALID_UPDATE_YEARS = ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
 DATA_SERIES_DICT = {
     'source-disposition': [
         'direct-use', 'net-interstate-trade', 'estimated-losses',
@@ -46,6 +74,26 @@ STATE_QUERY_STRING = (
     '&facets[state][]=UT&facets[state][]=VA&facets[state][]=VT' +
     '&facets[state][]=WA&facets[state][]=WI&facets[state][]=WV' +
     '&facets[state][]=WY'
+)
+# Gas queries use different state filter names than electric queries
+STATE_QUERY_STRING_GAS = (
+    '&facets[duoarea][]=SAL&facets[duoarea][]=SAR&facets[duoarea][]=SAZ' +
+    '&facets[duoarea][]=SCA&facets[duoarea][]=SCO&facets[duoarea][]=SCT' +
+    '&facets[duoarea][]=SDC&facets[duoarea][]=SDE&facets[duoarea][]=SFL' +
+    '&facets[duoarea][]=SGA&facets[duoarea][]=SIA&facets[duoarea][]=SID' +
+    '&facets[duoarea][]=SIL&facets[duoarea][]=SIN&facets[duoarea][]=SKS' +
+    '&facets[duoarea][]=SKY&facets[duoarea][]=SLA&facets[duoarea][]=SMA' +
+    '&facets[duoarea][]=SMD&facets[duoarea][]=SME&facets[duoarea][]=SMI' +
+    '&facets[duoarea][]=SMN&facets[duoarea][]=SMO&facets[duoarea][]=SMS' +
+    '&facets[duoarea][]=SMT&facets[duoarea][]=SNC&facets[duoarea][]=SND' +
+    '&facets[duoarea][]=SNE&facets[duoarea][]=SNH&facets[duoarea][]=SNJ' +
+    '&facets[duoarea][]=SNM&facets[duoarea][]=SNV&facets[duoarea][]=SNY' +
+    '&facets[duoarea][]=SOH&facets[duoarea][]=SOK&facets[duoarea][]=SOR' +
+    '&facets[duoarea][]=SPA&facets[duoarea][]=SRI&facets[duoarea][]=SSC' +
+    '&facets[duoarea][]=SSD&facets[duoarea][]=STN&facets[duoarea][]=STX' +
+    '&facets[duoarea][]=SUT&facets[duoarea][]=SVA&facets[duoarea][]=SVT' +
+    '&facets[duoarea][]=SWA&facets[duoarea][]=SWI&facets[duoarea][]=SWV' +
+    '&facets[duoarea][]=SWY'
 )
 
 
@@ -131,6 +179,8 @@ def clean_source_disposition_data(data):
     # select relevant columns
     df = df[['period', 'state', 'total-net-generation', 'net-interstate-trade',
              'direct-use', 'total-international-imports', 'estimated-losses']]
+    # international import values can sometimes be blank; change to zeros
+    df.loc[df['total-international-imports'].isnull(), 'total-international-imports'] = 0
     # convert df columns except period and state to numeric
     df[df.columns[2:]] = df[df.columns[2:]].apply(pd.to_numeric)
     # calculate total disposition:
@@ -279,6 +329,33 @@ def main():
         data_dict[key] = api_query(query_str, api_key)
     # Clean and aggregate data
     df = clean_and_aggregate_data(data_dict, year)
+
+    # Add gas prices
+
+    # Set up residential and commercial queries
+    query_str_gas_res,  query_str_gas_com = [(
+        "https://api.eia.gov/v2/natural-gas/pri/sum/data/?frequency=annual&data[0]=value&facets" +
+        f"[process][]={bd}&" + f"{STATE_QUERY_STRING_GAS}" +
+        "&start=2015&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000")
+        for bd in ["PRS", "PCS"]]
+    # Initialize dict for storing ultimate values, with queries as initial values
+    gas_prices = {
+        "Residential Gas Price ($/MCF)": query_str_gas_res,
+        "Commercial Gas Price ($/MCF)": query_str_gas_com
+    }
+    # Loop through dict, pull and finalize data from queries
+    for key in gas_prices.keys():
+        # Pull state/price pairs, restricted to current year of focus
+        gas_prices_init = ([(x["duoarea"], x["value"]) for x in api_query(gas_prices[key], api_key)
+                            if x['period'] == year])
+        # Sort pairs alphabetically by state to ensure consistency with order of other data in CSV
+        gas_prices_sorted = sorted(gas_prices_init, key=lambda row: row[0])
+        # Overwrite initial queries with sorted values
+        gas_prices[key] = [row[1] for row in gas_prices_sorted]
+    # Append gas price columns and values to dataframe
+    for key in gas_prices:
+        df[key] = gas_prices[key]
+
     # Save data to CSV
     if baseline_data_path:
         output_path = str(baseline_data_path.parent) + \
