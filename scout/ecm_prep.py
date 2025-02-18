@@ -450,10 +450,12 @@ class UsefulVars(object):
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
+        # Shorthand for current year
+        self.current_yr = datetime.today().year
         # Load metadata including AEO year range
         aeo_yrs = Utils.load_json(handyfiles.metadata)
         # Set minimum modeling year to current year
-        aeo_min = datetime.today().year
+        aeo_min = self.current_yr
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -565,8 +567,20 @@ class UsefulVars(object):
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
             "other fuel": {yr: 1 for yr in self.aeo_years}}
+
+        # Shorthand for year before current year, which all costs will ultimately be converted to
+        yr_before_current = str(self.current_yr - 1)
+        # Set the cost year of fuel price data in the national input files
+        cost_yrs = {fuel: cost_ss_carb[
+            fuel]["price"]["units"].split("$")[0] for fuel in [
+            'electricity', 'natural gas', 'propane', 'distillate']}
+        # Find cost year conversion to between national input price data for all fuel types and
+        # the year before the current one
+        cost_yr_convert = {
+            fuel: self.cpi_converter(cost_yrs[fuel], yr_before_current)
+            for fuel in ['electricity', 'natural gas', 'propane', 'distillate']}
         # Set electric emissions intensities and prices differently
-        # depending on whether EMM regions are specified (use EMM-specific
+        # depending on whether EMM/state regions are specified (use EMM-/state-specific
         # data) or not (use national data)
         if self.regions in ["EMM", "State"]:
             # Read in EMM- or state-specific emissions factors and price data
@@ -588,12 +602,29 @@ class UsefulVars(object):
                 yr in self.aeo_years} for reg in cost_ss_carb_altreg[
                     "CO2 intensity of electricity"]["data"].keys()}} for
                 bldg in ["residential", "commercial"]}
+            # Electricity price data are further resolved by both EMM region and state, while gas
+            # prices are further resolved by state; find the cost units for these more resolute data
+            if "End-use gas price" in cost_ss_carb_altreg.keys():
+                # Regional resolution in gas prices is only for states
+                gas_price_regions = True
+                cost_yrs["electricity"], cost_yrs["natural gas"] = (
+                    cost_ss_carb_altreg[x]["units"].split("$")[0] for x in [
+                        "End-use electricity price", "End-use gas price"])
+            else:
+                # Regional resolution in gas prices is only for states
+                gas_price_regions = False
+                cost_yrs["electricity"] = \
+                    cost_ss_carb_altreg["End-use electricity price"]["units"].split("$")[0]
+            # Update year conversions when regionally-resolved price data are available to use
+            for x in ["electricity", "natural gas"]:
+                cost_yr_convert[x] = self.cpi_converter(cost_yrs[x], yr_before_current)
             # Initialize energy costs based on electricity prices by EMM region
             # or state; convert prices from $/kWh site to $/MMBTu site to match
-            # expected multiplication by site energy units
+            # expected multiplication by site energy units, and convert year of
+            # input electricity prices to year before current
             self.ecosts = {bldg: {"electricity": {reg: {
                 yr: round((cost_ss_carb_altreg["End-use electricity price"][
-                    "data"][bldg][reg][yr] / 0.003412), 6) for
+                    "data"][bldg][reg][yr] / 0.003412), 6) * cost_yr_convert["electricity"] for
                 yr in self.aeo_years} for reg in cost_ss_carb_altreg[
                     "End-use electricity price"]["data"][bldg].keys()}} for
                 bldg in ["residential", "commercial"]}
@@ -611,7 +642,7 @@ class UsefulVars(object):
                 self.ecosts_nonfs = {bldg: {"electricity": {reg: {
                     yr: round((cost_ss_carb_altreg_nonfs[
                         "End-use electricity price"][
-                        "data"][bldg][reg][yr] / 0.003412), 6) for
+                        "data"][bldg][reg][yr] / 0.003412), 6) * cost_yr_convert["electricity"] for
                     yr in self.aeo_years} for reg in cost_ss_carb_altreg_nonfs[
                         "End-use electricity price"]["data"][bldg].keys()}} for
                     bldg in ["residential", "commercial"]}
@@ -619,6 +650,8 @@ class UsefulVars(object):
                 self.carb_int_nonfs, self.ecosts_nonfs = (
                     None for n in range(2))
         else:
+            # Regional resolution in gas prices is only for states
+            gas_price_regions = False
             # Initialize CO2 intensities based on national CO2 intensities
             # for electricity; convert CO2 intensities from Mt/quad source to
             # Mt/MMBTu source to match expected multiplication by source energy
@@ -627,10 +660,11 @@ class UsefulVars(object):
                 1000000000 for yr in self.aeo_years}} for bldg in [
                 "residential", "commercial"]}
             # Initialize energy costs based on national electricity prices; no
-            # conversion needed as the prices will be multiplied by MMBtu
-            # source energy units and are already in units of $/MMBtu source
+            # energy unit conversion needed as the prices will be multiplied by MMBtu
+            # source energy units and are already in units of $/MMBtu source; convert year of
+            # input electricity prices to year before current
             self.ecosts = {bldg: {"electricity": {yr: cost_ss_carb[
-                "electricity"]["price"]["data"][bldg][yr] for
+                "electricity"]["price"]["data"][bldg][yr] * cost_yr_convert["electricity"] for
                 yr in self.aeo_years}} for bldg in [
                 "residential", "commercial"]}
             # Finalize base-case emissions/cost data to use in assessing
@@ -644,8 +678,8 @@ class UsefulVars(object):
                         "residential", "commercial"]}
                 self.ecosts_nonfs = {
                     bldg: {"electricity": {yr: cost_ss_carb_nonfs[
-                        "electricity"]["price"]["data"][bldg][yr] for
-                        yr in self.aeo_years}} for bldg in [
+                        "electricity"]["price"]["data"][bldg][yr] * cost_yr_convert["electricity"]
+                        for yr in self.aeo_years}} for bldg in [
                         "residential", "commercial"]}
             else:
                 self.carb_int_nonfs, self.ecosts_nonfs = (
@@ -655,7 +689,7 @@ class UsefulVars(object):
         # accordingly; convert CO2 intensities from Mt/quad source to
         # Mt/MMBTu source to match expected multiplication by source energy;
         # price data are already in units of $/MMBtu source and do not require
-        # further conversion
+        # further energy unit conversion; convert year of input prices to year before current
         carb_int_nonelec = {bldg: {fuel: {yr: (
             cost_ss_carb[fuel_map]["CO2 intensity"]["data"][
                 bldg][yr] / 1000000000) for yr in self.aeo_years}
@@ -664,11 +698,19 @@ class UsefulVars(object):
                 ["natural gas", "distillate", "propane"])
             } for bldg in ["residential", "commercial"]}
         ecosts_nonelec = {bldg: {fuel: {yr: cost_ss_carb[
-            fuel_map]["price"]["data"][bldg][yr] for yr in
+            fuel_map]["price"]["data"][bldg][yr] * cost_yr_convert[fuel_map] for yr in
             self.aeo_years} for fuel, fuel_map in zip([
                 "natural gas", "distillate", "other fuel"], [
                 "natural gas", "distillate", "propane"])} for bldg in [
             "residential", "commercial"]}
+        # Replace national gas prices with regionally-resolved prices, if available
+        if gas_price_regions:
+            for bldg in ["residential", "commercial"]:
+                ecosts_nonelec[bldg]["natural gas"] = {reg: {
+                    yr: cost_ss_carb_altreg["End-use gas price"][
+                        "data"][bldg][reg][yr] * cost_yr_convert["natural gas"] for
+                    yr in self.aeo_years} for reg in cost_ss_carb_altreg[
+                        "End-use gas price"]["data"][bldg].keys()}
         for bldg in ["residential", "commercial"]:
             self.carb_int[bldg].update(carb_int_nonelec[bldg])
             self.ecosts[bldg].update(ecosts_nonelec[bldg])
@@ -682,10 +724,13 @@ class UsefulVars(object):
                 self.ecosts_nonfs[bldg].update(ecosts_nonelec[bldg])
         # Set carbon costs
         ccosts_init = cost_ss_carb["CO2 price"]["data"]
+        # Find conversion between year of carbon price data and year prior to current
+        ccost_yr_convert = self.cpi_converter(
+            cost_ss_carb["CO2 price"]["units"].split("$")[0], yr_before_current)
         # Multiply carbon costs by 1000000 to reflect
-        # conversion from import units of $/MTon to $/MMTon
+        # conversion from import units of $/MTon to $/MMTon and convert to common cost year
         self.ccosts = {
-            yr_key: (ccosts_init[yr_key] * 1000000) for
+            yr_key: (ccosts_init[yr_key] * 1000000) * ccost_yr_convert for
             yr_key in self.aeo_years}
         self.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1791,6 +1836,45 @@ class UsefulVars(object):
                     "for ECM '" + self.name + "'")
 
         return keyval_list
+
+    def cpi_converter(self, convert_from, convert_to):
+        """Use consumer price index to convert costs between two years.
+
+        Args:
+            convert_from (string): Year to convert from.
+            convert_to (string): Year to convert to.
+
+        Returns:
+            Multiplier for translating cost units between the years.
+        """
+        # If either convert from or convert to is None, assume current year
+        convert_from, convert_to = [
+            x if x is not None else str(self.current_yr) for x in [
+                convert_from, convert_to]]
+        # Set full CPI dataset
+        cpi = self.consumer_price_ind
+        # Find array of rows in CPI dataset associated with the input
+        # cost year
+        cpi_row_in = [x[1] for x in cpi if convert_from in x['DATE']]
+        # Average across all rows for a year, or if year wasn't found,
+        # choose the latest available row in the data
+        if len(cpi_row_in) == 0:
+            cpi_row_in = cpi[-1][1]
+        else:
+            cpi_row_in = numpy.mean(cpi_row_in)
+        # Find array of rows in CPI dataset associated with the output
+        # cost year
+        cpi_row_out = [x[1] for x in cpi if convert_to in x['DATE']]
+        # Average across all rows for a year, or if year wasn't found,
+        # choose the latest available row in the data
+        if len(cpi_row_out) == 0:
+            cpi_row_out = cpi[-1][1]
+        else:
+            cpi_row_out = numpy.mean(cpi_row_out)
+        # Calculate year conversion ratio
+        convert_fact = cpi_row_out / cpi_row_in
+
+        return convert_fact
 
 
 class EPlusMapDicts(object):
@@ -7659,28 +7743,7 @@ class Measure(object):
         # If measure and baseline cost years are inconsistent, map measure
         # to baseline cost year using Consumer Price Index (CPI) data
         if cost_meas_yr != cost_base_yr:
-            # Set full CPI dataset
-            cpi = self.handyvars.consumer_price_ind
-            # Find array of rows in CPI dataset associated with the measure
-            # cost year
-            cpi_row_meas = [x[1] for x in cpi if cost_meas_yr in x['DATE']]
-            # Average across all rows for a year, or if year wasn't found,
-            # choose the latest available row in the data
-            if len(cpi_row_meas) == 0:
-                cpi_row_meas = cpi[-1][1]
-            else:
-                cpi_row_meas = numpy.mean(cpi_row_meas)
-            # Find array of rows in CPI dataset associated with the baseline
-            # cost year
-            cpi_row_base = [x[1] for x in cpi if cost_base_yr in x['DATE']]
-            # Average across all rows for a year, or if year wasn't found,
-            # choose the latest available row in the data
-            if len(cpi_row_base) == 0:
-                cpi_row_base = cpi[-1][1]
-            else:
-                cpi_row_base = numpy.mean(cpi_row_base)
-            # Calculate year conversion ratio
-            convert_yr = cpi_row_base / cpi_row_meas
+            convert_yr = self.handyvars.cpi_converter(cost_meas_yr, cost_base_yr)
         else:
             convert_yr = 1
 

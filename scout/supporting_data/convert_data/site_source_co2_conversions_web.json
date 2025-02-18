@@ -493,7 +493,7 @@
           "2050": 70.064221
         }
       }
-    }, 
+    },
     "price": {
       "units": "2022$/MMBtu source",
       "source": "Calculated using converter.py, pulling from the 2023 EIA Annual Energy Outlook (2022-2050); consumption-weighted average of Propane, Residual Fuel Oil (if applicable), and Distillate Fuel Oil prices; previous years (2016-2021) backfilled based on 2022 value from AEO 2023",

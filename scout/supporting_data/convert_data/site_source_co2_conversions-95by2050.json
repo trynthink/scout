@@ -46,7 +46,7 @@
   "electricity": {
     "CO2 intensity": {
       "units": "Mt/quads",
-      "source": "AEO 23 data through 2022 w/ Cambium projections",
+      "source": "AEO 2023 data through 2022 w/ Cambium projections",
       "data": {
         "residential": {
           "2016": 39.884285,
