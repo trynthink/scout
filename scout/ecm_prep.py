@@ -3094,7 +3094,27 @@ class Measure(object):
                         mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
                         mskeys_swtch_eu, mskeys_swtch_tech, mskeys[6]]
             else:
-                mskeys_swtch = ""
+                mskeys_swtch, mskeys_swtch_fuel, mskeys_swtch_eu, mskeys_swtch_tech = (
+                    "" for n in range(4))
+
+            # Flag that will suppress inclusion of baseline heat pump segment stock costs for
+            # non-anchor segments to avoid double counting. For example, if the default anchor
+            # segment is heating, all HP costs are counted in the heating segment, while cooling
+            # segment stock costs are suppressed by this flag.
+            # (costs already fully reflected in anchor end use)
+            rmv_hp_dblct_base_stkcosts = (mskeys[-2] and "HP" in mskeys[-2])
+            # Flag to suppress inclusion of measure (e.g., switched to or like-for-like replacement)
+            # heat pump segment stock costs for non-anchor segments to avoid double counting.
+            rmv_hp_dblct_meas_stkcosts = (
+                (mskeys_swtch_tech and "HP" in mskeys_swtch_tech) or
+                (not mskeys_swtch_tech and rmv_hp_dblct_base_stkcosts))
+            # Flag to remove minor HVAC tech stock costs from calculations when the measure applies
+            # to major HVAC techs (e.g., unit costs in competition should be based on major heating/
+            # cooling tech. unit costs, not room ACs or secondary heaters)
+            rmv_minor_hvac_stkcosts = (
+                # Multiple techs. including minor HVAC tech.
+                any([x in mskeys for x in self.handyvars.minor_hvac_tech]) and not
+                all([x in self.handyvars.minor_hvac_tech for x in self.technology["primary"]]))
 
             # Check whether early retrofit rates are specified at the
             # component (microsegment) level; if so, restrict early retrofit
@@ -5964,40 +5984,6 @@ class Measure(object):
                             retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base,
                             lkg_fmeth_meas, warn_list)
 
-                    # Remove minor HVAC equipment stocks in cases where major
-                    # HVAC tech. is also covered by the measure definition, as
-                    # well as double counted stock and stock cost for equipment
-                    # measures that apply to more than one end use that
-                    # includes heating or cooling. In the latter cases, anchor
-                    # stock/cost on on heating end use tech.,
-                    # provided heating is included, because they are
-                    # generally of greatest interest for the stock of measures
-                    # like ASHPs and span fuels (e.g., electric resistance, gas
-                    # furnace, oil furnace, etc.). If heating is not covered,
-                    # anchor on the cooling end use technologies. This
-                    # adjustment covers all measures that apply across
-                    # heating/cooling (and possibly other) end uses
-                    if sqft_subst != 1 and ((
-                        # Multiple techs. including minor HVAC tech.
-                        any([x in mskeys for x in
-                             self.handyvars.minor_hvac_tech]) and not
-                        all([x in self.handyvars.minor_hvac_tech for
-                             x in self.technology["primary"]])) or (
-                        # Multiple end uses
-                        len(ms_lists[3]) > 1 and ((
-                            "heating" in ms_lists[3] and
-                            "heating" not in mskeys) or (
-                            "heating" not in ms_lists[3] and
-                            "cooling" in ms_lists[3] and
-                                "cooling" not in mskeys)))):
-                        add_stock_total, add_stock_compete, \
-                            add_stock_total_meas, add_stock_compete_meas, \
-                            add_stock_cost, add_stock_cost_compete, \
-                            add_stock_cost_meas, \
-                            add_stock_cost_compete_meas = ({
-                                yr: 0 for yr in self.handyvars.aeo_years}
-                                for n in range(8))
-
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
                     # adjusted by the stock of the contributing microsegment
@@ -6047,17 +6033,120 @@ class Measure(object):
                                     "efficient": add_carb_cost_eff},
                                 "competed": {
                                     "baseline": add_carb_cost_compete,
-                                    "efficient": add_carb_cost_compete_eff}}},
-                        "lifetime": {
-                            "baseline": {
-                                yr: life_base[yr] * add_stock_total[yr] for
-                                yr in self.handyvars.aeo_years},
-                            "measure": life_meas}}
+                                    "efficient": add_carb_cost_compete_eff}}}}
+
+                    # If user has not suppress the inclusion of linked stock/operating costs for
+                    # measures that apply to heating or cooling and other end use segments, transfer
+                    # any costs from linked segments over to the anchor end use segments
+                    # (by default this is the heating end use segments).
+                    if (not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
+                            (self.linked_htcl_tover and
+                                mskeys[4] != self.linked_htcl_tover_anchor_eu)):
+                        # Find the specific contributing microsegment data for the anchor end use
+                        # to add costs to. Ensure that linked data are only added to anchor end
+                        # use segments that apply to the same mseg type (primary/secondary),
+                        # region, building type, and building vintage, and that no envelope (
+                        # "demand") msegs are pulled into this calculation, which applies to equip.
+                        ctb_mseg_to_add_cost_to = [x for x in self.markets[adopt_scheme][
+                            "mseg_adjust"]["contributing mseg keys and values"].keys() if
+                            "demand" not in x and self.linked_htcl_tover_anchor_eu in x and all([
+                                elem in x for elem in [
+                                    mskeys[0], mskeys[1], mskeys[2], mskeys[-1]]])]
+                        # Loop through the applicable msegs to add costs to and add costs
+                        for add_to_mseg in ctb_mseg_to_add_cost_to:
+                            # Shorthand for mseg data to add costs to
+                            add_to_dict = self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][add_to_mseg]
+                            # Add in all cost data (stock, energy, and carbon)
+                            add_to_dict["cost"] = {cost_key: {output: {
+                                # Add to cost data for baseline/efficient cases
+                                case: {
+                                    # anchor mseg cost data plus unit costs for current
+                                    # linked mseg, multiplied by the number of anchor mseg units.
+                                    # Handle cases where linked mseg units are zero, or a heat pump
+                                    # case where stock costs will already have been counted in the
+                                    # anchor end use, or user has suppressed linked stock or
+                                    # operating cost calcs, or the current linked mseg represents a
+                                    # minor technology that shouldn't be counted towards stock costs
+                                    # (do not modify anchor mseg data further)
+                                    yr: (add_to_dict["cost"][cost_key][output][
+                                        case][yr] + ((add_dict["cost"][
+                                            cost_key][output][case][yr] /
+                                            add_dict["stock"][output][stk_var][yr]) *
+                                        add_to_dict["stock"][output][stk_var][yr]))
+                                    if (add_dict["stock"][output][stk_var][yr] != 0 and (
+                                        (cost_key == "stock" and not opts.no_lnkd_stk_costs
+                                         and not rmv_hp
+                                         and not rmv_minor_hvac_stkcosts)
+                                        or cost_key != "stock" and not opts.no_lnkd_op_costs)) else
+                                    add_to_dict["cost"][cost_key][output][case][yr]
+                                    for yr in self.handyvars.aeo_years} for case, stk_var, rmv_hp in
+                                zip(["baseline", "efficient"], ["all", "measure"],
+                                    [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts])
+                                } for output in ["total", "competed"]
+                            } for cost_key in ["stock", "energy", "carbon"]}
+
+                    # Remove minor HVAC equipment stocks in cases where major HVAC tech. is also
+                    # covered by the measure definition, as well as double counted stock and stock
+                    # cost for equipment measures that apply to more than one end use that includes
+                    # heating or cooling. In the latter cases, anchor stock/cost on on heating end
+                    # use tech., provided heating is included, because they are generally of
+                    # greatest interest for the stock of measures like ASHPs and span fuels (e.g.,
+                    # electric resistance, gas furnace, oil furnace, etc.). If heating is not
+                    # covered, anchor on the cooling end use technologies. This adjustment covers
+                    # all measures that apply across heating/cooling (and possibly other) end uses
+                    if sqft_subst != 1 and (rmv_minor_hvac_stkcosts or (len(ms_lists[3]) > 1 and ((
+                            "heating" in ms_lists[3] and "heating" not in mskeys) or (
+                            "heating" not in ms_lists[3] and "cooling" in ms_lists[3] and
+                            "cooling" not in mskeys)))):
+                        # Only count stock in anchor end uses (e.g., when heating and cooling
+                        # stock are both assessed, only count number of heating units, such that
+                        # all stock costs are normalized to only the number of heating units)
+                        add_dict["stock"]["total"]["all"], add_dict["stock"]["competed"]["all"], \
+                            add_dict["stock"]["total"]["measure"], \
+                            add_dict["stock"]["competed"]["measure"] = ({
+                                yr: 0 for yr in self.handyvars.aeo_years} for n in range(4))
+                        # Remove all linked stock costs for baseline when suppressed by the user or
+                        # in the case of HPs where the full stock cost for HPs is already counted in
+                        # the anchor end use, or in the case of minor HVAC techs that should be
+                        # excluded from the cost calculations
+                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or \
+                                rmv_hp_dblct_base_stkcosts:
+                            add_dict["cost"]["stock"]["total"]["baseline"], \
+                                add_dict["cost"]["stock"]["competed"]["baseline"] = ({
+                                    yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+                        # Remove all linked stock costs for measure when suppressed by the user or
+                        # in the case of HPs where the full stock cost for HPs is already counted in
+                        # the anchor end use, or in the case of minor HVAC techs that should be
+                        # excluded from the cost calculations
+                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or\
+                                rmv_hp_dblct_meas_stkcosts:
+                            add_dict["cost"]["stock"]["total"]["efficient"], \
+                                add_dict["cost"]["stock"]["competed"]["efficient"] = ({
+                                    yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+                        # Remove all linked energy and carbon costs for baseline and measure when
+                        # suppressed by the user
+                        if opts.no_lnkd_op_costs:
+                            for var in ["energy", "carbon"]:
+                                for case in ["baseline", "efficient"]:
+                                    add_dict["cost"][var]["total"][case] = {
+                                        yr: 0 for yr in self.handyvars.aeo_years}
+
+                    # Append lifetime data multiplied by # of stock units (after any adjustments to
+                    # remove linked stock totals above), to support later calculation of
+                    # stock-weighted overall lifetime
+                    add_dict["lifetime"] = {
+                        "baseline": {
+                            yr: life_base[yr] * add_dict["stock"]["total"]["all"][yr] for
+                            yr in self.handyvars.aeo_years},
+                        "measure": life_meas}
 
                     # Add captured efficient energy if not suppressed
                     if add_energy_total_eff_capt:
                         add_dict["energy"]["total"]["efficient-captured"] = \
                             add_energy_total_eff_capt
+                    else:
+                        add_dict["energy"]["total"]["efficient-captured"] = None
 
                     # Check fugitive emissions option settings and update
                     # dict with fugitive emissions, broken out by the source
@@ -6089,10 +6178,15 @@ class Measure(object):
                         # Populate detailed breakout information for measure
                         breakout_mseg(
                             self, mskeys, contrib_mseg_key, adopt_scheme, opts,
-                            add_stock_total, add_energy_total, add_energy_cost,
-                            add_carb_total, add_stock_total_meas,
-                            add_energy_total_eff, add_energy_total_eff_capt,
-                            add_energy_cost_eff, add_carb_total_eff,
+                            add_dict["stock"]["total"]["all"],
+                            add_dict["energy"]["total"]["baseline"],
+                            add_dict["cost"]["energy"]["total"]["baseline"],
+                            add_dict["carbon"]["total"]["baseline"],
+                            add_dict["stock"]["total"]["measure"],
+                            add_dict["energy"]["total"]["efficient"],
+                            add_dict["energy"]["total"]["efficient-captured"],
+                            add_dict["cost"]["energy"]["total"]["efficient"],
+                            add_dict["carbon"]["total"]["efficient"],
                             add_fs_stk_eff_remain,
                             add_fs_energy_eff_remain,
                             add_fs_energy_cost_eff_remain,
