@@ -66,7 +66,7 @@ class TestConfig(unittest.TestCase, Utils):
         files and directly from the command line.
     """
 
-    # Expected ecm_prep and run default values; aligns with test_files/default_config.yml
+    # Expected ecm_prep and run default values
     default_config = {
         "ecm_prep": {
             "ecm_directory": None,
@@ -104,6 +104,9 @@ class TestConfig(unittest.TestCase, Utils):
             "pkg_env_sep": False,
             "detail_brkout": [],
             "fugitive_emissions": [],
+            "no_eff_capt": False,
+            "no_lnkd_stk_costs": False,
+            "no_lnkd_op_costs": False
         },
         "run": {
             "results_directory": None,

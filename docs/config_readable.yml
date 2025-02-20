@@ -88,6 +88,17 @@ ecm_prep:
     alt_regions to be set to `EMM`. Default False
   no_eff_capt: (boolean) If true, suppress reporting of ECM-captured
     efficient energy use. Default False
+  no_lnkd_costs:
+    no_lnkd_op_costs: (boolean) For measures that span heating
+      or cooling and other end uses, count operating costs for
+      only the anchor end use (rather than all end uses) in representing
+      competition w/ other measures (default anchor is heating).
+      Default False
+    no_lnkd_stk_costs: (boolean) For measures that span heating
+      or cooling and other end uses, count stock costs for only
+      the anchor end use (rather than all end uses) in representing
+      competition w/ other measures (default anchor is heating).
+      Default False
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
     heating and cooling energy effects from changes in lighting
     efficacy. Default False
