@@ -154,6 +154,7 @@ class UsefulInputFiles(object):
             data to asses fugitive emissions sources.
         incentives (tuple): Settings to modify federal and state measure incentives.
         rates (tuple): Settings to represent rate structures that support electric heating.
+        local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
     """
 
     def __init__(self, opts):
@@ -263,6 +264,7 @@ class UsefulInputFiles(object):
         self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
         self.incentives = fp.SUB_FED / "incentives.csv"
         self.rates = fp.SUB_FED / "rates.csv"
+        self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -599,6 +601,21 @@ class UsefulVars(object):
         except ValueError as e:
             raise ValueError(
                 f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
+        # If states are used, read in state-level cost adjustment data
+        if self.regions == "State":
+            # Read in adjustment factors
+            reg_cost_adj_array = pd.read_csv(handyfiles.local_cost_adj)
+            # Store factors for each state and building type (res/com) in a dict for
+            # efficient access subsequently
+            self.reg_cost_adj = {}
+            for row in reg_cost_adj_array.index:
+                # Dict is organized by state and building type (res/com) levels
+                self.reg_cost_adj[reg_cost_adj_array.loc[row, "state"]] = {
+                    bldg: reg_cost_adj_array.loc[row, bldg] for
+                    bldg in ["residential", "commercial"]
+                }
+        else:
+            self.reg_cost_adj = None
         # Read in commercial equipment capacity factors
         self.cap_facts = Utils.load_json(handyfiles.cap_facts)
         # Read in national-level site-source, emissions, and costs data
@@ -5750,6 +5767,12 @@ class Measure(object):
                     raise KeyError(
                         "Invalid performance or cost units for ECM '" +
                         self.name + "'")
+
+                # Adjust baseline and measure costs to current region, if applicable
+                if self.handyvars.reg_cost_adj is not None:
+                    cost_meas, cost_base = [
+                        {yr: x[yr] * self.handyvars.reg_cost_adj[mskeys[1]][bldg_sect]
+                         for yr in self.handyvars.aeo_years} for x in [cost_meas, cost_base]]
 
                 # Set stock turnover info. and consumer choice info. to
                 # appropriate building type
