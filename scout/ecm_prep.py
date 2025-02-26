@@ -12023,7 +12023,7 @@ class MeasurePackage(Measure):
     def add_env_costs_to_pkg(
             self, msegs_meas, adopt_scheme, htcl_key_match, key_list, cm_key,
             common_stk):
-        """Reflect envelope stock costs in HVAC/envelope package data.
+        """Reflect incremental envelope stock costs in HVAC/envelope package data.
 
         Args:
             msegs_meas (dict): Data for the contributing microsegment of an
@@ -12065,7 +12065,9 @@ class MeasurePackage(Measure):
                     yr: 0 for yr in self.handyvars.aeo_years}
                     for n in range(8))
             # Loop through all contributing microsegments for the overlapping
-            # envelope measure and add to initialized stock cost/stock data
+            # envelope measure and add to initialized stock cost/stock data. Note
+            # that any overlaps in stock data across multiple envelope components within
+            # the same measure have been worked out/adjusted already in fill_mkts
             for c_mseg in range(len(olm_sc)):
                 tot_stk_eff, tot_stk_cost_eff, tot_stk_base, \
                     tot_stk_cost_base, comp_stk_eff, comp_stk_cost_eff, \
@@ -12181,50 +12183,48 @@ class MeasurePackage(Measure):
                         1 if comp_stk_eff_hvac_unadj[yr] != 0 else 0)
                 for yr in self.handyvars.aeo_years}
 
-            # Set efficient and baseline envelope costs, normalized by the
-            # stock (converted above to same units as HVAC equipment), to add
-            # to the unit costs of the HVAC equipment measure; note that in
-            # both cases, aggregate costs are anchored on the measure-captured
-            # stock numbers
+            # Set efficient and baseline envelope costs, normalized by the stock (converted above
+            # to same units as HVAC equipment), and calculate incremental difference between the
+            # two to add to the unit costs of the HVAC equipment measure
             env_cost_eff_tot_unit = {
                 yr: ((tot_stk_cost_eff[yr] / tot_stk_eff[yr]) *
                      tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             env_cost_base_tot_unit = {
-                yr: ((tot_stk_cost_base[yr] / tot_stk_eff[yr]) *
+                yr: ((tot_stk_cost_base[yr] / tot_stk_base[yr]) *
                      tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
+            # Incremental
+            env_cost_inc_tot_unit = {
+                yr: (env_cost_eff_tot_unit[yr] - env_cost_base_tot_unit[yr])
+                if (env_cost_eff_tot_unit[yr] - env_cost_base_tot_unit[yr]) >= 0 else 0
+                for yr in self.handyvars.aeo_years
+            }
             env_cost_eff_comp_unit = {
                 yr: ((comp_stk_cost_eff[yr] / comp_stk_eff[yr]) *
                      comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             env_cost_base_comp_unit = {
-                yr: ((comp_stk_cost_base[yr] / comp_stk_eff[yr]) *
-                     comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
+                yr: ((comp_stk_cost_base[yr] / comp_stk_base[yr]) *
+                     comp_env_to_hvac_stk[yr]) if comp_stk_base[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
+            # Incremental
+            env_cost_inc_comp_unit = {
+                yr: (env_cost_eff_comp_unit[yr] - env_cost_base_comp_unit[yr])
+                if (env_cost_eff_comp_unit[yr] - env_cost_base_comp_unit[yr]) >= 0 else 0
+                for yr in self.handyvars.aeo_years
+            }
 
-            # Adjust total efficient stock cost to account for envelope
+            # Adjust total efficient stock cost to account for incr. envelope cost over base
             msegs_meas["cost"]["stock"]["total"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
-                     "efficient"][yr] + env_cost_eff_tot_unit[yr] *
+                     "efficient"][yr] + env_cost_inc_tot_unit[yr] *
                 msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
-            # Adjust total baseline stock cost to account for envelope
-            msegs_meas["cost"]["stock"]["total"]["baseline"] = {
-                yr: msegs_meas["cost"]["stock"]["total"][
-                     "baseline"][yr] + env_cost_base_tot_unit[yr] *
-                msegs_meas["stock"]["total"]["measure"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Adjust competed efficient stock cost to account for envelope
+            # Adjust competed efficient stock cost to account for incr. envelope cost over base
             msegs_meas["cost"]["stock"]["competed"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
-                    "efficient"][yr] + env_cost_eff_comp_unit[yr] *
-                msegs_meas["stock"]["competed"]["measure"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Adjust competed baseline stock cost to account for envelope
-            msegs_meas["cost"]["stock"]["competed"]["baseline"] = {
-                yr: msegs_meas["cost"]["stock"]["competed"][
-                     "baseline"][yr] + env_cost_base_comp_unit[yr] *
+                    "efficient"][yr] + env_cost_inc_comp_unit[yr] *
                 msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
 
