@@ -6129,8 +6129,10 @@ class Measure(object):
                         if opts.no_lnkd_op_costs:
                             for var in ["energy", "carbon"]:
                                 for case in ["baseline", "efficient"]:
-                                    add_dict["cost"][var]["total"][case] = {
-                                        yr: 0 for yr in self.handyvars.aeo_years}
+                                    add_dict["cost"][var]["total"][case], \
+                                        add_dict["cost"][var]["competed"][case] = ({
+                                            yr: 0 for yr in self.handyvars.aeo_years}
+                                            for n in range(2))
 
                     # Append lifetime data multiplied by # of stock units (after any adjustments to
                     # remove linked stock totals above), to support later calculation of
