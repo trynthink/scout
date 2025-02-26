@@ -6504,6 +6504,18 @@ class Measure(object):
                             # Shorthand for mseg data to add costs to
                             add_to_dict = self.markets[adopt_scheme]["mseg_adjust"][
                                 "contributing mseg keys and values"][add_to_mseg]
+                            # If full detailed data were not prepared for current scenario (see var
+                            # 'add_dict_limited' below, account for this by only linking to the
+                            # data available (efficient/measure competed data for stock/energy
+                            # variables only)
+                            if not self.handyvars.full_dat_out[adopt_scheme] and \
+                                    self.name not in ctrb_ms_pkg_prep:
+                                ecarb_cases, stk_cases, outputs, cost_keys = [
+                                    ["efficient"], ["measure"], ["competed"], ["stock", "energy"]]
+                            else:
+                                ecarb_cases, stk_cases, outputs, cost_keys = [
+                                    ["baseline", "efficient"], ["all", "measure"],
+                                    ["total", "competed"], ["stock", "energy", "carbon"]]
                             # Add in all cost data (stock, energy, and carbon)
                             add_to_dict["cost"] = {cost_key: {output: {
                                 # Add to cost data for baseline/efficient cases
@@ -6528,10 +6540,9 @@ class Measure(object):
                                         or cost_key != "stock" and not opts.no_lnkd_op_costs)) else
                                     add_to_dict["cost"][cost_key][output][case][yr]
                                     for yr in self.handyvars.aeo_years} for case, stk_var, rmv_hp in
-                                zip(["baseline", "efficient"], ["all", "measure"],
+                                zip(ecarb_cases, stk_cases,
                                     [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts])
-                                } for output in ["total", "competed"]
-                            } for cost_key in ["stock", "energy", "carbon"]}
+                                } for output in outputs} for cost_key in cost_keys}
 
                     # Remove minor HVAC equipment stocks in cases where major HVAC tech. is also
                     # covered by the measure definition, as well as double counted stock and stock
@@ -6576,8 +6587,10 @@ class Measure(object):
                         if opts.no_lnkd_op_costs:
                             for var in ["energy", "carbon"]:
                                 for case in ["baseline", "efficient"]:
-                                    add_dict["cost"][var]["total"][case] = {
-                                        yr: 0 for yr in self.handyvars.aeo_years}
+                                    add_dict["cost"][var]["total"][case], \
+                                        add_dict["cost"][var]["competed"][case] = ({
+                                            yr: 0 for yr in self.handyvars.aeo_years}
+                                            for n in range(2))
 
                     # Append lifetime data multiplied by # of stock units (after any adjustments to
                     # remove linked stock totals above), to support later calculation of
