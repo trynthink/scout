@@ -26,7 +26,7 @@ class TestBatchRun(unittest.TestCase):
 
     def test_ecm_concat(self):
         # Test retrieval of ECMs from numerous ymls
-        ecm_list = self.batch_run.get_ecm_files(self.yml_files)
+        ecm_list = self.batch_run.get_unique_ecm_files(self.yml_files)
         expected_ecms = ['Best Com. ASHP, Env., PC (EE+DF-FS)',
                          'Best Com. ASHP, Env., PC (EE+DF-FS) CC',
                          'Best Com. Air Sealing (Exist)',
