@@ -90,6 +90,51 @@ class Utils:
         with open(filepath, "w") as handle:
             json.dump(data, handle, indent=2, cls=MyEncoder)
 
+    @classmethod
+    def update_active_measures(cls,
+                               run_setup: dict,
+                               to_active: list = [],
+                               to_inactive: list = [],
+                               to_skipped: list = []) -> dict:
+        """Update active, inactive, and skipped lists in the run_setup dictionary
+
+        Args:
+            run_setup (dict): dictionary to be used as the analysis engine setup file
+            to_active (list, optional): measures or packages to set to active
+                and remove from inactive or skipped. Defaults to [].
+            to_inactive (list, optional): measures or packages to set to inactive
+                and remove from active or skipped. Defaults to [].
+            to_skipped (list, optional): measures or packages to set to skipped
+                and remove from active or inactive. Defaults to [].
+
+        Returns:
+            dict: run_setup data with updated active, inactive, and skipped lists.
+        """
+        active_set = set(run_setup["active"])
+        inactive_set = set(run_setup["inactive"])
+        skipped_set = set(run_setup["skipped"])
+
+        # Set active and remove from inactive or skipped
+        active_set.update(to_active)
+        inactive_set.difference_update(to_active)
+        skipped_set.difference_update(to_active)
+
+        # Set inactive and remove from active or skipped
+        active_set.difference_update(to_inactive)
+        inactive_set.update(to_inactive)
+        skipped_set.difference_update(to_inactive)
+
+        # Set skipped and remove from active or inactive
+        active_set.difference_update(to_skipped)
+        inactive_set.difference_update(to_skipped)
+        skipped_set.update(to_skipped)
+
+        run_setup["active"] = list(active_set)
+        run_setup["inactive"] = list(inactive_set)
+        run_setup["skipped"] = list(skipped_set)
+
+        return run_setup
+
 
 class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
@@ -14098,50 +14143,6 @@ def filter_invalid_packages(packages: list[dict], ecms: list) -> tuple[list[dict
     return filtered_packages, invalid_pkgs
 
 
-def update_active_measures(run_setup: dict,
-                           to_active: list = [],
-                           to_inactive: list = [],
-                           to_skipped: list = []) -> dict:
-    """Update active, inactive, and skipped lists in the run_setup dictionary
-
-    Args:
-        run_setup (dict): dictionary to be used as the analysis engine setup file
-        to_active (list, optional): measures or packages to set to active
-            and remove from inactive or skipped. Defaults to [].
-        to_inactive (list, optional): measures or packages to set to inactive
-            and remove from active or skipped. Defaults to [].
-        to_skipped (list, optional): measures or packages to set to skipped
-            and remove from active or inactive. Defaults to [].
-
-    Returns:
-        dict: run_setup data with updated active, inactive, and skipped lists.
-    """
-    active_set = set(run_setup["active"])
-    inactive_set = set(run_setup["inactive"])
-    skipped_set = set(run_setup["skipped"])
-
-    # Set active and remove from inactive or skipped
-    active_set.update(to_active)
-    inactive_set.difference_update(to_active)
-    skipped_set.difference_update(to_active)
-
-    # Set inactive and remove from active or skipped
-    active_set.difference_update(to_inactive)
-    inactive_set.update(to_inactive)
-    skipped_set.difference_update(to_inactive)
-
-    # Set skipped and remove from active or inactive
-    active_set.difference_update(to_skipped)
-    inactive_set.difference_update(to_skipped)
-    skipped_set.update(to_skipped)
-
-    run_setup["active"] = list(active_set)
-    run_setup["inactive"] = list(inactive_set)
-    run_setup["skipped"] = list(skipped_set)
-
-    return run_setup
-
-
 def initialize_run_setup(input_files: UsefulInputFiles) -> dict:
     """Reads in analysis engine setup file, run_setup.json, and initializes values. If the file
         exists and has measures set to 'active', those will be moved to 'inactive'. If the file
@@ -14162,7 +14163,7 @@ def initialize_run_setup(input_files: UsefulInputFiles) -> dict:
                 f"Error reading in '{input_files.run_setup}': {str(e)}") from None
         am.close()
         # Initialize all measures as inactive
-        run_setup = update_active_measures(run_setup, to_inactive=run_setup["active"])
+        run_setup = Utils.update_active_measures(run_setup, to_inactive=run_setup["active"])
     except FileNotFoundError:
         run_setup = {"active": [], "inactive": [], "skipped": []}
 
@@ -14637,9 +14638,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     ctrb_ms = [ecm for pkg in meas_toprep_package_init for ecm in pkg["contributing_ECMs"]]
     non_ctrb_ms = [ecm for ecm in opts.ecm_files if ecm not in ctrb_ms]
     excluded_ind_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms]
-    run_setup = update_active_measures(run_setup,
-                                       to_active=non_ctrb_ms,
-                                       to_inactive=excluded_ind_ecms)
+    run_setup = Utils.update_active_measures(run_setup,
+                                             to_active=non_ctrb_ms,
+                                             to_inactive=excluded_ind_ecms)
     if excluded_ind_ecms:
         excluded_ind_ecms_txt = format_console_list(excluded_ind_ecms)
         warnings.warn("The following ECMs were selected to be prepared, but due to their"
@@ -14649,7 +14650,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Set packages to active in run_setup
     valid_packages = [pkg["name"] for pkg in meas_toprep_package_init]
-    run_setup = update_active_measures(run_setup, to_active=valid_packages)
+    run_setup = Utils.update_active_measures(run_setup, to_active=valid_packages)
 
     # Loop through each package dict in the current list and determine which
     # of these package measures require further preparation
@@ -14863,7 +14864,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             meas_toprep_package, pkgs_skipped = filter_invalid_packages(meas_toprep_package,
                                                                         meas_check_list)
             # Move package name to skipped list
-            run_setup = update_active_measures(run_setup, to_skipped=pkgs_skipped)
+            run_setup = Utils.update_active_measures(run_setup, to_skipped=pkgs_skipped)
 
         # Prepare measure packages for use in analysis engine (if needed)
         if meas_toprep_package:
@@ -14897,7 +14898,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     " contributing ECMs that have been skipped. The following package(s)"
                     f" will not be executed: \n{''.join(pkgs_skipped_txt)}")
         # Add names of skipped measures to run setup list if not already there
-        run_setup = update_active_measures(run_setup, to_skipped=handyvars.skipped_ecms)
+        run_setup = Utils.update_active_measures(run_setup, to_skipped=handyvars.skipped_ecms)
 
         print("All ECM updates complete; finalizing data...",
               end="", flush=True)
@@ -14945,7 +14946,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # Remove measures from active list; when public health costs are assumed, only
                 # the "high" health costs versions of prepared measures remain active
                 if opts.health_costs is True and "PHC-EE (high)" not in m["name"]:
-                    run_setup = update_active_measures(run_setup, to_inactive=[m["name"]])
+                    run_setup = Utils.update_active_measures(run_setup, to_inactive=[m["name"]])
             # Measure serves as counterfactual for isolating envelope impacts
             # within packages; append data to separate list, which will
             # be written to a separate ecm_prep file
