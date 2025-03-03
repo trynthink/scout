@@ -2,7 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 from scout.config import LogConfig, Config, FilePaths as fp
 from scout.ecm_prep_args import ecm_args
-from scout import ecm_prep, run
+from scout.ecm_prep import Utils, main as ecm_prep_main
+from scout import run
 from argparse import ArgumentParser
 import logging
 import shutil
@@ -15,22 +16,29 @@ class BatchRun():
         self.yml_dir = yml_dir.resolve()
 
     def get_ecm_files(self, ymls: list) -> list:  # noqa: F821
-        """Retrieve all ECMs from 1 or more config file and concatenate into a single list
+        """Retrieve all ECMs from 1 or more config file and return together in a list of lists
 
         Args:
             ymls (list): filepaths of yml configuration files
 
         Returns:
-            list: list of all ECMs specified in the yml files
+            list: list of all ECMs, one item per yml
         """
 
-        ecm_files = set()
-        for config in ymls:
-            config_pth = str(config.resolve())
-            ecm_prep_opts = ecm_args(["-y", config_pth])
-            ecm_files.update(set(ecm_prep_opts.ecm_files))
+        return [ecm_args(["-y", str(config.resolve())]).ecm_files for config in ymls]
 
-        return list(ecm_files)
+    def get_unique_ecm_files(self, ymls: list) -> list:  # noqa: F821
+        """Retrieve all ECMs from 1 or more config file and return common elements in a single list
+
+        Args:
+            ymls (list): filepaths of yml configuration files
+
+        Returns:
+            list: list of all unique ECMs across ymls
+        """
+
+        ecm_files_list = self.get_ecm_files(ymls)
+        return list(set(ecm for ecm_list in ecm_files_list for ecm in ecm_list))
 
     def get_run_opts(self, config_pth: Path) -> argparse.NameSpace:  # noqa: F821
         """Parse arguments for run.py for a given configuration file. If a results_directory
@@ -98,7 +106,6 @@ class BatchRun():
 
         yml_grps = self.group_common_configs(self.yml_dir)
         for ct, yml_grp in enumerate(yml_grps):
-
             # Set custom generated directory for each group, write .txt file to document the ymls
             fp.set_paths({"GENERATED": fp.GENERATED / f"batch_run{ct+1}"})
             paths = [yml.resolve().as_posix() for yml in yml_grp]
@@ -108,14 +115,22 @@ class BatchRun():
 
             # Set list of ECMs and run ecm_prep.main()
             ecm_prep_opts = ecm_args(["-y", str(yml_grp[0].resolve())])
-            ecm_prep_opts.ecm_files = self.get_ecm_files(yml_grp)
+            ecm_prep_opts.ecm_files = self.get_unique_ecm_files(yml_grp)
             ecm_prep_opts.ecm_directory = None
             ecm_prep_opts.ecm_files_regex = []
             logger.info(f"Running ecm_prep.py for the following configuration files: {paths}")
-            ecm_prep.main(ecm_prep_opts)
+            ecm_prep_main(ecm_prep_opts)
 
             # Run run.main() for each yml in the group, set custom results directories
-            for config in yml_grp:
+            run_setup = Utils.load_json(fp.GENERATED / "run_setup.json")
+            ecm_files_list = self.get_ecm_files(yml_grp)
+            for ct, config in enumerate(yml_grp):
+                # Set all ECMs inactive
+                run_setup = Utils.update_active_measures(run_setup,
+                                                         to_inactive=ecm_prep_opts.ecm_files)
+                # Set yml-specific ECMs active
+                run_setup = Utils.update_active_measures(run_setup, to_active=ecm_files_list[ct])
+                Utils.dump_json(run_setup, fp.GENERATED / "run_setup.json")
                 run_opts = self.get_run_opts(config)
                 logger.info(f"Running run.py for {config}")
                 run.main(run_opts)
