@@ -42,7 +42,7 @@
       "URL": null
     }
   },
-  "installed_cost": 1.2,
+  "installed_cost": 1.1,
   "cost_units": "2017$/ft^2 wall",
   "installed_cost_source": {
     "notes": "Based on average cost for 5 ACH50 vs. 10 ACH50 (existing)",
