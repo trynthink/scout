@@ -5458,8 +5458,17 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             data = round(data, precision)
         return data
 
-    a_run.output_ecms = round_values(a_run.output_ecms, 6)*1.1
-    a_run.output_all = round_values(a_run.output_all, 6)*1.1
+    change_value = 1.1
+    rounded_dict = round_values(a_run.output_ecms, 6)
+    for key in rounded_dict:
+        rounded_dict[key] *= change_value
+    a_run.output_ecms = rounded_dict
+    # a_run.output_all = round_values(a_run.output_all, 6)
+    rounded_dict = round_values(a_run.output_all, 6)
+    for key in rounded_dict:
+        rounded_dict[key] *= change_value
+    a_run.output_all = rounded_dict
+
 
     # Write summary outputs for individual measures to a JSON
     with open(handyfiles.meas_engine_out_ecms, "w") as jso:
