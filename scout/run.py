@@ -5469,7 +5469,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         rounded_dict[key] *= change_value
     a_run.output_all = rounded_dict
 
-
     # Write summary outputs for individual measures to a JSON
     with open(handyfiles.meas_engine_out_ecms, "w") as jso:
         json.dump(a_run.output_ecms, jso, indent=2)
