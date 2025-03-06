@@ -9,8 +9,7 @@ from jsonschema import validate
 
 
 class LogConfig:
-    """Configure the logger
-    """
+    """Configure the logger"""
 
     @staticmethod
     def configure_logging():
