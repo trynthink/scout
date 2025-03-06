@@ -13,8 +13,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
 from datetime import datetime
 from scout.plots import run_plot
-from scout.config import FilePaths as fp
-from scout.config import Config
+from scout.config import Config, FilePaths as fp
+from scout.utils import PrintFormat as fmt
 import warnings
 import itertools
 import pandas as pd
@@ -5784,7 +5784,7 @@ class Engine(object):
                 del orig_dict[k]
         return orig_dict
 
-    def process_codes_bps(self, adopt_scheme, msegs, handyvars, verboseprint, trim_yrs,
+    def process_codes_bps(self, opts, adopt_scheme, msegs, handyvars, trim_yrs,
                           code_comply_res, code_comply_com, bps_comply_res, bps_comply_com):
         """Read in and apply the effects of codes/BPS to measure stock/energy/carbon/energy costs.
 
@@ -5792,7 +5792,6 @@ class Engine(object):
             adopt_scheme (string): Assumed consumer adoption scenario.
             msegs: Baseline stock, energy, and square footage data for building microsegments.
             handyvars (object): Global variables useful across class methods.
-            verboseprint (function): Print verbose messages with user option.
             trim_yrs (list): Optional list of years to focus results on.
             code_comply_res (float): Compliance rate to assume for residential codes.
             code_comply_com (float): Compliance rate to assume for commercial codes.
@@ -5994,7 +5993,7 @@ class Engine(object):
                             "electric"][var].keys()} for var in [
                             "stock", "energy", "carbon", "cost"]}
                 except ValueError:
-                    verboseprint(
+                    fmt.verboseprint(opts.verbose,
                         ("WARNING: No measures flagged as basis for setting relative efficiency of "
                          "electric equipment for current region and building type. Setting "
                          "relative efficiency of conversion to 1 across end uses and proceeding. "))
@@ -7191,9 +7190,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         of key results to an output JSON.
     """
 
-    # Set function that only prints message when in verbose mode
-    verboseprint = print if opts.verbose else lambda *a, **k: None
-
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
     # Initialize user opts variable (elements: S-S calculation method;
@@ -7455,7 +7451,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 m.markets["Technical potential"]["uncompeted"]["mseg_adjust"] = \
                     meas_comp_data["Technical potential"]
             # Print data import message for each ECM if in verbose mode
-            verboseprint("Imported ECM '" + m.name + "' competition data")
+            fmt.verboseprint(opts.verbose, "Imported ECM '" + m.name + "' competition data")
 
         # Import total absolute heating and cooling energy use data, used in
         # removing overlaps between supply-side and demand-side heating/cooling
@@ -7520,7 +7516,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
             cbpslist = a_run.process_codes_bps(
-                adopt_scheme, msegs, handyvars, verboseprint, trim_yrs,
+                opts, adopt_scheme, msegs, handyvars, trim_yrs,
                 code_comply_res, code_comply_com, bps_comply_res, bps_comply_com)
             print("Calculations complete")
         elif any([x is not None and len(x) != 0 for x in [codes, bps]]):
@@ -7574,12 +7570,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     try:
         elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
         elec_cost = elec_cost_carb['End-use electricity price']['data']
-        fmt = True  # Boolean for indicating data key substructure
+        format_data = True  # Boolean for indicating data key substructure
     except KeyError:
         # Data are structured as in the site_source_co2_conversions files
         elec_carb = elec_cost_carb['electricity']['CO2 intensity']['data']
         elec_cost = elec_cost_carb['electricity']['price']['data']
-        fmt = False
+        format_data = False
 
     # Determine regions and building types used by active measures for
     # aggregating onsite generation data
@@ -7620,7 +7616,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             else:
                 bt_bin = 'commercial'
             # Get CO2 intensity and electricity cost data and convert units
-            if fmt:  # Data (and data structure) from emm_region files
+            if format_data:  # Data (and data structure) from emm_region files
                 # Convert Mt/TWh to Mt/MMBtu
                 carbtmp = {k: elec_carb[cz].get(k, 0)/3.41214e6
                            for k in elec_carb[cz].keys()}
