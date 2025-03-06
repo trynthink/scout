@@ -3,6 +3,7 @@ from pathlib import Path
 from scout.config import LogConfig, Config, FilePaths as fp
 from scout.ecm_prep_args import ecm_args
 from scout.ecm_prep import Utils, main as ecm_prep_main
+from scout.utils import JsonIO
 from scout import run
 from argparse import ArgumentParser
 import logging
@@ -122,7 +123,7 @@ class BatchRun():
             ecm_prep_main(ecm_prep_opts)
 
             # Run run.main() for each yml in the group, set custom results directories
-            run_setup = Utils.load_json(fp.GENERATED / "run_setup.json")
+            run_setup = JsonIO.load_json(fp.GENERATED / "run_setup.json")
             ecm_files_list = self.get_ecm_files(yml_grp)
             for ct, config in enumerate(yml_grp):
                 # Set all ECMs inactive
@@ -130,7 +131,7 @@ class BatchRun():
                                                          to_inactive=ecm_prep_opts.ecm_files)
                 # Set yml-specific ECMs active
                 run_setup = Utils.update_active_measures(run_setup, to_active=ecm_files_list[ct])
-                Utils.dump_json(run_setup, fp.GENERATED / "run_setup.json")
+                JsonIO.dump_json(run_setup, fp.GENERATED / "run_setup.json")
                 run_opts = self.get_run_opts(config)
                 logger.info(f"Running run.py for {config}")
                 run.main(run_opts)
