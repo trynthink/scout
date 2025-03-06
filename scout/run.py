@@ -13,8 +13,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
 from datetime import datetime
 from scout.plots import run_plot
-from scout.config import FilePaths as fp
-from scout.config import Config
+from scout.config import Config, FilePaths as fp
+from scout.utils import PrintFormat as fmt
 import warnings
 
 
@@ -5122,9 +5122,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         of key results to an output JSON.
     """
 
-    # Set function that only prints message when in verbose mode
-    verboseprint = print if opts.verbose else lambda *a, **k: None
-
     # Raise numpy errors as exceptions
     numpy.seterr('raise')
     # Initialize user opts variable (elements: S-S calculation method;
@@ -5368,7 +5365,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # Reset measure fuel split attribute to imported values
             m.eff_fs_splt = meas_eff_fs_data
         # Print data import message for each ECM if in verbose mode
-        verboseprint("Imported ECM '" + m.name + "' competition data")
+        fmt.verboseprint(opts.verbose, f"Imported ECM {m.name} competition data")
 
     # Import total absolute heating and cooling energy use data, used in
     # removing overlaps between supply-side and demand-side heating/cooling
@@ -5455,12 +5452,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     try:
         elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
         elec_cost = elec_cost_carb['End-use electricity price']['data']
-        fmt = True  # Boolean for indicating data key substructure
+        format_data = True  # Boolean for indicating data key substructure
     except KeyError:
         # Data are structured as in the site_source_co2_conversions files
         elec_carb = elec_cost_carb['electricity']['CO2 intensity']['data']
         elec_cost = elec_cost_carb['electricity']['price']['data']
-        fmt = False
+        format_data = False
 
     # Determine regions and building types used by active measures for
     # aggregating onsite generation data
@@ -5501,7 +5498,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             else:
                 bt_bin = 'commercial'
             # Get CO2 intensity and electricity cost data and convert units
-            if fmt:  # Data (and data structure) from emm_region files
+            if format_data:  # Data (and data structure) from emm_region files
                 # Convert Mt/TWh to Mt/MMBtu
                 carbtmp = {k: elec_carb[cz].get(k, 0)/3.41214e6
                            for k in elec_carb[cz].keys()}
