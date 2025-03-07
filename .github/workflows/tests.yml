@@ -100,3 +100,5 @@ jobs:
       github.ref == 'refs/heads/master'
     uses: ./.github/workflows/integration_tests.yml
     secrets: inherit
+    with:
+      event_type: ${{ github.event_name }}
