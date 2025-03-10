@@ -1960,6 +1960,9 @@ class Engine(object):
             mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                 adj_list_eff, adj_list_base, adj_stk_trk = \
                 self.compete_adj_dicts(m, mseg_key, adopt_scheme)
+            # Determine whether efficient-captured energy is being reported
+            eff_capt = (
+                "efficient-captured" in adj["energy"]["total"].keys())
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
             # competed market share for an associated primary contributing
@@ -2037,9 +2040,7 @@ class Engine(object):
                         else "" for v in ["baseline", "efficient"]]
                     # Energy data may include unique efficient captured
                     # tracking if efficient breakout data are present
-                    if "efficient" in vs_list and var == "energy" and \
-                            "efficient-captured" in adj_out_break[
-                            "base fuel"]["energy"].keys():
+                    if "efficient" in vs_list and var == "energy" and eff_capt:
                         vs_list.append("efficient-captured")
                     for var_sub in [x for x in vs_list if x]:
                         # Select correct fuel split data
@@ -2131,9 +2132,7 @@ class Engine(object):
                             # Update efficient result
                             # Energy data may include efficient-captured
                             # tracking
-                            if var == "energy" and "efficient-captured" in \
-                                adj_out_break["switched fuel"][
-                                    "energy"].keys():
+                            if var == "energy" and eff_capt:
                                 vs_list = ["efficient", "efficient-captured"]
                             else:
                                 vs_list = ["efficient"]
@@ -2145,11 +2144,11 @@ class Engine(object):
                                 if var_sub == "efficient":
                                     fs_eff_splt_var = adj_out_break[
                                         "efficient fuel splits"][var][yr]
-                                # Efficient-captured data not subject to fuel
-                                # splits (by definition all energy with
-                                # switched to fuel)
-                                else:
-                                    fs_eff_splt_var = 0
+                                # Efficient-captured energy fuel splits
+                                elif var_sub == "efficient-captured":
+                                    fs_eff_splt_var = adj_out_break[
+                                        "efficient-captured fuel splits"][
+                                        var][yr]
                                 adj_out_break["switched fuel"][var][
                                     var_sub][yr] = \
                                     adj_out_break["switched fuel"][var][
@@ -2371,6 +2370,9 @@ class Engine(object):
                 mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
                     adj_list_eff, adj_list_base, adj_stk_trk = \
                     self.compete_adj_dicts(m, mseg, adopt_scheme)
+                # Determine whether efficient-captured energy is being reported
+                eff_capt = (
+                    "efficient-captured" in adj["energy"]["total"].keys())
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -2518,9 +2520,7 @@ class Engine(object):
                             else "" for v in ["baseline", "efficient"]]
                         # Energy data may include unique efficient captured
                         # tracking if efficient breakout data are present
-                        if "efficient" in vs_list and var == "energy" and \
-                                "efficient-captured" in adj_out_break[
-                                "base fuel"]["energy"].keys():
+                        if "efficient" in vs_list and var == "energy" and eff_capt:
                             vs_list.append("efficient-captured")
                         for var_sub in [x for x in vs_list if x]:
                             # Set appropriate post-competition adjustment frac.
@@ -2529,10 +2529,9 @@ class Engine(object):
                                 adj_frac_t = adj_frac_base
                                 # Baseline data all with original fuel
                                 fs_eff_splt_var = 1
+                            # Efficient-captured energy fuel splits
                             elif var_sub == "efficient-captured":
                                 adj_frac_t = adj_frac_eff
-                                # Efficient-captured energy all with switched
-                                # to fuel
                                 fs_eff_splt_var = adj_out_break[
                                     "efficient-captured fuel splits"][var][yr]
                             else:
@@ -2625,10 +2624,7 @@ class Engine(object):
                                 # Update efficient result
                                 # Energy data may include efficient-captured
                                 # tracking
-                                if var == "energy" and \
-                                    "efficient-captured" in \
-                                    adj_out_break["switched fuel"][
-                                        "energy"].keys():
+                                if var == "energy" and eff_capt:
                                     vs_list = ["efficient",
                                                "efficient-captured"]
                                 else:
@@ -2641,11 +2637,10 @@ class Engine(object):
                                     if var_sub == "efficient":
                                         fs_eff_splt_var = adj_out_break[
                                             "efficient fuel splits"][var][yr]
-                                    # Efficient-captured data not subject to
-                                    # fuel splits (by definition all energy w/
-                                    # switched to fuel)
-                                    else:
-                                        fs_eff_splt_var = 0
+                                    # Efficient-captured energy fuel splits
+                                    elif var_sub == "efficient-captured":
+                                        fs_eff_splt_var = adj_out_break[
+                                            "efficient-captured fuel splits"][var][yr]
                                     adj_out_break["switched fuel"][var][
                                         var_sub][yr] = \
                                         adj_out_break["switched fuel"][var][
@@ -2897,6 +2892,8 @@ class Engine(object):
         # Breakout data may include reporting of efficient-captured energy;
         # initialize if needed
         if eff_capt:
+            # Efficient-captured base and switched to fuel breakouts,
+            # pre-competition
             adj_out_break["base fuel"]["energy"]["efficient-captured"], \
                 adj_out_break["switched fuel"]["energy"][
                     "efficient-captured"] = (None for n in range(2))
@@ -2912,8 +2909,9 @@ class Engine(object):
                 if var != "energy":
                     var_list = ["baseline", "efficient", "savings"]
                 else:  # efficient captured data for energy
-                    var_list = ["baseline", "efficient",
-                                "efficient-captured", "savings"]
+                    var_list = ["baseline", "efficient", "savings"]
+                    if eff_capt:
+                        var_list.extend(["efficient-captured"])
                 # Adjust energy/carbon/cost data
                 for var_sub in var_list:
                     # Handle case where potential efficient-captured energy
@@ -2976,8 +2974,9 @@ class Engine(object):
                 if var != "energy":
                     var_list = ["baseline", "efficient", "savings"]
                 else:  # efficient captured data for energy
-                    var_list = ["baseline", "efficient",
-                                "efficient-captured", "savings"]
+                    var_list = ["baseline", "efficient", "savings"]
+                    if eff_capt:
+                        var_list.extend(["efficient-captured"])
                 for var_sub in var_list:
                     # Handle case where potential efficient-captured energy
                     # data are not present
@@ -3812,9 +3811,7 @@ class Engine(object):
                 else:
                     # Update efficient result
                     # Energy data may include efficient-captured tracking
-                    if var == "energy" and "efficient-captured" in \
-                        adj_out_break["switched fuel"][
-                            "energy"].keys():
+                    if var == "energy" and eff_capt:
                         vs_list = ["efficient", "efficient-captured"]
                     else:
                         vs_list = ["efficient"]
