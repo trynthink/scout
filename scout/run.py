@@ -2047,15 +2047,11 @@ class Engine(object):
                         # Baseline data all with original fuel
                         if var_sub == "baseline":
                             fs_eff_splt_var = 1
-                        # Efficient-captured energy all with switched to fuel
+                        # Efficient-captured energy fuel splits
                         elif var_sub == "efficient-captured":
                             fs_eff_splt_var = adj_out_break[
                                 "efficient-captured fuel splits"][var][yr]
-                        # Efficient-captured energy all with switched to fuel
-                        elif var_sub == "efficient-captured":
-                            fs_eff_splt_var = 0
-                        # Efficient energy may be split across base/switched
-                        # to fuel
+                        # Efficient energy fuel splits
                         else:
                             fs_eff_splt_var = adj_out_break[
                                 "efficient fuel splits"][var][yr]
@@ -2894,7 +2890,7 @@ class Engine(object):
                 "energy": None, "carbon": None, "cost": None
             },
             "efficient-captured fuel splits": {
-                "stock": None, "energy": None, "carbon": None, "cost": None
+                "energy": None, "carbon": None, "cost": None
             }
         }
 
