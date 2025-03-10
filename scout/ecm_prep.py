@@ -14492,7 +14492,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
                 # Check for whether a reference case analogue measure
                 # should be added
-                if meas_dict["ref_analogue"] and meas_dict["ref_analogue"] is True:
+                if "ref_analogue" in meas_dict.keys() and meas_dict["ref_analogue"] is True:
                     add_ref_meas = True
                 else:
                     add_ref_meas = ""
