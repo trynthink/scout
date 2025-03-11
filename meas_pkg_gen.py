@@ -37,6 +37,7 @@ def main(base_dir):
         "Cost Units": "cost_units",
         "Cost Source Notes": ["installed_cost_source", "notes"],
         "Cost Source Details": ["installed_cost_source", "source_data"],
+        "Electrical Upgrade Costs": "add_elec_infr_cost",
         "Lifetime": "product_lifetime",
         "Lifetime Units": "product_lifetime_units",
         "Lifetime Source Notes": ["product_lifetime_source", "notes"],
@@ -214,6 +215,9 @@ def dlm_nst(attr, val, srce_flds, auth_flds, meas_name):
             # Recursively populate the nested dict
             try:
                 recurs_val = recursive_dict(items[1:], attr)
+                # Finalize true/false flags for electrical upgrade costs
+                if isinstance(recurs_val, str) and recurs_val.lower() in ["true", "false"]:
+                    recurs_val = True if recurs_val.lower() == "true" else False
                 if items[0] not in val_dlm_nst.keys():
                     val_dlm_nst[items[0]] = recurs_val
                 else:
@@ -298,10 +302,12 @@ def recursive_dict(data, attr):
         Nested dict with required information for given attributes.
     """
 
-    # At terminal value (one element list); convert to float
-    if len(data) == 1 and "Units" not in attr[0]:
+    # At terminal value (one element list); ensure numbers are formatted as floats if value is not
+    # from a column that should contain strings
+    if len(data) == 1 and all([x not in attr[0] for x in ["Units", "Electrical Upgrade"]]):
         return float(data[0])
-    elif len(data) == 1 and "Units" in attr[0]:
+    # When at terminal value and value is string, report out as-is
+    elif len(data) == 1 and any([x in attr[0] for x in ["Units", "Electrical Upgrade"]]):
         return data[0]
     # Not yet at terminal value; nest recursively
     else:

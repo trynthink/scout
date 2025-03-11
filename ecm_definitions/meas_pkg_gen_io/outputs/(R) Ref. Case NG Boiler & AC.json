@@ -44,6 +44,7 @@
     ],
     "source_data": null
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": {
     "boiler (NG)": 25.0,
     "central AC": 18.0,
@@ -112,6 +113,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

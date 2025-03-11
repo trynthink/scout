@@ -98,6 +98,7 @@
       }
     ]
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": {
     "TV": 8.0,
     "desktop PC": 5.0,
@@ -124,6 +125,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

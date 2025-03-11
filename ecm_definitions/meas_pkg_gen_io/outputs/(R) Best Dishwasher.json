@@ -16,7 +16,7 @@
   "technology": "dishwasher",
   "htcl_tech_link": null,
   "tech_switch_to": null,
-  "energy_efficiency": 0.9555555556,
+  "energy_efficiency": 0.955555556,
   "energy_efficiency_units": "cycle/kWh",
   "energy_efficiency_source": {
     "notes": [
@@ -49,6 +49,7 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -70,6 +71,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

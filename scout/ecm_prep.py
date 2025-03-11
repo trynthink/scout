@@ -155,6 +155,8 @@ class UsefulInputFiles(object):
         incentives (tuple): Settings to modify federal and state measure incentives.
         rates (tuple): Settings to represent rate structures that support electric heating.
         local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
+        panel_shares (tuple): State-level shares of single family homes that require or do not
+            require panel upgrades when switching away from existing gas furnace.
     """
 
     def __init__(self, opts):
@@ -265,6 +267,7 @@ class UsefulInputFiles(object):
         self.incentives = fp.SUB_FED / "incentives.csv"
         self.rates = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
+        self.panel_shares = fp.INPUTS / 'panel_shares.csv'
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -473,6 +476,10 @@ class UsefulVars(object):
             building type, and structure type.
         incentives (list): List of modifications to make to AEO incentive levels.
         rates (list): List of alternate rate structures to use for electric equipment.
+        panel_shares (dict): State-specific shares of single family homes with gas equipment that
+            would require a panel upgrade if switching to min. efficiency electric equipment.
+        elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
+            to electricity.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1858,6 +1865,34 @@ class UsefulVars(object):
         else:
             for k in state_vars:
                 setattr(self, k, None)
+        # When states are used and consideration for panel share data not suppressed, import shares
+        if opts.alt_regions == "State" and opts.elec_upgrade_costs not in ["all", "ignore"]:
+            try:
+                panel_shares_csv = pd.read_csv(handyfiles.panel_shares)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.panel_shares)
+            # Initialize final dict of panel shares data, using df values to set keys
+            self.panel_shares = {reg: {var: {fuel: {
+                scenario: {} for scenario in panel_shares_csv["scenario"].unique()} for
+                fuel in panel_shares_csv["heating_fuel"].unique()} for
+                var in panel_shares_csv["variable"].unique()} for
+                reg in panel_shares_csv["region"].unique()}
+            for index, row in panel_shares_csv.iterrows():
+                self.panel_shares[row["region"]][row["variable"]][
+                    row["heating_fuel"]][row["scenario"]] = {
+                    "no panel": row["no_replacement"],
+                    "panel": row["replacement"],
+                    "management": row["management"]
+                }
+        else:
+            self.panel_shares = None
+
+        self.elec_infr_costs = {
+            "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
+            "panel management": 475,  # BENEFIT panels cost data, averaged across regions
+            "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
+        }
 
     def import_state_data(self, handyfiles, state_vars, valid_regions):
         """Import and further prepare sub-federal adoption driver data.
@@ -2459,7 +2494,7 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs).
-        ref_analogue (booleane): Flag for whether measure should serve as basis
+        ref_analogue (boolean): Flag for whether measure should serve as basis
             for a copy of measure with reference case performance/cost.
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
@@ -2564,6 +2599,21 @@ class Measure(object):
         self.hp_convert_flag = (
             self.tech_switch_to not in [
                 None, "NA", "same"] and "HP" in self.tech_switch_to)
+        # Reset flag for whether to consider panel upgrade needs in cases where
+        # measures do not apply to existing single family homes and gas furnaces
+        if self.handyvars.panel_shares is not None and not all([(
+                (x in y) or ("all" in y)) for x, y in zip(
+            ["heating", "single family home", "existing"],
+                [self.end_use, self.bldg_type, self.structure_type])]):
+            self.handyvars.panel_shares = ""
+        # Check for electrical infrastructure upgrade flags in measure definition, if unavailable
+        # set to None
+        try:
+            self.add_elec_infr_cost
+            if self.add_elec_infr_cost is None:
+                self.add_elec_infr_cost = ""
+        except AttributeError:
+            self.add_elec_infr_cost = ""
         self.add_cool_anchor_tech = None
         # Check for reference case analogue attribute, and if not there set None
         try:
@@ -3356,6 +3406,11 @@ class Measure(object):
                     "linking of heating/cooling stock turnover and switching "
                     "calculations")
 
+        # If needed, append additional msegs to enable sub-segmentation of the
+        # gas furnace technology in existing single family homes to consider panel upgrade needs
+        if self.handyvars.panel_shares is not None:
+            ms_iterable = self.append_panel_msegs(ms_iterable)
+
         # If needed, fill out any secondary microsegment fuel type, end use,
         # and/or technology input attributes marked 'all' by users. Determine
         # secondary microsegment key chains and add to the primary
@@ -3421,11 +3476,10 @@ class Measure(object):
         # Initialize lists of warnings and list of suppressed incentives data
         warn_list, suppress_incent = ([] for n in range(2))
 
-        # Initialize flag for whether loop through previous microsegment
-        # has modified original measure costs/units when pulling incentives
-        # information and these need to be reset for future microsegment
-        # measure cost updates
-        meas_incent_flag = ""
+        # Initialize flag for whether loop through previous microsegment has modified original
+        # measure costs/units when pulling incentives information and/or electrical infrastructure
+        # upgrade costs and these need to be reset for future microsegment measure cost updates
+        meas_incent_flag, elec_infr_flag = ("" for n in range(2))
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
@@ -3670,15 +3724,17 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                # Case where incentives were added in previous mseg update;
-                # reset costs/units to those of original measure
-                if meas_incent_flag:
+                # Case where incentives or electrical infrastructure costs were added in previous
+                # mseg update; reset costs/units to those of original measure
+                if meas_incent_flag or elec_infr_flag:
                     cost_units, cost_meas = [
                         self.cost_units, self.installed_cost]
-                    # Reset flag for original measure cost reset due to its
-                    # modification in incentives calculations for previous
-                    # microsegments
-                    meas_incent_flag = ""
+                    # Reset flag for original measure cost reset due to its modification in
+                    # incentives or electrical infr. cost calculations for previous microsegments
+                    if meas_incent_flag:
+                        meas_incent_flag = ""
+                    if elec_infr_flag:
+                        elec_infr_flag = ""
                 # Case where square footage cost units are used or there is
                 # a switch from one end use, building type, or building vintage
                 # to another, or original cost/cost units are in dict format;
@@ -4011,6 +4067,15 @@ class Measure(object):
             # as nested dicts, loop recursively through dict levels until
             # appropriate terminal value is reached
             for i in range(0, len(mskeys)):
+                # Handle case where heating equipment key has been further modified
+                # to enable assessment of panel upgrade sub-segments; for the purposes
+                # of pulling stock/energy data from AEO, use the original gas furnace key
+                if mskeys[i] is not None and (
+                        any([x in mskeys[i] for x in ["-no panel", "-manage"]])):
+                    key_item = mskeys[i].split("-")[0]
+                else:
+                    key_item = mskeys[i]
+
                 # For use of state regions, cost/performance/lifetime data
                 # are broken out by census division; map the state of the
                 # current microsegment to the census division it belongs to,
@@ -4040,15 +4105,15 @@ class Measure(object):
                 # census divisions and must be mapped to the state breakouts
                 # used in the stock_energy market data
                 if (isinstance(base_cpl, dict) and (
-                    (mskeys[i] in base_cpl.keys()) or (
+                    (key_item in base_cpl.keys()) or (
                      reg_cpl_map and reg_cpl_map in base_cpl.keys())) or
-                    mskeys[i] in [
+                    key_item in [
                         "primary", "secondary", "new", "existing", None]):
                     # Skip over "primary", "secondary", "new", and "existing"
                     # keys in updating baseline stock/energy, cost and lifetime
                     # information (this information is not broken out by these
                     # categories)
-                    if mskeys[i] not in [
+                    if key_item not in [
                             "primary", "secondary", "new", "existing"]:
 
                         # Restrict base cost/performance/lifetime dict to key
@@ -4061,8 +4126,8 @@ class Measure(object):
                                 base_cpl_swtch = \
                                     base_cpl_swtch[reg_cpl_map]
                         else:
-                            if mskeys[i] is not None:  # Handle 'None' tech.
-                                base_cpl = base_cpl[mskeys[i]]
+                            if key_item is not None:  # Handle 'None' tech.
+                                base_cpl = base_cpl[key_item]
                             # Do the same for "switched to" data if applicable
                             if base_cpl_swtch and mskeys_swtch[i] is not None:
                                 try:
@@ -4086,13 +4151,13 @@ class Measure(object):
                                         str(self.tech_switch_to) +
                                         ", respectively")
 
-                        if mskeys[i] is not None:
+                        if key_item is not None:
                             # Restrict stock/energy dict to key chain info.
-                            mseg = mseg[mskeys[i]]
+                            mseg = mseg[key_item]
 
                             # Restrict ft^2 floor area dict to key chain info.
                             if i < 3:  # Note: ft^2 fl. broken out 2 levels
-                                mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
+                                mseg_sqft_stock = mseg_sqft_stock[key_item]
 
                     # Handle a superfluous 'undefined' key in the ECM
                     # cost, performance, and lifetime fields that is generated
@@ -4198,7 +4263,7 @@ class Measure(object):
                         # Case where data are broken out directly by mseg info.
                         if isinstance(perf_meas, dict) and break_keys and all([
                                 x in perf_meas.keys() for x in break_keys]):
-                            perf_meas = perf_meas[mskeys[i]]
+                            perf_meas = perf_meas[key_item]
                         # Case where region is being looped through in the mseg
                         # and performance data use alternate regional breakout
                         elif isinstance(perf_meas, dict) and alt_break_keys:
@@ -4256,7 +4321,7 @@ class Measure(object):
                                         x in perf_meas[0][k].keys()
                                         for x in break_keys]):
                                     perf_meas[0][k] = perf_meas[0][k][
-                                        mskeys[i]]
+                                        key_item]
                             # If none of the performance data in the first
                             # element of the list needs to be keyed in further,
                             # perform a weighted sum of the data across the
@@ -4281,7 +4346,7 @@ class Measure(object):
                         if isinstance(cost_meas, dict) and break_keys and \
                             all([x in cost_meas.keys() for
                                  x in break_keys]):
-                            cost_meas = cost_meas[mskeys[i]]
+                            cost_meas = cost_meas[key_item]
                         # Case where region is being looped through in the mseg
                         # and cost data use alternate regional breakout
                         elif isinstance(cost_meas, dict) and alt_break_keys:
@@ -4337,7 +4402,7 @@ class Measure(object):
                                         x in cost_meas[0][k].keys()
                                         for x in break_keys]):
                                     cost_meas[0][k] = cost_meas[0][k][
-                                        mskeys[i]]
+                                        key_item]
                             # If none of the cost data in the first element of
                             # the list needs to be keyed in further, perform a
                             # weighted sum of the data across the alternate
@@ -4362,7 +4427,7 @@ class Measure(object):
                         if isinstance(perf_units, dict) and break_keys and \
                                 all([x in perf_units.keys() for
                                      x in break_keys]):
-                            perf_units = perf_units[mskeys[i]]
+                            perf_units = perf_units[key_item]
                         elif isinstance(perf_units, dict) and any(
                                 [x in perf_units.keys() for x in break_keys]):
                             raise KeyError(
@@ -4375,7 +4440,7 @@ class Measure(object):
                         if isinstance(cost_units, dict) and break_keys and \
                             all([x in cost_units.keys() for
                                  x in break_keys]):
-                            cost_units = cost_units[mskeys[i]]
+                            cost_units = cost_units[key_item]
                         elif isinstance(cost_units, dict) and any(
                                 [x in cost_units.keys() for x in break_keys]):
                             raise KeyError(
@@ -4386,7 +4451,7 @@ class Measure(object):
                         # Lifetime data
                         if isinstance(life_meas, dict) and break_keys and all([
                                 x in life_meas.keys() for x in break_keys]):
-                            life_meas = life_meas[mskeys[i]]
+                            life_meas = life_meas[key_item]
                         elif isinstance(life_meas, dict) and any(
                                 [x in life_meas.keys() for x in break_keys]):
                             raise KeyError(
@@ -4399,7 +4464,7 @@ class Measure(object):
                         if isinstance(mkt_scale_frac, dict) and break_keys \
                             and all([x in mkt_scale_frac.keys() for
                                      x in break_keys]):
-                            mkt_scale_frac = mkt_scale_frac[mskeys[i]]
+                            mkt_scale_frac = mkt_scale_frac[key_item]
                         # Case where region is being looped through in the mseg
                         # and scaling data use alternate regional breakout
                         elif isinstance(mkt_scale_frac, dict) and \
@@ -4458,7 +4523,7 @@ class Measure(object):
                                         x in mkt_scale_frac[0][k].keys()
                                         for x in break_keys]):
                                     mkt_scale_frac[0][k] = mkt_scale_frac[
-                                        0][k][mskeys[i]]
+                                        0][k][key_item]
                             # If none of the scaling data in the first
                             # element of the list needs to be keyed in further,
                             # perform a weighted sum of the data across the
@@ -4485,7 +4550,7 @@ class Measure(object):
                                 x in mkt_scale_frac_source.keys() for
                                 x in break_keys]):
                             mkt_scale_frac_source = \
-                                mkt_scale_frac_source[mskeys[i]]
+                                mkt_scale_frac_source[key_item]
                         elif isinstance(mkt_scale_frac_source, dict) and any(
                                 [x in mkt_scale_frac_source.keys() for
                                  x in break_keys]):
@@ -4498,7 +4563,7 @@ class Measure(object):
 
                 # If no key match, break the loop
                 else:
-                    if mskeys[i] is not None:
+                    if key_item is not None:
                         mseg = {}
                     break
 
@@ -5774,6 +5839,16 @@ class Measure(object):
                         "Invalid performance or cost units for ECM '" +
                         self.name + "'")
 
+                # Adjust measure costs to consider added electrical infrastructure costs (only
+                # applicable for fuel switching measures or measures that tech. switch from an
+                # existing electric technology)
+                if opts.elec_upgrade_costs != "ignore" and \
+                    "existing" in mskeys and (
+                        self.fuel_switch_to == "electricity" or self.tech_switch_to not in [
+                            None, "NA", "same"]):
+                    cost_meas, elec_infr_flag = \
+                        self.add_elec_infr_costs(cost_meas, mskeys, elec_infr_flag, opts)
+
                 # Adjust baseline and measure costs to current region, if applicable
                 if self.handyvars.reg_cost_adj is not None:
                     cost_meas, cost_base = [
@@ -5939,6 +6014,60 @@ class Measure(object):
                     new_existing_frac = {key: (1 - val) for key, val in
                                          new_constr["new fraction"].items()}
 
+                # If applicable, pull in information needed to sub-segment gas furnace segments in
+                # existing single family homes into those homes that would require a panel upgrade;
+                # would not require one; or could avoid one with management. Note that these
+                # sub-segments are prepared even for gas measures that do not involve fuel
+                # switching to ensure apples-to-apples competition of segments between gas and
+                # electric fuel switching measures later on
+                if self.handyvars.panel_shares is not None and all([y in mskeys for y in [
+                        "heating", "single family home", "existing"]]):
+                    # Handle both CDIV-resolved and state-resolved panel share regionality in shares
+                    if mskeys[1] in self.handyvars.panel_shares.keys():
+                        reg_shr = mskeys[1]
+                    else:
+                        reg_shr = [x[0] for x in self.handyvars.region_cpl_mapping.items() if
+                                   mskeys[1] in x[1]][0]
+                    # Set the fuel type name to pull for the share
+                    if any([x in mskeys for x in ["electricity", "natural gas", "distillate"]]):
+                        fuel_shr = mskeys[3]
+                    elif "other fuel" in mskeys:
+                        # Biomass
+                        if "wood" in mskeys[-2]:
+                            fuel_shr = "wood"
+                        # Propane
+                        elif "LPG" in mskeys[-2]:
+                            fuel_shr = "propane"
+                        # All other fuels
+                        else:
+                            fuel_shr = "other fuel"
+                    else:
+                        raise ValueError(
+                            "Unexpected fuel type in contributing microsegment "
+                            + str(mskeys) + " for measure '" + self.name + "'")
+
+                    # Pull stock/energy panel share fractions (***currently only one set based
+                    # on housing counts***)
+                    if "no panel" in mskeys[-2]:  # Sub-segment for homes not requiring upgrade
+                        # Adjustment fractions (out of 1) to apply to original mseg stock and
+                        # energy data to represent panel upgrade sub-segment
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["no panel"] for
+                            x in ["stock", "energy"]]
+                    elif "manage" in mskeys[-2]:  # Sub-segment for homes avoiding upgrade w/ mgmt.
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["management"] for
+                            x in ["stock", "energy"]]
+                    else:  # Sub-segment for homes that do require panel upgrade
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["panel"] for
+                            x in ["stock", "energy"]]
+                    # Store the panel adjustment fractions for stock/energy in a dict
+                    panel_adj = {x: y for x, y in zip(["stock", "energy"], [adj_stk, adj_energy])}
+                else:
+                    # When there is no sub-segmentation required, adjustment fractions are 1
+                    panel_adj = {"stock": 1, "energy": 1}
+
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microsegment that will be captured
                 # by efficient alternatives to the baseline technology
@@ -5970,29 +6099,31 @@ class Measure(object):
                 if mskeys[0] == 'secondary':
                     add_stock = dict.fromkeys(self.handyvars.aeo_years, 0)
                 elif sqft_subst == 1:  # Use ft^2 floor area in lieu of # units
-                    # For residential envelope microsegments, stock is
-                    # converted to a per house (per "unit") basis to facilitate
-                    # comparison and packaging with res. equipment measures;
-                    # the required conversion factor was already calculated
-                    # above and applied to the stock costs for these
-                    # microsegments, and is reused here for the stock
+                    # For residential envelope microsegments, stock is converted to a per house
+                    # (per "unit") basis to facilitate comparison and packaging with res. equipment
+                    # measures; the required conversion factor was already calculated above and
+                    # applied to the stock costs for these microsegments, and is reused here for the
+                    # stock. Also apply any adjustment needed to sub-segment existing single family
+                    # gas furnace segments into homes that would require panel upgrade if switching
+                    # to electric, those that wouldn't, and those that could avoid the upgrade with
+                    # panel management approaches
                     if sf_to_house_key and sf_to_house_key in \
                             self.handyvars.sf_to_house.keys():
                         add_stock = {
-                            key: val * new_existing_frac[key] *
+                            key: val * new_existing_frac[key] * panel_adj["stock"] *
                             self.handyvars.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                     else:
                         add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 for
+                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"] for
                             key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                 elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
-                        key: val * new_existing_frac[key] for key, val in
+                        key: val * new_existing_frac[key] * panel_adj["stock"] for key, val in
                         mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
                 else:  # If no stock data exist, set stock to zero
@@ -6010,10 +6141,13 @@ class Measure(object):
                     add_stock = {yr: add_stock[yr] * 2 for
                                  yr in self.handyvars.aeo_years}
 
-                # Total energy use
+                # Total energy use. Apply any adjustment needed to sub-segment existing single
+                # family gas furnace segments into homes that would require panel upgrade if
+                # switching to electric, those that wouldn't, and those that could avoid the
+                # upgrade with panel management approaches
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_existing_frac[key] for key, val in mseg[
+                    new_existing_frac[key] * panel_adj["energy"] for key, val in mseg[
                         "energy"].items() if key in
                     self.handyvars.aeo_years}
                 # Total lighting energy use for climate zone, building type,
@@ -11337,6 +11471,117 @@ class Measure(object):
         # Output list of key chains
         return ms_iterable, ms_lists
 
+    def add_elec_infr_costs(self, cost_meas, mskeys, elec_infr_flag, opts):
+        """Adjust fuel switching measure costs to reflect cost of added electrical infrastructure.
+
+        Args:
+            cost_meas (dict): Original measure installed cost.
+            mskeys (tuple): Current contributing microsegment information for measure.
+            elec_infr_flag (boolean): Flag for whether original measure costs have been adjusted.
+            opts (object): Stores user-specified execution options.
+
+        Returns:
+            Updated measure costs after considering additional costs of electrical infrastructure
+            upgrades (panel/service upgrades and/or circuit breaker upgrades) for fuel switching
+            measures.
+        """
+        # Pull panel upgrade cost
+        # Measure is flagged as triggering panel upgrade; add this cost to measure
+        if self.add_elec_infr_cost and "panel" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["panel"] is True:
+            # Current mseg represents a home that cannot avoid upgrade (lacks any flags for
+            # no panel upgrade requirement or avoiding upgrade via panel management in the
+            # technology portion of the microsegment information); assume full cost of panel
+            if opts.elec_upgrade_costs == "all" or all(
+                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
+            # Current mseg technology information flags a home that could avoid upgrade via
+            # panel management; assign the cost of panel management
+            elif "manage" in mskeys[-2]:
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel management"]
+            # Current mseg represents home that avoids panel upgrade cost entirely; set to zero
+            else:
+                add_pnl_cost = 0
+        # Measure does not trigger panel upgrade; set cost to zero
+        elif self.add_elec_infr_cost and "panel" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["panel"] is False:
+            add_pnl_cost = 0
+        # User has not specified one way or another whether measure incurs panel upgrade
+        else:
+            # Pull panel upgrade cost
+            # Incur full cost of panel upgrade in existing homes switching away from non-elec. heat
+            if "electricity" not in mskeys and all(
+                [x in mskeys for x in ["existing", "heating"]]) and all(
+                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
+            elif "electricity" not in mskeys and all(
+                    [x in mskeys for x in ["existing", "heating"]]) and "manage" in mskeys[-2]:
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel management"]
+            # Current mseg is either not assessed a panel cost or would be but represents
+            # home that avoids panel upgrade cost entirely; set to zero
+            else:
+                add_pnl_cost = 0
+
+        # Pull circuit upgrade cost
+        # Measure is flagged as triggering a circuit upgrade; add this cost to measure
+        if self.add_elec_infr_cost and "240V circuit" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["240V circuit"] is True:
+            add_crct_cost = self.handyvars.elec_infr_costs["240V circuit"]
+        # Measure does not trigger circuit upgrade (e.g., plugs into 120V); set cost to zero
+        elif self.add_elec_infr_cost and "240V circuit" in self.add_elec_infr_cost.keys() \
+                and self.add_elec_infr_cost["240V circuit"] is False:
+            add_crct_cost = 0
+        # User has not specified one way or another whether measure incurs panel upgrade
+        else:
+            # If no specific circuit cost flag is available, assume full circuit cost when the
+            # measure is switching from a fuel-fired segment (but not a segment w/ existing elec.
+            # heating)
+            if "electricity" not in mskeys:
+                add_crct_cost = self.handyvars.elec_infr_costs["240V circuit"]
+            else:
+                add_crct_cost = 0
+        # Adjust measure costs to reflect any non-zero electrical infrastructure costs
+        if any([x != 0 for x in [add_pnl_cost, add_crct_cost]]):
+            cost_meas = {
+                yr: cost_meas[yr] + add_pnl_cost + add_crct_cost for yr in self.handyvars.aeo_years}
+            # Set flag for application of electrical infrastructure costs to original measure cost
+            elec_infr_flag = True
+
+        return cost_meas, elec_infr_flag
+
+    def append_panel_msegs(self, ms_iterable):
+        """Subset gas furnace msegs into panel/no panel/mgmt groups, append to original mseg list.
+
+        Args:
+            ms_iterable: Original list of msegs the measure applies to.
+
+        Returns:
+            Updated list of msegs the measure applies to that reflects the three subsets of
+            gas furnace msegs (panel/no panel/mgmt).
+        """
+
+        # Find applicable gas furnace segments for the measure
+        segs_to_subset = [list(x) for x in ms_iterable if (all([
+            y in x for y in ["heating", "single family home", "existing"]]))]
+        # Append copies of gas segments to represent cases where a) no panel upgrade would
+        # be required under electrification or b) panel upgrade could be avoided via
+        # load management strategies (the original segments represent the default case, where
+        # a panel upgrade is assumed)
+        if len(segs_to_subset) > 0:
+            # Initialize lists of segments with no panel/management outcomes to append to
+            # segments with panel upgrade requirements
+            exist_segs_to_subset_no_panel, exist_segs_to_subset_mgmt = (
+                copy.deepcopy(segs_to_subset) for n in range(2))
+            # Update technology name in the segments to append relevant
+            # information about the alternate to panel upgrade case
+            for i_np, i_mgmt in zip(exist_segs_to_subset_no_panel, exist_segs_to_subset_mgmt):
+                i_np[-2] += "-no panel"
+                i_mgmt[-2] += "-manage"
+            # Append the no panel upgrade or panel management segments for gas furnaces
+            ms_iterable = ms_iterable + exist_segs_to_subset_no_panel + exist_segs_to_subset_mgmt
+
+        return ms_iterable
+
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate/building/structure type.
 
@@ -14916,6 +15161,7 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             if m.backup_fuel_fraction is not None:
                 m.backup_fuel_fraction = True
             del m.ref_analogue
+            del m.add_elec_infr_cost
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -15943,7 +16189,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
                 # Check for whether a reference case analogue measure
                 # should be added
-                if meas_dict["ref_analogue"] and meas_dict["ref_analogue"] is True:
+                if "ref_analogue" in meas_dict.keys() and meas_dict["ref_analogue"] is True:
                     add_ref_meas = True
                 else:
                     add_ref_meas = ""

@@ -27,7 +27,9 @@
     "furnace (LPG)",
     "central AC",
     "room AC",
-    "all secondary heating"
+    "secondary heater (coal)",
+    "secondary heater (kerosene)",
+    "secondary heater (LPG)"
   ],
   "htcl_tech_link": "other fossil furnace+cac&rac",
   "tech_switch_to": "ASHP",
@@ -105,15 +107,12 @@
         "year": 2015,
         "pages": 11,
         "url": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
-      },
-      {
-        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
-        "author": "NV5 and Redwood Energy",
-        "year": 2022,
-        "pages": 33,
-        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
       }
     ]
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -183,6 +182,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

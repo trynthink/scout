@@ -27,7 +27,9 @@
     "furnace (LPG)",
     "central AC",
     "room AC",
-    "all secondary heating"
+    "secondary heater (coal)",
+    "secondary heater (kerosene)",
+    "secondary heater (LPG)"
   ],
   "htcl_tech_link": "other fossil furnace+cac&rac",
   "tech_switch_to": "ASHP",
@@ -74,17 +76,17 @@
   "installed_cost": {
     "electricity": 0.0,
     "distillate": {
-      "new": 6740.0,
-      "existing": 9595.0
+      "new": 3370.0,
+      "existing": 4798.0
     },
     "other fuel": {
-      "new": 6740.0,
-      "existing": 9595.0
+      "new": 3370.0,
+      "existing": 4798.0
     }
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "See 'Best' costs, but assuming that electrical upgrade costs ($7K) are avoided for existing.",
+    "notes": "Assume that a breakthrough HP achieves the highest possible level of performance at half the cost of current best HP technology.",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
@@ -99,15 +101,12 @@
         "year": 2015,
         "pages": 11,
         "url": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
-      },
-      {
-        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
-        "author": "NV5 and Redwood Energy",
-        "year": 2022,
-        "pages": 33,
-        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
       }
     ]
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -177,6 +176,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

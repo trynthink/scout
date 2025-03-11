@@ -69,20 +69,18 @@
     "electricity": 0.0,
     "distillate": {
       "new": 6740.0,
-      "existing": 16595.0
+      "existing": 9595.0
     },
     "other fuel": {
       "new": 6740.0,
-      "existing": 16595.0
+      "existing": 9595.0
     }
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
     "notes": [
       "Retail (new) and total installed (existing) for 'High' ASHPs in 2023",
-      "For existing buildings, added costs of $6300 are the average of the cost range for circuit breaker panel upgrade and home service upgrade costs in the NV5 report",
-      "a new circuit cost of 700 $2022 using the upper bound (assuming a high amperage 240V circuit is required for the HVAC system) from the NV5 report",
-      "and additional tank removal costs of 800 2014$ (975 2022$) are applied for distillate and propane based on the 2015 EIA report, updating the cost from April 2014 to April 2022."
+      "For existing buildings, additional tank removal costs of 800 2014$ (975 2022$) are applied for distillate and propane based on the 2015 EIA report, updating the cost from April 2014 to April 2022."
     ],
     "source_data": [
       {
@@ -98,15 +96,12 @@
         "year": 2015,
         "pages": 11,
         "url": "https://www.eia.gov/analysis/studies/residential/pdf/appendix-b.pdf"
-      },
-      {
-        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
-        "author": "NV5 and Redwood Energy",
-        "year": 2022,
-        "pages": 33,
-        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
       }
     ]
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -168,6 +163,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

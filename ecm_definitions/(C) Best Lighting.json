@@ -133,6 +133,7 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix:c.pdf"
     }
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": {
     "100W A19 Incandescent": 0.2,
     "100W Equivalent A19 Halogen": 0.25,
@@ -193,6 +194,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

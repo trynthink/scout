@@ -46,6 +46,7 @@
       "url": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"
     }
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": 7.3,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -67,6 +68,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }
