@@ -59,12 +59,12 @@
     ]
   },
   "installed_cost": {
-    "new": 6740.0,
-    "existing": 8620.0
+    "new": 3370.0,
+    "existing": 4310.0
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "See 'Best' costs, but assuming that electrical upgrade costs ($7K) are avoided for existing.",
+    "notes": "Assume that a breakthrough HP achieves the highest possible level of performance at half the cost of current best HP technology.",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
@@ -72,6 +72,10 @@
       "pages": 39,
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -133,6 +137,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

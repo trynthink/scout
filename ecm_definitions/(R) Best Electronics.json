@@ -68,6 +68,7 @@
     "notes": "https://www.tradeinn.com/techinn/en/philips:43hfl5214u:12:43:full:hd:led:hotel:tv/139702888/p \nhttps://www.dell.com/en:us/shop/cty/pdp/spd/optiplex:7020:micro/s004o7020mffus_vp?tfcid=91049735dgc=opl&gacd=9684992:1103:5761040:266906002:0&dgc=ST&SA360CID=71700000109860349&gad_source=1&gclid=CjwKCAjwl4yyBhAgEiwADSEjeBJ7BzNr9TzeqGaynQ8bCp34F7frNjqAM2rSPjpXXW32lrnkp59u:hoCVdoQAvD_BwE&gclsrc=aw.ds \nhttps://www.amazon.com/HP:15:dw2065st:Notebook:i5:1035G1:Windows/dp/B08G8N5R2M \nhttps://www.lenovo.com/us/en/p/accessories:and:software/monitors/office/61dduar6us",
     "source_data": null
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": {
     "TV": 8.0,
     "desktop PC": 5.0,
@@ -94,6 +95,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

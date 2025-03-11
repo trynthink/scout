@@ -106,7 +106,8 @@ class TestConfig(unittest.TestCase, Utils):
             "fugitive_emissions": [],
             "no_eff_capt": False,
             "no_lnkd_stk_costs": False,
-            "no_lnkd_op_costs": False
+            "no_lnkd_op_costs": False,
+            "elec_upgrade_costs": "shares"
         },
         "run": {
             "results_directory": None,

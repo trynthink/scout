@@ -40,6 +40,7 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": 17.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -61,6 +62,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

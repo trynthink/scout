@@ -100,6 +100,7 @@
       }
     ]
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": 22.8,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -144,6 +145,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

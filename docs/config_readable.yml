@@ -47,6 +47,9 @@ ecm_prep:
     for specified packages will automatically be prepared regardless
     of their presence in the `ecm_directory`, `ecm_files`, and/or
     `ecm_files_regex` arguments. Default []
+  elec_upgrade_costs: (string) Determine how to assign (or not)
+    electrical infastructure upgrade costs. Allowed values are
+    {all, ignore, shares, null}. Default shares
   exog_hp_rates:
     exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
       scenario to use for exogenous HP rates. Allowed values are

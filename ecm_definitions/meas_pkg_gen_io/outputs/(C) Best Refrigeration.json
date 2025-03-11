@@ -79,6 +79,7 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
     }
   },
+  "add_elec_infr_cost": null,
   "product_lifetime": {
     "Commercial Reach-In Freezers": 10.0,
     "Commercial Reach-In Refrigerators": 10.0,
@@ -112,6 +113,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

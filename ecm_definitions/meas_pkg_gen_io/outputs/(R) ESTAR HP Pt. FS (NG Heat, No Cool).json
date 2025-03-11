@@ -78,7 +78,7 @@
   "installed_cost_source": {
     "notes": [
       "Retail (new) and total installed (existing) cost for ENERGY STAR ASHPs in 2023",
-      "For new buildings, also add retail cost of typical gas furnace. Assume no additional electrical infrastructure upgrade costs for dual fuel."
+      "For new buildings, also add retail cost of typical gas furnace."
     ],
     "source_data": [
       {
@@ -96,6 +96,10 @@
         "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
       }
     ]
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -157,6 +161,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

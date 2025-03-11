@@ -37,27 +37,22 @@
   },
   "installed_cost": {
     "new": 1170.0,
-    "existing": 2415.0
+    "existing": 1715.0
   },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Average of retail (new) and total installed (existing) costs mean for high HPWH in 2022 in the EIA source, plus $700 (existing), the upper bound of the upgrade/new branch circuit cost in NV5 report",
-    "source_data": [
-      {
-        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
-        "author": "U.S. Energy Information Administration",
-        "year": 2023,
-        "pages": 65,
-        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
-        "author": "NV5 and Redwood Energy",
-        "year": 2022,
-        "pages": 33,
-        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
-      }
-    ]
+    "notes": "Average of retail (new) and total installed (existing) costs mean for high HPWH in 2022 in the EIA source",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -80,6 +75,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

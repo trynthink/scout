@@ -1,6 +1,6 @@
 {
   "name": "(R) Ref. Case Elec. Boiler FS (Other Fossil Boiler)",
-  "_description": "Minimum efficiency air source heat pump heating and cooling, fuel switching from other fossil boiler.",
+  "_description": "Minimum efficiency electric boiler heating with existing cooling, fuel switching from other fossil boiler.",
   "measure_type": "full service",
   "market_entry_year": 2024,
   "market_exit_year": null,
@@ -70,6 +70,10 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
+  "add_elec_infr_cost": {
+    "panel": true,
+    "240V circuit": true
+  },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -130,6 +134,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-01-28 12:05:21"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

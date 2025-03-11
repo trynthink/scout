@@ -28,10 +28,13 @@
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "installed_cost": 1410.0,
+  "installed_cost": {
+    "new": 580.0,
+    "existing": 710.0
+  },
   "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "Based on cost of typical electric dryers, plus cost of additional circuit from NV5 report.",
+    "notes": "Retail (new) and total installed (existing) cost for typical electric dryer in 2022.",
     "source_data": [
       {
         "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A: Clothes Dryer (Gas)",
@@ -48,6 +51,10 @@
         "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
       }
     ]
+  },
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
   },
   "product_lifetime": 13.0,
   "product_lifetime_units": "years",
@@ -70,6 +77,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2025-01-28 12:05:22"
+    "timestamp": "2025-03-14 12:31:42"
   }
 }

@@ -226,6 +226,13 @@ properties:
             type: boolean
             default: false
             description: For measures that span heating or cooling and other end uses, count operating costs for only the anchor end use (rather than all end uses) in representing competition w/ other measures (default anchor is heating).
+      elec_upgrade_costs:
+        type: ["string", "null"]
+        enum: [shares, all, ignore, null]
+        default: shares
+        description: Determine how to assign (or not) electrical infastructure upgrade costs.
+
+
   run:
     type: object
     required: []
