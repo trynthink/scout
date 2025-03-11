@@ -2083,10 +2083,6 @@ class UsefulInputFiles(object):
 
     def __init__(self, opts):
         if opts.alt_regions == 'AIA':
-            # UNCOMMENT WITH ISSUE 188
-            # self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz_2017.json"
-            # UNCOMMENT WITH ISSUE 188
-            # self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz_2017.json"
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt"
@@ -2161,8 +2157,6 @@ class UsefulInputFiles(object):
         self.set_decarb_grid_vars(opts)
         self.metadata = fp.METADATA_PATH
         self.glob_vars = fp.GENERATED / "glob_run_vars.json"
-        # UNCOMMENT WITH ISSUE 188
-        # self.metadata = "metadata_2017.json"
         self.cost_convert_in = fp.CONVERT_DATA / "ecm_cost_convert.json"
         self.cap_facts = fp.CONVERT_DATA / "cap_facts.json"
         self.cbecs_sf_byvint = fp.CONVERT_DATA / "cbecs_sf_byvintage.json"
