@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
@@ -50,11 +50,17 @@ jobs:
           pip install . psrecord
       - name: Run and profile workflow
         run: |
-          branch_ref="${{ github.ref }}"
-              if [ -z "$branch_ref" ]; then
-                echo "Error: $branch_ref is empty. This workflow requires a valid branch reference."
-                exit 1
-              fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            branch_ref="${{ github.head_ref }}"
+          else
+            branch_ref="${{ github.ref }}"
+          fi
+
+          if [ -z "$branch_ref" ]; then
+            echo "Error: $branch_ref is empty. This workflow requires a valid branch reference."
+            exit 1
+          fi
+
           if [[ $branch_ref == 'refs/heads/master' ]]; then
             steps=("ecm_prep" "run")
             for step in "${steps[@]}"; do
@@ -74,7 +80,11 @@ jobs:
           path: ./tests/integration_testing/results/
       - name: Commit test results
         run: |
-          branch_ref="${{ github.ref }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            branch_ref="${{ github.head_ref }}"
+          else
+            branch_ref="${{ github.ref }}"
+          fi
           git pull origin $branch_ref
           git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
