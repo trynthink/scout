@@ -50,6 +50,35 @@ def configure_ecm_prep_logger(opts):
 
 
 class Utils:
+    """Shared methods used throughout ecm_prep.py"""
+
+    @staticmethod
+    def initialize_run_setup(input_files: UsefulInputFiles) -> dict:
+        """Reads in analysis engine setup file, run_setup.json, and initializes values. If the file
+            exists and has measures set to 'active', those will be moved to 'inactive'. If the file
+            does not exist, return a dictionary with empty 'active' and 'inactive' lists.
+
+        Args:
+            input_files (UsefulInputFiles): UsefulInputFiles instance
+
+        Returns:
+            dict: run_setup data with active and inactive lists
+        """
+        try:
+            am = open(input_files.run_setup, 'r')
+            try:
+                run_setup = json.load(am, object_pairs_hook=OrderedDict)
+            except ValueError as e:
+                raise ValueError(
+                    f"Error reading in '{input_files.run_setup}': {str(e)}") from None
+            am.close()
+            # Initialize all measures as inactive
+            run_setup = Utils.update_active_measures(run_setup, to_inactive=run_setup["active"])
+        except FileNotFoundError:
+            run_setup = {"active": [], "inactive": [], "skipped": []}
+
+        return run_setup
+
     @staticmethod
     def update_active_measures(run_setup: dict,
                                to_active: list = [],
@@ -93,6 +122,30 @@ class Utils:
         run_setup["skipped"] = list(skipped_set)
 
         return run_setup
+
+    @staticmethod
+    def prep_error(meas_name, handyvars, handyfiles):
+        """Prepare and write out error messages for skipped measures/packages.
+
+        Args:
+            meas_name (str): Measure or package name.
+            handyvars (object): Global variables of use across Measure methods.
+            handyfiles (object): Input files of use across Measure methods.
+        """
+        # # Complete the update to the console for each measure being processed
+        # print("Error")
+        # Pull full error traceback
+        err_dets = traceback.format_exc()
+        # Construct error message to write out
+        err_msg = (
+            "\nECM '" + meas_name + "' produced the following exception that "
+            "prevented its preparation:\n" + str(err_dets) + "\n")
+        # Add ECM to skipped list
+        handyvars.skipped_ecms.append(meas_name)
+        # Print error message if in verbose mode
+        # fmt.verboseprint(opts.verbose, err_msg, "error")
+        # # Log error message to file (see ./generated)
+        logger.error(err_msg)
 
 
 class Measure(object):
@@ -11714,20 +11767,6 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         "undefined" in m.energy_efficiency.keys() and
         m.energy_efficiency["undefined"] == "From EnergyPlus") for
             m in meas_update_objs]):
-        # NOTE: Comment out operations related to the import of ECM performance
-        # data from EnergyPlus and yield an error until these operations are
-        # fully supported in the future
-
-        # Set default directory for EnergyPlus simulation output files
-        # eplus_dir = fp.ECM_DEF / "energyplus_data"
-        # # Set EnergyPlus global variables
-        # handyeplusvars = EPlusGlobals(eplus_dir, cbecs_sf_byvint)
-        # # Fill in EnergyPlus-based measure performance information
-        # [m.fill_eplus(
-        #     msegs, eplus_dir, handyeplusvars.eplus_coltypes,
-        #     handyeplusvars.eplus_files, handyeplusvars.eplus_vintage_weights,
-        #     handyeplusvars.eplus_basecols) for m in meas_update_objs
-        #     if 'EnergyPlus file' in m.energy_efficiency.keys()]
         raise ValueError(
             'One or more ECMs require EnergyPlus data for ECM performance; '
             'EnergyPlus-based ECM performance data are currently unsupported.')
@@ -11744,7 +11783,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
             # are valid before attempting to retrieve data on this baseline market
             m.check_meas_inputs()
         except Exception:
-            prep_error(m.name, handyvars, handyfiles)
+            Utils.prep_error(m.name, handyvars, handyfiles)
             # Add measure index to removal list
             remove_inds.append(m_ind)
 
@@ -11756,7 +11795,7 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
                 msegs, msegs_cpl, convert_data, tsv_data, opts,
                 ctrb_ms_pkg_prep, tsv_data_nonfs)
         except Exception:
-            prep_error(m.name, handyvars, handyfiles)
+            Utils.prep_error(m.name, handyvars, handyfiles)
             # Add measure index to removal list
             remove_inds.append(m_ind)
 
@@ -11892,33 +11931,9 @@ def prepare_packages(packages, meas_update_objs, meas_summary,
             if packaged_measure is not False:
                 meas_update_objs.append(packaged_measure)
         except Exception:
-            prep_error(p["name"], handyvars, handyfiles)
+            Utils.prep_error(p["name"], handyvars, handyfiles)
 
     return meas_update_objs
-
-
-def prep_error(meas_name, handyvars, handyfiles):
-    """Prepare and write out error messages for skipped measures/packages.
-
-    Args:
-        meas_name (str): Measure or package name.
-        handyvars (object): Global variables of use across Measure methods.
-        handyfiles (object): Input files of use across Measure methods.
-    """
-    # # Complete the update to the console for each measure being processed
-    # print("Error")
-    # Pull full error traceback
-    err_dets = traceback.format_exc()
-    # Construct error message to write out
-    err_msg = (
-        "\nECM '" + meas_name + "' produced the following exception that "
-        "prevented its preparation:\n" + str(err_dets) + "\n")
-    # Add ECM to skipped list
-    handyvars.skipped_ecms.append(meas_name)
-    # Print error message if in verbose mode
-    # fmt.verboseprint(opts.verbose, err_msg, "error")
-    # # Log error message to file (see ./generated)
-    logger.error(err_msg)
 
 
 def split_clean_data(meas_prepped_objs, full_dat_out):
@@ -12132,33 +12147,6 @@ def filter_invalid_packages(packages: list[dict],
         warnings.warn(msg)
 
     return filtered_packages, invalid_pkgs
-
-
-def initialize_run_setup(input_files: UsefulInputFiles) -> dict:
-    """Reads in analysis engine setup file, run_setup.json, and initializes values. If the file
-        exists and has measures set to 'active', those will be moved to 'inactive'. If the file
-        does not exist, return a dictionary with empty 'active' and 'inactive' lists.
-
-    Args:
-        input_files (UsefulInputFiles): UsefulInputFiles instance
-
-    Returns:
-        dict: run_setup data with active and inactive lists
-    """
-    try:
-        am = open(input_files.run_setup, 'r')
-        try:
-            run_setup = json.load(am, object_pairs_hook=OrderedDict)
-        except ValueError as e:
-            raise ValueError(
-                f"Error reading in '{input_files.run_setup}': {str(e)}") from None
-        am.close()
-        # Initialize all measures as inactive
-        run_setup = Utils.update_active_measures(run_setup, to_inactive=run_setup["active"])
-    except FileNotFoundError:
-        run_setup = {"active": [], "inactive": [], "skipped": []}
-
-    return run_setup
 
 
 def main(opts: argparse.NameSpace):  # noqa: F821
@@ -12564,7 +12552,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Write initial data for run_setup.json
     # Import analysis engine setup file
-    run_setup = initialize_run_setup(handyfiles)
+    run_setup = Utils.initialize_run_setup(handyfiles)
 
     # Set contributing ECMs as inactive in run_setup and throw warning, set all others as active
     ctrb_ms = [ecm for pkg in meas_toprep_package_init for ecm in pkg["contributing_ECMs"]]
