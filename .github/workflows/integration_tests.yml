@@ -37,9 +37,17 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.label }}
     timeout-minutes: 600
     steps:
+      - name: Determine branch ref
+        id: branch_ref
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch_ref=refs/heads/${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: "${{ steps.branch_ref.outputs.branch_ref }}"
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
@@ -49,12 +57,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install . psrecord
       - name: Run and profile workflow
+        env:
+          branch_ref: ${{ steps.branch_ref.outputs.branch_ref }}
         run: |
-          branch_ref="${{ github.ref }}"
-              if [ -z "$branch_ref" ]; then
-                echo "Error: $branch_ref is empty. This workflow requires a valid branch reference."
-                exit 1
-              fi
           if [[ $branch_ref == 'refs/heads/master' ]]; then
             steps=("ecm_prep" "run")
             for step in "${steps[@]}"; do
@@ -73,8 +78,9 @@ jobs:
           name: results
           path: ./tests/integration_testing/results/
       - name: Commit test results
+        env:
+          branch_ref: ${{ steps.branch_ref.outputs.branch_ref }}
         run: |
-          branch_ref="${{ github.ref }}"
           git pull origin $branch_ref
           git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
