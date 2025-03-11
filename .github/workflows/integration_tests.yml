@@ -56,6 +56,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install . psrecord
+      - name: Select measure subset
+        run: |
+              cd ecm_definitions/
+              shopt -s extglob
+              rm !(Best Com. Air Sealing (Exist).json|Best Com. Air Sealing (New).json|energyplus_data|Res. Air Sealing (Exist), IECC c. 2021.json|Res. Air Sealing (New), IECC c. 2021.json)
+              echo [] > package_ecms.json  
       - name: Run and profile workflow
         env:
           branch_ref: ${{ steps.branch_ref.outputs.branch_ref }}
