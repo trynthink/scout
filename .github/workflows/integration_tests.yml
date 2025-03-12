@@ -52,7 +52,7 @@ jobs:
         run: |
               cd ecm_definitions/
               shopt -s extglob
-              rm !(Best Com. Air Sealing (Exist).json|Best Com. Air Sealing (New).json|energyplus_data|Res. Air Sealing (Exist), IECC c. 2021.json|Res. Air Sealing (New), IECC c. 2021.json)
+              rm !(Best Com. Air Sealing (Exist).json|Best Com. Air Sealing (New).json|energyplus_data|Res. Air Sealing (Exist), IECC c. 2021.json)
               echo [] > package_ecms.json           
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
