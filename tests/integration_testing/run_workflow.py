@@ -9,7 +9,7 @@ import pstats
 
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from scout import ecm_prep, run  # noqa: E402
+from scout import ecm_prep, run, config.FilePaths as fp  # noqa: E402
 from scout.ecm_prep_args import ecm_args  # noqa: E402
 from scout.config import LogConfig  # noqa: E402
 
@@ -28,13 +28,11 @@ def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = F
                                         compute time and peak memory. Defaults to False.
     """
 
-    results_dir = Path(__file__).parent / "results"
-
     # Run ecm_prep.py
     if run_step == "ecm_prep" or run_step is None:
         opts = ecm_args(["-y", config])
         if with_profiler:
-            run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
+            run_with_profiler(ecm_prep.main, opts, fp.RESULTS / "profile_ecm_prep.csv")
         else:
             ecm_prep.main(opts)
 
@@ -42,7 +40,7 @@ def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = F
     if run_step == "run" or run_step is None:
         opts = run.parse_args(["-y", config])
         if with_profiler:
-            run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
+            run_with_profiler(run.main, opts, fp.RESULTS / "profile_run.csv")
         else:
             run.main(opts)
 
