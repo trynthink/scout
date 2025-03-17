@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from argparse import ArgumentParser
+from scout.config import FilePaths as fp
 import io
 import sys
 import logging
@@ -28,13 +29,11 @@ def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = F
                                         compute time and peak memory. Defaults to False.
     """
 
-    results_dir = Path(__file__).parent / "results"
-
     # Run ecm_prep.py
     if run_step == "ecm_prep" or run_step is None:
         opts = ecm_args(["-y", config])
         if with_profiler:
-            run_with_profiler(ecm_prep.main, opts, results_dir / "profile_ecm_prep.csv")
+            run_with_profiler(ecm_prep.main, opts, fp.RESULTS / "profile_ecm_prep.csv")
         else:
             ecm_prep.main(opts)
 
@@ -42,7 +41,7 @@ def run_workflow(config: str = "", run_step: str = None, with_profiler: bool = F
     if run_step == "run" or run_step is None:
         opts = run.parse_args(["-y", config])
         if with_profiler:
-            run_with_profiler(run.main, opts, results_dir / "profile_run.csv")
+            run_with_profiler(run.main, opts, fp.RESULTS / "profile_run.csv")
         else:
             run.main(opts)
 
