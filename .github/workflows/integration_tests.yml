@@ -59,8 +59,8 @@ jobs:
           steps=("ecm_prep" "run")
           for step in "${steps[@]}"; do
             psrecord --log memory_log_${step}.txt --include-children --interval 1 "python tests/integration_testing/run_workflow.py --run_step $step --yaml tests/integration_testing/integration_test.yml --with_profiler"
-            (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_${step}.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> tests/integration_testing/results/profile_${step}.csv
-            mv memory_log_${step}.txt ./tests/integration_testing/results/
+            (echo -e; echo "# Elapsed time,CPU (%),Peak Real (MB),Peak Virtual (MB)"; grep -v "time" memory_log_${step}.txt | sort -k3 -n -r | head -n 1 | column -t | tr -s '[:blank:]' ',') >> results/profile_${step}.csv
+            mv memory_log_${step}.txt ./results/
           done
           rm -rf ./tests/integration_testing/results/*
           mv -f ./results/* ./tests/integration_testing/results/

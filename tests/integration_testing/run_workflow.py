@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from argparse import ArgumentParser
+from scout.config import FilePaths as fp
 import io
 import sys
 import logging
@@ -9,7 +10,7 @@ import pstats
 
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from scout import ecm_prep, run, config.FilePaths as fp  # noqa: E402
+from scout import ecm_prep, run  # noqa: E402
 from scout.ecm_prep_args import ecm_args  # noqa: E402
 from scout.config import LogConfig  # noqa: E402
 
