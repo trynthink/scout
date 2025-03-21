@@ -48,9 +48,9 @@ class UsefulInputFiles(object):
         htcl_totals (tuple): Heating/cooling energy totals by climate zone,
             building type, and structure type.
         state_appl_regs (tuple): State/sub-state appliance restrictions inputs.
-        state_codes (tuple): State/sub-state codes inputs.
-        state_codes_lag (tuple): State-level deltas between latest vs. current enacted code.
-        state_bps (tuple): State/sub-state BPS inputs.
+        codes (tuple): State/sub-state codes inputs.
+        codes_lag (tuple): State-level deltas between latest vs. current enacted code.
+        bps (tuple): State/sub-state BPS inputs.
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
@@ -67,9 +67,9 @@ class UsefulInputFiles(object):
         self.gcam_map = fp.CONVERT_DATA / "gcam_map.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
         self.state_appl_regs = fp.SUB_FED / "appl_regs.csv"
-        self.state_codes = fp.SUB_FED / "codes.csv"
-        self.state_codes_lag = fp.SUB_FED / "codes_lag.csv"
-        self.state_bps = fp.SUB_FED / "bps.csv"
+        self.codes = fp.SUB_FED / "codes.csv"
+        self.codes_lag = fp.SUB_FED / "codes_lag.csv"
+        self.bps = fp.SUB_FED / "bps.csv"
         # Set heating/cooling energy totals file conditional on: 1) regional
         # breakout used, and 2) whether site energy data, source energy data
         # (fossil equivalent site-source conversion), or source energy data
@@ -180,7 +180,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, handyfiles, gcam_out, brkout, regions):
+    def __init__(self, handyfiles, opts, brkout, regions):
         # Pull in global variable settings from ecm_prep
         with open(handyfiles.glob_vars, 'r') as gv:
             try:
@@ -200,7 +200,7 @@ class UsefulVars(object):
             "elec_boiler", "electric_res-heat", "resistance heat"]
         # Set GCAM-specific versions of segment-to-breakout category mapping
         # variables conditional on --gcam_out option settings
-        if gcam_out is True:
+        if opts.gcam_out is True:
             # Ensure that detailed Scout EMM region and fuel type breakouts
             # were used when preparing measures if the user requires GCAM fuel
             # type outputs
@@ -358,27 +358,42 @@ class UsefulVars(object):
 
         # Import/finalize input data on sub-federal appliance regulations, codes, and BPS
         # if state regions are used
-        state_vars = ["state_appl_regs", "state_codes", "state_bps"]
+        state_vars = ["state_appl_regs", "codes", "bps"]
         if regions == "State":
-            self.import_state_data(handyfiles, state_vars)
+            self.import_state_data(handyfiles, state_vars, opts)
         else:
             for k in state_vars:
                 setattr(self, k, None)
 
-    def import_state_data(self, handyfiles, state_vars):
+    def import_state_data(self, handyfiles, state_vars, opts):
         """Import and further prepare sub-federal adoption driver data.
 
         Args:
             handyfiles (object): File paths.
             state_vars (list): State-level adoption drivers to read in data for.
+            opts (object): Stores user-specified execution options.
         """
 
         # State-level adoption inputs: additional appliance regulations, codes, and BPS
         for k in state_vars:
+            # Pull the scenario name to use for the current variable
+            scn_name = getattr(opts, k)
+            # Scenario for variable is set to None or is not in one of the predetermined options;
+            # skip reading in the supporting data
+            if not scn_name or scn_name not in ["reference", "optimistic", "aggressive"]:
+                setattr(self, k, None)
+                continue
             # Try importing state-level adoption input data; if not available, set to empty list
             try:
                 # Read in variable-specific data
                 state_regs_dat = pd.read_csv(getattr(handyfiles, k))
+                # Restrict to above-reference scenario plus everything already in the reference
+                scns = [scn_name] + ["reference"]
+                # Filter by scenarios
+                state_regs_dat = state_regs_dat[state_regs_dat["scenario"].apply(
+                    lambda x: any(value in x for value in scns))]
+                # Remove scenario column from df
+                state_regs_dat = state_regs_dat.drop("scenario", axis=1)
                 # Initialize segment-specific list of state-level inputs
                 state_dat_init = []
                 for index, row in state_regs_dat.iterrows():
@@ -463,7 +478,7 @@ class UsefulVars(object):
                     if "codes" in k:
                         # Read in potential energy gains from reductions in lag in code adoption
                         # by state/building type
-                        lag_potentials = pd.read_csv(handyfiles.state_codes_lag)
+                        lag_potentials = pd.read_csv(handyfiles.codes_lag)
                         # Set the index to update in each row of the iterable
                         lag_col = 3
                         # Loop through the iterable rows and update the information
@@ -2335,10 +2350,25 @@ class Engine(object):
         # to 100% of segment) or otherwise as a fraction that restricts the portion of the market
         # a measure applies to
         if restrict_rows:
-            # Determine the % of segment the restriction applies to
-            effect_frac = min([x[-1] for x in restrict_rows])
-            # Determine the year in which the restriction goes into effect
-            effect_yr = min([x[-2] for x in restrict_rows])
+            # Determine the % of segment the restriction applies to. Assume that all overlapping
+            # fractions within a given year/segment/region are complementary (e.g., b/c multiple
+            # jurisdictions impose restrictions), except when one of the overlapping restrictions
+            # applies to 100% of the segment – in this case, only apply this restriction to
+            # avoid double counting.
+
+            # Initialize effect fractions broken out by year
+            effect_frac = {yr: 0 for yr in self.handyvars.aeo_years}
+            # Loop through possible years for restrictions
+            for yr in self.handyvars.aeo_years:
+                # Find which restrictions apply to the current year
+                yr_rows = [x for x in restrict_rows if x[-2] >= int(yr)]
+                # If restrictions apply and any of them applies to 100% of the segment, set the
+                # % applicability to 100%; otherwise, sum the applicability percentages of all
+                # other restrictions that apply
+                if len(yr_rows) >= 0 and any([x[-1] == 1 for x in yr_rows]):
+                    effect_frac[yr] = 1
+                else:
+                    effect_frac[yr] = sum([x[-1] for x in yr_rows])
             # Register cases where measure switches fuels entirely away from segment or switches
             # to a new fuel while retaining existing fuel as backup (assume restrictions do not
             # preclude such cases)
@@ -2351,14 +2381,14 @@ class Engine(object):
             # the restriction does not apply to 100% of the segment (handled subsequently)
             yrs_on_mkt = [[
                 yr for yr in m.yrs_on_mkt if meas_switch_avoids_reg[m_ind] or
-                int(yr) < effect_yr or effect_frac < 1] for m_ind, m in enumerate(measures_adj)]
+                effect_frac[yr] < 1] for m_ind, m in enumerate(measures_adj)]
             # Set fractions that restrict part of a measure's applicable market in cases where
             # restrictions only apply to a certain % of the segment and: a) measure does not
             # fuel switch, b) the restriction is active, and c) the restriction does not apply
             # to 100% of the segment; otherwise, set this fraction to 0
             noapply_sbmkt_fracs_regs = [{
-                yr: effect_frac if not meas_switch_avoids_reg[m_ind] and (
-                    int(yr) >= effect_yr and effect_frac < 1) else 0
+                yr: effect_frac[yr] if not meas_switch_avoids_reg[m_ind] and (
+                    effect_frac[yr] not in [0, 1]) else 0
                 for yr in self.handyvars.aeo_years} for m_ind, m in enumerate(measures_adj)]
         # If no restrictions are found, do not adjust the previously calculated years a measure
         # is on the market and set further restrictions on market size to zero
@@ -2445,7 +2475,7 @@ class Engine(object):
             adopt_scheme (string): Assumed consumer adoption scenario.
             years_on_mkt_all (list): List of years in which at least one
                 competing measure is on the market.
-            noapply_sbmkt_fracs_regs (list): List of market fractions that each measure
+            noapply_sbmkt_fracs (list): List of market fractions that each measure
                 does not apply to (b/c of sub-market scaling specified in measure definition
                 or b/c of appliance restrictions on the current mseg.
 
@@ -6327,8 +6357,8 @@ class Engine(object):
         """
         # Compile all codes/BPS policies into a master list
         codes_plus_bps_list = \
-            [x + ["code"] for x in self.handyvars.state_codes] + \
-            [y + ["bps"] for y in self.handyvars.state_bps]
+            [x + ["code"] for x in self.handyvars.codes] + \
+            [y + ["bps"] for y in self.handyvars.bps]
         # Initialize separate code/BPS measure instances; data from existing measures in the
         # analysis will be pulled into these code/BPS measures to reflect code/BPS impacts
         codes_measure, bps_measure = [Codes_BPS_Measure(handyvars, name) for name in [
@@ -7044,7 +7074,7 @@ class Engine(object):
                 "effective year is required in analysis to calculate effects of code-/BPS-driven "
                 "electrification in region " + reg_brk + " and building type/vintage " +
                 bldg_vnt_brk + ", but is not present. Add such a measure to analysis and ensure "
-                "that either its name includes 'Min.' or 'Minimum' or that its"
+                "that either its name includes 'Min.' or 'Minimum' or that its "
                 "min_eff_elec_flag attribute is set to 'yes'.")
         # Loop through applicable measures and add to stock/energy/carbon/ecost data; break out the
         # data by end use and year for later processing
@@ -7294,7 +7324,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout="basic", regions="AIA")
+    handyvars = UsefulVars(handyfiles, opts, brkout="basic", regions="AIA")
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -7413,7 +7443,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         regions = "AIA"
 
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout, regions)
+    handyvars = UsefulVars(handyfiles, opts, brkout, regions)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -7522,7 +7552,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(handyfiles, opts.gcam_out, brkout, regions)
+        handyvars = UsefulVars(handyfiles, opts, brkout, regions)
 
     # Load and set competition data for active measure objects (provided competition is not
     # suppressed by user); suppress new line if not in verbose mode ('Data load complete' is
@@ -7655,13 +7685,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
         if any([x is not None and len(x) != 0 for x in [
-                a_run.handyvars.state_codes, a_run.handyvars.state_bps]]) \
+                a_run.handyvars.codes, a_run.handyvars.bps]]) \
                 and all([x in brkout for x in ["reg", "bldg"]]) and split_fuel is True:
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
             cbpslist = a_run.process_codes_bps(adopt_scheme, msegs, handyvars)
             print("Calculations complete")
-        elif any([len(x) != 0 for x in [a_run.handyvars.state_codes, a_run.handyvars.state_bps]]):
+        elif any([x is not None and len(x) != 0 for x in [
+                a_run.handyvars.codes, a_run.handyvars.bps]]):
             warnings.warn(
                 "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
                 "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "

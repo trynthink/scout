@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import PurePath, Path
 import argparse
 from scout.ecm_prep_args import ecm_args
+from scout.run import parse_args as run_args
 from scout.config import FilePaths as fp
 from scout.config import LogConfig
 import traceback
@@ -265,7 +266,7 @@ class UsefulInputFiles(object):
         self.fug_emissions_dat = fp.CONVERT_DATA / "fugitive_emissions_convert.json"
         self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
         self.incentives = fp.SUB_FED / "incentives.csv"
-        self.rates = fp.SUB_FED / "rates.csv"
+        self.low_volume_rate = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
         self.panel_shares = fp.INPUTS / 'panel_shares.csv'
 
@@ -1859,9 +1860,9 @@ class UsefulVars(object):
                     "Error reading in '" + handyfiles.htcl_totals)
         # Import/finalize input data on federal or sub-federal incentive level modifications
         # if state regions are used
-        state_vars = ["incentives", "rates"]
+        state_vars = ["incentives", "low_volume_rate"]
         if opts.alt_regions == "State":
-            self.import_state_data(handyfiles, state_vars, valid_regions)
+            self.import_state_data(handyfiles, state_vars, valid_regions, opts)
         else:
             for k in state_vars:
                 setattr(self, k, None)
@@ -1894,21 +1895,42 @@ class UsefulVars(object):
             "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
         }
 
-    def import_state_data(self, handyfiles, state_vars, valid_regions):
+    def import_state_data(self, handyfiles, state_vars, valid_regions, opts):
         """Import and further prepare sub-federal adoption driver data.
 
         Args:
             handyfiles (object): File paths.
             state_vars (list): State-level adoption drivers to read in data for.
             valid_regions (list): Full list of states run in Scout analyses.
+            opts (object): Stores user-specified execution options.
         """
 
         # State-level adoption inputs: modifications to AEO equipment incentive levels
         for k in state_vars:
+            # Pull the scenario name to use for the current variable; special handling for
+            # the incentives variable, where the user option is split into two sub-options,
+            # incentive_levels, and incentive_restrictions; otherwise, user option name
+            # is the same as variable name
+            if k == "incentives":
+                scn_name = opts.incentive_levels
+            else:
+                scn_name = getattr(opts, k)
+            # Scenario for variable is set to None or is not in one of the predetermined options;
+            # skip reading in the supporting data
+            if not scn_name or scn_name not in ["reference", "optimistic", "aggressive"]:
+                setattr(self, k, None)
+                continue
             # Try importing state-level adoption input data; if not available, set to empty list
             try:
                 # Read in input-specific data
                 state_econ_dat = pd.read_csv(getattr(handyfiles, k))
+                # Restrict to above-reference scenario plus everything already in the reference
+                scns = [scn_name] + ["reference"]
+                # Filter by scenarios
+                state_econ_dat = state_econ_dat[state_econ_dat["scenario"].apply(
+                    lambda x: any(value in x for value in scns))]
+                # Remove scenario column from df
+                state_econ_dat = state_econ_dat.drop("scenario", axis=1)
                 # Initialize segment-specific list of state-level inputs
                 state_dat_init = []
                 # Loop through and finalize all rows in the data
@@ -2025,7 +2047,7 @@ class UsefulVars(object):
                             state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope,
                             increase, perf_lev, perf_units, credit, rebate, start_yr, end_yr,
                             apply_frac]]
-                    elif k == "rates":
+                    elif k == "low_volume_rate":
                         # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
                         # and added fixed costs (annual, if applicable).
                         # **** NOTE that currently, fixed costs are read in as a placeholder,
@@ -2048,6 +2070,8 @@ class UsefulVars(object):
                         params = [x for x in [
                             state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
                             start_yr, end_yr, apply_frac]]
+                    else:
+                        raise ValueError("Unexpected sub-federal input type '" + k + "'")
 
                     # Iterate all expanded parameter info. into a list of lists with every
                     # possible combination of each parameter
@@ -4990,13 +5014,14 @@ class Measure(object):
                             # Set baseline costs before incentives dict
                             cost_base_init = base_cpl["installed cost"][
                                 "before incentives"]
-                            # Ensure that non ref. case add-on measures (e.g., controls) are not
-                            # assigned incentives that are meant for equipment replacements
-                            # to which the add-ons are attached. Also do not proceed
-                            # w/ incentives data for measures with relative performance
-                            # units as these cannot be linked back to EIA
-                            # incentives levels
-                            if (self.measure_type != "add-on" or ref_addon) and \
+                            # Remove incentives in the case that the user has suppressed all
+                            # incentives. Ensure that non ref. case add-on measures (e.g., controls)
+                            # are not assigned incentives that are meant for equipment replacements
+                            # to which the add-ons are attached. Also do not proceed w/ incentives
+                            # data for measures with relative performance units as these cannot be
+                            # linked back to EIA incentives levels
+                            if opts.incentive_restrictions != "all" and (
+                                self.measure_type != "add-on" or ref_addon) and \
                                     "relative savings" not in perf_units_incents:
                                 # Pull out baseline incentives data
                                 cost_incentives = base_cpl["installed cost"][
@@ -5825,11 +5850,11 @@ class Measure(object):
                                         mlt_m = 0
                             # Finalize and apply incentives; update flag for an incentives
                             # adjustment for the current mseg
-                            meas_incent_flag = self.apply_incentives(
+                            meas_incent_flag, cost_base, cost_meas = self.apply_incentives(
                                 cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m,
                                 perf_meas_incents, perf_base, perf_units_incents,
                                 perf_base_units, cost_base, cost_meas, incent_mod_base,
-                                incent_mod_swtch, mskeys, meas_incent_flag)
+                                incent_mod_swtch, mskeys, mskeys_swtch, meas_incent_flag, opts)
                         else:
                             # Record suppression of incentives application
                             suppress_incent.append(mskeys)
@@ -7089,7 +7114,7 @@ class Measure(object):
     def apply_incentives(
             self, cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m, perf_meas,
             perf_base, perf_units, perf_base_units, cost_base, cost_meas,
-            incent_mod_base, incent_mod_swtch, mskeys, meas_incent_flag):
+            incent_mod_base, incent_mod_swtch, mskeys, mskeys_swtch, meas_incent_flag, opts):
         """Finalize incentive levels and reflect their effects on baseline/measure tech costs.
 
         Args:
@@ -7108,7 +7133,9 @@ class Measure(object):
             incent_mod_base (list): List of incentive mods to make to applicable baseline segment.
             incent_mod_swtch (list): List of incentive mods to make to measure switched to segment.
             mskeys (tuple): Current mseg information.
+            mskeys_swtch (tuple): Switched to mseg information.
             meas_incent_flag (boolean): Flag for whether measure costs were adjusted by incentives.
+            opts (object): Stores user-specified execution options.
 
         Returns:
             Updated flag for incentives-based adjustment to measure costs.
@@ -7119,8 +7146,36 @@ class Measure(object):
             seg_loop = cost_incentives.keys()
         else:
             seg_loop = ["all"]
+        # Check for user suppression of federal or sub-federal incentives across all segment types;
+        # if suppressed, do not loop through that type of incentive for segment. Assume that
+        # incentives are suppressed when there is no distinction between federal/non-federal ('all')
+        if opts.incentive_restrictions == "no federal":
+            seg_loop = [x for x in seg_loop if any([y not in x for y in ["federal", "all"]])]
+        elif opts.incentive_restrictions == "no state":
+            seg_loop = [x for x in seg_loop if any([y not in x for y in ["sub-federal", "all"]])]
+
         # Loop through applicable fed/sub-fed branching of incentives and adjust costs accordingly
         for seg in seg_loop:
+            # Check for suppression of base or measure incentives for certain segment fuel types;
+            # these can occur at the federal level, state level, or both levels. Check for both
+            # baseline and like-for-like measure segments and (if applicable) segments that the
+            # measure is switching to
+            if cost_incentives_meas:
+                keys_to_check = [mskeys, mskeys_swtch]  # Measure switches from baseline segment
+            else:
+                keys_to_check = [mskeys, mskeys]  # Measure does not switch from base segment
+            suppress_base_incentive, suppress_measure_incentive = [(("electricity" in keys and (
+                (seg in ["federal", "all"] and
+                 opts.incentive_restrictions == "no federal electric") or
+                (seg in ["non-federal", "all"] and
+                 opts.incentive_restrictions == "no sub-federal electric") or
+                opts.incentive_restrictions == "no electric")) or
+                ("electricity" not in keys and (
+                    (seg in ["federal", "all"] and
+                     opts.incentive_restrictions == "no federal fossil") or
+                    (seg in ["non-federal", "all"] and
+                     opts.incentive_restrictions == "no sub-federal fossil")
+                    or opts.incentive_restrictions == "no fossil"))) for keys in keys_to_check]
             # Initialize tracking of annual incentive amounts
             base_val_yrs_max, meas_val_yrs_max = ([] for n in range(2))
             # Loop through all years and find/apply incentives
@@ -7179,7 +7234,11 @@ class Measure(object):
 
                 # Set initial, unadjusted (AEO-based) incentives levels after calculations above
                 base_val_yr_max_init, meas_val_yr_max_init = [
-                    max(x) if len(x) >= 1 else False for x in [base_val_yr, meas_val_yr]]
+                    max(x) if (suppress is False and len(x) >= 1) else False for suppress, x in zip(
+                        [suppress_base_incentive, suppress_measure_incentive],
+                        [base_val_yr, meas_val_yr])]
+                # Initialize final values as initial values
+                base_val_yr_max, meas_val_yr_max = [base_val_yr_max_init, meas_val_yr_max_init]
 
                 # Set shorthands for incentives modifications that remove, extend, or replace
                 # AEO-based incentive levels for the current applicable base and switched to msegs
@@ -7196,7 +7255,8 @@ class Measure(object):
                          (numpy.isnan(x[-2]) or x[-2] >= yr_int)))] for y in [
                     "remove", "extend", "replace"]]
                 # Apply incentives mods to original incentives values pulled above
-                for val_adjs_i, val_adjs in enumerate([base_val_yr_max_init, meas_val_yr_max_init]):
+                for val_adjs_i, val_adjs in enumerate([
+                        x for x in [base_val_yr_max_init, meas_val_yr_max_init] if x]):
                     # Set appropriate supporting variables to use for adjustment of baseline or
                     # switched to segment incentives
                     if val_adjs_i == 0:
@@ -7303,24 +7363,20 @@ class Measure(object):
                                         max_to_extend + max_to_extend * ext_incr_pct) * appl_frac
                                 else:
                                     meas_val_yr_max = meas_val_yr_max_init
-                        else:
-                            base_val_yr_max, meas_val_yr_max = [
-                                base_val_yr_max_init, meas_val_yr_max_init]
-
                 # Apply largest incentive level to baseline and measure installed costs
-                if base_val_yr:
+                if base_val_yr_max:
                     cost_base[yr_str] -= base_val_yr_max
                     # Ensure that baseline costs after incentives are never negative
                     if cost_base[yr_str] <= 0:
                         cost_base[yr_str] = 0
-                if meas_val_yr:
+                if meas_val_yr_max:
                     cost_meas[yr_str] -= meas_val_yr_max
                     # Ensure that measure costs after incentives are never negative
                     if cost_meas[yr_str] <= 0:
                         cost_meas[yr_str] = 0
                     meas_incent_flag = True
 
-        return meas_incent_flag
+        return meas_incent_flag, cost_base, cost_meas
 
     def gen_tsv_facts(
             self, tsv_data, mskeys, bldg_sect, cost_conv, opts,
@@ -10624,9 +10680,9 @@ class Measure(object):
 
             # Modify measure energy costs to reflect alternate rate structures,
             # if applicable
-            if self.handyvars.rates is not None:
+            if self.handyvars.low_volume_rate is not None:
                 # Pull the alternate rate structure that applies to the current yr/mseg
-                alt_rates = [seg for seg in self.handyvars.rates if (
+                alt_rates = [seg for seg in self.handyvars.low_volume_rate if (
                     ((numpy.isnan(seg[-3]) or seg[-3] <= int(yr)) and
                      (numpy.isnan(seg[-2]) or seg[-2] >= int(yr))) and  # applies to current year
                     (seg[0:3] == [mskeys[1], mskeys[2], mskeys[-1]]) and  # reg/bldg/vint
@@ -10636,35 +10692,53 @@ class Measure(object):
                 # If alternatives apply, pull data on modifications to volumetric energy rates;
                 # if no alternates apply, set modifications to zero
                 if len(alt_rates) != 0:
-                    # Pull rate information out of retrieved list
-                    alt_rate = alt_rates[0]
-                    # Pull absolute or relative modification to volumetric rate and any additional
-                    # fixed charges
-                    vol_abs, vol_rel, fix_add = alt_rate[6:9]
-                    # Abs volumetric reductions of electricity are in $/kWh, convert to the units of
-                    # fossil rates in Scout, $/MMBtu
-                    if vol_abs:
-                        kwh_mmbtu = 293.07107
-                        vol_reduce = vol_abs * kwh_mmbtu
-                    # Relative volumetric reductions are applied to unadjusted measure energy cost
-                    else:
-                        vol_reduce = cost_energy_meas[yr] - cost_energy_meas[yr] * (vol_rel / 100)
-                    apply_frac = alt_rate[-1]
-                    # ***** NOTE Leave placeholder for possible future handling of additional fixed
-                    # costs (not readily assigned to a single measure, apply across the bill) *****
+                    # Initialize cumulative applicability fraction that covers all applicable
+                    # rates for current mseg, to be updated with each loop below
+                    cum_rate_apply_frac = 0
+                    # If any of the retrieved rate impacts apply to 100% of the segment, assume
+                    # this row supercedes all others and remove them from further consideration
+                    if any([x[-1] == 1 for x in alt_rates]):
+                        alt_rates = [x for x in alt_rates if x[-1] == 1]
+                    # Loop through all rates retrieved for current mseg
+                    for alt_rate in alt_rates:
+                        # Pull abs. or relative modification to volumetric rate and any additional
+                        # fixed charges
+                        vol_abs, vol_rel, fix_add = alt_rate[6:9]
+                        # Abs volumetric reductions of electricity are in $/kWh, convert to units of
+                        # fossil rates in Scout, $/MMBtu
+                        if vol_abs:
+                            kwh_mmbtu = 293.07107
+                            vol_reduce = vol_abs * kwh_mmbtu
+                        # Relative volumetric reductions are applied to unadj. measure energy cost
+                        else:
+                            vol_reduce = cost_energy_meas[yr] - cost_energy_meas[yr] * (
+                                vol_rel / 100)
+                        apply_frac = alt_rate[-1]
+                        # ***** NOTE Leave placeholder for possible future handling of added fixed
+                        # costs (not readily assigned to single measure, apply across bill) *****
 
-                    # # Determine the total added fixed costs to add across competed/captured and
-                    # # total/captured households/customers. Convert number of captured units to
-                    # # number of captured households/customers based on AEO data on number of
-                    # # primary heating units per household.
-                    # unit_to_home = self.handyvars.res_units_per_home["heating"][mskeys[2]]
-                    # fix_add_comp = (stock_compete_meas[yr] / unit_to_home) * fix_add
-                    # fix_add_tot = (stock_total_meas[yr] / unit_to_home) * fix_add
+                        # # Determine total added fixed costs to add across competed/captured and
+                        # # total/captured households/customers. Convert number of captured units to
+                        # # number of captured households/customers based on AEO data on number of
+                        # # primary heating units per household.
+                        # unit_to_home = self.handyvars.res_units_per_home["heating"][mskeys[2]]
+                        # fix_add_comp = (stock_compete_meas[yr] / unit_to_home) * fix_add
+                        # fix_add_tot = (stock_total_meas[yr] / unit_to_home) * fix_add
 
-                    # Adjust cost of energy for measure to reflect alternate rate information above,
-                    # taking into consideration applicability factors
-                    cost_energy_meas_yr_adj = (cost_energy_meas[yr] - vol_reduce) * apply_frac + (
-                        cost_energy_meas[yr] * (1 - apply_frac))
+                        # Adjust cost of energy for measure to reflect alternate rate info. above,
+                        # taking into consideration applicability factors
+                        cost_energy_meas_adj_apply_cum = (
+                            cost_energy_meas[yr] - vol_reduce) * apply_frac
+                        # Update the cumulative fraction of applicability across all rates that
+                        # apply to the current mseg
+                        cum_rate_apply_frac += apply_frac
+
+                    # Ensure that cumulative applicability fraction never exceeds 1
+                    if cum_rate_apply_frac > 1:
+                        cum_rate_apply_frac = 1
+                    # Finalize measure cost to reflect the cumulative impact of all applicable rates
+                    cost_energy_meas_yr_adj = cost_energy_meas_adj_apply_cum + (
+                        cost_energy_meas[yr] * (1 - cum_rate_apply_frac))
                 else:
                     cost_energy_meas_yr_adj = cost_energy_meas[yr]
             else:
@@ -16710,9 +16784,46 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
 if __name__ == "__main__":
     start_time = time.time()
-    opts = ecm_args()
+    # Pull user opts for both ecm_prep and run; the bps option for the latter determines the
+    # allowable values for the former
+    opts_prep = ecm_args()
+    opts_run = run_args()
 
-    main(opts)
+    # If run execution is representing BPS, ensure that the prep data are split by fuel type (can
+    # be electric/non-electric or the more detailed reporting of these splits and broken out by
+    # detailed regions (states) and building types, which is required to assess BPS in run
+    if (opts_run.bps is not None) and (opts_prep.split_fuel is False or (
+        "all" not in opts_prep.detail_brkout and all([
+            x not in opts_prep.detail_brkout for x in ["regions", "buildings"]]))):
+        # Reset detail breakout options to comport with what BPS assessment needs
+        if "fuel types" in opts_prep.detail_brkout:
+            opts_prep.detail_brkout = ["regions", "buildings", "fuel types"]
+        else:
+            opts_prep.detail_brkout = ["regions", "buildings"]
+        # Finalize detail breakout option (ultimatley formatted as a number string); mapping is
+        # adopted from ecm_prep_args.py
+        input_var_dict = {
+            ("buildings", "fuel types", "regions"): "1",
+            ("regions",): "2",
+            ("buildings",): "3",
+            ("fuel types",): "4",
+            ("buildings", "regions"): "5",
+            ("fuel types", "regions"): "6",
+            ("buildings", "fuel types"): "7",
+        }
+        opts_prep.detail_brkout.sort()
+        opts_prep.detail_brkout = tuple(opts_prep.detail_brkout)
+        opts_prep.detail_brkout = input_var_dict.get(opts_prep.detail_brkout)
+        # Ensure that fuel splits are calculated when BPS are assessed
+        opts_prep.split_fuel = True
+        # Warn the user about the change
+        warnings.warn(
+            "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
+            "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "
+            "apply the effects of codes and standards, but were not both used. These options "
+            "have been added to the prep execution.")
+
+    main(opts_prep)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("--- Runtime: %s (HH:MM:SS.mm) ---" %

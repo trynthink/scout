@@ -321,7 +321,7 @@ class CommonMethods(object):
             # At the terminal/leaf node, formatted as a numpy array
             # (for input uncertainty test cases)
             elif isinstance(i, numpy.ndarray) or isinstance(i, list):
-                self.assertTrue(type(i) == type(i2))
+                self.assertTrue(type(i) is type(i2))
                 for x in range(0, len(i)):
                     self.assertAlmostEqual(i[x], i2[x], places=2)
 
@@ -338,7 +338,8 @@ class CommonMethods(object):
 class UserOptions(object):
     """Generate sample user-specified execution options."""
     def __init__(self, warnings, mkt_fracs, trim_results, report_stk,
-                 report_cfs, no_comp, gcam_out, high_res_comp):
+                 report_cfs, no_comp, gcam_out, high_res_comp, state_appl_regs,
+                 bps, codes):
         self.verbose = warnings
         self.mkt_fracs = mkt_fracs
         self.trim_results = trim_results
@@ -347,6 +348,9 @@ class UserOptions(object):
         self.no_comp = no_comp
         self.gcam_out = gcam_out
         self.high_res_comp = high_res_comp
+        self.state_appl_regs = state_appl_regs
+        self.bps = bps
+        self.codes = codes
 
 
 class NullOpts(object):
@@ -360,7 +364,8 @@ class NullOpts(object):
         self.opts = UserOptions(
             warnings=False, mkt_fracs=False, trim_results=False,
             report_stk=False, report_cfs=False, no_comp=False,
-            gcam_out=False, high_res_comp=False)
+            gcam_out=False, high_res_comp=False, state_appl_regs=None,
+            bps=None, codes=None)
 
 
 class TestMeasureInit(unittest.TestCase, Constants):
@@ -374,7 +379,7 @@ class TestMeasureInit(unittest.TestCase, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA")
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
@@ -404,7 +409,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA")
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
@@ -507,7 +512,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA")
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
@@ -1508,7 +1513,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA")
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
@@ -1594,7 +1599,7 @@ class PaybackTest(unittest.TestCase, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA")
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
@@ -1680,7 +1685,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA")
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
@@ -16247,7 +16252,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA")
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
@@ -26756,7 +26761,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA")
         cls.sample_measure = {
             "market_entry_year": None,
@@ -26812,7 +26817,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, gcam_out=False,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA")
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [

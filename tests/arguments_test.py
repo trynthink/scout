@@ -107,7 +107,10 @@ class TestConfig(unittest.TestCase, Utils):
             "no_eff_capt": False,
             "no_lnkd_stk_costs": False,
             "no_lnkd_op_costs": False,
-            "elec_upgrade_costs": "shares"
+            "elec_upgrade_costs": "shares",
+            "low_volume_rate": None,
+            "incentive_levels": "aeo",
+            "incentive_restrictions": None
         },
         "run": {
             "results_directory": None,
@@ -118,7 +121,10 @@ class TestConfig(unittest.TestCase, Utils):
             "report_cfs": False,
             "gcam_out": False,
             "no_comp": False,
-            "high_res_comp": False
+            "high_res_comp": False,
+            "state_appl_regs": None,
+            "bps": None,
+            "codes": None
         },
     }
 
