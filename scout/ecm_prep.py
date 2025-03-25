@@ -2120,8 +2120,6 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs).
-        ref_analogue (booleane): Flag for whether measure should serve as basis
-            for a copy of measure with reference case performance/cost.
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2222,13 +2220,6 @@ class Measure(object):
             self.tech_switch_to
         except AttributeError:
             self.tech_switch_to = None
-        # Check for reference case analogue attribute, and if not there set None
-        try:
-            self.ref_analogue
-            if self.ref_analogue is None:
-                self.ref_analogue = ""
-        except AttributeError:
-            self.ref_analogue = ""
         # Check for flag for heating and cooling equipment pairing, if not
         # there or not applicable set to blank string
         try:
@@ -2267,9 +2258,7 @@ class Measure(object):
         # a typical/BAU efficiency level, remove the measure from the market
         # once the elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
-                self.min_eff_elec_flag is not None or (
-                    self.usr_opts["add_typ_eff"] is not False and
-                "Analogue" in self.name)):
+                self.usr_opts["add_typ_eff"] and "(Ref. Analogue)" in self.name):
             self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
@@ -13570,7 +13559,6 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             del m.linked_htcl_tover
             del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
-            del m.ref_analogue
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -14490,21 +14478,16 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                     p, new_pkg_name,
                                     meas_dict["name"], new_name])
 
-                # Check for whether a reference case analogue measure
-                # should be added
+                # Check for whether a reference case analogue measure should be added, which a
+                # user flags via the `ref_analogue` attribute
                 if "ref_analogue" in meas_dict.keys() and meas_dict["ref_analogue"] is True:
                     add_ref_meas = True
                 else:
-                    add_ref_meas = ""
+                    add_ref_meas = False
 
-                # Add copies of ESTAR, IECC, or 90.1 measures that
-                # downgrade to typical/BAU efficiency levels; exclude typ.
-                # /BAU fuel switching measures that are assessed under
-                # exogenously determined FS rates; such measures must be
-                # manually defined by the user and are handled like normal
-                # measures; also exclude typical windows/envelope measures,
-                # as these are already baked into the energy use totals for
-                # typical/BAU HVAC equipment measures
+                # Add reference case analogues of the measure if the user has flagged the
+                # measure as requiring such an analogue to subsequently compete against (via
+                # `ref_analogue` attribute.)
                 if add_ref_meas:
                     # Determine unique measure copy name
                     new_name = meas_dict["name"] + " (Ref. Analogue)"
