@@ -1441,20 +1441,10 @@ Fuel splits
 Add Reference Case measures
 ***************************
 
-``--add_typ_eff`` automatically prepares `AEO Reference Case`_ analogues to any equipment measures representing ENERGY STAR, IECC, and/or 90.1 performance levels in the Scout analysis (as identified by those measures' :ref:`json-name` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute). They are otherwise identical to the ENERGY STAR, IECC, and/or 90.1 measures in the analysis in their baseline market characteristics. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
+``--add_typ_eff`` automatically prepares `AEO Reference Case`_ copies of any measures that the user has flagged as requiring a competing reference case analogue (via the :ref:`json-ref-analogue` attribute). The Reference Case measures feature no incremental cost, performance, or lifetime differences from the baseline technologies they apply to (determined via the measures' :ref:`json-technology` attribute). They are otherwise identical to the original measure in their baseline market characteristics. Data for these measures are prepared and reported just like any other measure, such that they will factor into any measure competition simulated down the line in the |html-filepath| run.py |html-fp-end| routine.
 
 .. note::
-   The ``--add_typ_eff`` option includes special handling of measures that switch equipment and/or fuel types, as determined via the measures' :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes (and see :ref:`ecm-features-multiple-fuel-types`). When exogenous heat pump switching rates are used (see ``--exog_hp_rate_scenario`` option above), Reference Case analogues will not be prepared at all for these measures. When exogenous switching rates are not used, Reference Case analogues will be prepared with the :ref:`json-tech_switch_to` and :ref:`json-fuel_switch_to` attributes reset to ``null`` such that the analogues represent the baseline technology and fuel type (in the measure's :ref:`json-technology` and :ref:`json-fuel_type` attributes.)
-
-   In these measure switching cases, Reference Case analogue measures that switch equipment and/or fuel types may be manually defined with typical cost, performance, and lifetime characteristics for the relevant technology class from the `EIA Reference Case technology documentation`_.
-
-   Reference Case analogues are also not automatically prepared for measures that pertain only to windows or envelope components.
-
-
-.. note::
-   All Reference Case analogue measures will include the string "Ref. Case" in their reported name, so that these measures are readily flagged in data post-processing.
-
-
+   All Reference Case analogue measures will include the string "(Ref. Analogue)" in their reported name, so that these measures are readily flagged in data post-processing.
 
 
 Raise technology performance floor
