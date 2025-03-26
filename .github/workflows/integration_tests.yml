@@ -72,6 +72,7 @@ jobs:
           fi
           rm -rf ./tests/integration_testing/results/*
           mv ./results/* ./tests/integration_testing/results/
+          mv ./generated/log_*.txt ./tests/integration_testing/results/ 2>/dev/null
       - name: Compare integration test results
         run: |
           git fetch origin master
