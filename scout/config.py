@@ -326,7 +326,7 @@ class Config:
         # Iterate through schema key-values and populate arg parser
         for arg_name, data in arguments.items():
             arg_type = data["type"]
-            if type(arg_type) == list:
+            if isinstance(arg_type, list):
                 if "null" in arg_type:
                     arg_type.remove("null")
                 if len(arg_type) > 1:
