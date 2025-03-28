@@ -1,5 +1,6 @@
 {
   "name": "Com. Fossil Heating, 90.1 c. 2022 (2030)",
+  "ref_analogue": true,
   "_description": "Fossil-based boilers and furnaces for commercial buildings that meet the ASHRAE 90.1-2022 standard; market entry year set for packaging with prospective measures",
   "climate_zone": "all",
   "bldg_type": "all commercial",

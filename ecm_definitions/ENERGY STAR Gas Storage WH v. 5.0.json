@@ -1,5 +1,6 @@
 { 
   "name": "ENERGY STAR Gas Storage WH v. 5.0",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",

@@ -1,5 +1,6 @@
 {
   "name": "ENERGY STAR Res. ASHP (RST) CC",
+  "ref_analogue": true,
   "_description": "Standard size residential air source heat pump that meets the ENERGY STAR performance standard, cold-climate, replace resistance",
   "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],

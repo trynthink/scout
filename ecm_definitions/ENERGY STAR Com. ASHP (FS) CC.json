@@ -1,5 +1,6 @@
 {
   "name": "ENERGY STAR Com. ASHP (FS) CC",
+  "ref_analogue": true,
   "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],
   "bldg_type": "all commercial",
