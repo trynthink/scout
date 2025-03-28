@@ -1,5 +1,6 @@
 {
   "name": "ENERGY STAR Res. ASHP (LFL)",
+  "ref_analogue": true,
   "climate_zone": ["TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
                    "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
                    "CASO"],

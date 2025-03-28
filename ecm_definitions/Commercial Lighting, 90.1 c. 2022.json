@@ -1,5 +1,6 @@
 {
   "name": "Commercial Lighting, 90.1 c. 2022",
+  "ref_analogue": true,
   "_description": "Incremental lighting energy savings and added costs from switching between BAU commercial code in 2023 (assume 90.1-2013) and most recent code (90.1-2022)",
   "tsv_features": null,
   "climate_zone": "all",

@@ -14480,7 +14480,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
                 # Check for whether a reference case analogue measure should be added, which a
                 # user flags via the `ref_analogue` attribute
-                if "ref_analogue" in meas_dict.keys() and meas_dict["ref_analogue"] is True:
+                if meas_dict.get("ref_analogue") and opts.add_typ_eff:
                     add_ref_meas = True
                 else:
                     add_ref_meas = False

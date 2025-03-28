@@ -1,5 +1,6 @@
 {
   "name": "ENERGY STAR Res. GSHP (LFL)",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
