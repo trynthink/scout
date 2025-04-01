@@ -1,5 +1,6 @@
 {
   "name": "Best Com. Chillers, Env., PC (EE+DF)",
+  "ref_analogue": true,
   "tsv_features": {
     "shape": {
       "custom_annual_savings": "DR_EE_HVAC_PreCool_Envelope.csv"

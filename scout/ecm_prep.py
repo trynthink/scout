@@ -2268,6 +2268,10 @@ class Measure(object):
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
+            # Prevent assessment of copied over savings shapes for reference case analogue
+            # measures, as shape is not appropriate for such measures
+            if "(Ref. Analogue)" in self.name:
+                raise AttributeError
             # Flag for custom annual savings shape data
             has_ann_shp = (
                 "shape" in self.tsv_features.keys() and

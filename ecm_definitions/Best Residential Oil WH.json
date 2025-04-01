@@ -1,5 +1,6 @@
 { 
   "name": "Best Residential Oil WH",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
