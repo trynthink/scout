@@ -1,5 +1,6 @@
 {
   "name": "Best Res. Pool Pump (EE+DF)",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "single family home",
   "structure_type": "all",

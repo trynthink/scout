@@ -1,5 +1,6 @@
 {
   "name": "Best Commercial Refrigeration",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",
