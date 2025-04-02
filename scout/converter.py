@@ -38,7 +38,9 @@ emissions intensities are also broken out in both of those files. Also note that
 "emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
 select the latest AEO year available and use the following mapping between AEO case and the
 scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
-"-95by2050"; ref2023 -> all other files.
+"-95by2050"; ref2023 -> all other files. Users may also enter pairs of scenarios, separated by a
+comma, that represent high gas/low electric price and low gas/high electric price futures, as
+follows: 'lowogs, lowmaclowZTC', 'highogs, highmachighZTC'.
 
 3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
 "emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
@@ -115,7 +117,8 @@ class ValidQueries(object):
             '2020': ['ref2020', 'co2fee25', 'lowogs', 'lorencst'],
             '2021': ['ref2021', 'lowogs', 'lorencst'],
             '2022': ['ref2022', 'lowogs', 'lorencst'],
-            '2023': ['ref2023', 'lowogs', 'lowZTC', 'lowmaclowZTC']}
+            '2023': ['ref2023', 'lowogs', 'lowZTC', 'lowmaclowZTC', 'highogs, highmachighZTC',
+                     'lowogs, lowmaclowZTC']}
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
@@ -509,9 +512,17 @@ def updater(conv, api_key, aeo_yr, scen, web):
         Updated conversion factors dict to be exported to the conversions JSON.
     """
 
-    # Get data via EIA API
-    dq = EIAQueries(aeo_yr, scen)
-    z, yrs = data_getter(api_key, dq.data_names, dq.query, dq.data_table_ids)
+    # Get data via EIA API. Account for cases where user has specified two separate
+    # scenarios to use in representing fossil vs. electric projections.
+    if isinstance(scen, list):
+        dq_foss, dq_elec = [EIAQueries(aeo_yr, x) for x in scen]
+    else:
+        dq_foss, dq_elec = (EIAQueries(aeo_yr, scen) for n in range(2))
+
+    z_foss, yrs_foss = \
+        data_getter(api_key, dq_foss.data_names, dq_foss.query, dq_foss.data_table_ids)
+    z_elec, yrs_elec = \
+        data_getter(api_key, dq_elec.data_names, dq_elec.query, dq_elec.data_table_ids)
 
     # Calculate adjustment factor to use the captured energy method
     # to account for electric source energy from renewable generation;
@@ -519,24 +530,24 @@ def updater(conv, api_key, aeo_yr, scen, web):
     # Methodology for Source Energy of Non-Combustible Renewable
     # Electricity Generation"
     if conv['site-source calculation method'] == 'captured energy':
-        renew_factor = ((z['elec_renew_hydro'] + z['elec_renew_geothermal'] +
-                         z['elec_renew_wind'] + z['elec_renew_solar_thermal'] +
-                         z['elec_renew_solar_pv']) /
-                        (z['elec_tot_energy_site'] +
-                            z['elec_tot_energy_loss']))
+        renew_factor = ((z_elec['elec_renew_hydro'] + z_elec['elec_renew_geothermal'] +
+                         z_elec['elec_renew_wind'] + z_elec['elec_renew_solar_thermal'] +
+                         z_elec['elec_renew_solar_pv']) /
+                        (z_elec['elec_tot_energy_site'] +
+                            z_elec['elec_tot_energy_loss']))
         capnrg = 1 - renew_factor + renew_factor*3412/9510
         # Since proceeding without this conversion factor would yield
         # results that are not as expected, the possible KeyError exception
         # due to missing data is intentionally not caught
     else:
         # Use the existing calculations for the fossil fuel equivalence method
-        capnrg = np.ones(np.shape(z['elec_renew_hydro']))
+        capnrg = np.ones(np.shape(z_elec['elec_renew_hydro']))
 
     # Electricity site-source conversion factors
     try:
-        ss_conv = ((z['elec_tot_energy_site'] + z['elec_tot_energy_loss']) /
-                   z['elec_tot_energy_site'])
-        for idx, year in enumerate(yrs):
+        ss_conv = ((z_elec['elec_tot_energy_site'] + z_elec['elec_tot_energy_loss']) /
+                   z_elec['elec_tot_energy_site'])
+        for idx, year in enumerate(yrs_elec):
             conv['electricity']['site to source conversion']['data'][year] = (
                 round(ss_conv[idx]*capnrg[idx], 6))
     except KeyError:
@@ -546,10 +557,10 @@ def updater(conv, api_key, aeo_yr, scen, web):
     # Update electricity CO2 intensities
     # Residential electricity CO2 intensities [Mt CO2/quads]
     try:
-        co2_res_ints = (z['elec_res_co2'] /
-                        (z['elec_res_energy_site'] +
-                         z['elec_res_energy_loss']))
-        for idx, year in enumerate(yrs):
+        co2_res_ints = (z_elec['elec_res_co2'] /
+                        (z_elec['elec_res_energy_site'] +
+                         z_elec['elec_res_energy_loss']))
+        for idx, year in enumerate(yrs_elec):
             conv['electricity']['CO2 intensity']['data']['residential'][
                  year] = (round(co2_res_ints[idx]/capnrg[idx], 6))
     except KeyError:
@@ -558,10 +569,10 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial electricity CO2 intensities [Mt CO2/quads]
     try:
-        co2_com_ints = (z['elec_com_co2'] /
-                        (z['elec_com_energy_site'] +
-                         z['elec_com_energy_loss']))
-        for idx, year in enumerate(yrs):
+        co2_com_ints = (z_elec['elec_com_co2'] /
+                        (z_elec['elec_com_energy_site'] +
+                         z_elec['elec_com_energy_loss']))
+        for idx, year in enumerate(yrs_elec):
             conv['electricity']['CO2 intensity']['data']['commercial'][
                  year] = (round(co2_com_ints[idx]/capnrg[idx], 6))
     except KeyError:
@@ -570,8 +581,8 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential natural gas CO2 intensities [Mt CO2/quads]
     try:
-        co2_res_ng_ints = z['ng_res_co2']/z['ng_res_energy']
-        for idx, year in enumerate(yrs):
+        co2_res_ng_ints = z_foss['ng_res_co2']/z_foss['ng_res_energy']
+        for idx, year in enumerate(yrs_foss):
             conv['natural gas']['CO2 intensity']['data']['residential'][
                  year] = (round(co2_res_ng_ints[idx], 6))
     except KeyError:
@@ -580,8 +591,8 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial natural gas CO2 intensities [Mt CO2/quads]
     try:
-        co2_com_ng_ints = z['ng_com_co2']/z['ng_com_energy']
-        for idx, year in enumerate(yrs):
+        co2_com_ng_ints = z_foss['ng_com_co2']/z_foss['ng_com_energy']
+        for idx, year in enumerate(yrs_foss):
             conv['natural gas']['CO2 intensity']['data']['commercial'][
                  year] = (round(co2_com_ng_ints[idx], 6))
     except KeyError:
@@ -590,7 +601,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential propane CO2 intensities [Mt CO2/quads]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['propane']['CO2 intensity']['data']['residential'][year] = (
                 62.88)  # hard coded CO2 intensity of propane
     except KeyError:
@@ -600,7 +611,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial propane CO2 intensities [Mt CO2/quads]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['propane']['CO2 intensity']['data']['commercial'][year] = (
                 62.88)  # hard coded CO2 intensity of propane
     except KeyError:
@@ -610,7 +621,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential distillate CO2 intensities [Mt CO2/quads]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['distillate']['CO2 intensity']['data']['residential'][
                 year] = (74.14)  # hard coded CO2 intensity of distillate
     except KeyError:
@@ -620,7 +631,7 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial distillate CO2 intensities [Mt CO2/quads]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['distillate']['CO2 intensity']['data']['commercial'][
                  year] = (74.14)  # hard coded CO2 intensity of distillate
     except KeyError:
@@ -630,8 +641,8 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential other fuel CO2 intensities [Mt CO2/quads]
     try:
-        co2_res_ot_ints = z['petro_res_co2']/z['petro_res_energy']
-        for idx, year in enumerate(yrs):
+        co2_res_ot_ints = z_foss['petro_res_co2']/z_foss['petro_res_energy']
+        for idx, year in enumerate(yrs_foss):
             conv['other']['CO2 intensity']['data']['residential'][year] = (
                 round(co2_res_ot_ints[idx], 6))
     except KeyError:
@@ -641,9 +652,9 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial other fuel CO2 intensities [Mt CO2/quads]
     try:
-        co2_com_ot_ints = ((z['petro_com_co2'] + z['coal_com_co2']) /
-                           (z['petro_com_energy'] + z['coal_com_energy']))
-        for idx, year in enumerate(yrs):
+        co2_com_ot_ints = ((z_foss['petro_com_co2'] + z_foss['coal_com_co2']) /
+                           (z_foss['petro_com_energy'] + z_foss['coal_com_energy']))
+        for idx, year in enumerate(yrs_foss):
             conv['other']['CO2 intensity']['data']['commercial'][year] = (
                 round(co2_com_ot_ints[idx], 6))
     except KeyError:
@@ -653,45 +664,45 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential electricity prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_elec):
             conv['electricity']['price']['data']['residential'][year] = (
-                round(z['elec_res_price'][idx]/(ss_conv[idx]*capnrg[idx]), 6))
+                round(z_elec['elec_res_price'][idx]/(ss_conv[idx]*capnrg[idx]), 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
               'electricity prices were not updated.')
 
     # Commercial electricity prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_elec):
             conv['electricity']['price']['data']['commercial'][year] = (
-                round(z['elec_com_price'][idx]/(ss_conv[idx]*capnrg[idx]), 6))
+                round(z_elec['elec_com_price'][idx]/(ss_conv[idx]*capnrg[idx]), 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
               'electricity prices were not updated.')
 
     # Residential natural gas prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['natural gas']['price']['data']['residential'][year] = (
-                round(z['ng_res_price'][idx], 6))
+                round(z_foss['ng_res_price'][idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, residential '
               'natural gas prices were not updated.')
 
     # Commercial natural gas prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['natural gas']['price']['data']['commercial'][year] = (
-                round(z['ng_com_price'][idx], 6))
+                round(z_foss['ng_com_price'][idx], 6))
     except KeyError:
         print('\nDue to failed data retrieval from the API, commercial '
               'natural gas prices were not updated.')
 
     # Residential propane prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['propane']['price']['data']['residential'][year] = (
-                round(z['lpg_res_price'][idx], 6))
+                round(z_foss['lpg_res_price'][idx], 6))
     except KeyError:
         if not web:
             print('\nDue to failed data retrieval from the API, residential '
@@ -699,9 +710,9 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial propane prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['propane']['price']['data']['commercial'][year] = (
-                round(z['lpg_com_price'][idx], 6))
+                round(z_foss['lpg_com_price'][idx], 6))
     except KeyError:
         if not web:
             print('\nDue to failed data retrieval from the API, commercial '
@@ -709,9 +720,9 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Residential distillate prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['distillate']['price']['data']['residential'][year] = (
-                round(z['distl_res_price'][idx], 6))
+                round(z_foss['distl_res_price'][idx], 6))
     except KeyError:
         if not web:
             print('\nDue to failed data retrieval from the API, residential '
@@ -719,9 +730,9 @@ def updater(conv, api_key, aeo_yr, scen, web):
 
     # Commercial distillate prices [$/MMBtu source]
     try:
-        for idx, year in enumerate(yrs):
+        for idx, year in enumerate(yrs_foss):
             conv['distillate']['price']['data']['commercial'][year] = (
-                round(z['distl_com_price'][idx], 6))
+                round(z_foss['distl_com_price'][idx], 6))
     except KeyError:
         if not web:
             print('\nDue to failed data retrieval from the API, commercial '
@@ -730,11 +741,11 @@ def updater(conv, api_key, aeo_yr, scen, web):
     # Residential other fuel price as energy use-weighted average
     # of propane and distillate (fuel oil) prices [$/MMBtu source]
     try:
-        res_other_price = (z['lpg_res_price']*z['lpg_res_energy']/(
-                            z['lpg_res_energy'] + z['distl_res_energy']) +
-                           z['distl_res_price']*z['distl_res_energy']/(
-                            z['lpg_res_energy'] + z['distl_res_energy']))
-        for idx, year in enumerate(yrs):
+        res_other_price = (z_foss['lpg_res_price']*z_foss['lpg_res_energy']/(
+                            z_foss['lpg_res_energy'] + z_foss['distl_res_energy']) +
+                           z_foss['distl_res_price']*z_foss['distl_res_energy']/(
+                            z_foss['lpg_res_energy'] + z_foss['distl_res_energy']))
+        for idx, year in enumerate(yrs_foss):
             conv['other']['price']['data']['residential'][year] = (
                 round(res_other_price[idx], 6))
     except KeyError:
@@ -746,11 +757,11 @@ def updater(conv, api_key, aeo_yr, scen, web):
     # propane, distillate (fuel oil), and residual (fuel oil) prices
     # [$/MMBtu source]
     try:
-        denom = z['lpg_com_energy']+z['distl_com_energy']+z['rsid_com_energy']
-        com_other_price = (z['lpg_com_price']*z['lpg_com_energy']/denom +
-                           z['distl_com_price']*z['distl_com_energy']/denom +
-                           z['rsid_com_price']*z['rsid_com_energy']/denom)
-        for idx, year in enumerate(yrs):
+        denom = z_foss['lpg_com_energy']+z_foss['distl_com_energy']+z_foss['rsid_com_energy']
+        com_other_price = (z_foss['lpg_com_price']*z_foss['lpg_com_energy']/denom +
+                           z_foss['distl_com_price']*z_foss['distl_com_energy']/denom +
+                           z_foss['rsid_com_price']*z_foss['rsid_com_energy']/denom)
+        for idx, year in enumerate(yrs_foss):
             conv['other']['price']['data']['commercial'][year] = (
                 round(com_other_price[idx], 6))
     except KeyError:
@@ -782,8 +793,15 @@ def updater_gastrend(conv, api_key, aeo_yr, scen):
         Residential and commercial gas price forecast at the national level.
     """
 
-    # Get data via EIA API
-    dq = EIAQueries(aeo_yr, scen)
+    # Get data via EIA API. Account for cases where user has specified two separate
+    # scenarios to use in representing fossil vs. electric projections. Scenarios are read in as a
+    # list with fossil scenario in 1st element and electricity scenario in the 2nd element.
+    if isinstance(scen, list):
+        scen_gas = scen[0]
+    else:
+        scen_gas = scen
+
+    dq = EIAQueries(aeo_yr, scen_gas)
     z, yrs = data_getter(
         api_key, dq.data_names_gasprice, dq.query_gasprice, dq.data_table_ids_gasprice)
 
@@ -829,8 +847,14 @@ def updater_emm(conv, api_key, aeo_yr, scen):
         conversions JSON.
     """
 
-    # Get data via EIA API
-    dq = EIAQueries(aeo_yr, scen)
+    # Get data via EIA API. Account for cases where user has specified two separate
+    # scenarios to use in representing fossil vs. electric projections. Scenarios are read in as a
+    # list with fossil scenario in 1st element and electricity scenario in the 2nd element.
+    if isinstance(scen, list):
+        scen_elec = scen[1]
+    else:
+        scen_elec = scen
+    dq = EIAQueries(aeo_yr, scen_elec)
     z, yrs = data_getter(api_key, dq.data_names_emm, dq.query_emm,
                          dq.data_table_ids_emm)
     # Set the year of AEO cost data (*** update manually with each AEO version ***)
@@ -1021,9 +1045,10 @@ def updater_state(conv_emm, aeo_min, conv_gas):
                                   'Residential Electricity Price ($/kWh)'] for
                                   yr in emm_price_res_ratios.columns} for
                                  state in state_elec_price_res.keys()}
-    state_gas_price_res = {yr: (conv_gas["residential"][yr] /
-                                conv_gas["residential"][anchor_yr]) for
-                           yr in conv_gas["residential"].keys()}
+    # Ensure that gas price trends do not apply to years before/leading up to anchor year
+    state_gas_price_res = {yr: (conv_gas["residential"][yr] / conv_gas["residential"][anchor_yr])
+                           if int(yr) > int(anchor_yr) else 1 for yr
+                           in conv_gas["residential"].keys()}
     state_gas_price_res_proj = {state:
                                 {yr: state_gas_price_res[yr] * state_baselines.loc[state,
                                  'Residential Gas Price ($/MCF)'] * mcf_mmbtu for
@@ -1042,8 +1067,10 @@ def updater_state(conv_emm, aeo_min, conv_gas):
                                   'Commercial Electricity Price ($/kWh)'] for
                                   yr in emm_price_com_ratios.columns} for
                                  state in state_elec_price_com.keys()}
-    state_gas_price_com = {yr: (conv_gas["commercial"][yr] / conv_gas["commercial"][anchor_yr]) for
-                           yr in conv_gas["commercial"].keys()}
+    # Ensure that gas price trends do not apply to years before/leading up to anchor year
+    state_gas_price_com = {yr: (conv_gas["commercial"][yr] / conv_gas["commercial"][anchor_yr])
+                           if int(yr) > int(anchor_yr) else 1 for yr
+                           in conv_gas["commercial"].keys()}
     state_gas_price_com_proj = {state:
                                 {yr: state_gas_price_com[yr] * state_baselines.loc[state,
                                  'Commercial Gas Price ($/MCF)'] * mcf_mmbtu for
@@ -1071,7 +1098,7 @@ def updater_state(conv_emm, aeo_min, conv_gas):
             "residential": state_gas_price_res_proj,
             "commercial": state_gas_price_com_proj},
         "source": (
-            'Base year (' + anchor_yr + ') data from EIA Natual Gas Annual, '
+            'Base year (' + anchor_yr + ') data from EIA Natural Gas Annual, '
             'projected to 2050 using national AEO trends in '
             'residential and commercial gas prices.'),
         "units": (anchor_yr + "$/MMBtu site")}
@@ -1171,6 +1198,11 @@ def main():
                 print('Invalid scenario entered.')
             else:
                 break
+    # Account for cases where user has specified two separate scenarios to pull for fossil
+    # vs. electric projections. User will specify as string with natural gas scenario name followed
+    # by electricity scenario name, with comma separating the two. Pull out into a list.
+    if "," in scenario:
+        scenario = scenario.split(", ")
 
     # Get year of earliest AEO data
     aeo_min = aeo_min_extract()
@@ -1200,7 +1232,12 @@ def main():
         # added with the indicated keys to the beginning of the file
         conv = OrderedDict(conv)
         conv['updated_to_aeo_year'] = year
-        conv['updated_to_aeo_case'] = scenario
+        # Account for cases where user has specified two separate scenarios to pull for
+        # fossil vs. electric projections
+        if isinstance(scenario, list):
+            conv['updated_to_aeo_case'] = {"fossil fuels": scenario[0], "electricity": scenario[1]}
+        else:
+            conv['updated_to_aeo_case'] = scenario
         conv.move_to_end('updated_to_aeo_case', last=False)
         conv.move_to_end('updated_to_aeo_year', last=False)
 
@@ -1270,7 +1307,12 @@ def main():
         # added with the indicated keys to the beginning of the file
         conv = OrderedDict(conv)
         conv['updated_to_aeo_year'] = year
-        conv['updated_to_aeo_case'] = scenario
+        # Account for cases where user has specified two separate scenarios to pull for
+        # fossil vs. electric projections
+        if isinstance(scenario, list):
+            conv['updated_to_aeo_case'] = {"fossil fuels": scenario[0], "electricity": scenario[1]}
+        else:
+            conv['updated_to_aeo_case'] = scenario
         conv.move_to_end('updated_to_aeo_case', last=False)
         conv.move_to_end('updated_to_aeo_year', last=False)
 
