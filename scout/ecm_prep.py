@@ -263,6 +263,7 @@ class UsefulInputFiles(object):
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
             alt_regions, alt_ref_carb, grid_decarb_level, and grid_assessment_timing arguments.
+            Or, if no additional grid decarbonization, assign variables to assess price sensitivity.
 
         Args:
             opts (argparse.NameSpace): argparse object containing the argument attributes
@@ -278,13 +279,17 @@ class UsefulInputFiles(object):
                 return f"-{arg}"
         alt_ref_carb_suffix = get_suffix(opts.alt_ref_carb)
         grid_decarb_level_suffix = get_suffix(opts.grid_decarb_level)
+        price_sensitivity_suffix = get_suffix(opts.price_sensitivity)
         # Toggle EMM emissions and price data based on whether or not a grid decarbonization
-        # scenario is used
+        # scenario or price sensitivity scenario is used
         if opts.alt_regions in ['EMM', "State"]:
             emission_var_map = {}  # Map UsefulInputFiles instance vars to filenames suffixes
             if opts.grid_decarb_level:
                 # Set grid decarbonization case
                 emission_var_map["ss_data_altreg"] = grid_decarb_level_suffix
+            elif opts.price_sensitivity:
+                # Set price sensitivity case
+                emission_var_map["ss_data_altreg"] = price_sensitivity_suffix
             else:
                 # Set baseline emissions factors
                 emission_var_map["ss_data_altreg"] = alt_ref_carb_suffix
@@ -306,8 +311,11 @@ class UsefulInputFiles(object):
                     filepath = fp.CONVERT_DATA / f"state_emissions_prices{filesuffix}.json"
                 setattr(self, var, filepath)
 
-        # Set site-source conversions and TSV files for grid decarbonization case
-        if opts.grid_decarb:
+        # Set site-source conversions and TSV files for captured energy method
+        if opts.captured_energy:
+            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
+        # Grid decarbonization case
+        elif opts.grid_decarb:
             self.ss_data = (fp.CONVERT_DATA /
                             f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
             # Update tsv data file suffixes for DECARB levels
@@ -321,6 +329,19 @@ class UsefulInputFiles(object):
             self.tsv_carbon_data = (
                 fp.TSV_DATA /
                 f"tsv_carbon-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json")
+        # Price sensitivity case
+        else:
+            if opts.price_sensitivity:
+                self.ss_data = (fp.CONVERT_DATA /
+                                f"site_source_co2_conversions{price_sensitivity_suffix}.json")
+            else:
+                self.ss_data = (fp.CONVERT_DATA /
+                                f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
+            self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json"
+            self.tsv_carbon_data = (fp.TSV_DATA /
+                                    f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
+                self.tsv_carbon_data_nonfs = (None for n in range(3))
 
         # Set site-source conversions and TSV files for non-fuel switching measures
         # before grid decarbonization
@@ -335,18 +356,6 @@ class UsefulInputFiles(object):
         # after grid decarbonization
         elif (not opts.grid_decarb or
                 (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
-            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
-                self.tsv_carbon_data_nonfs = (None for n in range(3))
-
-        # Set site-source conversions and TSV files for captured energy method
-        if opts.captured_energy:
-            self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
-        elif not opts.grid_decarb:
-            self.ss_data = (fp.CONVERT_DATA /
-                            f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
-            self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json"
-            self.tsv_carbon_data = (fp.TSV_DATA /
-                                    f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
             self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
                 self.tsv_carbon_data_nonfs = (None for n in range(3))
 
