@@ -22,7 +22,9 @@ emissions intensities are also broken out in both of those files. Also note that
 "emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
 select the latest AEO year available and use the following mapping between AEO case and the
 scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
-"-95by2050"; ref2023 -> all other files.
+"-95by2050"; ref2023 -> all other files. Users may also enter pairs of scenarios, separated by a
+comma, that represent high gas/low electric price and low gas/high electric price futures, as
+follows: 'lowogs, lowmaclowZTC', 'highogs, highmachighZTC'.
 
 3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
 "emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
