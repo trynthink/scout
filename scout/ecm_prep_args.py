@@ -170,6 +170,15 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
                     "must be set run alternate grid decarbonization scenarios.")
         opts.grid_decarb = False
 
+    # If both a grid decarbonization scenario and a price sensitivity scenario are used,
+    # warn the user that the former supercedes the latter
+    if opts.grid_decarb_level and opts.price_sensitivity:
+        warnings.warn(
+            "WARNING: Presence of alternate grid decarbonization scenario option "
+            "('grid_decarb_level' option in YML) precludes ability to assess price sensitivity "
+            "scenarios on the supply-side ('price_sensitivity' option in YML). The latter will not "
+            "be reflected.")
+
     if (opts.alt_regions not in ["EMM", "State"]) and any([
             x is not False for x in [
             opts.tsv_metrics, opts.sect_shapes, opts.grid_decarb]]):

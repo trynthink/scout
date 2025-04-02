@@ -255,7 +255,12 @@ properties:
             default: null
             description: Restrictions to apply to evaluation of incentives. Setting to all removes all incentives, including those in the reference case, while null imposes no additional restrictions.
 
-
+      price_sensitivity:
+        type: ["string", "null"]
+        enum: [highelec_lowfossil, lowelec_highfossil, null]
+        default: null
+        description: Use supply-side scenarios with relatively high electricity prices/low natural gas prices, or vice versa.
+      
   run:
     type: object
     required: []

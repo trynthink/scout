@@ -127,6 +127,10 @@ ecm_prep:
   pkg_env_sep: (boolean) If true, enable output of separate envelope
     ECM impacts when both HVAC and envelope ECMs are combined
     in one or more measure packages. Default False
+  price_sensitivity: (string) Use supply-side scenarios with relatively
+    high electricity prices/low natural gas prices, or vice versa.
+    Allowed values are {highelec_lowfossil, lowelec_highfossil,
+    null}. Default null
   retrofits:
     retrofit_mult_year: (integer) The year by which the retrofit
       multiplier is achieved (only for increasing retrofit_type).
