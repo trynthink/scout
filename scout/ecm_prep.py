@@ -1924,20 +1924,16 @@ class UsefulVars(object):
                 scn_name = opts.incentive_levels
             else:
                 scn_name = getattr(opts, k)
-            # Scenario for variable is set to None or is not in one of the predetermined options;
-            # skip reading in the supporting data
-            if not scn_name or scn_name not in ["reference", "optimistic", "aggressive"]:
+            # Scenario for variable is set to None
+            if not scn_name:
                 setattr(self, k, None)
                 continue
             # Try importing state-level adoption input data; if not available, set to empty list
             try:
                 # Read in input-specific data
                 state_econ_dat = pd.read_csv(getattr(handyfiles, k))
-                # Restrict to above-reference scenario plus everything already in the reference
-                scns = [scn_name] + ["reference"]
                 # Filter by scenarios
-                state_econ_dat = state_econ_dat[state_econ_dat["scenario"].apply(
-                    lambda x: any(value in x for value in scns))]
+                state_econ_dat = state_econ_dat[state_econ_dat["scenario"] == scn_name]
                 # Remove scenario column from df
                 state_econ_dat = state_econ_dat.drop("scenario", axis=1)
                 # Initialize segment-specific list of state-level inputs
@@ -2021,7 +2017,7 @@ class UsefulVars(object):
                         # the scope of the modification (federal or non-federal incentives mod),
                         # and, for extensions, the level of increase in incentive to pair w/
                         # extension
-                        backup, mod, scope, increase = [x for x in row.values[8:-8]]
+                        backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
                         # Finalize flag for backup allowance; blanks or negative tags set to no
                         if not isinstance(backup, str) or backup in [
                                 "N", "n", "no", "No", "false", "False"]:
@@ -2042,6 +2038,11 @@ class UsefulVars(object):
                             scope = ["all"]
                         else:
                             scope = [scope]
+                        # Finalize ira flag
+                        if not isinstance(ira, str):
+                            ira = [False]
+                        else:
+                            ira = [True]
                         # Finalize increase on extension as number if it is left blank
                         if numpy.isnan(increase):
                             increase = [0]
@@ -2050,12 +2051,13 @@ class UsefulVars(object):
                         # Set information needed to replace existing incentives: performance level
                         # and units for replacement, as well as the incentive level to use (either
                         # a % credit on installed cost or a rebate amount in $)
-                        perf_lev, perf_units, credit, rebate = [[x] for x in row.values[-8:-4]]
+                        perf_lev, perf_units, credit, rebate, rebate_units = [
+                            [x] for x in row.values[-9:-4]]
                         # Pull all parameters together in a master list
                         params = [x for x in [
-                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope,
-                            increase, perf_lev, perf_units, credit, rebate, start_yr, end_yr,
-                            apply_frac]]
+                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
+                            increase, perf_lev, perf_units, credit, rebate, rebate_units,
+                            start_yr, end_yr, apply_frac]]
                     elif k == "low_volume_rate":
                         # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
                         # and added fixed costs (annual, if applicable).
@@ -5862,8 +5864,9 @@ class Measure(object):
                             meas_incent_flag, cost_base, cost_meas = self.apply_incentives(
                                 cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m,
                                 perf_meas_incents, perf_base, perf_units_incents,
-                                perf_base_units, cost_base, cost_meas, incent_mod_base,
-                                incent_mod_swtch, mskeys, mskeys_swtch, meas_incent_flag, opts)
+                                perf_base_units, cost_base, cost_meas, cost_base_units,
+                                incent_mod_base, incent_mod_swtch, mskeys, mskeys_swtch,
+                                meas_incent_flag, opts)
                         else:
                             # Record suppression of incentives application
                             suppress_incent.append(mskeys)
@@ -7122,7 +7125,7 @@ class Measure(object):
 
     def apply_incentives(
             self, cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m, perf_meas,
-            perf_base, perf_units, perf_base_units, cost_base, cost_meas,
+            perf_base, perf_units, perf_base_units, cost_base, cost_meas, cost_base_units,
             incent_mod_base, incent_mod_swtch, mskeys, mskeys_swtch, meas_incent_flag, opts):
         """Finalize incentive levels and reflect their effects on baseline/measure tech costs.
 
@@ -7139,6 +7142,7 @@ class Measure(object):
             perf_base_units (str): Comparable baseline tech. performance units.
             cost_base (dict): Unadjusted (by incentives) baseline installed costs by year.
             cost_meas (dict): Unadjusted (by incentives) measure installed costs by year.
+            cost_base_units (dict): Cost units to be used when applying incentive amounts.
             incent_mod_base (list): List of incentive mods to make to applicable baseline segment.
             incent_mod_swtch (list): List of incentive mods to make to measure switched to segment.
             mskeys (tuple): Current mseg information.
@@ -7301,38 +7305,127 @@ class Measure(object):
                             rpl_vals = []
                             # Loop through all available replacements for current mseg, add to list
                             for r in rpl:
-                                # Determine which type of replacement incentive is give (% credit
-                                # against installed cost, or rebate against installed cost). Raise
-                                # error if both types are specified, and continue loop if none are
-                                if not all([numpy.isfinite(r[-5:-4])]):
-                                    if numpy.isfinite(r[-5]):
-                                        incent_lev = (r[-5] / 100) * cost
-                                    elif numpy.isfinite(r[-4]):
-                                        incent_lev = r[-4]
-                                    else:
-                                        continue
-                                else:
+                                # Check for rebate level and if present, ensure that rebate units
+                                # match those of measure/baseline tech costs before pulling in
+
+                                # Rebate present and units match base/measure cost units
+                                if numpy.isfinite(r[-5]) and isinstance(r[-4], str) and \
+                                        r[-4] in cost_base_units:
+                                    rebate_lev = r[-5]
+                                # Rebate presence and units do not match base/measure cost units
+                                elif numpy.isfinite(r[-5]) and (
+                                        not isinstance(r[-4], str) or r[-4] not in cost_base_units):
                                     raise ValueError(
-                                        "Replacement incentives for measure " + self.name +
-                                        " and microsegment " + mskeys + " are given as both a "
-                                        " credit percentage on installed cost and as a rebate, "
-                                        " but only one is supported per incentive input")
+                                        "Rebate units for incentives row " + str(r) +
+                                        " are inconsistent with mseg units " + cost_base_units)
+                                # Rebate not present
+                                else:
+                                    rebate_lev = False
+
+                                # Determine which type of replacement incentive is give (% credit
+                                # against installed cost, or rebate against installed cost). Process
+                                # % credits first and if absolute values are also given assume
+                                # they constrain the maximum absolute amount of the credit
+
+                                # % credit is present
+                                if numpy.isfinite(r[-6]):
+                                    # Convert % credit to a fraction and multiply by base/meas cost
+                                    incent_lev = (r[-6] / 100) * cost
+                                    # When both percentage and absolute incentive level are
+                                    # provided together, assume the latter is an absolute
+                                    # constraint on the result of applying the former
+                                    if rebate_lev and incent_lev > rebate_lev:
+                                        incent_lev = rebate_lev
+                                # Rebate present without % credit present
+                                elif rebate_lev:
+                                    incent_lev = rebate_lev
+                                # Neither present
+                                else:
+                                    continue
+
+                                # Force incentive level to zero if it is tagged as being funded by
+                                # the IRA and the IRA is assumed removed in the current scenario;
+                                # note that this effectively processes removal immediately
+                                if opts.incentive_restrictions == "no ira" and r[-10]:
+                                    # Set incentive to add to list to zero
+                                    rpl_vals.append(0)
+                                    suppress_ira = True
+                                else:
+                                    suppress_ira = False
+
+                                # Shorthands for performance values and units
+                                perf_thres_units, perf_thres_val = r[-7], r[-8]
+
+                                # Check if further processing of value is needed. Value may be
+                                # split by warm or cold climates (HVAC) or by IECC climate zone
+                                # (envelope). Do not process further if IRA incentive zeroed out.
+                                if not suppress_ira and isinstance(perf_thres_val, str):
+                                    # Case where performance threshold is input as a single float
+                                    # (note that it could be read in as a string that needs to be
+                                    # converted to a float if there are other strings in the column,
+                                    # per the cases below.)
+                                    try:
+                                        perf_thres_val = float(perf_thres_val)
+                                    # Case where performance threshold is input as a series of
+                                    # floats separated by commas and semi-colons (for example,
+                                    # some envelope incentives are broken out by IECC climate,
+                                    # and some HP incentives are broken out by cold/warm climate)
+                                    except ValueError:
+                                        # Case where performance threshold for HP is broken out by
+                                        # cold climate/non-cold climate
+                                        if "climates" in perf_thres_val:
+                                            # Distinguish between input performance threshold values
+                                            # in warm vs. cold climates
+                                            warm_val, cold_val = [
+                                                float(x.split(":")[1]) for
+                                                x in perf_thres_val.split(";")]
+                                            # Flag for whether current mseg region is a warm climate
+                                            warm_reg = (mskeys[1] in self.handyvars.warm_cold_regs[
+                                                        "warm climates"].keys())
+                                            # Assign perf. threshold value based on climate flag
+                                            if warm_reg:
+                                                perf_thres_val = warm_val
+                                            else:
+                                                perf_thres_val = cold_val
+                                        # Case where performance threshold for envelope components
+                                        # are split out by IECC region
+                                        elif "IECC" in perf_thres_val:
+                                            # Distinguish between input performance threshold values
+                                            # in each IECC region
+                                            iecc_vals = [float(x.split(":")[1]) for
+                                                         x in perf_thres_val.split(";")]
+                                            # Pull IECC region weights for current segment
+                                            iecc_fractions = \
+                                                self.handyvars.alt_attr_brk_map["IECC"][mskeys[1]]
+                                            # Find index of region where weight is largest (e.g.,
+                                            # the majority IECC region for current mseg region)
+                                            iecc_val_ind = iecc_fractions.index(max(iecc_fractions))
+                                            # Pull value for that region
+                                            perf_thres_val = iecc_vals[iecc_val_ind]
+                                        # Unsupported/unrecognized case
+                                        else:
+                                            raise ValueError(
+                                                "Unsupported breakout of performance thresholds for"
+                                                " incentives '" + perf_thres_val + "' in the user "
+                                                "incentives data input row: " + str(r))
                                 # Check performance of measure against incentive requirements,
                                 # and if measure meets performance, reflect incentive.  Account
-                                # for inverted performance units (e.g., lower number is better)
-                                if r[-6] == perf_base_units and ((
+                                # for inverted performance units (e.g., lower number is better).
+                                # Do not process further if IRA incentive zeroed out.
+                                if not suppress_ira and perf_thres_units == perf_base_units and ((
                                     units not in self.handyvars.inverted_relperf_list
-                                    and perf >= r[-7]) or (
+                                    and perf >= perf_thres_val) or (
                                     units in self.handyvars.inverted_relperf_list
-                                        and perf <= r[-7])):
+                                        and perf <= perf_thres_val)):
                                     # Set and account for applicability factor
                                     appl_frac = r[-1]
                                     rpl_vals.append(incent_lev * appl_frac)
-                                elif r[-6] != perf_base_units:
+                                elif not suppress_ira and perf_thres_units != perf_base_units:
                                     raise ValueError(
-                                        "Incentive units of " + r[-6] + " do not match required "
-                                        "units of " + units + " for measure " + self.name +
-                                        " and microsegment " + mskeys)
+                                        "Incentive units of " + perf_thres_units +
+                                        " do not match required units of " + units +
+                                        " for measure " + self.name +
+                                        " and microsegment " + str(mskeys))
                             # Determine the sum of replacement incentives to use based on data
                             # assembled above; reset baseline or switched to mseg incentive
                             # to this value.

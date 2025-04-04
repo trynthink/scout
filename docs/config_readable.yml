@@ -100,8 +100,8 @@ ecm_prep:
       including those in the reference case, while null imposes
       no additional restrictions. Allowed values are {all, no
       electric, no federal, no federal electric, no federal fossil,
-      no fossil, no sub-fed fossil, no sub-federal, no sub-federal
-      electric, null}. Default null
+      no fossil, no ira, no sub-fed fossil, no sub-federal, no
+      sub-federal electric, null}. Default null
   no_eff_capt: (boolean) If true, suppress reporting of ECM-captured
     efficient energy use. Default False
   no_lnkd_costs:

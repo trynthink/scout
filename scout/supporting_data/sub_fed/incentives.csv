@@ -1,7 +1,443 @@
-scenario,description,state(s),building type(s),building vintage(s),end use(s),tech(s),fuel type(s),base fuel,base fuel backup,modification,scope,increase pct,performance level,performance units,credit pct,rebate amount,start year,end year,applicable fraction,fraction notes
-reference,Remove all available incentives for fossil equipment,all,all,all,all,all,all fossil,,,remove,federal,,,,,,,,1,NA
-reference,Extend existing incentives for electric equipment from the starting year through end of modeling time horizon with 20% increase in the incentive level through the extension period,all,all,all,all,all,electricity,all,yes,extend,federal,20,,,,,2033,,1,NA
-reference,Replace any existing incentive information for this segment with DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for space heating fuel switching cases.,DC,all residential,existing,heating,ASHP,electricity,all fossil,no,replace,non-federal,,2.69,COP,,6400,2025,2030,1,NA
-aggressive,Replace any existing incentive information for this segment with DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for water heating fuel switching cases.,DC,all residential,existing,water heating,electric WH,electricity,all fossil,no,replace,non-federal,,3.3,EF,,1200,2025,2030,1,NA
-reference,Replace any existing incentive information for this segment with DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for space heating resistance switching cases.,DC,all residential,existing,heating,ASHP,electricity,electricity,,replace,non-federal,,2.69,COP,,1000,2025,2030,1,NA
-reference,Replace any existing incentive information for this segment with DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for water heating resistance switching cases.,DC,all residential,existing,water heating,electric WH,electricity,electricity,,replace,non-federal,,3.3,EF,,750,2025,2030,1,NA
+﻿scenario,description,state(s),building type(s),building vintage(s),end use(s),tech(s),fuel type(s),base fuel,base fuel backup,modification,scope,ira,increase pct,performance level,performance units,credit pct,rebate amount,rebate units,start year,end year,applicable fraction,fraction notes
+reference,25C IRA tax credit: https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit,all,all residential,all,"heating, cooling, water heating ",ASHP,electricity,all,yes,replace,federal,yes,,warm climates: 2.76; cold climates: 2.93,COP,30,2000,$/unit,2024,2032,1,
+reference,25C IRA tax credit: https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit,all,all residential,all,water heating,electric WH,electricity,all,,replace,federal,yes,,3.3,UEF,30,2000,$/unit,2024,2032,1,
+reference,"25C IRA tax credit: https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit; assume the $1200 for walls and/or air sealing improvements is claimed in a separate year from windows, thus allowing an additional $600 max for windows to be stacked; 1:1 ratio of square footage wall to square footage floor (Scout cost conversion data), 2300 square feet per single family detached home (RECS)",all,all residential,all,"heating, cooling",wall,all,all,,replace,federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,30,0.52,$/ft^2 wall,2024,2032,1,
+reference,"25C IRA tax credit: https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit; assume the $1200 for walls and/or air sealing improvements is claimed in a separate year from windows, thus allowing an additional $600 max for windows to be stacked; 15% window:wall ratio in single family homes; 1:1. ratio between walls and floor area per Scout cost conversion data; 2300 square foot typical detached single family home from RECS data. use ESTAR windows v7 spec (technically most efficient is required).",all,all residential,all,"heating, cooling",windows conduction,all,all,,replace,federal,yes,,IECC_CZ1:3.125; IECC_CZ2:3.125; IECC_CZ3:3.6; IECC_CZ4:4.3; IECC_CZ5:5.9; IECC_CZ6:5.9; IECC_CZ7:5.9; IECC_CZ8:5.9,R value,30,1.74,$/ft^2 glazing,2024,2032,1,
+reference,"ESTAR ASHP <150% AMI
+
+https://resilient.az.gov/clean-energy-hub/households/home-electrification-and-appliance-rebate#:~:text=Up%20to%20%248%2C000%20for%20Energy,Energy%20Star%20electric%20kitchen%20equipment",AZ,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,,8000,$/unit,2024,2031,0.604,Share of site energy consumption in residential HH with AMI less than 150% (moderate-income cutoff)
+reference,"HPWH <150% AMI
+
+https://resilient.az.gov/clean-energy-hub/households/home-electrification-and-appliance-rebate#:~:text=Up%20to%20%248%2C000%20for%20Energy,Energy%20Star%20electric%20kitchen%20equipment",AZ,single family home,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,yes,,3.3,UEF,,1750,$/unit,2024,2031,0.604,Share of site energy consumption in residential HH with AMI less than 150% (moderate-income cutoff)
+reference,"ESTAR electric dryer <150% AMI
+
+https://resilient.az.gov/clean-energy-hub/households/home-electrification-and-appliance-rebate#:~:text=Up%20to%20%248%2C000%20for%20Energy,Energy%20Star%20electric%20kitchen%20equipment",AZ,all residential,existing,drying,all,electricity,all fossil,,replace,non-federal,yes,,2.68,CEF,,840,$/unit,2024,2031,0.604,Share of site energy consumption in residential HH with AMI less than 150% (moderate-income cutoff)
+reference,"Electric cooking <150% AMI
+
+https://resilient.az.gov/clean-energy-hub/households/home-electrification-and-appliance-rebate#:~:text=Up%20to%20%248%2C000%20for%20Energy,Energy%20Star%20electric%20kitchen%20equipment",AZ,all residential,existing,cooking,all,electricity,all fossil,,replace,non-federal,yes,,0.82,relative savings (constant),,840,$/unit,2024,2031,0.604,Share of site energy consumption in residential HH with AMI less than 150% (moderate-income cutoff)
+reference,"Replace any existing incentive information for this segment with AZ's IRA-funded HEAR program - 
+
+https://resilient.az.gov/clean-energy-hub/households/home-electrification-and-appliance-rebate#:~:text=Up%20to%20%248%2C000%20for%20Energy,Energy%20Star%20electric%20kitchen%20equipment",AZ,all residential,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,,0.7,$/ft^2 wall,2024,2031,0.604,Share of site energy consumption in residential HH with AMI less than 150% (moderate-income cutoff)
+reference,"ESTAR ASHP low income SF California Energy Commission's Home Electrification and Appliance Rebates (HEEHRA) program https://techcleanca.com/incentives/heehrarebates/; Californians with single family household incomes less than 80% area median income are eligible for up to $8,000.
+",CA,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,,8000,$/unit,2024,2031,0.23824779,Fraction represents income level
+reference,"ESTAR ASHP moderate income SF California Energy Commission's Home Electrification and Appliance Rebates (HEEHRA) program https://techcleanca.com/incentives/heehrarebates/; ""California residents with single family household incomes between 80% and 150% area median income are eligible for up to $4,000.
+""",CA,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,,4000,$/unit,2024,2031,0.24740406,Fraction represents income level
+reference,"ESTAR ASHP low income MF California Energy Commission's Home Electrification and Appliance Rebates (HEEHRA) program https://techcleanca.com/incentives/heehrarebates/; ""Low-income multifamily properties are categorized as households with an income that is ≤80 percent AMI and:
+at least 66 percent of occupied living units are at or below 80 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 66 percent of occupied living units are at or below 80 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.
+
+Moderate-income multifamily properties are categorized as households with an income that is ≤150 percent AMI. The moderate-income multifamily properties must be in a Senate Bill 535 disadvantaged community (DAC) and either:
+at least 50 percent of occupied living units are at or below 150 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 50 percent of occupied living units are at or below 150 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.""",CA,multi family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,,8000,$/unit,2024,2031,0.10357669,Fraction represents Multifamily – Low-to-Moderate Income (LMI)
+reference,HPWH FS MF low income https://techcleanca.com/incentives/heehrarebates,CA,multi family home,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,yes,,3.3,UEF,,1750,$/unit,2024,2031,0.10357669,Fraction represents Multifamily – Low-to-Moderate Income (LMI)
+reference,HPWH efficiency MF low income https://techcleanca.com/incentives/heehrarebates,CA,multi family home,existing,water heating,electric WH,electricity,electricity,,replace,non-federal,yes,,3.3,UEF,,700,$/unit,2024,2031,0.10357669,Fraction represents Multifamily – Low-to-Moderate Income (LMI)
+reference,"Cooking electrification low income MF California Energy Commission's Home Electrification and Appliance Rebates (HEEHRA) program https://techcleanca.com/incentives/heehrarebates/; ""Low-income multifamily properties are categorized as households with an income that is ≤80 percent AMI and:
+at least 66 percent of occupied living units are at or below 80 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 66 percent of occupied living units are at or below 80 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.
+
+Moderate-income multifamily properties are categorized as households with an income that is ≤150 percent AMI. The moderate-income multifamily properties must be in a Senate Bill 535 disadvantaged community (DAC) and either:
+at least 50 percent of occupied living units are at or below 150 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 50 percent of occupied living units are at or below 150 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.""",CA,multi family home,existing,cooking,all,electricity,all fossil,,replace,non-federal,yes,,0.82,relative savings (constant),,840,$/unit,2024,2031,0.10357669,Fraction represents Multifamily – Low-to-Moderate Income (LMI)
+reference,"HP dryer low income MF California Energy Commission's Home Electrification and Appliance Rebates (HEEHRA) program https://techcleanca.com/incentives/heehrarebates/; ""Low-income multifamily properties are categorized as households with an income that is ≤80 percent AMI and:
+at least 66 percent of occupied living units are at or below 80 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 66 percent of occupied living units are at or below 80 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.
+
+Moderate-income multifamily properties are categorized as households with an income that is ≤150 percent AMI. The moderate-income multifamily properties must be in a Senate Bill 535 disadvantaged community (DAC) and either:
+at least 50 percent of occupied living units are at or below 150 percent AMI, where clearly listed on a TECH-HEEHRA approved Federal, State, or Local Deed Restriction/Regulatory Agreement.
+OR
+at least 50 percent of occupied living units are at or below 150 percent AMI, as verified by individual household income documentation, evidence of Section 8, and/or proxy documentation of categorical eligibility.""",CA,multi family home,existing,drying,all,electricity,all fossil,,replace,non-federal,yes,,3,CEF,,840,$/unit,2024,2031,0.10357669,Fraction represents Multifamily – Low-to-Moderate Income (LMI)
+reference,ESTAR ASHP FS DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for space heating fuel switching cases.,DC,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,no,replace,non-federal,,,2.69,COP,,6400,$/unit,2025,2030,1,NA
+reference,HPWH FS DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for water heating fuel switching cases.,DC,all residential,existing,water heating,electric WH,electricity,all fossil,no,replace,non-federal,,,3.3,UEF,,1200,$/unit,2025,2030,1,NA
+optimistic,Extend existing incentives through 2050,DC,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,no,replace,non-federal,,,2.69,COP,,6400,$/unit,2031,2050,1,NA
+reference,ESTAR ASHP efficiency DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for space heating resistance switching cases.,DC,all residential,existing,"heating, cooling",ASHP,electricity,electricity,,replace,non-federal,,,2.69,COP,,1000,$/unit,2025,2030,1,NA
+optimistic,Extend existing incentives through 2050,DC,all residential,existing,"heating, cooling",ASHP,electricity,electricity,,replace,non-federal,,,2.69,COP,,1000,$/unit,2031,2050,1,NA
+reference,HPWH efficiency DC's sustainable energy utility rebate program https://www.dcseu.com/residential-rebates/electrify for water heating resistance switching cases.,DC,all residential,existing,water heating,electric WH,electricity,electricity,,replace,non-federal,,,3.3,UEF,,750,$/unit,2025,2030,1,NA
+optimistic,Extend existing incentives through 2050,DC,all residential,existing,water heating,electric WH,electricity,all fossil,no,replace,non-federal,,,3.3,UEF,,1200,$/unit,2031,2050,1,NA
+optimistic,Extend existing incentives through 2050,DC,all residential,existing,water heating,electric WH,electricity,electricity,,replace,non-federal,,,3.3,UEF,,750,$/unit,2031,2050,1,NA
+reference,"ESTAR ASHP FS low income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Less than 80% AMI
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,100,8000,$/unit,2025,2031,0.3302836,Share of site energy consumption in residential HH with AMI less than 80%
+reference,"ESTAR ASHP moderate income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Greater than 80% AMI/Less than 150% of the Area Median Income
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,50,8000,$/unit,2025,2031,0.2912909,Share of site energy consumption in residential HH with AMI between 80-150%
+reference,"HPWH low income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Less than 80% AMI
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,water heating,electric WH,electricity,all,,replace,non-federal,yes,,3.3,UEF,100,1750,$/unit,2025,2031,0.3302836,Share of site energy consumption in residential HH with AMI less than 80%
+reference,"HPWH moderate income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Greater than 80% AMI/Less than 150% of the Area Median Income
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,water heating,electric WH,electricity,all,,replace,non-federal,yes,,3.3,UEF,50,1750,$/unit,2025,2031,0.2912909,Share of site energy consumption in residential HH with AMI between 80-150%
+reference,"Cooking electrification low income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Less than 80% AMI
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,cooking,all,electricity,all fossil,,replace,non-federal,yes,,0.82,relative savings (constant),100,840,$/unit,2025,2031,0.3302836,Share of site energy consumption in residential HH with AMI less than 80%
+reference,"Cooking electrification moderate income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Greater than 80% AMI/Less than 150% of the Area Median Income
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,cooking,all,electricity,all fossil,,replace,non-federal,yes,,0.82,relative savings (constant),50,840,$/unit,2025,2031,0.2912909,Share of site energy consumption in residential HH with AMI between 80-150%
+reference,"HP dryer low income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Less than 80% AMI
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,drying,all,electricity,all,,replace,non-federal,yes,,3,CEF,100,840,$/unit,2025,2031,0.3302836,Share of site energy consumption in residential HH with AMI less than 80%
+reference,"HP dryer moderate income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Greater than 80% AMI/Less than 150% of the Area Median Income
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,drying,all,electricity,all,,replace,non-federal,yes,,3,CEF,50,840,$/unit,2025,2031,0.2912909,Share of site energy consumption in residential HH with AMI between 80-150%
+reference,"ESTAR walls low income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Less than 80% AMI
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,100,0.7,$/ft^2 wall,2025,2031,0.3302836,Share of site energy consumption in residential HH with AMI less than 80%
+reference,"ESTAR walls moderate income Georgia's IRA-funded Home Electrification and Appliance Rebates (HEAR) program. GEFA plans to launch Georgia’s Home Energy Rebates statewide by March 31, 2025.
+
+Greater than 80% AMI/Less than 150% of the Area Median Income
+https://energyrebates.georgia.gov/home-electrification-and-appliance-rebates",GA,all residential,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,50,0.7,$/ft^2 wall,2025,2031,0.2912909,Share of site energy consumption in residential HH with AMI between 80-150%
+reference,Duke Energy KY from CEE spreadsheet,KY,all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,4.69,COP,,300,$/unit,2024,2050,1,
+reference,ESTAR ccASHP efficiency MassSave Massachusetts's air source heat pump rebate program https://www.masssave.com/residential/rebates-and-incentives/heating-and-cooling/heat-pumps/air-source-heat-pumps,MA,all residential,existing,"heating, cooling",ASHP,electricity,all,no,replace,non-federal,,,2.79,COP,,9000,$/unit,2025,2031,1,"Berkshire Gas, Eversource, Liberty Utilities, National Grid, and Unitil (required for participation) serve basically all the gas in MA"
+reference,ESTAR ccASHP efficiency MassSave Massachusetts's air source heat pump rebate program https://www.masssave.com/residential/rebates-and-incentives/heating-and-cooling/heat-pumps/air-source-heat-pumps,MA,all residential,existing,"heating, cooling",ASHP,electricity,all,yes,replace,non-federal,,,2.79,COP,,3750,$/unit,2025,2031,1,"Berkshire Gas, Eversource, Liberty Utilities, National Grid, and Unitil (required for participation) serve basically all the gas in MA"
+proposed,,MD,,,,,,,,,,,,,,,,,,,,
+reference,"ASHP low income Efficiency Maine's residential heat pump incentives https://www.efficiencymaine.com/at-home/residential-heat-pump-incentives/; Low income – 80% of project cost up to an $8,000 heat pump lifetime rebate limit per housing unit - I made cutoff for this $40,000 based on the HEAP 2-person household threshold",ME,all residential,all,"heating, cooling",ASHP,electricity,all fossil,no,replace,non-federal,,,2.79,COP,,8000,$/unit,2024,2050,0.3947559,Fraction represents income level
+reference,"ASHP moderate income Efficiency Maine's residential heat pump incentives https://www.efficiencymaine.com/at-home/residential-heat-pump-incentives/; Moderate income – 60% of project cost up to a $6,000 heat pump lifetime rebate limit per housing unit - I made this cutoff $100,000 based on ""Moderate-Income – Homeowner’s Adjusted Gross Income (AGI) is up to $70,000 for individual tax filers, or $100,000 for joint filers""",ME,all residential,all,"heating, cooling",ASHP,electricity,all fossil,no,replace,non-federal,,,2.79,COP,,6000,$/unit,2024,2050,0.3565633,Fraction represents income level
+reference,"ASHP high income Efficiency Maine's residential heat pump incentives https://www.efficiencymaine.com/at-home/residential-heat-pump-incentives/; 40% of project cost up to a $4,000 heat pump lifetime rebate limit per housing unit",ME,all residential,all,"heating, cooling",ASHP,electricity,all fossil,no,replace,non-federal,,,2.79,COP,,4000,$/unit,2024,2050,0.2486808,Fraction represents income level
+reference,"GSHP Efficiency Maine's residential heat pump incentives https://www.efficiencymaine.com/at-home/residential-heat-pump-incentives/; 40% of project cost up to a $4,000 heat pump lifetime rebate limit per housing unit",ME,all residential,all,"heating, cooling",GSHP,electricity,all fossil,no,replace,non-federal,,,3.6,COP,,4000,$/unit,2024,2050,1,
+reference,HPWH Efficiency Maine's residential heat pump incentives https://www.efficiencymaine.com/at-home/residential-heat-pump-incentives/,ME,all residential,all,water heating,electric WH,electricity,all fossil,,replace,non-federal,,,3.3,UEF,,950,$/unit,2024,2050,1,
+proposed,Replace any existing incentive infomation for this segment with Michigan's IRA-funded incentives,MI,,,,,,,,,,,,,,,,,,,,
+reference,"ASHP LMI North Carolina's IRA-funded HEAR program.
+
+https://www.deq.nc.gov/energy-climate/state-energy-office/inflation-reduction-act/energy-efficiency-rebates
+
+https://www.deq.nc.gov/news/press-releases/2025/01/16/north-carolina-department-environmental-quality-launches-state-home-energy-rebate-program-energy",NC,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.69,COP,,8000,$/unit,2025,2031,0.6431365,Share of site energy consumption in residential HH with AMI less than 150%
+reference,"HPWH LMI North Carolina's IRA-funded HEAR program.
+
+https://www.deq.nc.gov/energy-climate/state-energy-office/inflation-reduction-act/energy-efficiency-rebates
+
+https://www.deq.nc.gov/news/press-releases/2025/01/16/north-carolina-department-environmental-quality-launches-state-home-energy-rebate-program-energy",NC,single family home,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,yes,,3.3,UEF,,1750,$/unit,2025,2031,0.6431365,Share of site energy consumption in residential HH with AMI less than 150%
+reference,"Cooking electrification LMI North Carolina's IRA-funded HEAR program.
+
+https://www.deq.nc.gov/energy-climate/state-energy-office/inflation-reduction-act/energy-efficiency-rebates
+
+https://www.deq.nc.gov/news/press-releases/2025/01/16/north-carolina-department-environmental-quality-launches-state-home-energy-rebate-program-energy",NC,all residential,existing,cooking,all,electricity,all fossil,,replace,non-federal,yes,,0.82,relative savings (constant),,840,$/unit,2025,2031,0.6431365,Share of site energy consumption in residential HH with AMI less than 150%
+reference,"HP dryer LMI North Carolina's IRA-funded HEAR program.
+
+https://www.deq.nc.gov/energy-climate/state-energy-office/inflation-reduction-act/energy-efficiency-rebates
+
+https://www.deq.nc.gov/news/press-releases/2025/01/16/north-carolina-department-environmental-quality-launches-state-home-energy-rebate-program-energy",NC,all residential,existing,drying,all,electricity,all fossil,,replace,non-federal,yes,,3,CEF,,840,$/unit,2025,2031,0.6431365,Share of site energy consumption in residential HH with AMI less than 150%
+reference,"ESTAR walls LMI North Carolina's IRA-funded HEAR program.
+
+https://www.deq.nc.gov/energy-climate/state-energy-office/inflation-reduction-act/energy-efficiency-rebates
+
+https://www.deq.nc.gov/news/press-releases/2025/01/16/north-carolina-department-environmental-quality-launches-state-home-energy-rebate-program-energy",NC,all residential,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,,0.7,$/ft^2 wall,2025,2031,0.6431365,Share of site energy consumption in residential HH with AMI less than 150%
+reference,"HP dryer
+
+https://clean.energy.nm.gov",NM,single family home,existing,drying,all,electricity,all fossil,,replace,non-federal,,,3,CEF,,840,$/unit,2024,2050,1,
+reference,"Cooking electrification
+
+https://clean.energy.nm.gov",NM,single family home,existing,cooking,all,electricity,all fossil,,replace,non-federal,,,0.82,relative savings (constant),,840,$/unit,2024,2050,1,
+reference,"ESTAR walls
+
+https://clean.energy.nm.gov",NM,single family home,existing,"heating, cooling",wall,all,all,,replace,non-federal,,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,,0.7,$/ft^2 wall,2024,2050,1,
+reference,ASHP partial FS SF Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-tax-credits-for-residential-customers/electric-heating-and-cooling-technology-for-renters-homeowners/save-on-a-central-air-source-heat-pump,NY,single family home,existing,"heating, cooling",ASHP,electricity,all,yes,replace,non-federal,,,2.63,COP,,2500,$/unit,2024,2050,0.130466818,"Fraction of NY res site energy in SF homes in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,ASHP full FS SF Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-tax-credits-for-residential-customers/electric-heating-and-cooling-technology-for-renters-homeowners/save-on-a-central-air-source-heat-pump,NY,single family home,existing,"heating, cooling",ASHP,electricity,all,no,replace,non-federal,,,2.63,COP,,8000,$/unit,2024,2050,0.130466818,"Fraction of NY res site energy in SF homes in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,GSHP SF Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-for-multifamily-customers/electric-heating-and-cooling-technology-for-multifamily-buildings/heat-pump-incentives,NY,single family home,existing,"heating, cooling",GSHP,electricity,all,no,replace,non-federal,,,3.2,COP,50,25000,$/unit,2024,2050,0.130466818,"Fraction of NY res site energy in SF homes in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,GSHP MF Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-for-multifamily-customers/electric-heating-and-cooling-technology-for-multifamily-buildings/heat-pump-incentives,NY,multi family home,existing,"heating, cooling",GSHP,electricity,all,no,replace,non-federal,,,3.2,COP,50,12500,$/unit,2024,2050,0.2169428,"Fraction of NY res site energy in MF homes in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,HPWH Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-tax-credits-for-residential-customers/electric-heating-and-cooling-technology-for-renters-homeowners/swap-your-water-heater-and-save,NY,all residential,existing,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,1000,$/unit,2024,2050,0.3474,"Fraction of NY res site energy in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,ASHP full FS MF Con Edison's rebate program https://www.coned.com/en/save-money/rebates-incentives-tax-credits/rebates-incentives-for-multifamily-customers/electric-heating-and-cooling-technology-for-multifamily-buildings/heat-pump-incentives,NY,multi family home,existing,"heating, cooling",ASHP,electricity,all,no,replace,non-federal,,,2.63,COP,,5000,$/unit,2024,2050,0.2169428,"Fraction of NY res site energy in MF homes in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+remove,https://cleanheat.ny.gov/assets/pdf/Program%20Manual%20-%20Con%20Edison%2012.16.24.pdf,NY,all commercial,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,,,2.79,COP,50,,,2022,2050,0.477,"Share of commercial site energy in Con Edison service area - Bronx County, Kings County, New York County, Queens County, Richmond County, Westchester County"
+reference,"ASHP Clean Heat Rhode Island's heat pump rebate program https://energy.ri.gov/heating-cooling/clean-heat-ri for heating and cooling. Residential incentive capped at $10,000 per household",RI,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,,,2.58,COP,,2250,$/unit,2022,2026,1,
+optimistic,"Extend existing incentives through 2050. Residential incentive capped at $10,000 per household",RI,all residential,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,,,2.58,COP,,2250,$/unit,2027,2050,1,
+reference,"HPWH Clean Heat Rhode Island's heat pump rebate program https://energy.ri.gov/heating-cooling/clean-heat-ri for heating and cooling. Residential incentive capped at $10,000 per household",RI,all residential,existing,water heating,electric WH,electricity,all fossil,yes,replace,non-federal,,,3.3,UEF,,750,$/unit,2022,2026,1,
+optimistic,"Extend existing incentives through 2050. Residential incentive capped at $10,000 per household",RI,all residential,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,,,3.3,UEF,,750,$/unit,2027,2050,1,
+reference,"ASHP new construction Clean Heat Rhode Island's heat pump rebate program https://energy.ri.gov/heating-cooling/clean-heat-ri for heating and cooling. Residential incentive capped at $10,000 per household",RI,all residential,new,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,,,2.58,COP,,1501.2,$/unit,2022,2026,1,
+optimistic,"Extend existing incentives through 2050. Residential incentive capped at $10,000 per household",RI,all residential,new,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,,,2.58,COP,,1501.2,$/unit,2027,2050,1,
+reference,"GSHP Clean Heat Rhode Island's heat pump rebate program https://energy.ri.gov/heating-cooling/clean-heat-ri for heating and cooling. Residential incentive capped at $10,000 per household",RI,all residential,existing,"heating, cooling",GSHP,electricity,all fossil,yes,replace,non-federal,,,2.3,COP,,3750,$/unit,2022,2026,1,"$1,250/ton; assume 3 ton system (AEO ASHP assumption)"
+reference,ASHP 2.37 COP Seattle Light's rebate program https://www.seattle.gov/city-light/residential-services/home-energy-solutions/heating-and-cooling-your-home#heatpumps,WA,all residential,existing,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.37,COP,,300,$/unit,2024,2050,0.2834514,Fraction represents Seattle City Light service area - King County
+reference,ASHP 2.49 COP Seattle Light's rebate program https://www.seattle.gov/city-light/residential-services/home-energy-solutions/heating-and-cooling-your-home#heatpumps,WA,all residential,existing,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.49,COP,,400,$/unit,2024,2050,0.2834514,Fraction represents Seattle City Light service area - King County
+reference,ASHP 2.78 Seattle Light's rebate program https://www.seattle.gov/city-light/residential-services/home-energy-solutions/heating-and-cooling-your-home#heatpumps,WA,all residential,existing,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.78,COP,,600,$/unit,2024,2050,0.2834514,Fraction represents Seattle City Light service area - King County
+reference,ASHP 2.78 COP fuel oil Seattle Light's rebate program https://www.seattle.gov/city-light/residential-services/home-energy-solutions/heating-and-cooling-your-home#heatpumps,WA,all residential,existing,"heating, cooling",ASHP,electricity,distillate,,replace,non-federal,,,2.78,COP,,2000,$/unit,2024,2050,0.2834514,Fraction represents Seattle City Light service area - King County
+reference,HPWH Seattle Light's rebate program https://www.seattle.gov/city-light/residential-services/home-energy-solutions/heating-and-cooling-your-home#heatpumps,WA,all residential,existing,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,750,$/unit,2024,2050,0.2834514,Fraction represents Seattle City Light service area - King County
+reference,"HPWH mid income Wisconsin offers rebates for heat pumps and heat pump water heaters for mid-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,yes,,3.3,UEF,50,1750,$/unit,2024,2050,0.3495011,mid-income (Households between 80% and 150% AMI)
+reference,"HPWH low income Wisconsin offers rebates for heat pumps and heat pump water heaters for low-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,yes,,3.3,UEF,100,1750,$/unit,2024,2050,0.3184977,low-income (Households below 80% AMI)
+reference,"ASHP mid income Wisconsin offers rebates for heat pumps and heat pump water heaters for mid-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.79,COP,50,8000,$/unit,2024,2050,0.3495011,mid-income (Households between 80% and 150% AMI)
+reference,"ASHP low income Wisconsin offers rebates for heat pumps and heat pump water heaters for low-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,"heating, cooling",ASHP,electricity,all fossil,,replace,non-federal,yes,,2.79,COP,100,8000,$/unit,2024,2050,0.3184977,low-income (Households below 80% AMI)
+reference,"ENERGY STAR Insulation, ENERGY STAR ventilation, and air sealing for low-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,100,0.7,$/ft^2 wall,2024,2050,0.3184977,low-income (Households below 80% AMI)
+reference,"ENERGY STAR Insulation, ENERGY STAR ventilation, and air sealing for mid-income houses through the IRA-funded HEAR program
+
+https://focusonenergy.com/ira-hear",WI,single family home,existing,"heating, cooling",wall,all,all,,replace,non-federal,yes,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,50,0.7,$ft^2 wall,2024,2050,0.3495011,mid-income (Households between 80% and 150% AMI)
+reference,"HPWH low income Vermont homeowners whose annual household income falls at or below low-income guidelines may be eligible to have up to 100% of their project cost covered when replacing an existing water heater 
+https://www.efficiencyvermont.com/rebates/list/heat-pump-water-heaters",VT,all residential,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,,,3.3,UEF,100,6000,$/unit,2024,2050,0.3344156,low-income (Households below 80% AMI)
+reference,"HPWH mid income Vermont homeowners whose annual household income falls at or below mid-income guidelines may be eligible to have up to 90% of their project cost covered when replacing an existing water heater 
+https://www.efficiencyvermont.com/rebates/list/heat-pump-water-heaters",VT,all residential,existing,water heating,electric WH,electricity,all fossil,,replace,non-federal,,,3.3,UEF,90,6000,$/unit,2024,2050,0.2987243,mid-income (Households between 80% and 150% AMI)
+reference,ducted ASHP https://www.efficiencyvermont.com/rebates/list/centrally-ducted-heat-pumps,VT,all residential,existing,water heating,ASHP,electricity,all fossil,,replace,non-federal,,,2.69,COP,,1700,$/unit,2024,2050,1,Incentive for 2-4 ton system
+reference,GSHP https://www.efficiencyvermont.com/rebates/list/ground-source-heat-pumps,VT,all residential,existing,water heating,GSHP,electricity,all fossil,,replace,non-federal,,,3.2,COP,,6300,$/unit,2024,2050,1,"$2,100/ton * 3 tons"
+reference,"Colorado heat pump tax credits, upfront discount on installation, state-level, https://energyoffice.colorado.gov/hptc",CO,all residential,existing,"heating, cooling",ASHP,electricity,all,yes,replace,non-federal,,,2.79,COP,,1500,$/unit,2024,2031,1,
+reference,"Colorado heat pump tax credits, upfront discount on installation, state-level, https://energyoffice.colorado.gov/hptc",CO,all residential,existing,"heating, cooling",GSHP,electricity,all,yes,replace,non-federal,,,3.3,COP,,3000,$/unit,2024,2031,1,
+reference,"Colorado heat pump tax credits, upfront discount on installation, state-level, https://energyoffice.colorado.gov/hptc",CO,all residential,existing,water heating,electric WH,electricity,all,yes,replace,non-federal,,,3.3,UEF,,500,$/unit,2024,2031,1,
+optimistic,$2k for every state with at least one >=$1k incentive. Current fed incentive is $2k,"CA, CT, IL, MA, ME, NY, NV, OR, VT, WA, WY",all residential,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.69,COP,,2000,$/unit,2030,2050,1,
+optimistic,$2k for remaining USCA states. Current fed incentive is $2k,"AZ, CO, DE, MD, MI, MN, NJ, NM, NC, PA, RI, WI",all residential,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.69,COP,,2000,$/unit,2035,2050,1,
+aggressive,"$5k for every state with at least one >=$1k incentive. Most aggressive existing non-LI is $3k/ton * 3 tons = $9, but $5k is already much higher than most state-level incentives…","CA, CT, IL, MA, ME, NY, NV, OR, VT, WA, WY",all residential,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.69,COP,,5000,$/unit,2030,2050,1,
+aggressive,"$5k for remaining USCA states. Most aggressive existing non-LI is $3k/ton * 3 tons = $9, but $5k is already much higher than most state-level incentives…","AZ, CO, DE, MD, MI, MN, NJ, NM, NC, PA, RI, WI",all residential,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,2.69,COP,,5000,$/unit,2035,2050,1,
+optimistic,"$2k for every state with an existing incentive. Current fed incentive is $2k, but $1k is high end of current state non-LI incentives","CO, DC, ME, RI, WA, WI, VT",all residential,all,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,1000,$/unit,2030,2050,1,
+optimistic,"$2k for remaining USCA states. Current fed incentive is $2k, but $1k is high end of current state non-LI incentives","AZ, CA, CT, DE, IL, MD, MA, MI, MN, NJ, NM, NY, NC, OR, PA",all residential,all,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,1000,$/unit,2035,2050,1,
+aggressive,$4k for every state with an existing incentive. Highest current non-LI incentive,"CO, DC, ME, RI, WA, WI, VT",all residential,all,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,2250,$/unit,2030,2050,1,
+aggressive,$4k for remaining USCA states. Highest current non-LI incentive,"AZ, CA, CT, DE, IL, MD, MA, MI, MN, NJ, NM, NY, NC, OR, PA",all residential,all,water heating,electric WH,electricity,all,,replace,non-federal,,,3.3,UEF,,2250,$/unit,2035,2050,1,
+optimistic,$240/ton for every state with an incentive at least $100/ton. AEO state incentive is $16/kBtu/h,"AZ, CA, CO, CT, DC, FL, IA, ID, IL, MA, MD, MN, MS, NH, NJ, NY, OR, RI, WA, WI",all commercial,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,3.7,COP,,20,$/kBtu/h,2030,2050,1,
+optimistic,$240/ton for remaining USCA states. AEO state incentive is $16/kBtu/h,"DE, ME, MI, NM, NC, PA, VT",all commercial,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,3.7,COP,,20,$/kBtu/h,2035,2050,1,
+aggressive,$400/ton for every state with an incentive at least $100/ton. Very high incentive in the CEE sheet - there are some but not many at this level,"AZ, CA, CO, CT, DC, FL, IA, ID, IL, MA, MD, MN, MS, NH, NJ, NY, OR, RI, WA, WI",all commercial,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,3.7,COP,,33.33333333,$/kBtu/h,2030,2050,1,
+aggressive,$400/ton for remaining USCA states. Very high incentive in the CEE sheet - there are some but not many at this level,"DE, ME, MI, NM, NC, PA, VT",all commercial,all,"heating, cooling",ASHP,electricity,all,,replace,non-federal,,,3.7,COP,,33.33333333,$/kBtu/h,2035,2050,1,
+optimistic,$300 in states with at least >=$100 incentive. Current fed incentive; common in CEE sheet,"AR,
+AZ,
+CA,
+CO,
+CT,
+DC,
+FL,
+IA,
+IL,
+IN,
+KY,
+MI,
+MN,
+NC,
+NH,
+NJ,
+NV,
+OR,
+PA,
+RI,
+SC,
+TX",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,4.69,COP,,300,$/unit,2030,2050,1,
+optimistic,$300 in remaining USCA states. Current fed incentive; common in CEE sheet,"DE,
+ME,
+MD,
+MA,
+NM,
+NY,
+PA,
+VT,
+WA,
+WI",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,4.69,COP,,300,$/unit,2035,2050,1,
+aggressive,$500 in states with at least >=$100 incentive. Highest ESTAR incentive in CEE sheet,"AR,
+AZ,
+CA,
+CO,
+CT,
+DC,
+FL,
+IA,
+IL,
+IN,
+KY,
+MI,
+MN,
+NC,
+NH,
+NJ,
+NV,
+OR,
+PA,
+RI,
+SC,
+TX",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,4.69,COP,,500,$/unit,2030,2050,1,
+aggressive,$500 in remaining USCA states. Highest ESTAR incentive in CEE sheet,"DE,
+ME,
+MD,
+MA,
+NM,
+NY,
+PA,
+VT,
+WA,
+WI",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,4.69,COP,,500,$/unit,2035,2050,1,
+aggressive,$1000 in states with at least >=$200 incentive. Highest incentive in CEE sheet,"AR,
+AZ,
+CA,
+CO,
+CT,
+DC,
+FL,
+IA,
+IL,
+IN,
+KY,
+MI,
+MN,
+NC,
+NH,
+NJ,
+NV,
+OR,
+PA,
+RI,
+SC,
+TX",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,5.6,COP,,1000,$/unit,2030,2050,1,
+aggressive,$1000 in remaining USCA states. Highest incentive in CEE sheet,"DE,
+ME,
+MD,
+MA,
+NM,
+NY,
+PA,
+VT,
+WA,
+WI",all residential,all,cooling,central AC,electricity,electricity,,replace,non-federal,,,5.6,COP,,1000,$/unit,2035,2050,1,
+optimistic,ESTAR windows; states with at least >=$1/sf. Starting in 2024 because no apparent existing AEO incentives.,"CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",all residential,existing,heating; secondary heating; cooling,windows conduction,all,all,,replace,non-federal,,,IECC_CZ1:3.125; IECC_CZ2:3.125; IECC_CZ3:3.6; IECC_CZ4:4.3; IECC_CZ5:5.9; IECC_CZ6:5.9; IECC_CZ7:5.9; IECC_CZ8:5.9,R value,,2,$/ft^2 glazing,2024,2050,1,
+optimistic,ESTAR windows; remaining USCA states,"AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",all residential,existing,heating; secondary heating; cooling,windows conduction,all,all,,replace,non-federal,,,IECC_CZ1:3.125; IECC_CZ2:3.125; IECC_CZ3:3.6; IECC_CZ4:4.3; IECC_CZ5:5.9; IECC_CZ6:5.9; IECC_CZ7:5.9; IECC_CZ8:5.9,R value,,2,$/ft^2 glazing,2035,2050,1,
+aggressive,"ESTAR windows; states with at least >=$1/sf. $100/window, assuming 3' x 4' window; one of highest on CEE sheet (highest is $4k/window)","CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",all residential,existing,heating; secondary heating; cooling,windows conduction,all,all,,replace,non-federal,,,IECC_CZ1:3.125; IECC_CZ2:3.125; IECC_CZ3:3.6; IECC_CZ4:4.3; IECC_CZ5:5.9; IECC_CZ6:5.9; IECC_CZ7:5.9; IECC_CZ8:5.9,R value,,4,$/ft^2 glazing,2030,2050,1,
+aggressive,"ESTAR windows; remaining USCA states. $100/window, assuming 3' x 4' window; one of highest on CEE sheet (highest is $4k/window)","AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",all residential,existing,heating; secondary heating; cooling,windows conduction,all,all,,replace,non-federal,,,IECC_CZ1:3.125; IECC_CZ2:3.125; IECC_CZ3:3.6; IECC_CZ4:4.3; IECC_CZ5:5.9; IECC_CZ6:5.9; IECC_CZ7:5.9; IECC_CZ8:5.9,R value,,4,$/ft^2 glazing,2035,2050,1,
+optimistic,IECC 2021 Walls & Air Sealing; states with at least >=$1/sf window incentive. CEE doesn't collect explicit insulation/air sealing incentives; assume that states with window incentives also do walls roofs,"CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",single family home,existing,heating; secondary heating; cooling,wall,all,all,,replace,non-federal,,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,50,,,2024,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+optimistic,IECC 2021 Walls & Air Sealing; remaining USCA states. CEE doesn't collect explicit insulation/air sealing incentives; assume that states with window incentives also do walls roofs,"AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",single family home,existing,heating; secondary heating; cooling,wall,all,all,,replace,non-federal,,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,50,,,2035,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+aggressive,IECC 2021 Walls & Air Sealing; states with at least >=$1/sf window incentive. MassSave,"CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",single family home,existing,heating; secondary heating; cooling,wall,all,all,,replace,non-federal,,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,75,,,2030,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+aggressive,IECC 2021 Walls & Air Sealing; remaining USCA states. MassSave,"AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",single family home,existing,heating; secondary heating; cooling,wall,all,all,,replace,non-federal,,,IECC_CZ1:13; IECC_CZ2:13; IECC_CZ3:20; IECC_CZ4:30; IECC_CZ5:30; IECC_CZ6:30; IECC_CZ7:30; IECC_CZ8:30,R value,75,,,2035,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+optimistic,IECC 2021 Roofs; states with at least >=$1/sf window incentive. CEE doesn't collect explicit insulation/air sealing incentives; assume that states with window incentives also do walls roofs,"CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",single family home,existing,heating; secondary heating; cooling,roof,all,all,,replace,non-federal,,,IECC_CZ1:30; IECC_CZ2:49; IECC_CZ3:49; IECC_CZ4:60; IECC_CZ5:60; IECC_CZ6:60; IECC_CZ7:60; IECC_CZ8:60,R value,50,,,2024,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+optimistic,IECC 2021 Roofs; remaining USCA states. CEE doesn't collect explicit insulation/air sealing incentives; assume that states with window incentives also do walls roofs,"AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",single family home,existing,heating; secondary heating; cooling,roof,all,all,,replace,non-federal,,,IECC_CZ1:30; IECC_CZ2:49; IECC_CZ3:49; IECC_CZ4:60; IECC_CZ5:60; IECC_CZ6:60; IECC_CZ7:60; IECC_CZ8:61,R value,50,,,2035,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+aggressive,IECC 2021 Roofs; states with at least >=$1/sf window incentive. MassSave,"CA,
+CT,
+FL,
+ID,
+MD,
+NY,
+OR,
+UT,
+WA",single family home,existing,heating; secondary heating; cooling,roof,all,all,,replace,non-federal,,,IECC_CZ1:30; IECC_CZ2:49; IECC_CZ3:49; IECC_CZ4:60; IECC_CZ5:60; IECC_CZ6:60; IECC_CZ7:60; IECC_CZ8:62,R value,75,,,2030,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
+aggressive,IECC 2021 Roofs; remaining USCA states. MassSave,"AZ,
+CO,
+DE,
+IL,
+ME,
+MA,
+MI,
+MN,
+NJ,
+NM,
+NC,
+PA,
+RI,
+VT,
+WI",single family home,existing,heating; secondary heating; cooling,roof,all,all,,replace,non-federal,,,IECC_CZ1:30; IECC_CZ2:49; IECC_CZ3:49; IECC_CZ4:60; IECC_CZ5:60; IECC_CZ6:60; IECC_CZ7:60; IECC_CZ8:63,R value,75,,,2035,2050,1,"Should be single family and small multifamily, but the fraction for MF will be different in every state, so only including SF"
