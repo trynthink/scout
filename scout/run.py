@@ -511,7 +511,7 @@ class UsefulVars(object):
                             iterable[ind_r][lag_col] = flag_code_update
                     # Update segment-specific list of state-level inputs and reset attribute
                     state_dat_init.extend(iterable)
-                    setattr(self, k, state_dat_init)
+                setattr(self, k, state_dat_init)
 
             except FileNotFoundError:
                 # Set segment-specific list of state-level inputs to empty list
