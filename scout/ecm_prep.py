@@ -11154,11 +11154,6 @@ class MeasurePackage(Measure):
                     "efficient": copy.deepcopy(self.handyvars.out_break_in),
                     "savings": copy.deepcopy(self.handyvars.out_break_in)} for
                     key in ["energy", "carbon", "cost"]}}
-            # Add stock breakouts
-            self.markets[adopt_scheme][
-                "mseg_out_break"]["stock"] = {
-                    key: copy.deepcopy(self.handyvars.out_break_in) for key in
-                    ["baseline", "efficient"]}
             # Initialize efficient captured energy if not suppressed by user
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
@@ -11516,20 +11511,18 @@ class MeasurePackage(Measure):
                         msegs_pkg_fin[cm] = self.add_keyvals(
                             msegs_pkg_fin[cm], msegs_meas_fin[cm])
                 # Generate a dictionary including data on how much of the
-                # packaged measure's baseline energy/carbon/cost is attributed
+                # packaged measure's baseline stock/energy/carbon/cost is attributed
                 # to each of the output climate zones, building types, and end
                 # uses it applies to if full data reporting is required for the
                 # current adoption scenario
                 if mseg_out_break_fin:
-                    for v in ["stock", "energy", "carbon", "cost"]:
-                        for s in ["baseline", "efficient"]:
+                    for v in self.markets[adopt_scheme]["mseg_out_break"].keys():
+                        for s in ["baseline", "efficient", "savings"]:
+                            if v == "stock" and s == "savings":
+                                continue
                             self.merge_out_break(self.markets[adopt_scheme][
                                 "mseg_out_break"][v][s],
                                 mseg_out_break_fin[v][s])
-                        if v != "stock":  # no stk save breakout
-                            self.merge_out_break(self.markets[adopt_scheme][
-                                "mseg_out_break"][v]["savings"],
-                                mseg_out_break_fin[v]["savings"])
                         # Merge in efficient captured energy breakouts if
                         # this reporting variable is not suppressed by user
                         if v == "energy" and self.usr_opts[
@@ -12589,7 +12582,7 @@ class MeasurePackage(Measure):
         """Apply overlap adjustments for measure mseg in a package.
 
         Args:
-            k (str): Data type indicator ("energy" or "carbon")
+            k (str): Data type indicator ("stock" or "energy" or "carbon")
             cm_key (tuple): Microsegment key describing the contributing
                 microsegment currently being added (e.g. reg->bldg, etc.)
             msegs_meas (dict): Data for the contributing microsegment of an
@@ -12599,7 +12592,7 @@ class MeasurePackage(Measure):
             eff_adj_c (dict): Overlap adjustments for competed efficient data.
 
         Returns:
-            Adjusted baseline/efficient energy and carbon data that accounts
+            Adjusted baseline/efficient stock, energy and carbon data that accounts
             account for overlaps between a given measure and other measures
             in a package.
         """
@@ -12674,20 +12667,20 @@ class MeasurePackage(Measure):
             tot_base_orig, tot_eff_orig, tot_eff_capt_orig, tot_save_orig,
             tot_base_orig_ecost, tot_eff_orig_ecost, tot_save_orig_ecost,
             key_list, fuel_switch_to, fs_eff_splt):
-        """Adjust output breakouts after removing energy/carbon data overlaps.
+        """Adjust output breakouts after removing stock/energy/carbon data overlaps.
 
         Args:
-            k (str): Data type indicator ("energy" or "carbon")
+            k (str): Data type indicator ("stock" or "energy" or "carbon")
             cm_key (tuple): Microsegment key describing the contributing
                 microsegment currently being added (e.g. reg->bldg, etc.)
-            msegs_ecarb (dict): Shorthand for energy/carbon data.
-            msegs_ecarb_cost (dict): Shorthand for energy/carbon cost data.
+            msegs_ecarb (dict): Shorthand for stock/energy/carbon data.
+            msegs_ecarb_cost (dict): Shorthand for stock/energy/carbon cost data.
             mseg_out_break_adj (dict): Initial output breakout data.
-            tot_base_orig (dict): Unadjusted baseline energy/carbon data.
-            tot_eff_orig (dict): Unadjusted efficient energy/carbon data.
+            tot_base_orig (dict): Unadjusted baseline stock/energy/carbon data.
+            tot_eff_orig (dict): Unadjusted efficient stock/energy/carbon data.
             tot_eff_capt_orig (dict): Unadjusted efficient-captured energy
                 data.
-            tot_save_orig (dict): Unadjusted energy/carbon savings data.
+            tot_save_orig (dict): Unadjusted stock/energy/carbon savings data.
             tot_base_orig_ecost (dict): Unadjusted base energy cost data.
             tot_eff_orig_ecost (dict): Unadjusted efficient energy cost data.
             tot_save_orig_ecost (dict): Unadjusted energy cost savings data.
@@ -12695,10 +12688,10 @@ class MeasurePackage(Measure):
             fuel_switch_to (string): Indicator of which baseline fuel the
                 measure switches to (if applicable).
             fs_eff_splt (dict): If applicable, the fuel splits for efficient-
-                case measure energy/carb/cost (used to adj. output breakouts).
+                case measure stock/energy/carb/cost (used to adj. output breakouts).
 
         Returns:
-            Updated energy, carbon, and energy cost output breakouts adjusted
+            Updated stock, energy, carbon, and energy cost output breakouts adjusted
             to account for removal of overlaps between measure and other
             measures in a package.
         """
@@ -12830,14 +12823,11 @@ class MeasurePackage(Measure):
             out_fuel_save, out_fuel_gain = ("" for n in range(2))
 
         # Shorthands for data used to adjust original output breakouts
+        base_orig, eff_orig, save_orig, = tot_base_orig, tot_eff_orig, tot_save_orig
         if k == "stock":
-            base_orig, eff_orig, save_orig, base_adj, eff_adj = [
-                tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
-                    "total"]["all"], msegs_ecarb["total"]["measure"]]
+            base_adj, eff_adj = msegs_ecarb["total"]["all"], msegs_ecarb["total"]["measure"]
         else:
-            base_orig, eff_orig, save_orig, base_adj, eff_adj = [
-                tot_base_orig, tot_eff_orig, tot_save_orig, msegs_ecarb[
-                    "total"]["baseline"], msegs_ecarb["total"]["efficient"]]
+            base_adj, eff_adj = msegs_ecarb["total"]["baseline"], msegs_ecarb["total"]["efficient"]
             # Shorthands for efficient-captured energy data if not suppressed
             # by user
             if eff_capt:
