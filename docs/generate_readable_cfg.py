@@ -23,14 +23,14 @@ def convert_yaml_structure(schema_data: dict, required: list = [], parent_key: s
     output_yaml = {}
     # Iterate key-values of schema data to populate details about each argument
     for key, value in schema_data.items():
-        if type(value) != dict:
+        if not isinstance(value, dict):
             continue
         # Recursively call function if arguments belong to a group
         if value.get("type") == "object":
             required = value.get("required", [])
             output_yaml[key] = convert_yaml_structure(value["properties"], required, key)
         # Otherwise, populate output_yaml with details about description, defaults, etc
-        elif type(value.get("description")) == str:
+        elif isinstance(value.get("description"), str):
             description = value["description"]
             dtype = value["type"]
             if "null" in dtype:

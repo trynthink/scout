@@ -50,7 +50,7 @@ class CommonMethods(object):
 
             # At the terminal/leaf node, if the value is a list
             elif isinstance(i, list):
-                self.assertTrue(type(i) == type(i2) and len(i) == len(i2))
+                self.assertTrue(type(i) is type(i2) and len(i) == len(i2))
                 for x in range(0, len(i)):
                     try:
                         self.assertEqual(i[x], i2[x])

@@ -1,5 +1,6 @@
 {
   "name": "Commercial Plug Loads, Tier 1 APS",
+  "ref_analogue": true,
   "climate_zone": "all",
   "bldg_type": "all commercial",
   "structure_type": "all",

@@ -1,5 +1,6 @@
 {
   "name": "ENERGY STAR Com. ASHP (RST) CC",
+  "ref_analogue": true,
   "_description": "Typical size light commercial rooftop HP unit that meets the ENERGY STAR performance standard, cold-climate, replace resistance",
   "climate_zone": ["NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
                    "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"],

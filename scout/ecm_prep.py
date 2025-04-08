@@ -28,19 +28,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def configure_ecm_prep_logger():
+def configure_ecm_prep_logger(opts):
     # Set file name for prep error logs using current date and time
     err_f_name = fp.GENERATED / ("log_ecm_prep_" + time.strftime("%Y%m%d-%H%M%S") + ".txt")
     # Ensure root logger is set up
     LogConfig.configure_logging()
-
-    # Change to FileHandler from StreamHandler
-    logger.handlers.clear()  # Remove default StreamHandler
+    logger.handlers.clear()  # Remove existing handlers
     filehandler = logging.FileHandler(err_f_name, mode='a', delay=True)
     # Set new handler to match root formatter
     root_format = logging.getLogger().handlers[0].formatter
     filehandler.setFormatter(root_format)
     logger.addHandler(filehandler)
+
+    # Write logger to console
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(root_format)
+    logger.addHandler(console_handler)
 
     # Disable propagation to root logger
     logger.propagate = False
@@ -2116,7 +2119,7 @@ class Measure(object):
         tech_switch_to (str, None): Technology switch to flag.
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
-            it is only competed with other measures w/ same pairs)
+            it is only competed with other measures w/ same pairs).
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2255,8 +2258,7 @@ class Measure(object):
         # a typical/BAU efficiency level, remove the measure from the market
         # once the elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
-                self.usr_opts["add_typ_eff"] is not False and
-                any([x in self.name for x in ["Ref. Case", "Min. Eff."]])):
+                self.usr_opts["add_typ_eff"] and "(Ref. Analogue)" in self.name):
             self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
@@ -2266,6 +2268,10 @@ class Measure(object):
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
+            # Prevent assessment of copied over savings shapes for reference case analogue
+            # measures, as shape is not appropriate for such measures
+            if "(Ref. Analogue)" in self.name:
+                raise AttributeError
             # Flag for custom annual savings shape data
             has_ann_shp = (
                 "shape" in self.tsv_features.keys() and
@@ -2295,8 +2301,8 @@ class Measure(object):
                 # end use, building type, and climate zone combinations
                 # and store within a dict for use in 'apply_tsv' function
 
-                print("Retrieving custom savings shape data for measure "
-                      + self.name + "...", end="", flush=True)
+                logger.info("Retrieving custom savings shape data for measure "
+                            + self.name + "...")
                 # Determine the CSV file name
                 csv_shape_file_name = \
                     self.tsv_features["shape"]["custom_annual_savings"]
@@ -2512,7 +2518,7 @@ class Measure(object):
                 # Set custom savings shape information to populated dict
                 self.tsv_features["shape"]["custom_annual_savings"] = \
                     css_dict
-                print("Data import complete")
+                logger.info("Data import complete")
         except AttributeError:
             self.tsv_features = None
         self.markets = {}
@@ -2790,11 +2796,8 @@ class Measure(object):
         self.fill_attr()
 
         # Flag the auto-generation of reference case technology analogues for
-        # all of the current measure's applicable markets, if applicable –
-        # exclude 'Ref. Case' switching of fossil-based heat or resistance heat
-        # to HPs under exogenous switching rates, since the competing Ref. Case
-        # analogue will be a min. efficiency HP and this is manually defined
-        if (opts.add_typ_eff is True and "Ref. Case" in self.name):
+        # all of the current measure's applicable markets, if applicable
+        if (opts.add_typ_eff is True and "Analogue" in self.name):
             agen_ref = True
         else:
             agen_ref = ""
@@ -4069,11 +4072,9 @@ class Measure(object):
                     stk_energy_warn.append(mskeys[-2])
                     verboseprint(
                         opts.verbose,
-                        "WARNING: ECM '" + self.name +
-                        "' missing valid baseline "
-                        "stock/energy data " +
-                        "for technology '" + str(mskeys[-2]) +
-                        "'; removing technology from analysis")
+                        f"ECM {self.name} missing valid baseline stock/energy data for technology "
+                        f"'{str(mskeys[-2])}'; removing technology from analysis",
+                        "warning")
                 # Add to the overall number of key chains that yield "stock"/
                 # "energy" keys (but in this case, are missing data)
                 valid_keys += 1
@@ -4602,11 +4603,10 @@ class Measure(object):
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: ECM '" + self.name +
-                                    "' uses invalid performance units for "
-                                    "technology '" + str(mskeys[-2]) +
-                                    "' (requires " + str(perf_base_units) +
-                                    "); removing technology from analysis")
+                                    f"ECM '{self.name}' uses invalid performance units for "
+                                    f"technology '{str(mskeys[-2])}' (requires "
+                                    f"{str(perf_base_units)}); removing technology from analysis",
+                                    "warning")
                             # Continue to the next microsegment
                             continue
                         # Handle case where measure units do not equal baseline
@@ -4625,14 +4625,13 @@ class Measure(object):
                             if mskeys[-2] is not None and \
                                     mskeys[-2] not in cpl_warn:
                                 verboseprint(
-                                    opts.verbose, "WARNING: ECM '" +
-                                    self.name + "' uses units of " +
-                                    str(perf_units) + " for "
-                                    "technology '" + str(mskeys[-2]) +
-                                    "' (requires " + str(perf_base_units) +
-                                    "); base units changed to " +
-                                    str(perf_units) + " and base values"
-                                    " multiplied by " + str(convert_fact))
+                                    opts.verbose,
+                                    f"ECM '{self.name}' uses units of {str(perf_units)} for "
+                                    f"technology '{str(mskeys[-2])}' (requires "
+                                    f"{str(perf_base_units)}); base units changed to "
+                                    f"{str(perf_units)} and base values multiplied by "
+                                    f"{str(convert_fact)}",
+                                    "warning")
                             # Convert base performance values to values in
                             # measure performance units
                             perf_base = {yr: (perf_base[yr] * convert_fact) for
@@ -4679,15 +4678,13 @@ class Measure(object):
                                 hp_warn.append(mskeys[-2])
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: Stock/stock cost data for "
-                                    "comparable residential baseline "
-                                    "technology '" + str(mskeys[-2]) + "' "
-                                    "multiplied by two to account for EIA "
-                                    "handling of heat pump stock/stock costs "
-                                    "for the residential heating and cooling "
-                                    "end uses (both are divided by 2 when "
-                                    "separately considered across heating and "
-                                    "cooling in the raw EIA data)")
+                                    "Stock/stock cost data for comparable residential baseline "
+                                    f"technology '{str(mskeys[-2])}' multiplied by two to account "
+                                    "for EIA handling of heat pump stock/stock costs for the "
+                                    "residential heating and cooling end uses (both are divided "
+                                    "by 2 when separately considered across heating and cooling "
+                                    "in the raw EIA data)",
+                                    "warning")
                         # Adjust residential baseline lighting lifetimes to
                         # reflect the fact that input data assume 24 h/day of
                         # lighting use, rather than 3 h/day as assumed for
@@ -4753,14 +4750,11 @@ class Measure(object):
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: ECM '" + self.name +
-                                    "' missing valid baseline "
-                                    "cost/performance/lifetime data " +
-                                    "for technology '" + str(mskeys[-2]) +
-                                    "'; technology will " +
-                                    "remain in analysis with cost of zero; " +
-                                    "; if lifetime data are missing, " +
-                                    "lifetime is set to 10 years")
+                                    f"ECM '{self.name}' missing valid baseline cost/performance"
+                                    f"/lifetime data for technology '{str(mskeys[-2])}'; "
+                                    "technology will remain in analysis with cost of zero; "
+                                    "if lifetime data are missing, lifetime is set to 10 years",
+                                    "warning")
 
                         # In all other cases, to avoid removing any msegs,
                         # set the baseline cost and performance to the measure
@@ -4799,15 +4793,12 @@ class Measure(object):
                                 cpl_warn.append(mskeys[-2])
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: ECM '" + self.name +
-                                    "' missing valid baseline "
-                                    "cost/performance/lifetime data " +
-                                    "for technology '" + str(mskeys[-2]) +
-                                    "'; technology applies to special " +
-                                    "lighting case and will " +
-                                    "remain in analysis at same cost/" +
-                                    "performance as ECM; if lifetime data " +
-                                    "are missing, lifetime is set to 10 years")
+                                    f"ECM '{self.name}' missing valid baseline cost/performance/"
+                                    f"lifetime data for technology '{str(mskeys[-2])}'; "
+                                    "technology applies to special lighting case and will "
+                                    "remain in analysis at same cost/performance as ECM; if "
+                                    "lifetime data are missing, lifetime is set to 10 years",
+                                    "warning")
                 else:
                     # Set baseline cost and performance characteristics for any
                     # remaining secondary microsegments to that of the measure
@@ -5043,11 +5034,10 @@ class Measure(object):
                                     except ZeroDivisionError:
                                         verboseprint(
                                             opts.verbose,
-                                            "WARNING: Measure '" + self.name +
-                                            "' has baseline " +
-                                            "or measure performance of zero;" +
-                                            " baseline and measure " +
-                                            "performance set equal")
+                                            f"ECM '{self.name}' has baseline or measure "
+                                            "performance of zero; baseline and measure "
+                                            "performance set equal",
+                                            "warning")
                                     # Ensure that the adjusted relative savings
                                     # fraction is not greater than 1 or less
                                     # than 0 if not originally specified as
@@ -5098,10 +5088,9 @@ class Measure(object):
                                 except ZeroDivisionError:
                                     verboseprint(
                                         opts.verbose,
-                                        "WARNING: Measure '" + self.name +
-                                        "' has measure performance of zero; " +
-                                        "baseline and measure performance set "
-                                        + "equal")
+                                        f"ECM '{self.name}' has measure performance of zero; "
+                                        "baseline and measure performance set equal",
+                                        "warning")
                                     rel_perf[yr] = 1
                                 # Ensure that relative performance is a finite
                                 # number; if not, set to 1
@@ -5119,10 +5108,9 @@ class Measure(object):
                             except ZeroDivisionError:
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: Measure '" + self.name +
-                                    "' has baseline performance of zero; " +
-                                    "baseline and measure performance set " +
-                                    "equal")
+                                    f"ECM '{self.name}' has baseline performance of zero; "
+                                    "baseline and measure performance set equal",
+                                    "warning")
                                 rel_perf[yr] = 1
 
                     # If looping through a commercial lighting microsegment
@@ -5379,11 +5367,10 @@ class Measure(object):
                                     consume_warn.append(mskeys[4])
                                     verboseprint(
                                         opts.verbose,
-                                        "WARNING: ECM '" + self.name +
-                                        "' missing valid consumer choice "
-                                        "data for end use '" + str(mskeys[4]) +
-                                        "'; using default choice data for " +
-                                        "refrigeration end use")
+                                        f"ECM '{self.name}' missing valid consumer choice "
+                                        f"data for end use '{str(mskeys[4])}'; using default "
+                                        "choice data for refrigeration end use",
+                                        "warning")
                             choice_params = {
                                 "b1": {
                                     key: self.handyvars.deflt_choice[0] for
@@ -5432,11 +5419,10 @@ class Measure(object):
                                 consume_warn.append(mskeys[4])
                                 verboseprint(
                                     opts.verbose,
-                                    "WARNING: ECM '" + self.name +
-                                    "' missing valid consumer choice data " +
-                                    "for end use '" + str(mskeys[4]) +
-                                    "'; using default choice data for " +
-                                    "refrigeration end use")
+                                    f"ECM '{self.name}' missing valid consumer choice data for "
+                                    f"end use '{str(mskeys[4])}'; using default choice data for "
+                                    "refrigeration end use",
+                                    "warning")
                             choice_params = {"rate distribution":
                                              self.handyvars.com_timeprefs[
                                                  "distributions"][
@@ -7148,21 +7134,16 @@ class Measure(object):
                                     self.handyvars.save_shp_warn.append(mseg_warn)
                                     verboseprint(
                                         opts.verbose,
-                                        "WARNING: Measure '" + self.name + "', requires "
-                                        "custom savings shape data, but none were "
-                                        "found or all values were zero for the "
-                                        "combination of climate "
-                                        "zone " + load_fact_climate_key +
-                                        " (system load " + mult_sysshp_key_save +
-                                        "), building type " +
-                                        load_fact_bldg_key + ", and end use " +
-                                        eu + ". Assuming savings are zero for "
-                                        "this combination. If this is "
-                                        "unexpected, check that 8760 hourly "
-                                        "savings fractions are available for "
-                                        "all baseline market segments the "
-                                        "measure applies to in "
-                                        f"{fp.ECM_DEF / 'energy_plus_data' / 'savings_shapes'}.")
+                                        f"Measure '{self.name}', requires custom savings shape "
+                                        "data, but none were found or all values were zero for "
+                                        f"the combination of climate zone {load_fact_climate_key} "
+                                        f" (system load {mult_sysshp_key_save}), building type "
+                                        f"{load_fact_bldg_key} and end use {eu}. Assuming savings "
+                                        "are zero for this combination. If this is unexpected, "
+                                        "check that 8760 hourly savings fractions are available "
+                                        "for all baseline market segments the measure applies to "
+                                        f"in {self.handyfiles.tsv_shape_data}.",
+                                        "warning")
 
                             else:
                                 # Develop an adjustment from the generic
@@ -7771,7 +7752,7 @@ class Measure(object):
                     user_message += " for building type '" + mskeys[2] + "'"
 
                 # Print user message
-                print(user_message)
+                verboseprint(verbose, user_message, "info")
         # Case where cost conversion has not succeeded
         else:
             raise ValueError(
@@ -8143,12 +8124,10 @@ class Measure(object):
                     cum_frac_linked = 0
                     verboseprint(
                         opts.verbose,
-                        "WARNING: No data available to link mseg " +
-                        str(mskeys) +
-                        " for measure '" + self.name + "' with " +
-                        self.linked_htcl_tover_anchor_tech + " " +
-                        self.linked_htcl_tover_anchor_eu +
-                        " turnover rates; unlinking turnover")
+                        f"No data available to link mseg {str(mskeys)} for measure '{self.name}' "
+                        f"with {self.linked_htcl_tover_anchor_tech} "
+                        f"{self.linked_htcl_tover_anchor_eu} turnover rates; unlinking turnover",
+                        "warning")
         # In cases where no secondary heating/cooling microsegment is present,
         # and there are no linked stock turnover rates for primary heating and
         # cooling microsegments, set relevant adjustment variables to None
@@ -13282,13 +13261,13 @@ def prepare_measures(measures, convert_data, msegs, msegs_cpl, handyvars,
         ValueError: If more than one Measure object matches the name of a
             given input efficiency measure.
     """
-    print('Initializing measures...', end="", flush=True)
+    logger.info("Initializing measures...")
     # Translate user options to a dictionary for further use in Measures
     opts_dict = vars(opts)
     # Initialize Measure() objects based on 'measures_update' list
     meas_update_objs = [Measure(
         base_dir, handyvars, handyfiles, opts_dict, **m) for m in measures]
-    print("Complete")
+    logger.info("Measure initialization complete")
 
     # Fill in EnergyPlus-based performance information for Measure objects
     # with a 'From EnergyPlus' flag in their 'energy_efficiency' attribute
@@ -13502,7 +13481,7 @@ def prep_error(meas_name, handyvars, handyfiles):
     # Add ECM to skipped list
     handyvars.skipped_ecms.append(meas_name)
     # Print error message if in verbose mode
-    # verboseprint(opts.verbose, err_msg)
+    # verboseprint(opts.verbose, err_msg, "error")
     # # Log error message to file (see ./generated)
     logger.error(err_msg)
 
@@ -13630,17 +13609,22 @@ def custom_showwarning(message, category, filename, lineno, file=None, line=None
     print(message)
 
 
-def verboseprint(verbose, msg):
+def verboseprint(verbose, msg, log_type):
     """Print input message when the code is run in verbose mode.
 
     Args:
         verbose (boolean): Indicator of verbose mode
         msg (string): Message to print to console when in verbose mode
-
-    Returns:
-        Printed console message when code is run in verbose mode.
     """
-    print(msg) if verbose else lambda *a, **k: None
+    if not verbose:
+        return
+
+    if log_type == "info":
+        logger.info(msg)
+    elif log_type == "warning":
+        logger.warning(msg)
+    elif log_type == "error":
+        logger.error(msg)
 
 
 def tsv_cost_carb_yrmap(tsv_data, aeo_years):
@@ -14113,11 +14097,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     except KeyError:
         verboseprint(
             opts.verbose,
-            "Baseline market key chain: '" +
-            str(mskeys) +
-            "' for ECM '" + self.name + "' does not map to "
-            "output breakout categories, thus will not "
-            "be reflected in output breakout data")
+            f"Baseline market key chain: '{str(mskeys)}' for ECM '{self.name}' does not map to "
+            "output breakout categories, thus will not be reflected in output breakout data",
+            "warning")
 
 
 def downselect_packages(existing_pkgs: list[dict], pkg_subset: list) -> list:
@@ -14229,7 +14211,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     """
 
     # Configure logger specific to ecm_prep
-    configure_ecm_prep_logger()
+    configure_ecm_prep_logger(opts)
 
     # Set current working directory
     base_dir = getcwd()
@@ -14516,48 +14498,19 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                                     p, new_pkg_name,
                                     meas_dict["name"], new_name])
 
-                # Check for whether a reference case analogue measure
-                # should be added (user option is present, measure is in
-                # ESTAR/IECC/90.1 tier, measure applies to equipment
-                # not envelope components
-                if opts is not None and opts.add_typ_eff is True and \
-                    any([x in meas_dict["name"] for x in [
-                        "ENERGY STAR", "ESTAR", "IECC", "90.1"]]) and (
-                        not ((isinstance(meas_dict["technology"], list)
-                              and all([x in handyvars.demand_tech for
-                                       x in meas_dict["technology"]])) or
-                             meas_dict["technology"] in
-                             handyvars.demand_tech)):
+                # Check for whether a reference case analogue measure should be added, which a
+                # user flags via the `ref_analogue` attribute
+                if meas_dict.get("ref_analogue") and opts.add_typ_eff:
                     add_ref_meas = True
                 else:
-                    add_ref_meas = ""
+                    add_ref_meas = False
 
-                # Add copies of ESTAR, IECC, or 90.1 measures that
-                # downgrade to typical/BAU efficiency levels; exclude typ.
-                # /BAU fuel switching measures that are assessed under
-                # exogenously determined FS rates; such measures must be
-                # manually defined by the user and are handled like normal
-                # measures; also exclude typical windows/envelope measures,
-                # as these are already baked into the energy use totals for
-                # typical/BAU HVAC equipment measures
+                # Add reference case analogues of the measure if the user has flagged the
+                # measure as requiring such an analogue to subsequently compete against (via
+                # `ref_analogue` attribute.)
                 if add_ref_meas:
-                    # Find substring in existing measure name to replace
-                    if "ENERGY STAR" in meas_dict["name"]:
-                        name_substr = "ENERGY STAR"
-                    elif "ESTAR" in meas_dict["name"]:
-                        name_substr = "ESTAR"
-                    elif "IECC c. 2021" in meas_dict["name"]:
-                        name_substr = "IECC c. 2021"
-                    elif "90.1 c. 2019" in meas_dict["name"]:
-                        name_substr = "90.1 c. 2019"
-                    else:
-                        name_substr = ""
                     # Determine unique measure copy name
-                    if name_substr:
-                        new_name = meas_dict["name"].replace(
-                            name_substr, "Ref. Case")
-                    else:
-                        new_name = meas_dict["name"] + " Ref. Case"
+                    new_name = meas_dict["name"] + " (Ref. Analogue)"
                     # Copy the measure
                     new_meas = copy.deepcopy(meas_dict)
                     # Set the copied measure name to the name above
@@ -14771,7 +14724,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     meas_toprep_indiv = [m for m in meas_toprep_indiv if any([
         m["name"] in x for x in [meas_toprep_indiv_nopkg, ctrb_ms_pkg_prep]])]
 
-    print("\nImporting supporting data...", end="", flush=True)
+    logger.info("Importing supporting data...")
     # If one or more measure definition is new or has been edited, proceed
     # further with 'ecm_prep.py' routine; otherwise end the routine
     if len(meas_toprep_indiv) > 0 or len(meas_toprep_package) > 0:
@@ -14881,7 +14834,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         else:
             tsv_data, tsv_data_nonfs = (None for n in range(2))
 
-        print("Complete")
+        logger.info("Supporting data import complete")
 
         # Prepare new or edited measures for use in analysis engine
         meas_prepped_objs = prepare_measures(
@@ -14934,8 +14887,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Add names of skipped measures to run setup list if not already there
         run_setup = Utils.update_active_measures(run_setup, to_skipped=handyvars.skipped_ecms)
 
-        print("All ECM updates complete; finalizing data...",
-              end="", flush=True)
+        logger.info("All ECM updates complete; finalizing data...")
         # Split prepared measure data into subsets needed to set high-level
         # measure attributes information and to execute measure competition
         # in the analysis engine
@@ -15003,7 +14955,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                             meas_shapes_env_cf.append(m_ss)
 
         # Notify user that all measure preparations are completed
-        print('Writing output data...')
+        logger.info("Writing output data...")
 
         # Write prepared measure competition data and (if applicable) efficient
         # fuel switching splits by microsegment to zipped JSONs
@@ -15058,7 +15010,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         }
         Utils.dump_json(glob_vars, handyfiles.glob_vars)
     else:
-        print('No new ECM updates available')
+        logger.info("No new ECM updates available")
 
     # Write lists of active/inactive measures to be used in the analysis engine
     Utils.dump_json(run_setup, handyfiles.run_setup)
@@ -15071,5 +15023,5 @@ if __name__ == "__main__":
     main(opts)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("--- Runtime: %s (HH:MM:SS.mm) ---" %
-          "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+    logger.info("--- Runtime: %s (HH:MM:SS.mm) ---" %
+                "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))

@@ -1440,7 +1440,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
                 # Shorthands for rank-ordered measure results and plotting
                 # parameters
-                results_sort_x, results_sort_y, results_sort_pch,\
+                results_sort_x, results_sort_y, results_sort_pch, \
                     results_sort_bg = [[
                         results_finmets[:, met][i] for i in final_index_non_na]
                         for met in [4, fmp, 6, 7]]

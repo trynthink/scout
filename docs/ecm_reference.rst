@@ -1023,6 +1023,22 @@ This field is used to specify whether the technology described by the ECM could 
     "measure_type": "full service",
     ...}
 
+
+.. _json-ref-analogue:
+
+ref_analogue
+~~~~~~~~~~~~
+
+* **Parents:** root
+* **Children:** none
+* **Type:** boolean
+
+This field is used to specify whether a reference case analogue copy of the ECM (with the same baseline markets as the ECM, but reference case performance, cost, and lifetime characteristics) should be prepared for subsequent competition with the ECM (and all other ECMs with overlapping baseline markets). Excluding this attribute or setting it to false will prevent preparation of the analogue copy. ::
+
+   {...
+    "ref_analogue": true,
+    ...}
+
 .. _json-fuel_switch_to:
 
 fuel_switch_to

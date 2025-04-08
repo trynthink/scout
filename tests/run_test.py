@@ -321,7 +321,7 @@ class CommonMethods(object):
             # At the terminal/leaf node, formatted as a numpy array
             # (for input uncertainty test cases)
             elif isinstance(i, numpy.ndarray) or isinstance(i, list):
-                self.assertTrue(type(i) == type(i2))
+                self.assertTrue(type(i) is type(i2))
                 for x in range(0, len(i)):
                     self.assertAlmostEqual(i[x], i2[x], places=2)
 
