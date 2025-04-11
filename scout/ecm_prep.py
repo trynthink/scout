@@ -21,7 +21,6 @@ from datetime import datetime
 from pathlib import PurePath, Path
 import argparse
 from scout.ecm_prep_args import ecm_args
-from scout.run import parse_args as run_args
 from scout.config import FilePaths as fp
 from scout.config import LogConfig
 import traceback
@@ -1960,25 +1959,33 @@ class UsefulVars(object):
                         state = valid_regions
                     # Remove 'unspecified' from building types if present (not supported)
                     bldg = [x for x in bldg if x != "unspecified"]
-                    # Fill out 'all' entries across building type categories when present
-                    for b_ind, b in enumerate(bldg):
-                        # List all residential and commercial building types (note: this could
-                        # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
-                        # from that module to ensure consistency)
-                        res = ["single family home", "multi family home", "mobile home"]
-                        # Note: exclude 'unspecified' from being affected by state-level drivers
-                        com = ["assembly", "education", "food sales", "food service",
+                    # Set flags for the presence of 'all' building entry to fill out
+                    all_bldg_entries = ["all", "all residential", "all commercial"]
+                    # Set lists of all residential and commercial building types (note: this could
+                    # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
+                    # from that module to ensure consistency)
+                    all_res = ["single family home", "multi family home", "mobile home"]
+                    # Note: exclude 'unspecified' from being affected by state-level drivers
+                    all_com = ["assembly", "education", "food sales", "food service",
                                "health care", "lodging", "large office", "small office",
                                "mercantile/service", "warehouse", "other"]
-                        if "all" in b:
-                            if b == "all residential":
-                                bldg.extend(res)
-                            elif b == "all commercial":
-                                bldg.extend(com)
-                            elif b == "all":
-                                bldg.extend(res + com)
-                            # Remove original 'all' entry
-                            bldg.remove(bldg[b_ind])
+                    # Initialize flags as false for whether or not all res. or com. building types
+                    # need to be filled out
+                    all_res_flag, all_com_flag = (False for n in range(2))
+                    # Loop through all entries in building type input; when encountering an 'all'
+                    # entry for res./com., flag it for further processing
+                    for b_ind, b in enumerate(bldg):
+                        # Flag 'all' building type entries for res./com. separately
+                        if b in all_bldg_entries:
+                            all_res_flag, all_com_flag = [
+                                True if b in y else False
+                                for y in [["all residential", "all"], ["all commercial", "all"]]]
+                    # Fill out the building types while removing original "all" entries
+                    for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
+                        if flg and ind_flg == 0:
+                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_res
+                        elif flg:
+                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_com
                     # Fill out 'all' entries for building vintage
                     if len(vint) == 1 and vint[0] == "all":
                         vint = ["new", "existing"]
@@ -12585,6 +12592,16 @@ class MeasurePackage(Measure):
         self.fuel_switch_to = self.contributing_ECMs_eqp[0].fuel_switch_to
         self.tech_switch_to = self.contributing_ECMs_eqp[0].tech_switch_to
         self.htcl_tech_link = self.contributing_ECMs_eqp[0].htcl_tech_link
+        # Flag backup fuel fraction (if present in any of the contributing equipment measures)
+        if any([m.backup_fuel_fraction is not None for m in self.contributing_ECMs_eqp]):
+            self.backup_fuel_fraction = True
+        else:
+            self.backup_fuel_fraction = None
+        # Set minimum efficiency flag to None, assuming that even if the package contains a min.
+        # efficiency HVAC measure, pairing with envelope pushes the measure above a minimum level of
+        # performance
+        self.min_eff_elec_flag = None
+
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -16888,44 +16905,8 @@ if __name__ == "__main__":
     start_time = time.time()
     # Pull user opts for both ecm_prep and run; the bps option for the latter determines the
     # allowable values for the former
-    opts_prep = ecm_args()
-    opts_run = run_args()
-
-    # If run execution is representing BPS, ensure that the prep data are split by fuel type (can
-    # be electric/non-electric or the more detailed reporting of these splits and broken out by
-    # detailed regions (states) and building types, which is required to assess BPS in run
-    if (opts_run.bps is not None) and (opts_prep.split_fuel is False or (
-        "all" not in opts_prep.detail_brkout and all([
-            x not in opts_prep.detail_brkout for x in ["regions", "buildings"]]))):
-        # Reset detail breakout options to comport with what BPS assessment needs
-        if "fuel types" in opts_prep.detail_brkout:
-            opts_prep.detail_brkout = ["regions", "buildings", "fuel types"]
-        else:
-            opts_prep.detail_brkout = ["regions", "buildings"]
-        # Finalize detail breakout option (ultimatley formatted as a number string); mapping is
-        # adopted from ecm_prep_args.py
-        input_var_dict = {
-            ("buildings", "fuel types", "regions"): "1",
-            ("regions",): "2",
-            ("buildings",): "3",
-            ("fuel types",): "4",
-            ("buildings", "regions"): "5",
-            ("fuel types", "regions"): "6",
-            ("buildings", "fuel types"): "7",
-        }
-        opts_prep.detail_brkout.sort()
-        opts_prep.detail_brkout = tuple(opts_prep.detail_brkout)
-        opts_prep.detail_brkout = input_var_dict.get(opts_prep.detail_brkout)
-        # Ensure that fuel splits are calculated when BPS are assessed
-        opts_prep.split_fuel = True
-        # Warn the user about the change
-        warnings.warn(
-            "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
-            "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "
-            "apply the effects of codes and standards, but were not both used. These options "
-            "have been added to the prep execution.")
-
-    main(opts_prep)
+    opts = ecm_args()
+    main(opts)
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("--- Runtime: %s (HH:MM:SS.mm) ---" %

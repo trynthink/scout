@@ -619,9 +619,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                     # exclude the 'All ECMs' case
                     # (only competed data may be summed across all ECMs)
                     # and the codes/BPS measures, which do not have uncompeted data
-                    if comp_schemes[cp] == "uncompeted" and \
+                    if comp_schemes[cp] == "uncompeted" and (
                        meas_names[m] != "All ECMs" and not any([
-                            x in meas_names[m] for x in ["Codes", "Standards"]]):
+                            x in meas_names[m] for x in ["Codes", "Standards"]])):
                         # Set the appropriate database of uncompeted energy,
                         # carbon, or cost totals (access keys vary based on
                         # plotted variable)
@@ -662,7 +662,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                                     'efficient'][str(years[yr])]
 
                     # Find data for competed energy, carbon, and/or cost
-                    else:
+                    elif comp_schemes[cp] == "competed":
                         # Set the appropriate database of ECM competed energy,
                         # carbon, or cost totals
                         if meas_names[m] == "All ECMs":
@@ -1023,8 +1023,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
 
                 # Set uncompeted and competed baseline energy, carbon, or cost
                 # totals for given adoption scenario, plotting variable,
-                # and ECM (mean and low/high values for competed case)
-                base_uc = [y * unit_translate for y in [
+                # and ECM (mean and low/high values for competed case). Handle
+                # possible missing uncompeted values for codes/BPS measures,
+                # which are not assessed until the competition module
+                base_uc = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 0]]][0]]
                 base_c_m = [y * unit_translate for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 2]]][0]]
@@ -1034,12 +1036,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                     [] if x is numpy.NaN else x for x in [results[2, 2]]][0]]
                 # Set uncompeted and competed efficient energy, carbon, or cost
                 # totals for adoption scenario, plotting variable, and ECM
-                # (mean and low/high values)
-                eff_uc_m = [y * unit_translate for y in [
+                # (mean and low/high values).  Handle possible missing uncompeted
+                # values for codes/BPS measures, which are not assessed until the
+                # competition module
+                eff_uc_m = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 1]]][0]]
-                eff_uc_l = [y * unit_translate for y in [
+                eff_uc_l = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[1, 1]]][0]]
-                eff_uc_h = [y * unit_translate for y in [
+                eff_uc_h = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[2, 1]]][0]]
                 eff_c_m = [y * unit_translate for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 3]]][0]]
@@ -1429,7 +1433,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
 
                 # Shorthands for rank-ordered measure results and plotting
                 # parameters
-                results_sort_x, results_sort_y, results_sort_pch,\
+                results_sort_x, results_sort_y, results_sort_pch, \
                     results_sort_bg = [[
                         results_finmets[:, met][i] for i in final_index_non_na]
                         for met in [4, fmp, 6, 7]]

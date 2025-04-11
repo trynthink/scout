@@ -2,6 +2,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import warnings
 import re
+from scout.run import parse_args as run_args
 from scout.config import Config, FilePaths as fp
 
 
@@ -222,6 +223,28 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             output_type, hours, season, calc_type, sys_shape, gen_wnt_pk, day_type]
     else:
         opts.tsv_metrics = False
+
+    # Import run args to determine whether code/BPS option has been set (impacts requirements for
+    # detailed breakouts)
+    opts_run = run_args()
+    # If run execution is representing BPS, ensure that the prep data are split by fuel type
+    # (can be electric/non-electric or the more detailed reporting of these splits and broken
+    # out by detailed regions (states) and bldg. types, which is required to assess BPS in run
+    if (opts_run.bps is not None) and (opts.split_fuel is False or (
+        not opts.detail_brkout or ("all" not in opts.detail_brkout and all([
+            x not in opts.detail_brkout for x in ["regions", "buildings"]])))):
+        # Reset detail breakout options to comport with what BPS assessment needs
+        if "fuel types" in opts.detail_brkout:
+            opts.detail_brkout = ["regions", "buildings", "fuel types"]
+        else:
+            opts.detail_brkout = ["regions", "buildings"]
+        # Ensure that fuel splits are calculated when BPS are assessed
+        opts.split_fuel = True
+        warnings.warn(
+            "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
+            "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "
+            "apply the effects of codes and standards, but were not both used. These options "
+            "have been added to the prep execution.")
 
     # Set detailed breakout options
     if opts.detail_brkout:
