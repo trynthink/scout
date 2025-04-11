@@ -6116,9 +6116,10 @@ class Engine(object):
                             "stock", "energy", "carbon", "cost"]}
                 except ValueError:
                     fmt.verboseprint(opts.verbose,
-                        ("WARNING: No measures flagged as basis for setting relative efficiency of "
+                        ("No measures flagged as basis for setting relative efficiency of "
                          "electric equipment for current region and building type. Setting "
-                         "relative efficiency of conversion to 1 across end uses and proceeding. "))
+                         "relative efficiency of conversion to 1 across end uses and proceeding.",
+                         "warning"))
                 # Adjust onsite reduction frac. times apply frac. to account for overlaps
                 onsite_frac_already_in_place, onsite_times_apply_fracs = self.stack_impacts(
                     code_std_flag, reg, bldg, regu_type, onsite_frac_already_in_place,
@@ -7606,6 +7607,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # Assemble folder path for measure efficient fuel split data
             fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
             try:
+<<<<<<< HEAD
                 with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
                     meas_eff_fs_data = pickle.load(zp)
             except FileNotFoundError:
@@ -7630,7 +7632,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 m.markets["Technical potential"]["uncompeted"]["mseg_adjust"] = \
                     meas_comp_data["Technical potential"]
             # Print data import message for each ECM if in verbose mode
-            fmt.verboseprint(opts.verbose, "Imported ECM '" + m.name + "' competition data")
+            fmt.verboseprint(opts.verbose, f"Imported ECM {m.name} competition data", "info")
 
         # Import total absolute heating and cooling energy use data, used in
         # removing overlaps between supply-side and demand-side heating/cooling
