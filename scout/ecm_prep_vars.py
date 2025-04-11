@@ -1494,6 +1494,7 @@ class UsefulVars(object):
 
         return keyval_list
 
+
 class UsefulInputFiles(object):
     """Class of input file paths to be used by this routine.
 

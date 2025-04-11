@@ -5365,7 +5365,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # Reset measure fuel split attribute to imported values
             m.eff_fs_splt = meas_eff_fs_data
         # Print data import message for each ECM if in verbose mode
-        fmt.verboseprint(opts.verbose, f"Imported ECM {m.name} competition data")
+        fmt.verboseprint(opts.verbose, f"Imported ECM {m.name} competition data", "info")
 
     # Import total absolute heating and cooling energy use data, used in
     # removing overlaps between supply-side and demand-side heating/cooling
