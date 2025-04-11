@@ -1,5 +1,6 @@
 import json
 import numpy
+import logging
 from pathlib import Path, PurePath
 
 
@@ -58,15 +59,18 @@ class PrintFormat:
         print(message)
 
     @staticmethod
-    def verboseprint(verbose, msg, log_type):
+    def verboseprint(verbose, msg, log_type, logger=None):
         """Print input message when the code is run in verbose mode.
 
         Args:
             verbose (boolean): Indicator of verbose mode
             msg (string): Message to print to console when in verbose mode
+            logger: Logger instance to use for logging
         """
         if not verbose:
             return
+        if not logger:
+            logger = logging.getLogger(__name__)
 
         if log_type == "info":
             logger.info(msg)
