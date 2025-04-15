@@ -2,7 +2,6 @@ from __future__ import annotations
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import warnings
 import re
-from scout.run import parse_args as run_args
 from scout.config import Config, FilePaths as fp
 
 
@@ -224,13 +223,10 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     else:
         opts.tsv_metrics = False
 
-    # Import run args to determine whether code/BPS option has been set (impacts requirements for
-    # detailed breakouts)
-    opts_run = run_args()
     # If run execution is representing BPS, ensure that the prep data are split by fuel type
     # (can be electric/non-electric or the more detailed reporting of these splits and broken
     # out by detailed regions (states) and bldg. types, which is required to assess BPS in run
-    if (opts_run.bps is not None) and (opts.split_fuel is False or (
+    if (opts.bps is not None) and (opts.split_fuel is False or (
         not opts.detail_brkout or ("all" not in opts.detail_brkout and all([
             x not in opts.detail_brkout for x in ["regions", "buildings"]])))):
         # Reset detail breakout options to comport with what BPS assessment needs

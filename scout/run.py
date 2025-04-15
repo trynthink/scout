@@ -180,7 +180,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, handyfiles, opts, brkout, regions):
+    def __init__(self, handyfiles, opts, brkout, regions, state_appl_regs, codes, bps):
         # Pull in global variable settings from ecm_prep
         with open(handyfiles.glob_vars, 'r') as gv:
             try:
@@ -358,26 +358,27 @@ class UsefulVars(object):
 
         # Import/finalize input data on sub-federal appliance regulations, codes, and BPS
         # if state regions are used
-        state_vars = ["state_appl_regs", "codes", "bps"]
+        state_vars, state_vars_vals = [
+            ["state_appl_regs", "codes", "bps"], [state_appl_regs, codes, bps]]
         if regions == "State":
-            self.import_state_data(handyfiles, state_vars, opts)
+            self.import_state_data(handyfiles, state_vars, state_vars_vals)
         else:
             for k in state_vars:
                 setattr(self, k, None)
 
-    def import_state_data(self, handyfiles, state_vars, opts):
+    def import_state_data(self, handyfiles, state_vars, state_vars_vals):
         """Import and further prepare sub-federal adoption driver data.
 
         Args:
             handyfiles (object): File paths.
             state_vars (list): State-level adoption drivers to read in data for.
-            opts (object): Stores user-specified execution options.
+            state_vars_vals (list): User settings for the state-level adoption drivers.
         """
 
         # State-level adoption inputs: additional appliance regulations, codes, and BPS
-        for k in state_vars:
+        for k_ind, k in enumerate(state_vars):
             # Pull the scenario name to use for the current variable
-            scn_name = getattr(opts, k)
+            scn_name = state_vars_vals[k_ind]
             # Scenario for variable is set to None; move to next input
             if not scn_name:
                 setattr(self, k, None)
@@ -7405,7 +7406,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     handyfiles = UsefulInputFiles(
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts, brkout="basic", regions="AIA")
+    handyvars = UsefulVars(handyfiles, opts, brkout="basic", regions="AIA",
+                           state_appl_regs=None, codes=None, bps=None)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -7523,8 +7525,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     else:  # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
 
+    # Set flag for presence of appliance regulations, codes, and/or BPS policies
+    state_appl_regs, codes, bps = [
+        meas_summary_restrict[0]["usr_opts"][x] for x in ["state_appl_regs", "codes", "bps"]]
+
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts, brkout, regions)
+    handyvars = UsefulVars(handyfiles, opts, brkout, regions, state_appl_regs, codes, bps)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus
@@ -7633,7 +7639,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(handyfiles, opts, brkout, regions)
+        handyvars = UsefulVars(handyfiles, opts, brkout, regions, state_appl_regs, codes, bps)
 
     # Load and set competition data for active measure objects (provided competition is not
     # suppressed by user); suppress new line if not in verbose mode ('Data load complete' is
@@ -7765,15 +7771,13 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         a_run.calc_savings_metrics(adopt_scheme, "competed", opts)
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
-        if any([x is not None and len(x) != 0 for x in [
-                a_run.handyvars.codes, a_run.handyvars.bps]]) \
+        if any([x is not None and len(x) != 0 for x in [codes, bps]]) \
                 and all([x in brkout for x in ["reg", "bldg"]]) and split_fuel is True:
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
             cbpslist = a_run.process_codes_bps(adopt_scheme, msegs, handyvars, verboseprint)
             print("Calculations complete")
-        elif any([x is not None and len(x) != 0 for x in [
-                a_run.handyvars.codes, a_run.handyvars.bps]]):
+        elif any([x is not None and len(x) != 0 for x in [codes, bps]]):
             warnings.warn(
                 "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
                 "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "

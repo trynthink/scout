@@ -110,7 +110,10 @@ class TestConfig(unittest.TestCase, Utils):
             "elec_upgrade_costs": "shares",
             "low_volume_rate": None,
             "incentive_levels": "aeo",
-            "incentive_restrictions": None
+            "incentive_restrictions": None,
+            "state_appl_regs": None,
+            "bps": None,
+            "codes": None
         },
         "run": {
             "results_directory": None,
@@ -121,10 +124,7 @@ class TestConfig(unittest.TestCase, Utils):
             "report_cfs": False,
             "gcam_out": False,
             "no_comp": False,
-            "high_res_comp": False,
-            "state_appl_regs": None,
-            "bps": None,
-            "codes": None
+            "high_res_comp": False
         },
     }
 
