@@ -5011,92 +5011,6 @@ class Engine(object):
                                 "Efficient Energy Use, Measure-"
                                 "Envelope (MMBtu)"] = (
                                     energy_eff_capt_avg_env for n in range(2))
-                # Determine stock units, if necessary (for the Scout stock
-                # reporting option and/or for mapping to GCAM data format)
-                if self.opts.report_stk is True or self.opts.gcam_out is True:
-                    # Determine correct units to use for stock reporting
-                    # Envelope tech.; use units of ft^2 floor
-                    if "demand" in m.technology_type["primary"]:
-                        if any([x in m.bldg_type for x in [
-                            "single family home", "multi family home",
-                                "mobile home"]]):
-                            stk_units = "(# homes served)"
-                        else:
-                            stk_units = "(ft^2 floor served)"
-                    # Non-envelope residential tech.; use equipment units
-                    elif any([x in m.bldg_type for x in [
-                        "single family home", "multi family home",
-                            "mobile home"]]):
-                        stk_units = "(units equipment)"
-                    # Non-envelope commercial tech.; units vary by end use
-                    else:
-                        # If measure affects heating, units are always in terms
-                        # of heating service
-                        if "heating" in m.end_use["primary"]:
-                            stk_units = "(TBtu heating served)"
-                        # If measure affects cooling but does not affect
-                        # heating, units are always in terms of cooling service
-                        elif "cooling" in m.end_use["primary"]:
-                            stk_units = "(TBtu cooling served)"
-                        elif "lighting" in m.end_use["primary"]:
-                            stk_units = "(giga-lm-years served)"
-                        elif "ventilation" in m.end_use["primary"]:
-                            stk_units = "(giga-CFM-years served)"
-                        elif any([x in m.end_use["primary"] for x in [
-                                "water heating", "refrigeration", "cooking"]]):
-                            # Find end use name
-                            eu = [x for x in [
-                                "water heating", "refrigeration", "cooking"]
-                                if x in m.end_use["primary"]][0]
-                            stk_units = "(TBtu " + eu + " served)"
-                        # Computers and other equipment in units of ft^2 floor
-                        else:
-                            stk_units = "(ft^2 floor served)"
-                    # Finalize baseline and measure stock keys/units
-                    base_stk_key, meas_stk_key = [(x + stk_units) for x in [
-                        "Baseline Stock ", "Measure Stock "]]
-                    # Add baseline and measure stock data to markets and
-                    # savings dicts initialized above
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][base_stk_key], self.output_ecms[m.name][
-                            "Markets and Savings (by Category)"][adopt_scheme][
-                            base_stk_key] = (stk_base_avg for n in range(2))
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][meas_stk_key], self.output_ecms[m.name][
-                            "Markets and Savings (by Category)"][adopt_scheme][
-                            meas_stk_key] = (stk_eff_avg for n in range(2))
-                else:
-                    stk_units = None
-
-                # Record updated (post-competed) fugitive emissions results
-                # for individual ECM if applicable
-                if m.fug_e:
-                    # Record updated baseline/efficient methane results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Baseline Fugitive Methane (MMTons CO2e)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Fugitive Methane (MMTons CO2e)"] = \
-                        summary_vals_f_e[0:2]
-                    # Record updated methane savings results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Fugitive Methane Savings (MMTons CO2e)"] = \
-                        summary_vals_f_e[4]
-                    # Record updated baseline/efficient refrigerant results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
-                        summary_vals_f_e[2:4]
-                    # Record updated refrigerant savings results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
-                        summary_vals_f_e[5]
 
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
@@ -5121,10 +5035,6 @@ class Engine(object):
                     if eff_capt_env:
                         mkt_eff_keys.append(
                             "Efficient Energy Use, Measure-Envelope (MMBtu)")
-                # Add baseline/efficient keys for stock reporting, if needed
-                if self.opts.report_stk is True:
-                    mkt_base_keys.append(base_stk_key)
-                    mkt_eff_keys.append(meas_stk_key)
                 # Record list of savings variable names for use in finalizing
                 # output breakouts below
                 save_keys = [
@@ -5139,14 +5049,9 @@ class Engine(object):
                         adopt_scheme] = (OrderedDict([
                             ("Baseline Energy Use (MMBtu)", energy_base_avg),
                             ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                            ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                                carb_base_avg),
-                            ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                                carb_eff_avg),
-                            ("Energy Savings (MMBtu)", energy_save_avg),
-                            ("Avoided CO2 Emissions (MMTons)".
-                                translate(sub), carb_save_avg)
-                            ]) for n in range(2))
+                            ("Baseline Energy Cost (USD)", energy_cost_base_avg),
+                            ("Efficient Energy Cost (USD)", energy_cost_eff_avg)])
+                        for n in range(2))
                 if eff_capt:
                     self.output_ecms[m.name][
                         "Markets and Savings (Overall)"][adopt_scheme][
@@ -5167,17 +5072,16 @@ class Engine(object):
                                 "Efficient Energy Use, Measure-"
                                 "Envelope (MMBtu)"] = (
                                     energy_eff_capt_avg_env for n in range(2))
-
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
                 mkt_base_keys = [
                     "Baseline Energy Use (MMBtu)",
-                    "Baseline CO2 Emissions (MMTons)".translate(sub)]
+                    "Baseline Energy Cost (USD)"]
                 # Record list of efficient variable names for use in finalizing
                 # output breakouts below
                 mkt_eff_keys = [
                     "Efficient Energy Use (MMBtu)",
-                    "Efficient CO2 Emissions (MMTons)".translate(sub)]
+                    "Efficient Energy Cost (USD)".translate(sub)]
                 # Add efficient-captured to efficient breakout names if present
                 if eff_capt:
                     mkt_eff_keys.append(
@@ -5187,41 +5091,98 @@ class Engine(object):
                     if eff_capt_env:
                         mkt_eff_keys.append(
                             "Efficient Energy Use, Measure-Envelope (MMBtu)")
-                # Record list of savings variable names for use in finalizing
-                # output breakouts below
-                save_keys = [
-                    "Energy Savings (MMBtu)",
-                    "Avoided CO2 Emissions (MMTons)".translate(sub)]
+                # Do not report savings variables when reduced set of outputs is desired
+                save_keys = []
 
-                # Record updated (post-competed) fugitive emissions results
-                # for individual ECM if applicable
-                if m.fug_e:
-                    # Record updated baseline/efficient methane results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Baseline Fugitive Methane (MMTons CO2e)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Fugitive Methane (MMTons CO2e)"] = \
-                        summary_vals_f_e[0:2]
-                    # Record updated methane savings results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Fugitive Methane Savings (MMTons CO2e)"] = \
-                        summary_vals_f_e[4]
-                    # Record updated baseline/efficient refrigerant results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
-                        summary_vals_f_e[2:4]
-                    # Record updated refrigerant savings results
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme][
-                        "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
-                        summary_vals_f_e[5]
+            # Record updated (post-competed) fugitive emissions results
+            # for individual ECM if applicable
+            if m.fug_e:
+                # Record updated baseline/efficient methane results
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][
+                    "Baseline Fugitive Methane (MMTons CO2e)"], \
+                    self.output_ecms[m.name][
+                        "Markets and Savings (Overall)"][adopt_scheme][
+                    "Efficient Fugitive Methane (MMTons CO2e)"] = \
+                    summary_vals_f_e[0:2]
+                # Record updated methane savings results
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][
+                    "Fugitive Methane Savings (MMTons CO2e)"] = \
+                    summary_vals_f_e[4]
+                # Record updated baseline/efficient refrigerant results
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][
+                    "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
+                    self.output_ecms[m.name][
+                        "Markets and Savings (Overall)"][adopt_scheme][
+                    "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
+                    summary_vals_f_e[2:4]
+                # Record updated refrigerant savings results
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][
+                    "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
+                    summary_vals_f_e[5]
+
+            # Determine stock units, if necessary (for the Scout stock
+            # reporting option and/or for mapping to GCAM data format)
+            if self.opts.report_stk is True or self.opts.gcam_out is True:
+                # Determine correct units to use for stock reporting
+                # Envelope tech.; use units of ft^2 floor
+                if "demand" in m.technology_type["primary"]:
+                    if any([x in m.bldg_type for x in [
+                        "single family home", "multi family home",
+                            "mobile home"]]):
+                        stk_units = "(# homes served)"
+                    else:
+                        stk_units = "(ft^2 floor served)"
+                # Non-envelope residential tech.; use equipment units
+                elif any([x in m.bldg_type for x in [
+                    "single family home", "multi family home",
+                        "mobile home"]]):
+                    stk_units = "(units equipment)"
+                # Non-envelope commercial tech.; units vary by end use
+                else:
+                    # If measure affects heating, units are always in terms
+                    # of heating service
+                    if "heating" in m.end_use["primary"]:
+                        stk_units = "(TBtu heating served)"
+                    # If measure affects cooling but does not affect
+                    # heating, units are always in terms of cooling service
+                    elif "cooling" in m.end_use["primary"]:
+                        stk_units = "(TBtu cooling served)"
+                    elif "lighting" in m.end_use["primary"]:
+                        stk_units = "(giga-lm-years served)"
+                    elif "ventilation" in m.end_use["primary"]:
+                        stk_units = "(giga-CFM-years served)"
+                    elif any([x in m.end_use["primary"] for x in [
+                            "water heating", "refrigeration", "cooking"]]):
+                        # Find end use name
+                        eu = [x for x in [
+                            "water heating", "refrigeration", "cooking"]
+                            if x in m.end_use["primary"]][0]
+                        stk_units = "(TBtu " + eu + " served)"
+                    # Computers and other equipment in units of ft^2 floor
+                    else:
+                        stk_units = "(ft^2 floor served)"
+                # Finalize baseline and measure stock keys/units
+                base_stk_key, meas_stk_key = [(x + stk_units) for x in [
+                    "Baseline Stock ", "Measure Stock "]]
+                # Add baseline and measure stock data to markets and
+                # savings dicts initialized above
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][base_stk_key], self.output_ecms[m.name][
+                        "Markets and Savings (by Category)"][adopt_scheme][
+                        base_stk_key] = (stk_base_avg for n in range(2))
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][
+                    adopt_scheme][meas_stk_key], self.output_ecms[m.name][
+                        "Markets and Savings (by Category)"][adopt_scheme][
+                        meas_stk_key] = (stk_eff_avg for n in range(2))
+                # Add baseline/efficient keys for stock reporting
+                mkt_base_keys.append(base_stk_key)
+                mkt_eff_keys.append(meas_stk_key)
+            else:
+                stk_units = None
 
             # If competition adjustment fractions must be reported, find/store
             # those data
@@ -5482,7 +5443,7 @@ class Engine(object):
 
             # Record low and high estimates on markets, if available and
             # user has not specified trimmed output
-            if trim_out is not False:
+            if trim_out is not True:
                 # Set shorter name for markets and savings output dict
                 mkt_sv = self.output_ecms[m.name][
                     "Markets and Savings (Overall)"][adopt_scheme]
@@ -5546,7 +5507,7 @@ class Engine(object):
 
             # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
-            if trim_out is not False and cce_avg != cce_low:
+            if trim_out is not True and cce_avg != cce_low:
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
                         ("Cost of Conserved Energy ($/MMBtu saved)",
                             cce_avg),
@@ -5571,13 +5532,8 @@ class Engine(object):
                         ("Payback (high) (years)", payback_e_high)])
             else:
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
-                        ("Cost of Conserved Energy ($/MMBtu saved)",
-                            cce_avg),
-                        (("Cost of Conserved CO2 "
-                          "($/MTon CO2 avoided)").
-                         translate(sub), ccc_avg),
-                        ("IRR (%)", irr_e_avg),
-                        ("Payback (years)", payback_e_avg)])
+                    ("Payback (years)", payback_e_avg)])
+
 
             # If a user desires measure market penetration percentages as an
             # output, calculate and report these fractions
@@ -6186,8 +6142,8 @@ class Engine(object):
             # broken out in a way that allows these costs to be allocated to the codes/BPS measures
             for met in results_dat_codes_bps.keys():
                 # Ensure that terminal node was reached (projection year keys) before adding data
-                if self.handyvars.aeo_years[0] in results_dat_codes_bps[met].keys():
-                    for yr in self.handyvars.aeo_years:
+                if focus_yrs[0] in results_dat_codes_bps[met].keys():
+                    for yr in focus_yrs:
                         results_dat_all_ecms[met][yr] += results_dat_codes_bps[met][yr]
 
         # Record efficient-captured data across all ECMs if present
@@ -6242,7 +6198,7 @@ class Engine(object):
 
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
-        if trim_out is not False and energy_eff_all_avg != energy_eff_all_low:
+        if trim_out is not True and energy_eff_all_avg != energy_eff_all_low:
 
             # Set shorter name for markets and savings output dict across all
             # ECMs
@@ -7531,32 +7487,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Instantiate useful variables object
     handyvars = UsefulVars(handyfiles, opts, brkout, regions, state_appl_regs, codes, bps)
-
-    # If a user desires trimmed down results, collect information about whether
-    # they want to restrict to certain years of focus
-    if opts.trim_results is True:
-        # Flag trimmed results format
-        trim_out = True
-        trim_yrs = []
-        while trim_yrs is not False and ((len(trim_yrs) == 0) or any([
-            x < int(handyvars.aeo_years[0]) or x > int(handyvars.aeo_years[-1])
-                for x in trim_yrs])):
-            # Initialize focus year range input
-            trim_yrs_init = input(
-                "Enter years of focus for the outputs, with a space in "
-                "between each (or hit return to use all years): ")
-            # Finalize focus year range input; if not provided, assume False
-            if trim_yrs_init:
-                trim_yrs = list(map(int, trim_yrs_init.split()))
-                if any([x < int(handyvars.aeo_years[0]) or
-                        x > int(handyvars.aeo_years[-1]) for x in trim_yrs]):
-                    print('Please try again. Enter focus years between '
-                          + handyvars.aeo_years[0] + ' and ' +
-                          handyvars.aeo_years[-1])
-            else:
-                trim_yrs = False
-    else:
-        trim_out, trim_yrs = (False for n in range(2))
 
     # Instantiate active measure objects
     measures_objlist = [
