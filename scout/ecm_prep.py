@@ -14140,12 +14140,15 @@ def retrieve_valid_ecms(packages: list,
     return valid_ecms
 
 
-def filter_invalid_packages(packages: list[dict], ecms: list) -> tuple[list[dict], list]:
+def filter_invalid_packages(packages: list[dict],
+                            ecms: list,
+                            opts: argparse.Namespace) -> tuple[list[dict], list]:
     """Identify and filter packages whose ECMs are not all present in the individual ECM set
 
     Args:
         packages (list[dict]): List of packages imported from package_ecms.json
         ecms (list): List of ECM definitions file names
+        opts (argparse.Namespace): argparse object containing the argument attributes
 
     Returns:
         filtered_packages (list[dict]): Packages list with invalid packages filtered out
@@ -14155,6 +14158,17 @@ def filter_invalid_packages(packages: list[dict], ecms: list) -> tuple[list[dict
     invalid_pkgs = [pkg["name"] for pkg in packages if not
                     set(pkg["contributing_ECMs"]).issubset(set(ecms))]
     filtered_packages = [pkg for pkg in packages if pkg["name"] not in invalid_pkgs]
+
+    # Trigger warning message regarding screening of packages
+    package_opt_txt = ""
+    if opts.ecm_packages is not None:
+        package_opt_txt = "specified with the ecm_packages argument "
+    if invalid_pkgs:
+        invalid_pkgs_txt = format_console_list(invalid_pkgs)
+        msg = (f"WARNING: Package(s) in package_ecms.json {package_opt_txt}have contributing ECMs"
+               " that are not present among ECM definitions. The following packages will not be"
+               f" executed: \n{''.join(invalid_pkgs_txt)}")
+        warnings.warn(msg)
 
     return filtered_packages, invalid_pkgs
 
@@ -14604,18 +14618,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     meas_prepped_pkgs = [mpkg for mpkg in meas_summary if "contributing_ECMs" in mpkg.keys()]
     # Identify and filter packages whose ECMs are not all present in ECM list
     ecm_names = [meas.stem for meas in meas_toprep_indiv_names]
-    meas_toprep_package_init, invalid_pkgs = filter_invalid_packages(meas_toprep_package_init,
-                                                                     ecm_names)
-    # Trigger warning message regarding screening of packages
-    package_opt_txt = ""
-    if opts.ecm_packages is not None:
-        package_opt_txt = "specified with the ecm_packages argument "
-    if invalid_pkgs:
-        invalid_pkgs_txt = format_console_list(invalid_pkgs)
-        msg = (f"WARNING: Packages in package_ecms.json {package_opt_txt}have contributing ECMs"
-               " that are not present among ECM definitions. The following packages will not be"
-               f" executed: \n{''.join(invalid_pkgs_txt)}")
-        warnings.warn(msg)
+    meas_toprep_package_init, pkgs_skipped = filter_invalid_packages(meas_toprep_package_init,
+                                                                     ecm_names,
+                                                                     opts)
 
     # Write initial data for run_setup.json
     # Import analysis engine setup file
@@ -14849,7 +14854,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # User is warned later, after being warned that ECMs have been skipped
         if len(handyvars.skipped_ecms) != 0:
             meas_toprep_package, pkgs_skipped = filter_invalid_packages(meas_toprep_package,
-                                                                        meas_check_list)
+                                                                        meas_check_list,
+                                                                        opts)
             # Move package name to skipped list
             run_setup = Utils.update_active_measures(run_setup, to_skipped=pkgs_skipped)
 
@@ -14876,14 +14882,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 str(len(handyvars.skipped_ecms)) + single_plural +
                 "not prepared due to exceptions. See log file with the "
                 "corresponding timestamp in ./generated for details.")
-            # Warn user that packages have been dropped because they
-            # required ECMs that have been skipped
-            if pkgs_skipped:
-                pkgs_skipped_txt = format_console_list(pkgs_skipped)
-                warnings.warn(
-                    f"WARNING: Package(s) in package_ecms.json {package_opt_txt}have"
-                    " contributing ECMs that have been skipped. The following package(s)"
-                    f" will not be executed: \n{''.join(pkgs_skipped_txt)}")
+
         # Add names of skipped measures to run setup list if not already there
         run_setup = Utils.update_active_measures(run_setup, to_skipped=handyvars.skipped_ecms)
 
