@@ -2,7 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 from scout.config import LogConfig, Config, FilePaths as fp
 from scout.ecm_prep_args import ecm_args
-from scout.ecm_prep import ECMPrepHelper, main as ecm_prep_main
+from scout.ecm_prep_helpers import ECMPrepHelper
+from scout.ecm_prep import main as ecm_prep_main
 from scout.utils import JsonIO
 from scout import run
 from argparse import ArgumentParser
