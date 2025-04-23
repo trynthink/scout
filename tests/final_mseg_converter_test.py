@@ -93,24 +93,53 @@ class CommonUnitTest(unittest.TestCase):
                     "cooking", "lighting", "refrigeration", "PCs",
                     "non-PC office equipment", "other", "MELs",
                     "unspecified"],
+        # Data needed to map between Scout end uses and end use
+        # definitions in the EULP data
         "eulp_map": {
-            "heating": ["heating", "secondary heating"],
-            "cooling": ["cooling"],
-            "water heating": ["water heating"],
-            "cooking": ["cooking"],
-            "drying": ["drying"],
-            "clothes washing": ["other-clothes washing"],
-            "dishwasher": ["other-dishwasher"],
-            "lighting": ["lighting"],
-            "refrigeration": ["refrigeration", "other-freezers"],
-            "ceiling fan": ["ceiling fan"],
-            "plug loads": ["TVs", "computers", "MELs", "PCs",
-                           "non-PC office equipment", "unspecified",
-                           "other"],
-            "pool heaters": ["other-pool heaters"],
-            "pool pumps": ["other-pool pumps"],
-            "portable electric spas": ["other-spas"],
-            "fans and pumps": ["ventilation", "fans and pumps"]},
+            "electricity": {
+                "heating": ["heating", "secondary heating"],
+                "cooling": ["cooling"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "clothes washing": ["other-clothes washing"],
+                "dishwasher": ["other-dishwasher"],
+                "lighting": ["lighting"],
+                "refrigeration": ["refrigeration", "other-freezers"],
+                "ceiling fan": ["ceiling fan"],
+                "misc": ["TVs", "computers", "MELs", "PCs",
+                         "non-PC office equipment", "unspecified", "other"],
+                "pool heaters": ["other-pool heaters"],
+                "pool pumps": ["other-pool pumps"],
+                "portable electric spas": ["other-spas"],
+                "fans and pumps": ["ventilation", "fans and pumps"]
+            },
+            "natural gas": {
+                "heating": ["heating", "secondary heating"],
+                "cooling": ["cooling"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "misc": ["other", "unspecified"],
+                "lighting": ["lighting"],
+                "pool heaters": ["other-pool heaters"],
+                "portable electric spas": ["other-spas"]
+            },
+            "distillate": {
+                "heating": ["heating", "secondary heating"],
+                "water heating": ["water heating"],
+                "misc": ["other", "unspecified"]
+            },
+            "other fuel": {
+                "heating": ["heating", "secondary heating"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "misc": ["unspecified"]
+            }
+        },
+        # Flag Scout technologies that are handled as end uses in the
+        # EULP data
         "eulp_other_tech": [
             "dishwasher", "clothes washing", "freezers",
             "pool heaters", "pool pumps", "portable electric spas"]
@@ -155,10 +184,17 @@ class CommonUnitTest(unittest.TestCase):
     # demonstrates the intended functionality nonetheless)
     res_cd_cz_array_fuelsplit = {
         "electricity": {
-            "heating": res_cd_cz_array_emm,
-            "water heating": res_cd_cz_array_emm,
-            "lighting": res_cd_cz_array_emm,
-            "refrigeration": res_cd_cz_array_emm},
+            "stock": {
+                "heating": res_cd_cz_array_emm,
+                "water heating": res_cd_cz_array_emm,
+                "lighting": res_cd_cz_array_emm,
+                "refrigeration": res_cd_cz_array_emm},
+            "energy": {
+                "heating": res_cd_cz_array_emm,
+                "water heating": res_cd_cz_array_emm,
+                "lighting": res_cd_cz_array_emm,
+                "refrigeration": res_cd_cz_array_emm}
+        },
         "natural gas": res_cd_cz_array_emm,
         "distillate": res_cd_cz_array_emm,
         "other fuel": res_cd_cz_array_emm,
@@ -202,10 +238,17 @@ class CommonUnitTest(unittest.TestCase):
     # demonstrates the intended functionality nonetheless)
     com_cd_cz_array_fuelsplit = {
         "electricity": {
-            "heating": com_cd_cz_array_emm,
-            "water heating": com_cd_cz_array_emm,
-            "lighting": com_cd_cz_array_emm,
-            "refrigeration": com_cd_cz_array_emm},
+            "stock": {
+                "heating": com_cd_cz_array_emm,
+                "water heating": com_cd_cz_array_emm,
+                "lighting": com_cd_cz_array_emm,
+                "refrigeration": com_cd_cz_array_emm},
+            "energy": {
+                "heating": com_cd_cz_array_emm,
+                "water heating": com_cd_cz_array_emm,
+                "lighting": com_cd_cz_array_emm,
+                "refrigeration": com_cd_cz_array_emm}
+        },
         "natural gas": com_cd_cz_array_emm,
         "distillate": com_cd_cz_array_emm,
         "building stock and square footage": com_cd_cz_array_emm}
@@ -247,11 +290,7 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     res_cd_cz_wtavg_array_fuelsplit = {
-        "electricity": {
-            "heating": res_cd_cz_wtavg_array_emm,
-            "water heating": res_cd_cz_wtavg_array_emm,
-            "lighting": res_cd_cz_wtavg_array_emm,
-            "refrigeration": res_cd_cz_wtavg_array_emm},
+        "electricity": res_cd_cz_wtavg_array_emm,
         "natural gas": res_cd_cz_wtavg_array_emm,
         "distillate": res_cd_cz_wtavg_array_emm,
         "other fuel": res_cd_cz_wtavg_array_emm,
@@ -294,11 +333,7 @@ class CommonUnitTest(unittest.TestCase):
     # will actually be EMM regions, but this test setup demonstrates the
     # intended functionality nonetheless)
     com_cd_cz_wtavg_array_fuelsplit = {
-        "electricity": {
-            "heating": com_cd_cz_wtavg_array_emm,
-            "water heating": com_cd_cz_wtavg_array_emm,
-            "lighting": com_cd_cz_wtavg_array_emm,
-            "refrigeration": com_cd_cz_wtavg_array_emm},
+        "electricity": com_cd_cz_wtavg_array_emm,
         "natural gas": com_cd_cz_wtavg_array_emm,
         "distillate": com_cd_cz_wtavg_array_emm,
         "building stock and square footage": com_cd_cz_wtavg_array_emm}
@@ -326,7 +361,9 @@ class DataRestructuringFunctionTest(CommonUnitTest):
             'new square footage': {'2009': 6, '2010': 5, '2011': 4},
             'electricity': {
                 'lighting': {
-                    'F96T8 HO_HB': {'2009': 0.3, '2010': 0.6, '2011': 0.7}}},
+                    'F96T8 HO_HB': {
+                        "stock": {'2009': 0.3, '2010': 0.6, '2011': 0.7},
+                        "energy": {'2009': 0.3, '2010': 0.6, '2011': 0.7}}}},
             'natural gas': {
                 'water heating': {'2009': 20, '2010': 22, '2011': 23}}}}
 
@@ -381,7 +418,10 @@ class DataRestructuringFunctionTest(CommonUnitTest):
             'electricity': {
                 'lighting': {
                     'F96T8 HO_HB': {
-                        '2009': 0.3464, '2010': 0.6928, '2011': 0.8082}}},
+                        "stock": {
+                            '2009': 0.3464, '2010': 0.6928, '2011': 0.8082},
+                        "energy": {
+                            '2009': 0.3464, '2010': 0.6928, '2011': 0.8082}}}},
             'natural gas': {
                 'water heating': {
                     '2009': 23.092, '2010': 25.401, '2011': 26.556}}}},
@@ -414,7 +454,10 @@ class DataRestructuringFunctionTest(CommonUnitTest):
             'electricity': {
                 'lighting': {
                     'F96T8 HO_HB': {
-                        '2009': 0.38, '2010': 0.7601, '2011': 0.8866}}}}}]
+                        "stock": {
+                            '2009': 0.38, '2010': 0.7601, '2011': 0.8866},
+                        "energy": {
+                            '2009': 0.38, '2010': 0.7601, '2011': 0.8866}}}}}}]
 
     # Set boolean indicating whether the data being combined are
     # energy and stock (False) or cost, performance, and lifetime (True)
@@ -438,7 +481,8 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                                    self.com_cd_cz_array,
                                    self.cpl_bool,
                                    self.flag_map_dat,
-                                   first_cd_flag="")
+                                   first_cd_flag="",
+                                   ak_hi_res=None)
 
             self.dict_check(result, self.loutput[idx])
 
@@ -486,7 +530,11 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.1, '2010': 0.2, '2011': 0.3}}},
+                            "stock": {
+                                '2009': 0.1, '2010': 0.2, '2011': 0.3},
+                            "energy": {
+                                '2009': 0.1, '2010': 0.2, '2011': 0.3}
+                            }}},
                 'natural gas': {
                     'water heating': {
                         '2009': 5, '2010': 6, '2011': 7}}}},
@@ -525,7 +573,11 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.5, '2010': 0.6, '2011': 0.7}}},
+                            "stock": {
+                                '2009': 0.5, '2010': 0.6, '2011': 0.7},
+                            "energy": {
+                                '2009': 0.5, '2010': 0.6, '2011': 0.7}
+                            }}},
                 'natural gas': {
                     'water heating': {
                         '2009': 10, '2010': 11, '2011': 9}}}},
@@ -564,7 +616,11 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.3, '2010': 0.6, '2011': 0.7}}},
+                            "stock": {
+                                '2009': 0.3, '2010': 0.6, '2011': 0.7},
+                            "energy": {
+                                '2009': 0.3, '2010': 0.6, '2011': 0.7}
+                            }}},
                 'natural gas': {
                     'water heating': {
                         '2009': 20, '2010': 22, '2011': 23}}}}}
@@ -1019,7 +1075,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.1812, '2010': 0.3006, '2011': 0.3667}}},
+                            "stock": {
+                                '2009': 0.1812, '2010': 0.3006, '2011': 0.3667},
+                            "energy": {
+                                '2009': 0.1812, '2010': 0.3006, '2011': 0.3667}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 8.0765, '2010': 9.0036, '2011': 9.2001}}}},
@@ -1058,7 +1117,11 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.4745, '2010': 0.8062, '2011': 0.9913}}},
+                            "stock": {
+                                '2009': 0.4745, '2010': 0.8062, '2011': 0.9913},
+                            "energy": {
+                                '2009': 0.4745, '2010': 0.8062, '2011': 0.9913}
+                            }}},
                 'natural gas': {
                     'water heating': {
                         '2009': 22.0375, '2010': 24.6218, '2011': 25.4025}}}},
@@ -1097,7 +1160,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.2443, '2010': 0.2932, '2011': 0.3420}}},
+                            "stock": {
+                                '2009': 0.2443, '2010': 0.2932, '2011': 0.3420},
+                            "energy": {
+                                '2009': 0.2443, '2010': 0.2932, '2011': 0.3420}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 4.886, '2010': 5.3746, '2011': 4.3974}}}},
@@ -1136,7 +1202,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0, '2010': 0, '2011': 0}}},
+                            "stock": {'2009': 0, '2010': 0, '2011': 0},
+                            "energy": {'2009': 0, '2010': 0, '2011': 0}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 0, '2010': 0, '2011': 0}}}},
@@ -1175,7 +1242,8 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0, '2010': 0, '2011': 0}}},
+                            "stock": {'2009': 0, '2010': 0, '2011': 0},
+                            "energy": {'2009': 0, '2010': 0, '2011': 0}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 0, '2010': 0, '2011': 0}}}}}
@@ -1217,7 +1285,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.1812, '2010': 0.3006, '2011': 0.3667}}},
+                            "stock": {
+                                '2009': 0.1812, '2010': 0.3006, '2011': 0.3667},
+                            "energy": {
+                                '2009': 0.1812, '2010': 0.3006, '2011': 0.3667}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 8.0765, '2010': 9.0036, '2011': 9.2001}}}},
@@ -1256,7 +1327,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.4745, '2010': 0.8062, '2011': 0.9913}}},
+                            "stock": {
+                                '2009': 0.4745, '2010': 0.8062, '2011': 0.9913},
+                            "energy": {
+                                '2009': 0.4745, '2010': 0.8062, '2011': 0.9913}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 22.0375, '2010': 24.6218, '2011': 25.4025}}}},
@@ -1295,7 +1369,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0.2443, '2010': 0.2932, '2011': 0.3420}}},
+                            "stock": {
+                                '2009': 0.2443, '2010': 0.2932, '2011': 0.3420},
+                            "energy": {
+                                '2009': 0.2443, '2010': 0.2932, '2011': 0.3420}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 4.886, '2010': 5.3746, '2011': 4.3974}}}},
@@ -1334,7 +1411,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0, '2010': 0, '2011': 0}}},
+                            "stock": {
+                                '2009': 0, '2010': 0, '2011': 0},
+                            "energy": {
+                                '2009': 0, '2010': 0, '2011': 0}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 0, '2010': 0, '2011': 0}}}},
@@ -1373,7 +1453,10 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                 'electricity': {
                     'lighting': {
                         'F96T8 HO_HB': {
-                            '2009': 0, '2010': 0, '2011': 0}}},
+                            "stock": {
+                                '2009': 0, '2010': 0, '2011': 0},
+                            "energy": {
+                                '2009': 0, '2010': 0, '2011': 0}}}},
                 'natural gas': {
                     'water heating': {
                         '2009': 0, '2010': 0, '2011': 0}}}}}
@@ -2748,7 +2831,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.com_cd_cz_array,
                                    self.user_input_nrgstk,
                                    self.flag_map_dat, self.aia_list,
-                                   self.cdiv_list)
+                                   self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
@@ -2760,7 +2843,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.res_cd_cz_array_fuelsplit,
                                    self.com_cd_cz_array_fuelsplit,
                                    self.user_input_nrgstk, self.flag_map_dat,
-                                   self.emm_list, self.cdiv_list)
+                                   self.emm_list, self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_energy_stock_output_emm
         self.dict_check(dict1, dict2)
 
@@ -2773,7 +2856,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.com_cd_cz_wtavg_array,
                                    self.user_input_cpl,
                                    self.flag_map_dat, self.aia_list,
-                                   self.cdiv_list)
+                                   self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -2785,7 +2868,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.res_cd_cz_wtavg_array_fuelsplit,
                                    self.com_cd_cz_wtavg_array_fuelsplit,
                                    self.user_input_cpl, self.flag_map_dat,
-                                   self.emm_list, self.cdiv_list)
+                                   self.emm_list, self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_cpl_output_emm
         self.dict_check(dict1, dict2)
 
