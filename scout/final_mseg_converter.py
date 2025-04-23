@@ -91,72 +91,304 @@ class UsefulVars(object):
         json_out (str): File name for the output JSON database.
     """
 
-    def __init__(self, geo_break):
+    def __init__(self, geo_break, fuel_disagg_method, final_disagg_method):
         """Initialize class attributes."""
         self.addl_cpl_data = fp.CONVERT_DATA / 'cpl_envelope_mels.json'
         self.conv_factors = fp.CONVERT_DATA / 'ecm_cost_convert.json'
         self.aeo_metadata = fp.METADATA_PATH
         self.geo_break = geo_break
+        self.fuel_disagg_method = fuel_disagg_method
+        self.final_disagg_method = final_disagg_method
+
+
 
     def configure_for_energy_square_footage_stock_data(self):
         """Reconfigure stock and energy data to custom region."""
         # Set input JSON
         self.json_in = fp.INPUTS / 'mseg_res_com_cdiv.json'
+
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
+            self.res_climate_convert = (fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_Czone_RowSums.txt")
+            self.com_climate_convert = (fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_Czone_RowSums.txt")
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
-            self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Other_RowSums.txt",
-                # Use electricity splits to apportion no. building/sf data
-                "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
-                }
-            self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Other_RowSums.txt",
-                # Use electricity splits to apportion no. building/sf data
-                "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
-                }
-            # Set output JSON
-            self.json_out = 'mseg_res_com_emm.json'
+            if self.fuel_disagg_method == '1':
+                if self.final_disagg_method == '1':
+                # Tech-level disaggregation selected
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Tech.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Tech.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Stock_Tech.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Stock_Tech.csv")
+                elif self.final_disagg_method == '2':
+                    # End-use-level disaggregation (or no disaggregation override)
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                    
+                self.res_climate_convert = {
+                    "electricity": {
+                        "energy": res_elec_energy_file,
+                        "stock" : res_elec_stock_file
+                    },
+                    "natural gas": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_NG_RowSums.txt",
+                    "distillate": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_Dist_RowSums.txt",
+                    "other fuel": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_Other_RowSums.txt",
+                    # Use electricity splits to apportion no. building/sf data
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
+                    }
+                self.com_climate_convert = {
+                    "electricity": {
+                        "energy": com_elec_energy_file,
+                        "stock" : com_elec_stock_file
+                    },
+                    "natural gas": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_NG_RowSums.txt",
+                    "distillate": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_Dist_RowSums.txt",
+                    "other fuel": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_Other_RowSums.txt",
+                    # Use electricity splits to apportion no. building/sf data
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
+                    }
+                # Set output JSON
+                self.json_out = 'mseg_res_com_emm.json'
+            elif self.fuel_disagg_method == '2':
+                res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_electricity.csv")
+                res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_electricity.csv")
+                com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
+
+                res_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_naturalgas.csv")
+                res_ng_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_naturalgas_Stock.csv")
+                res_other_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_otherfuel.csv")
+                res_other_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_otherfuel_Stock.csv")
+                res_dist_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_distillate.csv")
+                res_dist_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_EMM_amy2018_distillate_Stock.csv")
+
+                com_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_naturalgas.csv")
+                com_ng_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_naturalgas_Stock.csv")
+                com_dist_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_distillate.csv")
+                com_dist_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_distillate_Stock.csv")
+                com_other_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_otherfuel.csv")
+                com_other_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_EMM_amy2018_otherfuel_Stock.csv")
+                self.res_climate_convert = {
+                    "electricity": {
+                        "energy": res_elec_energy_file, 
+                        "stock" : res_elec_stock_file
+                    },
+                    "natural gas": {
+                        "energy": res_ng_energy_file,
+                        "stock": res_ng_stock_file
+                    },
+                    "distillate": {
+                        "energy": res_dist_energy_file,
+                        "stock": res_dist_stock_file
+                    },
+                    "other fuel": {
+                        "energy": res_other_energy_file,
+                        "stock": res_other_stock_file
+                    },
+                    # Use electricity splits to apportion no. building/sf data
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
+                    }
+                self.com_climate_convert = {
+                    "electricity": {
+                        "energy": com_elec_energy_file,
+                        "stock" : com_elec_stock_file
+                    },
+                    "natural gas": {
+                        "energy": com_ng_energy_file,
+                        "stock": com_ng_stock_file
+                    },
+                    "distillate": {
+                        "energy": com_dist_energy_file,
+                        "stock": com_dist_stock_file
+                    },
+                    "other fuel": {
+                        "energy": com_other_energy_file,
+                        "stock": com_other_stock_file
+                    },
+                    # Use electricity splits to apportion no. building/sf data
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
+                    }
+                self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
-            self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" /
-                "Res_Cdiv_State_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" /
-                "Res_Cdiv_State_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" /
-                "Res_Cdiv_State_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" /
-                "Res_Cdiv_State_Other_RowSums.txt",
-                # Use total consumption splits to apportion no. building/sf
-                "building stock and square footage": {
-                    "homes": fp.CONVERT_DATA / "geo_map" / "Res_Homes_RowSums.txt",
-                    "square footage":
-                        fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
-                }
-            self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Elec_EU_RowSums.csv",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_NG_RowSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Dist_RowSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Other_RowSums.txt",
-                # Use total consumption splits to apportion no. building/sf
-                "building stock and square footage":
-                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
-                }
-            # Set output JSON
-            self.json_out = 'mseg_res_com_state.json'
+            if self.fuel_disagg_method == '1':
+
+                if self.final_disagg_method == '1':
+                    # Tech-level disaggregation selected
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Tech.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Tech.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Stock_Tech.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Stock_Tech.csv")
+                elif self.final_disagg_method == '2':
+                    # End-use-level disaggregation (or no disaggregation override)
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Stock.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Stock.csv")
+                
+                self.res_climate_convert = {
+                    "electricity": {
+                        "energy": res_elec_energy_file,
+                        "stock" : res_elec_stock_file
+                    },
+                    "natural gas": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_NG_RowSums.txt",
+                    "distillate": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_Dist_RowSums.txt",
+                    "other fuel": fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_Other_RowSums.txt",
+                    # Use total consumption splits to apportion no. building/sf
+                    "building stock and square footage": {
+                        "homes": fp.CONVERT_DATA / "geo_map" / "Res_Homes_RowSums.txt",
+                        "square footage":
+                            fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
+                    }
+                self.com_climate_convert = {
+                    "electricity": {
+                        "energy": com_elec_energy_file,
+                        "stock" : com_elec_stock_file
+                    },
+                    "natural gas": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_NG_RowSums.txt",
+                    "distillate": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_Dist_RowSums.txt",
+                    "other fuel": fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_Other_RowSums.txt",
+                    # Use total consumption splits to apportion no. building/sf
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" /
+                            "Com_Cdiv_State_AllFuels_RowSums.txt"
+                    }
+                # Set output JSON
+                self.json_out = 'mseg_res_com_state.json'
+            elif self.fuel_disagg_method == '2':
+                res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_electricity.csv")
+                res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_electricity_Stock.csv")
+                com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_electricity.csv")
+                com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_electricity_Stock.csv")
+
+                res_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_naturalgas.csv")
+                res_ng_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_naturalgas_Stock.csv")
+                res_other_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_otherfuel.csv")
+                res_other_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_otherfuel_Stock.csv")
+                res_dist_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_distillate.csv")
+                res_dist_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Res_Cdiv_State_amy2018_distillate_Stock.csv")
+
+                com_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_naturalgas.csv")
+                com_ng_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_naturalgas_Stock.csv")
+                com_dist_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_distillate.csv")
+                com_dist_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_distillate_Stock.csv")
+                com_other_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_otherfuel.csv")
+                com_other_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                    "Com_Cdiv_State_amy2018_otherfuel_Stock.csv")
+
+                self.res_climate_convert = {
+                    "electricity": {
+                        "energy": res_elec_energy_file,
+                        "stock" : res_elec_stock_file
+                    },
+                    "natural gas": {
+                        "energy": res_ng_energy_file,
+                        "stock": res_ng_stock_file
+                    },
+                    "distillate": {
+                        "energy": res_dist_energy_file,
+                        "stock": res_dist_stock_file
+                    },
+                    "other fuel": {
+                        "energy": res_other_energy_file,
+                        "stock": res_other_stock_file
+                    },
+                    "building stock and square footage": {
+                        "homes":
+                            fp.CONVERT_DATA / "geo_map" / "Res_Homes_RowSums.txt",
+                        "square footage":
+                            fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
+                    }
+                self.com_climate_convert = {
+                    "electricity": {
+                        "energy": com_elec_energy_file,
+                        "stock" : com_elec_stock_file
+                    },
+                    "natural gas": {
+                        "energy": com_ng_energy_file,
+                        "stock": com_ng_stock_file
+                    },
+                    "distillate": {
+                        "energy": com_dist_energy_file,
+                        "stock": com_dist_stock_file
+                    },
+                    "other fuel": {
+                        "energy": com_other_energy_file,
+                        "stock": com_other_stock_file
+                    },
+                    # Use electricity splits to apportion no. building/sf data
+                    "building stock and square footage":
+                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
+                    }
+                self.json_out = 'mseg_res_com_emm.json'
 
     def configure_for_cost_performance_lifetime_data(self):
         """Reconfigure cost, performance, and life data to custom region."""
@@ -165,25 +397,35 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
+            self.res_climate_convert = (fp.CONVERT_DATA / "geo_map" /
+                "Res_Cdiv_Czone_ColSums.txt")
+            self.com_climate_convert = (fp.CONVERT_DATA / "geo_map" /
+                "Com_Cdiv_Czone_ColSums.txt")
             # Set output JSON
             self.json_out = 'cpl_res_com_cz.json'
         elif self.geo_break == '2':
             self.res_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_ColSums.txt",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "distillate":   fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "electricity": 
+                    fp.CONVERT_DATA / "geo_map" /"Res_Cdiv_EMM_Elec_ColSums.txt",
+                "natural gas": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "distillate": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "other fuel": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_ColSums.txt"
             }
             self.com_climate_convert = {
-                "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt",
-                "natural gas": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "distillate": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
-                "other fuel": fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "electricity":
+                    fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt",
+                "natural gas": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "distillate": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
+                "other fuel": 
+                    fp.CONVERT_DATA / "geo_map" / "NElec_Cdiv_EMM_ColSums.txt",
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_ColSums.txt"
@@ -205,7 +447,8 @@ class UsefulVars(object):
 
 def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
               com_convert_array, cpl, flag_map_dat, first_cd_flag,
-              cd_to_cz_factor=0, bldg_flag=None, fuel_flag=None, eu_flag=None):
+              cd_to_cz_factor=0, bldg_flag=None, fuel_flag=None, eu_flag=None,
+              tech_flag=None, stock_energy_flag=None, key_list=None):
     """Calculate values to restructure census division data to custom regions.
 
     Two dicts with identical structure, 'base_dict' and 'add_dict' are
@@ -270,9 +513,18 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
         values for the particular census division specified in 'cd'
         converted to the custom region 'cz'.
     """
+    fuel_types = ["electricity", "natural gas", "distillate", "other fuel"]
+    if key_list is None:
+        key_list = []
 
     for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
                                 sorted(add_dict.items())):
+        # If we have reached a level with keys "stock" or "energy", update the flag.
+        if k in ("stock", "energy"):
+            current_stock_energy_flag = k
+        else:
+            current_stock_energy_flag = stock_energy_flag
+            
         # Compare the top level/parent keys of the section of the dict
         # currently being parsed to ensure that both the base_dict
         # (census division basis) and add_dict (custom region basis)
@@ -326,23 +578,39 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             elif (k in ["total homes", "new homes", "total square footage",
                         "new square footage"]):
                 fuel_flag = "building stock and square footage"
+
             # Flag the current end use being updated, which is relevant to
             # ultimate selection of conversion factor from the conversion
             # array when translating electricity stock/energy data to EMM
             # region or state, in which case conversion factors are based on
             # the EULP and are different for different end uses
-            elif (fuel_flag and fuel_flag == "electricity") and (type(
-                cd_to_cz_factor[fuel_flag]) is dict) and any([
-                    k in x for x in [flag_map_dat["res_eus"],
+            elif (fuel_flag and fuel_flag in fuel_types) and \
+                (type(cd_to_cz_factor[fuel_flag]) is dict) and \
+                 any([k in x for x in [flag_map_dat["res_eus"],
                                      flag_map_dat["com_eus"]]]):
+
+                if k == "ventilation":
+                    # Only process "ventilation" if the fuel type is "electricity"
+                    # and the parent end use is "fans and pumps"
+                    if fuel_flag != "electricity" or "fans and pumps" not in key_list:
+                        eu_flag = "misc"  # Skip mapping to EULP data
+                    else:
+                        eu_find = [i[0] for i in flag_map_dat["eulp_map"][fuel_flag].items()
+                                   if k in i[1]]
+                        if len(eu_find) == 1:
+                            eu_flag = eu_find[0]
+                        else:
+                            raise ValueError(
+                                "Could not match Scout end use: " + bldg_flag +
+                                " " + fuel_flag + " " + " " + k + " to EULP data")                
                 # Handle special cases of "other" end use technologies in
                 # Scout, which are sometimes handled at the end-use level in
                 # the EULP data (e.g., washing), and the case of cooking,
                 # which has EULP data for residential but not commercial
-                if k != "other" and (k != "cooking" or (
+                elif k != "other" and (k != "cooking" or (
                         k == "cooking" and bldg_flag == "res")):
                     # Find the EULP end use for the current Scout end use
-                    eu_find = [i[0] for i in flag_map_dat["eulp_map"].items()
+                    eu_find = [i[0] for i in flag_map_dat["eulp_map"][fuel_flag].items()
                                if k in i[1]]
                     # If there was not a unique match, warn user
                     if len(eu_find) == 1:
@@ -353,6 +621,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                             " " + fuel_flag + " " + " " + k + " to EULP data")
                 else:
                     eu_flag = "misc"
+
             # Process end uses/technologies that were not initially matched
             # in the clause above
             elif eu_flag == "misc":
@@ -363,7 +632,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                     # note that technology name will be included in EULP
                     # mapping dict items w/ "other", e.g., "other-[tech name]"
                     eu_find = [
-                        i[0] for i in flag_map_dat["eulp_map"].items() if any([
+                        i[0] for i in flag_map_dat["eulp_map"][fuel_flag].items() if any([
                             k in x for x in i[1]])]
                     # If there was not a unique match, warn user
                     if len(eu_find) == 1:
@@ -376,13 +645,20 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 # All other cases without unique EULP end-use profiles are
                 # assigned to the plug loads profile
                 else:
-                    eu_flag = "plug loads"
+                    eu_flag = "misc"
 
             # Recursively loop through both dicts
             if isinstance(i, dict):
+                # Set tech_flag if an end use has been determined,
+                # and we are not in the 'supply' or 'demand' level.
+                if eu_flag is not None and k not in [
+                    "supply", "demand"] and tech_flag is None:
+                    tech_flag = k
                 merge_sum(i, i2, cd_num, reg_name, res_convert_array,
                           com_convert_array, cpl, flag_map_dat, first_cd_flag,
-                          cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag)
+                          cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag,
+                          tech_flag, stock_energy_flag=current_stock_energy_flag,
+                          key_list=key_list + [k])
             elif type(base_dict[k]) is not str:
                 # Check whether the conversion array needs to be further keyed
                 # by fuel type and (for electricity) by end use, as is the case
@@ -390,16 +666,18 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 # to disaggregate to those regions; in such cases, the fuel
                 # and end use flags indicate the key values for pulling
                 # appropriate data
+
                 if type(cd_to_cz_factor) is dict:
                     # For electricity case, data will be further broken
                     # out by end use via EULP
-                    if (fuel_flag and fuel_flag == "electricity") and eu_flag:
+                    if (fuel_flag and fuel_flag in fuel_types) and eu_flag:
+
                         # Ensure that data for the current end use can be
                         # pulled and that data converted from pandas df
                         # are in format that is JSON serializable
                         try:
                             convert_fact = float(cd_to_cz_factor[fuel_flag][
-                                eu_flag][cd_num][reg_name])
+                                current_stock_energy_flag][eu_flag][cd_num][reg_name])
                         except IndexError:
                             raise ValueError(
                                 "End use: " + bldg_flag + " " + fuel_flag +
@@ -410,7 +688,8 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                         # conversion data are further distinguished by whether
                         # they apply to number of homes or square footage
                         try:
-                            convert_fact = cd_to_cz_factor[fuel_flag][cd_num][reg_name]
+                            convert_fact = cd_to_cz_factor[
+                                           fuel_flag][cd_num][reg_name]
                         except KeyError:
                             try:
                                 convert_fact = cd_to_cz_factor[fuel_flag][
@@ -541,7 +820,7 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
             base_dict = merge_sum(base_dict, add_dict, cdiv_ind,
                                   reg_name, res_convert_array,
                                   com_convert_array, cpl_bool, flag_map_dat,
-                                  first_cd_flag)
+                                  first_cd_flag, key_list=[])
 
         # Once fully updated with the data from all census divisions,
         # write the resulting data to a new variable and update the
@@ -1363,7 +1642,8 @@ def main():
     # stages of input: one determining whether stock and energy data or cost/
     # performance/lifetime data are to be converted, and another determining
     # the regional breakdown to use in converting the data
-    input_var = [0, 0]
+    input_var = [0, 0, 0, 0]
+
     # Determine the type of data (stock/energy (1) or cost/perf/life (2))
     while input_var[0] not in ['1', '2']:
         input_var[0] = input(
@@ -1378,8 +1658,8 @@ def main():
     if input_var[0] == '1':
         while input_var[1] not in ['1', '2', '3']:
             input_var[1] = input(
-                "Enter 1 to use an AIA climate zone geographical" +
-                " breakdown,\n 2 to use an EIA Electricity Market Module "
+                "\nEnter 1 to use an AIA climate zone geographical " +
+                "breakdown,\n 2 to use an EIA Electricity Market Module "
                 "geographical breakdown,\n or 3 to use a state geographical "
                 "breakdown: ")
             if input_var[1] not in ['1', '2', '3']:
@@ -1389,16 +1669,36 @@ def main():
     elif input_var[0] == '2':
         while input_var[1] not in ['1', '2', '3']:
             input_var[1] = input(
-                "Enter 1 to use an AIA climate zone geographical" +
-                " breakdown,\n 2 to use an EIA Electricity Market Module "
+                "\nEnter 1 to use an AIA climate zone geographical " +
+                "breakdown,\n 2 to use an EIA Electricity Market Module "
                 "geographical breakdown,\n or 3 to use a state geographical "
                 "breakdown: ")
             if input_var[1] not in ['1', '2', '3']:
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
 
+    if input_var[0] == '1' and  input_var[1] in ['2','3']:
+        while input_var[2] not in ['1', '2']:
+            input_var[2] = input(
+                "\nEnter 1 to use Electricity-only, 2 to use All-fuel-type " +
+                "disaggregation method \n(Note: All-fuel-type " +
+                "only applies to End-use level only: ")
+            if input_var[2] not in ['1', '2']:
+                print('Please try again. Enter either 1, 2'
+                      'Use ctrl-c to exit.')
+
+    if input_var[0] == '1' and  input_var[1] in ['2','3'] and \
+        input_var[2] == '1':
+        while input_var[3] not in ['1', '2']:
+            input_var[3] = input(
+                "\nEnter 1 to use Tech-level, 2 to use End-use-level " +
+                "disaggregation method: ")
+            if input_var[3] not in ['1', '2']:
+                print('Please try again. Enter either 1, 2'
+                      'Use ctrl-c to exit.')
+
     # Instantiate object that contains useful variables
-    handyvars = UsefulVars(input_var[1])
+    handyvars = UsefulVars(input_var[1], input_var[2], input_var[3])
 
     # Based on the first input from the user to indicate what type of data are
     # being processed, assign the object values for its four attributes
@@ -1445,23 +1745,48 @@ def main():
         # Data needed to map between Scout end uses and end use
         # definitions in the EULP data
         "eulp_map": {
-            "heating": ["heating", "secondary heating"],
-            "cooling": ["cooling"],
-            "water heating": ["water heating"],
-            "cooking": ["cooking"],
-            "drying": ["drying"],
-            "clothes washing": ["other-clothes washing"],
-            "dishwasher": ["other-dishwasher"],
-            "lighting": ["lighting"],
-            "refrigeration": ["refrigeration", "other-freezers"],
-            "ceiling fan": ["ceiling fan"],
-            "plug loads": ["TVs", "computers", "MELs", "PCs",
-                           "non-PC office equipment", "unspecified",
-                           "other"],
-            "pool heaters": ["other-pool heaters"],
-            "pool pumps": ["other-pool pumps"],
-            "portable electric spas": ["other-spas"],
-            "fans and pumps": ["ventilation", "fans and pumps"]},
+            "electricity": {
+                "heating": ["heating", "secondary heating"],
+                "cooling": ["cooling"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "clothes washing": ["other-clothes washing"],
+                "dishwasher": ["other-dishwasher"],
+                "lighting": ["lighting"],
+                "refrigeration": ["refrigeration", "other-freezers"],
+                "ceiling fan": ["ceiling fan"],
+                "misc": ["TVs", "computers", "MELs", "PCs",
+                    "non-PC office equipment", "unspecified", "other"],
+                "pool heaters": ["other-pool heaters"],
+                "pool pumps": ["other-pool pumps"],
+                "portable electric spas": ["other-spas"],
+                "fans and pumps": ["ventilation", "fans and pumps"]
+            },
+            "natural gas": {
+                "heating": ["heating", "secondary heating"],
+                "cooling": ["cooling"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "misc": ["other", "unspecified"],
+                "lighting": ["lighting"],
+                "pool heaters": ["other-pool heaters"],
+                "portable electric spas": ["other-spas"]
+            },
+            "distillate": {
+                "heating": ["heating", "secondary heating"],
+                "water heating": ["water heating"],
+                "misc": ["other", "unspecified"]
+            },
+            "other fuel": {
+                "heating": ["heating", "secondary heating"],
+                "water heating": ["water heating"],
+                "cooking": ["cooking"],
+                "drying": ["drying"],
+                "misc": ["unspecified"]
+            }
+        },
         # Flag Scout technologies that are handled as end uses in the
         # EULP data
         "eulp_other_tech": [
@@ -1485,82 +1810,178 @@ def main():
         com_cd_cz_conv = np.genfromtxt(
             handyvars.com_climate_convert, names=True,
             delimiter='\t', dtype="float64")
+
     # Settings for EMM or state regions and stock/energy data
-    elif input_var[1] in ['2', '3'] and input_var[0] == '1':
-        # Set expected names for regional selection
-        if input_var[1] == '2':  # EMM
-            reg_list = emm_list
-        else:
-            reg_list = states_list
+    elif input_var[0] == '1' and input_var[1] in ['2', '3']:
+        if input_var[2] == '1':
+            # To process electricity only disaggregation method that is applied
+            # to either tech-level or end-use-level disaggregation
+            # Set expected names for regional selection
+            if input_var[1] == '2':  # EMM
+                reg_list = emm_list
+            else:
+                reg_list = states_list
 
-        # Import CSV data with the fractions of end-use electricity in
-        # each CDIV that is attributable to each EMM or state, based on
-        # EULP data
-        res_elec_disag_dat = pd.read_csv(
-            handyvars.res_climate_convert["electricity"], index_col=False)
-        com_elec_disag_dat = pd.read_csv(
-            handyvars.com_climate_convert["electricity"], index_col=False)
-        # Initialize dicts for storing conversion data keyed by end use
-        # from the input CSVs/arrays
-        res_convert_byeu_dict = {}
-        com_convert_byeu_dict = {}
-        # Store data for each end use in the input CSVs in dicts; convert
-        # the data from pandas dfs to record arrays for subsequent use
-        for k in flag_map_dat["eulp_map"].keys():
-            res_convert_byeu_dict[k] = res_elec_disag_dat[
-                (res_elec_disag_dat["End use"] == k)].to_records(
-                index=False)
-            com_convert_byeu_dict[k] = com_elec_disag_dat[
-                (com_elec_disag_dat["End use"] == k)].to_records(
-                index=False)
+            # Import CSV data with the fractions of end-use electricity in
+            # each CDIV that is attributable to each EMM or state, based on
+            # EULP data
+            # Now we import two separate files: one for "stock" and one for "energy".
+            res_elec_disag_dat = {}
+            com_elec_disag_dat = {}
+            for disagg_type in ["stock", "energy"]:
+                res_elec_disag_dat[disagg_type] = pd.read_csv(
+                    handyvars.res_climate_convert["electricity"][disagg_type],
+                    index_col=False)
+                com_elec_disag_dat[disagg_type] = pd.read_csv(
+                    handyvars.com_climate_convert["electricity"][disagg_type],
+                    index_col=False)
+            # Initialize dicts for storing conversion data keyed by end use,
+            # separately for stock and energy.
+            res_convert_byeu_dict = {"stock": {}, "energy": {}}
+            com_convert_byeu_dict = {"stock": {}, "energy": {}}
+            # For each disaggregation type and for each end use 
+            # (as defined in flag_map_dat["eulp_map"]), convert the corresponding
+            # pandas dataframe into a record array.
+            for disagg_type in ["stock", "energy"]:
+                for k in flag_map_dat["eulp_map"]['electricity'].keys():
+                    res_convert_byeu_dict[disagg_type][k] = res_elec_disag_dat[
+                        disagg_type][res_elec_disag_dat[disagg_type]["End use"
+                        ] == k].to_records(index=False)
+                    com_convert_byeu_dict[disagg_type][k] = com_elec_disag_dat[
+                        disagg_type][com_elec_disag_dat[disagg_type]["End use"
+                        ] == k].to_records(index=False)
 
-        # Set up final residential and commercial conversion data by fuel.
-        # For electricity, used data prepared above. For other fuels,
-        # import data from input files directly into this dict.
-        res_cd_cz_conv = {
-            "electricity": res_convert_byeu_dict,
-            "natural gas": np.genfromtxt(
-                handyvars.res_climate_convert["natural gas"], names=True,
-                delimiter='\t', dtype="float64"),
-            "distillate": np.genfromtxt(
-                handyvars.res_climate_convert["distillate"], names=True,
-                delimiter='\t', dtype="float64"),
-            "other fuel": np.genfromtxt(
-                handyvars.res_climate_convert["other fuel"], names=True,
-                delimiter='\t', dtype="float64")}
-        # Handle case where building stock and square footage conversion data
-        # are read in from two different conversion files (state-level
-        # breakouts) or from just one conversion file (EMM breakouts)
-        try:
-            res_cd_cz_conv["building stock and square footage"] = {
-                "homes": np.genfromtxt(handyvars.res_climate_convert[
-                    "building stock and square footage"]["homes"],
-                    names=True, delimiter='\t', dtype="float64"),
-                "square footage": np.genfromtxt(handyvars.res_climate_convert[
-                    "building stock and square footage"]["square footage"],
-                    names=True, delimiter='\t', dtype="float64")}
-        except TypeError:
-            res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
-                handyvars.res_climate_convert["building stock and square footage"],
-                names=True, delimiter='\t', dtype="float64")
-        com_cd_cz_conv = {
-            "electricity": com_convert_byeu_dict,
-            "natural gas": np.genfromtxt(
-                handyvars.com_climate_convert["natural gas"], names=True,
-                delimiter='\t', dtype="float64"),
-            "distillate": np.genfromtxt(
-                handyvars.com_climate_convert["distillate"], names=True,
-                delimiter='\t', dtype="float64"),
-            "other fuel": np.genfromtxt(
-                handyvars.com_climate_convert["other fuel"], names=True,
-                delimiter='\t', dtype="float64"),
-            "building stock and square footage": np.genfromtxt(
-                handyvars.com_climate_convert[
-                    "building stock and square footage"], names=True,
-                delimiter='\t', dtype="float64")}
+
+            # Set up final residential and commercial conversion data by fuel.
+            # For electricity, used data prepared above. For other fuels,
+            # import data from input files directly into this dict.
+            res_cd_cz_conv = {
+                "electricity": res_convert_byeu_dict,
+                "natural gas": np.genfromtxt(
+                    handyvars.res_climate_convert["natural gas"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "distillate": np.genfromtxt(
+                    handyvars.res_climate_convert["distillate"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "other fuel": np.genfromtxt(
+                    handyvars.res_climate_convert["other fuel"], names=True,
+                    delimiter='\t', dtype="float64")}
+            # Handle case where building stock and square footage conversion data
+            # are read in from two different conversion files (state-level
+            # breakouts) or from just one conversion file (EMM breakouts)
+            try:
+                res_cd_cz_conv["building stock and square footage"] = {
+                    "homes": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["homes"],
+                        names=True, delimiter='\t', dtype="float64"),
+                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["square footage"],
+                        names=True, delimiter='\t', dtype="float64")}
+            except TypeError:
+                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                    handyvars.res_climate_convert["building stock and square footage"],
+                    names=True, delimiter='\t', dtype="float64")
+            com_cd_cz_conv = {
+                "electricity": com_convert_byeu_dict,
+                "natural gas": np.genfromtxt(
+                    handyvars.com_climate_convert["natural gas"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "distillate": np.genfromtxt(
+                    handyvars.com_climate_convert["distillate"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "other fuel": np.genfromtxt(
+                    handyvars.com_climate_convert["other fuel"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.com_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")}
+        elif input_var[2] == '2':
+            # To process electricity only disaggregation method that is applied
+            # to either tech-level or end-use-level disaggregation
+            # Set expected names for regional selection
+            if input_var[1] == '2':  # EMM
+                reg_list = emm_list
+            else:
+                reg_list = states_list
+            fuel_types = ["electricity", "natural gas", "distillate", "other fuel"]
+
+            # Import CSV data with the fractions of end-use electricity in
+            # each CDIV that is attributable to each EMM or state, based on
+            # EULP data
+            # Now we import two separate files: one for "stock" and one for "energy".
+
+            res_disag_dat = {fuel: {} for fuel in fuel_types}
+            com_disag_dat = {fuel: {} for fuel in fuel_types}
+            for fuel in fuel_types:
+                for disagg_type in ["stock", "energy"]:
+                    res_disag_dat[fuel][disagg_type] = pd.read_csv(
+                        handyvars.res_climate_convert[fuel][disagg_type],
+                        index_col=False)
+                    com_disag_dat[fuel][disagg_type] = pd.read_csv(
+                        handyvars.com_climate_convert[fuel][disagg_type],
+                        index_col=False)
+            # Initialize dicts for storing conversion data keyed by end use,
+            # separately for stock and energy.
+            res_convert_byeu_dict = {
+                fuel: {"stock": {}, "energy": {}} for fuel in fuel_types}
+            com_convert_byeu_dict = {
+                fuel: {"stock": {}, "energy": {}} for fuel in fuel_types}
+            # For each disaggregation type and for each end use
+            # (as defined in flag_map_dat["eulp_map"]), convert the corresponding 
+            # pandas dataframe into a record array.
+            for fuel in fuel_types:
+                for disagg_type in ["stock", "energy"]:
+                    for k in flag_map_dat["eulp_map"][fuel].keys():
+                        res_convert_byeu_dict[fuel][disagg_type][k] = (
+                            res_disag_dat[fuel][disagg_type][res_disag_dat[
+                            fuel][disagg_type]["End use"] == k
+                            ].to_records(index=False))
+                        com_convert_byeu_dict[fuel][disagg_type][k] = (
+                            com_disag_dat[fuel][disagg_type][com_disag_dat[
+                            fuel][disagg_type]["End use"] == k
+                            ].to_records(index=False))
+
+            # Set up final residential and commercial conversion data by fuel.
+            # For electricity, used data prepared above. For other fuels,
+            # import data from input files directly into this dict.
+            res_cd_cz_conv = {
+                "electricity": res_convert_byeu_dict["electricity"],
+                "natural gas": res_convert_byeu_dict["natural gas"],
+                "distillate": res_convert_byeu_dict["distillate"],
+                "other fuel": res_convert_byeu_dict["other fuel"]
+            }
+
+            # Handle case where building stock and square footage conversion data
+            # are read in from two different conversion files (state-level
+            # breakouts) or from just one conversion file (EMM breakouts)
+            try:
+                res_cd_cz_conv["building stock and square footage"] = {
+                    "homes": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["homes"],
+                        names=True, delimiter='\t', dtype="float64"),
+                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["square footage"],
+                        names=True, delimiter='\t', dtype="float64")}
+            except TypeError:
+                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                    handyvars.res_climate_convert["building stock and square footage"],
+                    names=True, delimiter='\t', dtype="float64")
+
+            com_cd_cz_conv = {
+                "electricity": com_convert_byeu_dict["electricity"],
+                "natural gas": com_convert_byeu_dict["natural gas"],
+                "distillate": com_convert_byeu_dict["distillate"],
+                "other fuel": com_convert_byeu_dict["other fuel"],
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.com_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")
+            }
+
     # Settings for EMM regions and CPL data; note that no conversion data is
     # needed for state regions and CPL data, which are left w/ CDIV resolution
-    elif input_var[1] == '2' and input_var[0] == '2':
+    elif input_var[0] == '2' and input_var[1] == '2':
         # Set expected names for regional selection
         reg_list = emm_list
         # Set up final residential and commercial conversion data by fuel.
