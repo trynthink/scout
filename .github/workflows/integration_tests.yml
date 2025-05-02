@@ -37,6 +37,11 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.label }}
     timeout-minutes: 600
     steps:
+      - name: Install latest Git version
+        run: |
+          sudo apt-add-repository ppa:git-core/ppa -y
+          sudo apt-get update
+          sudo apt-get install -y git
       - name: Determine branch ref
         id: branch_ref
         run: |
