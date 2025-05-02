@@ -2642,7 +2642,7 @@ class Measure(object):
             self.tech_switch_to not in [
                 None, "NA", "same"] and "HP" in self.tech_switch_to)
         # Reset flag for whether to consider panel upgrade needs in cases where
-        # measures do not apply to existing single family homes and gas furnaces
+        # measures do not apply to heating in existing single family homes
         if self.handyvars.panel_shares is not None and not all([(
                 (x in y) or ("all" in y)) for x, y in zip(
             ["heating", "single family home", "existing"],
@@ -3418,28 +3418,42 @@ class Measure(object):
                         "are included in the following list: " +
                         str(add_cool_anchor_tech_list))
 
-            # Given no error after the calculations above, reset the iterable
-            # that determines how measure msegs are looped through to ensure
-            # that msegs with the the anchor end use and technology for linked
-            # heating/cooling turnover and switching calculations are always
-            # looped through first (so linked turnover data will already be
-            # available for heating/cooling msegs that do not serve as anchor)
+        # If needed, append additional msegs to enable sub-segmentation of heating technology and
+        # any linked segments (e.g., secondary heating, cooling) in existing single family homes to
+        # consider panel upgrade needs. When mseg technology is an anchor for linking heating w/
+        # other microsegments, register variants on the technology name that are added
+        # by this function to tag alternate panel upgrade requirements (e.g., no panel, management)
+        if self.handyvars.panel_shares is not None:
+            ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_panel_msegs(
+                ms_iterable, self.handyvars.htcl_anchor_tech_opts[
+                    bldg_sect][self.linked_htcl_tover_anchor_eu])
+        else:
+            linked_htcl_tover_anchor_tech_alts = []
 
+        # If there is linked stock turnover and no error after the calculations above, reset the
+        # iterable that determines how measure msegs are looped through to ensure that msegs with
+        # the anchor end use and technology for linked heating/cooling turnover and switching
+        # calculations are always looped through first (so linked turnover data will already be
+        # available for heating/cooling msegs that do not serve as anchor)
+        if self.linked_htcl_tover:
             # Register initial length of ms_iterable for check
             iter_len_check = len(ms_iterable)
-            # Set end use and technology anchor names
-            first_eu_tech = [self.linked_htcl_tover_anchor_eu,
-                             self.linked_htcl_tover_anchor_tech]
+            # Set anchor tech + any variants of the tech name to indicate different panel upgrade
+            # requirements)
+            anchor_tech_w_alts = [self.linked_htcl_tover_anchor_tech] + \
+                linked_htcl_tover_anchor_tech_alts
             # Find subset of iterable with msegs that apply to the anchor
             # end use and technology
-            ms_iterable_first = [x for x in ms_iterable if all([
-                y in x for y in first_eu_tech])]
+            ms_iterable_comes_first = [
+                x for x in ms_iterable if self.linked_htcl_tover_anchor_eu in x and any([
+                    y in x for y in anchor_tech_w_alts])]
             # Find subset of iterable with msegs that do not apply to the
             # anchor end use and technology
-            ms_iterable_second = [x for x in ms_iterable if any([
-                y not in x for y in first_eu_tech])]
+            ms_iterable_comes_last = [
+                x for x in ms_iterable if self.linked_htcl_tover_anchor_eu not in x or all([
+                    y not in x for y in anchor_tech_w_alts])]
             # Recombined two subsets above into updated iterable to loop
-            ms_iterable = ms_iterable_first + ms_iterable_second
+            ms_iterable = ms_iterable_comes_first + ms_iterable_comes_last
             # Ensure that resorted iterable is of same length as original
             if len(ms_iterable) != iter_len_check:
                 raise ValueError(
@@ -3447,11 +3461,6 @@ class Measure(object):
                     "' changed after resorting list to ensure proper "
                     "linking of heating/cooling stock turnover and switching "
                     "calculations")
-
-        # If needed, append additional msegs to enable sub-segmentation of the
-        # gas furnace technology in existing single family homes to consider panel upgrade needs
-        if self.handyvars.panel_shares is not None:
-            ms_iterable = self.append_panel_msegs(ms_iterable)
 
         # If needed, fill out any secondary microsegment fuel type, end use,
         # and/or technology input attributes marked 'all' by users. Determine
@@ -6058,14 +6067,15 @@ class Measure(object):
                     new_existing_frac = {key: (1 - val) for key, val in
                                          new_constr["new fraction"].items()}
 
-                # If applicable, pull in information needed to sub-segment gas furnace segments in
-                # existing single family homes into those homes that would require a panel upgrade;
-                # would not require one; or could avoid one with management. Note that these
-                # sub-segments are prepared even for gas measures that do not involve fuel
-                # switching to ensure apples-to-apples competition of segments between gas and
-                # electric fuel switching measures later on
-                if self.handyvars.panel_shares is not None and all([y in mskeys for y in [
-                        "heating", "single family home", "existing"]]):
+                # If applicable, pull in information needed to sub-segment heating and linked
+                # cooling and/or secondary heating segments in existing single family homes into
+                # those homes that would require a panel upgrade; would not require one; or could
+                # avoid one with management. Note that these sub-segments are prepared even for gas
+                # measures that do not involve fuel switching to ensure apples-to-apples competition
+                # of segments between gas and electric fuel switching measures later on
+                if self.handyvars.panel_shares is not None and all([
+                        y in mskeys for y in ["single family home", "existing"]]) and any([
+                        y in mskeys for y in ["heating", "secondary heating", "cooling"]]):
                     # Handle both CDIV-resolved and state-resolved panel share regionality in shares
                     if mskeys[1] in self.handyvars.panel_shares.keys():
                         reg_shr = mskeys[1]
@@ -6074,7 +6084,24 @@ class Measure(object):
                                    mskeys[1] in x[1]][0]
                     # Set the fuel type name to pull for the share
                     if any([x in mskeys for x in ["electricity", "natural gas", "distillate"]]):
-                        fuel_shr = mskeys[3]
+                        # For linked segments, pull fuel type for linked to segment
+                        if (mskeys[4] != self.linked_htcl_tover_anchor_eu) and \
+                                self.linked_htcl_tover_anchor_tech:
+                            # Segment is linked to gas heating tech.; pull gas fuel
+                            if any([x in self.linked_htcl_tover_anchor_tech for x in [
+                                    "NG", "gas", "natural gas"]]):
+                                fuel_shr = "natural gas"
+                            # Segment is linked to non-electric heating tech. other than gas;
+                            # pull first non-electric fuel in measure definition
+                            elif any([x != "electricity" for x in self.fuel_type]):
+                                fuel_shr = [x for x in self.fuel_type if x != "electricity"][0]
+                            # Segment is linked to electric heating tech.
+                            else:
+                                fuel_shr = "electricity"
+                        # For segments without linkages to other segments, fuel type is same as
+                        # that in the segment
+                        else:
+                            fuel_shr = mskeys[3]
                     elif "other fuel" in mskeys:
                         # Biomass
                         if "wood" in mskeys[-2]:
@@ -6090,8 +6117,7 @@ class Measure(object):
                             "Unexpected fuel type in contributing microsegment "
                             + str(mskeys) + " for measure '" + self.name + "'")
 
-                    # Pull stock/energy panel share fractions (***currently only one set based
-                    # on housing counts***)
+                    # Pull stock/energy panel share fractions
                     if "no panel" in mskeys[-2]:  # Sub-segment for homes not requiring upgrade
                         # Adjustment fractions (out of 1) to apply to original mseg stock and
                         # energy data to represent panel upgrade sub-segment
@@ -9152,13 +9178,28 @@ class Measure(object):
         # Handle case where turnover/switching calculations for the current
         # primary mseg are flagged as being linked to those of another mseg
         elif self.linked_htcl_tover:
-            # Determine whether currently looped through mseg tech. serves as
-            # anchor tech for linked turnover/switching calcs. across measure
-            linked_htcl_tover_anchor_tech = (
-                self.linked_htcl_tover_anchor_tech == mskeys[-2])
+            # Determine whether currently looped through mseg tech. serves as anchor tech for
+            # linked turnover/switching calcs. across measure. Account for cases where info. about
+            # need to upgrade electrical panel is appended to the technology information
+            if any([x in mskeys[-2] for x in ["-no panel", "-manage"]]):
+                # Pull out appended tech information to indicate alternate panel upgrade outcome
+                append_tech = mskeys[-2].split("-")[-1]
+                # Make determination of whether current mseg tech is the anchor tech
+                linked_htcl_tover_anchor_tech = (
+                    (self.linked_htcl_tover_anchor_tech + "-" + append_tech) == mskeys[-2])
+            else:
+                # No appended tech information is applicable
+                append_tech = None
+                # Make determination of whether current mseg tech is the anchor tech
+                linked_htcl_tover_anchor_tech = (self.linked_htcl_tover_anchor_tech == mskeys[-2])
+
             # Determine the region, building type, and structure type that is
-            # shared by the linked heating and cooling microsegments
-            htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
+            # shared by the linked heating and cooling microsegments; when additional tech. info.
+            # is appended to indicate alternate panel upgrade outcomes, add this info.
+            if append_tech:
+                htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1], append_tech))
+            else:
+                htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
             # Set shorthands for pulling linked turnover data from
             # measure market information
             total_htcl_lnk, total_htcl_lnk_adj, compete_htcl_lnk, \
@@ -11732,20 +11773,26 @@ class Measure(object):
 
         return cost_meas, elec_infr_flag
 
-    def append_panel_msegs(self, ms_iterable):
+    def append_panel_msegs(self, ms_iterable, anchor_techs):
         """Subset gas furnace msegs into panel/no panel/mgmt groups, append to original mseg list.
 
         Args:
             ms_iterable: Original list of msegs the measure applies to.
+            anchor_techs: List of potential anchor techs to use in linking mseg calculations.
 
         Returns:
             Updated list of msegs the measure applies to that reflects the three subsets of
-            gas furnace msegs (panel/no panel/mgmt).
+            gas furnace msegs (panel/no panel/mgmt). Also, a list of alternate mseg tech names with
+            appended info. that suggests alternate panel outcome for that mseg (no panel/mgmt.)
         """
-
-        # Find applicable gas furnace segments for the measure
+        # Initialize list of alternate names for the anchor tech that tag various panel upgrade
+        # contexts (no panel, management)
+        anchor_tech_alts = []
+        # Find applicable heating equipment segments and linked secondary heating and cooling
+        # segments for the measure
         segs_to_subset = [list(x) for x in ms_iterable if (all([
-            y in x for y in ["heating", "single family home", "existing"]]))]
+            y in x for y in ["single family home", "existing"]]) and
+            any([y in x for y in ["heating", "secondary heating", "cooling"]]))]
         # Append copies of gas segments to represent cases where a) no panel upgrade would
         # be required under electrification or b) panel upgrade could be avoided via
         # load management strategies (the original segments represent the default case, where
@@ -11753,17 +11800,27 @@ class Measure(object):
         if len(segs_to_subset) > 0:
             # Initialize lists of segments with no panel/management outcomes to append to
             # segments with panel upgrade requirements
-            exist_segs_to_subset_no_panel, exist_segs_to_subset_mgmt = (
+            segs_to_subset_no_panel, segs_to_subset_mgmt = (
                 copy.deepcopy(segs_to_subset) for n in range(2))
-            # Update technology name in the segments to append relevant
-            # information about the alternate to panel upgrade case
-            for i_np, i_mgmt in zip(exist_segs_to_subset_no_panel, exist_segs_to_subset_mgmt):
+            # Update technology name in the segments to append relevant information about the
+            # alternate to panel upgrade case
+            for i_orig, i_np, i_mgmt in zip(
+                    segs_to_subset, segs_to_subset_no_panel, segs_to_subset_mgmt):
+                # Alternate that doesn't require a panel upgrade
                 i_np[-2] += "-no panel"
+                # Alternate that doesn't require a panel upgrade given added load management
                 i_mgmt[-2] += "-manage"
+                # If the original technology name is in the list of anchor techs, record the
+                # modified versions of the anchor tech name that tag alternate panel upgrade
+                # outcomes (no panel, management) for later use
+                if i_orig[-2] in anchor_techs:
+                    anchor_tech_alts += [i_np[-2], i_mgmt[-2]]
             # Append the no panel upgrade or panel management segments for gas furnaces
-            ms_iterable = ms_iterable + exist_segs_to_subset_no_panel + exist_segs_to_subset_mgmt
+            ms_iterable = ms_iterable + segs_to_subset_no_panel + segs_to_subset_mgmt
+        # Remove any duplicate anchor tech name alternates
+        anchor_tech_alts = numpy.unique(anchor_tech_alts)
 
-        return ms_iterable
+        return ms_iterable, anchor_tech_alts
 
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate/building/structure type.
