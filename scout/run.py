@@ -1757,8 +1757,8 @@ class Engine(object):
         mkt_fracs = [{} for meas in range(0, len(measures_adj))]
         mkt_fracs_tot = dict.fromkeys(self.handyvars.aeo_years, 0)
 
-        # Find mseg key to use in pulling stock and stock cost data (in some cases, like cooling
-        # msegs for heat pump tech, stock cost and stock turnover information for the current
+        # Find mseg key to use in pulling stock and cost data (in some cases, like cooling
+        # msegs for heat pump tech,stock turnover and cost information for the current
         # msegs should be linked to another microsegment – heating msegs, in the HP case)
         stk_cost_dat_keys = [self.find_join_keys(m, mseg_key) for m in measures_adj]
 
@@ -1777,12 +1777,7 @@ class Engine(object):
             unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
                 "residential"] for m in measures_adj]
         else:
-            # Shorthand for mseg-specific energy cost data
-            markets_uc_ecost = [
-                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                    "contributing mseg keys and values"][mseg_key]["cost"]["energy"]["competed"][
-                    "efficient"] for m_ind, m in enumerate(measures_adj)]
-            # Shorthand for mseg-specific stock/stock cost data
+            # Shorthand for mseg-specific stock/cost data
             try:
                 markets_uc_stk = [
                     m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
@@ -1812,7 +1807,8 @@ class Engine(object):
                 for m_ind, m in enumerate(measures_adj)]
             # Unit annual operating cost dictionary (calculated for current mseg only)
             unit_cost_e_in = [{
-                yr: (markets_uc_ecost[m_ind][yr] / n_units[m_ind][yr]) *
+                yr: (markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr] /
+                     n_units[m_ind][yr]) *
                 self.handyvars.cost_convert["energy"]
                 if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
                 for m_ind, m in enumerate(measures_adj)]
@@ -1997,11 +1993,6 @@ class Engine(object):
             # rate bins; flag for handling below
             op_cost_rate_bins = True
         else:
-            # Shorthand for mseg-specific energy cost data
-            markets_uc_ecost = [
-                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                    "contributing mseg keys and values"][mseg_key]["cost"]["energy"]["competed"][
-                    "efficient"] for m_ind, m in enumerate(measures_adj)]
             # Shorthand for mseg-specific stock/stock cost data
             try:
                 markets_uc_stk = [
@@ -2052,7 +2043,8 @@ class Engine(object):
                                 (unit_cost_s_in_unadj[m_ind][yr] / life_meas[m_ind])
             # Unit annual operating cost dictionary (calculated for current mseg only)
             unit_cost_e_in = [{
-                yr: (markets_uc_ecost[m_ind][yr] / n_units[m_ind][yr]) *
+                yr: (markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr] /
+                     n_units[m_ind][yr]) *
                 self.handyvars.cost_convert["energy"]
                 if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
                 for m_ind, m in enumerate(measures_adj)]

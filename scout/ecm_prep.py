@@ -6719,7 +6719,8 @@ class Measure(object):
                     # measures that apply to heating or cooling and other end use segments, transfer
                     # any costs from linked segments over to the anchor end use segments
                     # (by default this is the heating end use segments).
-                    if (not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
+                    if adopt_scheme == "Technical potential" and (
+                            not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
                             (self.linked_htcl_tover and
                                 mskeys[4] != self.linked_htcl_tover_anchor_eu)):
                         # Find the specific contributing microsegment data for the anchor end use
@@ -6776,7 +6777,16 @@ class Measure(object):
                                 zip(ecarb_cases, stk_cases,
                                     [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts])
                                 } for output in outputs} for cost_key in cost_keys}
-
+                            # Zero out the segments for which cost data were transferred to avoid
+                            # double counting
+                            for var in ["stock", "energy", "carbon"]:
+                                add_to_dict["cost"][var] = {
+                                    "total": {
+                                        "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
+                                        "efficient": {yr: 0 for yr in self.handyvars.aeo_years}},
+                                    "competed": {
+                                        "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
+                                        "efficient": {yr: 0 for yr in self.handyvars.aeo_years}}}
                     # Remove minor HVAC equipment stocks in cases where major HVAC tech. is also
                     # covered by the measure definition, as well as double counted stock and stock
                     # cost for equipment measures that apply to more than one end use that includes
@@ -6810,7 +6820,7 @@ class Measure(object):
                         # in the case of HPs where the full stock cost for HPs is already counted in
                         # the anchor end use, or in the case of minor HVAC techs that should be
                         # excluded from the cost calculations
-                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or\
+                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or \
                                 rmv_hp_dblct_meas_stkcosts:
                             add_dict["cost"]["stock"]["total"]["efficient"], \
                                 add_dict["cost"]["stock"]["competed"]["efficient"] = ({
