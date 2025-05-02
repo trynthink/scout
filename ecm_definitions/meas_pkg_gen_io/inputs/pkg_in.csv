@@ -1,4 +1,6 @@
 ﻿Category,Scenario(s),Name,Measures in Package,Additional Energy Savings,Energy Savings Source Notes,Energy Savings Source Details,Additional Cost Reductions,Cost Reductions Source Notes,Cost Reductions Source Details,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.,"(R) Ref. Case NG Furnace & AC
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
 Residential,"Mid, High, Breakthrough",(R) ES HP Pt. FS (Oth. Fs. Frn.) & Env.,"(R) ESTAR HP Pt. FS (Other Fossil Furnace)
 (R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
 Residential,"Mid, High, Breakthrough",(R) ES HP Pt. FS (NG Frn.) & Env.,"(R) ESTAR HP Pt. FS (NG Furnace)
@@ -17,6 +19,18 @@ Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, Oth. Fs. Ht.) & Env.","
 (C) 90.1-2022 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
 Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, NG Ht.) & Env.","(C) ESTAR HP FS (RTU, NG Heat)
 (C) 90.1-2022 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.+,"(R) Ref. Case NG Furnace & AC
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP Pt. FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP Pt. FS (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP Pt. FS (NG Frn.) & Env.+,"(R) Best HP Pt. FS (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
 Residential,"Mid, High, Breakthrough",(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP FS (Other Fossil Furnace)
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
@@ -42,6 +56,11 @@ Commercial,"Mid, High, Breakthrough","(C) Bst. HP FS (RTU, NG Ht.) & Env.+","(C)
 Commercial,"Mid, High, Breakthrough",(C) Bst. HP FS (NG Boiler) & Env.+,"(C) Best HP FS (NG Boiler)
 (C) 90.1-2022 Walls & Air Sealing
 (C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.+,"(R) Ref. Case NG Furnace & AC
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
 Residential,Breakthrough,(R) Brk. HP FS (Oth. Fs. Frn.) & Env.++,"(R) Brk. HP FS (Other Fossil Furnace)
 (R) BTO RDO Walls
 (R) BTO RDO Air Sealing

@@ -73,11 +73,11 @@
     "electricity": 0.0,
     "distillate": {
       "new": 4110.0,
-      "existing": 7915.0
+      "existing": 7785.0
     },
     "other fuel": {
       "new": 4110.0,
-      "existing": 7915.0
+      "existing": 7785.0
     }
   },
   "cost_units": "2022$/unit",
@@ -175,6 +175,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-03-14 12:31:42"
+    "timestamp": "2025-05-02 13:16:00"
   }
 }

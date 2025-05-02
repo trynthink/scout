@@ -80,26 +80,20 @@
   "installed_cost_source": {
     "notes": [
       "Uses residential system costs and normalizes by typical capacity of residential systems (36 kBtu/h)",
-      "Retail (new) and total installed (existing) for 'High' ASHPs in 2023. No additional electrical infrastructure costs assumed for dual fuel residential measures."
+      "Retail (new) and total installed (existing) for 'High' ASHPs in 2023."
     ],
-    "source_data": [
-      {
-        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-        "author": "U.S. Energy Information Administration",
-        "year": 2023,
-        "pages": 39,
-        "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-      },
-      {
-        "title": "Service Upgrades for Electrification Retrofits Study Final Report",
-        "author": "NV5 and Redwood Energy",
-        "year": 2022,
-        "pages": 33,
-        "url": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"
-      }
-    ]
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 39,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
   },
-  "add_elec_infr_cost": null,
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
+  },
   "product_lifetime": 21.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
@@ -136,6 +130,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-03-14 12:31:42"
+    "timestamp": "2025-05-02 13:16:00"
   }
 }

@@ -1,5 +1,24 @@
 [
   {
+    "name": "(R) Ref. NG Furnace & AC & Env.",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
     "name": "(R) ES HP Pt. FS (Oth. Fs. Frn.) & Env.",
     "contributing_ECMs": [
       "(R) ESTAR HP Pt. FS (Other Fossil Furnace)",
@@ -171,6 +190,69 @@
     }
   },
   {
+    "name": "(R) Ref. NG Furnace & AC & Env.+",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP Pt. FS (Oth. Fs. Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP Pt. FS (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP Pt. FS (NG Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP Pt. FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
     "name": "(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+",
     "contributing_ECMs": [
       "(R) Best HP FS (Other Fossil Furnace)",
@@ -300,6 +382,28 @@
       "(C) Best HP FS (NG Boiler)",
       "(C) 90.1-2022 Walls & Air Sealing",
       "(C) 90.1-2022 Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Ref. NG Furnace & AC & Env.+",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
     ],
     "benefits": {
       "energy savings increase": null,

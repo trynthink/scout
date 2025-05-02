@@ -75,7 +75,7 @@
   },
   "add_elec_infr_cost": {
     "panel": false,
-    "240V circuit": true
+    "240V circuit": false
   },
   "product_lifetime": 15.0,
   "product_lifetime_units": "years",
@@ -137,6 +137,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-03-14 12:31:42"
+    "timestamp": "2025-05-02 13:16:00"
   }
 }
