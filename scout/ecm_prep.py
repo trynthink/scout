@@ -3340,6 +3340,19 @@ class Measure(object):
         # Determine "primary" microsegment key chains
         ms_iterable, ms_lists = self.create_keychain("primary")
 
+        # Set applicable building sector for the measure to use in
+        # linking heating/cooling turnover and switching calculations.
+        # Note that if measure applies to both residential and
+        # commercial buildings (which is not recommended or typical
+        # practice for ECM definitions), this approach will result in
+        # the use of residential technologies to anchor linked turnover
+        # across measure markets
+        if any([x in ["single family home", "mobile home",
+                      "multi family home"] for x in self.bldg_type]):
+            bldg_sect = "residential"
+        else:
+            bldg_sect = "commercial"
+
         # Update information needed to link the stock turnover rates and
         # exogenous HP conversion rates for measures that apply to separate
         # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
@@ -3358,18 +3371,6 @@ class Measure(object):
             else:
                 self.linked_htcl_tover_anchor_eu = "cooling"
             try:
-                # Set applicable building sector for the measure to use in
-                # linking heating/cooling turnover and switching calculations.
-                # Note that if measure applies to both residential and
-                # commercial buildings (which is not recommended or typical
-                # practice for ECM definitions), this approach will result in
-                # the use of residential technologies to anchor linked turnover
-                # across measure markets
-                if any([x in ["single family home", "mobile home",
-                              "multi family home"] for x in self.bldg_type]):
-                    bldg_sect = "residential"
-                else:
-                    bldg_sect = "commercial"
                 # Pull the ordered list of candidate technologies to serve as
                 # anchor for linked heating/cooling turnover and switching
                 # calculations (these are specified by building sector and by
@@ -3424,9 +3425,16 @@ class Measure(object):
         # other microsegments, register variants on the technology name that are added
         # by this function to tag alternate panel upgrade requirements (e.g., no panel, management)
         if self.handyvars.panel_shares is not None:
+            # Check for linked heating/cooling turnover; in such cases, when there is sub-
+            # segmentation of the anchor tech. in the link, the linked segment techs must be
+            # updated as well to link to the new anchor tech. sub-segments
+            if self.linked_htcl_tover is not None:
+                anchor_techs = self.handyvars.htcl_anchor_tech_opts[
+                    bldg_sect][self.linked_htcl_tover_anchor_eu]
+            else:
+                anchor_techs = None
             ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_panel_msegs(
-                ms_iterable, self.handyvars.htcl_anchor_tech_opts[
-                    bldg_sect][self.linked_htcl_tover_anchor_eu])
+                ms_iterable, anchor_techs)
         else:
             linked_htcl_tover_anchor_tech_alts = []
 
@@ -3556,13 +3564,6 @@ class Measure(object):
                 sqft_subst = 1
             else:
                 sqft_subst = 0
-
-            # Set building sector for the current microsegment
-            if mskeys[2] in [
-                    "single family home", "mobile home", "multi family home"]:
-                bldg_sect = "residential"
-            else:
-                bldg_sect = "commercial"
 
             # Develop "switched to" microsegment information for measures
             # that change to a different technology from the baseline;
@@ -11795,9 +11796,11 @@ class Measure(object):
             gas furnace msegs (panel/no panel/mgmt). Also, a list of alternate mseg tech names with
             appended info. that suggests alternate panel outcome for that mseg (no panel/mgmt.)
         """
-        # Initialize list of alternate names for the anchor tech that tag various panel upgrade
-        # contexts (no panel, management)
-        anchor_tech_alts = []
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Initialize list of alternate names for the anchor tech that tag various panel upgrade
+            # contexts (no panel, management)
+            anchor_tech_alts = []
         # Find applicable heating equipment segments and linked secondary heating and cooling
         # segments for the measure
         segs_to_subset = [list(x) for x in ms_iterable if (all([
@@ -11820,15 +11823,20 @@ class Measure(object):
                 i_np[-2] += "-no panel"
                 # Alternate that doesn't require a panel upgrade given added load management
                 i_mgmt[-2] += "-manage"
+                # Case with anchor tech for linked heating/cooling msegs
                 # If the original technology name is in the list of anchor techs, record the
                 # modified versions of the anchor tech name that tag alternate panel upgrade
                 # outcomes (no panel, management) for later use
-                if i_orig[-2] in anchor_techs:
+                if anchor_techs and i_orig[-2] in anchor_techs:
                     anchor_tech_alts += [i_np[-2], i_mgmt[-2]]
             # Append the no panel upgrade or panel management segments for gas furnaces
             ms_iterable = ms_iterable + segs_to_subset_no_panel + segs_to_subset_mgmt
-        # Remove any duplicate anchor tech name alternates
-        anchor_tech_alts = numpy.unique(anchor_tech_alts)
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Remove any duplicate anchor tech name alternates
+            anchor_tech_alts = list(set(anchor_tech_alts))
+        else:
+            anchor_tech_alts = []
 
         return ms_iterable, anchor_tech_alts
 
