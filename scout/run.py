@@ -5435,7 +5435,7 @@ class Engine(object):
 
             # Record low and high estimates on markets, if available and
             # user has not specified trimmed output
-            if trim_out is not True:
+            if trim_out is False:
                 # Set shorter name for markets and savings output dict
                 mkt_sv = self.output_ecms[m.name][
                     "Markets and Savings (Overall)"][adopt_scheme]
@@ -5499,7 +5499,7 @@ class Engine(object):
 
             # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
-            if trim_out is not True and cce_avg != cce_low:
+            if trim_out is False and cce_avg != cce_low:
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
                         ("Cost of Conserved Energy ($/MMBtu saved)",
                             cce_avg),
@@ -5522,10 +5522,18 @@ class Engine(object):
                         ("Payback (years)", payback_e_avg),
                         ("Payback (low) (years)", payback_e_low),
                         ("Payback (high) (years)", payback_e_high)])
+            elif trim_out is False:
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
+                         ("Cost of Conserved Energy ($/MMBtu saved)",
+                             cce_avg),
+                         (("Cost of Conserved CO2 "
+                           "($/MTon CO2 avoided)").
+                          translate(sub), ccc_avg),
+                         ("IRR (%)", irr_e_avg),
+                         ("Payback (years)", payback_e_avg)])
             else:
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
                     ("Payback (years)", payback_e_avg)])
-
 
             # If a user desires measure market penetration percentages as an
             # output, calculate and report these fractions
@@ -6190,7 +6198,7 @@ class Engine(object):
 
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
-        if trim_out is not True and energy_eff_all_avg != energy_eff_all_low:
+        if trim_out is False and energy_eff_all_avg != energy_eff_all_low:
 
             # Set shorter name for markets and savings output dict across all
             # ECMs
@@ -7877,7 +7885,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         # Notify user that the output data are being plotted
         print("Plotting output data...", end="", flush=True)
         # Execute plots
-        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, cbpslist)
+        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, cbpslist, trim_out)
         print("Plotting complete")
 
 

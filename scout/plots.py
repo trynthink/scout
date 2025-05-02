@@ -39,7 +39,8 @@ def pretty(low, high, n):
     return numpy.arange(miny, maxy+0.5*d, d)
 
 
-def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bps_objlist):
+def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
+             codes_bps_objlist, trim_out):
     # Set base directory
     # Set uncompeted ECM energy, carbon, and cost data
     uncompete_results = meas_summary
@@ -365,10 +366,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
     plot_lims_finmets = [[-50, 150], [0, 25], [-50, 150], [-500, 1000]]
     # Cost effectiveness threshold lines for each financial metric
     plot_ablines_finmets = [0, 10, 13, 100]
-    # Financial metric type and key names for retrieving JSON data on each
-    fin_metrics = ['IRR (%)', 'Payback (years)',
-                   'Cost of Conserved Energy ($/MMBtu saved)',
-                   'Cost of Conserved CO\u2082 ($/MTon CO\u2082 avoided)']
+    # Financial metric type and key names for retrieving JSON data on each;
+    # handle case where outputs are trimmed, and only payback is reported
+    if trim_out is not True:
+        fin_metrics = ['IRR (%)', 'Payback (years)',
+                       'Cost of Conserved Energy ($/MMBtu saved)',
+                       'Cost of Conserved CO\u2082 ($/MTon CO\u2082 avoided)']
+    else:
+        fin_metrics = ['Payback (years)']
 
     # =========================================================================
     # Set high-level variables needed to generate XLSX data
@@ -971,9 +976,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                                             bldg_match[b] = b
 
                                     if pd.Series(bldg_match).nunique() > 1:
-                                        results_finmets[(m-1), 6] = "^"
+                                        results_finmets[(m-1), (len(fin_metrics) + 2)] = "^"
                                     else:
-                                        results_finmets[(m-1), 6] = \
+                                        results_finmets[(m-1), (len(fin_metrics) + 2)] = \
                                             bclasses_out_finmets_shp[
                                             [x for x in list(pd.Series(
                                                 bldg_match)) if x is not None][
@@ -1002,9 +1007,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                                     # to the point fill color appropriate for
                                     # the matched end use
                                     if pd.Series(euse_match).nunique() > 1:
-                                        results_finmets[(m-1), 7] = "#7f7f7f"
+                                        results_finmets[
+                                            (m-1), (len(fin_metrics) + 3)] = "#7f7f7f"
                                     else:
-                                        results_finmets[(m-1), 7] = \
+                                        results_finmets[
+                                            (m-1), (len(fin_metrics) + 3)] = \
                                             euses_out_finmets_col[[
                                                 x for x in list(
                                                     pd.Series(euse_match)
@@ -1411,7 +1418,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
             fig, axcs = plt.subplots(2, 2, figsize=(10, 7))
             for (axc, fmp) in zip(fig.axes, range(len(fin_metrics))):
                 # Shorthands for x and y data on the plot
-                s_x, s_y = [results_finmets[:, 4], results_finmets[:, fmp]]
+                s_x, s_y = [results_finmets[:, len(fin_metrics)], results_finmets[:, fmp]]
                 # Indices of sorted x data
                 sorted_ind = sorted(
                     range(len(s_x)), key=lambda k: s_x[k], reverse=True)
@@ -1436,11 +1443,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, codes_bp
                 results_sort_x, results_sort_y, results_sort_pch, \
                     results_sort_bg = [[
                         results_finmets[:, met][i] for i in final_index_non_na]
-                        for met in [4, fmp, 6, 7]]
+                        for met in [
+                            len(fin_metrics), fmp, (len(fin_metrics)+2), (len(fin_metrics)+3)]]
                 # Shorthands for rank-ordered cost-effective measure results
                 results_sort_x_ce, results_sort_y_ce = [[
                         results_finmets[:, met][i] for i in final_index_ce]
-                        for met in [4, fmp]]
+                        for met in [len(fin_metrics), fmp]]
 
                 # Sum total cost effective savings
                 total_save_ce = sum(s_x[final_index_ce])
