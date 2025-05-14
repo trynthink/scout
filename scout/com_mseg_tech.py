@@ -2,6 +2,7 @@
 
 # Import commercial microsegments code to use some of its data
 # reading and processing functions
+import os
 from scout import com_mseg as cm
 
 import numpy as np
@@ -22,9 +23,9 @@ class EIAData(object):
         tpp_data (str): File name for the EIA AEO time preference premium data.
     """
 
-    def __init__(self):
-        self.cpl_data = 'ktek.csv'
-        self.tpp_data = 'kprem.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.cpl_data = os.path.join(data_dir, 'ktek.csv')
+        self.tpp_data = os.path.join(data_dir, 'kprem.txt')
 
 
 class UsefulVars(object):

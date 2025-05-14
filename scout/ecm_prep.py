@@ -5345,12 +5345,12 @@ class Measure(object):
                             choice_params = {
                                 "b1": {
                                     key: base_cpl["consumer choice"][
-                                        "competed market share"]["parameters"][
+                                        "competed market share"]["parameters"]["typical"][
                                         "b1"][yr] for key in
                                     self.handyvars.aeo_years},
                                 "b2": {
                                     key: base_cpl["consumer choice"][
-                                        "competed market share"]["parameters"][
+                                        "competed market share"]["parameters"]["typical"][
                                         "b2"][yr] for key in
                                     self.handyvars.aeo_years}}
                             # Add to count of primary microsegment key chains
