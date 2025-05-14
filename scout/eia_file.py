@@ -14,51 +14,35 @@ from scout import mseg_techdata as rmt
 
 
 class EIAFiles(object):
-    """AEO data file reprocessing.
+    """AEO data file reprocessing."""
 
-    Attributes:
-        Original EIA data file names (inputs to this module)
-        ----------------------------------------------------
-        r_db_in: Residential energy and stock data
-        r_mess: Residential equipment and shell component data
-        c_tech_in: Commercial technology characteristics data
+    def __init__(self, input_dir='data', output_dir=None):
+        """
+        input_dir  - where to read EIA/AEO source files
+        output_dir - where to write the restructured files.
+                     Defaults to input_dir if you only want one folder.
+        """
+        self.input_dir = input_dir
+        self.output_dir = output_dir or input_dir
 
-        Modified EIA data file names (outputs from this module)
-        -------------------------------------------------------
-        r_db_out: Residential energy and stock data
-        r_class: Residential equipment efficiency, lifetime, and adoption
-            parameters
-        r_meqp: Residential equipment cost, efficiency, and adoption parameters
-        c_tech_out: Commercial technology characteristics data
+        # ensure the output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
 
-        Other files modified in place
-        -----------------------------
-        r_lgt: Residential lighting technology data
-    """
-    def __init__(self):
-        """Define class with required input and output file names."""
-        self.r_db_in = 'RESDBOUT-orig.txt'
-        self.r_mess = 'rsmess.xlsx'
-        self.r_db_out = 'RESDBOUT.txt'
-        self.r_class = 'rsclass.txt'
-        self.r_meqp = 'rsmeqp.txt'
-        self.c_tech_in = 'ktekx.xlsx'
-        self.c_tech_out = 'ktek.csv'
-        self.r_lgt = 'rsmlgt.txt'
+        # inputs
+        self.r_db_in   = os.path.join(self.input_dir,  'RESDBOUT-orig.txt')
+        self.r_mess    = os.path.join(self.input_dir,  'rsmess.xlsx')
+        self.c_tech_in = os.path.join(self.input_dir,  'ktekx.xlsx')
+        self.r_lgt_in  = os.path.join(self.input_dir,  'rsmlgt.txt')
+
+        # outputs
+        self.r_db_out   = os.path.join(self.output_dir, 'RESDBOUT.txt')
+        self.r_class    = os.path.join(self.output_dir, 'rsclass.txt')
+        self.r_meqp     = os.path.join(self.output_dir, 'rsmeqp.txt')
+        self.c_tech_out = os.path.join(self.output_dir, 'ktek.csv')
+        self.r_lgt_out  = os.path.join(self.output_dir, 'rsmlgt.txt')
 
     def resdbout_fill_household(self):
-        """Modify RESDBOUT such that all rows have the same number of columns.
-
-        As delivered by EIA, RESDBOUT has 10 columns, but some rows do
-        not have sufficient data or commas inserted into the row for
-        all 10 columns. This function updates each row to have entries
-        for all 10 columns, including replacing the empty HOUSEHOLDS
-        column with a 0.
-        """
-        # Read the original RESDBOUT data; rename the original
-        # RESDBOUT.txt file to RESDBOUT-orig.txt to set it aside if
-        # it is not already present so that the modified data can be
-        # written to a new RESDBOUT.txt
+        """Modify RESDBOUT such that all rows have the same number of columns."""
         try:
             f_dbin = open(self.r_db_in, 'r')
         except FileNotFoundError:
@@ -66,163 +50,132 @@ class EIAFiles(object):
             f_dbin = open(self.r_db_in, 'r')
 
         with open(self.r_db_out, 'w+', encoding='utf-8', newline='') as f_dbout:
-            csv_dbin = csv.DictReader(f_dbin)
-
-            # Get field names from the file header row as determined
-            # by DictReader
-            header = csv_dbin.fieldnames
-
-            # Create corresponding DictWriter object for file outputs
+            csv_dbin  = csv.DictReader(f_dbin)
+            header    = csv_dbin.fieldnames
             csv_dbout = csv.DictWriter(f_dbout, fieldnames=header)
-            csv_dbout.writeheader()  # Insert header at the top of the new data
+            csv_dbout.writeheader()
             for row in csv_dbin:
-                # If households column value is None or empty string,
-                # replace with 0 as a string
                 if not row['HOUSEHOLDS']:
                     row['HOUSEHOLDS'] = '0'
-                # If BULBTYPE column value is None, replace with empty string
                 if not row['BULBTYPE']:
                     row['BULBTYPE'] = ''
-                # Strip off leading and trailing space characters
                 row.update({k: v.strip() for k, v in row.items()})
-
                 csv_dbout.writerow(row)
 
         f_dbin.close()
 
     def res_gsl_lt_update(self):
-        """Replace 'HAL' with 'INC' for GSL residential lighting.
-
-        Prior to AEO 2020, incandescent general service lighting (GSL)
-        bulbs were encoded in the residential data files with the string
-        'INC'. This was changed to 'HAL' to indicate the change to more
-        efficient halogen incandescent bulbs for GSL bulb types. This
-        function reverts the residential data files back to the original
-        encoding of 'INC' for incandescent GSL bulbs. This function
-        modifies both the lighting technology data file and the
-        residential equipment stock and energy use data file
-        """
-        # Get and revise lighting encoding in residential equipment
-        # stock and energy data file
-        with open(self.r_db_out, 'r') as f_dbin:
+        """Replace 'HAL' with 'INC' for GSL residential lighting."""
+        # update RESDBOUT.csv
+        with open(self.r_db_out, 'r', encoding='utf-8') as f_dbin:
             csv_cont = []
             csv_dbin = csv.DictReader(f_dbin)
-            # Get field names from the file header row as determined
-            # by DictReader
-            header = csv_dbin.fieldnames
+            header   = csv_dbin.fieldnames
             for row in csv_dbin:
-                if row['EQPCLASS'] == 'GSL':
-                    if row['BULBTYPE'] == 'HAL':
-                        row['BULBTYPE'] = 'INC'
+                if row.get('EQPCLASS') == 'GSL' and row.get('BULBTYPE') == 'HAL':
+                    row['BULBTYPE'] = 'INC'
                 csv_cont.append(row)
 
-        # Overwrite residential equipment stock and energy data file
-        # with revised lighting strings
         with open(self.r_db_out, 'w', encoding='utf-8', newline='') as f_dbout:
-            # Create DictWriter object for file outputs
             csv_dbout = csv.DictWriter(f_dbout, fieldnames=header)
             csv_dbout.writeheader()
             csv_dbout.writerows(csv_cont)
 
-        # Get and revise lighting encoding in residential lighting
-        # technology characteristics file
-        with open(self.r_lgt, 'r', encoding='latin1') as f_ltin:
-            f_cont = []
-            for line in f_ltin:
-                if re.search(r'(?<=GSL\s)HAL', line):
-                    line = line.replace('HAL', 'INC')
-                f_cont.append(line)
+        # update lighting file
+        with open(self.r_lgt_in, 'r', encoding='latin1') as f_ltin:
+            modified = [
+                line.replace('HAL', 'INC')
+                if re.search(r'(?<=GSL\s)HAL', line)
+                else line
+                for line in f_ltin
+            ]
 
-        # Overwrite residential lighting characteristics data file
-        # with revised lighting string
-        with open(self.r_lgt, 'w', encoding='latin1') as f_ltout:
-            f_ltout.writelines(f_cont)
+        with open(self.r_lgt_out, 'w', encoding='latin1') as f_ltout:
+            f_ltout.writelines(modified)
 
     def generate_rsclass(self):
         """Construct rsclass.txt file from table in combined XLSX file."""
+        # derive the sheet name from the filename
+        sheet_name = os.path.splitext(os.path.basename(self.r_class))[0].upper()
+        wb         = pyxl.load_workbook(self.r_mess, data_only=True)
+        rsclass    = wb[sheet_name]
 
-        # Load applicable worksheet from the spreadsheet file
-        sheet_name = self.r_class.split('.')[0].upper()
-        rsclass = pyxl.load_workbook(self.r_mess, data_only=True)[sheet_name]
-
-        # Find the position of the "Efficiency Metric" column so that it
-        # can be skipped later
-        skip = 0  # Placeholder in case 'Efficiency Metric' column is not found
+        # find column to skip
+        skip = 0
         for cell in rsclass[19]:
-            if (cell.value == 'Efficiency Metric'):
-                skip = cell.column  # Note that openpyxl is 1-indexed
+            if cell.value == 'Efficiency Metric':
+                skip = cell.column
 
         with open(self.r_class, 'w+', encoding='utf-8') as f:
-            # Construct and set header row
-            f.write('\t'.join(str(rsclass.cell(row=19, column=col_num).value)
-                              for col_num in [x for x in range(3, 22) if x != skip]) + '\n')
-            # Construct and set subheading
-            f.write('\t'.join(str(name) for name in rmt.r_nlt_l_names) + '\n')
-            # Populate body rows
+            # header row
+            cols = [c for c in range(3, 22) if c != skip]
+            f.write('\t'.join(str(rsclass.cell(row=19, column=c).value) for c in cols) + '\n')
+            # names row
+            f.write('\t'.join(rmt.r_nlt_l_names) + '\n')
+            # data rows
             for row_num in range(21, 51):
-                f.write('\t'.join(str(rsclass.cell(row=row_num, column=col_num).value)
-                                  for col_num in [x for x in range(3, 22) if x != skip]) + '\n')
-            f.close()
+                f.write(
+                    '\t'.join(
+                        str(rsclass.cell(row=row_num, column=c).value) for c in cols
+                    ) + '\n'
+                )
 
     def generate_rsmeqp(self):
         """Construct rsmeqp.txt file from data in combined XLSX file."""
+        # derive the sheet name from the filename
+        sheet_name = os.path.splitext(os.path.basename(self.r_meqp))[0].upper()
+        wb        = pyxl.load_workbook(self.r_mess, data_only=True)
+        rsmeqp    = wb[sheet_name]
 
-        # Load applicable worksheet from the spreadsheet file
-        sheet_name = self.r_meqp.split('.')[0].upper()
-        rsmeqp = pyxl.load_workbook(self.r_mess, data_only=True)[sheet_name]
-
-        # Set starting and ending table row variables with placeholder values
+        # locate start/end rows
+        col_vals = list(*rsmeqp.iter_cols(max_col=1, values_only=True))
         rstart = rend = 0
-        # Get entries in first column as a flat list
-        col_1 = list(*rsmeqp.iter_cols(max_col=1, values_only=True))
-        # Find the starting and ending rows of the table in the worksheet
-        # based on the entries in the first column
-        for col in rsmeqp.iter_cols(max_col=1):
-            for r in col:
-                if r.value == 'xlI':
-                    rstart = r.row + 1  # Add 1 to skip model variable names row
-                # Second term gets the last non-None value
-                elif isinstance(r.value, int) and r.value == list(filter(None, col_1)).pop():
-                    rend = r.row + 1
+        for cell in rsmeqp.iter_rows(min_col=1, max_col=1, values_only=False):
+            v = cell[0].value
+            if v == 'xlI':
+                rstart = cell[0].row + 1
+            elif isinstance(v, int) and v == list(filter(None, col_vals)).pop():
+                rend = cell[0].row + 1
 
-        # Exit function if rend <= rstart
         if rend <= rstart:
-            print('rsmeqp table dimensions not obtained successfully.\n')
-            print('rsmeqp generation failed.\n')
-            return None
+            print('rsmeqp table dimensions not obtained successfully.')
+            print('rsmeqp generation failed.')
+            return
 
-        with open(self.r_meqp, 'w+') as f:
-            # Construct and set header row
-            f.write('\t'.join(str(rsmeqp.cell(row=22, column=col_num).value)
-                              for col_num in range(2, 30)) + '\n')
-            # Construct and set subheading
-            f.write('\t'.join(str(name) for name in rmt.r_nlt_cp_names) + '\n')
-            # Populate body rows
+        with open(self.r_meqp, 'w+', encoding='utf-8') as f:
+            # header
+            f.write(
+                '\t'.join(
+                    str(rsmeqp.cell(row=22, column=c).value) for c in range(2, 30)
+                ) + '\n'
+            )
+            # names
+            f.write('\t'.join(rmt.r_nlt_cp_names) + '\n')
+            # data
             for row_num in range(rstart, rend):
-                f.write('\t'.join(str(rsmeqp.cell(row=row_num, column=col_num).value)
-                                  for col_num in range(2, 30)) + '\n')
-        f.close()
-
+                f.write(
+                    '\t'.join(
+                        str(rsmeqp.cell(row=row_num, column=c).value) for c in range(2, 30)
+                    ) + '\n'
+                )
+                
     def convert_ktekx(self):
         """Convert commercial technology characteristics data to CSV format."""
         if not os.path.isfile(self.c_tech_out):
-            # Load applicable worksheet from the spreadsheet file
-            sheet_name = self.c_tech_out.split('.')[0]
-            ktekx = pyxl.load_workbook(self.c_tech_in, data_only=True)[sheet_name]
+            sheet_name = os.path.splitext(os.path.basename(self.c_tech_out))[0]
+            ktekx      = pyxl.load_workbook(self.c_tech_in, data_only=True)[sheet_name]
 
-            # Create target CSV file
-            ktek = csv.writer(open(self.c_tech_out, 'w+'))
-
-            # Stream content to CSV file
-            for r in ktekx.rows:
-                row = [a.value for a in r]
-                ktek.writerow(row)
+            with open(self.c_tech_out, 'w+', newline='') as f:
+                writer = csv.writer(f)
+                for row in ktekx.rows:
+                    writer.writerow([cell.value for cell in row])
         else:
-            print('ktek.csv is already present and will not be modified.')
+            print(f"{self.c_tech_out} is already present and will not be modified.")
 
 
 def main():
-    f = EIAFiles()
+    # read from AEO2023, write processed files into 'inputs'
+    f = EIAFiles(input_dir='AEO2025', output_dir='AEO2025')
 
     f.resdbout_fill_household()
     f.res_gsl_lt_update()

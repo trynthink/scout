@@ -261,9 +261,9 @@ class ValidQueries(object):
     """
 
     def __init__(self):
-        self.years = ['2022', '2023']
-        self.scenarios = ['MidCase', 'Decarb95by2050',
-                          'Decarb100by2035']
+        self.years = ['2024']
+        self.scenarios = ['MidCase']
+        # , 'Decarb95by2050', 'Decarb100by2035']
 
 
 def import_ba_emm_mapping():
@@ -307,11 +307,15 @@ def cambium_data_import(cambium_base_dir, year, scenario):
     # create df from multiple CSVs in working directory and assign new 'ba'
     # column to appropriate file name; parse dates with datetime
     ba_df = pd.concat(
-        map(lambda file: pd.read_csv(
-            str(file.resolve()), parse_dates=['timestamp', 'timestamp_local'],
-            header=5).assign(
-                # extract "pXX" from file name and assign to ba
-                ba=re.search(r'p\d+', str(file)).group()), files))
+                map(
+                    lambda f: (
+                        pd.read_csv(f, parse_dates=["timestamp", "timestamp_local"], header=5)
+                        .assign(ba=re.search(r"[pz]\d+", f.name).group(0).lower())
+                    ),
+                    files
+                ),
+                ignore_index=True,
+            )
     return ba_df
 
 

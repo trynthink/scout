@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import numpy as np
 import numpy.lib.recfunctions as recfn
 import re
@@ -18,10 +19,10 @@ class EIAData(object):
         catg_dmd (str): Filename for the commercial energy and stock data.
     """
 
-    def __init__(self):
-        self.serv_dmd = 'KSDOUT.txt'
-        self.catg_dmd = 'KDBOUT.txt'
-        self.com_generation = 'KDGENOUT.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.serv_dmd = os.path.join(data_dir, 'KSDOUT.txt')
+        self.catg_dmd = os.path.join(data_dir,'KDBOUT.txt')
+        self.com_generation = os.path.join(data_dir,'KDGENOUT.txt')
 
 
 class UsefulVars(object):
@@ -905,6 +906,8 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # be incorrectly typed as integers
         for row in filecont:
             if len(dtypes) == len(row):
+                if row == ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']:
+                    break
                 dtypes = [dtype_eval(col, dtypes[idx]) for idx, col in enumerate(row)]
 
         # Combine data types and header names into list of tuples
@@ -999,6 +1002,12 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # try/catch in the case where the data include the string 'NA',
         # which has to be changed to an 'nan' to be able to be coerced
         # to a float or integer by np.array
+        for r_i, row in enumerate(data):
+            # print(row)
+            for f_i, (field, (_, np_type)) in enumerate(zip(row, dtype_list)):
+                if field == '' and np.issubdtype(np_type, np.integer):
+                    print(f"⚠️  Empty int at row {r_i+1}, col {f_i} ")
+        
         try:
             final_struct = np.array(data, dtype=dtype_list)
         # Targeted error "ValueError: could not convert string to float: 'NA'"

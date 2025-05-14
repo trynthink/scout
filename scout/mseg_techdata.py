@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import numpy
 import json
@@ -20,10 +21,10 @@ class EIAData(object):
             technology cost, performance, and lifetime data.
     """
 
-    def __init__(self):
-        self.r_nlt_costperf = "rsmeqp.txt"
-        self.r_nlt_life = "rsclass.txt"
-        self.r_lt_all = "rsmlgt.txt"
+    def __init__(self, data_dir="AEO2025"):
+        self.r_nlt_costperf = os.path.join(data_dir, "rsmeqp.txt")
+        self.r_nlt_life = os.path.join(data_dir, "rsclass.txt")
+        self.r_lt_all = os.path.join(data_dir, "rsmlgt.txt")
 
 
 class UsefulVars(object):
@@ -117,7 +118,7 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   "NGHP": ["EIA_EQUIP", "NG_HP", "NG_HP2", "NG_HP2", "COP"],
                   "boiler (NG)": ["EIA_EQUIP", "NG_RAD", "NG_RAD2", "NG_RAD4",
                                   "AFUE"],
-                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", "DIST_RAD2",
+                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", "DIST_RAD3",
                                           "DIST_RAD4", "AFUE"],
                   "resistance heat": ["EIA_EQUIP", "ELEC_RAD", "ELEC_RAD2",
                                       "ELEC_RAD2", "AFUE"],
@@ -136,21 +137,20 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   # Note: resistance storage WH is reported as ELEC_WH2-
                   # ELEC_WH4, HPWH reported as ELEC_WH5-ELEC_WH7
                   # (corresponding to HP_WH2-HP_WH4)
-                  "electric WH": ["EIA_EQUIP", "ELEC_WH", "ELEC_WH2",
-                                  "ELEC_WH7", "UEF"],
+                  "electric WH": ["EIA_EQUIP", "ELEC_WH", "ELEC_WH1", "ELEC_WH8", "UEF"],
                   "central AC": ["EIA_EQUIP", "CENT_AIR", "CENT_AIR2",
                                  "CENT_AIR4", "COP"],
-                  "room AC": ["EIA_EQUIP", "ROOM_AIR", "ROOM_AIR2",
+                  "room AC": ["EIA_EQUIP", "ROOM_AIR", "ROOM_AIR3",
                               "ROOM_AIR4", "COP"],
                   "clothes washing": ["EIA_EQUIP", "CL_WASH", [
-                                      "CL_WASH_T2", "CL_WASH_F2"],
+                                      "CL_WASH_T3", "CL_WASH_F3"],
                                       ["CL_WASH_T4", "CL_WASH_F4"],
                                       "kWh/cycle"],
-                  "dishwasher": ["EIA_EQUIP", "DS_WASH", "DS_WASH2",
+                  "dishwasher": ["EIA_EQUIP", "DS_WASH", "DS_WASH3",
                                  "DS_WASH4", "cycle/kWh"],
                   "water heating": ["EIA_EQUIP",
                                     ["NG_WH", "LPG_WH", "DIST_WH"],
-                                    ["NG_WH2", "LPG_WH2", "DIST_WH2"],
+                                    ["NG_WH3", "LPG_WH3", "DIST_WH2"],
                                     ["NG_WH4", "LPG_WH4", "DIST_WH4"],
                                     ["UEF", "UEF"]],
                   "cooking": ["EIA_EQUIP",
@@ -159,13 +159,13 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                               ["ELEC_STV2", "NG_STV4", "LPG_STV4"],
                               ["kWh/yr", "TEff", "TEff"]],
                   "drying": ["EIA_EQUIP",
-                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY2", "NG_DRY2"],
+                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY3", "NG_DRY3"],
                              ["ELEC_DRY4", "NG_DRY4"], ["CEF", "CEF"]],
                   "refrigeration": ["EIA_EQUIP", "REFR",
                                     ["REFR_BF2", "REFR_SF2", "REFR_TF2"],
                                     ["REFR_BF4", "REFR_SF4", "REFR_TF4"],
                                     "kWh/yr"],
-                  "freezers": ["EIA_EQUIP", "FREZ", ["FREZ_C2", "FREZ_U2"],
+                  "freezers": ["EIA_EQUIP", "FREZ", ["FREZ_C3", "FREZ_U3"],
                                ["FREZ_C4", "FREZ_U4"], "kWh/yr"]}
 
 # The basic structure of a) above for lighting technologies is:
@@ -1237,6 +1237,8 @@ def main():
     # Write the updated dict of data to a new JSON file
     with open(handyvars.json_out, "w") as jso:
         json.dump(result, jso, indent=2)
+    print("Updated microsegments JSON file written to: " +
+          str(handyvars.json_out))
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import numpy
 import json
 import argparse
 import csv
+import os
 from scout import mseg_techdata as rmt
 from scout.config import FilePaths as fp
 
@@ -16,9 +17,9 @@ class EIAData(object):
         res_energy (str): The file name for the AEO residential energy
             and stock data.
     """
-    def __init__(self):
-        self.res_energy = 'RESDBOUT.txt'
-        self.res_generation = 'RDGENOUT.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.res_energy = os.path.join(data_dir,'RESDBOUT.txt')
+        self.res_generation = os.path.join(data_dir,'RDGENOUT.txt')
 
 
 class UsefulVars(object):
@@ -66,7 +67,7 @@ class SkipLines(object):
         json_out (str): Filename for JSON with residential building data added.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
     """
-    def __init__(self, aeo_import_year=2022):
+    def __init__(self, aeo_import_year=2025):
         self.aeo_import_year = aeo_import_year
         if self.aeo_import_year == 2015:
             self.nlt_cp_skip_header = 20
@@ -86,6 +87,11 @@ class SkipLines(object):
             self.nlt_l_skip_header = 2
             self.lt_skip_header = 37
             self.lt_skip_footer = 52
+        elif self.aeo_import_year == 2025:
+            self.nlt_cp_skip_header = 2
+            self.nlt_l_skip_header = 2
+            self.lt_skip_header = 37
+            self.lt_skip_footer = 51
         else:
             self.nlt_cp_skip_header = 2
             self.nlt_l_skip_header = 2
@@ -1449,7 +1455,7 @@ def main():
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
+                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025])
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -1476,6 +1482,14 @@ def main():
         ns_dtypes = dtype_array(eiadata.res_energy, '\t')
         ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t',
                               ['SF', 'ST', 'FP'])
+    elif aeo_import_year == 2025:
+        yrs_range = metajson['max year'] - metajson['min year'] + 1
+
+        # Import EIA RESDBOUT.txt energy use and stock file
+        ns_dtypes = dtype_array(eiadata.res_energy)
+        ns_data = data_import(eiadata.res_energy, ns_dtypes, ',',
+                              ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
+                               'HSHA', 'CSHA', 'CSHE', 'CSHN'])
     else:
         yrs_range = 36
         update_lighting_dict()
