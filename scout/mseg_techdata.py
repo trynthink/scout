@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import numpy
 import json
@@ -20,10 +21,10 @@ class EIAData(object):
             technology cost, performance, and lifetime data.
     """
 
-    def __init__(self):
-        self.r_nlt_costperf = "rsmeqp.txt"
-        self.r_nlt_life = "rsclass.txt"
-        self.r_lt_all = "rsmlgt.txt"
+    def __init__(self, dir_path=fp.INPUTS):
+        self.r_nlt_costperf = os.path.join(dir_path, "rsmeqp.txt")
+        self.r_nlt_life = os.path.join(dir_path, "rsclass.txt")
+        self.r_lt_all = os.path.join(dir_path, "rsmlgt.txt")
 
 
 class UsefulVars(object):
@@ -61,8 +62,8 @@ r_nlt_cp_names = ("ENDUSE", "EQUIP_CLASS", "EQUIP_TYP", "START_EQUIP_YR",
 # for non-lighting technologies
 r_nlt_l_names = ("ENDUSE", "EQUIP_CLASS", "EQUIP_POINT", "CLASS_POINT",
                  "REPLACE_CLASS", "FUEL", "FFAN_FLAG",
-                 "BASE_EFF", "LIFE_ALPHA", "LIFE_MIN",
-                 "LIFE_MAX", "WEIB_K", "WEIB_LMB", "NEW_BETA", "SWITCH_FACT",
+                 "BASE_EFF", "WEIB_LMB", "WEIB_K", "LIFE_ALPHA", "LIFE_MIN",
+                 "LIFE_MAX",  "NEW_BETA", "SWITCH_FACT",
                  "REPL_BETA", "BIAS", "NAME")
 
 # Numpy field names for EIA "rsmlgt.txt" file with cost, performance, and
@@ -117,7 +118,7 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   "NGHP": ["EIA_EQUIP", "NG_HP", "NG_HP2", "NG_HP2", "COP"],
                   "boiler (NG)": ["EIA_EQUIP", "NG_RAD", "NG_RAD2", "NG_RAD4",
                                   "AFUE"],
-                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", "DIST_RAD2",
+                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", "DIST_RAD1",
                                           "DIST_RAD4", "AFUE"],
                   "resistance heat": ["EIA_EQUIP", "ELEC_RAD", "ELEC_RAD2",
                                       "ELEC_RAD2", "AFUE"],
@@ -136,21 +137,21 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   # Note: resistance storage WH is reported as ELEC_WH2-
                   # ELEC_WH4, HPWH reported as ELEC_WH5-ELEC_WH7
                   # (corresponding to HP_WH2-HP_WH4)
-                  "electric WH": ["EIA_EQUIP", "ELEC_WH", "ELEC_WH2",
-                                  "ELEC_WH7", "UEF"],
+                  "electric WH": ["EIA_EQUIP", "ELEC_WH", "ELEC_WH1",
+                                  "ELEC_WH8", "UEF"],
                   "central AC": ["EIA_EQUIP", "CENT_AIR", "CENT_AIR2",
                                  "CENT_AIR4", "COP"],
-                  "room AC": ["EIA_EQUIP", "ROOM_AIR", "ROOM_AIR2",
+                  "room AC": ["EIA_EQUIP", "ROOM_AIR", "ROOM_AIR3",
                               "ROOM_AIR4", "COP"],
                   "clothes washing": ["EIA_EQUIP", "CL_WASH", [
-                                      "CL_WASH_T2", "CL_WASH_F2"],
+                                      "CL_WASH_T1", "CL_WASH_F3"],
                                       ["CL_WASH_T4", "CL_WASH_F4"],
                                       "kWh/cycle"],
-                  "dishwasher": ["EIA_EQUIP", "DS_WASH", "DS_WASH2",
+                  "dishwasher": ["EIA_EQUIP", "DS_WASH", "DS_WASH3",
                                  "DS_WASH4", "cycle/kWh"],
                   "water heating": ["EIA_EQUIP",
                                     ["NG_WH", "LPG_WH", "DIST_WH"],
-                                    ["NG_WH2", "LPG_WH2", "DIST_WH2"],
+                                    ["NG_WH1", "LPG_WH1", "DIST_WH2"],
                                     ["NG_WH4", "LPG_WH4", "DIST_WH4"],
                                     ["UEF", "UEF"]],
                   "cooking": ["EIA_EQUIP",
@@ -159,13 +160,14 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                               ["ELEC_STV2", "NG_STV4", "LPG_STV4"],
                               ["kWh/yr", "TEff", "TEff"]],
                   "drying": ["EIA_EQUIP",
-                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY2", "NG_DRY2"],
+                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY3", "NG_DRY3"],
                              ["ELEC_DRY4", "NG_DRY4"], ["CEF", "CEF"]],
                   "refrigeration": ["EIA_EQUIP", "REFR",
                                     ["REFR_BF2", "REFR_SF2", "REFR_TF2"],
                                     ["REFR_BF4", "REFR_SF4", "REFR_TF4"],
                                     "kWh/yr"],
-                  "freezers": ["EIA_EQUIP", "FREZ", ["FREZ_C2", "FREZ_U2"],
+                  "freezers": ["EIA_EQUIP", "FREZ",
+                               ["FREZ_C1", "FREZ_U2"],
                                ["FREZ_C4", "FREZ_U4"], "kWh/yr"]}
 
 # The basic structure of a) above for lighting technologies is:
@@ -342,7 +344,9 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                  "lifetime": None,
                  "consumer choice": {"competed market share": {
                      "model type": "logistic regression",
-                     "parameters": {"b1": None, "b2": None},
+                     "parameters": {
+                         "typical": {"b1": None, "b2": None},
+                         "best": {"b1": None, "b2": None}},
                      "source": None}}}
 
     # The census division name to be used in filtering EIA data is the
@@ -799,6 +803,8 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
             # "fill_years_lt" function
             [perf_typ, cost_typ, life_avg, b1, b2] = fill_years_lt_typ_best(
                 match_list, project_dict)
+            b1_best = b1
+            b2_best = b2
             incentives = fill_years_lt_incent(match_list, project_dict)
 
             # No "best" technology performance or cost data are available from
@@ -859,9 +865,13 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                                  "units": "years", "source": life_source}
         # Update consumer choice information
         data_dict["consumer choice"]["competed market share"][
-            "parameters"]["b1"] = b1
+            "parameters"]["typical"]["b1"] = b1
         data_dict["consumer choice"]["competed market share"][
-            "parameters"]["b2"] = b2
+            "parameters"]["typical"]["b2"] = b2
+        data_dict["consumer choice"]["competed market share"][
+            "parameters"]["best"]["b1"] = b1_best
+        data_dict["consumer choice"]["competed market share"][
+            "parameters"]["best"]["b2"] = b2_best
         data_dict["consumer choice"]["competed market share"][
             "source"] = tech_choice_source
     else:
@@ -907,6 +917,7 @@ def fill_years_nlt_typ_best(match_list, project_dict, tech_dict_key):
             # freezer/clothes washing technology sub-types being averaged and
             # append performance, cost, and choice information to the new list
             if len(match_list_inds[0]) == ntypes:
+                # Average the values found for this year, regardless of how many sub-types we found
                 match_list_new.append((unique_yrs[ind], numpy.average(
                     match_list[match_list_inds]["BASE_EFF"]),
                     numpy.average(
@@ -1102,6 +1113,7 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                 else:
                     raise ValueError(
                         "Multiple identical years in filtered array!")
+
             # If no row has been discovered for looped year and we are not in
             # the first year of the loop, set output information to that of the
             # previously looped year
@@ -1182,18 +1194,26 @@ def main():
     # Set up to support user option to specify the year for the
     # AEO data being imported (default if the option is not used
     # should be current year)
+    aeo_versions = [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025]
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
+                        choices=aeo_versions)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
 
+    # Ensure AEO import year is acceptable
+    if aeo_import_year and aeo_import_year not in aeo_versions:
+        raise ValueError("Undefined AEO version '" + aeo_import_year + "'."
+                         " Either do not specify an AEO year argument (defaults to latest version) "
+                         " or specify a verison from the following list with the -y argument: " +
+                         str(aeo_versions))
+
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
-    skip = mseg.SkipLines(aeo_import_year=aeo_import_year)
+    skip = mseg.SkipLines(aeo_import_year, aeo_versions)
 
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,

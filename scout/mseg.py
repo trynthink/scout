@@ -5,6 +5,7 @@ import numpy
 import json
 import argparse
 import csv
+import os
 from scout import mseg_techdata as rmt
 from scout.config import FilePaths as fp
 
@@ -16,9 +17,9 @@ class EIAData(object):
         res_energy (str): The file name for the AEO residential energy
             and stock data.
     """
-    def __init__(self):
-        self.res_energy = 'RESDBOUT.txt'
-        self.res_generation = 'RDGENOUT.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.res_energy = os.path.join(data_dir, 'RDM_DBOUT.txt')
+        self.res_generation = os.path.join(data_dir, 'RDM_DGENOUT.txt')
 
 
 class UsefulVars(object):
@@ -66,7 +67,7 @@ class SkipLines(object):
         json_out (str): Filename for JSON with residential building data added.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
     """
-    def __init__(self, aeo_import_year=2022):
+    def __init__(self, aeo_import_year, aeo_versions):
         self.aeo_import_year = aeo_import_year
         if self.aeo_import_year == 2015:
             self.nlt_cp_skip_header = 20
@@ -86,15 +87,21 @@ class SkipLines(object):
             self.nlt_l_skip_header = 2
             self.lt_skip_header = 37
             self.lt_skip_footer = 52
-        else:
+        elif self.aeo_import_year in [2020, 2021, 2023, 2025, None]:
             self.nlt_cp_skip_header = 2
             self.nlt_l_skip_header = 2
             self.lt_skip_header = 37
             self.lt_skip_footer = 51
-
+        else:
+            raise ValueError(
+                "Undefined AEO version '" + aeo_import_year + "'."
+                " Either do not specify an AEO year argument (defaults to latest version) "
+                " or specify a verison from the following list with the -y argument: " +
+                str(aeo_versions))
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
+
 
 # Census division dict
 cdivdict = {'new england': 1,
@@ -617,7 +624,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # from json_translator, handling the difference in the bulb
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
-    if aeo_years in [42, 36]:  # AEO 2017- formatting
+    if aeo_years in [42, 36, 31]:  # AEO 2017- formatting
         lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-
                           ('REF', 'INC'), ('EXT', 'INC')]
     else:  # AEO 2015 formatting
@@ -1446,10 +1453,13 @@ def main():
     # Set up to support user option to specify the year for the
     # AEO data being imported (default if the option is not used
     # should be current year)
+    aeo_versions = [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025]
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
-    parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
+    parser.add_argument('-y', '--year',
+                        type=int,
+                        help=help_string,
+                        choices=aeo_versions)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -1457,7 +1467,7 @@ def main():
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
-    skip = SkipLines()
+    skip = SkipLines(aeo_import_year, aeo_versions)
 
     # Import metadata generated based on EIA AEO data files
     with open(handyvars.aeo_metadata, 'r') as metadata:
@@ -1476,8 +1486,8 @@ def main():
         ns_dtypes = dtype_array(eiadata.res_energy, '\t')
         ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t',
                               ['SF', 'ST', 'FP'])
-    else:
-        yrs_range = 36
+    elif aeo_import_year in [2025, None]:
+        yrs_range = metajson['max year'] - metajson['min year'] + 1
         update_lighting_dict()
 
         # Import EIA RESDBOUT.txt energy use and stock file
@@ -1485,6 +1495,11 @@ def main():
         ns_data = data_import(eiadata.res_energy, ns_dtypes, ',',
                               ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
                                'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+    else:
+        raise ValueError("Undefined AEO version '" + aeo_import_year + "'."
+                         " Either do not specify an AEO year argument (defaults to latest version) "
+                         " or specify a verison from the following list with the -y argument: " +
+                         str(aeo_versions))
 
     # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
     # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA

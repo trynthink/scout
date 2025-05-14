@@ -296,21 +296,21 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * heating
 
-   * electricity: |tooltip| electric_res-heat |chunk-b| electric resistance heat |close|, |tooltip| comm_GSHP-heat |chunk-b| commercial ground-source heat pump |close|, |tooltip| rooftop_ASHP-heat |chunk-b| rooftop air-source heat pump |close|, |tooltip| elec_boiler |chunk-b| electric boiler |close|
+   * electricity: |tooltip| electric_res-heat, elec_res-heater |chunk-b| electric resistance heat |close|, |tooltip| comm_GSHP-heat |chunk-b| commercial ground-source heat pump |close|, |tooltip| rooftop_ASHP-heat |chunk-b| rooftop air-source heat pump |close|, |tooltip| elec_boiler |chunk-b| electric boiler |close|, |tooltip| pkg_terminal_HP-heat |chunk-b| packaged terminal heat pump |close|
    * natural gas: |tooltip| gas_eng-driven_RTHP-heat |chunk-b| natural gas engine-driven rooftop heat pump |close|, |tooltip| res_type_gasHP-heat |chunk-b| residential-style natural gas heat pump |close|, gas_boiler, gas_furnace
    * distillate: oil_boiler, oil_furnace
 
 * cooling
 
-   * electricity: rooftop_AC, scroll_chiller, res_type_central_AC, reciprocating_chiller, |tooltip| comm_GSHP-cool |chunk-b| commercial ground-source heat pump |close|, centrifugal_chiller, |tooltip| rooftop_ASHP-cool |chunk-b| rooftop air-source heat pump |close|, wall-window_room_AC, screw_chiller
+   * electricity: rooftop_AC, scroll_chiller, res_type_central_AC, reciprocating_chiller, |tooltip| comm_GSHP-cool |chunk-b| commercial ground-source heat pump |close|, centrifugal_chiller, |tooltip| rooftop_ASHP-cool |chunk-b| rooftop air-source heat pump |close|, wall-window_room_AC, screw_chiller,  |tooltip| pkg_terminal_AC-cool |chunk-b| packaged terminal air conditioner |close|, |tooltip| pkg_terminal_HP-cool |chunk-b| packaged terminal heat pump |close|
    * natural gas: |tooltip| gas_eng-driven_RTAC |chunk-b| natural gas engine-driven rooftop AC |close|, gas_chiller, |tooltip| res_type_gasHP-cool |chunk-b| residential-style natural gas heat pump |close|, |tooltip| gas_eng-driven_RTHP-cool |chunk-b| natural gas engine-driven rooftop heat pump |close|
 
 * ventilation: |tooltip| CAV_Vent |chunk-b| constant air volume ventilation system |close|, |tooltip| VAV_Vent |chunk-b| variable air volume ventilation system |close|
 
 * water heating
 
-   * electricity: Solar water heater, HP water heater, elec_booster_water_heater, elec_water_heater
-   * natural gas: gas_water_heater, gas_instantaneous_WH, gas_booster_WH
+   * electricity: solar water heater, solar_water_heater_north, HP water heater, elec_water_heater
+   * natural gas: gas_water_heater, gas_instantaneous_water_heater
    * distillate: oil_water_heater
 
 * lighting
@@ -325,8 +325,8 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * cooking
 
-   * electricity: electric_range_oven_24x24_griddle
-   * natural gas: gas_range_oven_24x24_griddle
+   * electricity: electric_range-combined
+   * natural gas: gas_range-combined
 
 * PCs: ``null``
 

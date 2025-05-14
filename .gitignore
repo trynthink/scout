@@ -4,6 +4,11 @@
 __pycache__/
 *.py[cod]
 
+# Virtual environment files #
+#########################################
+
+.venv
+
 # EIA AEO microtable data files #
 #################################
 
@@ -12,6 +17,11 @@ __pycache__/
 ktek*
 k*.txt
 rs*.txt
+
+# Cambimum data for EIA AEO update #
+#################################
+
+scout/Cambium_data/
 
 # Populated microsegment JSON databases #
 #########################################
@@ -23,7 +33,6 @@ rs*.txt
 # Scout-generated JSON databases #s
 ##################################
 
-msegs_emm_gcam_alt.json
 ecm_results.json
 agg_results.json
 comp_fracs.json
@@ -110,3 +119,9 @@ _build
 
 build/
 scout.egg-info/
+
+# Exclude #
+###########
+
+!tests/integration_testing/results/plots/tech_potential/*.xlsx
+!tests/integration_testing/results/plots/max_adopt_potential/*.xlsx

@@ -40,7 +40,7 @@ class FilePaths:
     GENERATED = _parent_dir / "generated"
     ECM_COMP = GENERATED / "ecm_competition_data"
     EFF_FS_SPLIT = GENERATED / "eff_fs_splt_data"
-    INPUTS = _parent_dir / "inputs"
+    INPUTS = _parent_dir / "inputs"  # "inputs"
     RESULTS = _parent_dir / "results"
     PLOTS = RESULTS / "plots"
     METADATA_PATH = INPUTS / "metadata.json"
@@ -79,7 +79,8 @@ class FilePaths:
             for downstream_path in downstream_map.get(var, []):
                 diff = getattr(cls, downstream_path).relative_to(original_path)
                 setattr(cls, downstream_path, new_path / diff)
-                getattr(cls, downstream_path).mkdir(parents=True, exist_ok=True)
+                getattr(cls, downstream_path).mkdir(
+                    parents=True, exist_ok=True)
 
             # Set new path
             setattr(cls, var, new_path)
@@ -147,7 +148,8 @@ class Config:
         """Resolves filepaths depending on whether they are set in the yml or via the CLI.
         """
 
-        fp_arg_dict = {"ecm_directory": "ECM_DEF", "results_directory": "RESULTS"}
+        fp_arg_dict = {"ecm_directory": "ECM_DEF",
+                       "results_directory": "RESULTS"}
         for dir_arg, fp_var in fp_arg_dict.items():
             dir_val = getattr(self.args, dir_arg, None)
             if not dir_val:
@@ -182,7 +184,7 @@ class Config:
             type=Path,
             help=("Path to YAML configuration file, arguments passed directly to the command "
                   "line will take priority over arguments in this file")
-            )
+        )
 
     def set_config_args(self, cli_args: list[str] = []):
         """If there is a config file provided, store data and validate
@@ -331,7 +333,8 @@ class Config:
                 if "null" in arg_type:
                     arg_type.remove("null")
                 if len(arg_type) > 1:
-                    raise ValueError("Multiple argument data types is not currently supported")
+                    raise ValueError(
+                        "Multiple argument data types is not currently supported")
                 arg_type = arg_type[0]
             arg_choices = data.get("enum")
             arg_help = data.get("description")
@@ -351,13 +354,17 @@ class Config:
                     metavar="",
                 )
             elif arg_type == "string":
-                parser.add_argument(f"--{arg_name}", type=str, help=arg_help, default=arg_default)
+                parser.add_argument(
+                    f"--{arg_name}", type=str, help=arg_help, default=arg_default)
             elif arg_type == "integer":
-                parser.add_argument(f"--{arg_name}", type=int, help=arg_help, default=arg_default)
+                parser.add_argument(
+                    f"--{arg_name}", type=int, help=arg_help, default=arg_default)
             elif arg_type == "number":
-                parser.add_argument(f"--{arg_name}", type=float, help=arg_help, default=arg_default)
+                parser.add_argument(
+                    f"--{arg_name}", type=float, help=arg_help, default=arg_default)
             elif arg_type == "boolean":
-                parser.add_argument(f"--{arg_name}", action="store_true", help=arg_help)
+                parser.add_argument(
+                    f"--{arg_name}", action="store_true", help=arg_help)
             # If applicable, write allowable array choices to description
             elif arg_type == "array":
                 if arg_arr_choices:

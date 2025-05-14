@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import numpy as np
 import numpy.lib.recfunctions as recfn
 import re
@@ -18,10 +19,10 @@ class EIAData(object):
         catg_dmd (str): Filename for the commercial energy and stock data.
     """
 
-    def __init__(self):
-        self.serv_dmd = 'KSDOUT.txt'
-        self.catg_dmd = 'KDBOUT.txt'
-        self.com_generation = 'KDGENOUT.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.serv_dmd = os.path.join(data_dir, 'CDM_SDOUT.txt')
+        self.catg_dmd = os.path.join(data_dir, 'CDM_DBOUT.txt')
+        self.com_generation = os.path.join(data_dir, 'CDM_DGENOUT.txt')
 
 
 class UsefulVars(object):
@@ -33,7 +34,7 @@ class UsefulVars(object):
         com_tloads (str): Filename for the commercial thermal load components.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
         pivot_year (int): The pivot year is the value that should be
-            added to the year numbers reported in KDBOUT to convert
+            added to the year numbers reported in DBOUT to convert
             the values to actual calendar years.
     """
 
@@ -67,10 +68,10 @@ class CommercialTranslationDicts(object):
             conspicuously missing MEL codes in the microdata, EIA
             should be contacted to verify the translation between
             numeric codes and descriptive names. Additionally, the
-            numeric codes in the end use column in KDBOUT.txt in the
+            numeric codes in the end use column in DBOUT.txt in the
             rows labeled 'MiscElConsump' should be compared against
             the codes in the microdata to see if any of the codes are
-            missing from KDBOUT.txt.
+            missing from DBOUT.txt.
         fueldict (dict): Translation for fuel types.
         demand_typedict (dict): Translation for components of thermal load.
     """
@@ -274,9 +275,9 @@ def sd_mseg_percent(sd_array, sel, yrs):
     """Calculate technology-specific fractions of energy use in a microsegment.
 
     This function uses the technology type, vintage, and construction
-    status/type reported in KSDOUT into percentage energy use each year
+    status/type reported in SDOUT into percentage energy use each year
     associated with each technology type. Technology types are not
-    determined using the technology type numbers provided in KSDOUT,
+    determined using the technology type numbers provided in SDOUT,
     but rather using a regex search of the 'Description' field in the
     data, since the technology type numbers are sometimes used for
     multiple technologies, based on an inspection of the technology
@@ -555,7 +556,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
     # data-subset additional manipulation for the data to be in the
     # desired final format
     if 'demand' in key_series:
-        # Get the data from KDBOUT
+        # Get the data from DBOUT
         subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # The thermal load data end uses are coded as text strings 'HT'
@@ -597,12 +598,12 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         if not key_series[4] == 'other':
             idx_series[2] = idx_series[4]
 
-            # Extract the data from KDBOUT
+            # Extract the data from DBOUT
             subset = catg_data_selector(db_array, idx_series, 'MiscElConsump',
                                         yrs)
         # Extract the total electricity listed as "other"
         else:
-            # Extract the electricity "other" from KDBOUT
+            # Extract the electricity "other" from DBOUT
             subset = catg_data_selector(db_array, idx_series, 'EndUseConsump',
                                         yrs)
 
@@ -611,7 +612,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
                                          subset['Amount'] * to_mmbtu)),
                       'stock': 'NA'}
     elif 'new square footage' in key_series:
-        # Extract the relevant data from KDBOUT
+        # Extract the relevant data from DBOUT
         subset = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace',
                                     yrs)
 
@@ -619,7 +620,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         final_dict = dict(zip(subset['Year'],
                               subset['Amount']))
     elif 'total square footage' in key_series:
-        # Extract the relevant data from KDBOUT
+        # Extract the relevant data from DBOUT
         sub1 = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace', yrs)
         sub2 = catg_data_selector(db_array, idx_series, 'SurvFloorTotal', yrs)
 
@@ -628,7 +629,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         final_dict = dict(zip(sub1['Year'],
                               sub1['Amount'] + sub2['Amount']))
     elif idx_series[2] in sd_end_uses:
-        # Extract the relevant data from KDBOUT
+        # Extract the relevant data from DBOUT
         subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # Get percentage contributions for each equipment type that
@@ -659,7 +660,7 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
     else:
         # Regular case with no supply/demand separation or service demand data
 
-        # Extract the desired data from the KDBOUT array
+        # Extract the desired data from the DBOUT array
         subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
 
         # Convert into dict with years as keys and energy as values
@@ -741,7 +742,8 @@ def cleanup_calc(dr, cdiv, bld, years):
             zc = reduce(reducer, [zc, zml])
 
     # Remove sum of all MELs from the correct location
-    zcneg = {k: -v for k, v in zc.items()}  # Make values negative to effect subtraction
+    # Make values negative to effect subtraction
+    zcneg = {k: -v for k, v in zc.items()}
     if bld != 'unspecified':
         # Remove sum of all specific named MELs from MELs > other
         dr[cdiv][bld]['electricity']['MELs']['other']['energy'] = reduce(
@@ -791,7 +793,8 @@ def double_count_cleanup(dr):
     cd = CommercialTranslationDicts()
 
     # Get the years included in the data
-    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)[0]]['new square footage'].keys()
+    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)
+                                   [0]]['new square footage'].keys()
 
     # Clean up the double-counted electricity use
     for cdiv in cd.cdivdict:
@@ -905,7 +908,11 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # be incorrectly typed as integers
         for row in filecont:
             if len(dtypes) == len(row):
-                dtypes = [dtype_eval(col, dtypes[idx]) for idx, col in enumerate(row)]
+                # Check if row consists entirely of empty strings
+                if all(col == '' for col in row):
+                    break
+                dtypes = [dtype_eval(col, dtypes[idx])
+                          for idx, col in enumerate(row)]
 
         # Combine data types and header names into list of tuples
         comb_dtypes = list(zip(header_names, dtypes))
@@ -948,7 +955,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # while removing the " that denoted inches; by inserting an
         # escape character before the " denoting inches, the text will
         # be handled correctly by csv.reader
-        if re.match('.*KSDOUT', re.escape(str(data_file_path))):
+        if re.match('.*SDOUT', re.escape(str(data_file_path))):
             cont = thefile.read().replace('11"', '11\\"')
             thefile = io.StringIO(cont)
 
@@ -999,6 +1006,11 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # try/catch in the case where the data include the string 'NA',
         # which has to be changed to an 'nan' to be able to be coerced
         # to a float or integer by np.array
+        for r_i, row in enumerate(data):
+            for f_i, (field, (_, np_type)) in enumerate(zip(row, dtype_list)):
+                if field == '' and np.issubdtype(np_type, np.integer):
+                    print(f"⚠️  Empty int at row {r_i+1}, col {f_i} ")
+
         try:
             final_struct = np.array(data, dtype=dtype_list)
         # Targeted error "ValueError: could not convert string to float: 'NA'"
@@ -1040,7 +1052,7 @@ def str_cleaner(data_array, column_name, return_str_len=False):
         integer for the string length to use to truncate the cooking
         technology strings from ktek (the technology cost, performance,
         and lifetime data file) to match the length of the modified
-        technology strings in KSDOUT (the service demand data) when
+        technology strings in SDOUT (the service demand data) when
         combining those data.
     """
 
@@ -1134,7 +1146,7 @@ def str_cleaner(data_array, column_name, return_str_len=False):
         # length might not work to match the strings in these data
         text = ('Warning: undesired behavior might occur when '
                 'attempting to match technology characteristics '
-                'data (ktek) with service demand data (ksdout).')
+                'data (ktek) with service demand data (sdout).')
         print(text)
 
     # Return the appropriate objects based on the return_str_len option
@@ -1264,12 +1276,12 @@ def main():
     handyvars = UsefulVars()
     eiadata = EIAData()
 
-    # Import EIA AEO 'KSDOUT' service demand file
+    # Import EIA AEO 'SDOUT' service demand file
     serv_dtypes = dtype_array(eiadata.serv_dmd)
     serv_data = data_import(eiadata.serv_dmd, serv_dtypes)
     serv_data = str_cleaner(serv_data, 'Description')
 
-    # Import EIA AEO 'KDBOUT' additional data file
+    # Import EIA AEO 'DBOUT' additional data file
     catg_dtypes = dtype_array(eiadata.catg_dmd)
     catg_data = data_import(eiadata.catg_dmd, catg_dtypes)
     catg_data = str_cleaner(catg_data, 'Label')
@@ -1278,11 +1290,11 @@ def main():
     load_dtypes = dtype_array(handyvars.com_tloads, '\t')
     load_data = data_import(handyvars.com_tloads, load_dtypes, '\t')
 
-    # Import and process onsite generation from KDGENOUT.txt
+    # Import and process onsite generation from DGENOUT.txt
     onsite_gen = onsite_prep(eiadata.com_generation)
 
     # Not all end uses are broken down by equipment type and vintage in
-    # KSDOUT; determine which end uses are present so that the service
+    # SDOUT; determine which end uses are present so that the service
     # demand data are not explored unnecessarily when they are not even
     # available for a particular end use
     serv_data_end_uses = np.unique(serv_data['s'])

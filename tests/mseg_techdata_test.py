@@ -14,58 +14,48 @@ import itertools
 class CommonMethods(object):
     """Define common methods for use in all tests below."""
 
-    def dict_check(self, dict1, dict2, msg=None):
-        """Compare two dicts for equality, allowing for floating point error.
+    def dict_check(self, dict1, dict2, path=None):
+        """Compare two dicts for equality, allowing for floating‑point error,
+        and print a helpful message (incl. units, when available) on failure.
         """
+        if path is None:
+            path = []                       # first call → empty list
 
-        # zip() and zip_longest() produce tuples for the items
-        # identified, where in the case of a dict, the first item
-        # in the tuple is the key and the second item is the value;
-        # in the case where the dicts are not of identical size,
-        # zip_longest() will use the fillvalue created below as a
-        # substitute in the dict that has missing content; this
-        # value is given as a tuple to be of comparable structure
-        # to the normal output from zip_longest()
         fill_val = ('substituted entry', 5.2)
 
-        # In this structure, k and k2 are the keys that correspond to
-        # the dicts or unitary values that are found in i and i2,
-        # respectively, at the current level of the recursive
-        # exploration of dict1 and dict2, respectively
-        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
-                                                      sorted(dict2.items()),
-                                                      fillvalue=fill_val):
+        for (k, i), (k2, i2) in itertools.zip_longest(
+                sorted(dict1.items()), sorted(dict2.items()),
+                fillvalue=fill_val):
 
-            # Confirm that at the current location in the dict structure,
-            # the keys are equal; this should fail if one of the dicts
-            # is empty, is missing section(s), or has different key names
-            self.assertEqual(k, k2)
+            self.assertEqual(k, k2)         # keys must match
 
-            # If the recursion has not yet reached the terminal/leaf node
-            if isinstance(i, dict):
-                # Test that the dicts from the current keys are equal
+            if isinstance(i, dict):         # dive deeper
                 self.assertCountEqual(i, i2)
-                # Continue to recursively traverse the dict
-                self.dict_check(i, i2)
-
-            # At the terminal/leaf node, if the value is a list
-            elif isinstance(i, list):
-                self.assertTrue(type(i) == type(i2) and len(i) == len(i2))
-                for x in range(0, len(i)):
+                self.dict_check(i, i2, path + [k])
+            elif isinstance(i, list):       # compare lists
+                if not (type(i) is type(i2) and len(i) == len(i2)):
+                    print("Mismatch at key‑path:", '.'.join(path + [k]))
+                    print("Expected:", i2)
+                    print("Actual:  ", i)
+                self.assertTrue(type(i) is type(i2) and len(i) == len(i2))
+                for x in range(len(i)):
                     try:
                         self.assertEqual(i[x], i2[x])
                     except TypeError:
                         for x_s in range(len(i[x])):
                             self.assertEqual(i[x][x_s], i2[x][x_s])
 
-            # At the terminal/leaf node, if the value is a string
-            elif isinstance(i, str):
+            elif isinstance(i, str):        # plain strings
                 self.assertEqual(i, i2)
 
-            # At the terminal/leaf node
-            else:
-                # Compare the values, allowing for floating point inaccuracy
-                self.assertAlmostEqual(i, i2, places=2)
+            else:                           # numbers (or anything else)
+                try:
+                    self.assertAlmostEqual(i, i2, places=2)
+                except AssertionError:
+                    print("Mismatch at keypath:", '.'.join(path + [k]))
+                    print("Expected:", i2)
+                    print("Actual:  ", i)
+                    raise                        # keep the test failing
 
 
 class SimpleWalkTest(unittest.TestCase, CommonMethods):
@@ -190,15 +180,15 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
         (1, 2011, 2012, 1, 3.3, 1400, 1400, 0, 0, 0, 0, 1, 2, b"ELEC_HP4"),
         (1, 2012, 2014, 1, 4.8, 1500, 1500, 0, 0, 0, 0, 1, 2, b"ELEC_HP4"),
         (1, 2014, 2040, 1, 6, 2000, 2000, 0, 0, 0, 0, 1, 2, b"ELEC_HP4"),
-        (5, 2007, 2040, 4, 3, 1000, 1000, 0, 0, 0, 0, 7, 8, b"ELEC_WH2"),
-        (5, 2005, 2009, 4, 2.8, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH2"),
-        (5, 2009, 2040, 4, 2.9, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH2"),
+        (5, 2007, 2040, 4, 3, 1000, 1000, 0, 0, 0, 0, 7, 8, b"ELEC_WH1"),
+        (5, 2005, 2009, 4, 2.8, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH1"),
+        (5, 2009, 2040, 4, 2.9, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH1"),
         (5, 2005, 2009, 4, 2.9, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH3"),
         (5, 2009, 2040, 4, 3.2, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH3"),
         (5, 2005, 2009, 4, 3.2, 2000, 2000, 0, 0, 0, 0, 7, 8, b"NG_WH4"),
         (5, 2009, 2040, 4, 3.5, 1500, 1500, 0, 0, 0, 0, 7, 8, b"NG_WH4"),
-        (5, 2005, 2009, 5, 2.8, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH2"),
-        (5, 2009, 2040, 5, 2.9, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH2"),
+        (5, 2005, 2009, 5, 2.8, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH1"),
+        (5, 2009, 2040, 5, 2.9, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH1"),
         (5, 2005, 2009, 5, 2.9, 1000, 1000, 0, 0, 0, 0, 7, 8, b"NG_WH3"),
         (5, 2009, 2040, 5, 3.2, 1300, 1300, 0, 0, 0, 0, 7, 8, b"NG_WH3"),
         (5, 2005, 2009, 5, 3.2, 2000, 2000, 0, 0, 0, 0, 7, 8, b"NG_WH4"),
@@ -215,14 +205,14 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
         (6, 2012, 2040, 2, 36, 250, 250, 0, 0, 0, 0, 6, 7, b"ELEC_STV4"),
         (7, 2010, 2011, 2, 128, 1010, 1010, 0, 0, 0, 0, 0, 1, b"ELEC_DRY1"),
         (7, 2012, 2040, 2, 129, 1310, 1310, 0, 0, 0, 0, 0, 1, b"ELEC_DRY1"),
-        (7, 2010, 2011, 2, 129, 1510, 1510, 0, 0, 0, 0, 0, 1, b"NG_DRY2"),
-        (7, 2012, 2040, 2, 132, 1610, 1610, 0, 0, 0, 0, 0, 1, b"NG_DRY2"),
+        (7, 2010, 2011, 2, 129, 1510, 1510, 0, 0, 0, 0, 0, 1, b"NG_DRY3"),
+        (7, 2012, 2040, 2, 132, 1610, 1610, 0, 0, 0, 0, 0, 1, b"NG_DRY3"),
         (7, 2010, 2011, 2, 131, 2010, 2010, 0, 0, 0, 0, 0, 1, b"NG_DRY4"),
         (7, 2012, 2040, 2, 133, 1710, 1710, 0, 0, 0, 0, 0, 1, b"NG_DRY4"),
-        (7, 2010, 2011, 2, 133, 3010, 3010, 0, 0, 0, 0, 0, 1, b"ELEC_DRY2"),
-        (7, 2012, 2040, 2, 136, 2510, 2510, 0, 0, 0, 0, 0, 1, b"ELEC_DRY2"),
-        (3, 2010, 2020, 3, 15, 150, 150, 0, 0, 0, 0, 4, 5, b"CL_WASH_T2"),
-        (3, 2020, 2040, 3, 15, 150, 150, 0, 0, 0, 0, 4, 5, b"CL_WASH_T2"),
+        (7, 2010, 2011, 2, 133, 3010, 3010, 0, 0, 0, 0, 0, 1, b"ELEC_DRY"),
+        (7, 2012, 2040, 2, 136, 2510, 2510, 0, 0, 0, 0, 0, 1, b"ELEC_DRY"),
+        (3, 2010, 2020, 3, 15, 150, 150, 0, 0, 0, 0, 4, 5, b"CL_WASH_T1"),
+        (3, 2020, 2040, 3, 15, 150, 150, 0, 0, 0, 0, 4, 5, b"CL_WASH_T1"),
         (3, 2010, 2040, 3, 12, 175, 175, 0, 0, 0, 0, 4, 5, b"CL_WASH_T3"),
         (3, 2010, 2040, 3, 10, 300, 300, 0, 0, 0, 0, 4, 5, b"CL_WASH_T4"),
         (3, 2010, 2040, 3, 15, 150, 150, 0, 0, 0, 0, 4, 5, b"CL_WASH_F2"),
@@ -530,16 +520,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
         "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 1, "2010": 1, "2011": 1,
-               "2012": 1, "2013": 1},
-              "b2":
-              {"2009": 2, "2010": 2, "2011": 2,
-               "2012": 2, "2013": 2}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 1, "2010": 1, "2011": 1,
+                               "2012": 1, "2013": 1},
+                        "b2": {"2009": 2, "2010": 2, "2011": 2,
+                               "2012": 2, "2013": 2}},
+                    "best": {
+                        "b1": {"2009": 1, "2010": 1, "2011": 1,
+                               "2012": 1, "2013": 1},
+                        "b2": {"2009": 2, "2010": 2, "2011": 2,
+                               "2012": 2, "2013": 2}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 433.33, "2010": 433.33, "2011": 433.33,
                         "2012": 433.33, "2013": 533.33},
@@ -662,19 +656,23 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-         "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 7, "2010": 7, "2011": 7,
-               "2012": 7, "2013": 7},
-              "b2":
-              {"2009": 7, "2010": 7, "2011": 7,
-               "2012": 7, "2013": 7}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7},
+                        "b2": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}}},
+                "source": "EIA AEO"}}},
         {"performance": {
-            "typical": {"2009": 15, "2010": 15, "2011": 15, "2012": 15,
-                        "2013": 15},
+            "typical": {"2009": 13.5, "2010": 13.5, "2011": 13.5, "2012": 13.5,
+                        "2013": 13.5},
             "best": {"2009": 10, "2010": 10, "2011": 10, "2012": 10,
                      "2013": 10},
             "units": "kWh/cycle",
@@ -682,11 +680,11 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
          "installed cost": {
             "before incentives": {
                 "typical": {
-                    "new": {"2009": 150, "2010": 150, "2011": 150, "2012": 150,
-                            "2013": 150},
+                    "new": {"2009": 162.5, "2010": 162.5, "2011": 162.5, "2012": 162.5,
+                            "2013": 162.5},
                     "existing": {
-                        "2009": 150, "2010": 150, "2011": 150, "2012": 150,
-                        "2013": 150}},
+                        "2009": 162.5, "2010": 162.5, "2011": 162.5, "2012": 162.5,
+                        "2013": 162.5}},
                 "best": {
                     "new": {"2009": 300, "2010": 300, "2011": 300, "2012": 300,
                             "2013": 300},
@@ -754,16 +752,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 4, "2010": 4, "2011": 4,
-               "2012": 4, "2013": 4},
-              "b2":
-              {"2009": 5, "2010": 5, "2011": 5,
-               "2012": 5, "2013": 5}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 4, "2010": 4, "2011": 4,
+                               "2012": 4, "2013": 4},
+                        "b2": {"2009": 5, "2010": 5, "2011": 5,
+                               "2012": 5, "2013": 5}},
+                    "best": {
+                        "b1": {"2009": 4, "2010": 4, "2011": 4,
+                               "2012": 4, "2013": 4},
+                        "b2": {"2009": 5, "2010": 5, "2011": 5,
+                               "2012": 5, "2013": 5}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 29, "2010": 29, "2011": 29, "2012": 32,
                         "2013": 32},
@@ -826,16 +828,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6},
-              "b2":
-              {"2009": 7, "2010": 7, "2011": 7,
-               "2012": 7, "2013": 7}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 129, "2010": 129, "2011": 129, "2012": 132,
                         "2013": 132},
@@ -898,16 +904,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 0, "2010": 0, "2011": 0,
-               "2012": 0, "2013": 0},
-              "b2":
-              {"2009": 1, "2010": 1, "2011": 1,
-               "2012": 1, "2013": 1}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 0, "2010": 0, "2011": 0,
+                               "2012": 0, "2013": 0},
+                        "b2": {"2009": 1, "2010": 1, "2011": 1,
+                               "2012": 1, "2013": 1}},
+                    "best": {
+                        "b1": {"2009": 0, "2010": 0, "2011": 0,
+                               "2012": 0, "2013": 0},
+                        "b2": {"2009": 1, "2010": 1, "2011": 1,
+                               "2012": 1, "2013": 1}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.9, "2010": 2.9, "2011": 2.9, "2012": 2.9,
                         "2013": 2.9},
@@ -972,16 +982,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 7, "2010": 7, "2011": 7,
-               "2012": 7, "2013": 7},
-              "b2":
-              {"2009": 8, "2010": 8, "2011": 8,
-               "2012": 8, "2013": 8}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7},
+                        "b2": {"2009": 8, "2010": 8, "2011": 8,
+                               "2012": 8, "2013": 8}},
+                    "best": {
+                        "b1": {"2009": 7, "2010": 7, "2011": 7,
+                               "2012": 7, "2013": 7},
+                        "b2": {"2009": 8, "2010": 8, "2011": 8,
+                               "2012": 8, "2013": 8}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 1.13, "2010": 1.55, "2011": 1.55, "2012": 2.78,
                         "2013": 2.78},
@@ -1012,16 +1026,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": -0.95, "2010": -0.95, "2011": -0.95,
-               "2012": -0.95, "2013": -0.95},
-              "b2":
-              {"2009": -0.1, "2010": -0.1, "2011": -0.1,
-               "2012": -0.1, "2013": -0.1}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": -0.95, "2010": -0.95, "2011": -0.95,
+                               "2012": -0.95, "2013": -0.95},
+                        "b2": {"2009": -0.1, "2010": -0.1, "2011": -0.1,
+                               "2012": -0.1, "2013": -0.1}},
+                    "best": {
+                        "b1": {"2009": -0.95, "2010": -0.95, "2011": -0.95,
+                               "2012": -0.95, "2013": -0.95},
+                        "b2": {"2009": -0.1, "2010": -0.1, "2011": -0.1,
+                               "2012": -0.1, "2013": -0.1}}},
+                "source": "EIA AEO"}}},
         0,
         0,
         {"performance": {
@@ -1089,16 +1107,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6},
-              "b2":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -1164,16 +1186,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6},
-              "b2":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -1239,16 +1265,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6},
-              "b2":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6}},
-             "source": "EIA AEO"}}},
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}}},
+                "source": "EIA AEO"}}},
         {"performance": {
             "typical": {"2009": 2.95, "2010": 2.95, "2011": 3.15, "2012": 3.15,
                         "2013": 3.15},
@@ -1311,16 +1341,20 @@ class ListGeneratorTest(unittest.TestCase, CommonMethods):
             "units": "years",
             "source": "EIA AEO"},
          "consumer choice": {
-            "competed market share":
-            {"model type": "logistic regression",
-             "parameters":
-             {"b1":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6},
-              "b2":
-              {"2009": 6, "2010": 6, "2011": 6,
-               "2012": 6, "2013": 6}},
-             "source": "EIA AEO"}}}]
+            "competed market share": {
+                "model type": "logistic regression",
+                "parameters": {
+                    "typical": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}},
+                    "best": {
+                        "b1": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6},
+                        "b2": {"2009": 6, "2010": 6, "2011": 6,
+                               "2012": 6, "2013": 6}}},
+                "source": "EIA AEO"}}}]
 
     # Test that the walk_techdata function yields a correct output dict
     # given the valid key chain input along with the other sample inputs
