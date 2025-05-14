@@ -81,15 +81,19 @@ class ValidQueries(object):
 
     def __init__(self):
         self.file_type = ['national', 'regional']
-        self.years = ['2018', '2019', '2020', '2021', '2022', '2023']
-        self.emm_years = ['2020', '2021', '2022', '2023']
+        self.years = ['2018', '2019', '2020', '2021', '2022', '2023', '2025']
+        self.emm_years = ['2020', '2021', '2022', '2025']
         self.cases = {
             '2018': ['ref2018', 'co2fee25'],
             '2019': ['ref2019'],
             '2020': ['ref2020', 'co2fee25', 'lowogs', 'lorencst'],
             '2021': ['ref2021', 'lowogs', 'lorencst'],
             '2022': ['ref2022', 'lowogs', 'lorencst'],
-            '2023': ['ref2023', 'lowogs', 'lowZTC', 'lowmaclowZTC']}
+            '2023': ['ref2023', 'lowogs', 'lowZTC', 'lowmaclowZTC'],
+            '2025': ['ref2025', 'lowogs', 'lowZTC',
+                     'highogs', 'highZTC',
+                     #   'lm2025'
+                     ]}
         self.regions_dict = OrderedDict({'WECCB': 'BASN',
                                          'WECCCAN': 'CANO',
                                          'WECCCAS': 'CASO',
@@ -145,6 +149,7 @@ class EIAQueries(object):
             each EMM region for the AEO scenario and release year
             specified by the user.
     """
+
     def __init__(self, yr, scen):
         self.data_series = [
             'cnsm_NA_elep_NA_hyd_cnv_NA_qbtu',
@@ -318,7 +323,7 @@ def api_query(api_key, query_str, expect_table_id):
         data = response.json()['response']['data']
         # Extract only the required data in the API response
         data = [[str(x['period']), x['value']] for x in data if
-                x['tableId'] == expect_table_id]
+                x['tableId'] == str(expect_table_id)]
     except KeyError:
         if response.status_code == 429:  # API rate limit exceeded
             raise Exception('Rate limit reached')
@@ -344,7 +349,7 @@ def data_processor(data):
     """
     years, data = zip(*data)
     years = np.array(years)
-    data = np.array(data)[years.argsort()]  # Re-sort in ascending year order
+    data = np.array(data, dtype=float)[years.argsort()]  # Re-sort in ascending year order
     years = years[years.argsort()]  # Re-sort to be in ascending year order
 
     # Get year of earliest AEO data
@@ -884,9 +889,9 @@ def updater_state(conv_emm, aeo_min, restrict):
     emm_price_com_ratios = emm_price_com.iloc[:, 1:].div(
         emm_price_com[aeo_min], axis=0)
     # Re-insert base year into new dataframe
-    emm_price_res_ratios.insert(0, aeo_min, '')
+    # emm_price_res_ratios.insert(0, aeo_min, '')
     emm_price_res_ratios[aeo_min] = 1.0
-    emm_price_com_ratios.insert(0, aeo_min, '')
+    # emm_price_com_ratios.insert(0, aeo_min, '')
     emm_price_com_ratios[aeo_min] = 1.0
 
     # Generate state factors using baseline state data and
@@ -1192,6 +1197,7 @@ def main():
         # Output updated state emissions/price projections data
         with open(fp.CONVERT_DATA / state_conv_file, 'w') as js_out:
             json.dump(conv_state, js_out, indent=2)
+        print('\nState conversion factors updated successfully.')
 
 
 if __name__ == '__main__':
