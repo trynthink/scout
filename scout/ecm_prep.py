@@ -1947,6 +1947,7 @@ class UsefulVars(object):
             "panel management": 475,  # BENEFIT panels cost data, averaged across regions
             "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
         }
+        self.alt_panel_names = ["-no panel", "-manage"]
 
     def import_state_data(self, handyfiles, state_vars, valid_regions, opts):
         """Import and further prepare sub-federal adoption driver data.
@@ -2021,10 +2022,10 @@ class UsefulVars(object):
                     # entry for res./com., flag it for further processing
                     for b_ind, b in enumerate(bldg):
                         # Flag 'all' building type entries for res./com. separately
-                        if b in all_bldg_entries:
-                            all_res_flag, all_com_flag = [
-                                True if b in y else False
-                                for y in [["all residential", "all"], ["all commercial", "all"]]]
+                        if b in ["all", "all residential"]:
+                            all_res_flag = True
+                        elif b in ["all", "all commercial"]:
+                            all_com_flag = True
                     # Fill out the building types while removing original "all" entries
                     for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
                         if flg and ind_flg == 0:
