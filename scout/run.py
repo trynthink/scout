@@ -2366,15 +2366,21 @@ class Engine(object):
             effect_frac = {yr: 0 for yr in self.handyvars.aeo_years}
             # Loop through possible years for restrictions
             for yr in self.handyvars.aeo_years:
-                # Find which restrictions apply to the current year
-                yr_rows = [x for x in restrict_rows if x[-2] >= int(yr)]
+                # Find which restrictions apply to the current year (either already on the books
+                # or on the books as of the current year)
+                yr_rows = [x for x in restrict_rows if x[-2] <= int(yr)]
                 # If restrictions apply and any of them applies to 100% of the segment, set the
                 # % applicability to 100%; otherwise, sum the applicability percentages of all
                 # other restrictions that apply
                 if len(yr_rows) >= 0 and any([x[-1] == 1 for x in yr_rows]):
                     effect_frac[yr] = 1
                 else:
-                    effect_frac[yr] = sum([x[-1] for x in yr_rows])
+                    # Sum percentages; remove any duplicate applicability fractions from the sum,
+                    # under the assumption that they represent a policy twice (e.g., one city
+                    # represnting 15% of a state implements it in 2025, and then expands to more
+                    # types of equipment in 2030, so for a segment affected in both years the policy
+                    # shows up twice)
+                    effect_frac[yr] = sum(numpy.unique([x[-1] for x in yr_rows]))
             # Register cases where measure switches fuels entirely away from segment or switches
             # to a new fuel while retaining existing fuel as backup (assume restrictions do not
             # preclude such cases)
