@@ -3371,9 +3371,16 @@ class Engine(object):
             key_list = list(literal_eval(mseg_key))
             # Strip any additional information that is added to the
             # EIA technology name to further distinguish msegs with exogenous
-            # rates and/or specific heating and cooling pairings
+            # rates, specific heating and cooling pairings, and/or panel upgrade needs
             if "-" in key_list[-2]:
-                tch_apnd = ("-" + key_list[-2].split("-")[-1])
+                try:
+                    # Check for panel upgrade info. on the tech. name
+                    panel_info = [x for x in ["-manage", "-no panel"] if x in key_list[-2]][0]
+                    # Add panel info. to other appended tech. info. (after the dash)
+                    tch_apnd = (panel_info + "-" + key_list[-2].split("-")[-1])
+                except IndexError:
+                    # Find appended tech. info. (after the dash)
+                    tch_apnd = ("-" + key_list[-2].split("-")[-1])
             else:
                 tch_apnd = ""
             # Determine the building type of the contributing microsegment

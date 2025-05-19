@@ -534,6 +534,7 @@ class UsefulVars(object):
             would require a panel upgrade if switching to min. efficiency electric equipment.
         elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
             to electricity.
+        alt_panel_names (list): Panel upgrade requirement info. to append to tech. names.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -4169,7 +4170,7 @@ class Measure(object):
                 # to enable assessment of panel upgrade sub-segments; for the purposes
                 # of pulling stock/energy data from AEO, use the original gas furnace key
                 if mskeys[i] is not None and (
-                        any([x in mskeys[i] for x in ["-no panel", "-manage"]])):
+                        any([x in mskeys[i] for x in self.handyvars.alt_panel_names])):
                     key_item = mskeys[i].split("-")[0]
                 else:
                     key_item = mskeys[i]
@@ -6770,16 +6771,30 @@ class Measure(object):
                             not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
                             (self.linked_htcl_tover and
                                 mskeys[4] != self.linked_htcl_tover_anchor_eu)):
+                        # Set the list of contributing mseg information to use in matching
+                        # the linked segments to the anchor segment, including primary/secondary
+                        # mseg type, region, building type, and building vintage
+                        linked_mseg_elems = [mskeys[0], mskeys[1], mskeys[2], mskeys[-1]]
+                        # If technology information is subsegmented to convey info. about panel
+                        # upgrade needs, link to associated subsegment of anchor technology
+                        try:
+                            append_tech = [x for x in self.handyvars.alt_panel_names if
+                                           x in mskeys[-2]][0]
+                        except IndexError:
+                            append_tech = False
                         # Find the specific contributing microsegment data for the anchor end use
                         # to add costs to. Ensure that linked data are only added to anchor end
                         # use segments that apply to the same mseg type (primary/secondary),
-                        # region, building type, and building vintage, and that no envelope (
-                        # "demand") msegs are pulled into this calculation, which applies to equip.
+                        # region, building type, building vintage, and if applicable, panel upgrade
+                        # sub-segment; also ensure that no envelope ( "demand") msegs are pulled
+                        # into this calculation, which applies to equipment segments only
                         ctb_mseg_to_add_cost_to = [x for x in self.markets[adopt_scheme][
                             "mseg_adjust"]["contributing mseg keys and values"].keys() if
                             "demand" not in x and self.linked_htcl_tover_anchor_eu in x and all([
-                                elem in x for elem in [
-                                    mskeys[0], mskeys[1], mskeys[2], mskeys[-1]]])]
+                                elem in x for elem in linked_mseg_elems]) and (
+                                (not append_tech and all(
+                                    [y not in x for y in self.handyvars.alt_panel_names])) or (
+                                    append_tech and append_tech in x))]
                         # Loop through the applicable msegs to add costs to and add costs
                         for add_to_mseg in ctb_mseg_to_add_cost_to:
                             # Shorthand for mseg data to add costs to
@@ -9238,7 +9253,7 @@ class Measure(object):
             # Determine whether currently looped through mseg tech. serves as anchor tech for
             # linked turnover/switching calcs. across measure. Account for cases where info. about
             # need to upgrade electrical panel is appended to the technology information
-            if any([x in mskeys[-2] for x in ["-no panel", "-manage"]]):
+            if any([x in mskeys[-2] for x in self.handyvars.alt_panel_names]):
                 # Pull out appended tech information to indicate alternate panel upgrade outcome
                 append_tech = mskeys[-2].split("-")[-1]
                 # Make determination of whether current mseg tech is the anchor tech
@@ -11866,9 +11881,9 @@ class Measure(object):
             for i_orig, i_np, i_mgmt in zip(
                     segs_to_subset, segs_to_subset_no_panel, segs_to_subset_mgmt):
                 # Alternate that doesn't require a panel upgrade
-                i_np[-2] += "-no panel"
+                i_np[-2] += self.handyvars.alt_panel_names[0]
                 # Alternate that doesn't require a panel upgrade given added load management
-                i_mgmt[-2] += "-manage"
+                i_mgmt[-2] += self.handyvars.alt_panel_names[1]
                 # Case with anchor tech for linked heating/cooling msegs
                 # If the original technology name is in the list of anchor techs, record the
                 # modified versions of the anchor tech name that tag alternate panel upgrade
