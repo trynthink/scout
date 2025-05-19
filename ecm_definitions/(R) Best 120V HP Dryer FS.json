@@ -2,7 +2,7 @@
   "name": "(R) Best 120V HP Dryer FS",
   "_description": "Fuel switch from gas to 120VHP dryer (assume maps to best available category)",
   "measure_type": "full service",
-  "market_entry_year": 2024,
+  "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
   "ref_case_flag": null,
@@ -68,6 +68,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2025-05-02 13:16:00"
+    "timestamp": "2025-05-14 12:29:20"
   }
 }

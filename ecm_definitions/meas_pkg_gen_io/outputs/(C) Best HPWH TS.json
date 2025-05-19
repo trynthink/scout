@@ -2,7 +2,7 @@
   "name": "(C) Best HPWH TS",
   "_description": "Highest efficiency commercial heat pump water heater in 2022 ('Typical' in EIA data)",
   "measure_type": "full service",
-  "market_entry_year": 2024,
+  "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
   "ref_case_flag": null,
@@ -65,6 +65,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2025-05-02 13:16:00"
+    "timestamp": "2025-05-14 12:29:20"
   }
 }

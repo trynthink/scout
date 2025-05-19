@@ -2,7 +2,7 @@
   "name": "(C) Ref. Case GSHP",
   "_description": "Ref. case ground source heat pump heating and cooling plus ventilation",
   "measure_type": "add-on",
-  "market_entry_year": 2024,
+  "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
   "ref_case_flag": "yes",
@@ -75,6 +75,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-05-02 13:16:00"
+    "timestamp": "2025-05-14 12:29:20"
   }
 }

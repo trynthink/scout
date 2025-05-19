@@ -2,7 +2,7 @@
   "name": "(R) Ref. Case Refrigerator",
   "_description": "Typical residential refrigerator in 2022",
   "measure_type": "add-on",
-  "market_entry_year": 2024,
+  "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": "yes",
   "ref_case_flag": "yes",
@@ -60,6 +60,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-05-02 13:16:00"
+    "timestamp": "2025-05-14 12:29:20"
   }
 }

@@ -2,7 +2,7 @@
   "name": "(R) ESTAR GSHP (Other Fossil Furnace)",
   "_description": "ENERGY STAR ground source heat pump fully replacing original fuel oil/propane furnace",
   "measure_type": "full service",
-  "market_entry_year": 2024,
+  "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
   "ref_case_flag": null,
@@ -178,6 +178,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-05-02 13:16:00"
+    "timestamp": "2025-05-14 12:29:20"
   }
 }
