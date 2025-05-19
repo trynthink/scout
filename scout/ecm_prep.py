@@ -3744,7 +3744,8 @@ class Measure(object):
             # cooling tech. unit costs, not room ACs or secondary heaters)
             rmv_minor_hvac_stkcosts = (
                 # Multiple techs. including minor HVAC tech.
-                any([x in mskeys for x in self.handyvars.minor_hvac_tech]) and not
+                any([mskeys[-2] is not None and
+                    x in mskeys[-2] for x in self.handyvars.minor_hvac_tech]) and not
                 all([x in self.handyvars.minor_hvac_tech for x in self.technology["primary"]]))
 
             # Check whether early retrofit rates are specified at the
@@ -6141,7 +6142,7 @@ class Measure(object):
                                 fuel_shr = "natural gas"
                             # Segment is linked to non-electric heating tech. other than gas;
                             # pull first non-electric fuel in measure definition
-                            elif any([x != "electricity" for x in self.fuel_type]):
+                            elif any([x != "electricity" for x in self.fuel_type["primary"]]):
                                 fuel_shr = [x for x in self.fuel_type if x != "electricity"][0]
                             # Segment is linked to electric heating tech.
                             else:
@@ -6802,16 +6803,19 @@ class Measure(object):
                                 "contributing mseg keys and values"][add_to_mseg]
                             # If full detailed data were not prepared for current scenario (see var
                             # 'add_dict_limited' below, account for this by only linking to the
-                            # data available (efficient/measure competed data for stock/energy
-                            # variables only)
+                            # data available (efficient/measure variables only)
                             if not self.handyvars.full_dat_out[adopt_scheme] and \
                                     self.name not in ctrb_ms_pkg_prep:
-                                ecarb_cases, stk_cases, outputs, cost_keys = [
-                                    ["efficient"], ["measure"], ["competed"], ["stock", "energy"]]
+                                ecarb_cases, stk_cases, rmv_hp_cases, outputs, cost_keys = [
+                                    ["efficient"], ["measure"], [rmv_hp_dblct_meas_stkcosts],
+                                    ["competed"], ["stock", "energy"]]
                             else:
-                                ecarb_cases, stk_cases, outputs, cost_keys = [
+                                ecarb_cases, stk_cases, rmv_hp_cases, outputs, cost_keys = [
                                     ["baseline", "efficient"], ["all", "measure"],
+                                    [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts],
                                     ["total", "competed"], ["stock", "energy", "carbon"]]
+                            # Track data to be converted over
+
                             # Add in all cost data (stock, energy, and carbon)
                             add_to_dict["cost"] = {cost_key: {output: {
                                 # Add to cost data for baseline/efficient cases
@@ -6836,19 +6840,8 @@ class Measure(object):
                                         or cost_key != "stock" and not opts.no_lnkd_op_costs)) else
                                     add_to_dict["cost"][cost_key][output][case][yr]
                                     for yr in self.handyvars.aeo_years} for case, stk_var, rmv_hp in
-                                zip(ecarb_cases, stk_cases,
-                                    [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts])
+                                zip(ecarb_cases, stk_cases, rmv_hp_cases)
                                 } for output in outputs} for cost_key in cost_keys}
-                            # Zero out the segments for which cost data were transferred to avoid
-                            # double counting
-                            for var in ["stock", "energy", "carbon"]:
-                                add_to_dict["cost"][var] = {
-                                    "total": {
-                                        "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
-                                        "efficient": {yr: 0 for yr in self.handyvars.aeo_years}},
-                                    "competed": {
-                                        "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
-                                        "efficient": {yr: 0 for yr in self.handyvars.aeo_years}}}
                     # Remove minor HVAC equipment stocks in cases where major HVAC tech. is also
                     # covered by the measure definition, as well as double counted stock and stock
                     # cost for equipment measures that apply to more than one end use that includes
