@@ -7268,9 +7268,9 @@ class Measure(object):
         # if suppressed, do not loop through that type of incentive for segment. Assume that
         # incentives are suppressed when there is no distinction between federal/non-federal ('all')
         if opts.incentive_restrictions == "no federal":
-            seg_loop = [x for x in seg_loop if any([y not in x for y in ["federal", "all"]])]
+            seg_loop = [x for x in seg_loop if all([y not in x for y in ["federal", "all"]])]
         elif opts.incentive_restrictions == "no state":
-            seg_loop = [x for x in seg_loop if any([y not in x for y in ["sub-federal", "all"]])]
+            seg_loop = [x for x in seg_loop if all([y not in x for y in ["sub-federal", "all"]])]
 
         # Loop through applicable fed/sub-fed branching of incentives and adjust costs accordingly
         for seg in seg_loop:
@@ -7374,7 +7374,7 @@ class Measure(object):
                     "remove", "extend", "replace"]]
                 # Apply incentives mods to original incentives values pulled above
                 for val_adjs_i, val_adjs in enumerate([
-                        x for x in [base_val_yr_max_init, meas_val_yr_max_init] if x]):
+                        x for x in [base_val_yr_max_init, meas_val_yr_max_init]]):
                     # Set appropriate supporting variables to use for adjustment of baseline or
                     # switched to segment incentives
                     if val_adjs_i == 0:
@@ -7486,7 +7486,7 @@ class Measure(object):
                                                 x in perf_thres_val.split(";")]
                                             # Flag for whether current mseg region is a warm climate
                                             warm_reg = (mskeys[1] in self.handyvars.warm_cold_regs[
-                                                        "warm climates"].keys())
+                                                        "warm climates"])
                                             # Assign perf. threshold value based on climate flag
                                             if warm_reg:
                                                 perf_thres_val = warm_val
