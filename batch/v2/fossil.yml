@@ -1,0 +1,46 @@
+description: AEO Reference case with additional drivers to raise demand for fossil fuels and early retrofitting.
+ecm_prep:
+  ecm_files: [
+    "(R) Ref. Case NG Furnace & AC",
+    "(R) Ref. Case Resist. Heat & AC",
+    "(R) Ref. Case ASHP",
+    "(R) Ref. Case GSHP",
+    "(R) Best NG Furnace & AC",
+    "(R) Min. Efficiency ASHP FS (NG Furnace)",
+    "(R) ESTAR HP Pt. FS (NG Furnace)",
+    "(R) ESTAR HP FS (NG Furnace)",
+    "(R) ESTAR GSHP (NG Furnace)",
+    "(R) ESTAR HP TS (Resist.)",
+    "(R) Best HP Pt. FS (NG Furnace)",
+    "(R) Best HP FS (NG Furnace)"
+  ]
+  ecm_packages: []
+  alt_regions: State
+  site_energy: true
+  rp_persist: true
+  no_scnd_lgt: true
+  pkg_env_costs: include HVAC
+  adopt_scn_restrict: Max adoption potential
+  retrofits:
+    retrofit_type: constant
+    retrofit_multiplier: null
+    retrofit_mult_year: null
+  elec_upgrade_costs: all
+  no_lnkd_costs:
+    no_lnkd_stk_costs: true
+    no_lnkd_op_costs: false
+  sub_fed_policy:
+    low_volume_rate: reference
+    state_appl_regs: reference
+    bps: reference
+    codes: reference
+  incentives:
+    incentive_levels: reference
+    incentive_restrictions: no federal electric
+  price_sensitivity: highelec_lowfossil
+  split_fuel: true 
+  detail_brkout: [regions, buildings]
+
+run:
+  high_res_comp: true
+  report_stk: true
