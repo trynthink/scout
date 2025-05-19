@@ -6468,15 +6468,17 @@ class Engine(object):
                 reg_brk = [out_reg for out_reg, in_reg in self.handyvars.out_break_czones.items() if
                            reg in in_reg][0]
             except IndexError:
-                raise ValueError("Invalid region ('" + reg + "') in BPS/codes inputs")
+                verboseprint("Invalid region ('" + reg + "') in BPS/codes inputs is skipped")
+                continue
             try:
                 bldg_vnt_brk = [out_bldg_vnt for out_bldg_vnt, in_bldg_vnt in
                                 self.handyvars.out_break_bldgtypes.items() if
                                 (bldg in in_bldg_vnt and vint in in_bldg_vnt)][0]
             except IndexError:
-                raise ValueError(
+                verboseprint(
                     "Invalid building type or vintage ('" + bldg + "' or '" +
-                    vint + "')' in BPS/codes inputs")
+                    vint + "')' in BPS/codes inputs is skipped")
+                continue
 
             # Apply onsite emissions reduction requirements, if any, to measure data that applies
             # to the current region/bldg/vintage combination
@@ -6812,14 +6814,6 @@ class Engine(object):
                         added_elec_base = {yr: convert_fossil[yr] * 1 for yr in apply_yrs}
                         added_elec_eff = {
                             yr: convert_fossil[yr] * rel_elec_eff[eu][yr] for yr in apply_yrs}
-                        # Shorthand for code/BPS breakout data to update, further restricted by
-                        # region, end use, building type, and fuel type (converted baseline is
-                        # added to the fossil fuel in the code/BPS measure, converted efficient is
-                        # added to the electric fuel in the code/BPS measure)
-                        brk_dat_cdbps_base = \
-                            brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel]
-                        brk_dat_cdbps_eff = \
-                            brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][elec_key]
                         # Shorthand for code/BPS savings breakout data to update (if applicable,
                         # note that the stock metric won't have this), distinguished
                         # by the same fuels as for the base/eff data above
@@ -6832,13 +6826,14 @@ class Engine(object):
                         # added to for current region/bldg/vint/end use/fuel; if not, initialize
                         # these data as zero
                         # Initialize baseline data
-                        if len(brk_dat_cdbps_base.keys()) == 0:
+                        if len(brk_dat_cdbps_base[reg_brk][
+                                bldg_vnt_brk][eu][fossil_fuel].keys()) == 0:
                             for yr in self.handyvars.aeo_years:
-                                brk_dat_cdbps_base[yr] = 0
+                                brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] = 0
                         # Initialize efficient data
-                        if len(brk_dat_cdbps_eff.keys()) == 0:
+                        if len(brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][elec_key].keys()) == 0:
                             for yr in self.handyvars.aeo_years:
-                                brk_dat_cdbps_eff[yr] = 0
+                                brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][elec_key][yr] = 0
                         # Initialize savings data (if applicable to variable)
                         if brk_dat_cdbps_save is not None:
                             if len(brk_dat_cdbps_save_bfuel.keys()) == 0:
@@ -6873,8 +6868,10 @@ class Engine(object):
 
                             # Add stock/energy/carbon/cost to the fossil/electric breakout and
                             # master data for the codes/BPS measure
-                            brk_dat_cdbps_base[yr] += added_elec_base[yr]  # This will be fossil
-                            brk_dat_cdbps_eff[yr] += added_elec_eff[yr]  # This will be electric
+                            brk_dat_cdbps_base[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] += \
+                                added_elec_base[yr]  # This will be fossil
+                            brk_dat_cdbps_eff[reg_brk][bldg_vnt_brk][eu][elec_key][yr] += \
+                                added_elec_eff[yr]  # This will be electric
                             # Only update savings breakout data if applicable
                             if brk_dat_cdbps_save is not None:
                                 brk_dat_cdbps_save_bfuel[yr] += added_elec_base[yr]
@@ -7715,7 +7712,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
         if any([x is not None and len(x) != 0 for x in [codes, bps]]) \
-                and all([x in brkout for x in ["reg", "bldg"]]) and split_fuel is True:
+            and (brkout == "detail" or all([x in brkout for x in ["reg", "bldg"]])) \
+                and split_fuel is True:
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
             cbpslist = a_run.process_codes_bps(adopt_scheme, msegs, handyvars, verboseprint)
