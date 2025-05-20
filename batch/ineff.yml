@@ -86,7 +86,7 @@ ecm_prep:
     retrofit_multiplier: 4
     retrofit_mult_year: 2035
   split_fuel: true
-  detail_brkout: [regions]
+  detail_brkout: [regions, fuel types]
   alt_ref_carb: MidCase
 run:
   report_stk: true

@@ -134,7 +134,7 @@ ecm_prep:
     exog_hp_rate_scenario: conservative
   adopt_scn_restrict: Max adoption potential
   split_fuel: true
-  detail_brkout: [regions]
+  detail_brkout: [regions, fuel types]
   alt_ref_carb: MidCase
 run:
   report_stk: true

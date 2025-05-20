@@ -178,7 +178,7 @@ ecm_prep:
     exog_hp_rate_scenario: most aggressive
   adopt_scn_restrict: Max adoption potential
   split_fuel: true
-  detail_brkout: [regions]
+  detail_brkout: [regions, fuel types]
   floor_start: 2030
   alt_ref_carb: MidCase
   grid_decarb:

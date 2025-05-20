@@ -280,10 +280,10 @@ class Config:
                     " assessing grid decarbonization")
 
             # detailed breakout
-            if "fuel types" in args.detail_brkout and args.split_fuel:
+            if "fuel types" in args.detail_brkout and not args.split_fuel:
                 raise ValueError(
                     "Detailed breakout (`detail_brkout`) cannot include `fuel types` if"
-                    " split_fuel==True")
+                    " split_fuel==False")
 
             # retrofits
             if args.retrofit_type == "increasing" and (not args.retrofit_multiplier or
