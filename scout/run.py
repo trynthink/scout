@@ -1659,6 +1659,7 @@ class Engine(object):
             measures_adj = [self.measures[x] for x in range(
                 0, len(self.measures)) if msu in mkts_adj[x][
                 "contributing mseg keys and values"].keys()]
+
             # Create short name for all ECM competition data pertaining to
             # current contributing microsegment
             msu_mkts = [m.markets[adopt_scheme]["competed"][
@@ -6368,7 +6369,7 @@ class Engine(object):
                 "(C) Building Codes", "(C) Building Performance Standards"]]
         # Ensure that codes/BPS are ordered by start year such that their impacts are reflected
         # with the proper staging in cases where there are multiple start years per affected segment
-        codes_plus_bps_list = sorted(codes_plus_bps_list, key=itemgetter(-2))
+        codes_plus_bps_list = sorted(codes_plus_bps_list, key=itemgetter(-3))
 
         # Loop through codes and BPS policies one-by-one and reflect their effects, provided their
         # applicable regions and building types intersect with those of active measures in analysis
@@ -6531,8 +6532,9 @@ class Engine(object):
                              (rel_elec_eff_init["fossil"][var][eu][yr] /
                               rel_elec_eff_init["fossil"]["stock"][eu][yr]))
                         if all([x != 0 for x in [
+                            rel_elec_eff_init["electric"]["stock"][eu][yr],
                             rel_elec_eff_init["fossil"][var][eu][yr],
-                            rel_elec_eff_init["fossil"]["stock"][eu][yr]]]) else None
+                            rel_elec_eff_init["fossil"]["stock"][eu][yr]]]) else 1
                         for yr in apply_yrs} for eu in rel_elec_eff_init[
                             "electric"][var].keys()} for var in [
                             "stock", "energy", "carbon", "cost"]}
@@ -6763,10 +6765,8 @@ class Engine(object):
         for eu in brk_dat_base[reg_brk][bldg_vnt_brk].keys():
             # Ensure that all electric unit performance data are complete/non-null for end use;
             # if not, move on to next end use
-            if eu not in rel_elec_eff.keys() or any([
-                    x is None for x in rel_elec_eff[eu].values()]):
+            if eu not in rel_elec_eff.keys():
                 continue
-
             # If no fuel breakouts are present for the given end use, no onsite reductions
             # are reflected b/c there is no opportunity for electrification/onsite reductions
             if self.handyvars.aeo_years[0] in brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys():
@@ -6809,7 +6809,9 @@ class Engine(object):
                         # 'prior_yr_rmv').
                         convert_fossil = {
                             yr: (brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -
-                                 na_eff) * onsite_reduce_frac[yr] * apply_frac for yr in apply_yrs}
+                                 na_eff) * onsite_reduce_frac[yr] * apply_frac
+                            if (na_eff < brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr])
+                            else 0 for yr in apply_yrs}
                         # When looping through energy data, check to ensure that relative
                         # performance of electric vs. fossil-based equipment is always less than
                         # 1; if not, throw error.
@@ -7026,7 +7028,8 @@ class Engine(object):
         # energy reductions required in the code/BPS
         reduce_base_to_meet_thres = {
             yr: (brk_dat_base[yr] - na_base) * apply_frac * added_energy_reduce_frac[yr]
-            if yr in apply_yrs else 0 for yr in self.handyvars.aeo_years}
+            if (yr in apply_yrs and na_base < brk_dat_base[yr]) else 0
+            for yr in self.handyvars.aeo_years}
         # Reflect reductions as removals from the original measure breakout and master data
         for yr in apply_yrs:
             # Set the segment of the baseline market to remove to meet threshold
@@ -7136,8 +7139,7 @@ class Engine(object):
         unit_elec_meas_reg_bldg = [m for m in self.measures if (
             m.fuel_switch_to == "electricity" and (m.min_eff_elec_flag is not None or any([
                 x in m.name for x in ["Min.", "min.", "Minimum", "minimum"]])) and
-            reg in m.climate_zone and bldg in m.bldg_type and vint in m.structure_type and
-            m.market_entry_year <= int(apply_yrs[0]))]
+            reg in m.climate_zone and bldg in m.bldg_type and vint in m.structure_type)]
         # If no minimum efficiency measure benchmarks were discovered, throw an error to prevent
         # further processing of this function (handled in the code block the function is called
         # within)
@@ -7231,6 +7233,7 @@ class Engine(object):
                         energy_sums[out] = {
                             yr: energy_sums[out][yr] + (
                                 brk_dat_eu[yr] - energy_na)
+                            if energy_na < brk_dat_eu[yr] else energy_sums[out][yr]
                             for yr in self.handyvars.aeo_years}
                     # Otherwise loop through assumed further fuel type breakouts and sum across
                     else:
@@ -7244,7 +7247,8 @@ class Engine(object):
                                 else:
                                     energy_na = 0
                                 add_energy = {
-                                    yr: (brk_dat_eu[fuel][yr] - energy_na) for
+                                    yr: (brk_dat_eu[fuel][yr] - energy_na)
+                                    if energy_na < brk_dat_eu[fuel][yr] else 0 for
                                     yr in self.handyvars.aeo_years}
                             except KeyError:
                                 add_energy = {yr: 0 for yr in self.handyvars.aeo_years}
