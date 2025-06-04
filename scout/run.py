@@ -6137,6 +6137,7 @@ class Engine(object):
                 ("CO2 Cost Savings (USD)".translate(sub),
                  carb_costsave_all_avg),
                 ("Efficient Energy Use (MMBtu)", energy_eff_all_avg),
+                ("Efficient Energy Use, Measure (MMBtu)", energy_eff_all_capt_avg),
                 ("Efficient CO2 Emissions (MMTons)".translate(sub),
                  carb_eff_all_avg),
                 ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
@@ -6352,8 +6353,10 @@ class Engine(object):
         codes_plus_bps_list = codes_list + bps_list
         # Initialize separate code/BPS measure instances; data from existing measures in the
         # analysis will be pulled into these code/BPS measures to reflect code/BPS impacts
-        codes_measure, bps_measure = [Codes_BPS_Measure(handyvars, name) for name in [
-            "Building Codes", "Building Performance Standards"]]
+        codes_res_measure, bps_res_measure, codes_com_measure, bps_com_measure = [
+            Codes_BPS_Measure(handyvars, name) for name in [
+                "(R) Building Codes", "(R) Building Performance Standards",
+                "(C) Building Codes", "(C) Building Performance Standards"]]
         # Ensure that codes/BPS are ordered by start year such that their impacts are reflected
         # with the proper staging in cases where there are multiple start years per affected segment
         codes_plus_bps_list = sorted(codes_plus_bps_list, key=itemgetter(-2))
@@ -6386,8 +6389,12 @@ class Engine(object):
             # from the base case that the code/BPS requires, which is handled differently for codes
             # vs. BPS.
             if code_std_flag == "code":
-                # Set codes/BPS measure to update to codes measure
-                m_cdbps = codes_measure
+                # Set codes/BPS measure to update to codes measure – res or com based on the
+                # current policy's applicable building type
+                if bldg in ["single family home", "multi family home", "mobile home"]:
+                    m_cdbps = codes_res_measure
+                else:
+                    m_cdbps = codes_com_measure
                 # Determine the year range for which the current code onsite reduction applies
                 apply_yrs = [yr for yr in self.handyvars.aeo_years if int(yr) >= start_yr]
                 # For codes, set applicable building vintage to new (assume codes only apply to new
@@ -6414,17 +6421,21 @@ class Engine(object):
                 # Finalize energy index gain by adding the stretch code adoption impact on top
                 # of the impact from updating to the latest code version, if applicable
                 if not numpy.isnan(stretch) and lag_reduce != 0:
-                    impact_thres_tyr = lag_reduce * (1 + (stretch / 100))
-                elif lag_reduce == 0:
+                    impact_thres_tyr = lag_reduce + (stretch / 100)
+                elif not numpy.isnan(stretch):
                     impact_thres_tyr = (stretch / 100)
                 else:
-                    impact_thres_tyr = 0
+                    impact_thres_tyr = lag_reduce
                 # Breakout energy index impact by year, for further application below
                 impact_thres = {yr: impact_thres_tyr if yr in apply_yrs else 0
                                 for yr in self.handyvars.aeo_years}
             else:
-                # Set codes/BPS measure to update to BPS measure
-                m_cdbps = bps_measure
+                # Set codes/BPS measure to update to BPS measure – res or com based on the
+                # current policy's applicable building type
+                if bldg in ["single family home", "multi family home", "mobile home"]:
+                    m_cdbps = bps_res_measure
+                else:
+                    m_cdbps = bps_com_measure
                 # Set year to use in benchmarking EUI improvements in the BPS target year
                 bench_yr = code_std[4]
                 # Ensure that benchmark year exists; if not, assume it's 5 years before the
@@ -6595,7 +6606,9 @@ class Engine(object):
                         m_cdbps)
 
             # Ensure that no blank codes or BPS measures are returned and written out
-            fin_code_bps_meas = [m for m in [codes_measure, bps_measure] if len(m.reg_brk) != 0]
+            fin_code_bps_meas = [m for m in [
+                codes_res_measure, codes_com_measure, bps_res_measure, bps_com_measure] if
+                len(m.reg_brk) != 0]
 
         return fin_code_bps_meas
 
@@ -6755,8 +6768,11 @@ class Engine(object):
             # are reflected b/c there is no opportunity for electrification/onsite reductions
             if self.handyvars.aeo_years[0] in brk_dat_base[reg_brk][bldg_vnt_brk][eu].keys():
                 continue
-            # Reflect onsite fuel reductions/conversions to electricity when applicable
-            else:
+            # Reflect onsite fuel reductions/conversions to electricity when applicable. For
+            # stock, only record stock conversions for the heating end use, which is considered
+            # a default "anchor" use to avoid issues interpreting stock totals for these measures
+            # when they apply to several end use techs.
+            elif var != "stock" or "Heating" in eu:
                 # Set electric and non-electric keys
                 elec_key = "Electric"
                 nelec_keys = [
@@ -7294,7 +7310,10 @@ class Engine(object):
             codes_bps_dict_out["Markets and Savings (Overall)"][
                 adopt_scheme] = OrderedDict([
                     ("Baseline Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["baseline"]),
-                    ("Efficient Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["efficient"]),
+                    ("Efficient Energy Use (MMBtu)",
+                     cbps_mkt["energy"]["total"]["efficient"]),
+                    ("Efficient Energy Use, Measure (MMBtu)",
+                     cbps_mkt["energy"]["total"]["efficient"]),
                     ("Baseline CO2 Emissions (MMTons)".translate(sub),
                         cbps_mkt["carbon"]["total"]["baseline"]),
                     ("Efficient CO2 Emissions (MMTons)".translate(sub),
@@ -7313,6 +7332,7 @@ class Engine(object):
                 adopt_scheme] = OrderedDict([
                     ("Baseline Energy Use (MMBtu)", cbps_brk["energy"]["baseline"]),
                     ("Efficient Energy Use (MMBtu)", cbps_brk["energy"]["efficient"]),
+                    ("Efficient Energy Use, Measure (MMBtu)", cbps_brk["energy"]["efficient"]),
                     ("Baseline CO2 Emissions (MMTons)".translate(sub),
                         cbps_brk["carbon"]["baseline"]),
                     ("Efficient CO2 Emissions (MMTons)".translate(sub),
@@ -7323,6 +7343,30 @@ class Engine(object):
                     ("Energy Cost Savings (USD)", cbps_brk["cost"]["savings"]),
                     ("Avoided CO2 Emissions (MMTons)".translate(sub),
                      cbps_brk["carbon"]["savings"])])
+            # Report stock totals, if desired by the user
+            if self.opts.report_stk is True:
+                # By default, stock units correspond to heating equipment units (only code/BPS-
+                # driven heating stock fuel switching is captured in reporting) which differ
+                # between residential and commercial codes/BPS measures
+                if "(R)" in cbps.name:
+                    stk_units = "(units equipment)"
+                elif "(C)" in cbps.name:
+                    stk_units = "(TBtu heating served)"
+                else:
+                    ValueError("Cannot classify codes/BPS measure as residential or commercial"
+                               " for the purpose of assuming stock units; check that measure "
+                               "name includes (R) or (C) tag.")
+                # Finalize baseline and measure stock keys/units
+                base_stk_key, meas_stk_key = [(x + stk_units) for x in [
+                    "Baseline Stock ", "Measure Stock "]]
+                # Add total stock and stock breakouts if given as user option
+                codes_bps_dict_out["Markets and Savings (Overall)"][base_stk_key], \
+                    codes_bps_dict_out["Markets and Savings (Overall)"][meas_stk_key] = [
+                        cbps_mkt["stock"]["total"][x] for x in ["all", "measure"]]
+                codes_bps_dict_out["Markets and Savings (by Category)"][
+                    adopt_scheme][base_stk_key], codes_bps_dict_out[
+                        "Markets and Savings (by Category)"][adopt_scheme][
+                        meas_stk_key] = [cbps_brk["stock"][x] for x in ["baseline", "efficient"]]
         return codes_bps_dict_out
 
 
