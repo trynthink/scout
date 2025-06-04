@@ -6050,12 +6050,15 @@ class Measure(object):
                         self.name + "'")
 
                 # Adjust measure costs to consider added electrical infrastructure costs (only
-                # applicable for fuel switching measures or measures that tech. switch from an
-                # existing electric technology)
-                if opts.elec_upgrade_costs != "ignore" and \
+                # applicable for residential fuel switching measures or res. measures that tech.
+                # switch from an existing electric technology). Ensure that when linked measure
+                # microsegments are present (e.g., heating + cooling), electrical infrastructure
+                # costs are only assessed once in the anchor end use microsegments
+                if bldg_sect == "residential" and opts.elec_upgrade_costs != "ignore" and \
                     "existing" in mskeys and (
                         self.fuel_switch_to == "electricity" or self.tech_switch_to not in [
-                            None, "NA", "same"]):
+                            None, "NA", "same"]) and (not self.linked_htcl_tover or (
+                        self.linked_htcl_tover and mskeys[4] == self.linked_htcl_tover_anchor_eu)):
                     cost_meas, elec_infr_flag = \
                         self.add_elec_infr_costs(cost_meas, mskeys, elec_infr_flag, opts)
 
