@@ -2005,26 +2005,30 @@ class Engine(object):
         else:
             # Shorthand for mseg-specific stock/stock cost data
             try:
-                markets_uc_stk = [
-                    m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                        "contributing mseg keys and values"][
+                markets_uc_stk, markets_uc_capfact = [[
+                    m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
                         stk_cost_dat_keys[m_ind][0]] for m_ind, m in enumerate(measures_adj)]
+                    for x in ["contributing mseg keys and values", "capacity factor"]]
             except KeyError:
                 try:
-                    markets_uc_stk = [
-                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                            "contributing mseg keys and values"][
+                    markets_uc_stk, markets_uc_capfact = [[
+                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
                             stk_cost_dat_keys[m_ind][1]] for m_ind, m in enumerate(measures_adj)]
+                        for x in ["contributing mseg keys and values", "capacity factor"]]
                 except KeyError:
                     # Handle case where expected microsegment stock data to be linked to the stock
                     # data for the current microsegment is not available; key in stock data with
                     # current microsegment stock info.
-                    markets_uc_stk = [m.markets["Technical potential"]["uncompeted"][
-                        "mseg_adjust"]["contributing mseg keys and values"][
-                            mseg_key] for m_ind, m in enumerate(measures_adj)]
+                    markets_uc_stk, markets_uc_capfact = [[m.markets[
+                        "Technical potential"]["uncompeted"]["mseg_adjust"][x][
+                            mseg_key] for m_ind, m in enumerate(measures_adj)] for x in [
+                            "contributing mseg keys and values", "capacity factor"]]
             # Shorthand for number of units captured by measure
             n_units = [markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
                        for m_ind, m in enumerate(measures_adj)]
+            # Commercial stock denotes units of service demand, but unit stock costs are in terms
+            # of units of service capacity; use reported capacity factor to convert between
+            stk_cap_fact = [markets_uc_capfact[m_ind] for m_ind, m in enumerate(measures_adj)]
             # Measure lifetime (mseg-specific). If the measure lifetime is less than 1 year, set it
             # to 1 year (a minimum for measure lifetime to work in below calculations)
             life_meas = [markets_uc_stk[m_ind]["lifetime"]["measure"] if
@@ -2033,7 +2037,8 @@ class Engine(object):
             # Unit upfront capital cost dictionary (calculated for current mseg only, not annual)
             unit_cost_s_in_unadj = [{
                 yr: (markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr] /
-                     n_units[m_ind][yr]) * self.handyvars.cost_convert["stock"]
+                     (n_units[m_ind][yr] * stk_cap_fact[m_ind])) *
+                self.handyvars.cost_convert["stock"]
                 if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
                 for m_ind, m in enumerate(measures_adj)]
             # Annualize unit upfront costs
@@ -2054,7 +2059,7 @@ class Engine(object):
             # Unit annual operating cost dictionary (calculated for current mseg only)
             unit_cost_e_in = [{
                 yr: (markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr] /
-                     n_units[m_ind][yr]) *
+                     (n_units[m_ind][yr] * stk_cap_fact[m_ind])) *
                 self.handyvars.cost_convert["energy"]
                 if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
                 for m_ind, m in enumerate(measures_adj)]

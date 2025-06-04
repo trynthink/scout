@@ -2604,8 +2604,9 @@ class Measure(object):
                energy, carbon, cost),
             b) 'mseg_adjust': all microsegments that contribute to each master
                microsegment (required later for measure competition); competed
-               choice model parameters; information need to link stock turnover
-               and/or exogenous fuel/tech switching rates across msegs.
+               choice model parameters; capacity factors for equipment where costs
+               are described per unit service capacity; information need to link stock
+               turnover and/or exogenous fuel/tech switching rates across msegs.
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use, fuel)
         sector_shapes (dict): Sector-level hourly baseline and efficient load
@@ -3095,6 +3096,7 @@ class Measure(object):
                 "mseg_adjust", {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
+                    "capacity factor": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
                             "original energy (total)": {},
@@ -6699,9 +6701,9 @@ class Measure(object):
                      add_fs_energy_eff_remain_switch,
                      add_fs_carb_eff_remain_switch,
                      add_fs_energy_cost_eff_remain_switch,
-                     mkt_scale_frac_fin, warn_list] = \
+                     mkt_scale_frac_fin, stk_cap_fact, warn_list] = \
                         self.partition_microsegment(
-                            adopt_scheme, diffuse_params, mskeys, bldg_sect,
+                            adopt_scheme, diffuse_params, mskeys, mskeys_swtch, bldg_sect,
                             sqft_subst, mkt_scale_frac, new_constr, add_stock,
                             add_energy, add_carb, add_fmeth, f_refr,
                             cost_base, cost_meas, cost_energy_base,
@@ -6830,9 +6832,11 @@ class Measure(object):
                                     # (do not modify anchor mseg data further)
                                     yr: (add_to_dict["cost"][cost_key][output][
                                         case][yr] + ((add_dict["cost"][
-                                            cost_key][output][case][yr] /
-                                            add_dict["stock"][output][stk_var][yr]) *
-                                        add_to_dict["stock"][output][stk_var][yr]))
+                                            cost_key][output][case][yr] / (
+                                            add_dict["stock"][output][stk_var][yr] * stk_cap_fact))
+                                            * (add_to_dict["stock"][output][stk_var][yr] *
+                                               self.markets[adopt_scheme]["mseg_adjust"][
+                                                "capacity factor"][add_to_mseg])))
                                     if (add_dict["stock"][output][stk_var][yr] != 0 and (
                                         (cost_key == "stock" and not opts.no_lnkd_stk_costs
                                          and not rmv_hp
@@ -7057,6 +7061,9 @@ class Measure(object):
                     self.markets[adopt_scheme]["master_mseg"] = \
                         self.add_keyvals(self.markets[adopt_scheme][
                             "master_mseg"], add_dict)
+                    # Add capacity factor information to contributing microsegment data
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "capacity factor"][contrib_mseg_key_str] = stk_cap_fact
 
         # Print warnings
         if len(warn_list) > 0:
@@ -11174,7 +11181,7 @@ class Measure(object):
                 fs_carb_eff_remain_base, fs_energy_cost_eff_remain_base,
                 fs_energy_eff_remain_switch, fs_carb_eff_remain_switch,
                 fs_energy_cost_eff_remain_switch, mkt_scale_frac_fin,
-                warn_list]
+                stk_serv_cap_cnv, warn_list]
 
     def check_meas_inputs(self):
         """Check for valid inputs for key measure characteristics.
@@ -12807,6 +12814,7 @@ class MeasurePackage(Measure):
                 "mseg_adjust": {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
+                    "capacity factor": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
                             "original energy (total)": {},
