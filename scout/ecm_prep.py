@@ -2146,10 +2146,39 @@ class UsefulVars(object):
                         perf_lev, perf_units, credit, rebate, rebate_units = [
                             [x] for x in row.values[-9:-4]]
                         # Pull all parameters together in a master list
-                        params = [x for x in [
+                        params = [
                             state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
                             increase, perf_lev, perf_units, credit, rebate, rebate_units,
-                            start_yr, end_yr, apply_frac]]
+                            start_yr, end_yr, apply_frac]
+                        # For heat pump segments, ensure that if a user has specified incentives
+                        # for one of heating or cooling end uses, the other end use is zeroed out
+                        # (otherwise user-specified HP incentives might be combined with HP
+                        # incentives already in the EIA/Scout baseline)
+                        if any([y in tech[0] for y in ["HP", "all"]]) and any([
+                                x in eu for x in ["heating", "cooling"]]):
+                            # Duplicate the user-specified incentives
+                            dup_params = copy.deepcopy(params)
+                            # For duplicate row, switch information to end use not covered in
+                            # original row (e.g., if heat, switch to cool info., or vice versa)
+                            if "heating" in eu:
+                                # Switch end use
+                                dup_params[3] = ["cooling"]
+                                # Switch technology name (if tech. name indicates heat/cool info.)
+                                if "-heat" in tech[0]:
+                                    dup_params[4] = [tech[0].replace("-heat", "-cool")]
+                                # Switch rebate units (if units indicate heat/cool info.)
+                                if "heating" in rebate_units[0]:
+                                    dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
+                            else:
+                                dup_params[3] = ["heating"]
+                                if "-cool" in tech[0]:
+                                    dup_params[4] = [tech[0].replace("-cool", "-heat")]
+                                if "cooling" in rebate_units[0]:
+                                    dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
+                            # Zero out all incentives in the duplicate row
+                            dup_params[-5], dup_params[-6] = ([0] for n in range(2))
+                        else:
+                            dup_params = []
                     elif k == "low_volume_rate":
                         # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
                         # and added fixed costs (annual, if applicable).
@@ -2170,15 +2199,23 @@ class UsefulVars(object):
                         if numpy.isnan(fix_add[0]):
                             fix_add[0] = [0]
                         # Pull all parameters together in a master list
-                        params = [x for x in [
+                        params = [
                             state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
-                            start_yr, end_yr, apply_frac]]
+                            start_yr, end_yr, apply_frac]
+                        # No need to duplicate rows for this driver (see for incentives above)
+                        dup_params = []
                     else:
                         raise ValueError("Unexpected sub-federal input type '" + k + "'")
 
                     # Iterate all expanded parameter info. into a list of lists with every
                     # possible combination of each parameter
                     iterable = list(map(list, itertools.product(*params)))
+                    # Further iterate all duplicated parameter info. when one heating or cooling
+                    # end use for heat pump incentives is provided and the other end use needs to
+                    # be zeroed out
+                    if len(dup_params) > 0:
+                        dup_iterable = list(map(list, itertools.product(*dup_params)))
+                        iterable.extend(dup_iterable)
 
                     # Update segment/row-specific list of state-level inputs and reset attribute
                     state_dat_init.extend(iterable)
@@ -7337,9 +7374,9 @@ class Measure(object):
         # if suppressed, do not loop through that type of incentive for segment. Assume that
         # incentives are suppressed when there is no distinction between federal/non-federal ('all')
         if opts.incentive_restrictions == "no federal":
-            seg_loop = [x for x in seg_loop if all([y not in x for y in ["federal", "all"]])]
-        elif opts.incentive_restrictions == "no state":
-            seg_loop = [x for x in seg_loop if all([y not in x for y in ["sub-federal", "all"]])]
+            seg_loop = [x for x in seg_loop if x not in ["federal", "all"]]
+        elif opts.incentive_restrictions == "no sub-federal":
+            seg_loop = [x for x in seg_loop if x not in ["non-federal", "all"]]
 
         # Loop through applicable fed/sub-fed branching of incentives and adjust costs accordingly
         for seg in seg_loop:
@@ -7554,8 +7591,12 @@ class Measure(object):
                                                 float(x.split(":")[1]) for
                                                 x in perf_thres_val.split(";")]
                                             # Flag for whether current mseg region is a warm climate
+                                            # Note that dual fuel measures are effectively treated
+                                            # as warm climate measures for incentives purposes,
+                                            # even if they are installed in cold climates
                                             warm_reg = (mskeys[1] in self.handyvars.warm_cold_regs[
-                                                        "warm climates"])
+                                                        "warm climates"] or
+                                                        self.backup_fuel_fraction is not None)
                                             # Assign perf. threshold value based on climate flag
                                             if warm_reg:
                                                 perf_thres_val = warm_val
