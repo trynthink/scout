@@ -9084,7 +9084,7 @@ class Measure(object):
         return cost_meas_fin, cost_meas_units_fin, cost_base_units_fin
 
     def partition_microsegment(
-            self, adopt_scheme, diffuse_params, mskeys, bldg_sect, sqft_subst,
+            self, adopt_scheme, diffuse_params, mskeys, mskeys_swtch, bldg_sect, sqft_subst,
             mkt_scale_frac, new_constr, stock_total_init, energy_total_init,
             carb_total_init, fmeth_total_init, f_refr, cost_base, cost_meas,
             cost_energy_base, cost_energy_meas, rel_perf, life_base, life_meas,
@@ -11016,14 +11016,18 @@ class Measure(object):
             # Modify measure energy costs to reflect alternate rate structures,
             # if applicable
             if self.handyvars.low_volume_rate is not None:
+                # Pull microsegment information to compare against, based on whether or not
+                # the measure involves fuel and/or tech switching
+                fuel_for_rate = (mskeys[3] if not mskeys_swtch else mskeys_swtch[3])
+                tech_for_rate = (mskeys[-2] if not mskeys_swtch else mskeys_swtch[-2])
                 # Pull the alternate rate structure that applies to the current yr/mseg
                 alt_rates = [seg for seg in self.handyvars.low_volume_rate if (
                     ((numpy.isnan(seg[-3]) or seg[-3] <= int(yr)) and
                      (numpy.isnan(seg[-2]) or seg[-2] >= int(yr))) and  # applies to current year
                     (seg[0:3] == [mskeys[1], mskeys[2], mskeys[-1]]) and  # reg/bldg/vint
-                    seg[5] == mskeys[3] and  # fuel
+                    (seg[5] == fuel_for_rate) and  # fuel (switched to, if applicable)
                     (seg[3] == "all" or seg[3] == mskeys[4]) and  # end use
-                    (seg[4] == "all" or seg[4] == mskeys[-2]))]  # tech
+                    (seg[4] == "all" or seg[4] == tech_for_rate))]  # tech (switched to, if appl.)
                 # If alternatives apply, pull data on modifications to volumetric energy rates;
                 # if no alternates apply, set modifications to zero
                 if len(alt_rates) != 0:
