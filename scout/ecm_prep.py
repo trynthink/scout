@@ -11245,15 +11245,11 @@ class Measure(object):
             # baseline fuel in the given year; for non-fuel switching measures,
             # these variables are not used further in the routine
             if self.fuel_switch_to is not None:
-                # Handle results differently in cases where new cooling
-                # additions under HP switching are being calculated; in this
-                # case, remaining baseline stock/energy/carbon/cost is not
-                # applicable (since no baseline cooling stock existed) and
-                # remaining efficient results are all cooling associated with
-                # the switched to measure
-                # if not new_cool_units:
-                fs_stk_eff_remain[yr] = \
-                    stock_total[yr] - stock_total_meas[yr]
+                # Since the convention is to report "efficient" stock as only the measure-captured
+                # portion of the stock, and the primary heating equipment is switching away from
+                # the base fuel, by definition no measure stock will remain w/ base fuel under a
+                # fuel switching case
+                fs_stk_eff_remain[yr] = 0
                 # For fuel switching measures with exogenous HP conversion
                 # rates specified, the only baseline energy/carbon/cost
                 # that can remain with the baseline fuel is that from duel
