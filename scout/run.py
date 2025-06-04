@@ -400,6 +400,15 @@ class UsefulVars(object):
                         for x in row.values[1:3]]
                     # Set start year and applicability fraction
                     start_yr, apply_frac = [[row.values[-3]], [row.values[-2]]]
+                    # If start year is None, set to first year in modeling horizon
+                    if numpy.isnan(start_yr[0]):
+                        start_yr = [int(self.aeo_years[0])]
+                    # If start year is before data in year range, set to earliest year in range
+                    elif str(int(start_yr[0])) not in self.aeo_years:
+                        start_yr = [int(self.aeo_years[0])]
+                    # Otherwise ensure that start year is an integer
+                    else:
+                        start_yr = [int(start_yr[0])]
                     # Check for all states (e.g., a federal policy) or a bundle of U.S. Climate
                     # Alliance (UCSA) states (note that HI is included in the USCA but not currently
                     # run in Scout simulations, add in subsequently; AK also currently excluded)
@@ -454,10 +463,10 @@ class UsefulVars(object):
                         if len(vint) == 1 and vint[0] == "all":
                             vint = ["new", "existing"]
                         # Fill out 'all' entries for fuel type
-                        if len(fuel) == 1 and fuel[0] == "all fossil":
+                        if len(fuel) == 1 and fuel[0] in ["all fossil", "all"]:
                             fuel = ["natural gas", "distillate", "other fuel"]
                         # Fill out 'all' entries for end use
-                        if len(eu) == 1 and eu[0] == "all fossil":
+                        if len(eu) == 1 and eu[0] in ["all fossil", "all"]:
                             eu = ["heating", "water heating", "cooking", "drying"]
                         params = [x for x in [
                             state, bldg, vint, fuel, eu, tech, start_yr, apply_frac]]
@@ -6371,12 +6380,6 @@ class Engine(object):
             reg, bldg = code_std[0:2]
             onsite_reduce = code_std[2]
             start_yr = code_std[-3]
-            # If start year for code/BPS is blank, set it to the first year in the AEO horizon
-            if numpy.isnan(start_yr):
-                start_yr = int(self.handyvars.aeo_years[0])
-            # If start year is before data in year range, set to earliest year in range
-            if str(start_yr) not in self.handyvars.aeo_years:
-                start_yr = int(self.handyvars.aeo_years[0])
             apply_frac = code_std[-2]
             # Handle blank applicability factor input
             if numpy.isnan(apply_frac):
