@@ -445,11 +445,15 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
-        link_htcl_tover_anchor_tech_opts = For measures that apply to separate
+        htcl_anchor_tech_opts (dict): For measures that apply to separate
             heating and cooling technologies, stock turnover and exogenous
             switching rates will be anchored on whichever technology in the
             measure's definition appears first in the lists in this dict,
             given the anchor end use above and applicable bldg. type (res/com)
+        htcl_linked_unitcosts (dict): For measures that apply to separate
+            heating and cooling technologies, this dict determines which
+            linked tech. should serve as the basis for determining linked unit costs
+            (e.g., furnace + central AC when central AC and room AC are both in measure)
         fug_emissions (dict): Refrigerant leakage data and supply chain
             methane data to support assessments of fugitive emissions.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
@@ -967,6 +971,40 @@ class UsefulVars(object):
                     "wall-window_room_AC"]
             }
         }
+        # List order assigns priority for linked end use techs that should be paired
+        # with anchor end use techs for the purposes of calculating unit-level stock and
+        # operating costs for competition
+        self.htcl_linked_unitcosts = {
+            "residential": {
+                "resistance heat": ["central AC", "room AC"],
+                "furnace (NG)": ["central AC", "room AC"],
+                "boiler (NG)": ["central AC", "room AC"],
+                "furnace (distillate)": ["central AC", "room AC"],
+                "boiler (distillate)": ["central AC", "room AC"],
+                "furnace (LPG)": ["central AC", "room AC"],
+                "furnace (kerosene)": ["central AC", "room AC"],
+                "stove (wood)": ["central AC", "room AC"],
+                "ASHP": ["ASHP"],
+                "GSHP": ["GSHP"],
+                "NGHP": ["NGHP"]
+            },
+            "commercial": {
+                "elec_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                                "screw_chiller", "scroll_chiller"],
+                "electric_res-heat": ["rooftop_AC", "res_type_central_AC"],
+                "gas_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                               "screw_chiller", "scroll_chiller"],
+                "gas_furnace": ["rooftop_AC", "res_type_central_AC"],
+                "oil_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                               "screw_chiller", "scroll_chiller"],
+                "oil_furnace": ["reciprocating_chiller", "centrifugal_chiller",
+                                "screw_chiller", "scroll_chiller"],
+                "rooftop_ASHP-heat": ["rooftop_ASHP-cool"],
+                "comm_GSHP-heat": ["comm_GSHP-cool"],
+                "gas_eng-driven_RTHP-heat": ["gas_eng-driven_RTHP-cool"],
+                "res_type_gasHP-heat": ["res_type_gasHP-cool"]
+            }
+            }
 
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
@@ -3424,9 +3462,8 @@ class Measure(object):
                 # anchor for linked heating/cooling turnover and switching
                 # calculations (these are specified by building sector and by
                 # the anchor end use set in UsefulVars class earlier)
-                linked_htcl_tover_anchor_tech_list = [
-                    x for x in self.handyvars.htcl_anchor_tech_opts[
-                        bldg_sect][self.linked_htcl_tover_anchor_eu]]
+                linked_htcl_tover_anchor_tech_list = self.handyvars.htcl_anchor_tech_opts[
+                    bldg_sect][self.linked_htcl_tover_anchor_eu]
                 # Find the first in the ordered list of candidate technologies
                 # that the measure applies to, use as anchor for linked
                 # heating/cooling mseg turnover and switching calculations
@@ -3434,14 +3471,46 @@ class Measure(object):
                     x for x in linked_htcl_tover_anchor_tech_list if x in
                     self.technology["primary"]][0]
             except IndexError:
-                # Throw error if no anchor technology could be determined
+                # Print warning if no anchor end use technology to link heating/cooling segments
+                # could be determined; continue calculations without any links
                 raise ValueError(
-                    "Cannot find anchor technology to link heating "
-                    "and cooling microsegment stock turnover rates for "
+                    "Cannot find anchor end use technology to link heating "
+                    "and cooling microsegment calculations for "
                     "measure '" + self.name + "'. Check measure "
                     "'technology' attribute to ensure one or more items "
                     "are included in the following list: " +
                     str(linked_htcl_tover_anchor_tech_list))
+            if self.linked_htcl_tover_anchor_tech and (
+                    not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs):
+                try:
+                    # Pull the ordered list of candidate technologies to serve as
+                    # tech. for adding linked stock and/or operating costs (these are specified by
+                    # building sector and by the linked end use set in UsefulVars class earlier)
+                    linked_htcl_tover_linked_tech_list = self.handyvars.htcl_linked_unitcosts[
+                        bldg_sect]
+                    # Find the technology to use in determining linked stock or operating costs;
+                    # determination depends on whether heating or cooling end use is used as anchor
+                    if self.linked_htcl_tover_anchor_eu == "heating":
+                        # Find lists of paired cooling tech
+                        link_tech_candidates = [
+                            x[1] for x in linked_htcl_tover_linked_tech_list.items() if
+                            self.linked_htcl_tover_anchor_tech == x[0]][0]
+                    else:
+                        link_tech_candidates = [
+                            x[0] for x in linked_htcl_tover_linked_tech_list.items() if
+                            self.linked_htcl_tover_anchor_tech in x[1]]
+                    # Select first technology in retrieved list that is present in measure def.
+                    self.linked_htcl_tover_linked_tech = [
+                        x for x in link_tech_candidates if x in self.technology["primary"]][0]
+                except IndexError:
+                    # Print warning if no linked end use technology to link heating/cooling segments
+                    # could be determined; continue calculations without any links
+                    raise ValueError(
+                        "Cannot find linked end use technology to use as basis for linking heating "
+                        "and cooling costs for measure '" + self.name + "'. Check measure "
+                        "'technology' attribute to ensure one or more items "
+                        "are included in the following list: " +
+                        str(link_tech_candidates))
 
             # If HP conversions are flagged, determine in which cooling/mseg
             # any additions in homes that don't have existing cooling will
@@ -6768,12 +6837,12 @@ class Measure(object):
 
                     # If user has not suppress the inclusion of linked stock/operating costs for
                     # measures that apply to heating or cooling and other end use segments, transfer
-                    # any costs from linked segments over to the anchor end use segments
-                    # (by default this is the heating end use segments).
+                    # any costs from the primary linked tech segments over to the anchor end use
+                    # segments (by default this is the heating end use segments).
                     if adopt_scheme == "Technical potential" and (
                             not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
-                            (self.linked_htcl_tover and
-                                mskeys[4] != self.linked_htcl_tover_anchor_eu)):
+                            (self.linked_htcl_tover and (mskeys[-2] is not None and
+                             self.linked_htcl_tover_linked_tech in mskeys[-2]))):
                         # Set the list of contributing mseg information to use in matching
                         # the linked segments to the anchor segment, including primary/secondary
                         # mseg type, region, building type, and building vintage
@@ -6789,7 +6858,7 @@ class Measure(object):
                         # to add costs to. Ensure that linked data are only added to anchor end
                         # use segments that apply to the same mseg type (primary/secondary),
                         # region, building type, building vintage, and if applicable, panel upgrade
-                        # sub-segment; also ensure that no envelope ( "demand") msegs are pulled
+                        # sub-segment; also ensure that no envelope ("demand") msegs are pulled
                         # into this calculation, which applies to equipment segments only
                         ctb_mseg_to_add_cost_to = [x for x in self.markets[adopt_scheme][
                             "mseg_adjust"]["contributing mseg keys and values"].keys() if
