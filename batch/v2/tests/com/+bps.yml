@@ -1,0 +1,40 @@
+description: AEO Reference case with additional consideration of state-level drivers and early retrofitting.
+ecm_prep:
+  ecm_files: [
+    "(C) ESTAR HP FS (RTU, NG Heat)",
+    "(C) ESTAR HP Pt. FS (RTU, NG Heat)",
+    "(C) Best HP FS (RTU, NG Heat)",
+    "(C) Best HP Pt. FS (RTU, NG Heat)",
+    "(C) Min. Efficiency HP FS (RTU, NG Heat)",
+    "(C) Ref. Case RTU, NG Heat"
+  ]
+  ecm_packages: []
+  alt_regions: State
+  site_energy: true
+  rp_persist: true
+  no_scnd_lgt: true
+  pkg_env_costs: include HVAC
+  adopt_scn_restrict: Max adoption potential
+  retrofits:
+    retrofit_type: null
+    retrofit_multiplier: null
+    retrofit_mult_year: null
+  elec_upgrade_costs: all
+  no_lnkd_costs:
+    no_lnkd_stk_costs: false
+    no_lnkd_op_costs: false
+  sub_fed_policy:
+    low_volume_rate: null
+    state_appl_regs: null
+    bps: aggressive
+    codes: null
+  incentives:
+    incentive_levels: reference
+    incentive_restrictions: all
+  price_sensitivity: null
+  split_fuel: true 
+  detail_brkout: [regions, buildings]
+
+run:
+  high_res_comp: true
+  report_stk: true

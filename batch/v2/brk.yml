@@ -15,7 +15,17 @@ ecm_prep:
     "(R) Best HP FS (NG Furnace)",
     "(R) Brk. HP TS (Resist.)",
     "(R) Brk. HP LFL",
-    "(R) Brk. HP FS (NG Furnace)"
+    "(R) Brk. HP FS (NG Furnace)",
+    "(C) Ref. Case RTU, NG Heat",
+    "(C) Best HP FS (RTU, NG Heat)",
+    "(C) Ref. Case, Resist. Heat",
+    "(C) Ref. Case, Resist. Heat TS",
+    "(C) Min. Efficiency HP FS (RTU, NG Heat)",
+    "(C) ESTAR HP TS (Resist. Heat)",
+    "(C) ESTAR HP FS (RTU, NG Heat)",
+    "(C) ESTAR HP Pt. FS (RTU, NG Heat)",
+    "(C) Best HP FS (RTU, NG Heat)",
+    "(C) Best HP Pt. FS (RTU, NG Heat)"
   ]
   ecm_packages: []
   alt_regions: State
