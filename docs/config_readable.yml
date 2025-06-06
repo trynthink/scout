@@ -223,7 +223,10 @@ run:
     configuration file (.yml) or the command line path, depending
     on where the argument is assigned. If not provided, ./results
     will be used. Default null
-  trim_results: (boolean) If true, reduce results file size. Default
-    False
+  trim_results: (string) Report limited results variables to reduce
+    results file size. String indicates whether longer-than-annual
+    reporting interval should also be used ('all_yrs' reports
+    annually). Allowed values are {all_yrs, every_five_yrs, every_other_yr,
+    every_ten_yrs, null}. Default null
   verbose: (boolean) If true, print all warnings to stdout. Default
     False

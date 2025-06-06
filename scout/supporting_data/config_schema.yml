@@ -293,9 +293,10 @@ properties:
         default: false
         description: If true, flag market penetration outputs.
       trim_results:
-        type: boolean
-        default: false
-        description: If true, reduce results file size.
+        type: ["string", "null"]
+        enum: [all_yrs, every_other_yr, every_five_yrs, every_ten_yrs, null]
+        default: null
+        description: Report limited results variables to reduce results file size. String indicates whether longer-than-annual reporting interval should also be used ('all_yrs' reports annually).
       report_stk:
         type: boolean
         default: false

@@ -43,6 +43,6 @@ run:
   results_directory: null
   verbose: false
   mkt_fracs: false
-  trim_results: false
+  trim_results: null
   report_stk: false
   report_cfs: false
