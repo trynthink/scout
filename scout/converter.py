@@ -40,7 +40,7 @@ select the latest AEO year available and use the following mapping between AEO c
 scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
 "-95by2050"; ref2023 -> all other files. Users may also enter pairs of scenarios, separated by a
 comma, that represent high gas/low electric price and low gas/high electric price futures, as
-follows: 'lowogs, lowmaclowZTC', 'highogs, highmachighZTC'.
+follows: lowogs, lowmaclowZTC, highogs, highmachighZTC.
 
 3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
 "emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
@@ -1164,8 +1164,8 @@ def main():
     elif opts.f.startswith('site_source'):
         geography = 'national'
     else:
-        print('The file name provided does not correspond to an expected '
-              'conversion file.')
+        raise ValueError(
+            "The file name provided does not correspond to an expected conversion file.")
 
     # Set state conversion file to use on the basis of the emm file name
     state_conv_file = opts.f.replace("emm_region_emissions", "state_emissions")
@@ -1194,7 +1194,11 @@ def main():
         while opts.s is None:
             scenario = input('Please specify the desired AEO scenario. '
                              'Valid entries are: ' +
-                             ', '.join(ValidQueries().cases[year]) + '.\n')
+                             ', '.join(ValidQueries().cases[year]) + '.\n'
+                             '(Note that the last four of these should be '
+                             'entered as pairs for crafting a low gas/high '
+                             'electric price scenario and vice versa, e.g., '
+                             'highogs, highmachighZTC OR lowogs, lowmaclowZTC.)\n')
             if scenario not in ValidQueries().cases[year]:
                 print('Invalid scenario entered.')
             else:
