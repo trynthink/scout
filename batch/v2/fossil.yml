@@ -54,3 +54,4 @@ ecm_prep:
 run:
   high_res_comp: true
   report_stk: true
+  trim_results: every_five_yrs
