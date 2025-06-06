@@ -7630,7 +7630,7 @@ class Measure(object):
                                 # and if measure meets performance, reflect incentive.  Account
                                 # for inverted performance units (e.g., lower number is better).
                                 # Do not process further if IRA incentive zeroed out.
-                                if not suppress_ira and perf_thres_units == perf_base_units and ((
+                                if not suppress_ira and perf_thres_units == units and ((
                                     units not in self.handyvars.inverted_relperf_list
                                     and perf >= perf_thres_val) or (
                                     units in self.handyvars.inverted_relperf_list
@@ -7638,12 +7638,16 @@ class Measure(object):
                                     # Set and account for applicability factor
                                     appl_frac = r[-1]
                                     rpl_vals.append(incent_lev * appl_frac)
-                                elif not suppress_ira and perf_thres_units != perf_base_units:
-                                    raise ValueError(
+                                # If units don't match, append incentive value of zero and continue
+                                elif not suppress_ira and perf_thres_units != units:
+                                    verboseprint(
+                                        opts.verbose,
                                         "Incentive units of " + perf_thres_units +
                                         " do not match required units of " + units +
                                         " for measure " + self.name +
                                         " and microsegment " + str(mskeys))
+                                    rpl_vals.append(0)
+                                    continue
                             # Determine the sum of replacement incentives to use based on data
                             # assembled above; reset baseline or switched to mseg incentive
                             # to this value.
