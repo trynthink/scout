@@ -2167,13 +2167,15 @@ class UsefulVars(object):
                                 if "-heat" in tech[0]:
                                     dup_params[4] = [tech[0].replace("-heat", "-cool")]
                                 # Switch rebate units (if units indicate heat/cool info.)
-                                if "heating" in rebate_units[0]:
+                                if isinstance(rebate_units[0], str) and \
+                                        "heating" in rebate_units[0]:
                                     dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
                             else:
                                 dup_params[3] = ["heating"]
                                 if "-cool" in tech[0]:
                                     dup_params[4] = [tech[0].replace("-cool", "-heat")]
-                                if "cooling" in rebate_units[0]:
+                                if isinstance(rebate_units[0], str) and \
+                                        "cooling" in rebate_units[0]:
                                     dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
                             # Zero out all incentives in the duplicate row
                             dup_params[-5], dup_params[-6] = ([0] for n in range(2))
@@ -5484,6 +5486,8 @@ class Measure(object):
                         cost_incentives, cost_incentives_meas, \
                             i_units_base, i_units_meas = (
                                 "" for n in range(4))
+                        # No user incentives
+                        incent_mod_base, incent_mod_swtch = ([] for n in range(2))
                         # In cases with missing baseline technology cost,
                         # performance, or lifetime data where the user
                         # specifies the measure as an 'add-on' type or
@@ -5968,7 +5972,8 @@ class Measure(object):
                     # If incentives data were found, apply them to
                     # baseline and measures tech. costs on the basis of their
                     # performance levels
-                    if cost_incentives:
+                    if cost_incentives or any([len(x) != 0 for x in [
+                            incent_mod_base, incent_mod_swtch]]):
                         # Check for and attempt to address inconsistencies
                         # between the performance units attached to baseline
                         # and measure cost incentives and the performance units
@@ -7369,7 +7374,7 @@ class Measure(object):
         """
 
         # Residential segments will be broken out by federal/sub-federal branches; handle here
-        if self.handyvars.aeo_years[0] not in cost_incentives.keys():
+        if cost_incentives and self.handyvars.aeo_years[0] not in cost_incentives.keys():
             seg_loop = cost_incentives.keys()
         else:
             seg_loop = ["all"]
@@ -7412,58 +7417,62 @@ class Measure(object):
                 # Check for measure performance breakout by year
                 try:
                     perf_meas_yr = perf_meas[yr_str]
-                except TypeError:
+                except (TypeError, IndexError):
                     perf_meas_yr = perf_meas
-
-                # Key in incentives data for the current year by fed/non-fed branch, if applicable
-                if seg != "all":
-                    cost_incentives_yr = cost_incentives[seg][yr_str]
-                    if cost_incentives_meas:
-                        cost_incentives_meas_yr = cost_incentives_meas[seg][yr_str]
-                else:
-                    cost_incentives_yr = cost_incentives[yr_str]
-                    if cost_incentives_meas:
-                        cost_incentives_meas_yr = cost_incentives_meas[yr_str]
-
-                # Handle inverted performance units (lower is better performance/more incentives)
-                if perf_base_units not in self.handyvars.inverted_relperf_list:
-                    # Performance levels greater/equal to minimum (e.g., COP) get the incentive
-
-                    # Handle case where measure switches from baseline segment (and thus uses
-                    # different incentives information)
-                    if not cost_incentives_meas:
-                        base_val_yr, meas_val_yr = ([
-                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y >= x[0]] for
-                            y in [perf_base[yr_str], perf_meas_yr])
+                # Case where there is existing AEO-based incentives info. for current segment
+                if cost_incentives:
+                    # Key in incentives data for the current yr by fed/non-fed branch, if applicable
+                    if seg != "all":
+                        cost_incentives_yr = cost_incentives[seg][yr_str]
+                        if cost_incentives_meas:
+                            cost_incentives_meas_yr = cost_incentives_meas[seg][yr_str]
                     else:
-                        base_val_yr = [
-                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
-                            perf_base[yr_str] >= x[0]]
-                        meas_val_yr = [
-                            x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
-                            perf_meas_yr >= x[0]]
-                else:
-                    # Performance levels less than/equal to maximum (e.g. kwh/yr) get the incentive
+                        cost_incentives_yr = cost_incentives[yr_str]
+                        if cost_incentives_meas:
+                            cost_incentives_meas_yr = cost_incentives_meas[yr_str]
 
-                    # Handle case where measure switches from baseline segment (and thus uses
-                    # different incentives information)
-                    if not cost_incentives_meas:
-                        base_val_yr, meas_val_yr = (
-                            [x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y <= x[0]]
-                            for y in [perf_base[yr_str], perf_meas_yr])
+                    # Handle inverted performance units (lower better performance/more incentives)
+                    if perf_base_units not in self.handyvars.inverted_relperf_list:
+                        # Performance levels greater/equal to minimum (e.g., COP) get the incentive
+
+                        # Handle case where measure switches from baseline segment (and thus uses
+                        # different incentives information)
+                        if not cost_incentives_meas:
+                            base_val_yr, meas_val_yr = ([
+                                x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y >= x[0]] for
+                                y in [perf_base[yr_str], perf_meas_yr])
+                        else:
+                            base_val_yr = [
+                                x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
+                                perf_base[yr_str] >= x[0]]
+                            meas_val_yr = [
+                                x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
+                                perf_meas_yr >= x[0]]
                     else:
-                        base_val_yr = [
-                            x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
-                            perf_base[yr_str] <= x[0]]
-                        meas_val_yr = [
-                            x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
-                            perf_meas_yr <= x[0]]
+                        # Performance levels <= to maximum (e.g. kwh/yr) get the incentive
 
-                # Set initial, unadjusted (AEO-based) incentives levels after calculations above
-                base_val_yr_max_init, meas_val_yr_max_init = [
-                    max(x) if (suppress is False and len(x) >= 1) else False for suppress, x in zip(
-                        [suppress_base_incentive, suppress_measure_incentive],
-                        [base_val_yr, meas_val_yr])]
+                        # Handle case where measure switches from baseline segment (and thus uses
+                        # different incentives information)
+                        if not cost_incentives_meas:
+                            base_val_yr, meas_val_yr = (
+                                [x[1] * mlt_b * cnv_b for x in cost_incentives_yr if y <= x[0]]
+                                for y in [perf_base[yr_str], perf_meas_yr])
+                        else:
+                            base_val_yr = [
+                                x[1] * mlt_b * cnv_b for x in cost_incentives_yr if
+                                perf_base[yr_str] <= x[0]]
+                            meas_val_yr = [
+                                x[1] * mlt_m * cnv_m for x in cost_incentives_meas_yr if
+                                perf_meas_yr <= x[0]]
+
+                    # Set initial, unadjusted (AEO-based) incentives levels after calculations above
+                    base_val_yr_max_init, meas_val_yr_max_init = [
+                        max(x) if (suppress is False and len(x) >= 1) else False for suppress, x in
+                        zip([suppress_base_incentive, suppress_measure_incentive],
+                            [base_val_yr, meas_val_yr])]
+                # Case where there is no existing AEO-based incentives info. for current segment
+                else:
+                    base_val_yr_max_init, meas_val_yr_max_init = (False for n in range(2))
                 # Initialize final values as initial values
                 base_val_yr_max, meas_val_yr_max = [base_val_yr_max_init, meas_val_yr_max_init]
 
@@ -7522,15 +7531,27 @@ class Measure(object):
                                 # Check for rebate level and if present, ensure that rebate units
                                 # match those of measure/baseline tech costs before pulling in
 
+                                # Pull cost units for rebate
+                                rebate_units = r[-4]
+                                # Handle case where incentives for residential envelope are provided
+                                # in $/home; assume "home" is synonymous with "unit" in baseline
+                                # data)
+                                if isinstance(rebate_units, str) and "$/home" in rebate_units:
+                                    rebate_units = rebate_units.replace("$/home", "$/unit")
+                                elif not isinstance(rebate_units, str):
+                                    rebate_units = ""
+
                                 # Rebate present and units match base/measure cost units
                                 if numpy.isfinite(r[-5]) and isinstance(r[-4], str) and \
-                                        r[-4] in cost_base_units:
+                                        rebate_units in cost_base_units:
                                     rebate_lev = r[-5]
                                 # Rebate presence and units do not match base/measure cost units
                                 elif numpy.isfinite(r[-5]) and (
-                                        not isinstance(r[-4], str) or r[-4] not in cost_base_units):
+                                        not isinstance(rebate_units, str) or
+                                        rebate_units not in cost_base_units):
                                     raise ValueError(
-                                        "Rebate units for incentives row " + str(r) +
+                                        "Rebate units " + rebate_units +
+                                        " for incentives row " + str(r) +
                                         " are inconsistent with mseg units " + cost_base_units)
                                 # Rebate not present
                                 else:
@@ -7540,7 +7561,6 @@ class Measure(object):
                                 # against installed cost, or rebate against installed cost). Process
                                 # % credits first and if absolute values are also given assume
                                 # they constrain the maximum absolute amount of the credit
-
                                 # % credit is present
                                 if numpy.isfinite(r[-6]):
                                     # Convert % credit to a fraction and multiply by base/meas cost
@@ -7613,8 +7633,8 @@ class Measure(object):
                                             iecc_vals = [float(x.split(":")[1]) for
                                                          x in perf_thres_val.split(";")]
                                             # Pull IECC region weights for current segment
-                                            iecc_fractions = \
-                                                self.handyvars.alt_attr_brk_map["IECC"][mskeys[1]]
+                                            iecc_fractions = list(
+                                                self.handyvars.alt_attr_brk_map["IECC"][mskeys[1]])
                                             # Find index of region where weight is largest (e.g.,
                                             # the majority IECC region for current mseg region)
                                             iecc_val_ind = iecc_fractions.index(max(iecc_fractions))
