@@ -3482,6 +3482,9 @@ class Measure(object):
         else:
             bldg_sect = "commercial"
 
+        # Flag envelope/demand-focused measure
+        dmd_meas = ("demand" in self.technology_type["primary"])
+
         # Update information needed to link the stock turnover rates and
         # exogenous HP conversion rates for measures that apply to separate
         # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
@@ -3489,8 +3492,7 @@ class Measure(object):
         # (e.g., not envelope)
         if (len(self.end_use["primary"]) > 1 and any([
             x in self.end_use["primary"] for x in [
-                "heating", "cooling"]])) and (
-                    "demand" not in self.technology_type["primary"]):
+                "heating", "cooling"]])):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
             # Reset anchor end use for linked heating/cooling mseg turnover;
@@ -3499,60 +3501,66 @@ class Measure(object):
                 self.linked_htcl_tover_anchor_eu = "heating"
             else:
                 self.linked_htcl_tover_anchor_eu = "cooling"
-            try:
-                # Pull the ordered list of candidate technologies to serve as
-                # anchor for linked heating/cooling turnover and switching
-                # calculations (these are specified by building sector and by
-                # the anchor end use set in UsefulVars class earlier)
-                linked_htcl_tover_anchor_tech_list = self.handyvars.htcl_anchor_tech_opts[
-                    bldg_sect][self.linked_htcl_tover_anchor_eu]
-                # Find the first in the ordered list of candidate technologies
-                # that the measure applies to, use as anchor for linked
-                # heating/cooling mseg turnover and switching calculations
-                self.linked_htcl_tover_anchor_tech = [
-                    x for x in linked_htcl_tover_anchor_tech_list if x in
-                    self.technology["primary"]][0]
-            except IndexError:
-                # Print warning if no anchor end use technology to link heating/cooling segments
-                # could be determined; continue calculations without any links
-                raise ValueError(
-                    "Cannot find anchor end use technology to link heating "
-                    "and cooling microsegment calculations for "
-                    "measure '" + self.name + "'. Check measure "
-                    "'technology' attribute to ensure one or more items "
-                    "are included in the following list: " +
-                    str(linked_htcl_tover_anchor_tech_list))
-            if self.linked_htcl_tover_anchor_tech and (
-                    not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs):
+            if dmd_meas:
+                self.linked_htcl_tover_anchor_tech = self.technology["primary"][0]
+                self.linked_htcl_tover_linked_tech = "all"
+            else:
                 try:
                     # Pull the ordered list of candidate technologies to serve as
-                    # tech. for adding linked stock and/or operating costs (these are specified by
-                    # building sector and by the linked end use set in UsefulVars class earlier)
-                    linked_htcl_tover_linked_tech_list = self.handyvars.htcl_linked_unitcosts[
-                        bldg_sect]
-                    # Find the technology to use in determining linked stock or operating costs;
-                    # determination depends on whether heating or cooling end use is used as anchor
-                    if self.linked_htcl_tover_anchor_eu == "heating":
-                        # Find lists of paired cooling tech
-                        link_tech_candidates = [
-                            x[1] for x in linked_htcl_tover_linked_tech_list.items() if
-                            self.linked_htcl_tover_anchor_tech == x[0]][0]
-                    else:
-                        link_tech_candidates = [
-                            x[0] for x in linked_htcl_tover_linked_tech_list.items() if
-                            self.linked_htcl_tover_anchor_tech in x[1]]
-                    # Select first technology in retrieved list that is present in measure def.
-                    self.linked_htcl_tover_linked_tech = [
-                        x for x in link_tech_candidates if x in self.technology["primary"]][0]
+                    # anchor for linked heating/cooling turnover and switching
+                    # calculations (these are specified by building sector and by
+                    # the anchor end use set in UsefulVars class earlier)
+                    linked_htcl_tover_anchor_tech_list = self.handyvars.htcl_anchor_tech_opts[
+                        bldg_sect][self.linked_htcl_tover_anchor_eu]
+                    # Find the first in the ordered list of candidate technologies
+                    # that the measure applies to, use as anchor for linked
+                    # heating/cooling mseg turnover and switching calculations
+                    self.linked_htcl_tover_anchor_tech = [
+                        x for x in linked_htcl_tover_anchor_tech_list if x in
+                        self.technology["primary"]][0]
                 except IndexError:
-                    # Print warning if no linked end use technology to link heating/cooling segments
+                    # Print warning if no anchor end use technology to link heating/cooling segments
                     # could be determined; continue calculations without any links
                     raise ValueError(
-                        "Cannot find linked end use technology to use as basis for linking heating "
-                        "and cooling costs for measure '" + self.name + "'. Check measure "
+                        "Cannot find anchor end use technology to link heating "
+                        "and cooling microsegment calculations for "
+                        "measure '" + self.name + "'. Check measure "
                         "'technology' attribute to ensure one or more items "
                         "are included in the following list: " +
-                        str(link_tech_candidates))
+                        str(linked_htcl_tover_anchor_tech_list))
+                if self.linked_htcl_tover_anchor_tech and (
+                        not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs):
+                    try:
+                        # Pull the ordered list of candidate technologies to serve as
+                        # tech. for adding linked stock and/or operating costs (these are specified
+                        # by building sector and by the linked end use set in UsefulVars class
+                        # earlier)
+                        linked_htcl_tover_linked_tech_list = self.handyvars.htcl_linked_unitcosts[
+                            bldg_sect]
+                        # Find the technology to use in determining linked stock or operating costs;
+                        # determination depends on whether heating or cooling end use is used as
+                        # anchor
+                        if self.linked_htcl_tover_anchor_eu == "heating":
+                            # Find lists of paired cooling tech
+                            link_tech_candidates = [
+                                x[1] for x in linked_htcl_tover_linked_tech_list.items() if
+                                self.linked_htcl_tover_anchor_tech == x[0]][0]
+                        else:
+                            link_tech_candidates = [
+                                x[0] for x in linked_htcl_tover_linked_tech_list.items() if
+                                self.linked_htcl_tover_anchor_tech in x[1]]
+                        # Select first technology in retrieved list that is present in measure def.
+                        self.linked_htcl_tover_linked_tech = [
+                            x for x in link_tech_candidates if x in self.technology["primary"]][0]
+                    except IndexError:
+                        # Print warning if no linked end use technology to link heating/cooling
+                        # segments could be determined; continue calculations without any links
+                        raise ValueError(
+                            "Cannot find linked end use technology to use as basis for linking "
+                            "heating and cooling costs for measure '" + self.name + "'. Check "
+                            "measure 'technology' attribute to ensure one or more items "
+                            "are included in the following list: " +
+                            str(link_tech_candidates))
 
             # If HP conversions are flagged, determine in which cooling/mseg
             # any additions in homes that don't have existing cooling will
@@ -6889,8 +6897,10 @@ class Measure(object):
                     # segments (by default this is the heating end use segments).
                     if adopt_scheme == "Technical potential" and (
                             not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
-                            (self.linked_htcl_tover and (mskeys[-2] is not None and
-                             self.linked_htcl_tover_linked_tech in mskeys[-2]))):
+                            (self.linked_htcl_tover and
+                             self.linked_htcl_tover_anchor_eu not in mskeys and (
+                            mskeys[-2] is not None and self.linked_htcl_tover_linked_tech in [
+                                mskeys[-2], "all"]))):
                         # Set the list of contributing mseg information to use in matching
                         # the linked segments to the anchor segment, including primary/secondary
                         # mseg type, region, building type, and building vintage
@@ -6956,6 +6966,7 @@ class Measure(object):
                                                 "capacity factor"][add_to_mseg])))
                                     if (add_dict["stock"][output][stk_var][yr] != 0 and (
                                         (cost_key == "stock" and not opts.no_lnkd_stk_costs
+                                         and not dmd_meas
                                          and not rmv_hp
                                          and not rmv_minor_hvac_stkcosts)
                                         or cost_key != "stock" and not opts.no_lnkd_op_costs)) else
