@@ -2766,13 +2766,6 @@ class Measure(object):
         self.hp_convert_flag = (
             self.tech_switch_to not in [
                 None, "NA", "same"] and "HP" in self.tech_switch_to)
-        # Reset flag for whether to consider panel upgrade needs in cases where
-        # measures do not apply to heating in existing single family homes
-        if self.handyvars.panel_shares is not None and not all([(
-                (x in y) or ("all" in y)) for x, y in zip(
-            ["heating", "single family home", "existing"],
-                [self.end_use, self.bldg_type, self.structure_type])]):
-            self.handyvars.panel_shares = ""
         # Check for electrical infrastructure upgrade flags in measure definition, if unavailable
         # set to None
         try:
@@ -2813,6 +2806,16 @@ class Measure(object):
         # 'demand_tech' list are of the 'supply' side technology type
         else:
             self.technology_type = "supply"
+        # Reset flag for whether to consider panel upgrade needs in cases where
+        # measures do not apply to heating equipment in existing single family homes
+        if self.handyvars.panel_shares is not None \
+            and self.technology_type != "demand" and not all([(
+                (x in y) or ("all" in y)) for x, y in zip([
+                "heating", "single family home", "existing"],
+                [self.end_use, self.bldg_type, self.structure_type])]):
+            self.handyvars.panel_shares = ""
+        else:
+            self.handyvars.panel_shares = None
         # Reset market entry year if None or earlier than min. year
         if self.market_entry_year is None or (int(
                 self.market_entry_year) < int(self.handyvars.aeo_years[0])):
@@ -3576,7 +3579,7 @@ class Measure(object):
                         "are included in the following list: " +
                         str(add_cool_anchor_tech_list))
 
-        # If needed, append additional msegs to enable sub-segmentation of heating technology and
+        # If needed, append additional msegs to enable sub-segmentation of heating equipment and
         # any linked segments (e.g., secondary heating, cooling) in existing single family homes to
         # consider panel upgrade needs. When mseg technology is an anchor for linking heating w/
         # other microsegments, register variants on the technology name that are added
