@@ -13246,7 +13246,8 @@ class MeasurePackage(Measure):
                     # the measure
                     elif msegs_pkg_init and k in [
                             "competed choice parameters",
-                            "secondary mseg adjustments"]:
+                            "secondary mseg adjustments",
+                            "capacity factor"]:
                         self.update_dict(msegs_pkg_init[k], msegs_meas_init[k])
                 # Record adjusted contributing microsegment, output
                 # breakout data, and sector shapes data for the measure for
