@@ -5282,8 +5282,9 @@ class Measure(object):
                             # vs. a segment that a measure switches to (the latter is only relevant
                             # for fuel or technology switching measures)
                             incent_mod_base = [
-                                x for x in incent_mod if x[5] == mskeys[3] and  # fuel
-                                (x[4] == "all" or x[4] == mskeys[-2])]  # tech
+                                x for x in incent_mod if all(
+                                    f == mskeys[3] for f in [x[5], x[6]])  # fuel
+                                and (x[4] == "all" or x[4] == mskeys[-2])]  # tech
                             # Fuel or tech switching case
                             if base_cpl_swtch:
                                 # Pull data in the following cases: 1) tech switching (not fuel),
