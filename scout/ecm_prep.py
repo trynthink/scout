@@ -14964,7 +14964,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Set contributing ECMs as inactive in run_setup and throw warning, set all others as active
     ctrb_ms = [ecm for pkg in meas_toprep_package_init for ecm in pkg["contributing_ECMs"]]
     non_ctrb_ms = [ecm for ecm in opts.ecm_files if ecm not in ctrb_ms]
-    excluded_ind_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms]
+    supply_ecms = [ecm["name"] for ecm in meas_toprep_indiv if (
+        not ((isinstance(ecm["technology"], list) and all([
+            x in handyvars.demand_tech for x in ecm["technology"]])) or ecm[
+            "technology"] in handyvars.demand_tech))]
+    excluded_ind_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms and (
+        opts.pkg_env_costs != '1' or ecm not in supply_ecms)]
     run_setup = Utils.update_active_measures(run_setup,
                                              to_active=non_ctrb_ms,
                                              to_inactive=excluded_ind_ecms)
