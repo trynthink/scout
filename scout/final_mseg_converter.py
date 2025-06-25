@@ -79,6 +79,9 @@ class UsefulVars(object):
             factors (principally costs) for a range of equipment types.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
         geo_break (str): Indicates the intended geographical data breakdown.
+        fuel_disagg_method (str): Indicates the intended fuel type choices.
+        final_disagg_method (str): Indicates the intended analysis on either
+            tech-level or end use-level analysis.
 
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
@@ -117,9 +120,13 @@ class UsefulVars(object):
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
+            # Find appropriate conversion data for intended fuel type
+            # (1=use Electricity-only, 2=All-fuel-type)
             if self.fuel_disagg_method == '1':
+                # Find appropriate conversion data for either Tech-level or
+                # End-use-level analysis (1=Tech-level, 2=End-use-level)
                 if self.final_disagg_method == '1':
-                # Tech-level disaggregation selected
+                    # Tech-level disaggregation selected
                     res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
                         "Res_Cdiv_EMM_amy2018_electricity_Tech.csv")
                     com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
@@ -129,7 +136,7 @@ class UsefulVars(object):
                     com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
                         "Com_Cdiv_EMM_amy2018_electricity_Stock_Tech.csv")
                 elif self.final_disagg_method == '2':
-                    # End-use-level disaggregation (or no disaggregation override)
+                    # End-use-level disaggregation
                     res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
                         "Res_Cdiv_EMM_amy2018_electricity.csv")
                     com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
@@ -138,7 +145,8 @@ class UsefulVars(object):
                         "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
                         "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
-                    
+                # Import conversion and stock data for various fuel types in 
+                # the residential and commercial building sectors.
                 self.res_climate_convert = {
                     "electricity": {
                         "energy": res_elec_energy_file,
@@ -152,7 +160,8 @@ class UsefulVars(object):
                         "Res_Cdiv_EMM_Other_RowSums.txt",
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
+                        (fp.CONVERT_DATA / "geo_map" /
+                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 self.com_climate_convert = {
                     "electricity": {
@@ -167,19 +176,34 @@ class UsefulVars(object):
                         "Com_Cdiv_EMM_Other_RowSums.txt",
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
+                        (fp.CONVERT_DATA / "geo_map" /
+                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 # Set output JSON
                 self.json_out = 'mseg_res_com_emm.json'
             elif self.fuel_disagg_method == '2':
-                res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Res_Cdiv_EMM_amy2018_electricity.csv")
-                res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
-                com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Com_Cdiv_EMM_amy2018_electricity.csv")
-                com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                # Find appropriate conversion data for either Tech-level or
+                # End-use-level analysis (1=Tech-level, 2=End-use-level)
+                if self.final_disagg_method == '1':
+                    # Tech-level disaggregation selected
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Tech.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Tech.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Stock_Tech.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Stock_Tech.csv")
+                elif self.final_disagg_method == '2':
+                    # End-use-level disaggregation
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
 
                 res_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
                     "Res_Cdiv_EMM_amy2018_naturalgas.csv")
@@ -225,7 +249,8 @@ class UsefulVars(object):
                     },
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
+                        (fp.CONVERT_DATA / "geo_map" /
+                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 self.com_climate_convert = {
                     "electricity": {
@@ -246,12 +271,14 @@ class UsefulVars(object):
                     },
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
+                        (fp.CONVERT_DATA / "geo_map" /
+                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
             if self.fuel_disagg_method == '1':
-
+                # Find appropriate conversion data for either Tech-level or
+                # End-use-level analysis (1=Tech-level, 2=End-use-level)
                 if self.final_disagg_method == '1':
                     # Tech-level disaggregation selected
                     res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
@@ -263,7 +290,7 @@ class UsefulVars(object):
                     com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
                         "Com_Cdiv_State_amy2018_electricity_Stock_Tech.csv")
                 elif self.final_disagg_method == '2':
-                    # End-use-level disaggregation (or no disaggregation override)
+                    # End-use-level disaggregation
                     res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
                         "Res_Cdiv_State_amy2018_electricity.csv")
                     com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
@@ -309,14 +336,26 @@ class UsefulVars(object):
                 # Set output JSON
                 self.json_out = 'mseg_res_com_state.json'
             elif self.fuel_disagg_method == '2':
-                res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Res_Cdiv_State_amy2018_electricity.csv")
-                res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Res_Cdiv_State_amy2018_electricity_Stock.csv")
-                com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Com_Cdiv_State_amy2018_electricity.csv")
-                com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
-                    "Com_Cdiv_State_amy2018_electricity_Stock.csv")
+                if self.final_disagg_method == '1':
+                    # Tech-level disaggregation selected
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Tech.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Tech.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Stock_Tech.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Stock_Tech.csv")
+                elif self.final_disagg_method == '2':
+                    # End-use-level disaggregation
+                    res_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity.csv")
+                    com_elec_energy_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity.csv")
+                    res_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Res_Cdiv_State_amy2018_electricity_Stock.csv")
+                    com_elec_stock_file = (fp.CONVERT_DATA / "geo_map" /
+                        "Com_Cdiv_State_amy2018_electricity_Stock.csv")
 
                 res_ng_energy_file = (fp.CONVERT_DATA / "geo_map" /
                     "Res_Cdiv_State_amy2018_naturalgas.csv")
@@ -507,13 +546,23 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             through (relevant only to EMM/state custom region convert).
         eu_flag (NoneType): Flag for the end use currently being looped
             through (relevant only to EMM/state custom region convert)
+        tech_flag (NoneType): Flag for the technology currently being looped
+            through (relevant only to EMM/state custom region convert)
+        stock_energy_flag (NoneType): Flag for the stock or energy
+            through (relevant only to EMM/state custom region convert)
+        key_list (list): Keys that specify the current location in the
+            microsegments database structure and thus indicate what
+            data should be returned by this function.
 
     Returns:
         A dict with the same form as base_dict and add_dict, with the
         values for the particular census division specified in 'cd'
         converted to the custom region 'cz'.
     """
+    # List of fuel types to iterate over for updating with corresponding conversion factors.
     fuel_types = ["electricity", "natural gas", "distillate", "other fuel"]
+    # Initialize key_list with an empty array prior to looping through the
+    # microsegments database structure.
     if key_list is None:
         key_list = []
 
@@ -1644,17 +1693,17 @@ def main():
     # the regional breakdown to use in converting the data
     input_var = [0, 0, 0, 0]
 
-    # Determine the type of data (stock/energy (1) or cost/perf/life (2))
+    # Step 1: Determine type of data they want to process (1 – Energy, stock, 
+    # and square footage data; 2 – Cost, performance, and lifetime data).
     while input_var[0] not in ['1', '2']:
         input_var[0] = input(
             "Enter 1 for energy, stock, and square footage" +
             " data\n or 2 for cost, performance, lifetime data: ")
         if input_var[0] not in ['1', '2']:
             print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
-    # Determine the regional breakdown to use (AIA (1) vs. NEMS EMM (2) vs.
-    # state (3))
-
-    # AIA, EMM, or state are possible for stock/energy data
+    # Step 2: Determine the type of regional breakdown to use.
+    # All data types (1 and 2) can be broken down (1 – AIA climate zones; 
+    # 2 – NEMS EIA Electricity Market Module (EMM) regions; 3 – States
     if input_var[0] == '1':
         while input_var[1] not in ['1', '2', '3']:
             input_var[1] = input(
@@ -1676,23 +1725,31 @@ def main():
             if input_var[1] not in ['1', '2', '3']:
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
-
+    # Step 3: If energy/stock data is chosen (input_var[0] == '1') and the
+    # regional breakdown is EMM or state (input_var[1] == '2' or '3'),
+    # further determine the disaggregation method to use (1 – Electricity-only
+    # disaggregation; 2 – All-fuel-type disaggregation 
+    # (only applies to end-use level)
     if input_var[0] == '1' and  input_var[1] in ['2','3']:
         while input_var[2] not in ['1', '2']:
             input_var[2] = input(
-                "\nEnter 1 to use Electricity-only, 2 to use All-fuel-type " +
-                "disaggregation method \n(Note: All-fuel-type " +
-                "only applies to End-use level only: ")
+                "\n Enter 1 to use detailed disaggregation data for electricity " +
+                "only, or 2 to use detailed disaggregation data for all fuels. " +
+                "\nNote: detailed disaggregation data are drawn from ResStock and " +
+                "ComStock datasets and otherwise disaggregation data are based " +
+                "on county-level population totals.")
             if input_var[2] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
-
+    # Step 4: If Electricity-only method is chosen (input_var[2] == '1'),
+    # further disaggregation should be (1 – Technology-level; 2 – End-use-level)
     if input_var[0] == '1' and  input_var[1] in ['2','3'] and \
         input_var[2] == '1':
         while input_var[3] not in ['1', '2']:
             input_var[3] = input(
-                "\nEnter 1 to use Tech-level, 2 to use End-use-level " +
-                "disaggregation method: ")
+                "\n Enter 1 to base detailed electricity disaggregation on " +
+                "technology-level data, or 2 to based detailed electricity " +
+                "disaggregation on end-use-level data.")
             if input_var[3] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
