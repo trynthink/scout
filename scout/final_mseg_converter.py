@@ -33,6 +33,7 @@ import gzip
 import pandas as pd
 from scout import mseg, com_mseg as cm
 from scout.config import FilePaths as fp
+import pandas as pd
 
 
 class UsefulVars(object):
@@ -177,7 +178,7 @@ class UsefulVars(object):
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
                         (fp.CONVERT_DATA / "geo_map" /
-                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                            "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 # Set output JSON
                 self.json_out = 'mseg_res_com_emm.json'
@@ -272,7 +273,7 @@ class UsefulVars(object):
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
                         (fp.CONVERT_DATA / "geo_map" /
-                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                            "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
                     }
                 self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
@@ -692,7 +693,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                             + bldg_flag + " " + fuel_flag + " " +
                             " " + k + " to EULP data")
                 # All other cases without unique EULP end-use profiles are
-                # assigned to the plug loads profile
+                # assigned to the miscellaneous profile
                 else:
                     eu_flag = "misc"
 
@@ -1733,23 +1734,24 @@ def main():
     if input_var[0] == '1' and  input_var[1] in ['2','3']:
         while input_var[2] not in ['1', '2']:
             input_var[2] = input(
-                "\n Enter 1 to use detailed disaggregation data for electricity " +
+                "\nEnter 1 to use detailed disaggregation data for electricity " +
                 "only, or 2 to use detailed disaggregation data for all fuels. " +
-                "\nNote: detailed disaggregation data are drawn from ResStock and " +
+                "Note: detailed disaggregation data are drawn from ResStock and " +
                 "ComStock datasets and otherwise disaggregation data are based " +
-                "on county-level population totals.")
+                "on county-level population totals.\n")
             if input_var[2] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
-    # Step 4: If Electricity-only method is chosen (input_var[2] == '1'),
-    # further disaggregation should be (1 – Technology-level; 2 – End-use-level)
+    # Step 4: Either Electricity-only method or All-fuels method is chosen
+    # (input_var[2] == ['1', '2'] further detailed electricity disaggregation
+    # should be (1 – Technology-level; 2 – End-use-level)
     if input_var[0] == '1' and  input_var[1] in ['2','3'] and \
-        input_var[2] == '1':
+        input_var[2] in ['1','2']:
         while input_var[3] not in ['1', '2']:
             input_var[3] = input(
-                "\n Enter 1 to base detailed electricity disaggregation on " +
+                "\nEnter 1 to base detailed electricity disaggregation on " +
                 "technology-level data, or 2 to based detailed electricity " +
-                "disaggregation on end-use-level data.")
+                "disaggregation on end-use-level data.\n")
             if input_var[3] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
@@ -1923,21 +1925,7 @@ def main():
                 "other fuel": np.genfromtxt(
                     handyvars.res_climate_convert["other fuel"], names=True,
                     delimiter='\t', dtype="float64")}
-            # Handle case where building stock and square footage conversion data
-            # are read in from two different conversion files (state-level
-            # breakouts) or from just one conversion file (EMM breakouts)
-            try:
-                res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["homes"],
-                        names=True, delimiter='\t', dtype="float64"),
-                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["square footage"],
-                        names=True, delimiter='\t', dtype="float64")}
-            except TypeError:
-                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
-                    handyvars.res_climate_convert["building stock and square footage"],
-                    names=True, delimiter='\t', dtype="float64")
+
             com_cd_cz_conv = {
                 "electricity": com_convert_byeu_dict,
                 "natural gas": np.genfromtxt(
@@ -1948,11 +1936,40 @@ def main():
                     delimiter='\t', dtype="float64"),
                 "other fuel": np.genfromtxt(
                     handyvars.com_climate_convert["other fuel"], names=True,
-                    delimiter='\t', dtype="float64"),
-                "building stock and square footage": np.genfromtxt(
-                    handyvars.com_climate_convert[
-                        "building stock and square footage"], names=True,
                     delimiter='\t', dtype="float64")}
+
+            # Handle case where building stock and square footage conversion data
+            # are read in from two different conversion files (state-level
+            # breakouts) or from just one conversion file (EMM breakouts)
+            try:
+                # --- Residential ---
+                res_bldgstock_path = handyvars.res_climate_convert["building stock and square footage"]
+                res_bldgstock_df = pd.read_csv(res_bldgstock_path)
+                res_bldgstock_nested = {
+                    row["End use"]: row.drop("End use").to_dict()
+                    for _, row in res_bldgstock_df.iterrows()
+                }
+                res_cd_cz_conv["building stock and square footage"] = {
+                    "homes": res_bldgstock_nested,
+                    "square footage": res_bldgstock_nested
+                }
+
+                # --- Commercial ---
+                com_bldgstock_path = handyvars.com_climate_convert["building stock and square footage"]
+                com_bldgstock_df = pd.read_csv(com_bldgstock_path)
+                com_bldgstock_nested = {
+                    row["End use"]: row.drop("End use").to_dict()
+                    for _, row in com_bldgstock_df.iterrows()
+                }
+                com_cd_cz_conv["building stock and square footage"] = {
+                    "square footage": com_bldgstock_nested
+                }
+
+            except TypeError:
+                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                    handyvars.res_climate_convert["building stock and square footage"],
+                    names=True, delimiter='\t', dtype="float64")
+
         elif input_var[2] == '2':
             # To process electricity only disaggregation method that is applied
             # to either tech-level or end-use-level disaggregation
@@ -2008,33 +2025,44 @@ def main():
                 "distillate": res_convert_byeu_dict["distillate"],
                 "other fuel": res_convert_byeu_dict["other fuel"]
             }
-
+            com_cd_cz_conv = {
+                "electricity": com_convert_byeu_dict["electricity"],
+                "natural gas": com_convert_byeu_dict["natural gas"],
+                "distillate": com_convert_byeu_dict["distillate"],
+                "other fuel": com_convert_byeu_dict["other fuel"]
+            }
             # Handle case where building stock and square footage conversion data
             # are read in from two different conversion files (state-level
             # breakouts) or from just one conversion file (EMM breakouts)
             try:
+                # --- Residential ---
+                res_bldgstock_path = handyvars.res_climate_convert["building stock and square footage"]
+                res_bldgstock_df = pd.read_csv(res_bldgstock_path)
+                res_bldgstock_nested = {
+                    row["End use"]: row.drop("End use").to_dict()
+                    for _, row in res_bldgstock_df.iterrows()
+                }
                 res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["homes"],
-                        names=True, delimiter='\t', dtype="float64"),
-                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["square footage"],
-                        names=True, delimiter='\t', dtype="float64")}
+                    "homes": res_bldgstock_nested,
+                    "square footage": res_bldgstock_nested
+                }
+
+                # --- Commercial ---
+                com_bldgstock_path = handyvars.com_climate_convert["building stock and square footage"]
+                com_bldgstock_df = pd.read_csv(com_bldgstock_path)
+                com_bldgstock_nested = {
+                    row["End use"]: row.drop("End use").to_dict()
+                    for _, row in com_bldgstock_df.iterrows()
+                }
+                com_cd_cz_conv["building stock and square footage"] = {
+                    "square footage": com_bldgstock_nested
+                }
             except TypeError:
                 res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
                     handyvars.res_climate_convert["building stock and square footage"],
                     names=True, delimiter='\t', dtype="float64")
 
-            com_cd_cz_conv = {
-                "electricity": com_convert_byeu_dict["electricity"],
-                "natural gas": com_convert_byeu_dict["natural gas"],
-                "distillate": com_convert_byeu_dict["distillate"],
-                "other fuel": com_convert_byeu_dict["other fuel"],
-                "building stock and square footage": np.genfromtxt(
-                    handyvars.com_climate_convert[
-                        "building stock and square footage"], names=True,
-                    delimiter='\t', dtype="float64")
-            }
+
 
     # Settings for EMM regions and CPL data; note that no conversion data is
     # needed for state regions and CPL data, which are left w/ CDIV resolution
