@@ -33,7 +33,6 @@ import gzip
 import pandas as pd
 from scout import mseg, com_mseg as cm
 from scout.config import FilePaths as fp
-import pandas as pd
 
 
 class UsefulVars(object):
@@ -1925,7 +1924,21 @@ def main():
                 "other fuel": np.genfromtxt(
                     handyvars.res_climate_convert["other fuel"], names=True,
                     delimiter='\t', dtype="float64")}
-
+            # Handle case where building stock and square footage conversion data
+            # are read in from two different conversion files (state-level
+            # breakouts) or from just one conversion file (EMM breakouts)
+            try:
+                res_cd_cz_conv["building stock and square footage"] = {
+                    "homes": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["homes"],
+                        names=True, delimiter='\t', dtype="float64"),
+                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["square footage"],
+                        names=True, delimiter='\t', dtype="float64")}
+            except TypeError:
+                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                    handyvars.res_climate_convert["building stock and square footage"],
+                    names=True, delimiter='\t', dtype="float64")
             com_cd_cz_conv = {
                 "electricity": com_convert_byeu_dict,
                 "natural gas": np.genfromtxt(
@@ -1936,40 +1949,11 @@ def main():
                     delimiter='\t', dtype="float64"),
                 "other fuel": np.genfromtxt(
                     handyvars.com_climate_convert["other fuel"], names=True,
+                    delimiter='\t', dtype="float64"),
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.com_climate_convert[
+                        "building stock and square footage"], names=True,
                     delimiter='\t', dtype="float64")}
-
-            # Handle case where building stock and square footage conversion data
-            # are read in from two different conversion files (state-level
-            # breakouts) or from just one conversion file (EMM breakouts)
-            try:
-                # --- Residential ---
-                res_bldgstock_path = handyvars.res_climate_convert["building stock and square footage"]
-                res_bldgstock_df = pd.read_csv(res_bldgstock_path)
-                res_bldgstock_nested = {
-                    row["End use"]: row.drop("End use").to_dict()
-                    for _, row in res_bldgstock_df.iterrows()
-                }
-                res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": res_bldgstock_nested,
-                    "square footage": res_bldgstock_nested
-                }
-
-                # --- Commercial ---
-                com_bldgstock_path = handyvars.com_climate_convert["building stock and square footage"]
-                com_bldgstock_df = pd.read_csv(com_bldgstock_path)
-                com_bldgstock_nested = {
-                    row["End use"]: row.drop("End use").to_dict()
-                    for _, row in com_bldgstock_df.iterrows()
-                }
-                com_cd_cz_conv["building stock and square footage"] = {
-                    "square footage": com_bldgstock_nested
-                }
-
-            except TypeError:
-                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
-                    handyvars.res_climate_convert["building stock and square footage"],
-                    names=True, delimiter='\t', dtype="float64")
-
         elif input_var[2] == '2':
             # To process electricity only disaggregation method that is applied
             # to either tech-level or end-use-level disaggregation
@@ -2025,44 +2009,33 @@ def main():
                 "distillate": res_convert_byeu_dict["distillate"],
                 "other fuel": res_convert_byeu_dict["other fuel"]
             }
-            com_cd_cz_conv = {
-                "electricity": com_convert_byeu_dict["electricity"],
-                "natural gas": com_convert_byeu_dict["natural gas"],
-                "distillate": com_convert_byeu_dict["distillate"],
-                "other fuel": com_convert_byeu_dict["other fuel"]
-            }
+
             # Handle case where building stock and square footage conversion data
             # are read in from two different conversion files (state-level
             # breakouts) or from just one conversion file (EMM breakouts)
             try:
-                # --- Residential ---
-                res_bldgstock_path = handyvars.res_climate_convert["building stock and square footage"]
-                res_bldgstock_df = pd.read_csv(res_bldgstock_path)
-                res_bldgstock_nested = {
-                    row["End use"]: row.drop("End use").to_dict()
-                    for _, row in res_bldgstock_df.iterrows()
-                }
                 res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": res_bldgstock_nested,
-                    "square footage": res_bldgstock_nested
-                }
-
-                # --- Commercial ---
-                com_bldgstock_path = handyvars.com_climate_convert["building stock and square footage"]
-                com_bldgstock_df = pd.read_csv(com_bldgstock_path)
-                com_bldgstock_nested = {
-                    row["End use"]: row.drop("End use").to_dict()
-                    for _, row in com_bldgstock_df.iterrows()
-                }
-                com_cd_cz_conv["building stock and square footage"] = {
-                    "square footage": com_bldgstock_nested
-                }
+                    "homes": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["homes"],
+                        names=True, delimiter='\t', dtype="float64"),
+                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
+                        "building stock and square footage"]["square footage"],
+                        names=True, delimiter='\t', dtype="float64")}
             except TypeError:
                 res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
                     handyvars.res_climate_convert["building stock and square footage"],
                     names=True, delimiter='\t', dtype="float64")
 
-
+            com_cd_cz_conv = {
+                "electricity": com_convert_byeu_dict["electricity"],
+                "natural gas": com_convert_byeu_dict["natural gas"],
+                "distillate": com_convert_byeu_dict["distillate"],
+                "other fuel": com_convert_byeu_dict["other fuel"],
+                "building stock and square footage": np.genfromtxt(
+                    handyvars.com_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")
+            }
 
     # Settings for EMM regions and CPL data; note that no conversion data is
     # needed for state regions and CPL data, which are left w/ CDIV resolution
