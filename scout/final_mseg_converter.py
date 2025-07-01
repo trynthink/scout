@@ -160,8 +160,7 @@ class UsefulVars(object):
                         "Res_Cdiv_EMM_Other_RowSums.txt",
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        (fp.CONVERT_DATA / "geo_map" /
-                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
                     }
                 self.com_climate_convert = {
                     "electricity": {
@@ -176,8 +175,7 @@ class UsefulVars(object):
                         "Com_Cdiv_EMM_Other_RowSums.txt",
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        (fp.CONVERT_DATA / "geo_map" /
-                            "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
                     }
                 # Set output JSON
                 self.json_out = 'mseg_res_com_emm.json'
@@ -249,8 +247,7 @@ class UsefulVars(object):
                     },
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        (fp.CONVERT_DATA / "geo_map" /
-                            "Res_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                        fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
                     }
                 self.com_climate_convert = {
                     "electricity": {
@@ -271,8 +268,7 @@ class UsefulVars(object):
                     },
                     # Use electricity splits to apportion no. building/sf data
                     "building stock and square footage":
-                        (fp.CONVERT_DATA / "geo_map" /
-                            "Com_Cdiv_EMM_amy2018_electricity_Stock.csv")
+                        fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
                     }
                 self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
