@@ -79,9 +79,10 @@ class UsefulVars(object):
             factors (principally costs) for a range of equipment types.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
         geo_break (str): Indicates the intended geographical data breakdown.
-        fuel_disagg_method (str): Indicates the intended fuel type choices.
-        final_disagg_method (str): Indicates the intended analysis on either
-            tech-level or end use-level analysis.
+        fuel_disagg_method (str): High-level or detailed method for 
+            disaggregating energy and stock data by fuel type.
+        final_disagg_method (str): Flag for use of tech-level or end-use-level
+            data in disaggregation of electric energy and stock data.
 
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
@@ -120,8 +121,9 @@ class UsefulVars(object):
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
-            # Find appropriate conversion data for intended fuel type
-            # (1=use Electricity-only, 2=All-fuel-type)
+            # Determine whether to use detailed BuildStock-based CDIV->EMM or
+            # state disaggregation data for electricity data only (1) or
+            # for all fuel types (2)
             if self.fuel_disagg_method == '1':
                 # Find appropriate conversion data for either Tech-level or
                 # End-use-level analysis (1=Tech-level, 2=End-use-level)
@@ -1722,9 +1724,8 @@ def main():
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
     # Step 3: If energy/stock data is chosen (input_var[0] == '1') and the
-    # regional breakdown is EMM or state (input_var[1] == '2' or '3'),
-    # further determine the disaggregation method to use (1 – Electricity-only
-    # disaggregation; 2 – All-fuel-type disaggregation 
+    # regional breakdown is either EMM or state (input_var[1] == '2' or '3'),
+    # further determine to use for (1 – Electricity-only or 2 – All-fuel-type
     # (only applies to end-use level)
     if input_var[0] == '1' and  input_var[1] in ['2','3']:
         while input_var[2] not in ['1', '2']:
