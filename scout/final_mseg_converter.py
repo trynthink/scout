@@ -105,8 +105,10 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / \
+                "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / \
+                "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
@@ -118,7 +120,7 @@ class UsefulVars(object):
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
-                }
+            }
             self.com_climate_convert = {
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_NG_RowSums.txt",
@@ -127,7 +129,7 @@ class UsefulVars(object):
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
-                }
+            }
             # Set output JSON
             self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
@@ -145,7 +147,7 @@ class UsefulVars(object):
                     "homes": fp.CONVERT_DATA / "geo_map" / "Res_Homes_RowSums.txt",
                     "square footage":
                         fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
-                }
+            }
             self.com_climate_convert = {
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_NG_RowSums.txt",
@@ -154,7 +156,7 @@ class UsefulVars(object):
                 # Use total consumption splits to apportion no. building/sf
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
-                }
+            }
             # Set output JSON
             self.json_out = 'mseg_res_com_state.json'
 
@@ -165,8 +167,10 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / \
+                "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / \
+                "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cz.json'
         elif self.geo_break == '2':
@@ -198,7 +202,8 @@ class UsefulVars(object):
             # When breaking out to census divisions, an additional conversion
             # between AIA climate zones in the envelope data and the census
             # divisions is needed
-            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / "AIA_Cdiv_ColSums.txt"
+            self.envelope_climate_convert = fp.CONVERT_DATA / \
+                "geo_map" / "AIA_Cdiv_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cdiv.json'
 
@@ -271,8 +276,39 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
         converted to the custom region 'cz'.
     """
 
-    for (k, i), (k2, i2) in zip(sorted(base_dict.items()),
-                                sorted(add_dict.items())):
+    # ────────────────────────────── helpers ────────────────────────────── #
+    import numbers
+    import warnings
+    import copy
+
+    def _is_number(x):
+        return isinstance(x, numbers.Number)
+
+    def _to_list_of_lists(lst):
+        """Wrap flat list -> list-of-lists, keep list-of-lists unchanged."""
+        if lst and _is_number(lst[0]):
+            return [lst]
+        return lst
+
+    def _pad_with_zeros(a, b):
+        """
+        Pad the shorter of two *lists of lists* with zero-vectors so that
+        their lengths match. Keeps arithmetic aligned.
+        """
+        max_len = max(len(a), len(b))
+        elem_len = len(a[0]) if a else len(b[0]) if b else 2
+        zero_vec = [0.0] * elem_len
+        a.extend(copy.deepcopy(zero_vec) for _ in range(max_len - len(a)))
+        b.extend(copy.deepcopy(zero_vec) for _ in range(max_len - len(b)))
+        return a, b
+    # ───────────────────────────────────────────────────────────────────── #
+
+    # Loop through both dicts to find all keys
+    for (k, i) in sorted(base_dict.items()):
+        if k not in add_dict:
+            warnings.warn(f"Key '{k}' not found in add_dict – skipping")
+            continue
+        k2, i2 = k, add_dict[k]
         # Compare the top level/parent keys of the section of the dict
         # currently being parsed to ensure that both the base_dict
         # (census division basis) and add_dict (custom region basis)
@@ -298,8 +334,8 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 any([x in flag_map_dat["res_fuel_types"] for
                      x in base_dict[k].keys()])) or
                 (k in flag_map_dat["com_bldg_types"] and
-                 any([x in flag_map_dat["com_fuel_types"] for
-                      x in base_dict[k].keys()]))):
+                    any([x in flag_map_dat["com_fuel_types"] for
+                        x in base_dict[k].keys()]))):
                 if k in flag_map_dat["res_bldg_types"]:
                     cd_to_cz_factor = res_convert_array
                     bldg_flag = "res"
@@ -314,7 +350,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             # EMM region or state case (with keys for fuel conversion factors)
             # to trigger the fuel flag update
             elif (k in flag_map_dat["res_fuel_types"] or
-                  k in flag_map_dat["com_fuel_types"]) and \
+                    k in flag_map_dat["com_fuel_types"]) and \
                     type(res_convert_array) is dict:
                 fuel_flag = k
             # When updating total building stock or square footage data for
@@ -379,11 +415,11 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                     eu_flag = "plug loads"
 
             # Recursively loop through both dicts
-            if isinstance(i, dict):
+            if isinstance(i, dict) and isinstance(i2, dict):
                 merge_sum(i, i2, cd_num, reg_name, res_convert_array,
                           com_convert_array, cpl, flag_map_dat, first_cd_flag,
                           cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag)
-            elif type(base_dict[k]) is not str:
+            elif type(base_dict[k]) is not str and type(add_dict[k2]) is not str:
                 # Check whether the conversion array needs to be further keyed
                 # by fuel type and (for electricity) by end use, as is the case
                 # when converting to EMM region or state and using EULP data
@@ -421,48 +457,38 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
+                    # ───────────────────────────────────────────────────────────────────── #
                     convert_fact = cd_to_cz_factor[cd_num][reg_name]
+                # ───────────── list (‐of-lists) branch; new logic ───────────── #
+                if isinstance(base_dict[k], list):
+                    base_list = _to_list_of_lists(base_dict[k])
+                    add_list = _to_list_of_lists(add_dict[k2])
+                    base_list, add_list = _pad_with_zeros(base_list, add_list)
 
-                # Special handling of first census dict (no addition of the
-                # second dict, only conversion of the first dict with
-                # the appropriate factor)
-                if first_cd_flag:
-                    # In the special case of consumer choice/time
-                    # preference premium data, the data are reported
-                    # as a list and must be reprocessed using a list
-                    # comprehension (or comparable looping approach)
-                    if isinstance(base_dict[k], list):
-                        try:
-                            base_dict[k] = [z * convert_fact for z
-                                            in base_dict[k]]
-                        except TypeError:  # one level deeper (incentives data)
-                            for k_s in range(len(base_dict[k])):
-                                base_dict[k][k_s] = [
-                                    z_s * convert_fact for z_s
-                                    in base_dict[k][k_s]]
+                    if first_cd_flag:
+                        base_list = [[v * convert_fact for v in sub]
+                                     for sub in base_list]
                     else:
-                        base_dict[k] = base_dict[k] * convert_fact
+                        base_list = [[b + a * convert_fact for b, a in zip(sub_b, sub_a)]
+                                     for sub_b, sub_a in zip(base_list, add_list)]
+
+                    # restore original shape (flat vs nested)
+                    if _is_number(base_dict[k][0]) if base_dict[k] else False:
+                        base_dict[k] = base_list[0]
+                    else:
+                        base_dict[k] = base_list
+
+                # ─ scalar / numeric branch ───────────────────────────────
                 else:
-                    if isinstance(base_dict[k], list):
-                        try:
-                            base_dict[k] = [sum(y) for y
-                                            in zip(base_dict[k],
-                                            [z * convert_fact for z
-                                             in add_dict[k2]])]
-                        except TypeError:  # one level deeper (incentives data)
-                            for k_s in range(len(base_dict[k])):
-                                base_dict[k][k_s] = [
-                                    sum(y_s) for y_s in zip(
-                                        base_dict[k][k_s], [
-                                            z_s * convert_fact for z_s
-                                            in add_dict[k2][k_s]])]
+                    if first_cd_flag:
+                        base_dict[k] = base_dict[k] * convert_fact
                     else:
-                        base_dict[k] = (base_dict[k] +
-                                        add_dict[k2] * convert_fact)
-        elif k != k2:
-            raise (KeyError('Merge keys do not match!'))
+                        base_dict[k] = base_dict[k] + \
+                            add_dict[k2] * convert_fact
 
-    # Return a single dict representing sum of values of original two dicts
+        elif k != k2:
+            warnings.warn(f"Merge keys do not match: {k} != {k2}")
+
     return base_dict
 
 
@@ -1621,8 +1647,8 @@ def main():
     # division basis and traverse the database to convert it to
     # a custom region basis
     with open(handyvars.json_in, 'r') as jsi:
-        msjson_cdiv = json.load(jsi)
         # Do not convert non-envelope technology characteristics data to a
+        msjson_cdiv = json.load(jsi)
         # state-level resolution (these data remain with the original
         # Census breakout)
         if input_var[0] == '1' or (
@@ -1665,6 +1691,8 @@ def main():
             zip_out_se = handyvars.json_out.split('.')[0] + '.gz'
             with gzip.GzipFile(zip_out_se, 'w') as fout_se:
                 fout_se.write(json.dumps(result).encode('utf-8'))
+        print("File " + handyvars.json_out +
+              " has been created with the updated data.")
 
 
 if __name__ == '__main__':

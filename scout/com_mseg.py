@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import numpy as np
 import numpy.lib.recfunctions as recfn
 import re
@@ -18,10 +19,10 @@ class EIAData(object):
         catg_dmd (str): Filename for the commercial energy and stock data.
     """
 
-    def __init__(self):
-        self.serv_dmd = 'KSDOUT.txt'
-        self.catg_dmd = 'KDBOUT.txt'
-        self.com_generation = 'KDGENOUT.txt'
+    def __init__(self, data_dir=fp.INPUTS):
+        self.serv_dmd = os.path.join(data_dir, 'KSDOUT.txt')
+        self.catg_dmd = os.path.join(data_dir, 'KDBOUT.txt')
+        self.com_generation = os.path.join(data_dir, 'KDGENOUT.txt')
 
 
 class UsefulVars(object):
@@ -741,7 +742,8 @@ def cleanup_calc(dr, cdiv, bld, years):
             zc = reduce(reducer, [zc, zml])
 
     # Remove sum of all MELs from the correct location
-    zcneg = {k: -v for k, v in zc.items()}  # Make values negative to effect subtraction
+    # Make values negative to effect subtraction
+    zcneg = {k: -v for k, v in zc.items()}
     if bld != 'unspecified':
         # Remove sum of all specific named MELs from MELs > other
         dr[cdiv][bld]['electricity']['MELs']['other']['energy'] = reduce(
@@ -791,7 +793,8 @@ def double_count_cleanup(dr):
     cd = CommercialTranslationDicts()
 
     # Get the years included in the data
-    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)[0]]['new square footage'].keys()
+    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)
+                                   [0]]['new square footage'].keys()
 
     # Clean up the double-counted electricity use
     for cdiv in cd.cdivdict:
@@ -905,7 +908,11 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # be incorrectly typed as integers
         for row in filecont:
             if len(dtypes) == len(row):
-                dtypes = [dtype_eval(col, dtypes[idx]) for idx, col in enumerate(row)]
+                # Check if row consists entirely of empty strings
+                if all(col == '' for col in row):
+                    break
+                dtypes = [dtype_eval(col, dtypes[idx])
+                          for idx, col in enumerate(row)]
 
         # Combine data types and header names into list of tuples
         comb_dtypes = list(zip(header_names, dtypes))
@@ -999,6 +1006,11 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # try/catch in the case where the data include the string 'NA',
         # which has to be changed to an 'nan' to be able to be coerced
         # to a float or integer by np.array
+        for r_i, row in enumerate(data):
+            for f_i, (field, (_, np_type)) in enumerate(zip(row, dtype_list)):
+                if field == '' and np.issubdtype(np_type, np.integer):
+                    print(f"⚠️  Empty int at row {r_i+1}, col {f_i} ")
+
         try:
             final_struct = np.array(data, dtype=dtype_list)
         # Targeted error "ValueError: could not convert string to float: 'NA'"

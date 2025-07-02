@@ -4,6 +4,11 @@
 __pycache__/
 *.py[cod]
 
+# Virtual environment files #
+#########################################
+
+.venv
+
 # EIA AEO microtable data files #
 #################################
 
@@ -12,6 +17,11 @@ __pycache__/
 ktek*
 k*.txt
 rs*.txt
+
+# Cambimum data for EIA AEO update #
+#################################
+
+scout/Cambium_data/
 
 # Populated microsegment JSON databases #
 #########################################
