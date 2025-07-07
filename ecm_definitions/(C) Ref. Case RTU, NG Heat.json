@@ -1,0 +1,94 @@
+{
+  "name": "(C) Ref. Case RTU, NG Heat",
+  "_description": "Ref. case gas furnace integrated in packaged rooftop unit plus ventilation",
+  "measure_type": "add-on",
+  "market_entry_year": 2025,
+  "market_exit_year": null,
+  "min_eff_elec_flag": null,
+  "ref_case_flag": "yes",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": [
+    "heating",
+    "cooling",
+    "ventilation"
+  ],
+  "fuel_type": [
+    "natural gas",
+    "electricity"
+  ],
+  "fuel_switch_to": null,
+  "backup_fuel_fraction": null,
+  "technology": [
+    "gas_furnace",
+    "gas_eng-driven_RTAC",
+    "rooftop_AC",
+    "scroll_chiller",
+    "reciprocating_chiller",
+    "centrifugal_chiller",
+    "screw_chiller",
+    "CAV_Vent",
+    "VAV_Vent"
+  ],
+  "htcl_tech_link": "ng rtu+rtac or chiller",
+  "tech_switch_to": null,
+  "energy_efficiency": 0.0,
+  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_source": {
+    "notes": [
+      "Ref. case performance",
+      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details"
+    ],
+    "source_data": null
+  },
+  "installed_cost": 0.0,
+  "cost_units": "$/ft^2 floor",
+  "installed_cost_source": {
+    "notes": [
+      "Ref. case cost (no additional cost)",
+      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details."
+    ],
+    "source_data": null
+  },
+  "add_elec_infr_cost": null,
+  "product_lifetime": 21.0,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average of typical commercial RTU lifetime",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
+      "author": "U.S. Energy Information Admnistration",
+      "year": 2023,
+      "pages": 135,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_scaling_fractions": {
+    "gas_furnace": 0.92,
+    "gas_eng-driven_RTAC": 1.0,
+    "rooftop_AC": 0.46,
+    "scroll_chiller": 0.04,
+    "reciprocating_chiller": 0.04,
+    "centrifugal_chiller": 0.04,
+    "screw_chiller": 0.04,
+    "CAV_Vent": 0.35,
+    "VAV_Vent": 0.1
+  },
+  "market_scaling_fractions_source": {
+    "notes": "Heating multiple of 92% was determined by dividing square feet in which main heating equipment is gas packaged unit (14491406 sf) by square feet in shiwch main heating equipment is gas furnace or packaged unit (176461522 sf). Cooling equipment multiples determined by square feet in which given cooling system (e.g., RTAC, chiller) is pared with given heating system for the measure. Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
+    "source_data": {
+      "title": "CBECS 2018 Microdata",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": null,
+      "url": "https://www.eia.gov/consumption/commercial/data/2018/index.php?view=microdata"
+    }
+  },
+  "_updated_by": {
+    "name": "Jared Langevin",
+    "organization": "LBNL",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2025-05-14 12:29:20"
+  }
+}
