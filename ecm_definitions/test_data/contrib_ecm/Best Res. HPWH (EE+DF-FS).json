@@ -1,0 +1,104 @@
+{
+  "name": "Best Res. HPWH (EE+DF-FS)",
+  "tsv_features": {
+    "shape": {
+      "custom_annual_savings": "P3d_Best_waterheater_DR_waterheater.csv"
+    }
+  },
+  "_description": "Switch to best available HPWH with grid-responsive controls",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Assume historical penetration is captured in baseline",
+    "source_data": null
+  },
+  "energy_efficiency": 1.35,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Sales-weighted combinations of WH efficiencies for typical 2022 HPWH (3.33 UEF) and electric resistance storage (0.92) WH. New/replacement sales numbers for 2023 are drawn from AEO 2023 microdata files, (~82% resistance, ~18% HPWH in 2023 across all sales), available from EIA upon request. Additional performance impacts for this measure relative to the typical electric equipment are accounted for via the savings shape data in `tsv_features`",
+    "source_data": [
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 62,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      }
+    ]
+  },
+  "installed_cost": 2733,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Total installed cost is average of low/high 'Add-on Control' values in 2020 from the Guidehouse source, translated to 2022$, plus installed costs mean for high HPWH in 2022 in the EIA source, plus $700, the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [
+       {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+      },
+      {
+      "title": "Grid-Interactive Efficient Building Technology Cost, Performance, and Lifetime Characteristics",
+      "author": "Nubbe et al. 2020",
+      "organization": "Guidehouse Inc.",
+      "year": 2020,
+      "pages": 30,
+      "URL": "https://eta-publications.lbl.gov/sites/default/files/geb_technologies_data_report_final_v5_clean_ag_0.pdf"},
+      {
+      "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+      "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+      "organization": "NV5 and Redwood Energy",
+      "year": 2022,
+      "pages": 33,
+      "table": 4,
+      "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}
+    ]},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for high category in 2022, rounded down to 15 years",
+    "source_data": {
+        "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+        "author": null,
+        "organization": "U.S. Energy Information Administration",
+        "year": 2023,
+        "pages": 65,
+        "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": "electricity",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "2021-03-23 13:00:00 UTC"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Lab",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Fri May 26 13:26:29 EDT 2023"
+  }]
+}
