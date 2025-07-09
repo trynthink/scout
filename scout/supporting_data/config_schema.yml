@@ -108,11 +108,11 @@ properties:
 
       detail_brkout:
         type: array
-        description: List of options by which to breakout results. The `fuel types` option is only valid if the split_fuel argument is set to false. The `all` option selects all three breakout categories.
+        description: List of options by which to breakout results. The `fuel types` option is only valid if the split_fuel argument is set to false. The `all` option selects all three breakout categories. The 'codes/bps' option sets the minimum building type/vintage breakouts needed to assess codes and performance standards.
         default: []
         items:
           type: ["string", "null"]
-          enum: [regions, buildings, fuel types, all]
+          enum: [regions, buildings, codes/bps, fuel types, all]
 
       no_scnd_lgt:
         type: boolean

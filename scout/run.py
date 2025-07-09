@@ -7553,6 +7553,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         brkout = "detail_reg_fuel"
     elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '7':
         brkout = "detail_bldg_fuel"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '8':
+        brkout = "detail_reg_fuel_codesbps"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '9':
+        brkout = "detail_codesbps"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '10':
+        brkout = "detail_reg_codesbps"
+    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '11':
+        brkout = "detail_codesbps_fuel"
     else:
         brkout = "basic"
 
@@ -7786,7 +7794,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
         if any([x is not None and len(x) != 0 for x in [codes, bps]]) \
-            and (brkout == "detail" or all([x in brkout for x in ["reg", "bldg"]])) \
+            and (brkout == "detail" or (
+                "reg" in brkout and any([x in brkout for x in ["bldg", "codesbps"]]))) \
                 and split_fuel is True:
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)

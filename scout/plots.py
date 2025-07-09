@@ -153,6 +153,13 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
              'Retail (Existing)', 'Hospitality (Existing)',
              'Education (Existing)', 'Assembly/Other (Existing)',
              'Warehouses (Existing)']]
+    elif "codesbps" in compete_results_agg["Output Resolution"]:
+        bclasses_out_finmets = [
+            'Single Family/Manufactured Homes (New)',
+            'Single Family/Manufactured Homes (Existing)',
+            'Multi Family Homes (New)',
+            'Multi Family Homes (Existing)',
+            'Commercial (New)', 'Commercial (Existing)']
     else:
         bclasses_out_finmets = [
             ['Residential (New)', 'Residential (Existing)'],

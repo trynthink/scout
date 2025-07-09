@@ -1444,7 +1444,7 @@ class UsefulVars(object):
         mktnames_all = ['all ' + x if 'all' not in x else x for
                         x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        if opts.detail_brkout in ['1', '2', '5', '6']:
+        if opts.detail_brkout in ['1', '2', '5', '6', '8', '10']:
             self.out_break_czones = OrderedDict(regions_out)
         else:
             if opts.alt_regions == "EMM":
@@ -1515,6 +1515,26 @@ class UsefulVars(object):
                 ('Assembly/Other (Existing)', [
                     'existing', 'assembly', 'other', 'unspecified']),
                 ('Warehouses (Existing)', ['existing', 'warehouse'])])
+        elif opts.detail_brkout in ['8', '9', '10', '11']:
+            # Map to building type definition that is minimum breakout needed to support codes/BPS
+            # driver assessment
+            self.out_break_bldgtypes = OrderedDict([
+                ('Single Family/Manufactured Homes (New)', [
+                    'new', 'single family home', 'mobile home']),
+                ('Single Family/Manufactured Homes (Existing)', [
+                    'existing', 'single family home', 'mobile home']),
+                ('Multi Family Homes (New)', ['new', 'multi family home']),
+                ('Multi Family Homes (Existing)', ['existing', 'multi family home']),
+                ('Commercial (New)', [
+                    'new', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other', 'unspecified']),
+                ('Commercial (Existing)', [
+                    'existing', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other', 'unspecified'])])
         else:
             self.out_break_bldgtypes = OrderedDict([
                 ('Residential (New)', [
@@ -1553,7 +1573,7 @@ class UsefulVars(object):
             "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
-            if opts.detail_brkout in ['1', '4', '6', '7']:
+            if opts.detail_brkout in ['1', '4', '6', '7', '8', '11']:
                 # Map to more granular fuel type breakout
                 self.out_break_fuels = OrderedDict([
                     ('Electric', ["electricity"]),
