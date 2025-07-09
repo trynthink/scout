@@ -16777,14 +16777,19 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Set contributing ECMs as inactive in run_setup and throw warning, set all others as active
     ctrb_ms = [ecm for pkg in meas_toprep_package_init for ecm in pkg["contributing_ECMs"]]
     non_ctrb_ms = [ecm for ecm in opts.ecm_files if ecm not in ctrb_ms]
+    # Find subset of full ECM set that is equipment (not envelope)
     supply_ecms = [ecm["name"] for ecm in meas_toprep_indiv if (
         not ((isinstance(ecm["technology"], list) and all([
             x in handyvars.demand_tech for x in ecm["technology"]])) or ecm[
             "technology"] in handyvars.demand_tech))]
+    # Exclude all contributing ECMs in a package unless user desires competition of equipment-only
+    # ECM with package and the ECM is an equipment ECM
     excluded_ind_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms and (
         opts.pkg_env_costs != '1' or ecm not in supply_ecms)]
+    include_ctrb_ecms = [ecm for ecm in opts.ecm_files_user if ecm in ctrb_ms and (
+        ecm not in excluded_ind_ecms)]
     run_setup = Utils.update_active_measures(run_setup,
-                                             to_active=non_ctrb_ms,
+                                             to_active=non_ctrb_ms + include_ctrb_ecms,
                                              to_inactive=excluded_ind_ecms)
     if excluded_ind_ecms:
         excluded_ind_ecms_txt = format_console_list(excluded_ind_ecms)
