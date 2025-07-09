@@ -8101,7 +8101,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Do not plot for the case where a user has trimmed down the results
     # (not all data required for the plots will be available)
-    if opts.trim_results is False:
+    if not opts.trim_results:
         # Notify user that the output data are being plotted
         print("Plotting output data...", end="", flush=True)
         # Execute plots
