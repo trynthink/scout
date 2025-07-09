@@ -982,7 +982,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                                                 for item in bldg]) > 0:
                                             bldg_match[b] = b
 
-                                    if pd.Series(bldg_match).nunique() > 1:
+                                    if pd.Series(bldg_match).nunique() >= 1:
                                         results_finmets[(m-1), (len(fin_metrics) + 2)] = "^"
                                     else:
                                         results_finmets[(m-1), (len(fin_metrics) + 2)] = \
@@ -1013,7 +1013,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                                     # applicable end uses; otherwise set
                                     # to the point fill color appropriate for
                                     # the matched end use
-                                    if pd.Series(euse_match).nunique() > 1:
+                                    if pd.Series(euse_match).nunique() >= 1:
                                         results_finmets[
                                             (m-1), (len(fin_metrics) + 3)] = "#7f7f7f"
                                     else:
