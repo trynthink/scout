@@ -9746,6 +9746,22 @@ class Measure(object):
                 for year in self.handyvars.aeo_years:
                     years_diff_fraction_dictionary[str(year)] = 1
 
+        # If a driver that lowers volumetric rates for certain equipment types is represented
+        # determine which rates (if any) apply to the current segment
+        if self.handyvars.low_volume_rate is not None:
+            # Pull microsegment information to compare against, based on whether or not
+            # the measure involves fuel and/or tech switching
+            fuel_for_rate = (mskeys[3] if not mskeys_swtch else mskeys_swtch[3])
+            tech_for_rate = (mskeys[-2] if not mskeys_swtch else mskeys_swtch[-2])
+            # Pull the alternate rate structure that applies to the current yr/mseg
+            alt_rates_init = [seg for seg in self.handyvars.low_volume_rate if (
+                (seg[0:3] == [mskeys[1], mskeys[2], mskeys[-1]]) and  # reg/bldg/vint
+                (seg[5] == fuel_for_rate) and  # fuel (switched to, if applicable)
+                (seg[3] == "all" or seg[3] == mskeys[4]) and  # end use
+                (seg[4] == "all" or seg[4] == tech_for_rate))]  # tech (switched to, if appl.)
+        else:
+            alt_rates_init = []
+
         # Loop through and update stock, energy, and carbon mseg partitions for
         # each year in the modeling time horizon
         for yr in self.handyvars.aeo_years:
@@ -11074,19 +11090,11 @@ class Measure(object):
 
             # Modify measure energy costs to reflect alternate rate structures,
             # if applicable
-            if self.handyvars.low_volume_rate is not None:
-                # Pull microsegment information to compare against, based on whether or not
-                # the measure involves fuel and/or tech switching
-                fuel_for_rate = (mskeys[3] if not mskeys_swtch else mskeys_swtch[3])
-                tech_for_rate = (mskeys[-2] if not mskeys_swtch else mskeys_swtch[-2])
-                # Pull the alternate rate structure that applies to the current yr/mseg
-                alt_rates = [seg for seg in self.handyvars.low_volume_rate if (
-                    ((numpy.isnan(seg[-3]) or seg[-3] <= int(yr)) and
-                     (numpy.isnan(seg[-2]) or seg[-2] >= int(yr))) and  # applies to current year
-                    (seg[0:3] == [mskeys[1], mskeys[2], mskeys[-1]]) and  # reg/bldg/vint
-                    (seg[5] == fuel_for_rate) and  # fuel (switched to, if applicable)
-                    (seg[3] == "all" or seg[3] == mskeys[4]) and  # end use
-                    (seg[4] == "all" or seg[4] == tech_for_rate))]  # tech (switched to, if appl.)
+            if self.handyvars.low_volume_rate is not None and len(alt_rates_init) != 0:
+                # Pull the alternate rate structure that applies to the current yr
+                alt_rates = [seg for seg in alt_rates_init if (
+                    (numpy.isnan(seg[-3]) or seg[-3] <= int(yr)) and
+                    (numpy.isnan(seg[-2]) or seg[-2] >= int(yr)))]
                 # If alternatives apply, pull data on modifications to volumetric energy rates;
                 # if no alternates apply, set modifications to zero
                 if len(alt_rates) != 0:
