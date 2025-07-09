@@ -261,7 +261,7 @@ properties:
         properties:
           incentive_levels:
             type: ["string"]
-            enum: [reference, optimistic, aggressive, aeo]
+            enum: [reference, optimistic, aggressive, aggressive state, aeo]
             default: aeo
             description: Level of federal and state incentives (e.g., tax credits, rebates) for measure adoption. The aeo option reverts to incentive levels in the AEO reference case forecast.
           incentive_restrictions:

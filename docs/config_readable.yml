@@ -95,8 +95,8 @@ ecm_prep:
     incentive_levels: (['string']) Level of federal and state
       incentives (e.g., tax credits, rebates) for measure adoption.
       The aeo option reverts to incentive levels in the AEO reference
-      case forecast. Allowed values are {aeo, aggressive, optimistic,
-      reference}. Default aeo
+      case forecast. Allowed values are {aeo, aggressive, aggressive
+      state, optimistic, reference}. Default aeo
     incentive_restrictions: (string) Restrictions to apply to
       evaluation of incentives. Setting to all removes all incentives,
       including those in the reference case, while null imposes
