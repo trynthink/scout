@@ -3146,7 +3146,7 @@ class Measure(object):
                         "'backup_fuel_fraction' attribute of measure '" +
                         self.name + "' not found; "
                         "looking for file " + (
-                            handyfiles.backup_fuel_data /
+                            str(handyfiles.backup_fuel_data) /
                             csv_bkup_fuel_file_name) + ". ")
         except AttributeError:
             self.backup_fuel_fraction = None
