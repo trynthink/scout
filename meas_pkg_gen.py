@@ -9,6 +9,16 @@ from os import getcwd, path
 def main(base_dir):
     """Import measure data from CSV and generate a JSON for each measure."""
 
+    # Determine I/O file paths that will base measure costs on either ATB or EIA data
+    cost_basis = input(
+        "Enter 1 to generate measures with ATB costs, or 2 to generate measures with EIA costs:\n")
+    if cost_basis not in ['1', '2']:
+        print('Please try again. Enter either 1 or 2. Use ctl-c to exit.')
+    if cost_basis == '1':
+        in_file, out_file = ["inputs/meas_in_atb.csv", "ecm_definitions/atb_costs"]
+    else:
+        in_file, out_file = ["inputs/meas_in_eia.csv", "ecm_definitions/eia_costs"]
+
     # Set up input CSV column -> attribute mapping
     col_attr_map = {
         "Name": "name",
@@ -59,11 +69,11 @@ def main(base_dir):
     meas_gen_folder = "ecm_definitions/meas_pkg_gen_io/"
 
     # Set JSON output folder
-    fpo = path.join(base_dir, meas_gen_folder, "outputs")
+    fpo = path.join(base_dir, out_file)
 
     # Load individual measure data
     # CSV input file path
-    fpi = path.join(base_dir, meas_gen_folder, "inputs/meas_in.csv")
+    fpi = path.join(base_dir, meas_gen_folder, in_file)
     # CSV read in
     m_in = pd.read_csv(fpi)
 
