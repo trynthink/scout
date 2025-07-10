@@ -1700,7 +1700,7 @@ def main():
         if input_var[0] not in ['1', '2']:
             print('Please try again. Enter either 1 or 2. Use ctrl-c to exit.')
     # Step 2: Determine the type of regional breakdown to use.
-    # All data types (1 and 2) can be broken down (1 – AIA climate zones; 
+    # All data types (1 and 2) can be broken down by: 1 – AIA climate zones; 
     # 2 – NEMS EIA Electricity Market Module (EMM) regions; 3 – States
     if input_var[0] == '1':
         while input_var[1] not in ['1', '2', '3']:
@@ -1725,8 +1725,8 @@ def main():
                       'Use ctrl-c to exit.')
     # Step 3: If energy/stock data is chosen (input_var[0] == '1') and the
     # regional breakdown is either EMM or state (input_var[1] == '2' or '3'),
-    # further determine to use for (1 – Electricity-only or 2 – All-fuel-type
-    # (only applies to end-use level)
+    # further determine whether to apply detailed Census to EMM or state
+    # disaggregation data for: 1 – Electricity-only or 2 – All fuel types.
     if input_var[0] == '1' and  input_var[1] in ['2','3']:
         while input_var[2] not in ['1', '2']:
             input_var[2] = input(
@@ -1738,9 +1738,9 @@ def main():
             if input_var[2] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
-    # Step 4: Either Electricity-only method or All-fuels method is chosen
-    # (input_var[2] == ['1', '2'] further detailed electricity disaggregation
-    # should be (1 – Technology-level; 2 – End-use-level)
+    # Step 4: For electricity, determine whether the detailed disaggregation
+    # method should be based on technology-level or end-use-level stock
+    # and energy data.
     if input_var[0] == '1' and  input_var[1] in ['2','3'] and \
         input_var[2] in ['1','2']:
         while input_var[3] not in ['1', '2']:
