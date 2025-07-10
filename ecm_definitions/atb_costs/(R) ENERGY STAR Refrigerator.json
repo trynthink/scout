@@ -13,7 +13,7 @@
   "fuel_type": "electricity",
   "fuel_switch_to": null,
   "backup_fuel_fraction": null,
-  "technology": null,
+  "technology": "all",
   "htcl_tech_link": null,
   "tech_switch_to": null,
   "energy_efficiency": 491.0,
@@ -74,6 +74,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-06-26 14:50:38"
+    "timestamp": "2025-07-10 13:50:11"
   }
 }
