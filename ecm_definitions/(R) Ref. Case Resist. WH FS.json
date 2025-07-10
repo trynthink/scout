@@ -23,29 +23,17 @@
   "energy_efficiency": 0.92,
   "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
-    "notes": "Minimum efficiency performance in 2022",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
-      "author": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": 62,
-      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+    "notes": "Typical performance",
+    "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
   },
   "installed_cost": {
-    "new": 545.0,
-    "existing": 905.0
+    "new": 1018.0,
+    "existing": 1518.0
   },
-  "cost_units": "2022$/unit",
+  "cost_units": "2023$/unit",
   "installed_cost_source": {
-    "notes": "Average of typical product retail (new) and total installed (existing) cost range",
-    "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies: Appendix A",
-      "author": "U.S. Energy Information Administration",
-      "year": 2023,
-      "pages": 65,
-      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
-    }
+    "notes": "Buildings Technology Baseline using Typical performance value to calculate cost. https://docs.google.com/spreadsheets/d/1ysu2kIZFN7CjvWRmEKRgoEc2bL0KuN2w53YBy9ijKKA/edit?gid=0#gid=0",
+    "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
   },
   "add_elec_infr_cost": {
     "panel": false,
@@ -72,6 +60,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-05-14 12:29:20"
+    "timestamp": "2025-07-10 13:50:11"
   }
 }

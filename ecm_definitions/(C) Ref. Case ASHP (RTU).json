@@ -1,7 +1,7 @@
 {
   "name": "(C) Ref. Case ASHP (RTU)",
   "_description": "Ref. case central air source heat pump heating and cooling plus ventilation",
-  "measure_type": "add-on",
+  "measure_type": "fulll service",
   "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
@@ -24,23 +24,43 @@
   ],
   "htcl_tech_link": null,
   "tech_switch_to": null,
-  "energy_efficiency": 0.0,
-  "energy_efficiency_units": "relative savings (constant)",
-  "energy_efficiency_source": {
-    "notes": [
-      "Ref. case performance",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details"
-    ],
-    "source_data": null
+  "energy_efficiency": {
+    "rooftop_ASHP-heat": 3.4,
+    "rooftop_ASHP-cool": 3.4,
+    "CAV_Vent": 0.0,
+    "VAV_Vent": 0.0
   },
-  "installed_cost": 0.0,
-  "cost_units": "$/ft^2 floor",
+  "energy_efficiency_units": {
+    "heating": "BTU out/BTU in",
+    "cooling": "BTU out/BTU in",
+    "ventilation": "relative savings (constant)"
+  },
+  "energy_efficiency_source": {
+    "notes": "Typical efficiency level in 2023.",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "author": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 139,
+      "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }
+  },
+  "installed_cost": {
+    "rooftop_ASHP-heat": {
+      "new": 163.3,
+      "existing": 170.4
+    },
+    "rooftop_ASHP-cool": {
+      "new": 0.0,
+      "existing": 0.0
+    },
+    "CAV_Vent": 0.0,
+    "VAV_Vent": 0.0
+  },
+  "cost_units": "2023$/kBtu/h heating",
   "installed_cost_source": {
-    "notes": [
-      "Ref. case cost (no additional cost)",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details."
-    ],
-    "source_data": null
+    "notes": "Typical efficiency costs in 2023, normalized by capacity",
+    "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
   },
   "add_elec_infr_cost": null,
   "product_lifetime": 15.0,
@@ -75,6 +95,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-05-14 12:29:20"
+    "timestamp": "2025-07-10 13:50:11"
   }
 }

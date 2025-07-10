@@ -1,7 +1,7 @@
 {
   "name": "(R) Ref. Case Other Fossil Heat, No Cooling",
   "_description": "Ref. case other fossil equipment without any paired cooling",
-  "measure_type": "add-on",
+  "measure_type": "full service",
   "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
@@ -30,22 +30,55 @@
   ],
   "htcl_tech_link": "other fossil heat+no cool",
   "tech_switch_to": null,
-  "energy_efficiency": 0.0,
-  "energy_efficiency_units": "relative savings (constant)",
-  "energy_efficiency_source": {
-    "notes": [
-      "Ref. case performance",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details"
-    ],
-    "source_data": null
+  "energy_efficiency": {
+    "boiler (distillate)": 0.86,
+    "furnace (distillate)": 0.85,
+    "furnace (kerosene)": 0.85,
+    "furnace (LPG)": 0.9,
+    "central AC": 4.28,
+    "room AC": 3.52
   },
-  "installed_cost": 0.0,
-  "cost_units": "2022$/unit",
+  "energy_efficiency_units": {
+    "boiler (distillate)": "AFUE",
+    "furnace (distillate)": "AFUE",
+    "furnace (kerosene)": "AFUE",
+    "furnace (LPG)": "AFUE",
+    "central AC": "COP",
+    "room AC": "COP"
+  },
+  "energy_efficiency_source": {
+    "notes": "Typical value for performance, converted to Scout units where necessary.",
+    "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
+  },
+  "installed_cost": {
+    "boiler (distillate)": {
+      "new": 7422.0,
+      "existing": 8023.0
+    },
+    "furnace (distillate)": {
+      "new": 5158.0,
+      "existing": 5350.0
+    },
+    "furnace (kerosene)": {
+      "new": 5158.0,
+      "existing": 5350.0
+    },
+    "furnace (LPG)": {
+      "new": 5158.0,
+      "existing": 5350.0
+    },
+    "central AC": {
+      "new": 5599.0,
+      "existing": 5927.0
+    },
+    "room AC": {
+      "new": 650.0,
+      "existing": 803.0
+    }
+  },
+  "cost_units": "2023$/unit",
   "installed_cost_source": {
-    "notes": [
-      "Ref. case cost (no additional cost)",
-      "see https://www.eia.gov/analysis/studies/buildings/equipcosts/ for details."
-    ],
+    "notes": "Buildings Technology Baseline using Typical performance value to calculate cost. https://docs.google.com/spreadsheets/d/1ysu2kIZFN7CjvWRmEKRgoEc2bL0KuN2w53YBy9ijKKA/edit?gid=0#gid=0",
     "source_data": null
   },
   "add_elec_infr_cost": null,
@@ -121,6 +154,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-05-14 12:29:20"
+    "timestamp": "2025-07-10 13:50:11"
   }
 }
