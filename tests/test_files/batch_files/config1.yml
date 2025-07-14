@@ -43,6 +43,7 @@ run:
   results_directory: ../../../results/custom_dir_config1
   verbose: false
   mkt_fracs: false
-  trim_results: null
+  trim_vars: false
+  change_yr_interval: null
   report_stk: false
   report_cfs: false
