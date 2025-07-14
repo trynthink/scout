@@ -466,7 +466,7 @@ class UsefulVars(object):
                     "building stock and square footage":
                         fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
                     }
-                self.json_out = 'mseg_res_com_emm.json'
+                self.json_out = 'mseg_res_com_state.json'
 
     def configure_for_cost_performance_lifetime_data(self):
         """Reconfigure cost, performance, and life data to custom region."""
@@ -1767,10 +1767,10 @@ def main():
         while input_var[2] not in ['1', '2']:
             input_var[2] = input(
                 "\nEnter 1 to use detailed disaggregation data for electricity " +
-                "only, or 2 to use detailed disaggregation data for all fuels. " +
+                "only, or 2 to use detailed disaggregation data for all fuels.\n" +
                 "Note: detailed disaggregation data are drawn from ResStock and " +
-                "ComStock datasets and otherwise disaggregation data are based " +
-                "on county-level population totals.\n")
+                "ComStock datasets; otherwise, disaggregation data are based " +
+                "on historical consumption estimates by region: ")
             if input_var[2] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
@@ -1783,7 +1783,7 @@ def main():
             input_var[3] = input(
                 "\nEnter 1 to base detailed electricity disaggregation on " +
                 "technology-level data, or 2 to based detailed electricity " +
-                "disaggregation on end-use-level data.\n")
+                "disaggregation on end-use-level data: ")
             if input_var[3] not in ['1', '2']:
                 print('Please try again. Enter either 1, 2'
                       'Use ctrl-c to exit.')
