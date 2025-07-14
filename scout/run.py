@@ -7141,15 +7141,6 @@ def gen_trim_yrs(yr_interval, yr_range):
       A list of integers representing the starting year plus any year after that
       which is exactly divisible by the desired interval.
     """
-    # Determine year interval based on user input string
-    if "every_other" in yr_interval:
-        n_yrs = 2
-    elif "every_five" in yr_interval:
-        n_yrs = 5
-    elif "every_ten" in yr_interval:
-        n_yrs = 10
-    else:
-        n_yrs = 1
     # Set start and end year based on AEO range
     start_yr, end_yr = [int(yr_range[0]), int(yr_range[-1])]
     # Always include the start year in the final list
@@ -7157,41 +7148,11 @@ def gen_trim_yrs(yr_interval, yr_range):
     # Generate the list of years
     for year in range(start_yr + 1, end_yr + 1):
         # Year must be exactly divisible by desired year interval
-        if year % n_yrs == 0:
+        if year % yr_interval == 0:
             years.append(year)
-    return years
-
-
-def gen_trim_yrs(yr_interval, yr_range):
-    """
-    Generates a list of years that occur every N years within a given range.
-
-    Args:
-      yr_interval: A user-specified string indicating desired year interval.
-      yr_range: The full range of years in the projection horizon.
-
-    Returns:
-      A list of integers representing the starting year plus any year after that
-      which is exactly divisible by the desired interval.
-    """
-    # Determine year interval based on user input string
-    if "every_other" in yr_interval:
-        n_yrs = 2
-    elif "every_five" in yr_interval:
-        n_yrs = 5
-    elif "every_ten" in yr_interval:
-        n_yrs = 10
-    else:
-        n_yrs = 1
-    # Set start and end year based on AEO range
-    start_yr, end_yr = [int(yr_range[0]), int(yr_range[-1])]
-    # Always include the start year in the final list
-    years = [start_yr]
-    # Generate the list of years
-    for year in range(start_yr + 1, end_yr + 1):
-        # Year must be exactly divisible by desired year interval
-        if year % n_yrs == 0:
-            years.append(year)
+    # Ensure that the final year of the horizon is in the list
+    if end_yr not in years:
+        years.append(end_yr)
     return years
 
 
@@ -7244,16 +7205,25 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     handyvars = UsefulVars(handyfiles, opts, brkout="basic", regions="AIA",
                            state_appl_regs=None, codes=None, bps=None)
 
-    # If a user desires trimmed down results, collect information about whether
-    # they want to restrict to certain years of focus and finalize that year list
-    if opts.trim_results:
+    # User desires trimmed down variable reporting
+    if opts.trim_vars:
         trim_out = True
-        if opts.trim_results == "all_yrs":
-            trim_yrs = False
-        else:
-            trim_yrs = gen_trim_yrs(opts.trim_results, handyvars.aeo_years)
     else:
-        trim_out, trim_yrs = (False for n in range(2))
+        trim_out = False
+    # User desires trimmed down year intervals
+    if opts.change_yr_interval not in [None, 1]:
+        # Check length of AEO years
+        aeo_len = len(handyvars.aeo_years)
+        # Ensure length of year reporting interval doesnt exceed the full length of time horizon
+        if opts.change_yr_interval > aeo_len:
+            opts.change_yr_interval = aeo_len
+            # Notify user of the change
+            warnings.warn(
+                "'trim_yrs' user option exceeds length of time horizon. Resetting to the "
+                "time horizon length of " + str(aeo_len) + " years")
+        trim_yrs = gen_trim_yrs(opts.change_yr_interval, handyvars.aeo_years)
+    else:
+        trim_yrs = False
 
     # Import measure files
     with open(handyfiles.meas_summary_data, 'r') as mjs:
@@ -7727,7 +7697,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
     # Do not plot for the case where a user has trimmed down the results
     # (not all data required for the plots will be available)
-    if not opts.trim_results:
+    if all([x is False for x in [trim_out, trim_yrs]]):
         # Notify user that the output data are being plotted
         print("Plotting output data...", end="", flush=True)
         # Execute plots
