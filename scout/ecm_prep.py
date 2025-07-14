@@ -509,7 +509,7 @@ class UsefulVars(object):
         # Load metadata including AEO year range
         aeo_yrs = Utils.load_json(handyfiles.metadata)
         # Set minimum modeling year to current year
-        aeo_min = datetime.today().year
+        aeo_min = self.current_yr
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
@@ -628,8 +628,8 @@ class UsefulVars(object):
         cost_yrs = {fuel: cost_ss_carb[
             fuel]["price"]["units"].split("$")[0] for fuel in [
             'electricity', 'natural gas', 'propane', 'distillate']}
-        # Find cost year conversion to between national input price data for all fuel types and
-        # the year before the current one
+        # Find cost year conversion between the year specified in the national input price data
+        # for each fuel type and the year before the current one
         cost_yr_convert = {
             fuel: self.cpi_converter(cost_yrs[fuel], yr_before_current)
             for fuel in ['electricity', 'natural gas', 'propane', 'distillate']}
