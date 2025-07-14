@@ -42,6 +42,7 @@ ecm_prep:
 run:
   verbose: false
   mkt_fracs: false
-  trim_results: null
+  trim_vars: false
+  change_yr_interval: null
   report_stk: false
   report_cfs: false
