@@ -178,6 +178,7 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             "('grid_decarb_level' option in YML) precludes ability to assess price sensitivity "
             "scenarios on the supply-side ('price_sensitivity' option in YML). The latter will not "
             "be reflected.")
+        opts.price_sensitivity = None
 
     if (opts.alt_regions not in ["EMM", "State"]) and any([
             x is not False for x in [
