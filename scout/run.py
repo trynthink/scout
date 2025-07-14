@@ -7607,7 +7607,6 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # Assemble folder path for measure efficient fuel split data
             fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
             try:
-<<<<<<< HEAD
                 with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
                     meas_eff_fs_data = pickle.load(zp)
             except FileNotFoundError:
