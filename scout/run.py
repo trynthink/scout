@@ -4152,9 +4152,6 @@ class Engine(object):
         # Competed stock market share (adjustment for current year only)
         adj_c = adj_fracs[yr] + added_sbmkt_fracs[yr]
 
-        # Determine whether efficient-captured energy is being reported
-        eff_capt = ("efficient-captured" in adj["energy"]["total"].keys())
-
         # For non-technical potential cases only, add a flag for measures
         # with market entry years that begin after the minimum market entry
         # year across competing measures. Such measures' efficient data require
@@ -7076,6 +7073,11 @@ class Engine(object):
             for yr in self.handyvars.aeo_years}
         # Reflect reductions as removals from the original measure breakout and master data
         for yr in apply_yrs:
+            # No further adjustment for years in which the baseline energy use is already negative
+            # (this may occur in some edge "unspecified" cases in the underlying AEO data)
+            if brk_dat_base[yr] <= 0:
+                reduce_base_to_meet_thres[yr] = 0
+                continue
             # Set the segment of the baseline market to remove to meet threshold; ensure this never
             # pushes baseline result below zero
             if (brk_dat_base[yr] - reduce_base_to_meet_thres[yr]) >= 0:
