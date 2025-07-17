@@ -118,7 +118,7 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   "NGHP": ["EIA_EQUIP", "NG_HP", "NG_HP2", "NG_HP2", "COP"],
                   "boiler (NG)": ["EIA_EQUIP", "NG_RAD", "NG_RAD2", "NG_RAD4",
                                   "AFUE"],
-                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", ["DIST_RAD1", "DIST_RAD3"],
+                  "boiler (distillate)": ["EIA_EQUIP", "DIST_RAD", "DIST_RAD1",
                                           "DIST_RAD4", "AFUE"],
                   "resistance heat": ["EIA_EQUIP", "ELEC_RAD", "ELEC_RAD2",
                                       "ELEC_RAD2", "AFUE"],
@@ -137,23 +137,21 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                   # Note: resistance storage WH is reported as ELEC_WH2-
                   # ELEC_WH4, HPWH reported as ELEC_WH5-ELEC_WH7
                   # (corresponding to HP_WH2-HP_WH4)
-                  "electric WH": ["EIA_EQUIP", "ELEC_WH", ["ELEC_WH2",
-                                  "ELEC_WH7", "ELEC_WH1", "ELEC_WH4", "ELEC_WH6"],
+                  "electric WH": ["EIA_EQUIP", "ELEC_WH", "ELEC_WH1",
                                   "ELEC_WH8", "UEF"],
                   "central AC": ["EIA_EQUIP", "CENT_AIR", "CENT_AIR2",
                                  "CENT_AIR4", "COP"],
-                  "room AC": ["EIA_EQUIP", "ROOM_AIR", ["ROOM_AIR1", "ROOM_AIR2", "ROOM_AIR3"],
+                  "room AC": ["EIA_EQUIP", "ROOM_AIR", "ROOM_AIR3",
                               "ROOM_AIR4", "COP"],
                   "clothes washing": ["EIA_EQUIP", "CL_WASH", [
-                                      "CL_WASH_T1", "CL_WASH_T3", "CL_WASH_T2", "CL_WASH_F1",
-                                      "CL_WASH_F3", "CL_WASH_F2"],
+                                      "CL_WASH_T1", "CL_WASH_F3"],
                                       ["CL_WASH_T4", "CL_WASH_F4"],
                                       "kWh/cycle"],
-                  "dishwasher": ["EIA_EQUIP", "DS_WASH", ["DS_WASH1", "DS_WASH3"],
+                  "dishwasher": ["EIA_EQUIP", "DS_WASH", "DS_WASH3",
                                  "DS_WASH4", "cycle/kWh"],
                   "water heating": ["EIA_EQUIP",
                                     ["NG_WH", "LPG_WH", "DIST_WH"],
-                                    ["NG_WH2", "LPG_WH2", "DIST_WH2"],
+                                    ["NG_WH1", "LPG_WH1", "DIST_WH2"],
                                     ["NG_WH4", "LPG_WH4", "DIST_WH4"],
                                     ["UEF", "UEF"]],
                   "cooking": ["EIA_EQUIP",
@@ -162,18 +160,14 @@ tech_eia_nonlt = {"ASHP": ["EIA_EQUIP", "ELEC_HP", "ELEC_HP2", "ELEC_HP4",
                               ["ELEC_STV2", "NG_STV4", "LPG_STV4"],
                               ["kWh/yr", "TEff", "TEff"]],
                   "drying": ["EIA_EQUIP",
-                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY1", "ELEC_DRY3", "ELEC_DRY4",
-                                                      "ELEC_DRY2", "NG_DRY1", "NG_DRY3", "NG_DRY4",
-                                                      "NG_DRY2"],
+                             ["ELEC_DRY", "NG_DRY"], ["ELEC_DRY3", "NG_DRY3"],
                              ["ELEC_DRY4", "NG_DRY4"], ["CEF", "CEF"]],
                   "refrigeration": ["EIA_EQUIP", "REFR",
-                                    ["REFR_BF1", "REFR_BF2", "REFR_SF1",
-                                        "REFR_SF2", "REFR_TF1", "REFR_TF2"],
+                                    ["REFR_BF2", "REFR_SF2", "REFR_TF2"],
                                     ["REFR_BF4", "REFR_SF4", "REFR_TF4"],
                                     "kWh/yr"],
                   "freezers": ["EIA_EQUIP", "FREZ",
-                               ["FREZ_C1", "FREZ_C2", "FREZ_C3",
-                                   "FREZ_U1", "FREZ_U2", "FREZ_U3"],
+                               ["FREZ_C1", "FREZ_U2"],
                                ["FREZ_C4", "FREZ_U4"], "kWh/yr"]}
 
 # The basic structure of a) above for lighting technologies is:
@@ -518,31 +512,9 @@ def list_generator_techdata(eia_nlt_cp, eia_nlt_l, eia_lt,
                                 "|" + filter_info[3][1] + ")"
                         # Update performance units (cost units set later)
                         perf_units = filter_info[4]
-                    # Handle case where both typical and best tier might be lists
-                    elif isinstance(filter_info[2], list) and isinstance(filter_info[3], list):
-                        # Set number of tech. configurations for later use
-                        tech_configs = 1
-                        # Create a regex pattern for typical tier that includes all options
-                        typ_filter_name = "(" + "|".join(filter_info[2]) + ")"
-                        # Create a regex pattern for best tier that includes all options
-                        best_filter_name = "(" + "|".join(filter_info[3]) + ")"
-                        # Update performance units
-                        perf_units = filter_info[4] if not isinstance(
-                            filter_info[4], list) else filter_info[4][0]
-                    # Handle case where only typical tier is a list
-                    elif isinstance(filter_info[2], list):
-                        # Set number of tech. configurations for later use
-                        tech_configs = 1
-                        # Create a regex pattern for typical tier that includes all options
-                        typ_filter_name = "(" + "|".join(filter_info[2]) + ")"
-                        # Best tier remains as is
-                        best_filter_name = filter_info[3]
-                        # Update performance units
-                        perf_units = filter_info[4] if not isinstance(
-                            filter_info[4], list) else filter_info[4][0]
                     # Determine performance/cost/consumer choice filtering
                     # names and performance units for case b) in comment above
-                    elif isinstance(filter_info[1], list):
+                    elif isinstance(filter_info[2], list):
                         # Set number of tech. configurations for later
                         # use in determining whether all 'best' rows have
                         # been parsed (for use in pulling incentives data)
@@ -922,6 +894,10 @@ def fill_years_nlt_typ_best(match_list, project_dict, tech_dict_key):
     # for each year
     if tech_dict_key in ["refrigeration", "freezers", "clothes washing"]:
 
+        # Register number of refrigerator/freezer/clothes washing technology
+        # sub-types
+        ntypes = len(tech_eia_nonlt[tech_dict_key][2])
+
         # Initialize a new list to append averaged performance/cost/consumer
         # choice information to
         match_list_new = []
@@ -937,9 +913,10 @@ def fill_years_nlt_typ_best(match_list, project_dict, tech_dict_key):
             match_list_inds = numpy.where(
                 (match_list["START_EQUIP_YR"] <= unique_yrs[ind]) &
                 (match_list["END_EQUIP_YR"] > unique_yrs[ind]))
-
-            # Check if we have at least one match for this year
-            if len(match_list_inds[0]) > 0:
+            # Check for year bin consistency across the multiple refrigeration/
+            # freezer/clothes washing technology sub-types being averaged and
+            # append performance, cost, and choice information to the new list
+            if len(match_list_inds[0]) == ntypes:
                 # Average the values found for this year, regardless of how many sub-types we found
                 match_list_new.append((unique_yrs[ind], numpy.average(
                     match_list[match_list_inds]["BASE_EFF"]),
@@ -952,7 +929,7 @@ def fill_years_nlt_typ_best(match_list, project_dict, tech_dict_key):
                     numpy.average(
                     match_list[match_list_inds]["EFF_CHOICE_P2"])))
             else:
-                print(f"Warning: No data found for {tech_dict_key} in year {unique_yrs[ind]}")
+                raise ValueError('Technology sub-type year bins inconsistent!')
         # Once all the averaged figures are available, reconstruct this
         # information into a numpy array with named columns for later use
         # (* NOTE: it may be possible to perform the above averaging on the
@@ -1124,7 +1101,8 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                 array_reduce = array_reduce[(array_reduce["NAME"] == t_name)]
             # If a unique row has been discovered for looped year, draw output
             # information from column in that row keyed by col_name input; if
-            # there are multiple rows that match the looped year, take their average
+            # there are multiple rows that match the looped year, check for
+            # incentives updating case (in which this is expected) yield error
             if array_reduce.shape[0] > 0:
                 if array_reduce.shape[0] == 1:
                     # For incentives info., append to list, otherwise set float
@@ -1133,17 +1111,9 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                     else:
                         output_dict[yr] = float(array_reduce[col_name][0])
                 else:
-                    # Handle case with multiple rows for the same year by taking the average
-                    # For incentives info., append to list, otherwise set float
-                    if incent_flag is True:
-                        output_dict[yr].append(
-                            float(numpy.mean(array_reduce[col_name])))
-                    else:
-                        output_dict[yr] = float(
-                            numpy.mean(array_reduce[col_name]))
+                    raise ValueError(
+                        "Multiple identical years in filtered array!")
 
-                        # raise ValueError(
-                        #     "Multiple rows for same START_EQUIP_YR encountered in stitch()")
             # If no row has been discovered for looped year and we are not in
             # the first year of the loop, set output information to that of the
             # previously looped year
@@ -1190,28 +1160,19 @@ def stitch(input_array, project_dict, col_name, incent_flag):
                 # found with the same year value, check for incentives updating
                 # case (in which this is expected) and otherwise yield error
                 else:
-                    if len(array_close_ind) > 1:
-                        # Check if there are multiple unique years in the found rows
-                        unique_years = numpy.unique(
-                            input_array["START_EQUIP_YR"][array_close_ind])
-                        if len(unique_years) < len(array_close_ind):
-                            # Multiple rows with the same year - take their average
-                            if incent_flag is True:
-                                output_dict[yr].append(
-                                    float(numpy.mean(input_array[array_close_ind][col_name])))
-                            else:
-                                output_dict[yr] = float(numpy.mean(
-                                    input_array[array_close_ind][col_name]))
+                    if len(array_close_ind) > 1 and (
+                            len(numpy.unique(array_close_ind)) ==
+                            len(array_close_ind)):
+                        # For incentives info., append to list, otherwise float
+                        if incent_flag is True:
+                            output_dict[yr].append(float(
+                                input_array[array_close_ind][0][col_name]))
                         else:
-                            # Multiple rows with different years - use the first one
-                            if incent_flag is True:
-                                output_dict[yr].append(
-                                    float(input_array[array_close_ind][0][col_name]))
-                            else:
-                                output_dict[yr] = float(
-                                    input_array[array_close_ind][0][col_name])
+                            output_dict[yr] = float(
+                                input_array[array_close_ind][0][col_name])
                     else:
-                        raise ValueError("Unexpected case in stitch function!")
+                        raise ValueError(
+                            "Multiple identical years in filtered array!")
 
         # Update previous year value indicator to the output information for
         # the current loop
@@ -1233,18 +1194,26 @@ def main():
     # Set up to support user option to specify the year for the
     # AEO data being imported (default if the option is not used
     # should be current year)
+    aeo_versions = [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025]
     parser = argparse.ArgumentParser()
     help_string = 'Specify year of AEO data to be imported'
     parser.add_argument('-y', '--year', type=int, help=help_string,
-                        choices=[2015, 2017, 2018, 2019, 2020, 2021, 2022])
+                        choices=aeo_versions)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
 
+    # Ensure AEO import year is acceptable
+    if aeo_import_year and aeo_import_year not in aeo_versions:
+        raise ValueError("Undefined AEO version '" + aeo_import_year + "'."
+                         " Either do not specify an AEO year argument (defaults to latest version) "
+                         " or specify a verison from the following list with the -y argument: " +
+                         str(aeo_versions))
+
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
     eiadata = EIAData()
-    skip = mseg.SkipLines(aeo_import_year=aeo_import_year)
+    skip = mseg.SkipLines(aeo_import_year, aeo_versions)
 
     # Import EIA non-lighting residential cost and performance data
     eia_nlt_cp = numpy.genfromtxt(eiadata.r_nlt_costperf, names=r_nlt_cp_names,

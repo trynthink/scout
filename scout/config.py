@@ -39,7 +39,7 @@ class FilePaths:
     GENERATED = _parent_dir / "generated"
     ECM_COMP = GENERATED / "ecm_competition_data"
     EFF_FS_SPLIT = GENERATED / "eff_fs_splt_data"
-    INPUTS = _parent_dir / "AEO2025"  # "inputs"
+    INPUTS = _parent_dir / "inputs"  # "inputs"
     RESULTS = _parent_dir / "results"
     PLOTS = RESULTS / "plots"
     METADATA_PATH = INPUTS / "metadata.json"
