@@ -44,13 +44,13 @@ class EIAFiles(object):
         os.makedirs(self.output_dir, exist_ok=True)
 
         # inputs
-        self.r_db_in = os.path.join(self.input_dir,  'RESDBOUT-orig.txt')
+        self.r_db_in = os.path.join(self.input_dir,  'RDM_DBOUT-orig.txt')
         self.r_mess = os.path.join(self.input_dir,  'rsmess.xlsx')
         self.c_tech_in = os.path.join(self.input_dir,  'ktekx.xlsx')
         self.r_lgt_in = os.path.join(self.input_dir,  'rsmlgt.txt')
 
         # outputs
-        self.r_db_out = os.path.join(self.output_dir, 'RESDBOUT.txt')
+        self.r_db_out = os.path.join(self.output_dir, 'RDM_DBOUT.txt')
         self.r_class = os.path.join(self.output_dir, 'rsclass.txt')
         self.r_meqp = os.path.join(self.output_dir, 'rsmeqp.txt')
         self.c_tech_out = os.path.join(self.output_dir, 'ktek.csv')
@@ -155,19 +155,19 @@ class EIAFiles(object):
         # Find the position of the "Efficiency Metric" column so that it
         # can be skipped later
         skip = 0  # Placeholder in case 'Efficiency Metric' column is not found
-        for cell in rsclass[19]:
+        for cell in rsclass[20]:
             if (cell.value == 'Efficiency Metric'):
                 skip = cell.column  # Note that openpyxl is 1-indexed
 
         with open(self.r_class, 'w+', encoding='utf-8') as f:
             # header row
             cols = [c for c in range(3, 22) if c != skip]
-            f.write('\t'.join(str(rsclass.cell(row=19, column=c).value)
+            f.write('\t'.join(str(rsclass.cell(row=20, column=c).value)
                     for c in cols) + '\n')
             # names row
             f.write('\t'.join(rmt.r_nlt_l_names) + '\n')
             # data rows
-            for row_num in range(21, 51):
+            for row_num in range(22, 52):
                 f.write(
                     '\t'.join(
                         str(rsclass.cell(row=row_num, column=c).value) for c in cols
@@ -182,9 +182,9 @@ class EIAFiles(object):
         rsmeqp = wb[sheet_name]
 
         # locate start/end rows
-        col_vals = list(*rsmeqp.iter_cols(max_col=1, values_only=True))
+        col_vals = list(*rsmeqp.iter_cols(min_col=2, max_col=2, values_only=True))
         rstart = rend = 0
-        for cell in rsmeqp.iter_rows(min_col=1, max_col=1, values_only=False):
+        for cell in rsmeqp.iter_rows(min_col=2, max_col=2, values_only=False):
             v = cell[0].value
             if v == 'xlI':
                 rstart = cell[0].row + 1
@@ -201,7 +201,7 @@ class EIAFiles(object):
             # header
             f.write(
                 '\t'.join(
-                    str(rsmeqp.cell(row=22, column=c).value) for c in range(2, 30)
+                    str(rsmeqp.cell(row=22, column=c).value) for c in range(3, 31)
                 ) + '\n'
             )
             # names
@@ -210,7 +210,7 @@ class EIAFiles(object):
             for row_num in range(rstart, rend):
                 f.write(
                     '\t'.join(
-                        str(rsmeqp.cell(row=row_num, column=c).value) for c in range(2, 30)
+                        str(rsmeqp.cell(row=row_num, column=c).value) for c in range(3, 31)
                     ) + '\n'
                 )
 
@@ -220,18 +220,22 @@ class EIAFiles(object):
             sheet_name = os.path.splitext(os.path.basename(self.c_tech_out))[0]
             ktekx = pyxl.load_workbook(
                 self.c_tech_in, data_only=True)[sheet_name]
-
             with open(self.c_tech_out, 'w+', newline='') as f:
                 writer = csv.writer(f)
-                for row in ktekx.rows:
-                    writer.writerow([cell.value for cell in row])
+                for row_n, row in enumerate(ktekx.rows):
+                    # Pull row values to write
+                    row_vals = [cell.value for cell in row]
+                    # Ensure that the final row includes values to write (not empty line)
+                    if (row_n + 1) != ktekx.max_row or (((row_n + 1) == ktekx.max_row) and not all(
+                            [x is None for x in row_vals])):
+                        writer.writerow(row_vals)
         else:
             print(f"{self.c_tech_out} is already present and will not be modified.")
 
 
 def main():
-    # read from AEO2023, write processed files into 'inputs'
-    f = EIAFiles(input_dir='AEO2025', output_dir='AEO2025')
+    # read from AEO raw data, write processed files into 'inputs'
+    f = EIAFiles(input_dir='inputs', output_dir='inputs')
 
     f.resdbout_fill_household()
     f.res_gsl_lt_update()
