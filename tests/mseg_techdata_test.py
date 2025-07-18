@@ -59,7 +59,6 @@ class CommonMethods(object):
                     raise                        # keep the test failing
 
 
-
 class SimpleWalkTest(unittest.TestCase, CommonMethods):
     """ Test operation of a simpler version of the walk_techdata function,
     which is used to walk through all the levels of the microsegments dict
