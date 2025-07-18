@@ -9429,7 +9429,7 @@ class Measure(object):
             # Determine whether currently looped through mseg tech. serves as anchor tech for
             # linked turnover/switching calcs. across measure. Account for cases where info. about
             # need to upgrade electrical panel is appended to the technology information
-            if any([x in mskeys[-2] for x in self.handyvars.alt_panel_names]):
+            if mskeys[-2] and any([x in mskeys[-2] for x in self.handyvars.alt_panel_names]):
                 # Pull out appended tech information to indicate alternate panel upgrade outcome
                 append_tech = mskeys[-2].split("-")[-1]
                 # Make determination of whether current mseg tech is the anchor tech
