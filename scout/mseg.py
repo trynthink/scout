@@ -102,6 +102,7 @@ class SkipLines(object):
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
 
+
 # Census division dict
 cdivdict = {'new england': 1,
             'mid atlantic': 2,

@@ -1172,18 +1172,22 @@ class UsefulVars(object):
                         "electricity": {
                             'ventilation': ['VAV_Vent', 'CAV_Vent'],
                             'water heating': [
-                                'Solar water heater', 'HP water heater',
-                                'elec_booster_water_heater',
-                                'elec_water_heater'],
+                                'HP water heater',
+                                'elec_water_heater',
+                                'solar water heater', 'solar_water_heater_north'],
                             'cooling': [
                                 'rooftop_AC', 'scroll_chiller',
                                 'res_type_central_AC', 'reciprocating_chiller',
                                 'comm_GSHP-cool', 'centrifugal_chiller',
                                 'rooftop_ASHP-cool', 'wall-window_room_AC',
-                                'screw_chiller'],
+                                'screw_chiller',
+                                "pkg_terminal_AC-cool",
+                                "pkg_terminal_HP-cool"],
                             'heating': [
                                 'electric_res-heat', 'comm_GSHP-heat',
-                                'rooftop_ASHP-heat', 'elec_boiler'],
+                                'rooftop_ASHP-heat', 'elec_boiler',
+                                "pkg_terminal_HP-heat",
+                                "elec_res-heater"],
                             'refrigeration': [
                                 'Commercial Beverage Merchandisers',
                                 'Commercial Compressor Rack Systems',
@@ -1229,7 +1233,7 @@ class UsefulVars(object):
                                 'T8 F96'
                             ],
                             'cooking': [
-                                'electric_range_oven_24x24_griddle'],
+                                'elec_range-combined'],
                             'PCs': [None],
                             'non-PC office equipment': [None],
                             'unspecified': [None]},
@@ -1239,10 +1243,9 @@ class UsefulVars(object):
                                 'res_type_gasHP-cool',
                                 'gas_eng-driven_RTHP-cool'],
                             'water heating': [
-                                'gas_water_heater', 'gas_instantaneous_WH',
-                                'gas_booster_WH'],
+                                'gas_water_heater', 'gas_instantaneous_water_heater'],
                             'cooking': [
-                                'gas_range_oven_24x24_griddle'],
+                                'gas_range-combined'],
                             'heating': [
                                 'gas_eng-driven_RTHP-heat',
                                 'res_type_gasHP-heat', 'gas_boiler',
@@ -8016,6 +8019,8 @@ class Measure(object):
         # Handle case where turnover/switching calculations for the current
         # primary mseg are flagged as being linked to those of another mseg
         elif self.linked_htcl_tover:
+            # Set secondary adjustment key to None
+            secnd_mseg_adjkey = None
             # Determine whether currently looped through mseg tech. serves as
             # anchor tech for linked turnover/switching calcs. across measure
             linked_htcl_tover_anchor_tech = (
