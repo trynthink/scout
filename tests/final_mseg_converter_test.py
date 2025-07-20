@@ -481,7 +481,8 @@ class DataRestructuringFunctionTest(CommonUnitTest):
                                    self.com_cd_cz_array,
                                    self.cpl_bool,
                                    self.flag_map_dat,
-                                   first_cd_flag="")
+                                   first_cd_flag="",
+                                   ak_hi_res=None)
 
             self.dict_check(result, self.loutput[idx])
 
@@ -2830,7 +2831,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.com_cd_cz_array,
                                    self.user_input_nrgstk,
                                    self.flag_map_dat, self.aia_list,
-                                   self.cdiv_list)
+                                   self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_energy_stock_output
         self.dict_check(dict1, dict2)
 
@@ -2842,7 +2843,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.res_cd_cz_array_fuelsplit,
                                    self.com_cd_cz_array_fuelsplit,
                                    self.user_input_nrgstk, self.flag_map_dat,
-                                   self.emm_list, self.cdiv_list)
+                                   self.emm_list, self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_energy_stock_output_emm
         self.dict_check(dict1, dict2)
 
@@ -2855,7 +2856,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.com_cd_cz_wtavg_array,
                                    self.user_input_cpl,
                                    self.flag_map_dat, self.aia_list,
-                                   self.cdiv_list)
+                                   self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_cpl_output
         self.dict_check(dict1, dict2)
 
@@ -2867,7 +2868,7 @@ class ToClimateZoneConversionTest(CommonUnitTest):
                                    self.res_cd_cz_wtavg_array_fuelsplit,
                                    self.com_cd_cz_wtavg_array_fuelsplit,
                                    self.user_input_cpl, self.flag_map_dat,
-                                   self.emm_list, self.cdiv_list)
+                                   self.emm_list, self.cdiv_list, ak_hi_res=None)
         dict2 = self.test_cpl_output_emm
         self.dict_check(dict1, dict2)
 
