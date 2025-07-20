@@ -5620,8 +5620,7 @@ class Measure(object):
                                     "' missing valid baseline "
                                     "cost/performance/lifetime data " +
                                     "for technology '" + str(mskeys[-2]) +
-                                    "'; technology applies to special " +
-                                    "lighting case and will " +
+                                    "'; technology will " +
                                     "remain in analysis at same cost/" +
                                     "performance as ECM; if lifetime data " +
                                     "are missing, lifetime is set to 10 years")
