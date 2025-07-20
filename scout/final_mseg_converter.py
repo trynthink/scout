@@ -85,6 +85,9 @@ class UsefulVars(object):
             disaggregating energy and stock data by fuel type.
         final_disagg_method (str): Flag for use of tech-level or end-use-level
             data in disaggregation of electric energy and stock data.
+        ak_hi_res (dict): Share of Pacific CDIV's total consumption by fuel that goes to AK or HI,
+            based on EIA SEDS totals by fuel and building type; these states are not currently
+            reflected in the ResStock-based disaggregation shares
 
     Attributes: (if a method is called)
         res_climate_convert (str): File name for the residential buildings
@@ -106,6 +109,13 @@ class UsefulVars(object):
         self.res_calibrate = fp.CONVERT_DATA / 'res_calibrate.csv'
         self.fuel_disagg_method = fuel_disagg_method
         self.final_disagg_method = final_disagg_method
+        self.ak_hi_res = {
+            "AK": {
+                "electricity": 0.01162790698, "natural gas": 0.03194221509,
+                "distillate": 0.5220588235, "other fuel": 0.06274509804},
+            "HI": {
+                "electricity": 0.02341958729, "natural gas": 0.0008025682183,
+                "distillate": 0, "other fuel": 0.005882352941}}
 
     def configure_for_energy_square_footage_stock_data(self):
         """Reconfigure stock and energy data to custom region."""
@@ -526,7 +536,7 @@ class UsefulVars(object):
 
 
 def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
-              com_convert_array, cpl, flag_map_dat, first_cd_flag,
+              com_convert_array, cpl, flag_map_dat, first_cd_flag, ak_hi_res,
               cd_to_cz_factor=0, bldg_flag=None, fuel_flag=None, eu_flag=None,
               tech_flag=None, stock_energy_flag=None, key_list=None):
     """Calculate values to restructure census division data to custom regions.
@@ -578,6 +588,9 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             end uses, and map to NREL End Use Load Profiles (EULP) datasets.
         first_cd_flag (boolean): Flag for loop through the first census
             division in the input data.
+        ak_hi_res (dict): Share of Pacific CDIV's total consumption by fuel that goes to AK or HI,
+            based on EIA SEDS totals by fuel and building type; these states are not currently
+            reflected in the ResStock-based disaggregation shares.
         cd_to_cz_factor (float): The numeric conversion factor to
             calculate the contribution from the current census division
             'cd' to the current custom region 'cz'.
@@ -775,7 +788,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                         "supply", "demand"] and tech_flag is None:
                     tech_flag = k
                 merge_sum(i, i2, cd_num, reg_name, res_convert_array,
-                          com_convert_array, cpl, flag_map_dat, first_cd_flag,
+                          com_convert_array, cpl, flag_map_dat, first_cd_flag, ak_hi_res,
                           cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag,
                           tech_flag, stock_energy_flag=current_stock_energy_flag,
                           key_list=key_list + [k])
@@ -793,8 +806,29 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                         # pulled and that data converted from pandas df
                         # are in format that is JSON serializable
                         try:
-                            convert_fact = float(cd_to_cz_factor[fuel_flag][
-                                current_stock_energy_flag][eu_flag][cd_num][reg_name])
+                            # For residential disaggregation based on EULP data, account for the
+                            # fact that ResStock data do not include AK or HI, and the Pacific
+                            # CDIV (#9, index 8 in Python) data need to be adjusted down using
+                            # external estimates on how much of the region's energy use is
+                            # attributable to AK or HI by fuel type
+                            if bldg_flag == "res" and cd_num == 8 and ak_hi_res:
+                                # Set to external disagg factors for AK and HI region loops
+                                if reg_name in ["AK", "HI"]:
+                                    # Energy by fuel type for either AK or HI
+                                    convert_fact = ak_hi_res[reg_name][fuel_flag]
+                                # For all other regions within CDIV 9, adjust down to reflect
+                                # the share of AK/HI
+                                else:
+                                    # Sum AK and HI energy by fuel type
+                                    ak_plus_hi = (
+                                        ak_hi_res["AK"][fuel_flag] + ak_hi_res["HI"][fuel_flag])
+                                    # Scale other regions by 1 - sum of AK and HI energy by fuel
+                                    convert_fact = (float(cd_to_cz_factor[fuel_flag][
+                                        current_stock_energy_flag][eu_flag][cd_num][reg_name])
+                                        * (1 - ak_plus_hi))
+                            else:
+                                convert_fact = float(cd_to_cz_factor[fuel_flag][
+                                    current_stock_energy_flag][eu_flag][cd_num][reg_name])
                         except IndexError:
                             raise ValueError(
                                 "End use: " + bldg_flag + " " + fuel_flag +
@@ -853,7 +887,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
 
 
 def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
-                   flag_map_dat, reg_list, cdiv_list):
+                   flag_map_dat, reg_list, cdiv_list, ak_hi_res):
     """Convert input data dict from a census division to a custom region basis.
 
     This function principally serves to prepare the inputs for, and
@@ -876,6 +910,9 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
             end uses, and map to NREL End Use Load Profiles (EULP) datasets.
         reg_list (list): List of expected regional names to disaggregate to.
         cdiv_list (list): List of expected CDIV names to disaggregate to.
+        ak_hi_res (dict): Share of Pacific CDIV's total consumption by fuel that goes to AK or HI,
+            based on EIA SEDS totals by fuel and building type; these states are not currently
+            reflected in the ResStock-based disaggregation shares
 
     Returns:
         A complete dict with the same structure as input_dict,
@@ -927,7 +964,7 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
             base_dict = merge_sum(base_dict, add_dict, cdiv_ind,
                                   reg_name, res_convert_array,
                                   com_convert_array, cpl_bool, flag_map_dat,
-                                  first_cd_flag, key_list=[])
+                                  first_cd_flag, ak_hi_res, key_list=[])
 
         # Once fully updated with the data from all census divisions,
         # write the resulting data to a new variable and update the
@@ -2275,10 +2312,17 @@ def main():
         # Census breakout)
         if input_var[0] == '1' or (
                 input_var[0] == '2' and input_var[1] != '3'):
+            # For EMM or state converstions, pull in external estimates of AK/HI portion of Pacific
+            # CDIV's energy use to adjust some EULP-based disaggregation factors for EMMs and
+            # states (residential EULP data do not account for AK/HI)
+            if input_var[1] in ['2', '3']:
+                ak_hi_res = handyvars.ak_hi_res
+            else:
+                ak_hi_res = None
             # Convert data
             result = clim_converter(
                 msjson_cdiv, res_cd_cz_conv, com_cd_cz_conv, input_var[0],
-                flag_map_dat, reg_list, cdiv_list)
+                flag_map_dat, reg_list, cdiv_list, ak_hi_res)
         else:
             result = msjson_cdiv
 
