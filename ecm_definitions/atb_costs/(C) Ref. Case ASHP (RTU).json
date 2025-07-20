@@ -20,7 +20,9 @@
   "technology": [
     "rooftop_ASHP-heat",
     "rooftop_ASHP-cool",
-    "all ventilation"
+    "all ventilation",
+    "pkg_terminal_HP-cool",
+    "pkg_terminal_HP-heat"
   ],
   "htcl_tech_link": null,
   "tech_switch_to": null,
@@ -28,7 +30,9 @@
     "rooftop_ASHP-heat": 3.4,
     "rooftop_ASHP-cool": 3.4,
     "CAV_Vent": 0.0,
-    "VAV_Vent": 0.0
+    "VAV_Vent": 0.0,
+    "pkg_terminal_HP-cool": 3.4,
+    "pkg_terminal_HP-heat": 3.4
   },
   "energy_efficiency_units": {
     "heating": "BTU out/BTU in",
@@ -55,7 +59,15 @@
       "existing": 0.0
     },
     "CAV_Vent": 0.0,
-    "VAV_Vent": 0.0
+    "VAV_Vent": 0.0,
+    "pkg_terminal_HP-heat": {
+      "new": 163.3,
+      "existing": 170.4
+    },
+    "pkg_terminal_HP-cool": {
+      "new": 0.0,
+      "existing": 0.0
+    }
   },
   "cost_units": "2023$/kBtu/h heating",
   "installed_cost_source": {
@@ -79,7 +91,9 @@
     "rooftop_ASHP-heat": 1.0,
     "rooftop_ASHP-cool": 1.0,
     "CAV_Vent": 0.06,
-    "VAV_Vent": 0.04
+    "VAV_Vent": 0.04,
+    "pkg_terminal_HP-cool": 1.0,
+    "pkg_terminal_HP-heat": 1.0
   },
   "market_scaling_fractions_source": {
     "notes": "Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
@@ -95,6 +109,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-07-10 13:50:11"
+    "timestamp": "2025-07-18 21:09:39"
   }
 }
