@@ -18,7 +18,7 @@ from urllib.parse import unquote
 from scout.config import FilePaths as fp
 
 # Constants
-VALID_UPDATE_YEARS = ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
+VALID_UPDATE_YEARS = ['2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']
 DATA_SERIES_DICT = {
     'source-disposition': [
         'direct-use', 'net-interstate-trade', 'estimated-losses',
