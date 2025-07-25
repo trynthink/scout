@@ -538,7 +538,7 @@ class UsefulVars(object):
 def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
               com_convert_array, cpl, flag_map_dat, first_cd_flag, ak_hi_res,
               cd_to_cz_factor=0, bldg_flag=None, fuel_flag=None, eu_flag=None,
-              tech_flag=None, stock_energy_flag=None, key_list=None):
+              tech_typ_flag=None, tech_flag=None, stock_energy_flag=None, key_list=None):
     """Calculate values to restructure census division data to custom regions.
 
     Two dicts with identical structure, 'base_dict' and 'add_dict' are
@@ -600,6 +600,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             through (relevant only to EMM/state custom region convert).
         eu_flag (NoneType): Flag for the end use currently being looped
             through (relevant only to EMM/state custom region convert)
+        tech_typ_flag (NoneType): Flag envelope vs. equipment heating/cooling technology type.
         tech_flag (NoneType): Flag for the technology currently being looped
             through (relevant only to EMM/state custom region convert)
         stock_energy_flag (NoneType): Flag for the stock or energy
@@ -779,18 +780,28 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 # assigned to the miscellaneous profile
                 else:
                     eu_flag = "misc"
+            # Flag for technology type if heating or cooling end use
+            elif k in ["supply", "demand"]:
+                tech_typ_flag = k
+            # For electric heating and cooling end uses, which may have factors further
+            # disaggregated by equipment type, flag the technology currently being updated
+            elif fuel_flag == "electricity" and eu_flag in ["heating", "cooling"] and \
+                    tech_typ_flag == "supply" and tech_flag is None:
+                # Alert user if technology is not mappable to anything in the disagg factors
+                try:
+                    tech_flag = [x[0] for x in flag_map_dat["eulp_map"][
+                        "electric technologies"][bldg_flag].items() if k in x[1]][0]
+                except IndexError:
+                    raise ValueError(
+                        "Cannot map Scout technology " + k + " to any technology name in the "
+                        "EULP-based disaggregation factors")
 
             # Recursively loop through both dicts
             if isinstance(i, dict):
-                # Set tech_flag if an end use has been determined,
-                # and we are not in the 'supply' or 'demand' level.
-                if eu_flag is not None and k not in [
-                        "supply", "demand"] and tech_flag is None:
-                    tech_flag = k
                 merge_sum(i, i2, cd_num, reg_name, res_convert_array,
                           com_convert_array, cpl, flag_map_dat, first_cd_flag, ak_hi_res,
                           cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag,
-                          tech_flag, stock_energy_flag=current_stock_energy_flag,
+                          tech_typ_flag, tech_flag, stock_energy_flag=current_stock_energy_flag,
                           key_list=key_list + [k])
             elif type(base_dict[k]) is not str:
                 # Check whether the conversion array needs to be further keyed
@@ -806,6 +817,16 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                         # pulled and that data converted from pandas df
                         # are in format that is JSON serializable
                         try:
+                            # Restrict conversion array by fuel, stock/energy var, and end use
+                            convert_array = cd_to_cz_factor[
+                                fuel_flag][current_stock_energy_flag][eu_flag]
+                            # Case where technology-specific factors are available
+                            if tech_flag and "Technology" in convert_array.dtype.names:
+                                convert_fact_init = float(convert_array[convert_array[
+                                    'Technology'] == tech_flag][cd_num][reg_name])
+                            # Case where technology-specific factors are not available
+                            else:
+                                convert_fact_init = float(convert_array[cd_num][reg_name])
                             # For residential disaggregation based on EULP data, account for the
                             # fact that ResStock data do not include AK or HI, and the Pacific
                             # CDIV (#9, index 8 in Python) data need to be adjusted down using
@@ -823,12 +844,9 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                                     ak_plus_hi = (
                                         ak_hi_res["AK"][fuel_flag] + ak_hi_res["HI"][fuel_flag])
                                     # Scale other regions by 1 - sum of AK and HI energy by fuel
-                                    convert_fact = (float(cd_to_cz_factor[fuel_flag][
-                                        current_stock_energy_flag][eu_flag][cd_num][reg_name])
-                                        * (1 - ak_plus_hi))
+                                    convert_fact = (convert_fact_init * (1 - ak_plus_hi))
                             else:
-                                convert_fact = float(cd_to_cz_factor[fuel_flag][
-                                    current_stock_energy_flag][eu_flag][cd_num][reg_name])
+                                convert_fact = convert_fact_init
                         except IndexError:
                             raise ValueError(
                                 "End use: " + bldg_flag + " " + fuel_flag +
@@ -907,7 +925,7 @@ def clim_converter(input_dict, res_convert_array, com_convert_array, data_in,
         data_in (str): User input indicating energy and stock (1) or cost,
             performance, and lifetime data are being processed (2).
         flag_map_dat (dict): Info. used to flag building types, fuel types,
-            end uses, and map to NREL End Use Load Profiles (EULP) datasets.
+            end uses, and technologies and map to NREL End Use Load Profiles (EULP) datasets.
         reg_list (list): List of expected regional names to disaggregate to.
         cdiv_list (list): List of expected CDIV names to disaggregate to.
         ak_hi_res (dict): Share of Pacific CDIV's total consumption by fuel that goes to AK or HI,
@@ -2009,8 +2027,8 @@ def main():
         "res_eus": list([e for e in mseg.endusedict.keys()]),
         "com_eus": list(
             cm.CommercialTranslationDicts().endusedict.keys()),
-        # Data needed to map between Scout end uses and end use
-        # definitions in the EULP data
+        # Data needed to map between Scout end uses and end use definitions in the EULP data, as
+        # well as electric heating and cooling technologies in Scout vs. EULP data
         "eulp_map": {
             "electricity": {
                 "heating": ["heating", "secondary heating"],
@@ -2052,6 +2070,26 @@ def main():
                 "cooking": ["cooking"],
                 "drying": ["drying"],
                 "misc": ["unspecified"]
+            },
+            "electric technologies": {
+                "res": {
+                    "central AC": ["central AC"],
+                    "ASHP": ["ASHP", "GSHP"],
+                    "room AC": ["room AC"],
+                    "resistance heat": ["resistance heat", "secondary heater"]
+                },
+                "com": {
+                    "res_type_central_AC": ["res_type_central_AC"],
+                    "wall-window_room_AC": ["wall-window_room_AC,"],
+                    "chiller": ["scroll_chiller", "reciprocating_chiller",
+                                "centrifugal_chiller", "screw_chiller"],
+                    "ASHP": ["rooftop_ASHP-cool", "rooftop_AC",
+                             "pkg_terminal_HP-cool", "pkg_terminal_AC-cool"],
+                    "rooftop_ASHP-heat": ["rooftop_ASHP-heat", "pkg_terminal_HP-heat"],
+                    "elec_boiler": ["elec_boiler"],
+                    "electric_res-heat": ["electric_res-heat", "elec_res-heater"],
+                    "comm_GSHP-cool": ["comm_GSHP-cool"],
+                    "comm_GSHP-heat": ["comm_GSHP-heat"]}
             }
         },
         # Flag Scout technologies that are handled as end uses in the
