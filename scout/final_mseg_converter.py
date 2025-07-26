@@ -783,15 +783,24 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             # Flag for technology type if heating or cooling end use
             elif k in ["supply", "demand"]:
                 tech_typ_flag = k
-            # For electric heating and cooling end uses, which may have factors further
-            # disaggregated by equipment type, flag the technology currently being updated
+            # Electric heating and cooling end uses, which may have factors further
+            # disaggregated by equipment type, flag the technology currently being updated;
+            # *** NOTE: currently handling only heating and cooling equipment ('supply') tech;
+            # to add handling for heating and cooling envelope ('demand') tech via 'all' row
+            # under heating and cooling in the disaggregation factors ***
             elif fuel_flag == "electricity" and eu_flag in ["heating", "cooling"] and \
-                    tech_typ_flag == "supply" and tech_flag is None:
-                # Alert user if technology is not mappable to anything in the disagg factors
-                try:
+                    tech_typ_flag == "supply":
+                # Check which technology name the current Scout equipment type maps to in the
+                # EULP disaggregation factors and set that name as the technology flag to use
+                # in pulling the factors later
+                if any([k in x[1] for x in flag_map_dat[
+                        "eulp_map"]["electric technologies"][bldg_flag].items()]):
                     tech_flag = [x[0] for x in flag_map_dat["eulp_map"][
                         "electric technologies"][bldg_flag].items() if k in x[1]][0]
-                except IndexError:
+                # If still at the equipment level (e.g., not at the energy/stock key level below
+                # it or at the year level below that) and there was no mapping available for a
+                # technology that should have it, throw an error
+                elif isinstance(i, dict) and k not in ["energy", "stock"]:
                     raise ValueError(
                         "Cannot map Scout technology " + k + " to any technology name in the "
                         "EULP-based disaggregation factors")
@@ -2080,7 +2089,7 @@ def main():
                 },
                 "com": {
                     "res_type_central_AC": ["res_type_central_AC"],
-                    "wall-window_room_AC": ["wall-window_room_AC,"],
+                    "wall-window_room_AC": ["wall-window_room_AC"],
                     "chiller": ["scroll_chiller", "reciprocating_chiller",
                                 "centrifugal_chiller", "screw_chiller"],
                     "ASHP": ["rooftop_ASHP-cool", "rooftop_AC",
