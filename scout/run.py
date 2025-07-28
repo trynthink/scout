@@ -3915,8 +3915,7 @@ class Engine(object):
                     try:
                         adj_out_break["base fuel"][var][var_sub] = \
                             m.markets[adopt_scheme]["competed"][
-                                "mseg_out_break"][
-                                var][var_sub][out_cz][out_bldg][out_eu][
+                                "mseg_out_break"][var][var_sub][out_cz][out_bldg][out_eu][
                                 out_fuel_save]
                     except KeyError as ke:
                         if var_sub == "efficient-captured":
@@ -3958,14 +3957,20 @@ class Engine(object):
                             adj_out_break["efficient-captured fuel splits"][
                                 var] = {
                                 yr: 1 for yr in self.handyvars.aeo_years}
+                    else:
+                        # None of the measure-captured stock reported in the
+                        # efficient case remains w/ original fuel by definition
+                        adj_out_break["efficient fuel splits"][var], \
+                            adj_out_break["efficient-captured fuel splits"][
+                            var] = ({yr: 0 for yr in self.handyvars.aeo_years} for
+                                    n in range(2))
                 else:
                     # All efficient stock/energy/cost/carbon remains with
                     # original base fuel type if there is no fuel switching
                     adj_out_break["efficient fuel splits"][var], \
                         adj_out_break["efficient-captured fuel splits"][
-                        var] = (
-                            {yr: 1 for yr in self.handyvars.aeo_years} for
-                            n in range(2))
+                        var] = ({yr: 1 for yr in self.handyvars.aeo_years} for
+                                n in range(2))
         # Case where output breakouts are not split by fuel
         else:
             # Adjust stock/energy/carbon/cost data
@@ -4426,13 +4431,20 @@ class Engine(object):
                 else:
                     adj_t = adj_t_e[var]
 
-                # Select correct fuel split data; for baseline case, all
-                # fuel remains with baseline fuel
-                if var != "stock" and var_sub != "baseline":
+                # Select correct fuel split data; for baseline case, all fuel remains with baseline
+                # fuel; unique splits for efficient v. efficient-captured
+                # Baseline data all with original fuel
+                if var_sub == "baseline":
+                    fs_eff_splt_var = 1
+                # Efficient-captured energy all with switched to fuel
+                elif var_sub == "efficient-captured":
+                    fs_eff_splt_var = adj_out_break[
+                        "efficient-captured fuel splits"][var][yr]
+                # Efficient energy may be split across base/switched
+                # to fuel
+                else:
                     fs_eff_splt_var = adj_out_break[
                         "efficient fuel splits"][var][yr]
-                else:
-                    fs_eff_splt_var = 1
 
                 # Handle extra key on the adjusted microsegment data for
                 # cost variables ("energy")
