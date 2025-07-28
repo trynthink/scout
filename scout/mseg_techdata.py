@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import re
 import numpy
 import json
@@ -22,9 +21,10 @@ class EIAData(object):
     """
 
     def __init__(self, dir_path=fp.INPUTS):
-        self.r_nlt_costperf = os.path.join(dir_path, "rsmeqp.txt")
-        self.r_nlt_life = os.path.join(dir_path, "rsclass.txt")
-        self.r_lt_all = os.path.join(dir_path, "rsmlgt.txt")
+
+        self.r_nlt_costperf = dir_path / "rsmeqp.txt"
+        self.r_nlt_life = dir_path / "rsclass.txt"
+        self.r_lt_all = dir_path / "rsmlgt.txt"
 
 
 class UsefulVars(object):
@@ -1202,13 +1202,6 @@ def main():
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
-
-    # Ensure AEO import year is acceptable
-    if aeo_import_year and aeo_import_year not in aeo_versions:
-        raise ValueError("Undefined AEO version '" + aeo_import_year + "'."
-                         " Either do not specify an AEO year argument (defaults to latest version) "
-                         " or specify a verison from the following list with the -y argument: " +
-                         str(aeo_versions))
 
     # Instantiate objects that contain useful variables
     handyvars = UsefulVars()
