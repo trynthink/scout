@@ -6717,11 +6717,12 @@ class Engine(object):
                 # leveraging data shorthands above
                 if onsite_reduce_frac:
                     self.apply_onsite_reduce(
-                        brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
-                        mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
-                        mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk,
-                        bldg_vnt_brk, apply_yrs, apply_frac, onsite_reduce_frac, rel_elec_eff[var],
-                        prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                        brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base,
+                        brk_dat_save, mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff,
+                        brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
+                        mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk, bldg_vnt_brk, apply_yrs,
+                        apply_frac, onsite_reduce_frac, rel_elec_eff[var], prior_yr_rmv, var,
+                        cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
                 # Apply any additional energy reduction requirements, leveraging data shorthands
                 # above. Note that stock remains the same for code reductions, such that per unit
                 # energy/carb/cost will be reduced
@@ -6737,15 +6738,17 @@ class Engine(object):
         return
 
     def apply_onsite_reduce(
-            self,  brk_dat_eff, brk_dat_base, brk_dat_save, mast_dat_eff, mast_dat_base,
-            mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base, brk_dat_cdbps_save,
-            mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
+            self,  brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base, brk_dat_save,
+            mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
+            brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
             reg_brk, bldg_vnt_brk, apply_yrs, apply_frac, onsite_reduce_frac, rel_elec_eff,
             prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs):
         """Apply onsite emissions reductions required via code/BPS.
 
         Args:
             brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
+            brk_dat_eff_capt (dict): Efficient-captured energy breakouts for indiv. measure.
+            brk_dat_eff_capt_env (dict): Efficient-captured-envelope breakouts for indiv. measure.
             brk_dat_base (dict): Baseline stock/energy/carbon/ecost breakouts for indiv. measure.
             brk_dat_save (dict): Energy/carbon/ecost savings breakouts for indiv. measure.
             mast_dat_eff (dict): Master efficient data for indiv. measure.
@@ -6901,6 +6904,32 @@ class Engine(object):
                                 convert_fossil[yr]
                             brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] -= \
                                 convert_fossil[yr]
+                            # Update efficient-captured energy breakout (if available) to ensure
+                            # that its level never surpasses that of the adjusted-down efficient
+                            # energy use result
+                            if brk_dat_eff_capt and (
+                                    brk_dat_eff_capt[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] >
+                                    brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr]):
+                                # Record original ratio of efficient-captured-envelope to total
+                                # efficient-captured energy such that it is preserved with any
+                                # adjustments below; set to None if not applicable
+                                if brk_dat_eff_capt_env:
+                                    capt_env_eqp_ratio = (
+                                        brk_dat_eff_capt_env[
+                                            reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] /
+                                        brk_dat_eff_capt[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr]
+                                        )
+                                else:
+                                    capt_env_eqp_ratio = None
+                                # Adjust efficient-captured
+                                brk_dat_eff_capt[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] = \
+                                    brk_dat_eff[reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr]
+                                # Adjust efficient-captured-envelope if necessary
+                                if capt_env_eqp_ratio:
+                                    brk_dat_eff_capt_env[
+                                        reg_brk][bldg_vnt_brk][eu][fossil_fuel][yr] = \
+                                        brk_dat_eff_capt[reg_brk][bldg_vnt_brk][eu][
+                                            fossil_fuel][yr] * capt_env_eqp_ratio
                             mast_dat_base[yr] -= convert_fossil[yr]
                             mast_dat_eff[yr] -= convert_fossil[yr]
                             # Note: no change to original measure savings (additional savings from
