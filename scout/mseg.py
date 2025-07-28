@@ -5,7 +5,6 @@ import numpy
 import json
 import argparse
 import csv
-import os
 from scout import mseg_techdata as rmt
 from scout.config import FilePaths as fp
 
@@ -18,8 +17,8 @@ class EIAData(object):
             and stock data.
     """
     def __init__(self, data_dir=fp.INPUTS):
-        self.res_energy = os.path.join(data_dir, 'RDM_DBOUT.txt')
-        self.res_generation = os.path.join(data_dir, 'RDM_DGENOUT.txt')
+        self.res_energy = data_dir / "RDM_DBOUT.txt"
+        self.res_generation = data_dir / "RDM_DGENOUT.txt"
 
 
 class UsefulVars(object):
@@ -92,12 +91,6 @@ class SkipLines(object):
             self.nlt_l_skip_header = 2
             self.lt_skip_header = 37
             self.lt_skip_footer = 51
-        else:
-            raise ValueError(
-                "Undefined AEO version '" + aeo_import_year + "'."
-                " Either do not specify an AEO year argument (defaults to latest version) "
-                " or specify a verison from the following list with the -y argument: " +
-                str(aeo_versions))
 
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
@@ -1495,11 +1488,6 @@ def main():
         ns_data = data_import(eiadata.res_energy, ns_dtypes, ',',
                               ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
                                'HSHA', 'CSHA', 'CSHE', 'CSHN'])
-    else:
-        raise ValueError("Undefined AEO version '" + aeo_import_year + "'."
-                         " Either do not specify an AEO year argument (defaults to latest version) "
-                         " or specify a verison from the following list with the -y argument: " +
-                         str(aeo_versions))
 
     # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
     # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA

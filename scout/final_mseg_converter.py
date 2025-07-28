@@ -105,10 +105,8 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions, 3=states)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / \
-                "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / \
-                "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_RowSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_RowSums.txt"
             # Set output JSON
             self.json_out = 'mseg_res_com_cz.json'
         elif self.geo_break == '2':
@@ -120,7 +118,7 @@ class UsefulVars(object):
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_EMM_Elec_RowSums.txt"
-            }
+                }
             self.com_climate_convert = {
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_NG_RowSums.txt",
@@ -129,7 +127,7 @@ class UsefulVars(object):
                 # Use electricity splits to apportion no. building/sf data
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_EMM_Elec_RowSums.txt"
-            }
+                }
             # Set output JSON
             self.json_out = 'mseg_res_com_emm.json'
         elif self.geo_break == '3':
@@ -147,7 +145,7 @@ class UsefulVars(object):
                     "homes": fp.CONVERT_DATA / "geo_map" / "Res_Homes_RowSums.txt",
                     "square footage":
                         fp.CONVERT_DATA / "geo_map" / "Res_SF_RowSums.txt"}
-            }
+                }
             self.com_climate_convert = {
                 "electricity": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_Elec_EU_RowSums.csv",
                 "natural gas": fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_NG_RowSums.txt",
@@ -156,7 +154,7 @@ class UsefulVars(object):
                 # Use total consumption splits to apportion no. building/sf
                 "building stock and square footage":
                     fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_State_AllFuels_RowSums.txt"
-            }
+                }
             # Set output JSON
             self.json_out = 'mseg_res_com_state.json'
 
@@ -167,10 +165,8 @@ class UsefulVars(object):
         # Find appropriate conversion data for user-specified geo. breakout
         # (1=AIA climate zones, 2=NEMS EMM regions)
         if self.geo_break == '1':
-            self.res_climate_convert = fp.CONVERT_DATA / \
-                "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
-            self.com_climate_convert = fp.CONVERT_DATA / \
-                "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
+            self.res_climate_convert = fp.CONVERT_DATA / "geo_map" / "Res_Cdiv_Czone_ColSums.txt"
+            self.com_climate_convert = fp.CONVERT_DATA / "geo_map" / "Com_Cdiv_Czone_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cz.json'
         elif self.geo_break == '2':
@@ -202,8 +198,7 @@ class UsefulVars(object):
             # When breaking out to census divisions, an additional conversion
             # between AIA climate zones in the envelope data and the census
             # divisions is needed
-            self.envelope_climate_convert = fp.CONVERT_DATA / \
-                "geo_map" / "AIA_Cdiv_ColSums.txt"
+            self.envelope_climate_convert = fp.CONVERT_DATA / "geo_map" / "AIA_Cdiv_ColSums.txt"
             # Set output JSON
             self.json_out = 'cpl_res_com_cdiv.json'
 
@@ -316,7 +311,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
         # and lifetime data are being processed, skip the "unspecified"
         # building type and the "other" end use where it appears as
         # an unmodified zero in certain building and fuel type combinations
-        if k == k2 and not (
+        if not (
             cpl and (
                 (k == 'other' and not isinstance(i, dict)) or
                 k == 'unspecified')):
@@ -334,8 +329,8 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 any([x in flag_map_dat["res_fuel_types"] for
                      x in base_dict[k].keys()])) or
                 (k in flag_map_dat["com_bldg_types"] and
-                    any([x in flag_map_dat["com_fuel_types"] for
-                        x in base_dict[k].keys()]))):
+                 any([x in flag_map_dat["com_fuel_types"] for
+                      x in base_dict[k].keys()]))):
                 if k in flag_map_dat["res_bldg_types"]:
                     cd_to_cz_factor = res_convert_array
                     bldg_flag = "res"
@@ -350,7 +345,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
             # EMM region or state case (with keys for fuel conversion factors)
             # to trigger the fuel flag update
             elif (k in flag_map_dat["res_fuel_types"] or
-                    k in flag_map_dat["com_fuel_types"]) and \
+                  k in flag_map_dat["com_fuel_types"]) and \
                     type(res_convert_array) is dict:
                 fuel_flag = k
             # When updating total building stock or square footage data for
@@ -419,12 +414,11 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 merge_sum(i, i2, cd_num, reg_name, res_convert_array,
                           com_convert_array, cpl, flag_map_dat, first_cd_flag,
                           cd_to_cz_factor, bldg_flag, fuel_flag, eu_flag)
-            elif type(base_dict[k]) is not str and type(add_dict[k2]) is not str:
+            elif not isinstance(i, str) and not isinstance(i2, str):
                 # Check whether the conversion array needs to be further keyed
                 # by fuel type and (for electricity) by end use, as is the case
                 # when converting to EMM region or state and using EULP data
                 # to disaggregate to those regions; in such cases, the fuel
-                # and end use flags indicate the key values for pulling
                 # appropriate data
                 if type(cd_to_cz_factor) is dict:
                     # For electricity case, data will be further broken
@@ -457,38 +451,41 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
-                    # ───────────────────────────────────────────────────────────────────── #
                     convert_fact = cd_to_cz_factor[cd_num][reg_name]
-                # ───────────── list (‐of-lists) branch; new logic ───────────── #
+                # If base_dict[k] is a list, we need to handle it as such
                 if isinstance(base_dict[k], list):
+                    # Convert both base and add values to
+                    # list-of-lists format for consistent processing
                     base_list = _to_list_of_lists(base_dict[k])
                     add_list = _to_list_of_lists(add_dict[k2])
+
+                    # Pad shorter list with zeros to match lengths for element-wise operations
                     base_list, add_list = _pad_with_zeros(base_list, add_list)
 
+                    # For first census division: scale base values by conversion factor
                     if first_cd_flag:
                         base_list = [[v * convert_fact for v in sub]
                                      for sub in base_list]
+                    # For subsequent divisions: add scaled add values to base values
                     else:
                         base_list = [[b + a * convert_fact for b, a in zip(sub_b, sub_a)]
                                      for sub_b, sub_a in zip(base_list, add_list)]
 
-                    # restore original shape (flat vs nested)
+                    # Restore original data structure (flat list vs nested list)
                     if _is_number(base_dict[k][0]) if base_dict[k] else False:
-                        base_dict[k] = base_list[0]
+                        base_dict[k] = base_list[0]  # Flatten if original was 1D
                     else:
-                        base_dict[k] = base_list
+                        base_dict[k] = base_list  # Keep as nested list
 
                 # ─ scalar / numeric branch ───────────────────────────────
                 else:
+                    # For first census division: scale base value
                     if first_cd_flag:
                         base_dict[k] = base_dict[k] * convert_fact
+                    # For subsequent divisions: add scaled add value
                     else:
-                        base_dict[k] = base_dict[k] + \
-                            add_dict[k2] * convert_fact
-
-        elif k != k2:
-            warnings.warn(f"Merge keys do not match: {k} != {k2}")
-
+                        base_dict[k] = base_dict[k] + add_dict[k2] * convert_fact
+    # Return a single dict representing sum of values of original two dicts
     return base_dict
 
 
@@ -1647,8 +1644,8 @@ def main():
     # division basis and traverse the database to convert it to
     # a custom region basis
     with open(handyvars.json_in, 'r') as jsi:
-        # Do not convert non-envelope technology characteristics data to a
         msjson_cdiv = json.load(jsi)
+        # Do not convert non-envelope technology characteristics data to a
         # state-level resolution (these data remain with the original
         # Census breakout)
         if input_var[0] == '1' or (

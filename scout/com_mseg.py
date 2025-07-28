@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import numpy as np
 import numpy.lib.recfunctions as recfn
 import re
@@ -17,12 +16,14 @@ class EIAData(object):
     Attributes:
         serv_dmd (str): Filename for the commercial service demand data.
         catg_dmd (str): Filename for the commercial energy and stock data.
+        com_generation (str): Filename for the commercial building
+            microsegment generation data.
     """
 
     def __init__(self, data_dir=fp.INPUTS):
-        self.serv_dmd = os.path.join(data_dir, 'CDM_SDOUT.txt')
-        self.catg_dmd = os.path.join(data_dir, 'CDM_DBOUT.txt')
-        self.com_generation = os.path.join(data_dir, 'CDM_DGENOUT.txt')
+        self.serv_dmd = data_dir / "CDM_SDOUT.txt"
+        self.catg_dmd = data_dir / "CDM_DBOUT.txt"
+        self.com_generation = data_dir / "CDM_DGENOUT.txt"
 
 
 class UsefulVars(object):
@@ -466,7 +467,7 @@ def catg_data_selector(db_array, sel, section_label, yrs):
                                     db_array['Division'] == sel[0],
                                     db_array['BldgType'] == sel[1],
                                     db_array['EndUse'] == sel[2]], axis=0)]
-        filtered = filtered[np.in1d(filtered['Fuel'], sel[3])]
+        filtered = filtered[np.isin(filtered['Fuel'], sel[3])]
         # Sum over all fuel types selected
         tyr = np.unique(filtered['Year'])
         filtered = np.array([(i, filtered[filtered['Year'] == i]['Amount'].sum()) for i in tyr],
@@ -483,7 +484,7 @@ def catg_data_selector(db_array, sel, section_label, yrs):
 
     # Further reduce the data by including only those years that are
     # common to all AEO data (based on the custom AEO metadata JSON)
-    filtered = filtered[np.in1d(filtered['Year'], yrs)]
+    filtered = filtered[np.isin(filtered['Year'], yrs)]
 
     # From the filtered data, select only the two needed columns,
     # the year and the data

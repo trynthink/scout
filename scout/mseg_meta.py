@@ -417,15 +417,15 @@ def main():
         files_str = ''
         for file_ in files_:
             if file_ != files_[-1]:
-                files_str = files_str + file_ + ', '
+                files_str = f'{files_str}{file_}, '
             elif len(files_) == 1:
-                files_str = files_str + file_
+                files_str = f'{files_str}{file_}'
             else:
-                files_str = files_str + 'and ' + file_
+                files_str = f'{files_str}and {file_}'
 
         # Print the unused file names to the console
-        print('Some EIA residential and/or commercial data files were '
-              'not imported. These files were: ' + files_str)
+        print(f'Some EIA residential and/or commercial data files were '
+              f'not imported. These files were: {files_str}')
 
     # Construct a dict with the minimum and maximum years recorded as integers
     year_range_result = {'min year': int(max(min_yrs)),

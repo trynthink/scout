@@ -8,6 +8,7 @@ modules used to convert the AEO data into the format used by Scout.
 """
 import os
 import csv
+from pathlib import Path
 import re
 import openpyxl as pyxl
 from scout import mseg_techdata as rmt
@@ -35,7 +36,11 @@ class EIAFiles(object):
         -----------------------------
         r_lgt: Residential lighting technology data
     """
-    def __init__(self, input_dir='data', output_dir=None):
+    def __init__(self, input_dir: Path = None, output_dir: Path = None):
+        if not input_dir:
+            input_dir = Path(__file__).resolve().parents[1] / 'inputs'
+        if not output_dir:
+            output_dir = input_dir
         """Define class with required input and output file names."""
         self.input_dir = input_dir
         self.output_dir = output_dir or input_dir
@@ -44,17 +49,17 @@ class EIAFiles(object):
         os.makedirs(self.output_dir, exist_ok=True)
 
         # inputs
-        self.r_db_in = os.path.join(self.input_dir,  'RDM_DBOUT-orig.txt')
-        self.r_mess = os.path.join(self.input_dir,  'rsmess.xlsx')
-        self.c_tech_in = os.path.join(self.input_dir,  'ktekx.xlsx')
-        self.r_lgt_in = os.path.join(self.input_dir,  'rsmlgt.txt')
+        self.r_db_in = self.input_dir / 'RDM_DBOUT-orig.txt'
+        self.r_mess = self.input_dir / 'rsmess.xlsx'
+        self.c_tech_in = self.input_dir / 'ktekx.xlsx'
+        self.r_lgt_in = self.input_dir / 'rsmlgt.txt'
 
         # outputs
-        self.r_db_out = os.path.join(self.output_dir, 'RDM_DBOUT.txt')
-        self.r_class = os.path.join(self.output_dir, 'rsclass.txt')
-        self.r_meqp = os.path.join(self.output_dir, 'rsmeqp.txt')
-        self.c_tech_out = os.path.join(self.output_dir, 'ktek.csv')
-        self.r_lgt_out = os.path.join(self.output_dir, 'rsmlgt.txt')
+        self.r_db_out = self.output_dir / 'RDM_DBOUT.txt'
+        self.r_class = self.output_dir / 'rsclass.txt'
+        self.r_meqp = self.output_dir / 'rsmeqp.txt'
+        self.c_tech_out = self.output_dir / 'ktek.csv'
+        self.r_lgt_out = self.output_dir / 'rsmlgt.txt'
 
     def resdbout_fill_household(self):
         """Modify RESDBOUT such that all rows have the same number of columns.
@@ -235,7 +240,7 @@ class EIAFiles(object):
 
 def main():
     # read from AEO raw data, write processed files into 'inputs'
-    f = EIAFiles(input_dir='inputs', output_dir='inputs')
+    f = EIAFiles(input_dir=Path('inputs'), output_dir=Path('inputs'))
 
     f.resdbout_fill_household()
     f.res_gsl_lt_update()
