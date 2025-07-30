@@ -745,6 +745,36 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 # assigned to the miscellaneous profile
                 else:
                     eu_flag = "misc"
+            # Flag for technology type if heating or cooling end use
+            elif k in ["supply", "demand"]:
+                tech_typ_flag = k
+            # For electric heating and cooling end uses, which may have factors further
+            # disaggregated by equipment type, flag the technology currently being updated
+            elif fuel_flag == "electricity" and eu_flag in ["heating", "cooling"]:
+                # For equipment ('supply'), aggregation factors will be keyed in by equipment name
+                if tech_typ_flag == "supply":
+                    # Check which technology name the current Scout equipment type maps to in the
+                    # EULP disaggregation factors and set that name as the technology flag to use
+                    # in pulling the factors later
+                    if any([k in x[1] for x in flag_map_dat[
+                            "eulp_map"]["electric technologies"][bldg_flag].items()]):
+                        tech_flag = [x[0] for x in flag_map_dat["eulp_map"][
+                            "electric technologies"][bldg_flag].items() if k in x[1]][0]
+                    # If still at the equipment level (e.g., not at the energy/stock key level below
+                    # it or at the year level below that) and there was no mapping available for a
+                    # technology that should have it, throw an error
+                    elif isinstance(i, dict) and k not in ["energy", "stock"]:
+                        raise ValueError(
+                            "Cannot map Scout technology " + k + " to any technology name in the "
+                            "EULP-based disaggregation factors")
+                # For envelope ('demand'), aggregation factors will be summarized across 'all'
+                # heating and cooling technologies (e.g., equivalent to end-use-level disagg.)
+                elif tech_typ_flag == "demand":
+                    tech_flag = "all"
+                # Ensure that technology type is either supply (equipment) or demand (envelope)
+                else:
+                    raise ValueError("Technology type " + tech_typ_flag + " unexpected for "
+                                     "heating or cooling end use; must be 'supply' or 'demand'.")
 
             # Recursively loop through both dicts
             if isinstance(i, dict):
@@ -1913,6 +1943,28 @@ def main():
                 "cooking": ["cooking"],
                 "drying": ["drying"],
                 "misc": ["unspecified"]
+            },
+            "electric technologies": {
+                "res": {
+                    "central AC": ["central AC"],
+                    "ASHP": ["ASHP", "GSHP"],
+                    "room AC": ["room AC"],
+                    "resistance heat": ["resistance heat", "secondary heater"]
+                },
+                "com": {
+                    "res_type_central_AC": ["res_type_central_AC"],
+                    "wall-window_room_AC": ["wall-window_room_AC"],
+                    "chiller": ["scroll_chiller", "reciprocating_chiller",
+                                "centrifugal_chiller", "screw_chiller"],
+                    "rooftop_AC": ["rooftop_AC"],
+                    "rooftop_ASHP-cool": ["rooftop_ASHP-cool"],
+                    "rooftop_ASHP-heat": ["rooftop_ASHP-heat", ],
+                    "pkg_terminal_HP-heat": ["pkg_terminal_HP-heat"],
+                    "pkg_terminal_HP-cool": ["pkg_terminal_HP-cool"],
+                    "pkg_terminal_AC-cool": ["pkg_terminal_AC-cool"],
+                    "resistance": ["electric_res-heat", "elec_res-heater", "elec_boiler"],
+                    "comm_GSHP-cool": ["comm_GSHP-cool"],
+                    "comm_GSHP-heat": ["comm_GSHP-heat"]}
             }
         },
         # Flag Scout technologies that are handled as end uses in the
