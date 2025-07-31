@@ -193,6 +193,7 @@ ecm_prep:
   price_sensitivity: highelec_lowfossil
   split_fuel: true 
   detail_brkout: [regions, codes/bps]
+  comstock_gap: true
 
 run:
   high_res_comp: true
