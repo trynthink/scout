@@ -202,6 +202,7 @@ class UsefulInputFiles(object):
         local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
         panel_shares (tuple): State-level shares of single family homes that require or do not
             require panel upgrades when switching away from existing gas furnace.
+        comstock_gap (type): Uncovered ComStock fractions of energy by commercial bldg. and fuel.
     """
 
     def __init__(self, opts):
@@ -313,6 +314,7 @@ class UsefulInputFiles(object):
         self.low_volume_rate = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
         self.panel_shares = fp.INPUTS / 'panel_shares.csv'
+        self.comstock_gap = fp.CONVERT_DATA / "com_gap_fracs.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -539,6 +541,7 @@ class UsefulVars(object):
         elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
             to electricity.
         alt_panel_names (list): Panel upgrade requirement info. to append to tech. names.
+        comstock_gap (dict): Uncovered ComStock fractions of energy use by com. bldg. and fuel.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -1555,6 +1558,19 @@ class UsefulVars(object):
                     'food service', 'health care', 'mercantile/service',
                     'lodging', 'large office', 'small office', 'warehouse',
                     'other', 'unspecified'])])
+        # Breakout unspecified building type if ComStock gap is being considered and move any
+        # existing unspecified building type consideration into this bucket
+        if opts.comstock_gap:
+            # Remove existing breakout mapping for the unspecified building type
+            for bto in self.out_break_bldgtypes.keys():
+                self.out_break_bldgtypes[bto] = [
+                    x for x in self.out_break_bldgtypes[bto] if x != "unspecified"]
+            # Add new Unspecified output category and map existing Scout unspecified building
+            # type into it, along with a new Scout building type unspecified (gap) that will
+            # isolate the portions of other Scout building types that are uncovered in ComStock
+            self.out_break_bldgtypes['Unspecified'] = [
+                'unspecified', 'unspecified (gap)', 'new', 'existing']
+
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
@@ -2009,6 +2025,27 @@ class UsefulVars(object):
             "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
         }
         self.alt_panel_names = ["-no panel", "-manage"]
+        # If user wants to further segment data/reporting in a way that isolates the slice of
+        # commercial energy use that is uncovered by ComStock for subsequent mapping purposes,
+        # read in the data containing the fractions of that uncovered energy use by Scout/AEO
+        # building type; otherwise set variable to None
+        if opts.comstock_gap:
+            try:
+                comstock_gap = pd.read_csv(handyfiles.comstock_gap)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.comstock_gap)
+            # Read in the building types (expects Scout/AEO building types) and fuel types (expects
+            # Scout/AEO fuel types) that are covered in the gap fractions
+            bldg_types = comstock_gap[comstock_gap.columns[0]].unique()
+            fuel_types = comstock_gap.columns[-2:]
+            # Initialize final dict of gap model data, using df values to set keys
+            self.comstock_gap = {bldg: {fuel: {} for fuel in fuel_types} for bldg in bldg_types}
+            for index, row in comstock_gap.iterrows():
+                for fuel in fuel_types:
+                    self.comstock_gap[row["building type"]][fuel] = row[fuel]
+        else:
+            self.comstock_gap = None
 
     def import_state_data(self, handyfiles, state_vars, valid_regions, opts):
         """Import and further prepare sub-federal adoption driver data.
@@ -3628,6 +3665,12 @@ class Measure(object):
         else:
             linked_htcl_tover_anchor_tech_alts = []
 
+        # If needed, append additional msegs to isolate the portion of Scout commercial building
+        # energy use that is not covered in ComStock modelind, for later mapping to ComStock hourly
+        # data
+        if self.handyvars.comstock_gap:
+            ms_iterable = self.append_comstock_gap_msegs(ms_iterable)
+
         # If there is linked stock turnover and no error after the calculations above, reset the
         # iterable that determines how measure msegs are looped through to ensure that msegs with
         # the anchor end use and technology for linked heating/cooling turnover and switching
@@ -4311,11 +4354,17 @@ class Measure(object):
             # appropriate terminal value is reached
             for i in range(0, len(mskeys)):
                 # Handle case where heating equipment key has been further modified
-                # to enable assessment of panel upgrade sub-segments; for the purposes
-                # of pulling stock/energy data from AEO, use the original gas furnace key
+                # to enable assessment of panel upgrade sub-segments and/or commercial technology
+                # key has been modified to flag the isolation of ComStock gap segments;
+                # for the purposes of pulling stock/energy data from AEO, strip any of this
+                # additional information and use the original key information
                 if mskeys[i] is not None and (
                         any([x in mskeys[i] for x in self.handyvars.alt_panel_names])):
                     key_item = mskeys[i].split("-")[0]
+                elif mskeys[i] is not None and "(gap)" in mskeys[i]:
+                    key_item = mskeys[i].split(" (")[0]
+                elif mskeys[i] is not None and mskeys[i] == "gap":
+                    key_item = None
                 else:
                     key_item = mskeys[i]
 
@@ -6336,6 +6385,38 @@ class Measure(object):
                     # When there is no sub-segmentation required, adjustment fractions are 1
                     panel_adj = {"stock": 1, "energy": 1}
 
+                # If applicable, pull in information needed to sub-segment commercial stock and
+                # energy use data by the service demand/energy that is covered vs. not covered in
+                # ComStock hourly data, to aid in subsequent mapping of Scout data to ComStock data
+                # Ensure that no residential data are pulled in, and that existing commercial
+                # 'unspecified' building type is also ignored (gap segmentation doesn't apply)
+                if self.handyvars.comstock_gap is not None and mskeys[2] not in [
+                        "single family home", "multi family home", "mobile home", "unspecified"]:
+                    # Handle case where Scout building type and/or fuel type is not covered in the
+                    # gap fractions (currently should cover all but 'unspecified' building type
+                    # and electricity and natural gas fuel types)
+                    try:
+                        gap_frac_in = self.handyvars.comstock_gap[mskeys[2]][mskeys[3]]
+                        # Flag whether the mseg represents the gap portion of the original mseg's
+                        # data or the non-gap (known) portion
+                        if mskeys[-2] and "gap" in mskeys[-2]:
+                            # If it represents the gap, pull in gap fraction to apply as-is
+                            gap_adj_frac = gap_frac_in
+                            # Building type should be adjusted to indicate that this is a gap
+                            # segment after all calculations are finished, for correct breakout
+                            # reporting (should be bucketed in 'Unspecified' type)
+                            adjust_mseg_bldg_to_gap = True
+                        else:
+                            # If it represents the non-gap, apply inverse of that fraction
+                            gap_adj_frac = 1 - gap_frac_in
+                            adjust_mseg_bldg_to_gap = False
+                    except KeyError:
+                        gap_adj_frac = 1
+                        adjust_mseg_bldg_to_gap = False
+                else:
+                    gap_adj_frac = 1
+                    adjust_mseg_bldg_to_gap = False
+
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microsegment that will be captured
                 # by efficient alternatives to the baseline technology
@@ -6378,21 +6459,21 @@ class Measure(object):
                     if sf_to_house_key and sf_to_house_key in \
                             self.handyvars.sf_to_house.keys():
                         add_stock = {
-                            key: val * new_existing_frac[key] * panel_adj["stock"] *
+                            key: val * new_existing_frac[key] * panel_adj["stock"] * gap_adj_frac *
                             self.handyvars.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                     else:
                         add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"] for
-                            key, val in mseg_sqft_stock[
+                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"] *
+                            gap_adj_frac for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                 elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
-                        key: val * new_existing_frac[key] * panel_adj["stock"] for key, val in
-                        mseg["stock"].items() if key in
+                        key: val * new_existing_frac[key] * panel_adj["stock"] * gap_adj_frac
+                        for key, val in mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
                 else:  # If no stock data exist, set stock to zero
                     add_stock = {
@@ -6415,8 +6496,8 @@ class Measure(object):
                 # upgrade with panel management approaches
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_existing_frac[key] * panel_adj["energy"] for key, val in mseg[
-                        "energy"].items() if key in
+                    new_existing_frac[key] * panel_adj["energy"] * gap_adj_frac
+                    for key, val in mseg["energy"].items() if key in
                     self.handyvars.aeo_years}
                 # Total lighting energy use for climate zone, building type,
                 # and structure type of current primary lighting
@@ -7105,7 +7186,8 @@ class Measure(object):
                             add_fs_carb_eff_remain_base,
                             add_fs_energy_eff_remain_switch,
                             add_fs_energy_cost_eff_remain_switch,
-                            add_fs_carb_eff_remain_switch)
+                            add_fs_carb_eff_remain_switch,
+                            adjust_mseg_bldg_to_gap)
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
@@ -12083,6 +12165,40 @@ class Measure(object):
 
         return ms_iterable, anchor_tech_alts
 
+    def append_comstock_gap_msegs(self, ms_iterable):
+        """Add a subset of com. msegs that will be used to isolate energy not covered via ComStock.
+
+        Args:
+            ms_iterable: Original list of msegs the measure applies to.
+
+        Returns:
+            Updated list of msegs the measure applies to that additionally reflects gap
+            partitions of commercial segments, such that ComStock gaps in projected energy
+            use totals can be isolated.
+        """
+        # Find applicable segments to apply Comstock gap partitioning to (all commercial building
+        # equipment segments except those already classified as unspecified), no residential segs;
+        # also ensure that only equipment segments are being further segmented in this way
+        segs_to_subset = [list(x) for x in ms_iterable if "demand" not in x and all([
+            y not in x for y in ["single family home", "multi family home",
+                                 "mobile home", "unspecified"]])]
+        # Append copies of segments to represent gap partitions
+        if len(segs_to_subset) > 0:
+            # Initialize lists of segments representing the ComStock gap to append
+            segs_to_subset_gap = copy.deepcopy(segs_to_subset)
+            # Loop through the gap segments and tag them accordingly for later processing
+            for i_gap in segs_to_subset_gap:
+                # Append information to technology to indicate that mseg is a gap copy; handle
+                # NoneType technology
+                if i_gap[-2]:
+                    i_gap[-2] += " (gap)"
+                else:
+                    i_gap[-2] = "gap"
+            # Append the unique gap segments to the original segments
+            ms_iterable = ms_iterable + segs_to_subset_gap
+
+        return ms_iterable
+
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate/building/structure type.
 
@@ -15760,7 +15876,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                   add_fs_carb_eff_remain_base,
                   add_fs_energy_eff_remain_switch,
                   add_fs_energy_cost_eff_remain_switch,
-                  add_fs_carb_eff_remain_switch):
+                  add_fs_carb_eff_remain_switch, adjust_mseg_bldg_to_gap):
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -15804,7 +15920,8 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             that is from base fuel and switched to technology after measure
             application (applies to fuel switching measures with dual fuel
             operation)
-
+        adjust_mseg_bldg_to_gap (boolean): Flag segment that should be tagged as
+            isolating the portion of Scout commercial segments that ComStock doesn't cover
     Returns:
         Updated measure market breakouts by region, building type, end use, and
         fuel type that reflect the influence of the current mseg being looped.
@@ -15819,10 +15936,20 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     for cz in self.handyvars.out_break_czones.items():
         if mskeys[1] in cz[1]:
             out_cz = cz[0]
+    # Determine building type to use for breakouts
+
+    # If flagged, update the mseg's building type to 'unspecified (gap)' to ensure
+    # it gets reported out correctly in breakout data as isolating gap in ComStock coverage
+    # Note that this only affects breakout reporting, original gap mseg info. remains unchanged
+    if adjust_mseg_bldg_to_gap:
+        mskeys_bldg = "unspecified (gap)"
+    else:
+        mskeys_bldg = mskeys[2]
+
     # Establish applicable building type breakout
     for bldg in self.handyvars.out_break_bldgtypes.items():
         if all([x in bldg[1] for x in [
-                mskeys[2], mskeys[-1]]]):
+                mskeys_bldg, mskeys[-1]]]):
             out_bldg = bldg[0]
     # Establish applicable end use breakout
     for eu in self.handyvars.out_break_enduses.items():

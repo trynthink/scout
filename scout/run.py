@@ -223,24 +223,49 @@ class UsefulVars(object):
                     "Biomass": ["biomass"]}
             # Account for multiple potential Scout building type breakouts
             # when mapping to GCAM building types
-            if brkout == "detail" or "bldg" in brkout:
+            if brkout == "detail" or "bldg" in brkout and "codesbps" not in brkout:
                 self.out_break_bldgtypes_gcam = {
-                    'Single Family Homes': ["resid"],
-                    'Multi Family Homes': ["resid"],
-                    'Hospitals': ["comm"],
-                    'Large Offices': ["comm"],
-                    'Small/Medium Offices': ["comm"],
-                    'Retail': ["comm"],
-                    'Hospitality': ["comm"],
-                    'Education': ["comm"],
-                    'Assembly/Other': ["comm"],
-                    'Warehouses': ["comm"]}
+                    'Single Family Homes (New)': ["resid"],
+                    'Multi Family Homes (New)': ["resid"],
+                    'Manufactured Homes (New)': ["resid"],
+                    'Hospitals (New)': ["comm"],
+                    'Large Offices (New)': ["comm"],
+                    'Small/Medium Offices (New)': ["comm"],
+                    'Retail (New)': ["comm"],
+                    'Hospitality (New)': ["comm"],
+                    'Education (New)': ["comm"],
+                    'Assembly/Other (New)': ["comm"],
+                    'Warehouses (New)': ["comm"],
+                    'Single Family Homes (Existing)': ["comm"],
+                    'Multi Family Homes (Existing)': ["comm"],
+                    'Manufactured Homes (Existing)': ["comm"],
+                    'Hospitals (Existing)': ["comm"],
+                    'Large Offices (Existing)': ["comm"],
+                    'Small/Medium Offices (Existing)': ["comm"],
+                    'Retail (Existing)': ["comm"],
+                    'Hospitality (Existing)': ["comm"],
+                    'Education (Existing)': ["comm"],
+                    'Assembly/Other (Existing)': ["comm"],
+                    'Warehouses (Existing)':  ["comm"]}
+            elif "codesbps" in brkout:
+                self.out_break_bldgtypes_gcam = {
+                    'Single Family/Manufactured Homes (New)': ["resid"],
+                    'Single Family/Manufactured Homes (Existing)': ["resid"],
+                    'Multi Family Homes (New)': ["resid"],
+                    'Multi Family Homes (Existing)': ["resid"],
+                    'Commercial (New)': ["comm"],
+                    'Commercial (Existing)': ["comm"]}
             else:
                 self.out_break_bldgtypes_gcam = {
                     'Residential (New)': ["resid"],
                     'Residential (Existing)': ["resid"],
                     'Commercial (New)': ["comm"],
-                    'Commercial (Existing)': ["comm"]}
+                    'Commercial (Existing)': ["comm"],
+                    'Unspecified': ["comm"]}
+            # Account for potential use of an additional 'Unspecified' breakout when reporting
+            # out in alignment with gap in ComStock data
+            if "Unspecified" in self.out_break_bldgtypes.keys():
+                self.out_break_bldgtypes_gcam["Unspecified"] = ["comm"]
             # Scout end uses are only broken out one way (no detailed breakout
             # alternatives, as for fuel and building types)
             self.out_break_enduses_gcam = {

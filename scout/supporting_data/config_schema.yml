@@ -275,6 +275,11 @@ properties:
         default: null
         description: Use supply-side scenarios with relatively high electricity prices/low natural gas prices, or vice versa. Will not be assessed if grid_decarb_level is non-null.
       
+      comstock_gap:
+        type: boolean
+        default: false
+        description: If true, specifically partition out energy use not covered by ComStock tool and write to Unspecified building type category in outputs.        
+
   run:
     type: object
     required: []
