@@ -5004,78 +5004,119 @@ class Measure(object):
                         hp_eu_key = "heating"
                     else:
                         hp_eu_key = mskeys[4]
-                    # Map the current mseg region to the regionality of the
-                    # HP conversion rate data
-                    reg = [r[0] for r in
-                           self.handyvars.hp_rates_reg_map.items() if
-                           mskeys[1] in r[1]][0]
-                    # Pull in HP conversion rate data for the user-selected
-                    # fuel switching scenario and the region and building type
-                    # of the current microsegment
-                    hp_rate_dat = self.handyvars.hp_rates[
-                        "data (by scenario)"][opts.exog_hp_rates[0]][reg][
-                        bldg_sect]
-                    # Attempt to further restrict HP conversion data by
-                    # fuel type, end use, technology, and building vintage;
-                    # handle cases where data are applicable to "all"
-                    # technologies within a given combination of fuel, end use,
-                    # and vintage, or otherwise set the HP conversion rate to
-                    # None if no data are available for the current mseg
-                    try:
-                        hp_rate = hp_rate_dat[
-                            mskeys[3]][hp_eu_key][mskeys[-2]][mskeys[-1]]
-                    except KeyError:
+                    # Handle scenarios based on legacy Guidehouse scenarios (prepended "gh")
+                    # differently than all other scenarios
+                    if "gh" in opts.exog_hp_rates[0]:
+                        # Map the current mseg region to the regionality of the
+                        # HP conversion rate data
+                        reg = [r[0] for r in self.handyvars.hp_rates_reg_map.items() if
+                               mskeys[1] in r[1]][0]
+                        # Pull in HP conversion rate data for the user-selected
+                        # fuel switching scenario and the region and building type
+                        # of the current microsegment
+                        hp_rate_dat = self.handyvars.hp_rates[
+                            "data (by scenario)"][opts.exog_hp_rates[0]][reg][bldg_sect]
+                        # Attempt to further restrict HP conversion data by
+                        # fuel type, end use, technology, and building vintage;
+                        # handle cases where data are applicable to "all"
+                        # technologies within a given combination of fuel, end use,
+                        # and vintage, or otherwise set the HP conversion rate to
+                        # None if no data are available for the current mseg
                         try:
                             hp_rate = hp_rate_dat[
-                                mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
+                                mskeys[3]][hp_eu_key][mskeys[-2]][mskeys[-1]]
                         except KeyError:
-                            # Handle switch from commercial heating in RTUs vs.
-                            # other technologies
-                            if hp_eu_key == "heating" and \
-                                bldg_sect == "commercial" and any([
-                                    mskeys[-2] in x for x in [
-                                        self.handyvars.com_RTU_fs_tech,
-                                        self.handyvars.com_nRTU_fs_tech]]):
-                                # Determine whether the current heating tech.
-                                # falls into switch from an RTU or other tech.
-                                if mskeys[-2] in \
-                                        self.handyvars.com_RTU_fs_tech:
-                                    tech_key = "RTUs"
-                                else:
-                                    tech_key = "all other"
-                                # Try resultant tech. key
-                                try:
-                                    hp_rate = hp_rate_dat[mskeys[3]][
-                                        hp_eu_key][tech_key][mskeys[-1]]
-                                except KeyError:
-                                    hp_rate = None
-                            # Residential secondary heating
-                            elif mskeys[4] == "secondary heating" and \
-                                    bldg_sect == "residential":
-                                # For the tech key, use resistance and/or
-                                # furnace tech. depending on the fuel
-                                if mskeys[3] == "electricity":
-                                    tech_key = "resistance heat"
-                                elif mskeys[3] == "distillate":
-                                    tech_key = "furnace (distillate)"
-                                elif mskeys[3] == "natural gas":
-                                    tech_key = "furnace (NG)"
-                                else:
-                                    tech_key = "furnace (LPG)"
+                            try:
+                                hp_rate = hp_rate_dat[
+                                    mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
+                            except KeyError:
+                                # Handle switch from commercial heating in RTUs vs.
+                                # other technologies
+                                if hp_eu_key == "heating" and \
+                                    bldg_sect == "commercial" and any([
+                                        mskeys[-2] in x for x in [
+                                            self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                    # Determine whether the current heating tech.
+                                    # falls into switch from an RTU or other tech.
+                                    if mskeys[-2] in \
+                                            self.handyvars.com_RTU_fs_tech:
+                                        tech_key = "RTUs"
+                                    else:
+                                        tech_key = "all other"
+                                    # Try resultant tech. key
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            hp_eu_key][tech_key][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # Residential secondary heating
+                                elif mskeys[4] == "secondary heating" and \
+                                        bldg_sect == "residential":
+                                    # For the tech key, use resistance and/or
+                                    # furnace tech. depending on the fuel
+                                    if mskeys[3] == "electricity":
+                                        tech_key = "resistance heat"
+                                    elif mskeys[3] == "distillate":
+                                        tech_key = "furnace (distillate)"
+                                    elif mskeys[3] == "natural gas":
+                                        tech_key = "furnace (NG)"
+                                    else:
+                                        tech_key = "furnace (LPG)"
 
-                                # Try resultant tech. key
-                                try:
-                                    hp_rate = hp_rate_dat[mskeys[3]][
-                                        hp_eu_key][tech_key][mskeys[-1]]
-                                except KeyError:
+                                    # Try resultant tech. key
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            hp_eu_key][tech_key][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # Cases where no direct exogenous rate is found
+                                # for the mseg but the mseg is linked to another
+                                # mseg that does have a rate; set flag
+                                elif self.linked_htcl_tover and \
+                                        hp_eu_key != self.linked_htcl_tover_anchor_eu:
+                                    hp_rate = "linked"
+                                else:
                                     hp_rate = None
-                            # Cases where no direct exogenous rate is found
-                            # for the mseg but the mseg is linked to another
-                            # mseg that does have a rate; set flag
-                            elif self.linked_htcl_tover:
-                                hp_rate = "linked"
-                            else:
-                                hp_rate = None
+                    # Non-guidehouse scenario data will be broken out by output type (total/
+                    # competed), region, building type, fuel type, end use, and vintage
+                    else:
+                        # Read in and copy data for user-designated scenario name
+                        hp_rate_in = copy.deepcopy(
+                            self.handyvars.hp_rates["data (by scenario)"][opts.exog_hp_rates[0]])
+                        # Check to ensure that the current regionality being prepared in the
+                        # data is directly supported in the HP rate data
+                        try:
+                            hp_rate = {out_typ: hp_rate_in[out_typ][mskeys[1]] for
+                                       out_typ in hp_rate_in.keys()}
+                            try:
+                                # Key in data by output type, region, bldg. type, fuel, end use,
+                                # and vintage. Handle end uses that are flagged for HP rates but do
+                                # not have direct rates in the data (e.g., cooling, which is
+                                # typically linked to the heating end use conversion rates)
+                                hp_rate = {
+                                    out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][mskeys[3]][
+                                        hp_eu_key][mskeys[-1]] for out_typ in hp_rate_in.keys()}
+                            except KeyError:
+                                # When end use is linked to the rates of another, flag this
+                                if self.linked_htcl_tover and \
+                                        hp_eu_key != self.linked_htcl_tover_anchor_eu:
+                                    hp_rate = "linked"
+                                # Otherwise warn the user of the missing data and do not apply any
+                                # rates to the end use
+                                else:
+                                    warnings.warn("End use " + hp_eu_key + " is flagged for "
+                                                  "exogenous conversion rate data but does not "
+                                                  "have direct data available for scenario " +
+                                                  opts.exog_hp_rates[0] + "; exogenous conversion "
+                                                  "rates will not be applied.")
+                                    hp_rate = None
+                        except KeyError:
+                            hp_rate = None
+                            warnings.warn(
+                                "Region " + mskeys[1] + " not found in exogenous HP rate data "
+                                "for scenario " + opts.exog_hp_rates[0] + "; skipping and moving "
+                                "on to next region.")
                 else:
                     hp_rate = None
 
@@ -10107,11 +10148,12 @@ class Measure(object):
                 if any(comp_frac_sbmkt > 1):
                     comp_frac_sbmkt[numpy.where(comp_frac_sbmkt > 1)] = 1
 
-            # Diffusion of electric HPs according to pre-determined rates;
-            # these calculations need not proceed if the mseg is a heating/
-            # cooling mseg with links to the switching rates of another mseg
-            # that have already been determined
-            if not diffuse_frac_linked and hp_rate and mskeys[0] == "primary":
+            # Diffusion of electric HPs according to pre-determined rates, using Guidehouse scns (
+            # signified by the lack of breakout by 'total' vs. 'competed' keys); these calculations
+            # need not proceed if the mseg is a heating/cooling mseg with links to the switching
+            # rates of another mseg that have already been determined
+            if not diffuse_frac_linked and hp_rate and mskeys[0] == "primary" and \
+                    yr in hp_rate.keys():
                 # Set HP rate for the year; if year is before HP rates are
                 # available, set to zero.
                 try:
@@ -10199,7 +10241,7 @@ class Measure(object):
                 # by the HP conversion (e.g., electric ASHP or HPWH measure
                 # that switches from fossil- or resistance-based equipment)
                 if (self.fuel_switch_to == "electricity" or (
-                        self.tech_switch_to not in [None, "NA"])):
+                        self.tech_switch_to not in [None, "NA", "same"])):
                     # Cumulative fraction converted to HPs
                     diffuse_frac = stock_total_hp_convert_frac
                     # Fraction of total converted stock that was
@@ -10229,6 +10271,21 @@ class Measure(object):
                 # by further fraction to represent slow diffusion of info.
                 # for emerging technologies
                 diffuse_frac *= years_diff_fraction_dictionary[yr]
+            # Diffusion of electric HPs according to pre-determined rates, using non-Guidehouse
+            # scenarios (which will be broken out by 'total' vs. 'competed' keys); these calcs
+            # need not proceed if the mseg is a heating/cooling mseg with links to the switching
+            # rates of another mseg that have already been determined
+            elif not diffuse_frac_linked and hp_rate and mskeys[0] == "primary" and all([
+                    x in hp_rate.keys() for x in ["total", "competed"]]):
+                # Case where measure is switching away from baseline; use conversion rate directly
+                if (self.fuel_switch_to == "electricity" or (
+                        self.tech_switch_to not in [None, "NA", "same"])):
+                    diffuse_frac, comp_frac_diffuse = [
+                        hp_rate[x][yr] for x in ["total", "competed"]]
+                # Case where measure stays with baseline tech.; use inverse of conversion rate
+                else:
+                    diffuse_frac, comp_frac_diffuse = [
+                        (1 - hp_rate[x][yr]) for x in ["total", "competed"]]
             # All other measure diffusion cases where diffusion scaling and
             # competed diffusion fractions were not already calculated
             elif not diffuse_frac_linked:

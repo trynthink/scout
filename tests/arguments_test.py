@@ -124,7 +124,8 @@ class TestConfig(unittest.TestCase, Utils):
             "report_cfs": False,
             "gcam_out": False,
             "no_comp": False,
-            "high_res_comp": False
+            "high_res_comp": False,
+            "write_hp_conv_fracs": False
         },
     }
 
@@ -142,7 +143,7 @@ class TestConfig(unittest.TestCase, Utils):
             "retrofit_type": "increasing",
             "retrofit_multiplier": 1.2,
             "retrofit_mult_year": 2030,
-            "exog_hp_rate_scenario": "aggressive",
+            "exog_hp_rate_scenario": "gh-aggressive",
             "switch_all_retrofit_hp": False,
             "grid_decarb_level": "100by2035",
             "grid_assessment_timing": "after",
@@ -428,7 +429,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "no_scnd_lgt": False,
         "floor_start": None,
         "pkg_env_costs": "1",
-        "exog_hp_rate_scenario": "aggressive",
+        "exog_hp_rate_scenario": "gh-aggressive",
         "switch_all_retrofit_hp": False,
         "alt_ref_carb": None,
         "grid_decarb_level": "100by2035",
@@ -442,7 +443,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "detail_brkout": "6",
         "fugitive_emissions": [3, 2, 2],
         "retro_set": ["3", 1.2, 2030],
-        "exog_hp_rates": ["aggressive", "2"],
+        "exog_hp_rates": ["gh-aggressive", "2"],
         "grid_decarb": True,
         "tsv_metrics": ["1", "1", "1", "2", "1", "0", "2"],
     }

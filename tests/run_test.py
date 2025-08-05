@@ -338,7 +338,7 @@ class CommonMethods(object):
 class UserOptions(object):
     """Generate sample user-specified execution options."""
     def __init__(self, warnings, mkt_fracs, trim_results, report_stk,
-                 report_cfs, no_comp, gcam_out, high_res_comp):
+                 report_cfs, no_comp, gcam_out, high_res_comp, write_hp_conv_fracs):
         self.verbose = warnings
         self.mkt_fracs = mkt_fracs
         self.trim_results = trim_results
@@ -347,6 +347,7 @@ class UserOptions(object):
         self.no_comp = no_comp
         self.gcam_out = gcam_out
         self.high_res_comp = high_res_comp
+        self.write_hp_conv_fracs = write_hp_conv_fracs
 
 
 class NullOpts(object):
@@ -360,7 +361,7 @@ class NullOpts(object):
         self.opts = UserOptions(
             warnings=False, mkt_fracs=False, trim_results=False,
             report_stk=False, report_cfs=False, no_comp=False,
-            gcam_out=False, high_res_comp=False)
+            gcam_out=False, high_res_comp=False, write_hp_conv_fracs=False)
 
 
 class TestMeasureInit(unittest.TestCase, Constants):
@@ -376,7 +377,7 @@ class TestMeasureInit(unittest.TestCase, Constants):
         """Define objects/variables for use across all class functions."""
         handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA",
-                                   state_appl_regs=None, codes=None, bps=None)
+                                   state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -407,7 +408,7 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
         handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA",
-                                   state_appl_regs=None, codes=None, bps=None)
+                                   state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
@@ -511,7 +512,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1513,7 +1514,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1600,7 +1601,7 @@ class PaybackTest(unittest.TestCase, Constants):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1687,7 +1688,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -16262,7 +16263,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         # Hard code time preference premiums
@@ -26776,7 +26777,7 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26833,7 +26834,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]

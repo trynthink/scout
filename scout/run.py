@@ -19,6 +19,7 @@ import warnings
 import itertools
 import pandas as pd
 from operator import itemgetter
+import os
 
 
 class UsefulInputFiles(object):
@@ -51,6 +52,7 @@ class UsefulInputFiles(object):
         codes (tuple): State/sub-state codes inputs.
         codes_lag (tuple): State-level deltas between latest vs. current enacted code.
         bps (tuple): State/sub-state BPS inputs.
+        hp_conv_fracs (tuple): Exogenous rates of electrification (to HPs and induction).
     """
 
     def __init__(self, energy_out, regions, grid_decarb):
@@ -151,6 +153,7 @@ class UsefulInputFiles(object):
                     self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
                 else:
                     self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions.json"
+        self.hp_conv_fracs = fp.CONVERT_DATA / "hp_convert_rates.json"
 
 
 class UsefulVars(object):
@@ -180,7 +183,7 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, handyfiles, opts, brkout, regions, state_appl_regs, codes, bps):
+    def __init__(self, handyfiles, opts, brkout, regions, state_appl_regs, codes, bps, exog_rates):
         # Pull in global variable settings from ecm_prep
         with open(handyfiles.glob_vars, 'r') as gv:
             try:
@@ -390,6 +393,41 @@ class UsefulVars(object):
         else:
             for k in state_vars:
                 setattr(self, k, None)
+        # Initialize conversion fraction output; only calculate and write out conversion fractions
+        # for scenarios run with endogenous electrification calculations
+        if opts.write_hp_conv_fracs and not exog_rates:
+            # Set list of possible regions based on output breakout information
+            conversion_regions = self.out_break_czones.keys()
+            # Set list of possible building types based on output breakout information
+            conversion_bldg_types = ["residential", "commercial"]
+            # Set list of possible fuels to include in conversion dict
+            conversion_fuels = ["electricity", "natural gas", "distillate", "other fuel"]
+            # Set list of possible building/equipment vintages
+            conversion_vintages = ["new", "existing"]
+            # Set list of possible end uses to include in conversion dict
+            self.conversion_eus = [
+                "heating", "secondary heating", "water heating", "drying", "cooking"]
+            # Develop the base structure of the dict containing the conversion information
+            conversion_struct = {
+                reg: {
+                    bldg: {
+                        fuel: {
+                            eu: {
+                                vint: {
+                                    yr: {"all": 0, "converted": 0} for yr in self.aeo_years}
+                                for vint in conversion_vintages}
+                            for eu in self.conversion_eus}
+                        for fuel in conversion_fuels}
+                    for bldg in conversion_bldg_types}
+                for reg in conversion_regions
+            }
+            # Separate conversion data as portion of the total and competed stock (e.g., total
+            # conversion percentage vs. converted sales percentage)
+            self.conversion_fracs = {
+                x: copy.deepcopy(conversion_struct) for x in ["total", "competed"]}
+        else:
+            self.conversion_fracs, self.conversion_fuels, self.conversion_eus = (
+                None for n in range(3))
 
     def import_state_data(self, handyfiles, state_vars, state_vars_vals):
         """Import and further prepare sub-federal adoption driver data.
@@ -913,6 +951,45 @@ class Engine(object):
                     adopt_scheme] = OrderedDict()
                 # Initialize measure financial metrics
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
+
+    def finalize_conv_fracs(self, adopt_scheme, conv_fracs):
+        """Divide converted stock by total stock that could be converted to finalize percentages.
+
+        Args:
+            adopt_scheme (string): Assumed consumer adoption scenario.
+            comp_scheme (string): Assumed measure competition scenario.
+            opts (object): Stores user-specified execution options.
+
+        Returns:
+            Final HP/electric conversion percentages by output type (total/competed), region,
+            res/com, fuel type, end use, vintage, and year.
+        """
+
+        # Loop through total vs. competed stock result
+        for out in conv_fracs.keys():
+            # Loop through all regions in the data
+            for reg in conv_fracs[out].keys():
+                # Loop through residential and commercial building types
+                for bldg in conv_fracs[out][reg].keys():
+                    # Loop through all fuels in the data
+                    for fuel in conv_fracs[out][reg][bldg].keys():
+                        # Loop through all end uses where conversion to electric is possible
+                        for eu in conv_fracs[out][reg][bldg][fuel].keys():
+                            # Loop through new/existing vintages
+                            for vint in conv_fracs[out][reg][bldg][fuel][eu].keys():
+                                # Loop through all years in the data
+                                for yr in conv_fracs[out][reg][bldg][fuel][eu][vint].keys():
+                                    # Normalize converted stock by the total stock that was eligible
+                                    # for conversion; set to zero if the latter is zero
+                                    if conv_fracs[out][reg][bldg][fuel][eu][vint][yr]["all"] != 0:
+                                        conv_fracs[out][reg][bldg][fuel][eu][vint][yr] = (
+                                            conv_fracs[
+                                                out][reg][bldg][fuel][eu][vint][yr]["converted"] /
+                                            conv_fracs[out][reg][bldg][fuel][eu][vint][yr]["all"])
+                                    else:
+                                        conv_fracs[out][reg][bldg][fuel][eu][vint][yr] = 0
+
+        return conv_fracs
 
     def calc_savings_metrics(self, adopt_scheme, comp_scheme, opts):
         """Calculate and update measure savings and financial metrics.
@@ -4764,6 +4841,32 @@ class Engine(object):
                 adj["carbon"]["competed"][x][yr] = [
                     (x[yr] * adj_c) for x in adjlist[6:10]]
 
+        # If applicable, update fuel/tech conversions shares after competition
+        if self.opts.write_hp_conv_fracs and any([
+                x in mseg_key for x in self.handyvars.conversion_eus]):
+            # Determine whether current measure converts baseline equipment fuel to electricity
+            # and/or otherwise changes tech type (e.g., electric resistance to HPs)
+            conversion = (measure.fuel_switch_to == "electricity" or (
+                measure.tech_switch_to not in [None, "NA", "same"]))
+            # Find and set region, fuel, end use, and vintage for current mseg
+            key_list = list(literal_eval(mseg_key))
+            reg, base_fuel, eu, vint = [key_list[1], key_list[3], key_list[4], key_list[-1]]
+            # Find higher-level residential vs. commercial building type for current mseg
+            if any([x in mseg_key for x in [
+                    "single family home", "mobile home", "multi family home"]]):
+                bldg_type = "residential"
+            else:
+                bldg_type = "commercial"
+            # Update conversion numbers for total and competed stock
+            for c_typ in ["total", "competed"]:
+                # Add to the total conversion-eligible equipment numbers
+                self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel][eu][vint][
+                    yr]["all"] += adj["stock"][c_typ]["measure"][yr]
+                # If applicable, add to the total converted equipment numbers
+                if conversion:
+                    self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel][eu][vint][
+                        yr]["converted"] += adj["stock"][c_typ]["measure"][yr]
+
     def finalize_outputs(
             self, adopt_scheme, trim_out, trim_yrs):
         """Prepare selected measure outputs to write to a summary JSON file.
@@ -6665,6 +6768,8 @@ class Engine(object):
         # to reflect the impacts of code/BPS policy
         for m in [m_s for m_s in self.measures if (
                 reg in m_s.climate_zone and bldg in m_s.bldg_type and vint in m_s.structure_type)]:
+            # Set measure fuel type attribute for later use in tracking fuel switching
+            meas_fuel = m.fuel_type["primary"]
             # Loop through four metrics that are broken out in measure data. (Note that costs
             # denote energy costs only, and carbon costs are not broken out/won't be adjusted)
             for var in ["stock", "energy", "carbon", "cost"]:
@@ -6747,7 +6852,7 @@ class Engine(object):
                         brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
                         mast_dat_cdbps_base, mast_dat_cdbps_save, reg_brk, bldg_vnt_brk, apply_yrs,
                         apply_frac, onsite_reduce_frac, rel_elec_eff[var], prior_yr_rmv, var,
-                        cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                        cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, reg, bldg, vint, meas_fuel)
                 # Apply any additional energy reduction requirements, leveraging data shorthands
                 # above. Note that stock remains the same for code reductions, such that per unit
                 # energy/carb/cost will be reduced
@@ -6767,7 +6872,8 @@ class Engine(object):
             mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
             brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
             reg_brk, bldg_vnt_brk, apply_yrs, apply_frac, onsite_reduce_frac, rel_elec_eff,
-            prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs):
+            prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs,
+            reg_in, bldg_in, vint_in, meas_fuel):
         """Apply onsite emissions reductions required via code/BPS.
 
         Args:
@@ -6799,6 +6905,10 @@ class Engine(object):
             cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
             cdbps_eus (list): Applicable end use categories for codes/BPS measure.
             focus_yrs (str): Years to report the output data for (can be full AEO range or trimmed).
+            reg_in (str): Region name used for current mseg in Scout input/measure definitions.
+            bldg_in (str): Building name used for current mseg in Scout input/measure definitions.
+            vint_in (str): Vintage name used for current mseg in Scout input/measure definitions.
+            meas_fuel (str): Measure fuel type (used to track fuel and/or technology switch to HPs).
         """
 
         # Loop through all applicable end uses for the given region/building type/vintage breakout
@@ -6976,6 +7086,40 @@ class Engine(object):
                             if mast_dat_cdbps_save is not None:
                                 mast_dat_cdbps_save[yr] += (
                                     added_elec_base[yr] - added_elec_eff[yr])
+                            # If applicable, update HP conversions shares after competition
+                            if var == "stock" and self.handyvars.conversion_fracs and any([
+                                    x in self.handyvars.out_break_enduses[eu]
+                                    for x in self.handyvars.conversion_eus]):
+                                # Set end use and fuel type
+                                eu_in = self.handyvars.out_break_enduses[eu][0]
+                                # For fuel type, check to ensure that mapped to fossil fuel is
+                                # actually in the measure definition (e.g., 'Non-Electric' maps to
+                                # all fossil fuels, but measures often only apply to e.g., natural
+                                # gas or distillate or other fuel separately). Where multiple
+                                # fuels are matched, anchor on the first one
+                                ft_in = [x for x in self.handyvars.out_break_fuels[fossil_fuel]
+                                         if x in meas_fuel][0]
+                                # Find higher-level residential vs. commercial building type for
+                                # current mseg
+                                if any([x in bldg_in for x in [
+                                        "single family home", "mobile home", "multi family home"]]):
+                                    bldg_type = "residential"
+                                else:
+                                    bldg_type = "commercial"
+                                # Add to reported conversion numbers
+                                for c_typ in ["total", "competed"]:
+                                    # Add to competed numbers only when cycling through a new
+                                    # building code (new stock is competed); do not add when
+                                    # cycling through a BPS, which only affects existing (
+                                    # previously competed/total) stock
+                                    if c_typ != "competed" or vint_in == "new":
+                                        # Add to the total conversion-eligible equipment numbers
+                                        self.handyvars.conversion_fracs[c_typ][reg_in][bldg_type][
+                                            ft_in][eu_in][vint_in][yr]["all"] += convert_fossil[yr]
+                                        # IAdd to the total converted equip. numbers
+                                        self.handyvars.conversion_fracs[c_typ][reg_in][
+                                            bldg_type][ft_in][eu][vint_in][yr]["converted"] += \
+                                            convert_fossil[yr]
 
                         # If calculations have proceeded to this point, append to measure
                         # category data
@@ -7614,7 +7758,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
     handyvars = UsefulVars(handyfiles, opts, brkout="basic", regions="AIA",
-                           state_appl_regs=None, codes=None, bps=None)
+                           state_appl_regs=None, codes=None, bps=None, exog_rates=None)
 
     # If a user desires trimmed down results, collect information about whether
     # they want to restrict to certain years of focus and finalize that year list
@@ -7729,8 +7873,13 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     state_appl_regs, codes, bps = [
         meas_summary_restrict[0]["usr_opts"][x] for x in ["state_appl_regs", "codes", "bps"]]
 
+    # Set flag for use of exogenous electric conversion rates when preparing measures; when
+    # present, the later option to report out conversion rates from the run module is suppressed
+    exog_rates = meas_summary_restrict[0]["usr_opts"]["exog_hp_rates"]
+
     # Instantiate useful variables object
-    handyvars = UsefulVars(handyfiles, opts, brkout, regions, state_appl_regs, codes, bps)
+    handyvars = UsefulVars(
+        handyfiles, opts, brkout, regions, state_appl_regs, codes, bps, exog_rates)
 
     # Instantiate active measure objects
     measures_objlist = [
@@ -7813,7 +7962,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Re-instantiate useful variables object when regional breakdown other
     # than the default AIA climate zone breakdown is chosen
     if regions != "AIA":
-        handyvars = UsefulVars(handyfiles, opts, brkout, regions, state_appl_regs, codes, bps)
+        handyvars = UsefulVars(
+            handyfiles, opts, brkout, regions, state_appl_regs, codes, bps, exog_rates)
 
     # Load and set competition data for active measure objects (provided competition is not
     # suppressed by user); suppress new line if not in verbose mode ('Data load complete' is
@@ -7982,6 +8132,25 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         if opts.gcam_out is True:
             with open(handyfiles.gcam_out, 'w') as gco:
                 json.dump(a_run.gcam_in, gco, indent=2)
+        # If necessary, write out electric/heat pump conversion fractions for the scenario
+        if a_run.handyvars.conversion_fracs:
+            print("\nWriting out endogenous electric/heat pump conversion fractions...",
+                  end="", flush=True)
+            conv_fracs = a_run.finalize_conv_fracs(
+                adopt_scheme, a_run.handyvars.conversion_fracs)
+            # Pull scenario name used in YAML file for scenario
+            # *** Prepend bss flag for now since this feature is only being used for bss; THIS
+            # MAY NEED TO CHANGE IN THE FUTURE ***
+            scn_name = "bss-" + \
+                os.path.splitext(measures_objlist[0].usr_opts["yaml"])[0].split("/")[-1]
+            # Open existing electric/HP conversion rates file, read in and append to the data
+            with open(handyfiles.hp_conv_fracs, 'r') as hpr:
+                existing_dict = json.load(hpr)
+                existing_dict["data (by scenario)"][scn_name] = conv_fracs
+            # Write out updated data
+            with open(handyfiles.hp_conv_fracs, 'w') as hpw:
+                json.dump(existing_dict, hpw, indent=2)
+            print("Calculations complete")
         print("Results finalized")
 
     # Notify user that all analysis engine calculations are completed
