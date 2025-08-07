@@ -3882,7 +3882,7 @@ class Measure(object):
                     # Cooking
                     elif mskeys[4] == "cooking":
                         mskeys_swtch_tech = \
-                            "electric_range_oven_24x24_griddle"
+                            "elec_range-combined"
                     # Lighting - switch to comparable LED product based
                     # on lighting class in baseline
                     elif mskeys[4] == "lighting":
