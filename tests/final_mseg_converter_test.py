@@ -136,6 +136,28 @@ class CommonUnitTest(unittest.TestCase):
                 "cooking": ["cooking"],
                 "drying": ["drying"],
                 "misc": ["unspecified"]
+            },
+            "electric technologies": {
+                "res": {
+                    "central AC": ["central AC"],
+                    "ASHP": ["ASHP", "GSHP"],
+                    "room AC": ["room AC"],
+                    "resistance heat": ["resistance heat", "secondary heater"]
+                },
+                "com": {
+                    "res_type_central_AC": ["res_type_central_AC"],
+                    "wall-window_room_AC": ["wall-window_room_AC"],
+                    "chiller": ["scroll_chiller", "reciprocating_chiller",
+                                "centrifugal_chiller", "screw_chiller"],
+                    "rooftop_AC": ["rooftop_AC"],
+                    "rooftop_ASHP-cool": ["rooftop_ASHP-cool"],
+                    "rooftop_ASHP-heat": ["rooftop_ASHP-heat", ],
+                    "pkg_terminal_HP-heat": ["pkg_terminal_HP-heat"],
+                    "pkg_terminal_HP-cool": ["pkg_terminal_HP-cool"],
+                    "pkg_terminal_AC-cool": ["pkg_terminal_AC-cool"],
+                    "resistance": ["electric_res-heat", "elec_res-heater", "elec_boiler"],
+                    "comm_GSHP-cool": ["comm_GSHP-cool"],
+                    "comm_GSHP-heat": ["comm_GSHP-heat"]}
             }
         },
         # Flag Scout technologies that are handled as end uses in the
