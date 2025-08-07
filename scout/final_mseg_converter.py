@@ -80,9 +80,11 @@ class UsefulVars(object):
         aeo_metadata (str): File name for the custom AEO metadata JSON.
         geo_break (str): Indicates the intended geographical data breakdown.
         fuel_disagg_method (str): High-level or detailed method for
-            disaggregating energy and stock data by fuel type.
-        final_disagg_method (str): Flag for use of tech-level or end-use-level
-            data in disaggregation of electric energy and stock data.
+            disaggregating energy and stock data by fuel type. Options: 1 – Electricity-only or
+            2 – All fuel types.
+        final_disagg_method (str): Flag for use of tech-level or end-use-level.
+            data in disaggregation of electric energy and stock data. Options: 1 – Technology-level
+            disaggregation; 2 – End-use-level.
         ak_hi_res (dict): Share of Pacific CDIV's total consumption by fuel that goes to AK or HI,
             based on EIA SEDS totals by fuel and building type; these states are not currently
             reflected in the ResStock-based disaggregation shares
@@ -106,6 +108,8 @@ class UsefulVars(object):
         self.geo_break = geo_break
         self.fuel_disagg_method = fuel_disagg_method
         self.final_disagg_method = final_disagg_method
+        # Source: Scout Geography Mapping data, which in turn uses EIA SEDS data. This version
+        # is based on SEDS 2022 data. https://www.eia.gov/state/seds/seds-data-complete.php?sid=US
         self.ak_hi_res = {
             "AK": {
                 "electricity": 0.01162790698, "natural gas": 0.03194221509,
@@ -615,7 +619,6 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
     if key_list is None:
         key_list = []
 
-    # ────────────────────────────── helpers ────────────────────────────── #
     import numbers
     import warnings
     import copy
@@ -640,7 +643,6 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
         a.extend(copy.deepcopy(zero_vec) for _ in range(max_len - len(a)))
         b.extend(copy.deepcopy(zero_vec) for _ in range(max_len - len(b)))
         return a, b
-    # ───────────────────────────────────────────────────────────────────── #
 
     # Loop through both dicts to find all keys
     for (k, i) in sorted(base_dict.items()):
@@ -878,9 +880,7 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                 else:
                     # Find the conversion factor for the given combination of
                     # census division and AIA climate zone
-                    # ───────────────────────────────────────────────────────────────────── #
                     convert_fact = cd_to_cz_factor[cd_num][reg_name]
-                # ───────────── list (‐of-lists) branch; new logic ───────────── #
                 if isinstance(base_dict[k], list):
                     base_list = _to_list_of_lists(base_dict[k])
                     add_list = _to_list_of_lists(add_dict[k2])
@@ -898,8 +898,6 @@ def merge_sum(base_dict, add_dict, cd_num, reg_name, res_convert_array,
                         base_dict[k] = base_list[0]
                     else:
                         base_dict[k] = base_list
-
-                # ─ scalar / numeric branch ───────────────────────────────
                 else:
                     if first_cd_flag:
                         base_dict[k] = base_dict[k] * convert_fact
@@ -1837,7 +1835,7 @@ def main():
                 print('Please try again. Enter either 1, 2, or 3. '
                       'Use ctrl-c to exit.')
     # AIA, or EMM are possible for cost/performance/lifetime data
-    elif input_var[0] == '2':
+    else:
         while input_var[1] not in ['1', '2', '3']:
             input_var[1] = input(
                 "\nEnter 1 to use an AIA climate zone geographical " +
@@ -1851,6 +1849,7 @@ def main():
     # regional breakdown is either EMM or state (input_var[1] == '2' or '3'),
     # further determine whether to apply detailed Census to EMM or state
     # disaggregation data for: 1 – Electricity-only or 2 – All fuel types.
+    # NOTE: default Scout baseline files reflect detailed disaggregation for all fuel types
     if input_var[0] == '1' and input_var[1] in ['2', '3']:
         while input_var[2] not in ['1', '2']:
             input_var[2] = input(
@@ -1865,6 +1864,7 @@ def main():
     # Step 4: For electricity, determine whether the detailed disaggregation
     # method should be based on technology-level or end-use-level stock
     # and energy data.
+    # NOTE: default Scout baseline files reflect technology-level disaggregation
     if input_var[0] == '1' and input_var[1] in ['2', '3'] and \
             input_var[2] in ['1', '2']:
         while input_var[3] not in ['1', '2']:
@@ -1996,13 +1996,19 @@ def main():
 
     }
 
+    # Set list of regions that is consistent with inputs
+    if input_var[1] == '1':
+        reg_list = aia_list
+    elif input_var[1] == '2':
+        reg_list = emm_list
+    elif input_var[1] == '3':
+        reg_list = states_list
+
     # Based on the second input from the user to indicate what regional
     # breakdown to use in converting the data, import necessary conversion data
 
     # Settings for AIA regions
     if input_var[1] == '1':
-        # Set expected names for regional selection
-        reg_list = aia_list
         # Import residential census division to AIA climate conversion data
         res_cd_cz_conv = np.genfromtxt(
             handyvars.res_climate_convert, names=True,
@@ -2015,14 +2021,6 @@ def main():
     # Settings for EMM or state regions and stock/energy data
     elif input_var[0] == '1' and input_var[1] in ['2', '3']:
         if input_var[2] == '1':
-            # To process electricity only disaggregation method that is applied
-            # to either tech-level or end-use-level disaggregation
-            # Set expected names for regional selection
-            if input_var[1] == '2':  # EMM
-                reg_list = emm_list
-            else:
-                reg_list = states_list
-
             # Import CSV data with the fractions of end-use electricity in
             # each CDIV that is attributable to each EMM or state, based on
             # EULP data
@@ -2066,21 +2064,6 @@ def main():
                 "other fuel": np.genfromtxt(
                     handyvars.res_climate_convert["other fuel"], names=True,
                     delimiter='\t', dtype="float64")}
-            # Handle case where building stock and square footage conversion data
-            # are read in from two different conversion files (state-level
-            # breakouts) or from just one conversion file (EMM breakouts)
-            try:
-                res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["homes"],
-                        names=True, delimiter='\t', dtype="float64"),
-                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["square footage"],
-                        names=True, delimiter='\t', dtype="float64")}
-            except TypeError:
-                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
-                    handyvars.res_climate_convert["building stock and square footage"],
-                    names=True, delimiter='\t', dtype="float64")
             com_cd_cz_conv = {
                 "electricity": com_convert_byeu_dict,
                 "natural gas": np.genfromtxt(
@@ -2097,13 +2080,6 @@ def main():
                         "building stock and square footage"], names=True,
                     delimiter='\t', dtype="float64")}
         elif input_var[2] == '2':
-            # To process electricity only disaggregation method that is applied
-            # to either tech-level or end-use-level disaggregation
-            # Set expected names for regional selection
-            if input_var[1] == '2':  # EMM
-                reg_list = emm_list
-            else:
-                reg_list = states_list
             fuel_types = ["electricity", "natural gas", "distillate", "other fuel"]
 
             # Import CSV data with the fractions of end-use electricity in
@@ -2149,23 +2125,6 @@ def main():
                 "distillate": res_convert_byeu_dict["distillate"],
                 "other fuel": res_convert_byeu_dict["other fuel"]
             }
-
-            # Handle case where building stock and square footage conversion data
-            # are read in from two different conversion files (state-level
-            # breakouts) or from just one conversion file (EMM breakouts)
-            try:
-                res_cd_cz_conv["building stock and square footage"] = {
-                    "homes": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["homes"],
-                        names=True, delimiter='\t', dtype="float64"),
-                    "square footage": np.genfromtxt(handyvars.res_climate_convert[
-                        "building stock and square footage"]["square footage"],
-                        names=True, delimiter='\t', dtype="float64")}
-            except TypeError:
-                res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
-                    handyvars.res_climate_convert["building stock and square footage"],
-                    names=True, delimiter='\t', dtype="float64")
-
             com_cd_cz_conv = {
                 "electricity": com_convert_byeu_dict["electricity"],
                 "natural gas": com_convert_byeu_dict["natural gas"],
@@ -2179,8 +2138,6 @@ def main():
     # Settings for EMM regions and CPL data; note that no conversion data is
     # needed for state regions and CPL data, which are left w/ CDIV resolution
     elif input_var[0] == '2' and input_var[1] == '2':
-        # Set expected names for regional selection
-        reg_list = emm_list
         # Set up final residential and commercial conversion data by fuel.
         # Import data from input files directly into this dict.
         res_cd_cz_conv = {
@@ -2195,10 +2152,6 @@ def main():
                 delimiter='\t', dtype="float64"),
             "other fuel": np.genfromtxt(
                 handyvars.res_climate_convert["other fuel"], names=True,
-                delimiter='\t', dtype="float64"),
-            "building stock and square footage": np.genfromtxt(
-                handyvars.res_climate_convert[
-                    "building stock and square footage"], names=True,
                 delimiter='\t', dtype="float64")}
         com_cd_cz_conv = {
             "electricity": np.genfromtxt(
@@ -2217,6 +2170,32 @@ def main():
                 handyvars.com_climate_convert[
                     "building stock and square footage"], names=True,
                 delimiter='\t', dtype="float64")}
+
+    # Update residential building stock and square footage data, which is formatted differently
+    # depending on the type of variable being updated and for what regional breakout
+
+    # Stock/energy data for EMM or State regions
+    if input_var[0] == '1' and input_var[1] in ['2', '3']:
+        # Handle case where building stock and square footage conversion data
+        # are read in from two different conversion files (state-level
+        # breakouts) or from just one conversion file (EMM breakouts)
+        # Shorthand for building stock and square footage data
+        bs_sf_data = handyvars.res_climate_convert["building stock and square footage"]
+        if isinstance(bs_sf_data, dict):
+            res_cd_cz_conv["building stock and square footage"] = {
+                "homes": np.genfromtxt(
+                    bs_sf_data["homes"], names=True, delimiter='\t', dtype="float64"),
+                "square footage": np.genfromtxt(
+                    bs_sf_data["square footage"], names=True, delimiter='\t', dtype="float64")}
+        else:
+            res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                bs_sf_data, names=True, delimiter='\t', dtype="float64")
+    # Cost data for EMM; note that CPL data are left at CDIV resolution for states
+    elif input_var[0] == '2' and input_var[1] == '2':
+        res_cd_cz_conv["building stock and square footage"] = np.genfromtxt(
+                    handyvars.res_climate_convert[
+                        "building stock and square footage"], names=True,
+                    delimiter='\t', dtype="float64")
 
     # Import data needed to convert envelope CPL performance data from an
     # AIA climate zone to EMM region breakdown (not relevant when AIA
