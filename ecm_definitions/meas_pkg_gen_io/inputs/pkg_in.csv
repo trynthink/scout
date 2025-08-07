@@ -29,26 +29,26 @@ Residential,"Reference, States, Fossil, Accelerate, Breakthrough",(R) Bst. HP Pt
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
-Residential,"Reference, States, Fossil, Accelerate, Breakthrough",(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP FS (Other Fossil Furnace)
+Residential,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch",(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP FS (Other Fossil Furnace)
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
-Residential,"Reference, States, Fossil, Accelerate, Breakthrough",(R) Bst. HP FS (NG Frn.) & Env.+,"(R) Best HP FS (NG Furnace)
+Residential,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch",(R) Bst. HP FS (NG Frn.) & Env.+,"(R) Best HP FS (NG Furnace)
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
-Residential,"Reference, States, Fossil, Accelerate, Breakthrough",(R) Bst. HP FS (NG Boiler) & Env.+,"(R) Best HP FS (NG Boiler)
+Residential,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch",(R) Bst. HP FS (NG Boiler) & Env.+,"(R) Best HP FS (NG Boiler)
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
-Residential,"Reference, States, Fossil, Accelerate, Breakthrough",(R) Bst. HP TS (Resist.) & Env.+,"(R) Best HP TS (Resist.)
+Residential,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch",(R) Bst. HP TS (Resist.) & Env.+,"(R) Best HP TS (Resist.)
 (R) IECC 2021 Walls & Air Sealing
 (R) IECC 2021 Roofs
 (R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
-Commercial,"Reference, States, Fossil, Accelerate, Breakthrough","(C) Bst. HP FS (RTU, NG Ht.) & Env.+","(C) Best HP FS (RTU, NG Heat)
+Commercial,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch","(C) Bst. HP FS (RTU, NG Ht.) & Env.+","(C) Best HP FS (RTU, NG Heat)
 (C) 90.1-2022 Walls & Air Sealing
 (C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
-Commercial,"Reference, States, Fossil, Accelerate, Breakthrough",(C) Bst. HP FS (NG Boiler) & Env.+,"(C) Best HP FS (NG Boiler)
+Commercial,"Reference, States, Fossil, Accelerate, Breakthrough, High Switch",(C) Bst. HP FS (NG Boiler) & Env.+,"(C) Best HP FS (NG Boiler)
 (C) 90.1-2022 Walls & Air Sealing
 (C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
 Residential,Breakthrough,(R) Ref. NG Furnace & AC & Env.++,"(R) Ref. Case NG Furnace & AC

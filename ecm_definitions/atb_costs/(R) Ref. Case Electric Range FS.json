@@ -1,75 +1,71 @@
 {
-  "name": "(C) Induction Range FS",
-  "_description": "Commercial induction 48\" range with 2:6 range tops and full:sized oven",
+  "name": "(R) Ref. Case Electric Range FS",
+  "_description": "Typical electric cooktop and electric oven, fuel switching",
   "measure_type": "full service",
   "market_entry_year": 2025,
   "market_exit_year": null,
   "min_eff_elec_flag": null,
-  "ref_case_flag": null,
+  "ref_case_flag": "yes",
   "climate_zone": "all",
-  "bldg_type": [
-    "assembly",
-    "education",
-    "food sales",
-    "food service",
-    "health care",
-    "lodging",
-    "large office",
-    "small office",
-    "mercantile/service",
-    "warehouse"
-  ],
+  "bldg_type": "all residential",
   "structure_type": "all",
   "end_use": "cooking",
-  "fuel_type": "natural gas",
+  "fuel_type": [
+    "natural gas",
+    "distillate",
+    "other fuel"
+  ],
   "fuel_switch_to": "electricity",
   "backup_fuel_fraction": null,
   "technology": "all",
   "htcl_tech_link": null,
-  "tech_switch_to": null,
-  "energy_efficiency": 0.6,
+  "tech_switch_to": "electric range",
+  "energy_efficiency": 0.82,
   "energy_efficiency_units": "relative savings (constant)",
   "energy_efficiency_source": {
-    "notes": [
-      "High (2022) combined energy efficiency for electric resistance griddle, oven, and range",
-      "compare to typical combined gas efficiency to derive relative savings impact"
-    ],
+    "notes": "Compare overall IAEC (kBtu/y) in 2022 of typical natural gas vs. typical electric cooking",
     "source_data": {
-      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencie",
       "author": "U.S. Energy Information Administration",
       "year": 2023,
       "pages": [
-        167,
-        168
+        90,
+        95
       ],
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
   "installed_cost": {
-    "new": 4353.0,
-    "existing": 4423.0
+    "new": 630.0,
+    "existing": 770.0
   },
-  "cost_units": "2022$/kBtu/h cooking",
+  "cost_units": "2022$/unit",
   "installed_cost_source": {
-    "notes": "2022 High retail (new) and installed (existing) cost value for electric range with griddle and oven, normalized by kBtu/h cooking capacity (EIA assumes ~2.6 kBtu/h capacity)",
+    "notes": [
+      "Based on cost of typical electric ranges",
+      "range pricing is used (instead of cooktop) because 89% of households have a range (see second EIA source)."
+    ],
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 168,
+      "pages": 95,
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
-  "add_elec_infr_cost": null,
-  "product_lifetime": 12.0,
+  "add_elec_infr_cost": {
+    "panel": false,
+    "240V circuit": true
+  },
+  "product_lifetime": 17.0,
   "product_lifetime_units": "years",
   "product_lifetime_source": {
-    "notes": "Average life of Typical electric range",
+    "notes": "Average lifetime for electric ranges in 2022",
     "source_data": {
       "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies",
       "author": "U.S. Energy Information Administration",
       "year": 2023,
-      "pages": 168,
+      "pages": 94,
       "url": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
     }
   },
@@ -79,9 +75,9 @@
     "source_data": null
   },
   "_updated_by": {
-    "name": "Aven Satre:Meloy",
+    "name": "Handi Chandra Putra",
     "organization": "LBNL",
-    "email": "asatremeloy@lbl.gov",
+    "email": "hchandraputra@lbl.gov",
     "timestamp": "2025-08-07 11:29:51"
   }
 }

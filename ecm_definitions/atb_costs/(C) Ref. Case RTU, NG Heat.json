@@ -23,6 +23,10 @@
   "technology": [
     "gas_furnace",
     "gas_eng-driven_RTAC",
+    "gas_eng-driven_RTHP-heat",
+    "res_type_gasHP-heat",
+    "gas_eng-driven_RTHP-cool",
+    "res_type_gasHP-cool",
     "rooftop_AC",
     "scroll_chiller",
     "reciprocating_chiller",
@@ -36,6 +40,10 @@
   "energy_efficiency": {
     "gas_furnace": 0.81,
     "gas_eng-driven_RTAC": 1.4,
+    "gas_eng-driven_RTHP-heat": 1.4,
+    "res_type_gasHP-heat": 1.4,
+    "gas_eng-driven_RTHP-cool": 1.4,
+    "res_type_gasHP-cool": 1.4,
     "rooftop_AC": 4.3,
     "scroll_chiller": 4.6,
     "reciprocating_chiller": 4.1,
@@ -60,6 +68,18 @@
     },
     "gas_eng-driven_RTAC": {
       "new": 311.0,
+      "existing": 317.0
+    },
+    "gas_eng-driven_RTHP-heat": {
+      "new": 317.0,
+      "existing": 317.0
+    },
+    "res_type_gasHP-heat": {
+      "new": 317.0,
+      "existing": 317.0
+    },
+    "gas_eng-driven_RTHP-cool": {
+      "new": 317.0,
       "existing": 317.0
     },
     "scroll_chiller": {
@@ -106,6 +126,10 @@
   "market_scaling_fractions": {
     "gas_furnace": 0.92,
     "gas_eng-driven_RTAC": 1.0,
+    "gas_eng-driven_RTHP-heat": 1.0,
+    "res_type_gasHP-heat": 1.0,
+    "gas_eng-driven_RTHP-cool": 1.0,
+    "res_type_gasHP-cool": 1.0,
     "rooftop_AC": 0.46,
     "scroll_chiller": 0.04,
     "reciprocating_chiller": 0.04,
@@ -128,6 +152,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-07-18 22:13:29"
+    "timestamp": "2025-08-07 11:29:51"
   }
 }

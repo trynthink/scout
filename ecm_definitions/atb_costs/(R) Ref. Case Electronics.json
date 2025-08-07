@@ -21,7 +21,11 @@
     "desktop PC",
     "laptop PC",
     "monitors",
-    "set top box"
+    "set top box",
+    "home theater and audio",
+    "OTT streaming devices",
+    "video game consoles",
+    "network equipment"
   ],
   "htcl_tech_link": null,
   "tech_switch_to": null,
@@ -59,6 +63,6 @@
     "name": "Xinwei Zhuang",
     "organization": "LBNL",
     "email": "xinweizhuang@lbl.gov",
-    "timestamp": "2025-07-18 22:13:29"
+    "timestamp": "2025-08-07 11:29:51"
   }
 }

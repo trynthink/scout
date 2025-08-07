@@ -17,7 +17,7 @@
   "htcl_tech_link": null,
   "tech_switch_to": "same",
   "energy_efficiency": 0.95,
-  "energy_efficiency_units": "relative savings (constant)",
+  "energy_efficiency_units": "UEF",
   "energy_efficiency_source": {
     "notes": "Typical performance",
     "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
@@ -53,6 +53,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-07-18 21:09:39"
+    "timestamp": "2025-08-07 11:29:51"
   }
 }
