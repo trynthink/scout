@@ -1,55 +1,63 @@
 #!/usr/bin/env python
 """Module for updating supporting emissions and prices files with Cambium data.
 
-This module can be used to update annual and hourly electricity CO2 intensities
-for varying electricity system scenarios using data from the NREL Cambium
-database, available at: https://scenarioviewer.nrel.gov/. Cambium documentation
-for 2023 is available at: https://www.nrel.gov/docs/fy24osti/88507.pdf.
+This module can be used to update annual and hourly electricity CO2 intensities for varying
+electricity system scenarios using data from the NREL Cambium database, available at:
+https://scenarioviewer.nrel.gov/. Cambium documentation for 2023 is available at:
+https://www.nrel.gov/docs/fy24osti/88507.pdf.
 
 This module will update the following metrics for a given Cambium grid
 scenario:
 
-    1) Annual average electricity CO2 emissions rates of generation induced by
-    end-use load at the U.S. national scale, or for the EIA's 25 2020 EMM
-    regions, or for U.S. states.
+    1) Annual average electricity CO2 emissions rates of generation induced by end-use load at the
+    U.S. national scale, or for the EIA's 25 2020 EMM regions, or for U.S. states.
 
     2) Scaling fractions representing:
-        a) The shape of hourly average electricity CO2 emissions rates of
-        generation induced by a region's end-use load at the EIA's 25 2020 EMM
-        region scale.
-        b) The shape of hourly marginal end-use electricity costs, inclusive
-        of energy, capacity, operating reserve, and policy costs.
+        a) The shape of hourly average electricity CO2 emissions rates of generation induced by a
+        region's end-use load at the EIA's 25 2020 EMM region scale.
+        b) The shape of hourly marginal end-use electricity costs, inclusive of energy, capacity,
+        operating reserve, and policy costs.
 
-    In both cases, the fractions are calculated as the ratio of the hourly
-    value to the annual average in each EMM region in each year.
+    In both cases, the fractions are calculated as the ratio of the hourly value to the annual
+    average in each EMM region in each year.
 
-The module gives users the option to specify a Cambium scenario for which to
-output updated data. For the annual emissions rates, it gives the option to
-specify whether to update these data at the U.S. national or EMM region
-geographical resolution.
+The module gives users the option to specify a Cambium scenario for which to output updated data.
+For the annual emissions rates, it gives the option to specify whether to update these data at the
+U.S. national or EMM region geographical resolution.
 
-This module leaves intact any data in the input JSON files that have been
-updated with the converter.py module, which is used to query the EIA AEO API
-to update annual emissions and site-source factors, as well as retail
-electricity prices, using AEO data.
+This module leaves intact any data in the input JSON files that have been updated with the
+converter.py module, which is used to query the EIA AEO API to update annual emissions and
+site-source factors, as well as retail electricity prices, using AEO data.
 
-A typical workflow for using these two modules is as follows:
+The intended workflow for running this module with other routines is as follows:
 
-    1) Update "Reference Case" annual emissions and site-source factors,
-    as well as retail electricity prices, using the converter.py module.
+1) Run ./scout/state_baseline_data_updater.py to update the current snapshots of state-level
+emissions and energy prices from EIA's survey data (via the API). The result will be written to the
+file ./scout/supporting_data/convert_data/EIA_State_Emissions_Prices_Baselines_*.csv, where *
+indicates the year of the data.
 
-    2) Download Cambium data for a single (or multiple) scenarios. Please
-    note that Cambium data must be downloaded separately, as they are not
-    currently stored on the Scout repository. This module will prompt the
-    user to indicate the file path to the Cambium data folder (with guidance
-    as to how the directory should be structured.)
+2) Run ./scout/converter.py separately to update each of the files beginning with "emm_region_"
+or "site_source in ./scout/supporting_data/convert_data, which will update all of the annual average
+emissions intensity, energy price, and site-source conversion values to reflect AEO projections
+pulled from the EIA API. For energy prices, electricity and gas prices are both broken out in the
+"state_" files, while only electricity prices are broken out in the "emm_region_" files. Electricity
+emissions intensities are also broken out in both of those files. Also note that updating the
+"emm_region_" files will automatically update the files beginning "state_" as well. When prompted,
+select the latest AEO year available and use the following mapping between AEO case and the
+scenarios indicated in the file names being updated: lowmaclowZTC -> files with "-100by2035" and
+"-95by2050"; ref2023 -> all other files. Users may also enter pairs of scenarios, separated by a
+comma, that represent high gas/low electric price and low gas/high electric price futures, as
+follows: 'lowogs, lowmaclowZTC', 'highogs, highmachighZTC'.
 
-    3) Update "Alternate Grid Scenario" annual emissions factors, as well as
-    hourly emissions and price scaling factors, using this module.
+3) Run ./scout/cambium_updater.py separately to update each of the files beginning with
+"emm_region_" or "state" and including the scenarios "-MidCase" "95by2050" and "-100by2035" from
+reflecting AEO trends in the EMM- or state-level annual emissions intensity values to reflecting
+trends from the relevant Cambium scenario. This routine will also update hourly emissions and
+price scaling factors that are used in Scout for time-sensitive valuation of these variables.
+Cambium data are downloaded from https://scenarioviewer.nrel.gov/ to a folder that this routine
+reads in from, see prompts in routine for instructions about how to structure that folder, and use
+the latest available Cambium year when prompted.
 
-Note that retail electricity price projections for any "Alternate
-Grid Scenario" annual data are currently drawn from the AEO API using
-the "Low Macro and Low Zero-Carbon Technology Cost" side case.
 """
 
 import pandas as pd
@@ -162,7 +170,7 @@ class UsefulInputFiles(object):
 
     def __init__(self):
         # Set the path to the file that maps Cambium BA regions to EMM regions
-        self.ba_emm_map = fp.CONVERT_DATA / "geo_map" / "scout_reeds_emm_mapping_112520.csv"
+        self.ba_emm_map = fp.CONVERT_DATA / "geo_map" / "scout_reeds_emm_mapping_071325.csv"
         # Set the path to the national site-source conversions file
         # for the AEO Reference Case
         self.ss_ref = fp.CONVERT_DATA / "site_source_co2_conversions.json"
@@ -260,10 +268,14 @@ class ValidQueries(object):
             or hourly emissions and price data.
     """
 
-    def __init__(self):
-        self.years = ['2022', '2023']
+    def __init__(self, scenario=None):
         self.scenarios = ['MidCase', 'Decarb95by2050',
                           'Decarb100by2035']
+        # Cambium 2024 data are only available for MidCase
+        if scenario == "MidCase":
+            self.years = ['2022', '2023', '2024']
+        else:
+            self.years = ['2022', '2023']
 
 
 def import_ba_emm_mapping():
@@ -276,11 +288,11 @@ def import_ba_emm_mapping():
     # Scout <> ReEDS <> EMM2020
     mapping = pd.read_csv(UsefulInputFiles().ba_emm_map)
     # set ba column to str
-    mapping['cambium_ba'] = 'p' + mapping['cambium_ba'].astype(str)
+    mapping['cambium_24_ba'] = 'p' + mapping['cambium_24_ba'].astype(str)
     # select relevant columns
     mapping = mapping.drop_duplicates(
-        subset=['cambium_ba'])[[
-            'cambium_ba', 'EMM_2020', 'state_abbr']].reset_index(
+        subset=['cambium_24_ba'])[[
+            'cambium_24_ba', 'EMM_2020', 'state_abbrev']].reset_index(
         drop=True)
     # change name of BASIN to BASN
     mapping['EMM_2020'] = mapping.apply(
@@ -408,14 +420,14 @@ def annual_factors_updater(df, ss, geography):
         # Group data frame by state and year and calculate average CO2
         # emissions intensity
         df_reg = df.groupby(
-            ['state_abbr', 'year'])[['co2_avg_enduse_mt_twh']].mean(
+            ['state_abbrev', 'year'])[['co2_avg_enduse_mt_twh']].mean(
             ).reset_index()
         # Set index as year and convert to datetime
         df_reg.set_index(pd.to_datetime(df_reg['year'], format='%Y'),
                          inplace=True)
         # Group by state and resample annually with linear interpolation
         df_resamp = df_reg.groupby(
-            'state_abbr').resample(
+            'state_abbrev').resample(
             'YE').mean().interpolate(
             method='linear').reset_index(
             level=0).assign(
@@ -424,7 +436,7 @@ def annual_factors_updater(df, ss, geography):
         # Create dictionary of year:value pairs for each EMM region
         co2_dict = {state: {year: value for year, value in zip(group['year'],
                             group['co2_avg_enduse_mt_twh'])}
-                    for state, group in df_resamp.groupby('state_abbr')}
+                    for state, group in df_resamp.groupby('state_abbrev')}
         # Save final dictionary for output
         {ss['CO2 intensity of electricity']['data'][key].update(val)
          for key, val in co2_dict.items()}
@@ -473,14 +485,14 @@ def generate_hourly_factors(df, geography):
         # Calculate state & national annual averages for CO2 emissions/price
         # metrics
         reg_ann_avg = df.groupby(
-            ['state_abbr', 'year'])[metrics].mean().reset_index()
+            ['state_abbrev', 'year'])[metrics].mean().reset_index()
         ann_avg = df.groupby(['year'])[metrics].mean().reset_index()
         # Join EMM region & national annual averages to calculate scaling
         # fractions
         scaling = pd.merge(reg_ann_avg, ann_avg, on='year', how='left',
                            suffixes=('_reg_ann_avg', '_ann_avg'))
         # Join scaling fractions to original Cambium data
-        df_scaled = pd.merge(df, scaling, on=['state_abbr', 'year'],
+        df_scaled = pd.merge(df, scaling, on=['state_abbrev', 'year'],
                              how='left')
     else:
         print('Invalid geography entered.')
@@ -507,7 +519,7 @@ def generate_hourly_factors(df, geography):
         # Create data frame with 8760s for each scaled metric by state
         df_reg = df_scaled.groupby(
             ['year', 'month', 'day', 'hour',
-             'state_abbr'])[metrics_names].mean().reset_index()
+             'state_abbrev'])[metrics_names].mean().reset_index()
     else:
         print('Invalid geography entered.')
     return df_reg
@@ -535,7 +547,7 @@ def hourly_factors_updater(df, scenario, year, metric, geography):
         regions = df['EMM_2020'].unique()
     elif geography == "State":
         # Create vars to iterate over
-        regions = df['state_abbr'].unique()
+        regions = df['state_abbrev'].unique()
     else:
         print('Invalid geography entered.')
     # Create vars to iterate over
@@ -586,12 +598,12 @@ def hourly_factors_updater(df, scenario, year, metric, geography):
             for r in regions:
                 if metric == 'cost':
                     dict_regions[r] = df[(df['year'] == y) &
-                                         (df['state_abbr'] == r)][
+                                         (df['state_abbrev'] == r)][
                                          'electricity price shapes'].to_list()
                 elif metric == 'carbon':
                     dict_regions[r] = df[
                         (df['year'] == y) &
-                        (df['state_abbr'] == r)][
+                        (df['state_abbrev'] == r)][
                         'average carbon emissions rates'].to_list()
                 else:
                     print('Invalid metric entered.')
@@ -662,8 +674,8 @@ def main():
         while True:
             year = input('Please specify the desired Cambium data year. \n'
                          'Valid entries are: ' +
-                         ', '.join(ValidQueries().years) + '.\n')
-            if year not in ValidQueries().years:
+                         ', '.join(ValidQueries(scenario).years) + '.\n')
+            if year not in ValidQueries(scenario).years:
                 print('Invalid year entered.')
             else:
                 break
@@ -678,7 +690,7 @@ def main():
         cambium_df = cambium_data_import(cambium_file_path, year, scenario)
         # Join mapping file to cambium data
         df = pd.merge(cambium_df, ba_emm_map, left_on='ba',
-                      right_on='cambium_ba', how='left')
+                      right_on='cambium_24_ba', how='left')
         # Notify user that national supporting factors are updating
         print('Updating national annual emissions intensities data...')
         # Update national annual CO2 emissions intensities for annual data for
@@ -690,7 +702,7 @@ def main():
         ss_updated['updated_to_cambium_year'] = year
         # Update emissions source notes
         ss_updated["electricity"]["CO2 intensity"]["source"] = \
-            "AEO 2023 data through 2022 w/ Cambium projections"
+            "AEO 2025 data through 2024 w/ Cambium projections"
         # Notify user that national supporting factors are writing to file
         print('Writing national annual emissions intensities data to file...')
         # Write national annual CO2 emissions intensities for annual data for
@@ -711,7 +723,7 @@ def main():
         ss_emm_updated['updated_to_cambium_year'] = year
         # Update emissions source notes
         ss_emm_updated["CO2 intensity of electricity"]["source"] = \
-            "AEO 2023 data through 2022 w/ Cambium projections"
+            "AEO 2025 data through 2024 w/ Cambium projections"
         # Notify user that EMM region supporting factors are writing to file
         print('Writing EMM region annual emissions intensities data to file..')
         # Write EMM region annual CO2 emissions intensities for annual data for
@@ -732,7 +744,7 @@ def main():
         ss_state_updated['updated_to_cambium_year'] = year
         # Update emissions source notes
         ss_state_updated["CO2 intensity of electricity"]["source"] = \
-            "AEO 2023 data through 2022 w/ Cambium projections"
+            "AEO 2025 data through 2024 w/ Cambium projections"
         # Notify user that State supporting factors are writing to file
         print('Writing state annual emissions intensities data to file..')
         # Write State annual CO2 emissions intensities for annual data for
@@ -837,8 +849,8 @@ def main():
         while True:
             year = input('Please specify the desired Cambium data year. '
                          'Valid entries are: ' +
-                         ', '.join(ValidQueries().years) + '.\n')
-            if year not in ValidQueries().years:
+                         ', '.join(ValidQueries(scenario).years) + '.\n')
+            if year not in ValidQueries(scenario).years:
                 print('Invalid year entered.')
             else:
                 break
@@ -857,7 +869,7 @@ def main():
             cambium_df = cambium_data_import(cambium_file_path, year, scenario)
             # Join mapping file to cambium data
             df = pd.merge(cambium_df, ba_emm_map, left_on='ba',
-                          right_on='cambium_ba', how='left')
+                          right_on='cambium_24_ba', how='left')
             if geography == "National":
                 # Update national annual CO2 emissions intensities for annual
                 # data for a given Cambium scenario
@@ -940,7 +952,7 @@ def main():
                                                  scenario)
                 # Join mapping file to cambium data
                 df = pd.merge(cambium_df, ba_emm_map, left_on='ba',
-                              right_on='cambium_ba', how='left')
+                              right_on='cambium_24_ba', how='left')
                 # Notify user that hourly supporting factors are updating
                 print('Updating EMM region hourly emissions and price \
                       factors...')
@@ -978,7 +990,7 @@ def main():
                                                  scenario)
                 # Join mapping file to cambium data
                 df = pd.merge(cambium_df, ba_emm_map, left_on='ba',
-                              right_on='cambium_ba', how='left')
+                              right_on='cambium_24_ba', how='left')
                 # Notify user that hourly supporting factors are updating
                 print('Updating hourly emissions and price scaling factors...')
                 # Update hourly CO2 emissions and price scaling factors
