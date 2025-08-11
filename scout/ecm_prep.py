@@ -5,7 +5,7 @@ import re
 import itertools
 import json
 from collections import OrderedDict
-from os import getcwd
+from os import getcwd, cpu_count
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -18,6 +18,7 @@ import math
 import pandas as pd
 import time
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from scout.ecm_prep_args import ecm_args
 from scout.ecm_prep_helpers import ECMPrepHelper
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
@@ -11242,34 +11243,30 @@ class ECMPrep():
         # preparation due to Exceptions
         remove_inds = []
 
-        # Check that all Measure objects have valid market inputs before proceeding
-        for m_ind, m in enumerate(meas_update_objs):
-            # Try/except allows continuation past malformed ECMs
-            try:
-                # Check that the measure's applicable baseline market input definitions
-                # are valid before attempting to retrieve data on this baseline market
-                m.check_meas_inputs()
-            except Exception:
-                ECMPrepHelper.prep_error(m.name, handyvars, handyfiles)
-                # Add measure index to removal list
-                remove_inds.append(m_ind)
-
-        # Finalize 'markets' attribute for all Measure objects
-        for m_ind, m in enumerate(meas_update_objs):
-            # Try/except allows continuation when individual ECMs error
+        def fill_mkts_wrapper(m, idx):
             try:
                 m.fill_mkts(
                     msegs, msegs_cpl, convert_data, tsv_data, opts,
                     ctrb_ms_pkg_prep, tsv_data_nonfs)
+                return idx, None
             except Exception:
                 ECMPrepHelper.prep_error(m.name, handyvars, handyfiles)
-                # Add measure index to removal list
-                remove_inds.append(m_ind)
+                return idx, True
+
+        num_cores = cpu_count() or 1
+        max_workers = max(1, num_cores - 1)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(fill_mkts_wrapper, m, i): i for i, m in enumerate(meas_update_objs)
+                }
+            for future in as_completed(futures):
+                idx, had_error = future.result()
+                if had_error:
+                    remove_inds.append(idx)
 
         # Remove measure objects with exceptions from further preparation
         meas_update_objs = [
-            m for m_ind, m in enumerate(meas_update_objs) if
-            m_ind not in remove_inds]
+            m for i, m in enumerate(meas_update_objs) if i not in remove_inds]
 
         return meas_update_objs
 
