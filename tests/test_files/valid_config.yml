@@ -32,4 +32,5 @@ ecm_prep:
 run:
   results_directory: ../../results/test_dir
   mkt_fracs: true
-  trim_results: true
+  trim_vars: false
+  change_yr_interval: null
