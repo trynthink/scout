@@ -1,0 +1,93 @@
+﻿Category,Scenario(s),Name,Measures in Package,Additional Energy Savings,Energy Savings Source Notes,Energy Savings Source Details,Additional Cost Reductions,Cost Reductions Source Notes,Cost Reductions Source Details,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.,"(R) Ref. Case NG Furnace & AC
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES HP Pt. FS (Oth. Fs. Frn.) & Env.,"(R) ESTAR HP Pt. FS (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES HP Pt. FS (NG Frn.) & Env.,"(R) ESTAR HP Pt. FS (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES HP FS (Oth. Fs. Frn.) & Env.,"(R) ESTAR HP FS (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES HP FS (NG Frn.) & Env.,"(R) ESTAR HP FS (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES GSHP (Oth. Fs. Frn.) & Env.,"(R) ESTAR GSHP (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES GSHP (NG Frn.) & Env.,"(R) ESTAR GSHP (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) ES HP TS (Resist.) & Env.,"(R) ESTAR HP TS (Resist.)
+(R) IECC 2021 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, Oth. Fs. Ht.) & Env.","(C) ESTAR HP FS (RTU, Other Fossil Heat)
+(C) 90.1-2022 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Commercial,"Mid, High, Breakthrough","(C) ES HP FS (RTU, NG Ht.) & Env.","(C) ESTAR HP FS (RTU, NG Heat)
+(C) 90.1-2022 Walls & Air Sealing",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.+,"(R) Ref. Case NG Furnace & AC
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP Pt. FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP Pt. FS (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP Pt. FS (NG Frn.) & Env.+,"(R) Best HP Pt. FS (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+,"(R) Best HP FS (Other Fossil Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP FS (NG Frn.) & Env.+,"(R) Best HP FS (NG Furnace)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP FS (NG Boiler) & Env.+,"(R) Best HP FS (NG Boiler)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Bst. HP TS (Resist.) & Env.+,"(R) Best HP TS (Resist.)
+(R) IECC 2021 Walls & Air Sealing
+(R) IECC 2021 Roofs
+(R) ENERGY STAR Windows",,,,,,,,,,,,,,,,,,,,,,
+Commercial,"Mid, High, Breakthrough","(C) Bst. HP FS (RTU, Oth. Fs. Ht.) & Env.+","(C) Best HP FS (RTU, Other Fossil Heat)
+(C) 90.1-2022 Walls & Air Sealing
+(C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
+Commercial,"Mid, High, Breakthrough","(C) Bst. HP FS (RTU, NG Ht.) & Env.+","(C) Best HP FS (RTU, NG Heat)
+(C) 90.1-2022 Walls & Air Sealing
+(C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
+Commercial,"Mid, High, Breakthrough",(C) Bst. HP FS (NG Boiler) & Env.+,"(C) Best HP FS (NG Boiler)
+(C) 90.1-2022 Walls & Air Sealing
+(C) 90.1-2022 Windows",,,,,,,,,,,,,,,,,,,,,,
+Residential,"Mid, High, Breakthrough",(R) Ref. NG Furnace & AC & Env.+,"(R) Ref. Case NG Furnace & AC
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
+Residential,Breakthrough,(R) Brk. HP FS (Oth. Fs. Frn.) & Env.++,"(R) Brk. HP FS (Other Fossil Furnace)
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
+Residential,Breakthrough,(R) Brk. HP FS (NG Frn.) & Env.++,"(R) Brk. HP FS (NG Furnace)
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
+Residential,Breakthrough,(R) Brk. HP FS (NG Boiler) & Env.++,"(R) Brk. HP FS (NG Boiler)
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
+Residential,Breakthrough,(R) Brk. HP TS (Resist.) & Env.++,"(R) Brk. HP TS (Resist.)
+(R) BTO RDO Walls
+(R) BTO RDO Air Sealing
+(R) BTO RDO Windows
+(R) BTO RDO Foundations",,,,,,,,,,,,,,,,,,,,,,
+Commercial,Breakthrough,(C) Brk. HP FS (Oth. Fs. Frn. AC) & Env.++,"(C) Brk. HP FS (Other Fossil Furnace & AC)
+(C) BTO RDO Walls 
+(C) BTO RDO Air Sealing (Exist)
+(C) BTO RDO Roofs
+(C) BTO RDO Windows",,,,,,,,,,,,,,,,,,,,,,
+Commercial,Breakthrough,(C) Brk. HP FS (NG Frn. AC) & Env.++,"(C) Brk. HP FS (NG Furnace & AC)
+(C) BTO RDO Walls 
+(C) BTO RDO Air Sealing (Exist)
+(C) BTO RDO Roofs
+(C) BTO RDO Windows",,,,,,,,,,,,,,,,,,,,,,

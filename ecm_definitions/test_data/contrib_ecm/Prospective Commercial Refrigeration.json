@@ -1,0 +1,69 @@
+{
+  "name": "Prospective Commercial Refrigeration",
+  "_description": "Advanced commercial refrigerator consistent with BTO R&D target performance level as of 2016 MYPP",
+  "measure_type": "full service",
+  "climate_zone": "all",
+  "bldg_type": "all commercial",
+  "structure_type": "all",
+  "end_use": "refrigeration",
+  "fuel_type": "electricity",
+  "technology": "all",
+  "market_entry_year": 2030,
+  "market_entry_year_source": {
+    "notes": "Targeted year of breakthrough technology market entry",
+    "source_data": null
+  },
+  "energy_efficiency": 0.28,
+  "energy_efficiency_units": [
+    "relative savings (dynamic)",
+    2030
+  ],
+  "energy_efficiency_source": {
+    "notes": "Based on 2016 MYPP target performance level (advanced refrigerators), originally developed for 2020",
+    "source_data": {
+      "URL": "https://www.energy.gov/sites/prod/files/2016/02/f29/BTO_MYPP_2016.pdf",
+      "title": "Building Technologies Office Multi-Year Program Plan",
+      "author": null,
+      "organization": "DOE Building Technologies Office",
+      "year": 2016,
+      "pages": 77
+    }
+  },
+  "installed_cost": 1023,
+  "cost_units": "2022$/kBtu/h refrigeration",
+  "installed_cost_source": {
+    "notes": "Cost that yields a 5 year overall payback period for given performance level and market entry year",
+    "source_data": null
+  },
+  "product_lifetime": 10,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetimes for typical refrigeration units in 2030",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix C",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": [92, 105],
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/appendix-c.pdf"
+      }
+  },
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "fuel_switch_to": null,
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "_notes": null,
+  "_added_by": {
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon Mar 14 11:05:49 EDT 2022"
+  },
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Mon May 22 12:01:00 EDT 2023"
+  }]
+}

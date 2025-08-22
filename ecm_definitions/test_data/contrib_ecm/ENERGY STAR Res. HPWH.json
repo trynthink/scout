@@ -1,0 +1,86 @@
+{ 
+  "name": "ENERGY STAR Res. HPWH",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "all",
+  "end_use": "water heating",
+  "fuel_type": "electricity",
+  "technology": "electric WH",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Year specification went into effect; updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+       "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
+       "year": 2023,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.30,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Assume integrated 240V HPWH",
+    "source_data": {
+       "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+       "author": "ENERGY STAR",
+       "organization": "U.S. Environmental Protection Agency",
+       "year": 2023,
+       "table": 1,
+       "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+  "installed_cost": 1550,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Median of ENERGY STAR v4.0 total installed cost range",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }},
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for ENERGY STAR v4.0 unit in 2022, rounded down from 15.1 years",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    }},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": null,
+  "tech_switch_to": "HPWH",
+  "_description": "ENERGY STAR electric storage heat pump water heater in 2022",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Dec. 19, 2017"},
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 09:53:31 EDT 2018"
+  },
+  {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Wed Jan 15 14:11:31 MST 2020"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Fri May 19 2023 23:20 UTC"
+  }]
+}

@@ -1,0 +1,94 @@
+{ 
+  "name": "ENERGY STAR Res. HPWH (FS) 240V",
+  "climate_zone": "all",
+  "bldg_type": "all residential",
+  "structure_type": "existing",
+  "end_use": "water heating",
+  "fuel_type": ["natural gas", "distillate", "other fuel"],
+  "technology": "all",
+  "market_entry_year": 2023,
+  "market_entry_year_source": {
+    "notes": "Year specification went into effect; updated to current year to avoid retroactive savings effects.",
+    "source_data": {
+      "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+      "author": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2023,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+  "market_exit_year": null,
+  "market_exit_year_source": null,
+  "energy_efficiency": 3.30,
+  "energy_efficiency_units": "UEF",
+  "energy_efficiency_source": {
+    "notes": "Integrated 240V HPWH",
+    "source_data": {
+      "title": "ENERGY STAR Program Requirements - Product Specification for Residential Water Heaters",
+      "author": "ENERGY STAR",
+      "organization": "U.S. Environmental Protection Agency",
+      "year": 2023,
+      "table": 1,
+      "URL": "https://www.energystar.gov/sites/default/files/asset/document/ENERGY%20STAR%20Residential%20Water%20Heaters%20Version%205.0%20Specification%20and%20Partner%20Commitments.pdf"}},
+  "installed_cost": 2250,
+  "cost_units": "2022$/unit",
+  "installed_cost_source": {
+    "notes": "Median of ENERGY STAR v4.0 total installed cost range; added costs are $700, the upper bound of the upgrade/new branch circuit cost in NV5 report",
+    "source_data": [{
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"
+    },
+    {
+      "title": "Service Upgrades for Electrification Retrofits Study Final Report",
+      "author": "Shoshana Pena, Collin Smith, Greg Butsko, Rick Gardner, Sean Armstrong, Emily Higbee, Dylan Anderson, Rebecca Hueckel",
+      "organization": "NV5 and Redwood Energy",
+      "year": 2022,
+      "pages": 33,
+      "table": 4,
+      "URL": "https://pda.energydataweb.com/api/view/2635/Service%20Upgrades%20for%20Electrification%20Retrofits%20Study%20FINAL.pdf"}]
+  },
+  "product_lifetime": 15,
+  "product_lifetime_units": "years",
+  "product_lifetime_source": {
+    "notes": "Average lifetime for ENERGY STAR v4.0 unit in 2022, rounded down from 15.1 years",
+    "source_data": {
+      "title": "Updated Buildings Sector Appliance and Equipment Costs and Efficiencies - Appendix A",
+      "author": null,
+      "organization": "U.S. Energy Information Administration",
+      "year": 2023,
+      "pages": 65,
+      "URL": "https://www.eia.gov/analysis/studies/buildings/equipcosts/pdf/full.pdf"}},
+  "measure_type": "full service",
+  "market_scaling_fractions": null,
+  "market_scaling_fractions_source": null,
+  "fuel_switch_to": "electricity",
+  "tech_switch_to": "HPWH",
+  "_description": "ENERGY STAR 240V electric storage heat pump water heater in 2022, existing homes",
+  "_notes": " ", 
+  "_added_by": {
+    "name": "Valerie Nubbe",
+    "organization": "BTO",
+    "email": "valerie.nubbe@ee.doe.gov",
+    "timestamp": "Dec. 19, 2017"},
+  "_updated_by": [{
+    "name": "Jared Langevin",
+    "organization": "Lawrence Berkeley National Laboratory",
+    "email": "jared.langevin@lbl.gov",
+    "timestamp": "Tue Sep 25 09:53:31 EDT 2018"
+  },
+  {
+    "name": "Ardelia Clarke",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "ardelia.clarke@nrel.gov",
+    "timestamp": "Thu Jan 16 16:37:31 MST 2020"
+  },
+  {
+    "name": "Chioke Harris",
+    "organization": "National Renewable Energy Laboratory",
+    "email": "chioke.harris@nrel.gov",
+    "timestamp": "Mon Jun 5 2023 22:50:00 UTC"
+  }]
+}
