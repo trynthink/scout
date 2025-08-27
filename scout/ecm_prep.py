@@ -5082,8 +5082,8 @@ class Measure(object):
                     # competed), region, building type, fuel type, end use, and vintage
                     else:
                         # Read in and copy data for user-designated scenario name
-                        hp_rate_in = copy.deepcopy(
-                            self.handyvars.hp_rates["data (by scenario)"][opts.exog_hp_rates[0]])
+                        hp_rate_in = self.handyvars.hp_rates[
+                            "data (by scenario)"][opts.exog_hp_rates[0]]
                         # Check to ensure that the current regionality being prepared in the
                         # data is directly supported in the HP rate data
                         try:

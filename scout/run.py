@@ -4861,7 +4861,7 @@ class Engine(object):
             for c_typ in ["total", "competed"]:
                 # Add to the total conversion-eligible equipment numbers
                 self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel][eu][vint][
-                    yr]["all"] += adj["stock"][c_typ]["measure"][yr]
+                    yr]["all"] += adj["stock"][c_typ]["all"][yr]
                 # If applicable, add to the total converted equipment numbers
                 if conversion:
                     self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel][eu][vint][
@@ -7113,12 +7113,9 @@ class Engine(object):
                                     # cycling through a BPS, which only affects existing (
                                     # previously competed/total) stock
                                     if c_typ != "competed" or vint_in == "new":
-                                        # Add to the total conversion-eligible equipment numbers
-                                        self.handyvars.conversion_fracs[c_typ][reg_in][bldg_type][
-                                            ft_in][eu_in][vint_in][yr]["all"] += convert_fossil[yr]
-                                        # IAdd to the total converted equip. numbers
+                                        # Add to the total converted equip. numbers
                                         self.handyvars.conversion_fracs[c_typ][reg_in][
-                                            bldg_type][ft_in][eu][vint_in][yr]["converted"] += \
+                                            bldg_type][ft_in][eu_in][vint_in][yr]["converted"] += \
                                             convert_fossil[yr]
 
                         # If calculations have proceeded to this point, append to measure
