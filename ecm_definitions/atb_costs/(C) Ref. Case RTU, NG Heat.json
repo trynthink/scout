@@ -74,11 +74,15 @@
       "new": 317.0,
       "existing": 317.0
     },
+    "gas_eng-driven_RTHP-cool": {
+      "new": 317.0,
+      "existing": 317.0
+    },
     "res_type_gasHP-heat": {
       "new": 317.0,
       "existing": 317.0
     },
-    "gas_eng-driven_RTHP-cool": {
+    "res_type_gasHP-cool": {
       "new": 317.0,
       "existing": 317.0
     },
@@ -152,6 +156,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-08-07 11:29:51"
+    "timestamp": "2025-08-26 11:03:40"
   }
 }
