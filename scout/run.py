@@ -952,6 +952,25 @@ class Engine(object):
                 # Initialize measure financial metrics
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
 
+    def trim_code_bps_yrs(self, orig_dict, focus_yrs):
+        """Trims code/BPS measure results to reduced year set if specified.
+
+        Args:
+            orig_dict (dict): The final dict/dict structure to be produced.
+            focus_yrs (list): Optional years of focus within overall yr. range
+
+        Returns:
+            Results reported by the reduced year set.
+        """
+        for (k, i) in sorted(orig_dict.items()):
+            # Years will be terminal nodes (e.g., have floats in the values)
+            if isinstance(i, dict):
+                self.trim_code_bps_yrs(i, focus_yrs)
+            # Once terminal node is reached, delete it if not in reduced year set
+            elif k in self.handyvars.aeo_years and k not in focus_yrs:
+                del orig_dict[k]
+        return orig_dict
+
     def finalize_conv_fracs(self, adopt_scheme, conv_fracs):
         """Divide converted stock by total stock that could be converted to finalize percentages.
 
@@ -6444,7 +6463,8 @@ class Engine(object):
                 del orig_dict[k]
         return orig_dict
 
-    def process_codes_bps(self, adopt_scheme, msegs, handyvars, verboseprint, trim_yrs):
+    def process_codes_bps(self, adopt_scheme, msegs, handyvars, verboseprint, trim_yrs,
+                          code_comply_res, code_comply_com, bps_comply_res, bps_comply_com):
         """Read in and apply the effects of codes/BPS to measure stock/energy/carbon/energy costs.
 
         Args:
@@ -6453,13 +6473,13 @@ class Engine(object):
             handyvars (object): Global variables useful across class methods.
             verboseprint (function): Print verbose messages with user option.
             trim_yrs (list): Optional list of years to focus results on.
+            code_comply_res (float): Compliance rate to assume for residential codes.
+            code_comply_com (float): Compliance rate to assume for commercial codes.
+            bps_comply_res (float): Compliance rate to assume for residential BPS.
+            bps_comply_com (float): Compliance rate to assume for commercial BPS.
         """
-        # If user has specified a reduced results file size, check for whether
-        # years of focus should be used
-        if trim_yrs is not False:
-            focus_yrs = [str(x) for x in trim_yrs]
-        else:
-            focus_yrs = self.handyvars.aeo_years
+        # Set time horizon for assessing code/BPS impacts
+        focus_yrs = self.handyvars.aeo_years
         # Compile all codes/BPS policies into a master list; handle possible assessment of codes
         # without BPS, and vice versa
         if self.handyvars.codes is not None:
@@ -6507,8 +6527,12 @@ class Engine(object):
                 # current policy's applicable building type
                 if bldg in ["single family home", "multi family home", "mobile home"]:
                     m_cdbps = codes_res_measure
+                    # Further apply any assumed residential compliance fraction
+                    apply_frac *= code_comply_res
                 else:
                     m_cdbps = codes_com_measure
+                    # Further apply any assumed commercial compliance fraction
+                    apply_frac *= code_comply_com
                 # Determine the year range for which the current code onsite reduction applies
                 apply_yrs = [yr for yr in self.handyvars.aeo_years if int(yr) >= start_yr]
                 # For codes, set applicable building vintage to new (assume codes only apply to new
@@ -6548,8 +6572,12 @@ class Engine(object):
                 # current policy's applicable building type
                 if bldg in ["single family home", "multi family home", "mobile home"]:
                     m_cdbps = bps_res_measure
+                    # Further apply any assumed residential compliance fraction
+                    apply_frac *= bps_comply_res
                 else:
                     m_cdbps = bps_com_measure
+                    # Further apply any assumed commercial compliance fraction
+                    apply_frac *= bps_comply_com
                 # Set year to use in benchmarking EUI improvements in the BPS target year
                 bench_yr = code_std[4]
                 # Ensure that benchmark year exists; if not, assume it's 5 years before the
@@ -7558,7 +7586,7 @@ class Engine(object):
                     dict1[k] = 0
         return dict1
 
-    def finalize_codes_bps_outputs(self, cbps, adopt_scheme, handyvars, trim_out):
+    def finalize_codes_bps_outputs(self, cbps, adopt_scheme, handyvars, trim_out, trim_yrs):
         """Format codes/BPS measure data in a dict consistent w/ individual ECM result format.
 
         Args:
@@ -7566,6 +7594,7 @@ class Engine(object):
             adopt_scheme (string): Assumed consumer adoption scenario.
             handyvars (object): Global variables useful across class methods.
             trim_out (boolean): Flag for need to report reduced set of outputs.
+            trim_yrs (list): Optional list of years to focus results on.
         Returns:
             Code/BPS results dict that reflects final formatting.
         """
@@ -7672,6 +7701,19 @@ class Engine(object):
                     adopt_scheme][base_stk_key], codes_bps_dict_out[
                         "Markets and Savings (by Category)"][adopt_scheme][
                         meas_stk_key] = [cbps_brk["stock"][x] for x in ["baseline", "efficient"]]
+            # Report code/BPS measure results for reduced set of years if desired by user
+            if trim_yrs is not False:
+                # Determine the reduced year set
+                focus_yrs = [str(x) for x in trim_yrs]
+                # Reduce the reported results to the trimmed year set
+                for var in codes_bps_dict_out["Markets and Savings (by Category)"][
+                        adopt_scheme].keys():
+                    codes_bps_dict_out["Markets and Savings (Overall)"], \
+                        codes_bps_dict_out["Markets and Savings (by Category)"] = [
+                                self.trim_code_bps_yrs(codes_bps_dict_out[x], focus_yrs) for x in [
+                                    "Markets and Savings (Overall)",
+                                    "Markets and Savings (by Category)"]]
+
         return codes_bps_dict_out
 
 
@@ -7866,9 +7908,11 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     else:  # Otherwise, set regional breakdown to AIA climate zones
         regions = "AIA"
 
-    # Set flag for presence of appliance regulations, codes, and/or BPS policies
-    state_appl_regs, codes, bps = [
-        meas_summary_restrict[0]["usr_opts"][x] for x in ["state_appl_regs", "codes", "bps"]]
+    # Set flag for presence of appliance regulations, codes, and/or BPS policies and compliance
+    state_appl_regs, codes, bps, code_comply_res, code_comply_com, bps_comply_res, \
+        bps_comply_com = [meas_summary_restrict[0]["usr_opts"][x] for x in [
+            "state_appl_regs", "codes", "bps", "bps_comply_res", "bps_comply_com",
+            "code_comply_res", "code_comply_com"]]
 
     # Set flag for use of exogenous electric conversion rates when preparing measures; when
     # present, the later option to report out conversion rates from the run module is suppressed
@@ -8099,7 +8143,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             print("Post-processing impacts of state-level codes and/or performance standards...",
                   end="", flush=True)
             cbpslist = a_run.process_codes_bps(
-                adopt_scheme, msegs, handyvars, verboseprint, trim_yrs)
+                adopt_scheme, msegs, handyvars, verboseprint, trim_yrs,
+                code_comply_res, code_comply_com, bps_comply_res, bps_comply_com)
             print("Calculations complete")
         elif any([x is not None and len(x) != 0 for x in [codes, bps]]):
             warnings.warn(
@@ -8120,7 +8165,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # Data are formatted as a dict that matches format of other individual measures
                 # in the analysis to facilitate plotting and other post-processing work
                 final_codes_bps_dict = a_run.finalize_codes_bps_outputs(
-                    x, adopt_scheme, handyvars, trim_out)
+                    x, adopt_scheme, handyvars, trim_out, trim_yrs)
                 a_run.output_ecms[x.name] = final_codes_bps_dict
         else:
             final_codes_bps_dict = None

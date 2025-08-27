@@ -249,11 +249,27 @@ properties:
             enum: [reference, optimistic, aggressive, null]
             default: null
             description: State or local Building Performance Standards (BPS) including energy use index targets and/or onsite emissions reduction requirements, which apply to existing buildings. Null removes this driver entirely.
+          bps_comply_res:
+            type: ["number", "null"]
+            default: 1
+            description: Residential compliance fraction to assume for BPS scenario implementation.
+          bps_comply_com:
+            type: ["number", "null"]
+            default: 1
+            description: Commercial compliance fraction to assume for BPS scenario implementation.
           codes:
             type: ["string", "null"]
             enum: [reference, optimistic, aggressive, null]
             default: null
             description: State or local new building codes w/ additional energy index improvements over model code and/or onsite emissions reduction requirements/incentives.Null removes this driver entirely.
+          code_comply_res:
+            type: ["number", "null"]
+            default: 1
+            description: Residential compliance fraction to assume for code scenario implementation.
+          code_comply_com:
+            type: ["number", "null"]
+            default: 1
+            description: Commercial compliance fraction to assume for code scenario implementation.
 
       incentives:
         type: object
