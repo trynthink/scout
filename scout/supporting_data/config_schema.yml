@@ -233,10 +233,14 @@ properties:
         type: boolean
         default: false
         description: If true, flag market penetration outputs.
-      trim_results:
+      change_yr_interval:
+        type: ["integer", "null"]
+        default: null
+        description: Change reporting to every N years, where N is the integer specified in this argument.
+      trim_vars:
         type: boolean
         default: false
-        description: If true, reduce results file size.
+        description: If true, a reduced set of only essential variables is reported.
       report_stk:
         type: boolean
         default: false
