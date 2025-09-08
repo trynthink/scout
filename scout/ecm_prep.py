@@ -6,6 +6,8 @@ import itertools
 import json
 from collections import OrderedDict
 from os import getcwd
+import os
+from concurrent.futures import ProcessPoolExecutor
 import copy
 import warnings
 from urllib.parse import urlparse
@@ -25,6 +27,17 @@ from scout.utils import JsonIO, PrintFormat as fmt
 from scout.config import FilePaths as fp
 import logging
 logger = logging.getLogger(__name__)
+
+def fill_mkts_wrapper(fill_mkts_args):
+    m_ind, m, msegs, msegs_cpl, convert_data, tsv_data, opts, ctrb_ms_pkg_prep, tsv_data_nonfs, handyvars, handyfiles = fill_mkts_args
+    try:
+        m.fill_mkts(
+            msegs, msegs_cpl, convert_data, tsv_data, opts,
+            ctrb_ms_pkg_prep, tsv_data_nonfs)
+        return None, m
+    except Exception:
+        ECMPrepHelper.prep_error(m.name, handyvars, handyfiles)
+        return m_ind, None
 
 
 class Measure(object):
@@ -11254,17 +11267,19 @@ class ECMPrep():
                 # Add measure index to removal list
                 remove_inds.append(m_ind)
 
-        # Finalize 'markets' attribute for all Measure objects
-        for m_ind, m in enumerate(meas_update_objs):
-            # Try/except allows continuation when individual ECMs error
-            try:
-                m.fill_mkts(
-                    msegs, msegs_cpl, convert_data, tsv_data, opts,
-                    ctrb_ms_pkg_prep, tsv_data_nonfs)
-            except Exception:
-                ECMPrepHelper.prep_error(m.name, handyvars, handyfiles)
-                # Add measure index to removal list
-                remove_inds.append(m_ind)
+        # Finalize 'markets' attribute for all Measure objects            
+        n_workers = max(1, os.cpu_count() - 1)
+        args = (msegs, msegs_cpl, convert_data, tsv_data, opts, ctrb_ms_pkg_prep, tsv_data_nonfs, handyvars, handyfiles)
+        job_args = [(m_ind, m, msegs, msegs_cpl, convert_data, tsv_data, opts,
+                        ctrb_ms_pkg_prep, tsv_data_nonfs, handyvars, handyfiles)
+                    for m_ind, m in enumerate(meas_update_objs)]
+        with ProcessPoolExecutor(max_workers=n_workers) as executor:
+            results = list(executor.map(fill_mkts_wrapper, job_args))
+            drop_idxs, filled_meas = zip(*results)
+        for idx in drop_idxs:
+            if idx is not None:
+                remove_inds.append(idx)
+        meas_update_objs = filled_meas
 
         # Remove measure objects with exceptions from further preparation
         meas_update_objs = [
