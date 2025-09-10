@@ -3,7 +3,7 @@
   "_description": "Typical residential electric resistance storage water heater",
   "measure_type": "full service",
   "market_entry_year": 2025,
-  "market_exit_year": 2029,
+  "market_exit_year": null,
   "min_eff_elec_flag": null,
   "ref_case_flag": "yes",
   "climate_zone": "all",
@@ -53,6 +53,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }

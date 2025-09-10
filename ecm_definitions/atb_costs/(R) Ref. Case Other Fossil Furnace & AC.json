@@ -27,7 +27,9 @@
     "furnace (LPG)",
     "central AC",
     "room AC",
-    "all secondary heating"
+    "secondary heater (coal)",
+    "secondary heater (kerosene)",
+    "secondary heater (LPG)"
   ],
   "htcl_tech_link": "other fossil furnace+cac&rac",
   "tech_switch_to": null,
@@ -190,6 +192,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }

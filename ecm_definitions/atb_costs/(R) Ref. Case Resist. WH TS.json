@@ -1,11 +1,11 @@
 {
   "name": "(R) Ref. Case Resist. WH TS",
-  "_description": "Typical residential electric resistance storage water heater",
+  "_description": "Typical residential electric resistance storage water heater, tech. switch to same (accounting)",
   "measure_type": "full service",
   "market_entry_year": 2025,
   "market_exit_year": null,
-  "min_eff_elec_flag": "yes",
-  "ref_case_flag": "yes",
+  "min_eff_elec_flag": null,
+  "ref_case_flag": null,
   "climate_zone": "all",
   "bldg_type": "all residential",
   "structure_type": "all",
@@ -53,6 +53,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }

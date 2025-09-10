@@ -7,18 +7,7 @@
   "min_eff_elec_flag": null,
   "ref_case_flag": null,
   "climate_zone": "all",
-  "bldg_type": [
-    "assembly",
-    "education",
-    "food sales",
-    "food service",
-    "health care",
-    "lodging",
-    "large office",
-    "small office",
-    "mercantile/service",
-    "warehouse"
-  ],
+  "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": [
     "heating",
@@ -31,6 +20,8 @@
   "technology": [
     "elec_boiler",
     "electric_res-heat",
+    "elec_res-heater",
+    "pkg_terminal_AC-cool",
     "rooftop_AC",
     "scroll_chiller",
     "reciprocating_chiller",
@@ -98,7 +89,9 @@
     "centrifugal_chiller": 0.24,
     "screw_chiller": 0.24,
     "CAV_Vent": 0.25,
-    "VAV_Vent": 0.3
+    "VAV_Vent": 0.3,
+    "elec_res-heater": 1.0,
+    "pkg_terminal_AC-cool": 1.0
   },
   "market_scaling_fractions_source": {
     "notes": "Includes all resistance-based heating in commercial buildings. Cooling equipment multiples determined by square feet in which given cooling system (e.g., RTAC, chiller) is pared with given heating system for the measure. Ventilation multiples determined by square feet in which given ventilation system (VAV or CAV) is paired with given heating system for the measure.",
@@ -114,6 +107,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }

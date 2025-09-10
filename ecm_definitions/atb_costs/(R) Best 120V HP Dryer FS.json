@@ -15,7 +15,7 @@
   "backup_fuel_fraction": null,
   "technology": "all",
   "htcl_tech_link": null,
-  "tech_switch_to": null,
+  "tech_switch_to": "HP dryer",
   "energy_efficiency": 11.0,
   "energy_efficiency_units": "CEF",
   "energy_efficiency_source": {
@@ -68,6 +68,6 @@
     "name": "Handi Chandra Putra",
     "organization": "LBNL",
     "email": "hchandraputra@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }

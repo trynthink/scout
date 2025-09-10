@@ -7,18 +7,7 @@
   "min_eff_elec_flag": null,
   "ref_case_flag": null,
   "climate_zone": "all",
-  "bldg_type": [
-    "assembly",
-    "education",
-    "food sales",
-    "food service",
-    "health care",
-    "lodging",
-    "large office",
-    "small office",
-    "mercantile/service",
-    "warehouse"
-  ],
+  "bldg_type": "all commercial",
   "structure_type": "all",
   "end_use": "water heating",
   "fuel_type": [
@@ -79,6 +68,6 @@
     "name": "Aven Satre:Meloy",
     "organization": "LBNL",
     "email": "asatremeloy@lbl.gov",
-    "timestamp": "2025-08-26 11:03:40"
+    "timestamp": "2025-09-05 09:31:45"
   }
 }
