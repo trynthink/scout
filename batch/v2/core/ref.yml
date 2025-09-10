@@ -1,6 +1,6 @@
-description: Accelerated adoption of energy efficiency and fuel switching.
+description: AEO Reference case with additional consideration of state-level drivers.
 ecm_prep:
-  ecm_directory: ../../ecm_definitions/atb_costs
+  ecm_directory: ../../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",
@@ -175,7 +175,7 @@ ecm_prep:
   pkg_env_costs: include HVAC
   adopt_scn_restrict: Max adoption potential
   retrofits:
-    retrofit_type: constant
+    retrofit_type: null
     retrofit_multiplier: null
     retrofit_mult_year: null
   elec_upgrade_costs: shares
@@ -183,17 +183,20 @@ ecm_prep:
     no_lnkd_stk_costs: false
     no_lnkd_op_costs: false
   sub_fed_policy:
-    low_volume_rate: aggressive
-    state_appl_regs: aggressive
-    bps: aggressive
-    codes: aggressive
+    low_volume_rate: reference
+    state_appl_regs: reference
+    bps: reference
+    codes: reference
+    bps_comply_res: 0.7
+    bps_comply_com: 0.8
+    code_comply_res: 0.7
+    code_comply_com: 0.8
   incentives:
-    incentive_levels: aggressive
+    incentive_levels: reference
     incentive_restrictions: null
-  price_sensitivity: lowelec_highfossil
+  price_sensitivity: null
   split_fuel: true 
-  detail_brkout: [regions, codes/bps]
-  comstock_gap: true
+  detail_brkout: [regions, fuel types]
 
 run:
   high_res_comp: true

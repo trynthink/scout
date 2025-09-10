@@ -1,6 +1,6 @@
 description: AEO Reference case.
 ecm_prep:
-  ecm_directory: ../../ecm_definitions/atb_costs
+  ecm_directory: ../../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",
@@ -25,7 +25,6 @@ ecm_prep:
     "(C) Ref. Case GSHP",
     "(R) Ref. Case Gas WH",
     "(R) Ref. Case Resist. WH",
-    "(R) Min. Efficiency HPWH TS",
     "(R) Ref. Case Gas Range",
     "(R) Ref. Case Electric Range",
     "(R) Ref. Case Gas Dryer",
@@ -54,7 +53,6 @@ ecm_prep:
   site_energy: true
   rp_persist: true
   no_scnd_lgt: true
-  pkg_env_costs: include HVAC
   adopt_scn_restrict: Max adoption potential
   retrofits:
     retrofit_type: null
@@ -74,8 +72,7 @@ ecm_prep:
     incentive_restrictions: null
   price_sensitivity: null
   split_fuel: true 
-  detail_brkout: [regions, codes/bps]
-  comstock_gap: true
+  detail_brkout: [regions, fuel types]
 
 run:
   high_res_comp: true

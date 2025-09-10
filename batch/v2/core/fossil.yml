@@ -1,6 +1,6 @@
 description: AEO Reference case with additional drivers to raise demand for fossil fuels and early retrofitting.
 ecm_prep:
-  ecm_directory: ../../ecm_definitions/atb_costs
+  ecm_directory: ../../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",
@@ -175,7 +175,7 @@ ecm_prep:
   pkg_env_costs: include HVAC
   adopt_scn_restrict: Max adoption potential
   retrofits:
-    retrofit_type: constant
+    retrofit_type: null
     retrofit_multiplier: null
     retrofit_mult_year: null
   elec_upgrade_costs: all
@@ -192,8 +192,7 @@ ecm_prep:
     incentive_restrictions: no federal electric
   price_sensitivity: highelec_lowfossil
   split_fuel: true 
-  detail_brkout: [regions, codes/bps]
-  comstock_gap: true
+  detail_brkout: [regions, fuel types]
 
 run:
   high_res_comp: true

@@ -1,6 +1,6 @@
 description: AEO Reference case plus a high degree of switching to minimum efficiency electric equipment.
 ecm_prep:
-  ecm_directory: ../../ecm_definitions/atb_costs
+  ecm_directory: ../../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",
@@ -35,19 +35,21 @@ ecm_prep:
     "(C) Min. Efficiency HP FS (NG Furnace)",
     "(C) Min. Efficiency HP FS (RTU, Other Fossil Heat)",
     "(C) Min. Efficiency HP FS (RTU, NG Heat)",
+    "(C) Ref. Case Elec. Boiler FS (NG Boiler)",
+    "(C) Ref. Case Elec. Boiler FS (Other Fossil Boiler)",
     "(C) Ref. Case, Resist. Heat TS",
     "(R) Ref. Case Gas WH",
     "(R) Ref. Case Resist. WH",
-    "(R) Ref. Case Resist. WH FS",
     "(R) Min. Efficiency HPWH FS",
-    "(R) Min. Efficiency HPWH TS",
     "(R) Ref. Case Resist. WH TS",
     "(R) Ref. Case Gas Range",
     "(R) Ref. Case Electric Range",
     "(R) Ref. Case Electric Range FS",
+    "(R) Ref. Case Electric Range TS",
     "(R) Ref. Case Gas Dryer",
     "(R) Ref. Case Electric Dryer",
     "(R) Ref. Case Electric Dryer FS",
+    "(R) Ref. Case Electric Dryer TS",
     "(R) Ref. Case Clothes Washer",
     "(R) Ref. Case Dishwasher",
     "(R) Ref. Case Refrigerator",
@@ -65,12 +67,18 @@ ecm_prep:
     "(C) Ref. Case Gas Range",
     "(C) Ref. Case Electric Range",
     "(C) Ref. Case Electric Range FS",
+    "(C) Ref. Case Electric Range TS",
     "(C) Ref. Case Lighting",
     "(C) Ref. Case Plug Loads",
     "(C) Ref. Case Refrigeration",
     "(C) Ref. Case Misc. Electric Appliances",
     "(C) Ref. Case Electric Other",
-    "(C) Ref. Case Fossil Other"]
+    "(C) Ref. Case Fossil Other",
+    "(R) Ref. Case Fossil Other FS",
+    "(C) Ref. Case Fossil Other FS",
+    "(C) Ref. Case Electric Other TS",
+    "(R) Ref. Case Electric Other TS"
+    ]
   alt_regions: State
   site_energy: true
   rp_persist: true
@@ -94,8 +102,7 @@ ecm_prep:
     incentive_restrictions: null
   price_sensitivity: null
   split_fuel: true 
-  detail_brkout: [regions, codes/bps]
-  comstock_gap: true
+  detail_brkout: [regions, fuel types]
   exog_hp_rate_scenario: bss-brk
 
 run:
