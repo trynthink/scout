@@ -470,6 +470,8 @@ class UsefulVars(object):
             the end use categories used in summarizing measure outputs.
         out_break_eus_w_fsplits (List): List of end use categories that
             would potentially apply across multiple fuels.
+        detailed_fuel_map (List): Detailed fuel split categories.
+        simple_fuel_map (List): Simple fuel split categories.
         out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
             non-electric fuels (for heating, cooling, WH, and cooking).
         out_break_in (OrderedDict): Breaks out key measure results by
@@ -1593,21 +1595,25 @@ class UsefulVars(object):
         self.out_break_eus_w_fsplits = [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
             "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
+        # Configure detailed and simple fuel mapping for use in out breaks and other subsequent
+        # operations
+        self.detailed_fuel_map = OrderedDict([
+            ('Electric', ["electricity"]),
+            ('Natural Gas', ["natural gas"]),
+            ('Propane', ["other fuel"]),
+            ('Distillate/Other', ['distillate', 'other fuel']),
+            ('Biomass', ["other fuel"])])
+        self.simple_fuel_map = OrderedDict([
+                ('Electric', ["electricity"]),
+                ('Non-Electric', [
+                    "natural gas", "distillate", "other fuel"])])
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
             if opts.detail_brkout in ['1', '4', '6', '7', '8', '11']:
                 # Map to more granular fuel type breakout
-                self.out_break_fuels = OrderedDict([
-                    ('Electric', ["electricity"]),
-                    ('Natural Gas', ["natural gas"]),
-                    ('Propane', ["other fuel"]),
-                    ('Distillate/Other', ['distillate', 'other fuel']),
-                    ('Biomass', ["other fuel"])])
+                self.out_break_fuels = self.detailed_fuel_map
             else:
-                self.out_break_fuels = OrderedDict([
-                    ('Electric', ["electricity"]),
-                    ('Non-Electric', [
-                        "natural gas", "distillate", "other fuel"])])
+                self.out_break_fuels = self.simple_fuel_map
         else:
             self.out_break_fuels = {}
         # Use the above output categories to establish a dictionary with blank
@@ -5097,13 +5103,27 @@ class Measure(object):
                             hp_rate = {out_typ: hp_rate_in[out_typ][mskeys[1]] for
                                        out_typ in hp_rate_in.keys()}
                             try:
+                                # Assume rates are reported by detailed fuel type first
+                                fuel_detail, fuel_simple = [
+                                    [x[0].lower() for x in y.items() if mskeys[3] in x[1]][0]
+                                    for y in [self.handyvars.detailed_fuel_map,
+                                              self.handyvars.simple_fuel_map]]
                                 # Key in data by output type, region, bldg. type, fuel, end use,
-                                # and vintage. Handle end uses that are flagged for HP rates but do
-                                # not have direct rates in the data (e.g., cooling, which is
-                                # typically linked to the heating end use conversion rates)
-                                hp_rate = {
-                                    out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][mskeys[3]][
-                                        hp_eu_key][mskeys[-1]] for out_typ in hp_rate_in.keys()}
+                                # and vintage. Handle reporting of conversion rates using both
+                                # detailed and simple/higher-level fuel type breakouts
+                                try:
+                                    hp_rate = {
+                                        out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][
+                                            fuel_detail][hp_eu_key][mskeys[-1]] for
+                                        out_typ in hp_rate_in.keys()}
+                                except KeyError:
+                                    hp_rate = {
+                                        out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][
+                                            fuel_simple][hp_eu_key][mskeys[-1]] for
+                                        out_typ in hp_rate_in.keys()}
+                            # Handle end uses that are flagged for HP rates but do
+                            # not have direct rates in the data (e.g., cooling, which is
+                            # typically linked to the heating end use conversion rates)
                             except KeyError:
                                 # When end use is linked to the rates of another, flag this
                                 if self.linked_htcl_tover and \
