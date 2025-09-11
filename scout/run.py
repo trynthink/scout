@@ -2871,10 +2871,11 @@ class Engine(object):
                 # removed from competition
                 for var in ["energy", "cost", "carbon"]:
                     # Update baseline and efficient results provided neither is
-                    # None or all zeros
+                    # None, empty dict or all zeros
                     vs_list = [
                         v if (
-                            adj_out_break["base fuel"][var][v] is not None and
+                            (adj_out_break["base fuel"][var][v] is not None and
+                             len(adj_out_break["base fuel"][var][v].keys()) != 0) and
                             ((not isinstance(adj_out_break["base fuel"][
                                 var][v][yr], numpy.ndarray) and any([
                                     adj_out_break[
@@ -2932,20 +2933,23 @@ class Engine(object):
                     # Update savings results
                     # Handle extra key on the adjusted microsegment data
                     # for the cost variables ("energy")
-                    if var == "cost":
-                        adj_out_break["base fuel"][var]["savings"][yr] = \
-                            adj_out_break["base fuel"][var]["savings"][yr] - ((
-                                adj[var]["energy"]["total"]["baseline"][yr] -
-                                adj[var]["energy"]["total"]["efficient"][yr]
-                                ) * (1 - adj_frac_t) * adj_out_break[
-                                    "efficient fuel splits"][var][yr])
-                    else:
-                        adj_out_break["base fuel"][var]["savings"][yr] = \
-                            adj_out_break["base fuel"][var]["savings"][yr] - ((
-                                adj[var]["total"]["baseline"][yr] -
-                                adj[var]["total"]["efficient"][yr]) * (
-                                1 - adj_frac_t) * adj_out_break[
-                                    "efficient fuel splits"][var][yr])
+                    # Ensure that savings data are present/non-zero before adjusting
+                    if (adj_out_break["base fuel"][var]["savings"] is not None and
+                            len(adj_out_break["base fuel"][var]["savings"].keys()) != 0):
+                        if var == "cost":
+                            adj_out_break["base fuel"][var]["savings"][yr] = \
+                                adj_out_break["base fuel"][var]["savings"][yr] - ((
+                                    adj[var]["energy"]["total"]["baseline"][yr] -
+                                    adj[var]["energy"]["total"]["efficient"][yr]
+                                    ) * (1 - adj_frac_t) * adj_out_break[
+                                        "efficient fuel splits"][var][yr])
+                        else:
+                            adj_out_break["base fuel"][var]["savings"][yr] = \
+                                adj_out_break["base fuel"][var]["savings"][yr] - ((
+                                    adj[var]["total"]["baseline"][yr] -
+                                    adj[var]["total"]["efficient"][yr]) * (
+                                    1 - adj_frac_t) * adj_out_break[
+                                        "efficient fuel splits"][var][yr])
 
                     # If the measure involves fuel switching and the user
                     # has broken out results by fuel type, make adjustments
@@ -3351,10 +3355,11 @@ class Engine(object):
                     # removed from competition
                     for var in ["energy", "cost", "carbon"]:
                         # Update baseline and efficient results provided
-                        # neither is None or all zeros
+                        # neither is None, empty dict, or all zeros
                         vs_list = [
                             v if (
-                                adj_out_break["base fuel"][var][v] is not None
+                                (adj_out_break["base fuel"][var][v] is not None and
+                                 len(adj_out_break["base fuel"][var][v].keys()) != 0)
                                 and
                                 ((not isinstance(adj_out_break["base fuel"][
                                     var][v][yr], numpy.ndarray) and any([
@@ -3427,29 +3432,32 @@ class Engine(object):
                                 except KeyError:
                                     continue
 
-                        # Update savings results
-                        # Handle extra key on the adjusted microsegment data
-                        # for the cost variables ("energy")
-                        if var == "cost":
-                            adj_out_break["base fuel"][var]["savings"][yr] = \
-                                adj_out_break["base fuel"][var][
-                                    "savings"][yr] - (
-                                    ((adj[var]["energy"]["total"][
-                                        "baseline"][yr] * (
-                                        1 - adj_frac_base)) -
-                                     (adj[var]["energy"]["total"][
-                                        "efficient"][yr]) * (
-                                        1 - adj_frac_eff) * adj_out_break[
-                                            "efficient fuel splits"][var][yr]))
-                        else:
-                            adj_out_break["base fuel"][var]["savings"][yr] = \
-                                adj_out_break["base fuel"][var][
-                                    "savings"][yr] - (
-                                    ((adj[var]["total"]["baseline"][yr] * (
-                                        1 - adj_frac_base)) -
-                                     (adj[var]["total"]["efficient"][yr]) * (
-                                        1 - adj_frac_eff) * adj_out_break[
-                                            "efficient fuel splits"][var][yr]))
+                        # Ensure that savings data are present/non-zero before adjusting
+                        if (adj_out_break["base fuel"][var]["savings"] is not None and
+                                len(adj_out_break["base fuel"][var]["savings"].keys()) != 0):
+                            # Update savings results
+                            # Handle extra key on the adjusted microsegment data
+                            # for the cost variables ("energy")
+                            if var == "cost":
+                                adj_out_break["base fuel"][var]["savings"][yr] = \
+                                    adj_out_break["base fuel"][var][
+                                        "savings"][yr] - (
+                                        ((adj[var]["energy"]["total"][
+                                            "baseline"][yr] * (
+                                            1 - adj_frac_base)) -
+                                         (adj[var]["energy"]["total"][
+                                            "efficient"][yr]) * (
+                                            1 - adj_frac_eff) * adj_out_break[
+                                                "efficient fuel splits"][var][yr]))
+                            else:
+                                adj_out_break["base fuel"][var]["savings"][yr] = \
+                                    adj_out_break["base fuel"][var][
+                                        "savings"][yr] - (
+                                        ((adj[var]["total"]["baseline"][yr] * (
+                                            1 - adj_frac_base)) -
+                                         (adj[var]["total"]["efficient"][yr]) * (
+                                            1 - adj_frac_eff) * adj_out_break[
+                                                "efficient fuel splits"][var][yr]))
 
                         # If the measure involves fuel switching and the user
                         # has broken out results by fuel type, make adjustments
@@ -3897,6 +3905,11 @@ class Engine(object):
                                 x in key_list[-2] for x in [
                                 "coal", "kerosene"]])):
                             out_fuel_save = f[0]
+                        # Assign commercial unspecified other fuel to
+                        # Distillate/Other
+                        elif f[0] == "Distillate/Other" and (
+                                key_list[2] == "unspecified"):
+                            out_fuel_save = f[0]
                         # Assign wood tech.
                         elif f[0] == "Biomass" and (
                             key_list[-2] is not None and "wood" in
@@ -3927,6 +3940,11 @@ class Engine(object):
                                 key_list[-2] is not None and any([
                                     x in key_list[-2] for x in [
                                     "coal", "kerosene"]])):
+                                out_fuel_gain = f[0]
+                            # Assign commercial unspecified other fuel to
+                            # Distillate/Other
+                            elif f[0] == "Distillate/Other" and (
+                                    key_list[2] == "unspecified"):
                                 out_fuel_gain = f[0]
                             # Assign wood tech.
                             elif f[0] == "Biomass" and (
@@ -4134,6 +4152,7 @@ class Engine(object):
                         adj_out_break["efficient-captured fuel splits"][
                         var] = ({yr: 1 for yr in self.handyvars.aeo_years} for
                                 n in range(2))
+
         # Case where output breakouts are not split by fuel
         else:
             # Adjust stock/energy/carbon/cost data
@@ -4646,25 +4665,29 @@ class Engine(object):
                     except KeyError:
                         continue
 
-            # Update savings results for energy/cost/carbon
-            # Handle extra key on the adjusted microsegment data for the cost
-            # variables ("energy")
-            if var == "cost":
-                adj_out_break["base fuel"][var]["savings"][yr] = \
-                    adj_out_break["base fuel"][var]["savings"][yr] - ((
-                        adj[var]["energy"]["total"]["baseline"][yr] * (
-                            1 - adj_t_b[var]) -
-                        adj[var]["energy"]["total"]["efficient"][yr] * (
-                            1 - adj_t_e[var]) * adj_out_break[
-                            "efficient fuel splits"][var][yr]))
-            elif var != "stock":  # no stk savings breakout data
-                adj_out_break["base fuel"][var]["savings"][yr] = \
-                    adj_out_break["base fuel"][var]["savings"][yr] - ((
-                        adj[var]["total"]["baseline"][yr] * (
-                            1 - adj_t_b[var]) -
-                        adj[var]["total"]["efficient"][yr] * (
-                            1 - adj_t_e[var]) * adj_out_break[
-                            "efficient fuel splits"][var][yr]))
+            # Ensure that savings data are present/non-zero before adjusting
+            if var != "stock" and (  # no stk savings breakout data
+                    adj_out_break["base fuel"][var]["savings"] is not None and
+                    len(adj_out_break["base fuel"][var]["savings"].keys()) != 0):
+                # Update savings results for energy/cost/carbon
+                # Handle extra key on the adjusted microsegment data for the cost
+                # variables ("energy")
+                if var == "cost":
+                    adj_out_break["base fuel"][var]["savings"][yr] = \
+                        adj_out_break["base fuel"][var]["savings"][yr] - ((
+                            adj[var]["energy"]["total"]["baseline"][yr] * (
+                                1 - adj_t_b[var]) -
+                            adj[var]["energy"]["total"]["efficient"][yr] * (
+                                1 - adj_t_e[var]) * adj_out_break[
+                                "efficient fuel splits"][var][yr]))
+                else:
+                    adj_out_break["base fuel"][var]["savings"][yr] = \
+                        adj_out_break["base fuel"][var]["savings"][yr] - ((
+                            adj[var]["total"]["baseline"][yr] * (
+                                1 - adj_t_b[var]) -
+                            adj[var]["total"]["efficient"][yr] * (
+                                1 - adj_t_e[var]) * adj_out_break[
+                                "efficient fuel splits"][var][yr]))
 
             # If the measure involves fuel switching and the user has broken
             # out results by fuel type, make adjustments to the efficient, and
