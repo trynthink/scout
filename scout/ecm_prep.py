@@ -580,7 +580,8 @@ class UsefulVars(object):
         # Load metadata including AEO year range
         aeo_yrs = Utils.load_json(handyfiles.metadata)
         # Set minimum modeling year to current year
-        aeo_min = self.current_yr
+        # aeo_min = self.current_yr
+        aeo_min = 2024
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
