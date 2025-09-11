@@ -6783,9 +6783,8 @@ class Engine(object):
                     # Further normalize energy sums by square foot (to get EUI) if BPS is being
                     # assessed, since BPS generally target EUI reductions and this is the metric
                     # used in the input data for this policy
-                    # energy_sums_sf = self.sf_norm(
-                    #     energy_sums, msegs[reg][bldg]["total square footage"])
-                    energy_sums_sf = energy_sums
+
+                    energy_sums_sf = self.sf_norm(energy_sums, msegs, reg, bldg, vint)
                     energy_reduce_frac = {
                         yr: 1 - (energy_sums_sf["efficient"][str(start_yr)] /
                                  energy_sums_sf["baseline"][bench_yr_fin]) if
@@ -7019,7 +7018,7 @@ class Engine(object):
                         brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
                         mast_dat_cdbps_base, mast_dat_cdbps_save, reg, bldg, apply_yrs,
                         add_energy_times_apply_fracs, prior_yr_rmv, cdbps_regs, cdbps_bldgs,
-                        cdbps_eus, focus_yrs, var)
+                        cdbps_eus, focus_yrs)
 
         return
 
@@ -7710,27 +7709,73 @@ class Engine(object):
 
         return energy_sums
 
-    def sf_norm(self, dict1, sf):
-        """Divide a dict's key values by a single square footage number.
+    def sf_norm(self, energy_sums, msegs, reg, bldg, vint):
+        """Divide a dict's energy values by a single square footage number.
 
         Args:
-            dict1 (dict): Dictionary with values to divide.
-            reduce_num (float): Factor to divide dict values by.
+            energy_sums (dict): Dictionary with values to divide.
+            msegs (dict): Input square footage data.
+            reg (str): Region name used for current mseg in Scout input/measure definitions.
+            bldg (str): Building name used for current mseg in Scout input/measure definitions.
+            vint (str): Vintage name used for current mseg in Scout input/measure definitions.
 
         Returns:
             An updated dict with all original values divided by the square footage number.
         """
-        for (k, i) in dict1.items():
+        # Find the square footage that maps to policy's region/building type
+        # Initialize square footage dict
+        sf_reg_bldg = {yr: 0 for yr in self.handyvars.aeo_years}
+        # Find detailed regions that map to current regional breakout
+        det_regs = [x[1] for x in self.handyvars.out_break_czones.items() if reg == x[0]][0]
+        # Ensure that detailed region set is a list
+        if not isinstance(det_regs, list):
+            det_regs = [det_regs]
+        # Find detailed building types that map to current building type breakout
+        det_bldgs = [x[1] for x in self.handyvars.out_break_bldgtypes.items() if bldg == x[0]][0]
+        if not isinstance(det_bldgs, list):
+            det_bldgs = [det_bldgs]
+        # Loop through and sum square footage values from applicable regions
+        for rg in det_regs:
+            # Loop through and sum square footage values from applicable building types; exclude
+            # potential mapping to vintage and unspecified building type, which lacks sf data
+            for bd in [b for b in det_bldgs if b not in ["new", "existing", "unspecified"]]:
+                msegs_reg_bldg = msegs[rg][bd]
+                # Set total square footage (should be available for all building types)
+                mseg_sf_bldg_tot = msegs_reg_bldg["total square footage"]
+                # Set new square footage (only directly available for commercial building types)
+                try:
+                    mseg_sf_bldg_new = msegs_reg_bldg["new square footage"]
+                except KeyError:
+                    # Handle residential case where new square footage data are not directly
+                    # available, but new vs. total homes data are available
+                    try:
+                        # Fraction of new homes
+                        new_home_frac = {yr: (msegs_reg_bldg["new homes"][yr] /
+                                              msegs_reg_bldg["total homes"][yr])
+                                         for yr in self.handyvars.aeo_years}
+                        # Assume new square footage is total times fraction of new homes
+                        mseg_sf_bldg_new = {yr: mseg_sf_bldg_tot[yr] * new_home_frac[yr]
+                                            for yr in self.handyvars.aeo_years}
+                    except KeyError:
+                        raise ValueError("Unexpected structured in square footage data "
+                                         "for building type " + bd)
+                # Existing square footage is total minus new
+                mseg_sf_bldg_exist = {yr: mseg_sf_bldg_tot[yr] - mseg_sf_bldg_new[yr]
+                                      for yr in self.handyvars.aeo_years}
+                # Add to master square footage dict
+                sf_reg_bldg = {yr: ((sf_reg_bldg[yr] + mseg_sf_bldg_new[yr]) if vint == "new" else
+                               (sf_reg_bldg[yr] + mseg_sf_bldg_exist[yr]))
+                               for yr in self.handyvars.aeo_years}
+        # Normalize values
+        for (k, i) in energy_sums.items():
             if isinstance(i, dict):
-                self.sf_norm(i, sf)
+                self.sf_norm(i, msegs, reg, bldg, vint)
             else:
-                # Handle zero values
-                if sf != 0:
+                # If zero value is encountered, leave energy values unnormalized
+                if sf_reg_bldg[k] != 0:
                     # Multiply input square footage data from AEO by 1M (AEO reports in MSF)
-                    dict1[k] = dict1[k] / (sf[k] * 1e6)
-                else:
-                    dict1[k] = 0
-        return dict1
+                    energy_sums[k] = energy_sums[k] / (sf_reg_bldg[k] * 1e6)
+        return energy_sums
 
     def finalize_codes_bps_outputs(self, cbps, adopt_scheme, handyvars, trim_out, trim_yrs):
         """Format codes/BPS measure data in a dict consistent w/ individual ECM result format.
