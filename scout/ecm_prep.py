@@ -907,7 +907,8 @@ class UsefulVars(object):
             # resistance + AC tech.
             self.com_RTU_fs_tech = [
                 "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
+                "pkg_terminal_AC-cool"]
             # Use non-RTU HP fuel switching rates for boiler/chiller tech.
             # and/or gas chillers/HPs
             self.com_nRTU_fs_tech = [
@@ -924,7 +925,8 @@ class UsefulVars(object):
             self.hp_rates = None
             self.com_RTU_fs_tech = [
                 "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
+                "pkg_terminal_AC-cool"]
             self.com_nRTU_fs_tech = [
                 "elec_boiler", "gas_eng-driven_RTHP-heat",
                 "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
@@ -960,12 +962,12 @@ class UsefulVars(object):
             },
             "commercial": {
                 "heating": [
-                    "elec_boiler", "electric_res-heat", "gas_boiler",
+                    "elec_boiler", "electric_res-heat", "elec_res-heater", "gas_boiler",
                     "gas_furnace", "oil_boiler", "oil_furnace",
-                    "rooftop_ASHP-heat", "comm_GSHP-heat",
+                    "rooftop_ASHP-heat", "pkg_terminal_HP-heat", "comm_GSHP-heat",
                     "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
                 "cooling": [
-                    "rooftop_AC", "rooftop_ASHP-cool",
+                    "rooftop_AC", "rooftop_ASHP-cool", "pkg_terminal_AC-cool",
                     "reciprocating_chiller", "scroll_chiller",
                     "centrifugal_chiller", "screw_chiller",
                     "res_type_central_AC", "comm_GSHP-cool",
@@ -994,14 +996,16 @@ class UsefulVars(object):
             "commercial": {
                 "elec_boiler": ["reciprocating_chiller", "centrifugal_chiller",
                                 "screw_chiller", "scroll_chiller"],
-                "electric_res-heat": ["rooftop_AC", "res_type_central_AC"],
+                "electric_res-heat": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
+                "elec_res-heater": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
                 "gas_boiler": ["reciprocating_chiller", "centrifugal_chiller",
                                "screw_chiller", "scroll_chiller"],
-                "gas_furnace": ["rooftop_AC", "res_type_central_AC"],
+                "gas_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
                 "oil_boiler": ["reciprocating_chiller", "centrifugal_chiller",
                                "screw_chiller", "scroll_chiller"],
-                "oil_furnace": ["rooftop_AC", "res_type_central_AC"],
+                "oil_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
                 "rooftop_ASHP-heat": ["rooftop_ASHP-cool"],
+                "pkg_terminal_HP-heat": ["pkg_terminal_HP-cool"],
                 "comm_GSHP-heat": ["comm_GSHP-cool"],
                 "gas_eng-driven_RTHP-heat": ["gas_eng-driven_RTHP-cool"],
                 "res_type_gasHP-heat": ["res_type_gasHP-cool"]
