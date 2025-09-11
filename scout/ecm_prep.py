@@ -2145,7 +2145,7 @@ class UsefulVars(object):
                         fuel = ["natural gas", "distillate", "other fuel"]
                     # Fill out 'all fossil' entry for end use
                     if len(eu) == 1 and eu[0] == "all fossil":
-                        eu = ["heating", "water heating", "cooking", "drying"]
+                        eu = ["heating", "water heating", "cooking", "drying", "other"]
 
                     # Finalize variable-specific inputs
                     if k == "incentives":
@@ -3814,7 +3814,7 @@ class Measure(object):
                 # Handle switching of secondary heating to ASHP heating
                 # (switched from info. has secondary heating as end use, but
                 # switched to info. needs heating end use to pull ASHP data)
-                if mskeys[4] == "secondary heating":
+                if mskeys[4] == "secondary heating" and self.tech_switch_to != "secondary heater":
                     mskeys_swtch_eu = "heating"
                 else:
                     mskeys_swtch_eu = mskeys[4]
@@ -4921,8 +4921,9 @@ class Measure(object):
                 if (self.handyvars.hp_rates and "demand" not in mskeys) and \
                     ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
-                        x in mskeys for x in [
-                        "heating", "secondary heating", "water heating", "cooking"]]) or (
+                        mskeys[4] == x for x in [
+                        "heating", "secondary heating", "water heating", "drying",
+                        "cooking", "other", "unspecified"]]) or (
                             self.linked_htcl_tover and
                             self.linked_htcl_tover_anchor_eu == "heating")):
                     hp_rate_flag = True
@@ -5002,6 +5003,8 @@ class Measure(object):
                     # Map secondary heating end use to heating HP switch rates
                     if mskeys[4] == "secondary heating":
                         hp_eu_key = "heating"
+                    elif mskeys[4] == "unspecified":
+                        hp_eu_key = "other"
                     else:
                         hp_eu_key = mskeys[4]
                     # Handle scenarios based on legacy Guidehouse scenarios (prepended "gh")
@@ -10241,7 +10244,7 @@ class Measure(object):
                 # by the HP conversion (e.g., electric ASHP or HPWH measure
                 # that switches from fossil- or resistance-based equipment)
                 if (self.fuel_switch_to == "electricity" or (
-                        self.tech_switch_to not in [None, "NA", "same"])):
+                        self.tech_switch_to not in [None, "NA"])):
                     # Cumulative fraction converted to HPs
                     diffuse_frac = stock_total_hp_convert_frac
                     # Fraction of total converted stock that was
@@ -10279,7 +10282,7 @@ class Measure(object):
                     x in hp_rate.keys() for x in ["total", "competed"]]):
                 # Case where measure is switching away from baseline; use conversion rate directly
                 if (self.fuel_switch_to == "electricity" or (
-                        self.tech_switch_to not in [None, "NA", "same"])):
+                        self.tech_switch_to not in [None, "NA"])):
                     diffuse_frac, comp_frac_diffuse = [
                         hp_rate[x][yr] for x in ["total", "competed"]]
                 # Case where measure stays with baseline tech.; use inverse of conversion rate
