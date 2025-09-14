@@ -64,6 +64,95 @@ class MyEncoder(json.JSONEncoder):
             return super(MyEncoder, self).default(obj)
 
 
+def aggregate_internal_gains(msegs):
+    """Aggregate separate internal gains components into a single combined component.
+    
+    Combines people gain, equipment gain, lighting gain, and other heat gain
+    into a single 'internal gains' component to simplify downstream processing.
+    
+    Args:
+        msegs (dict): Microsegments data structure containing thermal load components
+        
+    Returns:
+        dict: Modified microsegments with aggregated internal gains
+    """
+    internal_gain_components = [
+        "people gain", "equipment gain", "lighting gain", "other heat gain"
+    ]
+    
+    aggregated_count = 0
+    logger.info("Starting aggregation of internal gains components...")
+    
+    # Recursively traverse the microsegments structure
+    def aggregate_recursive(data, path=""):
+        nonlocal aggregated_count
+        
+        if isinstance(data, dict):
+            # Check if we're at a demand section with internal gain components
+            if "demand" in data and isinstance(data["demand"], dict):
+                demand_section = data["demand"]
+                
+                # Check if any internal gain components are present
+                present_components = [comp for comp in internal_gain_components 
+                                    if comp in demand_section]
+                
+                if present_components:
+                    # Initialize combined internal gains value
+                    combined_value = 0
+                    component_values = {}
+                    
+                    # Sum up all internal gain components
+                    for component in present_components:
+                        value = demand_section[component]
+                        component_values[component] = value
+                        
+                        # Handle both numeric values and nested structures (like time series)
+                        if isinstance(value, (int, float)):
+                            combined_value += value
+                        elif isinstance(value, dict):
+                            # For nested structures (e.g., year-wise data), sum recursively
+                            if not isinstance(combined_value, dict):
+                                combined_value = {}
+                            for key, val in value.items():
+                                if isinstance(val, (int, float)):
+                                    combined_value[key] = combined_value.get(key, 0) + val
+                                else:
+                                    combined_value[key] = val
+                    
+                    # Add the combined internal gains component
+                    demand_section["internal gains"] = combined_value
+                    
+                    # Remove the individual components
+                    for component in present_components:
+                        del demand_section[component]
+                    
+                    aggregated_count += 1
+                    
+                    # Log the aggregation for debugging
+                    if aggregated_count <= 5:  # Log first few aggregations for verification
+                        logger.debug(f"Aggregated internal gains at {path}: "
+                                   f"combined {len(present_components)} components "
+                                   f"({', '.join(present_components)}) "
+                                   f"into single 'internal gains' value: {combined_value}")
+            
+            # Continue recursively through all dictionary values
+            for key, value in data.items():
+                aggregate_recursive(value, f"{path}/{key}" if path else key)
+        
+        elif isinstance(data, list):
+            # Handle list structures
+            for i, item in enumerate(data):
+                aggregate_recursive(item, f"{path}[{i}]")
+    
+    # Perform the aggregation
+    aggregate_recursive(msegs)
+    
+    logger.info(f"Internal gains aggregation completed. "
+               f"Processed {aggregated_count} microsegment demand sections.")
+    
+    return msegs
+
+
 class Utils:
     @classmethod
     def load_json(cls, filepath: Path) -> dict:
@@ -567,7 +656,8 @@ class UsefulVars(object):
         self.demand_tech = [
             'roof', 'ground', 'lighting gain', 'windows conduction',
             'equipment gain', 'floor', 'infiltration', 'people gain',
-            'windows solar', 'ventilation', 'other heat gain', 'wall']
+            'windows solar', 'ventilation', 'other heat gain', 'wall',
+            'internal gains']
         # Note: ASHP costs are zero by convention in EIA data for new
         # construction
         self.zero_cost_tech = ['infiltration', 'ASHP']
@@ -1166,7 +1256,8 @@ class UsefulVars(object):
                     "demand": [
                         'roof', 'ground', 'windows solar',
                         'windows conduction', 'equipment gain',
-                        'people gain', 'wall', 'infiltration']},
+                        'people gain', 'wall', 'infiltration',
+                        'internal gains']},
                 "commercial": {
                     "supply": {
                         "electricity": {
@@ -1264,7 +1355,7 @@ class UsefulVars(object):
                         'windows conduction', 'equipment gain',
                         'floor', 'infiltration', 'people gain',
                         'windows solar', 'ventilation',
-                        'other heat gain', 'wall']}}}
+                        'other heat gain', 'wall', 'internal gains']}}}
         # Find the full set of valid names for describing a measure's
         # applicable baseline that do not begin with 'all'
         mktnames_non_all = self.append_keyvals(
@@ -1731,7 +1822,7 @@ class UsefulVars(object):
                 delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
         self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
-            "other heat gain")
+            "other heat gain", "internal gains")
         self.skipped_ecms = []
         self.save_shp_warn = []
 
@@ -14745,6 +14836,9 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 msegs = json.loads(zip_ref.read().decode('utf-8'))
         else:
             msegs = Utils.load_json(handyfiles.msegs_in)
+        
+        # Aggregate internal gains components into a single unified component
+        msegs = aggregate_internal_gains(msegs)
         # Import baseline cost, performance, and lifetime data
         bjszip = handyfiles.msegs_cpl_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
