@@ -2877,7 +2877,7 @@ class Measure(object):
         # Establish a flag for a commercial lighting case where the user has
         # not specified secondary end use effects on heating and cooling.  In
         # this case, secondary effects are added automatically by adjusting
-        # the "lighting gain" thermal load component in accordance with the
+        # the "internal gains" thermal load component in accordance with the
         # lighting efficiency change (e.g., a 40% relative savings from
         # efficient lighting equipment translates to a 40% increase in heating
         # loads and 40% decrease in cooling load)
@@ -3039,7 +3039,7 @@ class Measure(object):
         # secondary microsegment key chains and add to the primary
         # microsegment key chain list. In a commercial lighting measure case
         # where no heating/cooling effects from lighting are directly
-        # specified, use the "lighting gain" thermal load component
+        # specified, use the "internal gains" thermal load component
         # microsegments to represent secondary effects of the lighting measure
         if self.end_use["secondary"] is not None:
             ms_iterable_second, ms_lists_second = self.create_keychain(
@@ -3070,10 +3070,10 @@ class Measure(object):
             # Set secondary technology type ("demand" as the lighting
             # measure affects heating/cooling loads)
             self.technology_type["secondary"] = "demand"
-            # Set secondary technology class to "lighting gain", which
+            # Set secondary technology class to "internal gains", which
             # will access the portion of commercial heating/cooling
-            # demand that is attributable to waste heat from lights
-            self.technology["secondary"] = "lighting gain"
+            # demand that is attributable to internal heat gains including lighting
+            self.technology["secondary"] = "internal gains"
 
             # Determine secondary microsegment key chains and add to
             # the primary microsegment key chain list
@@ -12813,7 +12813,7 @@ class MeasurePackage(Measure):
                     eu[0] not in ["Heating (Equip.)", "Cooling (Equip.)",
                                   "Heating (Env.)", "Cooling (Env.)"]):
                     out_eu = eu[0]
-            elif "lighting gain" in key_list:
+            elif "lighting gain" in key_list or "internal gains" in key_list:
                 out_eu = "Lighting"
         # If applicable, establish fuel type breakout (electric vs.
         # non-electric); note – only applicable to end uses that
@@ -13839,7 +13839,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
                 eu[0] not in ["Heating (Equip.)", "Cooling (Equip.)",
                               "Heating (Env.)", "Cooling (Env.)"]):
                 out_eu = eu[0]
-        elif "lighting gain" in mskeys:
+        elif "lighting gain" in mskeys or "internal gains" in mskeys:
             out_eu = "Lighting"
 
     # If applicable, establish fuel type breakout (electric vs. non-electric);
