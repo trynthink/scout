@@ -497,7 +497,7 @@ class UsefulVars(object):
             $/ft^2 floor).
         cconv_bybldg_units (list): Flags cost unit conversions that must
             be re-initiated for each new microsegment building type.
-        deflt_choice (list): Residential technology choice capital/operating
+        deflt_res_choice (list): Residential technology choice capital/operating
             cost parameters to use when choice data are missing.
         regions (str): Regions to use in geographically breaking out the data.
         warm_cold_regs (dict): Warm and cold climate subsets of current
@@ -1685,10 +1685,34 @@ class UsefulVars(object):
                 "multi family home": 0.99,
                 "mobile home": 1.06}
         }
-        # Assume that missing technology choice parameters come from the
-        # appliances/MELs areas; default is thus the EIA choice parameters
-        # for refrigerator technologies
-        self.deflt_choice = [-0.01, -0.12]
+        # Set missing technology choice parameters for each of the Scout end uses
+        # Note: Uses AEO choice coefficients for representative techs in each end use where
+        # coefficients do exist. Update with each AEO coefficient value update.
+        self.deflt_res_choice = {
+            "electric": {
+                "heating": [-0.00535, -0.08237],  # typical resistance
+                "secondary heating": [-0.00535, -0.08237],  # typical resistance
+                "cooling": [-0.00498, -0.07658],  # typical central AC
+                "water heating": [-0.00065, -0.01000],  # typical resistance
+                "cooking": [-0.00100, -0.01539],  # typical stove
+                "drying": [-0.00541, -0.08326],  # typical dryer
+                "lighting": [-0.02, -0.27],  # typical GSL incandescent (2023-2050 period)
+                "refrigeration": [-0.00777, -0.11950],  # typical refrigerator
+                "ceiling fan": [-0.00777, -0.11950],  # typical refrigerator
+                "fans and pumps": [-0.00777, -0.11950],  # typical refrigerator
+                "computers": [-0.00777, -0.11950],  # typical refrigerator
+                "TVs": [-0.00777, -0.11950],  # typical refrigerator
+                "other": [-0.00777, -0.11950],  # typical refrigerator
+            },
+            "non-electric": {
+                "heating": [-0.00017, -0.00263],  # typical gas furnace
+                "secondary heating": [-0.00017, -0.00263],  # typical gas furnace
+                "cooling": [-0.00019, -0.00289],  # typical gas HP
+                "water heating": [-0.00250, -0.03841],  # typical gas WH
+                "cooking": [-0.00106, -0.01629],  # typical gas stove
+                "drying": [-0.00636, -0.09780]   # typical gas dryer
+            }
+        }
 
         # Set valid types of TSV feature types
         self.tsv_feature_types = ["shed", "shift", "shape"]
@@ -5313,10 +5337,29 @@ class Measure(object):
                         # vintage; given an exception, expect a single set of
                         # values across both vintages
                         try:
+                            # Typical performance level
                             perf_base = base_cpl["performance"]["typical"][
                                 mskeys[-1]]
+                            # Try to pull 'best' tier performance data alongside 'typical'.
+                            # If it doesn't work, set typical and best to the same levels.
+                            try:
+                                perf_base_best = base_cpl["performance"]["best"][
+                                    mskeys[-1]]
+                            except KeyError:
+                                perf_base_best = base_cpl["performance"]["typical"][
+                                    mskeys[-1]]
                         except KeyError:
+                            # Typical performance level
                             perf_base = base_cpl["performance"]["typical"]
+                            # Try to pull 'best' tier performance data alongside 'typical'.
+                            # If it doesn't work, set typical and best to the same levels.
+                            try:
+                                perf_base_best = base_cpl["performance"]["best"]
+                            except KeyError:
+                                perf_base_best = base_cpl["performance"]["typical"]
+                        # Ensure that retrieved best performance is by year; if not set to typical
+                        if not isinstance(perf_base_best, dict):
+                            perf_base_best = perf_base
                         # Set baseline performance units
                         perf_base_units = base_cpl["performance"]["units"]
                         # Invert dishwasher baseline perf. units to match units
@@ -5489,22 +5532,9 @@ class Measure(object):
                                              in self.handyvars.aeo_years}
                             else:
                                 raise ValueError
-                        # Performance
-                        if any([(("lighting" in mskeys and (isinstance(
-                            y[1], float) and round(y[1]) in [0, 999])) or
-                            y[1] in [0, "NA", 999]) for y in
-                                perf_base.items()]):
-                            # If some years have valid performance data, take
-                            # the max from those years and extend across the
-                            # full time horizon
-                            mx_pb = round(max([
-                                x[1] for x in perf_base.items() if
-                                x[1] != "NA"]))
-                            if mx_pb not in [0, 999]:
-                                perf_base = {yr: mx_pb for yr
-                                             in self.handyvars.aeo_years}
-                            else:
-                                raise ValueError
+                        # Performance (typical and best)
+                        perf_base, perf_base_best = [
+                            self.fix_lgt_perf_vals(x, mskeys) for x in [perf_base, perf_base_best]]
                         # Lifetime
                         if any([z[1] in [0, "NA"] for z in life_base.items()]):
                             # If some years have valid lifetime data, take
@@ -5704,8 +5734,9 @@ class Measure(object):
                         else:
                             # Set baseline performance/units to measure
                             # performance/units
-                            perf_base = {yr: perf_meas for
-                                         yr in self.handyvars.aeo_years}
+                            perf_base, perf_base_best = (
+                                {yr: perf_meas for
+                                 yr in self.handyvars.aeo_years} for n in range(2))
                             perf_base_units = perf_units
                             # Set baseline cost/units to measure cost/units;
                             # account for possible formatting of measure costs
@@ -5747,9 +5778,9 @@ class Measure(object):
                     # remaining secondary microsegments to that of the measure
                     # and baseline lifetime to ten years (typical commercial
                     # lighting lifetime)
-                    cost_base, perf_base, life_base = [
+                    cost_base, perf_base, perf_base_best, life_base = [
                         {yr: x for yr in self.handyvars.aeo_years} for x in [
-                            cost_meas, perf_meas, 10]]
+                            cost_meas, perf_meas, perf_meas, 10]]
                     cost_base_units, perf_base_units = [cost_units, perf_units]
                     cost_incentives, cost_incentives_meas, \
                         i_units_base, i_units_meas = ("" for n in range(4))
@@ -6235,59 +6266,95 @@ class Measure(object):
                         new_constr["total"][yr] = \
                             mseg_sqft_stock["total homes"][yr]
 
-                    # Update technology choice parameters needed to choose
-                    # between multiple efficient technology options that
-                    # access this baseline microsegment. For the residential
-                    # sector, these parameters are found in the baseline
-                    # technology cost, performance, and lifetime JSON
+                    # Update technology choice parameters needed to choose between multiple
+                    # efficient technology options that access this baseline microsegment. For the
+                    # residential sector, these parameters are found in the baseline technology
+                    # cost, performance, and lifetime JSON
+
+                    # Set shorthand for choice coefficient names
+                    coef_names = ["b1", "b2"]
+
+                    # No choice coefficients for secondary msegs
                     if mskeys[0] == "secondary":
                         choice_params = {}  # No choice params for 2nd msegs
+                    # Some primary msegs may lack cost, performance, and lifetime data entirely;
+                    # set choice coefficients to a default value for these msegs
+                    elif base_cpl == 0 or (isinstance(base_cpl, dict) and
+                                           "consumer choice" not in base_cpl.keys()):
+                        choice_params = self.use_deflt_res_choice(mskeys, consume_warn, opts)
+                    # Primary mseg with choice coefficient data
                     else:
-                        # Use try/except to handle cases with missing
-                        # or invalid consumer choice data (where choice
-                        # parameter values of 0 or "NA" are invalid)
-                        try:
-                            if any([x[1] in [0, "NA"] for x in base_cpl[
-                                "consumer choice"]["competed market share"][
-                                    "parameters"]["b1"].items()]):
-                                raise ValueError
+                        # Set shorthand for choice dictionary to use
+                        choice_dict = \
+                            base_cpl["consumer choice"]["competed market share"]["parameters"]
+                        # Check whether consumer choice coefficients are tiered (as for equipment
+                        # categories as of AEO25) or remain untiered (as for envelope msegs)
+                        if all([x in choice_dict.keys() for x in ["typical", "best"]]) and all(
+                                [x in choice_dict["typical"].keys() for x in coef_names]):
+                            tiered_flag = True
+                        elif all([x in choice_dict.keys() for x in coef_names]):
+                            tiered_flag = False
+                        else:
+                            raise ValueError("ECM '" + self.name + "' missing valid consumer "
+                                             "choice data structure for segment '" + str(mskeys))
+                        # Ensure dictionary has end point data to draw from; if not, set segment
+                        # coefficients to a default and notify user in verbose mode
+                        if (tiered_flag and (
+                            any([x[1] in [0, "NA"] for x in choice_dict["typical"]["b1"].items()]))
+                            or (not tiered_flag and
+                                any([x[1] in [0, "NA"] for x in choice_dict["b1"].items()]))):
+                            choice_params = self.use_deflt_res_choice(mskeys, consume_warn, opts)
+                        # Case where checks above have cleared and the coefficients are tiered
+                        # (best vs. typical)
+                        elif tiered_flag:
+                            # Initialize choice coefficients at the typical tier, override below
+                            # when warranted by measure performance level
+                            choice_key = {yr: "typical" for yr in self.handyvars.aeo_years}
+                            # Override with 'best' coefficients if warranted
+                            if "relative savings" in perf_units or perf_units == perf_base_units:
+                                # Check whether measure performance level is greater than
+                                # threshold for use of higher-tier choice coefficients
+                                for yr in self.handyvars.aeo_years:
+                                    # Case where measure performance was already resolved by year
+                                    try:
+                                        perf_meas_yr = perf_meas[yr]
+                                    # Measure performance is same across years
+                                    except (TypeError, IndexError):
+                                        perf_meas_yr = perf_meas
+                                    # When relative savings are used for measure performance units,
+                                    # assume that relative savings of more than 10% pushes
+                                    # the measure into the "best" tier of choice coefficients
+                                    if ("relative savings" not in perf_units and (
+                                        perf_base_units not in self.handyvars.inverted_relperf_list
+                                        and perf_meas_yr >= perf_base_best[yr]) or (
+                                        perf_base_units in self.handyvars.inverted_relperf_list and
+                                            perf_meas_yr <= perf_base_best[yr])) or (
+                                            "relative savings" in perf_units
+                                            and perf_meas_yr > 0.1):
+                                        choice_key[yr] = "best"
+                            # Finalize coefficients
                             choice_params = {
-                                "b1": {
-                                    key: base_cpl["consumer choice"][
-                                        "competed market share"]["parameters"]["typical"][
-                                        "b1"][yr] for key in
-                                    self.handyvars.aeo_years},
+                                "b1": {yr: base_cpl["consumer choice"][
+                                    "competed market share"]["parameters"][choice_key[yr]][
+                                    coef_names[0]][yr] for yr in self.handyvars.aeo_years},
                                 "b2": {
-                                    key: base_cpl["consumer choice"][
-                                        "competed market share"]["parameters"]["typical"][
-                                        "b2"][yr] for key in
-                                    self.handyvars.aeo_years}}
-                            # Add to count of primary microsegment key chains
-                            # with valid consumer choice data
-                            valid_keys_consume += 1
-                        # Update invalid consumer choice parameters
-                        except (ValueError, TypeError, KeyError):
-                            # Record missing consumer data for primary
-                            # technologies; if in verbose mode and the user
-                            # has not already been warned about missing data
-                            # for the given technology, print warning message
-                            if mskeys[0] == "primary":
-                                if mskeys[4] not in consume_warn:
-                                    consume_warn.append(mskeys[4])
-                                    verboseprint(
-                                        opts.verbose,
-                                        "WARNING: ECM '" + self.name +
-                                        "' missing valid consumer choice "
-                                        "data for end use '" + str(mskeys[4]) +
-                                        "'; using default choice data for " +
-                                        "refrigeration end use")
+                                    yr: base_cpl["consumer choice"][
+                                        "competed market share"]["parameters"][choice_key[yr]][
+                                        coef_names[1]][yr] for yr in self.handyvars.aeo_years}}
+                        # Case where checks above have cleared and the coefficients are not tiered
+                        # (best vs. typical)
+                        else:
+                            # Finalize coefficients
                             choice_params = {
-                                "b1": {
-                                    key: self.handyvars.deflt_choice[0] for
-                                    key in self.handyvars.aeo_years},
-                                "b2": {
-                                    key: self.handyvars.deflt_choice[1] for
-                                    key in self.handyvars.aeo_years}}
+                                "b1": {yr: base_cpl["consumer choice"][
+                                        "competed market share"]["parameters"][
+                                        coef_names[0]][yr] for yr in self.handyvars.aeo_years},
+                                "b2": {yr: base_cpl["consumer choice"][
+                                        "competed market share"]["parameters"][
+                                        coef_names[1]][yr] for yr in self.handyvars.aeo_years}}
+                        # Add to count of primary microsegment key chains
+                        # with valid consumer choice data
+                        valid_keys_consume += 1
                 else:
                     # Note: unspecified building type does not have any
                     # square footage data for new/existing splits
@@ -7528,6 +7595,64 @@ class Measure(object):
                   bstk_msg + bcpl_msg + bcc_msg + cc_msg)
         else:
             print("Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
+
+    def use_deflt_res_choice(self, mskeys, consume_warn, opts):
+        """Assign default res. tech. choice coefficients for segments without AEO coefficients.
+
+        Args:
+            mskeys (tuple): Current mseg information.
+            consume_warn (list): Previously warned-about segments w/ missing choice information.
+            opts (object): Stores user-specified execution options.
+
+        Returns:
+            Default choice coefficients for the end use and fuel type that are represented by
+            the segment with missing data.
+        """
+
+        # Set default coefficients to use in the case of missing data
+        if "electricity" in mskeys:
+            deflt_coefs = self.handyvars.deflt_res_choice["electric"][mskeys[4]]
+        else:
+            deflt_coefs = self.handyvars.deflt_res_choice["non-electric"][mskeys[4]]
+        # Record missing consumer data for primary technologies; if in verbose mode
+        # and the user has not already been warned about missing data for the given
+        # technology, print warning message
+        if mskeys[4] not in consume_warn:
+            consume_warn.append(mskeys[4])
+            verboseprint(opts.verbose, "WARNING: ECM '" + self.name + "' missing "
+                         "valid consumer choice data for segment '" + str(mskeys) +
+                         "'; using default choice data for refrigeration end use")
+        choice_params = {
+            "b1": {yr: deflt_coefs[0] for yr in self.handyvars.aeo_years},
+            "b2": {yr: deflt_coefs[1] for yr in self.handyvars.aeo_years}}
+
+        return choice_params
+
+    def fix_lgt_perf_vals(self, perf_in, mskeys):
+        """Fix potential zero/NA/999 performance values for lighting tech.
+
+        Args:
+            perf_in (dict):Raw performance values from input data.
+            mskeys (tuple): Current mseg information.
+
+        Returns:
+            Updated dict of non-zero/NA/999 values.
+        """
+
+        # Check for issue of partial/NA/999 lighting performance values
+        if any([(("lighting" in mskeys and (isinstance(
+            y[1], float) and round(y[1]) in [0, 999])) or y[1] in [0, "NA", 999]) for y in
+                perf_in.items()]):
+            # If some years have valid performance data, take
+            # the max from those years and extend across the
+            # full time horizon
+            mx_pb = round(max([x[1] for x in perf_in.items() if x[1] != "NA"]))
+            if mx_pb not in [0, 999]:
+                perf_in = {yr: mx_pb for yr in self.handyvars.aeo_years}
+            else:
+                raise ValueError
+
+        return perf_in
 
     def apply_incentives(
             self, cost_incentives, cost_incentives_meas, cnv_b, cnv_m, mlt_b, mlt_m, perf_meas,
