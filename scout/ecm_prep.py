@@ -3494,6 +3494,10 @@ class Measure(object):
         # loads and 40% decrease in cooling load)
         light_scnd_autoperf = False
 
+        # Flag for potential addition to measure attributes after representing
+        # gap in coverage of segments within ComStock load shapes
+        add_gap_breakout_cats = False
+
         # Fill out: any region, building type, fuel type, end use, and/or
         # technology attributes marked 'all' by users; any "warm climates" and
         # "cold climates" tags on region or energy performance information";
@@ -3699,12 +3703,6 @@ class Measure(object):
                 ms_iterable, anchor_techs)
         else:
             linked_htcl_tover_anchor_tech_alts = []
-
-        # If needed, append additional msegs to isolate the portion of Scout commercial building
-        # energy use that is not covered in ComStock modelind, for later mapping to ComStock hourly
-        # data
-        if self.handyvars.comstock_gap:
-            ms_iterable = self.append_comstock_gap_msegs(ms_iterable)
 
         # If there is linked stock turnover and no error after the calculations above, reset the
         # iterable that determines how measure msegs are looped through to ensure that msegs with
@@ -6532,26 +6530,11 @@ class Measure(object):
                     # gap fractions (currently should cover all but 'unspecified' building type
                     # and electricity and natural gas fuel types)
                     try:
-                        gap_frac_in = self.handyvars.comstock_gap[mskeys[2]][mskeys[3]]
-                        # Flag whether the mseg represents the gap portion of the original mseg's
-                        # data or the non-gap (known) portion
-                        if mskeys[-2] and "gap" in mskeys[-2]:
-                            # If it represents the gap, pull in gap fraction to apply as-is
-                            gap_adj_frac = gap_frac_in
-                            # Building type should be adjusted to indicate that this is a gap
-                            # segment after all calculations are finished, for correct breakout
-                            # reporting (should be bucketed in 'Unspecified' type)
-                            adjust_mseg_bldg_to_gap = True
-                        else:
-                            # If it represents the non-gap, apply inverse of that fraction
-                            gap_adj_frac = 1 - gap_frac_in
-                            adjust_mseg_bldg_to_gap = False
+                        gap_adj_frac = self.handyvars.comstock_gap[mskeys[2]][mskeys[3]]
                     except KeyError:
-                        gap_adj_frac = 1
-                        adjust_mseg_bldg_to_gap = False
+                        gap_adj_frac = 0
                 else:
-                    gap_adj_frac = 1
-                    adjust_mseg_bldg_to_gap = False
+                    gap_adj_frac = 0
 
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microsegment that will be captured
@@ -6595,20 +6578,20 @@ class Measure(object):
                     if sf_to_house_key and sf_to_house_key in \
                             self.handyvars.sf_to_house.keys():
                         add_stock = {
-                            key: val * new_existing_frac[key] * panel_adj["stock"] * gap_adj_frac *
+                            key: val * new_existing_frac[key] * panel_adj["stock"] *
                             self.handyvars.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                     else:
                         add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"] *
-                            gap_adj_frac for key, val in mseg_sqft_stock[
+                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"]
+                            for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                 elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
-                        key: val * new_existing_frac[key] * panel_adj["stock"] * gap_adj_frac
+                        key: val * new_existing_frac[key] * panel_adj["stock"]
                         for key, val in mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
                 else:  # If no stock data exist, set stock to zero
@@ -6632,7 +6615,7 @@ class Measure(object):
                 # upgrade with panel management approaches
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_existing_frac[key] * panel_adj["energy"] * gap_adj_frac
+                    new_existing_frac[key] * panel_adj["energy"]
                     for key, val in mseg["energy"].items() if key in
                     self.handyvars.aeo_years}
                 # Total lighting energy use for climate zone, building type,
@@ -7301,29 +7284,60 @@ class Measure(object):
                                     "baseline": add_frefr_compete,
                                     "efficient": add_frefr_compete_eff}}}
 
+                    # Compile all data that need to be broken out in a list for further processing
+                    brk_in_dat = [
+                        add_dict["stock"]["total"]["all"],
+                        add_dict["energy"]["total"]["baseline"],
+                        add_dict["cost"]["energy"]["total"]["baseline"],
+                        add_dict["carbon"]["total"]["baseline"],
+                        add_dict["stock"]["total"]["measure"],
+                        add_dict["energy"]["total"]["efficient"],
+                        add_dict["energy"]["total"]["efficient-captured"],
+                        add_dict["cost"]["energy"]["total"]["efficient"],
+                        add_dict["carbon"]["total"]["efficient"],
+                        add_fs_stk_eff_remain,
+                        add_fs_energy_eff_remain_base,
+                        add_fs_energy_cost_eff_remain_base,
+                        add_fs_carb_eff_remain_base,
+                        add_fs_energy_eff_remain_switch,
+                        add_fs_energy_cost_eff_remain_switch,
+                        add_fs_carb_eff_remain_switch]
+
                     # Check for whether detailed market breakouts are needed
                     # for current adoption scenario, and if so, prepare data
                     if self.handyvars.full_dat_out[adopt_scheme]:
-                        # Populate detailed breakout information for measure
-                        breakout_mseg(
-                            self, mskeys, contrib_mseg_key, adopt_scheme, opts,
-                            add_dict["stock"]["total"]["all"],
-                            add_dict["energy"]["total"]["baseline"],
-                            add_dict["cost"]["energy"]["total"]["baseline"],
-                            add_dict["carbon"]["total"]["baseline"],
-                            add_dict["stock"]["total"]["measure"],
-                            add_dict["energy"]["total"]["efficient"],
-                            add_dict["energy"]["total"]["efficient-captured"],
-                            add_dict["cost"]["energy"]["total"]["efficient"],
-                            add_dict["carbon"]["total"]["efficient"],
-                            add_fs_stk_eff_remain,
-                            add_fs_energy_eff_remain_base,
-                            add_fs_energy_cost_eff_remain_base,
-                            add_fs_carb_eff_remain_base,
-                            add_fs_energy_eff_remain_switch,
-                            add_fs_energy_cost_eff_remain_switch,
-                            add_fs_carb_eff_remain_switch,
-                            adjust_mseg_bldg_to_gap)
+                        # Check whether an adjustment to represent gap in the annual commercial
+                        # data that are covered by ComStock load shapes is needed. If so, set
+                        # portion of original Scout building type that is uncovered, as well as
+                        # the inverse of that fraction, which represents the gap. These fractions
+                        # are used further in assigning the gap to an 'Unspecified' bldg. type
+                        # in the breakout data
+                        if gap_adj_frac != 0:
+                            brk_bldg_types_wts = {mskeys[2]: (1 - gap_adj_frac),
+                                                  "unspecified (gap)": gap_adj_frac}
+                        else:
+                            brk_bldg_types_wts = {mskeys[2]: 1}
+                        # Set mskeys as list for further modification
+                        mskeys_brk = list(mskeys)
+                        # Loop through original and (if applicable) gap building types and
+                        # assign breakout data
+                        for bt in brk_bldg_types_wts:
+                            # If a gap is being represented, adjust the original mseg information
+                            # such that the gap will be assigned in accordance with the 'other'
+                            # end use (as well as being assigned to the 'Unspecified' bldg. type)
+                            if "gap" in bt:
+                                eu_tech_vint = ["other", "gap_tech", mskeys_brk[-1]]
+                                add_gap_breakout_cats = True
+                            else:
+                                eu_tech_vint = mskeys_brk[4:]
+                            mskeys_brk = mskeys_brk[0:2] + [bt] + [mskeys_brk[3]] + eu_tech_vint
+                            # Set the fraction needed to partition msegs into gap/non-gap; (if gap
+                            # is not being assessed, this fraction will be 1)
+                            brk_gap_adj_frac = brk_bldg_types_wts[bt]
+                            # Populate detailed breakout information for measure
+                            breakout_mseg(
+                                self, mskeys_brk, contrib_mseg_key, adopt_scheme, opts, brk_in_dat,
+                                brk_gap_adj_frac)
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
@@ -7595,6 +7609,13 @@ class Measure(object):
                   bstk_msg + bcpl_msg + bcc_msg + cc_msg)
         else:
             print("Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
+
+        # If breakouts were added to a measure to represent ComStock gap in mseg coverage,
+        # reflect the breakout categories in measure bldg, end use, and tech for transparency
+        if add_gap_breakout_cats:
+            self.bldg_type.append("unspecified (gap)")
+            self.end_use["primary"].append("other")
+            self.technology["primary"].append("gap_tech")
 
     def use_deflt_res_choice(self, mskeys, consume_warn, opts):
         """Assign default res. tech. choice coefficients for segments without AEO coefficients.
@@ -12375,40 +12396,6 @@ class Measure(object):
 
         return ms_iterable, anchor_tech_alts
 
-    def append_comstock_gap_msegs(self, ms_iterable):
-        """Add a subset of com. msegs that will be used to isolate energy not covered via ComStock.
-
-        Args:
-            ms_iterable: Original list of msegs the measure applies to.
-
-        Returns:
-            Updated list of msegs the measure applies to that additionally reflects gap
-            partitions of commercial segments, such that ComStock gaps in projected energy
-            use totals can be isolated.
-        """
-        # Find applicable segments to apply Comstock gap partitioning to (all commercial building
-        # equipment segments except those already classified as unspecified), no residential segs;
-        # also ensure that only equipment segments are being further segmented in this way
-        segs_to_subset = [list(x) for x in ms_iterable if "demand" not in x and all([
-            y not in x for y in ["single family home", "multi family home",
-                                 "mobile home", "unspecified"]])]
-        # Append copies of segments to represent gap partitions
-        if len(segs_to_subset) > 0:
-            # Initialize lists of segments representing the ComStock gap to append
-            segs_to_subset_gap = copy.deepcopy(segs_to_subset)
-            # Loop through the gap segments and tag them accordingly for later processing
-            for i_gap in segs_to_subset_gap:
-                # Append information to technology to indicate that mseg is a gap copy; handle
-                # NoneType technology
-                if i_gap[-2]:
-                    i_gap[-2] += " (gap)"
-                else:
-                    i_gap[-2] = "gap"
-            # Append the unique gap segments to the original segments
-            ms_iterable = ms_iterable + segs_to_subset_gap
-
-        return ms_iterable
-
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate/building/structure type.
 
@@ -16076,17 +16063,7 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
     return tsv_yr_map
 
 
-def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
-                  add_stock_total, add_energy_total, add_energy_cost,
-                  add_carb_total, add_stock_total_meas, add_energy_total_eff,
-                  add_energy_total_eff_capt, add_energy_cost_eff,
-                  add_carb_total_eff, add_fs_stk_eff_remain,
-                  add_fs_energy_eff_remain_base,
-                  add_fs_energy_cost_eff_remain_base,
-                  add_fs_carb_eff_remain_base,
-                  add_fs_energy_eff_remain_switch,
-                  add_fs_energy_cost_eff_remain_switch,
-                  add_fs_carb_eff_remain_switch, adjust_mseg_bldg_to_gap):
+def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts, input_data, gap_adj_frac):
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -16095,48 +16072,25 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             fuel->end use->technology type->structure type).
         adopt_scheme (string): Assumed consumer adoption scenario.
         opts (object): Stores user-specified execution options.
-        add_stock_total (dict): Total stock associated w/ mseg.
-        add_energy_total (dict): Total energy associated w/ mseg.
-        add_energy_cost (dict): Total energy cost associated w/ mseg.
-        add_carb_total (dict): Total carbon emissions associated w/ mseg.
-        add_stock_total_meas (dict): Total measure-captured stock in mseg.
-        add_energy_total_eff (dict): Total mseg energy after measure adoption.
-        add_energy_total_eff_capt (dict): Total mseg energy specifically
-            associated with measure stock units (vs. baseline).
-        add_energy_cost_eff (dict): Total mseg energy cost after measure
-            adoption.
-        add_carb_total_eff (dict): Total mseg carbon after measure adoption.
-        add_fs_stk_eff_remain (dict): Portion of efficient mseg stock that is
-            served by base fuel after measure application (applies to fuel
-            switching measures)
-        add_fs_energy_eff_remain_base (dict): Portion of efficient mseg energy
-            that is served by base fuel by baseline technology
-            after measure application (applies to fuel switching measures)
-        add_fs_energy_cost_eff_remain_base (dict): Portion of efficient mseg
-            energy cost that is served by base fuel by baseline technology
-            application (applies to fuel switching measures)
-        add_fs_carb_eff_remain_base (dict): Portion of efficient mseg carbon
-            that is served by base fuel by baseline technology after measure
-            application (applies to fuel switching measures)
-        add_fs_energy_eff_remain_switch (dict): Portion of efficient mseg
-            energy that is served by base fuel and switched to technology
-            after measure application (applies to fuel switching measures with
-            dual fuel operation)
-        add_fs_energy_cost_eff_remain_switch (dict): Portion of efficient mseg
-            energy cost that is associated with base fuel and switched to
-            technology after measure application (applies to fuel switching
-            measures with dual fuel operation)
-        add_fs_carb_eff_remain_switch (dict): Portion of efficient mseg carbon
-            that is from base fuel and switched to technology after measure
-            application (applies to fuel switching measures with dual fuel
-            operation)
-        adjust_mseg_bldg_to_gap (boolean): Flag segment that should be tagged as
-            isolating the portion of Scout commercial segments that ComStock doesn't cover
+        input_data (list): Stores all segment-specific data that need to be assigned to breakouts.
+        gap_adj_frac (float): Fraction to apply to breakout data to represent
+            portions of msegs that are not covered by ComStock load shapes (if applicable)
     Returns:
         Updated measure market breakouts by region, building type, end use, and
         fuel type that reflect the influence of the current mseg being looped.
 
     """
+    # Pull out variables to use in developing breakout values; apply fraction as needed
+    # to isolate portions of the mseg data that are not covered by ComStock load shapes (
+    # if this isolation is not needed or desired, the fraction will be 1)
+    brk_stock_total, brk_energy_total, brk_energy_cost, brk_carb_total, brk_stock_total_meas, \
+        brk_energy_total_eff, brk_energy_total_eff_capt, brk_energy_cost_eff, \
+        brk_carb_total_eff, brk_fs_stk_eff_remain, brk_fs_energy_eff_remain_base, \
+        brk_fs_energy_cost_eff_remain_base, brk_fs_carb_eff_remain_base, \
+        brk_fs_energy_eff_remain_switch, brk_fs_energy_cost_eff_remain_switch, \
+        brk_fs_carb_eff_remain_switch = [
+            {yr: x[yr] * gap_adj_frac for yr in self.handyvars.aeo_years}
+            if x else None for x in input_data]
 
     # Using the key chain for the current microsegment, determine the output
     # climate zone, building type, and end use breakout categories to which the
@@ -16148,18 +16102,9 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             out_cz = cz[0]
     # Determine building type to use for breakouts
 
-    # If flagged, update the mseg's building type to 'unspecified (gap)' to ensure
-    # it gets reported out correctly in breakout data as isolating gap in ComStock coverage
-    # Note that this only affects breakout reporting, original gap mseg info. remains unchanged
-    if adjust_mseg_bldg_to_gap:
-        mskeys_bldg = "unspecified (gap)"
-    else:
-        mskeys_bldg = mskeys[2]
-
     # Establish applicable building type breakout
     for bldg in self.handyvars.out_break_bldgtypes.items():
-        if all([x in bldg[1] for x in [
-                mskeys_bldg, mskeys[-1]]]):
+        if all([x in bldg[1] for x in [mskeys[2], mskeys[-1]]]):
             out_bldg = bldg[0]
     # Establish applicable end use breakout
     for eu in self.handyvars.out_break_enduses.items():
@@ -16278,54 +16223,55 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     # the measure applies to. Note that savings breakouts are not provided for
     # stock data as "savings" is not meaningful in this context.
     try:
+        # Set breakout variables
         breakout_vars = ["stock", "energy", "cost", "carbon"]
         # Create a shorthand for baseline and efficient stock/energy/carbon/
         # cost data to add to the breakout dict
-        base_data = [add_stock_total, add_energy_total,
-                     add_energy_cost, add_carb_total]
-        eff_data = [add_stock_total_meas, add_energy_total_eff,
-                    add_energy_cost_eff, add_carb_total_eff]
+        base_data = [brk_stock_total, brk_energy_total,
+                     brk_energy_cost, brk_carb_total]
+        eff_data = [brk_stock_total_meas, brk_energy_total_eff,
+                    brk_energy_cost_eff, brk_carb_total_eff]
         # Create a shorthand for efficient captured energy data to add to the
         # breakout dict
-        if add_energy_total_eff_capt:
-            capt_e = add_energy_total_eff_capt
+        if brk_energy_total_eff_capt:
+            capt_e = brk_energy_total_eff_capt
         else:
             capt_e = ""
         # Flag whether or not any captured efficient energy remains with
         # baseline fuel, for fuel switching cases
         swtch_tech_base_fuel = \
-            any([x != 0 for x in add_fs_energy_eff_remain_switch.values()])
+            any([x != 0 for x in brk_fs_energy_eff_remain_switch.values()])
 
         # For a fuel switching case where the user desires that the outputs
         # be split by fuel, create shorthands for any efficient-case
         # stock/energy/carbon/cost that remains with the baseline fuel
         if self.fuel_switch_to is not None and out_fuel_save:
-            eff_data_fs_base = [add_fs_stk_eff_remain,
-                                add_fs_energy_eff_remain_base,
-                                add_fs_energy_cost_eff_remain_base,
-                                add_fs_carb_eff_remain_base]
-            eff_data_fs_switch = [add_fs_energy_eff_remain_switch,
-                                  add_fs_energy_cost_eff_remain_switch,
-                                  add_fs_carb_eff_remain_switch]
+            eff_data_fs_base = [brk_fs_stk_eff_remain,
+                                brk_fs_energy_eff_remain_base,
+                                brk_fs_energy_cost_eff_remain_base,
+                                brk_fs_carb_eff_remain_base]
+            eff_data_fs_switch = [brk_fs_energy_eff_remain_switch,
+                                  brk_fs_energy_cost_eff_remain_switch,
+                                  brk_fs_carb_eff_remain_switch]
             # Record the efficient energy that has not yet fuel switched and
             # total efficient energy for the current mseg for later use in
             # packaging and/or competing measures
             self.eff_fs_splt[adopt_scheme][
                 str(contrib_mseg_key)] = {
                     "energy": [
-                        add_fs_energy_eff_remain_base,
-                        add_fs_energy_eff_remain_switch,
-                        add_energy_total_eff,
-                        add_energy_total_eff_capt,
+                        brk_fs_energy_eff_remain_base,
+                        brk_fs_energy_eff_remain_switch,
+                        brk_energy_total_eff,
+                        brk_energy_total_eff_capt,
                         swtch_tech_base_fuel],
                     "cost": [
-                        add_fs_energy_cost_eff_remain_base,
-                        add_fs_energy_cost_eff_remain_switch,
-                        add_energy_cost_eff],
+                        brk_fs_energy_cost_eff_remain_base,
+                        brk_fs_energy_cost_eff_remain_switch,
+                        brk_energy_cost_eff],
                     "carbon": [
-                        add_fs_carb_eff_remain_base,
-                        add_fs_carb_eff_remain_switch,
-                        add_carb_total_eff]}
+                        brk_fs_carb_eff_remain_base,
+                        brk_fs_carb_eff_remain_switch,
+                        brk_carb_total_eff]}
         # Handle case where output breakout includes fuel type breakout or not
         if out_fuel_save:
             # Update results for the baseline fuel; handle case where results
