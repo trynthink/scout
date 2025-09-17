@@ -7099,6 +7099,11 @@ class Engine(object):
                             na_eff = brk_dat_eff[reg][bldg][eu][fossil_fuel][prior_yr_rmv]
                         else:
                             na_eff = 0
+                        # Set portion of segment that the policy applies to
+                        elig_convert = {
+                            yr: (brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] - na_eff) if (
+                                na_eff < brk_dat_eff[reg][bldg][eu][fossil_fuel][yr])
+                            else 0 for yr in apply_yrs}
                         # Pull number of converted fossil units (units that would have otherwise
                         # remained with the fossil fuel in the efficient case) and converted energy/
                         # carbon/cost totals for all applicable years of code/BPS. Note that
@@ -7111,10 +7116,7 @@ class Engine(object):
                         # inapplicable portion of stock/energy/carbon/cost from result (see
                         # 'prior_yr_rmv').
                         convert_fossil = {
-                            yr: (brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] -
-                                 na_eff) * onsite_times_apply_fracs[yr]
-                            if (na_eff < brk_dat_eff[reg][bldg][eu][fossil_fuel][yr])
-                            else 0 for yr in apply_yrs}
+                            yr: elig_convert[yr] * onsite_times_apply_fracs[yr] for yr in apply_yrs}
                         # Ensure that converted fossil fuel energy never exceeds fossil fuel
                         # available to be converted in the baseline case in each year
                         for yr in convert_fossil.keys():
@@ -7152,23 +7154,27 @@ class Engine(object):
                                     bldg_type = "commercial"
                                 # Add to reported conversion numbers
                                 for c_typ in ["total", "competed"]:
-                                    # Add to competed numbers only when cycling through a new
-                                    # building code (new stock is competed); do not add when
-                                    # cycling through a BPS, which only affects existing (
-                                    # previously competed/total) stock
-                                    if c_typ != "competed" or vint_in == "new":
-                                        # Add to the total converted equip. numbers
-                                        self.handyvars.conversion_fracs[c_typ][reg_in][
-                                            bldg_type][ft_out][eu_in][vint_in][yr][
-                                            "converted"] += convert_fossil[yr]
-                                        # If totals are zero (indicating the segment has not yet
-                                        # already been assessed), add to total fossil-based equip.
-                                        # that was eligible for conversion (e.g., in baseline)
-                                        if self.handyvars.conversion_fracs[c_typ][reg_in][
-                                                bldg_type][ft_out][eu_in][vint_in][yr]["all"] == 0:
+                                    # Add to the numerator (converted equip. numbers)
+                                    self.handyvars.conversion_fracs[c_typ][reg_in][bldg_type][
+                                        ft_out][eu_in][vint_in][yr]["converted"] += \
+                                        convert_fossil[yr]
+                                    # If totals are zero (indicating the segment has not yet
+                                    # already been assessed), add to denominator as appropriate
+                                    if self.handyvars.conversion_fracs[c_typ][reg_in][
+                                            bldg_type][ft_out][eu_in][vint_in][yr]["all"] == 0:
+                                        # When calculating portion of total stock that converted,
+                                        # use the total stock in the baseline as denominator
+                                        if c_typ == "total":
                                             self.handyvars.conversion_fracs[c_typ][reg_in][
                                                 bldg_type][ft_out][eu_in][vint_in][yr]["all"] += \
                                                 brk_dat_base[reg][bldg][eu][fossil_fuel][yr]
+                                        # When calculating portion of competed stock that converted,
+                                        # use the stock that was eligible for conversion in a given
+                                        # year as denominator
+                                        else:
+                                            self.handyvars.conversion_fracs[c_typ][reg_in][
+                                                bldg_type][ft_out][eu_in][vint_in][yr]["all"] += \
+                                                elig_convert[yr]
                         # Record conversions across measure variables. Only record stock conversions
                         # for the heating end use, which is considered a default "anchor" use to
                         # avoid issues interpreting stock totals for these measures when they apply
