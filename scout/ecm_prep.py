@@ -10454,12 +10454,26 @@ class Measure(object):
                 # Case where measure is switching away from baseline; use conversion rate directly
                 if (self.fuel_switch_to == "electricity" or (
                         self.tech_switch_to not in [None, "NA"])):
-                    diffuse_frac, comp_frac_diffuse = [
-                        hp_rate[x][yr] for x in ["total", "competed"]]
+                    diffuse_frac = hp_rate["total"][yr]
                 # Case where measure stays with baseline tech.; use inverse of conversion rate
                 else:
-                    diffuse_frac, comp_frac_diffuse = [
-                        (1 - hp_rate[x][yr]) for x in ["total", "competed"]]
+                    diffuse_frac = (1 - hp_rate["total"][yr])
+                # Multiply diffusion fractions calculated above
+                # (to represent exogenous HP switching rates, if applicable)
+                # by further fraction to represent slow diffusion of info.
+                # for emerging technologies
+                diffuse_frac *= years_diff_fraction_dictionary[yr]
+                # Define competed stock in each year as the percentage of total converted stock
+                # that is added incrementally in each year
+                # Set total converted stock
+                stock_total_converted_yr = stock_total_sbmkt[yr] * hp_rate["total"][yr]
+                # Find portion of total converted stock that occurs in each year
+                if yr == self.handyvars.aeo_years[0]:
+                    comp_frac_diffuse = 1
+                else:
+                    comp_frac_diffuse = (
+                        stock_total_converted_yr - stock_total_meas[str(int(yr) - 1)]) / \
+                        stock_total_converted_yr
             # All other measure diffusion cases where diffusion scaling and
             # competed diffusion fractions were not already calculated
             elif not diffuse_frac_linked:
@@ -10882,12 +10896,10 @@ class Measure(object):
                                 stk_tot_diff[yr] - stk_cmp_diff[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
-                        # 'unspecified' no stock data will be available; base
-                        # cumulative competed/captured fraction on the sum of
-                        # competed fractions until this point
+                        # 'unspecified' no stock data will be available; set
+                        # cumulative competed/captured fraction to 100%
                         else:
-                            meas_cum_frac += (
-                                diffuse_frac * comp_frac_diffuse_meas)
+                            meas_cum_frac = 1
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
@@ -10895,8 +10907,7 @@ class Measure(object):
                             meas_cum_frac = (stk_cum_m[prev_yr] / (
                                 stk_tot_diff[yr] - stk_cmp_diff[yr]))
                         else:
-                            meas_cum_frac += (
-                                diffuse_frac * comp_frac_diffuse_meas)
+                            meas_cum_frac = 1
                 # Calculate portion of total stock previously competed
                 # if not already 100%
                 if (not isinstance(comp_cum_frac, numpy.ndarray) and
@@ -10909,11 +10920,10 @@ class Measure(object):
                                 (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
-                        # 'unspecified' no stock data will be available; base
-                        # cumulative competed/captured fraction on the sum of
-                        # competed fractions until this point
+                        # 'unspecified' no stock data will be available; set
+                        # cumulative competed fraction to 100%
                         else:
-                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                            comp_cum_frac = 1
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
@@ -10921,7 +10931,7 @@ class Measure(object):
                             comp_cum_frac = (stk_cum_cmp[prev_yr] / (
                                 stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]))
                         else:
-                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                            comp_cum_frac = 1
 
                 # Ensure neither fraction goes above 1
 
