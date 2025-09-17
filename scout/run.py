@@ -8437,7 +8437,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # building type; no onsite generation data provided for these bldg. types
     btgrp = set([
         bt for bt in btgrp if bt not in [
-            'mobile home', 'multi family home', 'unspecified']])
+            'mobile home', 'multi family home', 'unspecified', 'unspecified (gap)']])
     btgrp = sorted(btgrp)
     # Set up recursively extensible empty dict to populate with onsite
     # generation data
