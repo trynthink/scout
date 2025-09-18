@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 
 data = pd.read_csv("Res_TLoads_Base.csv")

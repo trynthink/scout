@@ -14839,7 +14839,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         try:
             msegs = add_internal_gains_aggregate(msegs, handyvars.aeo_years)
             logger.info("Applied internal gains aggregation (people + equipment)")
-            
+
         except Exception as e:
             logger.warning(
                 f"Internal gains aggregation failed; proceeding without aggregation: {e}")
