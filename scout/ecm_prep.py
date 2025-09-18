@@ -13180,9 +13180,12 @@ class MeasurePackage(Measure):
         # to be supported by packaged – integration of HVAC equipment and
         # envelope and/or controls, or integration of lighting equipment and
         # controls; also raise error if package is merging equipment measures
-        # with inconsistent fuel switching settings
+        # with inconsistent fuel switching settings. Note that inclusion of
+        # 'other' end use accounts for case where gap in commercial mseg
+        # data covered by ComStock load shapes is accounted for (measure gap
+        # data are moved over to the 'other' end use)
         elif not (all([all([x in ["heating", "secondary heating",
-                                  "ventilation", "cooling"] for x in
+                                  "ventilation", "cooling", "other"] for x in
                             m.end_use["primary"]])
                        for m in self.contributing_ECMs_eqp]) or (
                   all([m.end_use["primary"] == "lighting" for
