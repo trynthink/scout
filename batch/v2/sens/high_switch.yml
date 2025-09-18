@@ -119,6 +119,7 @@ ecm_prep:
   split_fuel: true 
   detail_brkout: [regions, fuel types]
   exog_hp_rate_scenario: bss-brk
+  comstock_gap: true
 
 run:
   high_res_comp: true

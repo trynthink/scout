@@ -225,6 +225,7 @@ ecm_prep:
   price_sensitivity: lowelec_highfossil
   split_fuel: true 
   detail_brkout: [regions, codes/bps, fuel types]
+  comstock_gap: true
 
 run:
   high_res_comp: true
