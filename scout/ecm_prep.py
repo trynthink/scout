@@ -10472,9 +10472,12 @@ class Measure(object):
                 if yr == self.handyvars.aeo_years[0]:
                     comp_frac_diffuse = 1
                 else:
-                    comp_frac_diffuse = (
-                        stock_total_converted_yr - stock_total_meas[str(int(yr) - 1)]) / \
-                        stock_total_converted_yr
+                    if stock_total_converted_yr != 0:
+                        comp_frac_diffuse = (
+                            stock_total_converted_yr - stock_total_meas[str(int(yr) - 1)]) / \
+                            stock_total_converted_yr
+                    else:
+                        comp_frac_diffuse = 0
             # All other measure diffusion cases where diffusion scaling and
             # competed diffusion fractions were not already calculated
             elif not diffuse_frac_linked:
