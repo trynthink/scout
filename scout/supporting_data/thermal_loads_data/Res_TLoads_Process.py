@@ -1,7 +1,4 @@
 import os
-
-# set working directory
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import pandas as pd
 
 data = pd.read_csv("Res_TLoads_Base.csv")
@@ -50,28 +47,47 @@ for cdiv in range(1, CDIV_MAX + 1):
         for euse in EUSES:
 
             # Filter data for current combination
-            subset = data[
-                (data["CDIV"] == cdiv) & (data["BLDG"] == bldg)
-            ]
+            subset = data[(data["CDIV"] == cdiv) & (data["BLDG"] == bldg)]
 
             if euse == "HEAT":
                 # filter column names with _HEAT
-                subset = subset[[col for col in subset.columns if col.endswith("_HEAT") or col in ["CDIV", "BLDG", "NBLDGS"]]]
+                subset = subset[
+                    [
+                        col
+                        for col in subset.columns
+                        if col.endswith("_HEAT") or col in ["CDIV", "BLDG", "NBLDGS"]
+                    ]
+                ]
             else:
                 # filter column names with _COOL
-                subset = subset[[col for col in subset.columns if col.endswith("_COOL") or col in ["CDIV", "BLDG", "NBLDGS"]]]
-            
-            sum_bldgs = subset['NBLDGS'].sum()
+                subset = subset[
+                    [
+                        col
+                        for col in subset.columns
+                        if col.endswith("_COOL") or col in ["CDIV", "BLDG", "NBLDGS"]
+                    ]
+                ]
+
+            sum_bldgs = subset["NBLDGS"].sum()
             # print(f"Sum of nbldgs for CDIV {cdiv}, BLDG {bldg}, EUSE {euse}: {sum_bldgs}")
 
-            final_data = pd.concat([final_data, pd.DataFrame({
-                "CDIV": cdiv,
-                "BLDG": bldg,
-                "EUSE": euse,
-                "SUM_NBLDGS": sum_bldgs
-            }, index=[0])], ignore_index=True)
+            final_data = pd.concat(
+                [
+                    final_data,
+                    pd.DataFrame(
+                        {
+                            "CDIV": cdiv,
+                            "BLDG": bldg,
+                            "EUSE": euse,
+                            "SUM_NBLDGS": sum_bldgs,
+                        },
+                        index=[0],
+                    ),
+                ],
+                ignore_index=True,
+            )
 
-            row_weight = subset['NBLDGS'] / sum_bldgs if sum_bldgs > 0 else 0
+            row_weight = subset["NBLDGS"] / sum_bldgs if sum_bldgs > 0 else 0
             # weighted thermal components (compute scalar weighted averages per row)
             row_mask = (
                 (final_data["CDIV"] == cdiv)
@@ -81,13 +97,14 @@ for cdiv in range(1, CDIV_MAX + 1):
             for component in components:
                 src_col = f"{component}_{euse}"
                 if src_col in subset.columns:
-                    weighted_value = (subset[src_col] * row_weight).sum() if sum_bldgs > 0 else 0
+                    weighted_value = (
+                        (subset[src_col] * row_weight).sum() if sum_bldgs > 0 else 0
+                    )
                     final_data.loc[row_mask, component] = weighted_value
                 else:
                     # If the expected column is missing, set to 0 to avoid KeyError
                     final_data.loc[row_mask, component] = 0
 
-            
             # normalize component shares (exclude TOTAL from normalization)
             share_components = [c for c in components if c != "TOTAL"]
             row_mask = (
@@ -97,8 +114,8 @@ for cdiv in range(1, CDIV_MAX + 1):
             )
             row_total = final_data.loc[row_mask, share_components].sum(axis=1)
             if not row_total.empty and row_total.iloc[0] not in (0, None):
-                final_data.loc[row_mask, share_components] = final_data.loc[row_mask, share_components].div(
-                    row_total.values, axis=0
-                )
+                final_data.loc[row_mask, share_components] = final_data.loc[
+                    row_mask, share_components
+                ].div(row_total.values, axis=0)
 
 print(final_data.head())

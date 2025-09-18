@@ -189,7 +189,8 @@ def add_internal_gains_aggregate(msegs: dict, years, ig_names=None, new_name="in
                     if not comp_energy_pairs:
                         continue
                     # Sum per year (missing years treated as zero)
-                    summed = {yr: float(sum(ed.get(yr, 0.0) for _, ed in comp_energy_pairs)) for yr in years}
+                    summed = {yr: float(sum(ed.get(yr, 0.0)
+                                        for _, ed in comp_energy_pairs)) for yr in years}
                     demand[new_name] = {
                         "stock": "NA",
                         "energy": summed,
@@ -14840,7 +14841,8 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             logger.info("Applied internal gains aggregation (people + equipment)")
             
         except Exception as e:
-            logger.warning(f"Internal gains aggregation failed; proceeding without aggregation: {e}")
+            logger.warning(
+                f"Internal gains aggregation failed; proceeding without aggregation: {e}")
         # Import baseline cost, performance, and lifetime data
         bjszip = handyfiles.msegs_cpl_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
