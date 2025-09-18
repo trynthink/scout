@@ -31,12 +31,23 @@ The residential and commercial building thermal load component values are derive
 
 1. Identify relevant tables in the residential and commercial simulation studies.
 
-* Residential: Component Loads Tables, pages C3–C11.
+* Residential: ResStock: Annual Baseline Results with Component Loads CSV.
 
     * Simulations cover all three AEO residential building types and nine U.S. census regions, for heating and cooling end uses separately.
     * Baseline tables include unnecessary sub-groupings of residential thermal loads data, including by building vintage and for multiple cities within each census division.
     * Each simulated building type/location combination has an associated number of buildings in the U.S. stock reported with it for weighting purposes.
- 
+    * Map residential table building types to AEO building types.
+        * Single-Family Detached -> single family home
+        * Single-Family Attached -> single family home
+        * Mobile Home -> mobile home
+        * 50 or more Unit -> multi family home
+        * 20 to 49 Unit -> multi family home
+        * 10 to 19 Unit -> multi family home
+        * 5 to 9 Unit -> multi family home
+        * 3 or 4 Unit -> multi family home
+        * 2 Unit -> multi family home
+        * nan -> None
+
 * Commercial: Tables 18-23, pages 39-44.
 
     * Simulations cover nine of eleven AEO commercial building types and a city in each of the five AIA climate zones for heating and cooling end uses separately.
@@ -55,20 +66,28 @@ The residential and commercial building thermal load component values are derive
 
 * Manually input data from the PDF publications, as in :repo_file:`Res_TLoads_Base.csv` and :repo_file:`Com_TLoads_Base.csv`.
 
-3. Condense CSV tables into final set of thermal load components data using an R script.
+3. Condense CSV tables into final set of thermal load components data.
 
-*R pseudocode*
+*Python pseudocode (Residential)*
+
+    #. Import results_up00_update CSV file.
+    #. Find subset of CSV rows associated with each unique combination of census division (residential), AEO building type, and heating or cooling end use.
+    #. For each subset of rows, calculate a weighted average of the thermal load components across all rows using the number of buildings (residential) associated with each row to establish weighting factors.
+    #. Combine the thermal load components calculated for each unique combination of census, AEO building type, and end use into a master table.
+    #. Write the final thermal load components table to a text file.    
+
+*R pseudocode (Commercial)*
 
     #. Import \*_Base CSV file.
-    #. Find subset of CSV rows associated with each unique combination of census division (residential) or climate division (commercial), AEO building type, and heating or cooling end use.
-    #. For each subset of rows, calculate a weighted average of the thermal load components across all rows using the number of buildings (residential) or square footage floor space (commercial) associated with each row to establish weighting factors.
-    #. Combine the thermal load components calculated for each unique combination of census/climate, AEO building type, and end use into a master table.
-    #. Calculate thermal load components for missing AEO building types using a weighted combination of similar and available AEO building types (*commercial only*).
+    #. Find subset of CSV rows associated with each unique combination of climate division (commercial), AEO building type, and heating or cooling end use.
+    #. For each subset of rows, calculate a weighted average of the thermal load components across all rows using square footage floor space associated with each row to establish weighting factors.
+    #. Combine the thermal load components calculated for each unique combination of climate, AEO building type, and end use into a master table.
+    #. Calculate thermal load components for missing AEO building types using a weighted combination of similar and available AEO building types.
 
         * The missing “Assembly” commercial building type is created as a floor area weighted combination of “Education”, “Small Office”, and “Merch/Service” building types.
         * The missing “Other” commercial building type is created as a floor area weighted combination of “Lodging”, “Large Office”, and “Warehouse” building types.
     
-    #. Translate AIA climate zone geographical breakdowns to census division breakdowns (*commercial only*).
+    #. Translate AIA climate zone geographical breakdowns to census division breakdowns.
     
         * Map U.S. commercial floor area in each AIA climate zone to floor area in each census division using Commercial Building Energy Consumption Survey (CBECS) `raw data`__.
         * Conversion factors for mapping AIA climate zone to census division for both residential and commercial buildings are available from :repo_file:`Res_Cdiv_Czone_ConvertTable_Final.txt` and :repo_file:`Com_Cdiv_Czone_ConvertTable_Final.txt`. Note that residential data were drawn from the Residential Energy Consumption Survey (RECS) `raw data`__.
@@ -77,14 +96,14 @@ The residential and commercial building thermal load component values are derive
 
 4. :repo_file:`Res_TLoads_Final.txt` and :repo_file:`Com_TLoads_Final.txt` files contain final thermal loads components broken down by census division, AEO building type, and heating/cooling end use for further analysis.
 
-.. Anonymous links for content under R pseudocode bullet
+.. Anonymous links for content under Python/R pseudocode bullet
 .. __: http://www.eia.gov/consumption/commercial/data/2003/index.cfm?view=microdata
-.. __: http://www.eia.gov/consumption/residential/data/2009/index.cfm?view=microdata
+.. __: https://data.openei.org/submissions/5959
 
 .. _tlcomponents_references:
 
 References
 ----------
-Huang J, Hanford J, Yang F. (1999). Residential heating and cooling loads component analysis (LBNL-44636). Berkeley, CA: Lawrence Berkeley National Laboratory.
+Speake A, Wilson EJ, Zhou Y, Horowitz S. (2023). Component-level analysis of heating and cooling loads in the US residential building stock. Energy and Buildings, 299, 113559.
 
 Huang J, Franconi E. (1999). Commercial heating and cooling loads component analysis (LBNL-37208). Berkeley, CA: Lawrence Berkeley National Laboratory.

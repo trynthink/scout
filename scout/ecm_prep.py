@@ -142,8 +142,6 @@ class Utils:
 def add_internal_gains_aggregate(msegs: dict, years, ig_names=None, new_name="internal gains"):
     """Aggregate internal gain thermal load components into one node per mseg.
 
-    Non-destructive: original component nodes are preserved under
-    ['internal gains']['components_original'].
 
     Parameters
     ----------
@@ -170,7 +168,6 @@ def add_internal_gains_aggregate(msegs: dict, years, ig_names=None, new_name="in
             for fuel_key, fuel_val in bldg_val.items():
                 if not isinstance(fuel_val, dict):
                     continue
-                # print(f"Processing {geo_key} {bldg_key} {fuel_key}")
                 for eu in ("heating", "secondary heating", "cooling"):
                     eu_dict = fuel_val.get(eu)
                     if not isinstance(eu_dict, dict):
@@ -189,12 +186,11 @@ def add_internal_gains_aggregate(msegs: dict, years, ig_names=None, new_name="in
                     if not comp_energy_pairs:
                         continue
                     # Sum per year (missing years treated as zero)
-                    summed = {yr: float(sum(ed.get(yr, 0.0) for _, ed in comp_energy_pairs)) for yr in years}
+                    summed = {yr: float(sum(ed.get(yr, 0.0)
+                                        for _, ed in comp_energy_pairs)) for yr in years}
                     demand[new_name] = {
                         "stock": "NA",
-                        "energy": summed,
-                        # Preserve originals for traceability
-                        "components_original": {nm: demand[nm] for nm, _ in comp_energy_pairs}
+                        "energy": summed
                     }
                     # Remove original component nodes to prevent double counting elsewhere
                     for nm, _ in comp_energy_pairs:
@@ -16291,16 +16287,16 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         else:
             msegs = Utils.load_json(handyfiles.msegs_in)
         # Aggregate internal gains components (people + equipment only)
-        # into a single 'internal gains' node for heating/secondary heating/cooling demand
-        # microsegments. Original component nodes are preserved under
-        # ['internal gains']['components_original'] for traceability. This prevents
-        # downstream double counting once logic skips originals when aggregate present.
+        # into a single 'internal gains' node for heating/secondary heating/cooling
+        # demand microsegments. This prevents downstream double counting once logic
+        # skips originals when aggregate present.
         try:
             msegs = add_internal_gains_aggregate(msegs, handyvars.aeo_years)
             logger.info("Applied internal gains aggregation (people + equipment)")
-            
+
         except Exception as e:
-            logger.warning(f"Internal gains aggregation failed; proceeding without aggregation: {e}")
+            logger.warning(
+                f"Internal gains aggregation failed; proceeding without aggregation: {e}")
         # Import baseline cost, performance, and lifetime data
         bjszip = handyfiles.msegs_cpl_in
         with gzip.GzipFile(bjszip, 'r') as zip_ref:
