@@ -1565,18 +1565,6 @@ class UsefulVars(object):
                     'food service', 'health care', 'mercantile/service',
                     'lodging', 'large office', 'small office', 'warehouse',
                     'other', 'unspecified'])])
-        # Breakout unspecified building type if ComStock gap is being considered and move any
-        # existing unspecified building type consideration into this bucket
-        if opts.comstock_gap:
-            # Remove existing breakout mapping for the unspecified building type
-            for bto in self.out_break_bldgtypes.keys():
-                self.out_break_bldgtypes[bto] = [
-                    x for x in self.out_break_bldgtypes[bto] if x != "unspecified"]
-            # Add new Unspecified output category and map existing Scout unspecified building
-            # type into it, along with a new Scout building type unspecified (gap) that will
-            # isolate the portions of other Scout building types that are uncovered in ComStock
-            self.out_break_bldgtypes['Unspecified'] = [
-                'unspecified', 'unspecified (gap)', 'new', 'existing']
 
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
@@ -2782,7 +2770,9 @@ class Measure(object):
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use, fuel)
         sector_shapes (dict): Sector-level hourly baseline and efficient load
-            shapes by adopt scheme, EMM region, and year
+            shapes by adopt scheme, EMM region, and year.
+        gap_wts (dict): Data used to calculate portions of Scout/AEO msegs that
+            ComStock load shapes do not cover.
     """
 
     def __init__(
@@ -3354,6 +3344,14 @@ class Measure(object):
                 self.markets[adopt_scheme][
                     "mseg_out_break"]["energy"]["efficient-captured"] = \
                     copy.deepcopy(self.handyvars.out_break_in)
+            # Set ComStock gap weights by building type, if applicable
+            if self.usr_opts["comstock_gap"]:
+                self.gap_wts = {
+                    bldg: {"total": {yr: 0 for yr in self.handyvars.aeo_years},
+                           "gap": {yr: 0 for yr in self.handyvars.aeo_years}}
+                    for bldg in self.handyvars.out_break_bldgtypes}
+            else:
+                self.gap_wts = None
 
     def fill_eplus(self, msegs, eplus_dir, eplus_coltypes,
                    eplus_files, vintage_weights, base_cols):
@@ -6525,7 +6523,7 @@ class Measure(object):
                 # ComStock hourly data, to aid in subsequent mapping of Scout data to ComStock data
                 # Ensure that no residential data are pulled in, and that existing commercial
                 # 'unspecified' building type is also ignored (gap segmentation doesn't apply)
-                if self.handyvars.comstock_gap is not None and mskeys[2] not in [
+                if self.gap_wts and mskeys[2] not in [
                         "single family home", "multi family home", "mobile home", "unspecified"]:
                     # Handle case where Scout building type and/or fuel type is not covered in the
                     # gap fractions (currently should cover all but 'unspecified' building type
@@ -6533,9 +6531,9 @@ class Measure(object):
                     try:
                         gap_adj_frac = self.handyvars.comstock_gap[mskeys[2]][mskeys[3]]
                     except KeyError:
-                        gap_adj_frac = 0
+                        gap_adj_frac = None
                 else:
-                    gap_adj_frac = 0
+                    gap_adj_frac = None
 
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microsegment that will be captured
@@ -7307,38 +7305,10 @@ class Measure(object):
                     # Check for whether detailed market breakouts are needed
                     # for current adoption scenario, and if so, prepare data
                     if self.handyvars.full_dat_out[adopt_scheme]:
-                        # Check whether an adjustment to represent gap in the annual commercial
-                        # data that are covered by ComStock load shapes is needed. If so, set
-                        # portion of original Scout building type that is uncovered, as well as
-                        # the inverse of that fraction, which represents the gap. These fractions
-                        # are used further in assigning the gap to an 'Unspecified' bldg. type
-                        # in the breakout data
-                        if gap_adj_frac != 0:
-                            brk_bldg_types_wts = {mskeys[2]: (1 - gap_adj_frac),
-                                                  "unspecified (gap)": gap_adj_frac}
-                        else:
-                            brk_bldg_types_wts = {mskeys[2]: 1}
-                        # Set mskeys as list for further modification
-                        mskeys_brk = list(mskeys)
-                        # Loop through original and (if applicable) gap building types and
-                        # assign breakout data
-                        for bt in brk_bldg_types_wts:
-                            # If a gap is being represented, adjust the original mseg information
-                            # such that the gap will be assigned in accordance with the 'other'
-                            # end use (as well as being assigned to the 'Unspecified' bldg. type)
-                            if "gap" in bt:
-                                eu_tech_vint = ["other", "gap_tech", mskeys_brk[-1]]
-                                add_gap_breakout_cats = True
-                            else:
-                                eu_tech_vint = mskeys_brk[4:]
-                            mskeys_brk = mskeys_brk[0:2] + [bt] + [mskeys_brk[3]] + eu_tech_vint
-                            # Set the fraction needed to partition msegs into gap/non-gap; (if gap
-                            # is not being assessed, this fraction will be 1)
-                            brk_gap_adj_frac = brk_bldg_types_wts[bt]
-                            # Populate detailed breakout information for measure
-                            breakout_mseg(
-                                self, mskeys_brk, contrib_mseg_key, adopt_scheme, opts, brk_in_dat,
-                                brk_gap_adj_frac)
+                        # Populate detailed breakout information for measure
+                        breakout_mseg(
+                            self, mskeys, contrib_mseg_key, adopt_scheme, opts, brk_in_dat,
+                            gap_adj_frac)
 
                     # Record contributing microsegment data needed for ECM
                     # competition in the analysis engine
@@ -7602,6 +7572,10 @@ class Measure(object):
                 cc_msg = ""
             else:
                 cc_msg = " (cost units converted)"
+        # If ComStock gap weights are being reported out, clean up empty dict branches and finalize
+        # data as fractions
+        if self.gap_wts:
+            self.gap_wts = self.finalize_gap_wts()
 
         # Print message to console; if in verbose mode, print to new line,
         # otherwise append to existing message on the console
@@ -7611,12 +7585,23 @@ class Measure(object):
         else:
             print("Success" + bstk_msg + bcpl_msg + bcc_msg + cc_msg)
 
-        # If breakouts were added to a measure to represent ComStock gap in mseg coverage,
-        # reflect the breakout categories in measure bldg, end use, and tech for transparency
-        if add_gap_breakout_cats:
-            self.bldg_type.append("unspecified (gap)")
-            self.end_use["primary"].append("other")
-            self.technology["primary"].append("gap_tech")
+    def finalize_gap_wts(self):
+        """Finalize fractions of measure msegs not covered by ComStock load shapes."""
+        # Initialize final fraction dict
+        gap_wts_fin = {}
+        # Loop through all building types in the data
+        for bd in self.gap_wts.keys():
+            # If values are all zero (indicating measure doesn't apply) move to next
+            if all([x == 0 for x in self.gap_wts[bd]["total"].values()]):
+                continue
+            # Divide gap portion of mseg by total mseg energy
+            else:
+                gap_wts_fin[bd] = {
+                    yr: self.gap_wts[bd]["gap"][yr] / self.gap_wts[bd]["total"][yr]
+                    if self.gap_wts[bd]["total"][yr] != 0 else 0
+                    for yr in self.handyvars.aeo_years}
+
+        return gap_wts_fin
 
     def use_deflt_res_choice(self, mskeys, consume_warn, opts):
         """Assign default res. tech. choice coefficients for segments without AEO coefficients.
@@ -13151,6 +13136,8 @@ class MeasurePackage(Measure):
             same region, building type/vintage, fuel type, and end use.
         sector_shapes (dict): Sector-level hourly baseline and efficient load
             shapes by adopt scheme, EMM region, and year.
+        gap_wts (dict): Data used to calculate portions of Scout/AEO msegs that
+            ComStock load shapes do not cover.
 
     """
 
@@ -13188,7 +13175,7 @@ class MeasurePackage(Measure):
         # data covered by ComStock load shapes is accounted for (measure gap
         # data are moved over to the 'other' end use)
         elif not (all([all([x in ["heating", "secondary heating",
-                                  "ventilation", "cooling", "other"] for x in
+                                  "ventilation", "cooling"] for x in
                             m.end_use["primary"]])
                        for m in self.contributing_ECMs_eqp]) or (
                   all([m.end_use["primary"] == "lighting" for
@@ -13288,6 +13275,8 @@ class MeasurePackage(Measure):
         self.sector_shapes = None
         self.htcl_overlaps = {adopt: {"keys": [], "data": {}} for
                               adopt in handyvars.adopt_schemes_prep}
+        # Set gap weights to that of first contributing ECM
+        self.gap_wts = self.contributing_ECMs_eqp[0].gap_wts
         for adopt_scheme in handyvars.adopt_schemes_prep:
             self.markets[adopt_scheme] = {
                 "master_mseg": {
@@ -15990,6 +15979,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
         # Delete 'handyvars' measure attribute (not relevant to
         # analysis engine)
         del m.handyvars
+        # Delete gap weights if they aren't populated
+        if not m.gap_wts:
+            del m.gap_wts
         # Delete 'tsv_features' measure attributes
         # (not relevant) for individual measures
         if not isinstance(m, MeasurePackage):
@@ -16106,8 +16098,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts, input_data
         brk_fs_energy_cost_eff_remain_base, brk_fs_carb_eff_remain_base, \
         brk_fs_energy_eff_remain_switch, brk_fs_energy_cost_eff_remain_switch, \
         brk_fs_carb_eff_remain_switch = [
-            {yr: x[yr] * gap_adj_frac for yr in self.handyvars.aeo_years}
-            if x else None for x in input_data]
+            {yr: x[yr] for yr in self.handyvars.aeo_years} if x else None for x in input_data]
 
     # Using the key chain for the current microsegment, determine the output
     # climate zone, building type, and end use breakout categories to which the
@@ -16247,7 +16238,17 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts, input_data
         base_data = [brk_stock_total, brk_energy_total,
                      brk_energy_cost, brk_carb_total]
         eff_data = [brk_stock_total_meas, brk_energy_total_eff,
-                    brk_energy_cost_eff, brk_carb_total_eff]
+                    brk_energy_cost_eff, brk_carb_total_eff]   
+        if self.gap_wts and gap_adj_frac is not None:
+            # Update total energy use affected by measure/building type
+            self.gap_wts[out_bldg]["total"] = {
+                yr: self.gap_wts[out_bldg]["total"][yr] + brk_energy_total[yr]
+                for yr in self.handyvars.aeo_years}
+            # Update gap in total energy use
+            self.gap_wts[out_bldg]["gap"] = {
+                yr: self.gap_wts[out_bldg]["gap"][yr] + brk_energy_total[yr] * gap_adj_frac
+                for yr in self.handyvars.aeo_years}
+
         # Create a shorthand for efficient captured energy data to add to the
         # breakout dict
         if brk_energy_total_eff_capt:
