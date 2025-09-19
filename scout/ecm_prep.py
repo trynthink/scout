@@ -109,7 +109,7 @@ class Measure(object):
         self.sector_shapes = None
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
-        self.handyvars = copy.deepcopy(handyvars)
+        self.handyvars = handyvars
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
@@ -541,8 +541,8 @@ class Measure(object):
                     "fugitive emissions"] = {
                         "methane": {
                             "total": {
-                                "baseline": copy.deepcopy(init_meth),
-                                "efficient": copy.deepcopy(init_meth)},
+                                "baseline": init_meth,
+                                "efficient": init_meth},
                             "competed": {
                                 "baseline": copy.deepcopy(init_meth),
                                 "efficient": copy.deepcopy(init_meth)}},
@@ -558,21 +558,21 @@ class Measure(object):
 
             # Add energy, carbon, and cost breakouts
             self.markets[adopt_scheme]["mseg_out_break"] = {key: {
-                "baseline": copy.deepcopy(self.handyvars.out_break_in),
-                "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                "savings": copy.deepcopy(self.handyvars.out_break_in)} for
+                "baseline": self.handyvars.out_break_in,
+                "efficient": self.handyvars.out_break_in,
+                "savings": self.handyvars.out_break_in} for
                 key in ["energy", "carbon", "cost"]}
             # Add stock breakouts
             self.markets[adopt_scheme][
                 "mseg_out_break"]["stock"] = {
-                    key: copy.deepcopy(self.handyvars.out_break_in) for key in
+                    key: self.handyvars.out_break_in for key in
                     ["baseline", "efficient"]}
             # Initialize breakouts of efficient energy captured by measure
             # if user does not suppress reporting of this variable
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme][
                     "mseg_out_break"]["energy"]["efficient-captured"] = \
-                    copy.deepcopy(self.handyvars.out_break_in)
+                    self.handyvars.out_break_in
 
     def fill_mkts(self, msegs, msegs_cpl, convert_data, tsv_data_init, opts,
                   ctrb_ms_pkg_prep, tsv_data_nonfs):
@@ -9082,9 +9082,9 @@ class MeasurePackage(Measure):
                             "adjusted energy (total captured)": {},
                             "adjusted energy (competed and captured)": {}}}},
                 "mseg_out_break": {key: {
-                    "baseline": copy.deepcopy(self.handyvars.out_break_in),
-                    "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                    "savings": copy.deepcopy(self.handyvars.out_break_in)} for
+                    "baseline": self.handyvars.out_break_in,
+                    "efficient": self.handyvars.out_break_in,
+                    "savings": self.handyvars.out_break_in} for
                     key in ["energy", "carbon", "cost"]}}
             # Initialize efficient captured energy if not suppressed by user
             if self.usr_opts["no_eff_capt"] is not True:
@@ -9130,14 +9130,14 @@ class MeasurePackage(Measure):
 
             # Add energy, carbon, and cost breakouts
             self.markets[adopt_scheme]["mseg_out_break"] = {key: {
-                "baseline": copy.deepcopy(self.handyvars.out_break_in),
-                "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                "savings": copy.deepcopy(self.handyvars.out_break_in)} for
+                "baseline": self.handyvars.out_break_in,
+                "efficient": self.handyvars.out_break_in,
+                "savings": self.handyvars.out_break_in} for
                 key in ["energy", "carbon", "cost"]}
             # Add stock breakouts
             self.markets[adopt_scheme][
                 "mseg_out_break"]["stock"] = {
-                    key: copy.deepcopy(self.handyvars.out_break_in) for
+                    key: self.handyvars.out_break_in for
                     key in ["baseline", "efficient"]}
             # Initialize breakouts of efficient energy captured by measure
             # if user does not suppress reporting of this additional
@@ -9145,7 +9145,7 @@ class MeasurePackage(Measure):
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme][
                     "mseg_out_break"]["energy"]["efficient-captured"] = \
-                    copy.deepcopy(self.handyvars.out_break_in)
+                    self.handyvars.out_break_in
 
     def merge_measures(self, opts):
         """Merge the markets information of multiple individual measures.

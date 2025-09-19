@@ -8,7 +8,20 @@ from scout.utils import JsonIO
 from scout.config import FilePaths as fp
 
 
-class UsefulVars(object):
+class MakeImmutableMixin:
+    """Mixin class to make a class's instances immutable after initialization."""
+    def __setattr__(self, name, value):
+        if not hasattr(self, '_immutable') or not self._immutable or name == '_immutable':
+            super().__setattr__(name, value)
+        else:
+            raise AttributeError(f"Cannot modify '{name}': {self.__class__.__name__} is immutable"
+                                 " after initialization.")
+
+    def _freeze(self):
+        self._immutable = True
+
+
+class UsefulVars(MakeImmutableMixin, object):
     """Class of variables that are used globally across functions.
 
     Attributes:
@@ -123,6 +136,7 @@ class UsefulVars(object):
     """
 
     def __init__(self, base_dir, handyfiles, opts):
+        self._immutable = False
         # Set adoption schemes to use in preparing ECM data. Note that high-
         # level technical potential (TP) market data are always prepared, even
         # if the user has excluded the TP adoption scheme from the run, because
@@ -1391,6 +1405,7 @@ class UsefulVars(object):
             "other heat gain")
         self.skipped_ecms = []
         self.save_shp_warn = []
+        self._freeze()
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
