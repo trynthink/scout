@@ -317,10 +317,10 @@ class TestConfig(unittest.TestCase, Utils):
     def test_invalid_config_args(self):
         # Check that incompatible argument values not specified in the yml schema yield
         # appropriate exceptions
-        cli_args = ["--detail_brkout", "fuel types", "--split_fuel"]
+        cli_args = ["--detail_brkout", "fuel types"]
         actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
         expected_err = (
-            "Detailed breakout (`detail_brkout`) cannot include `fuel types` if split_fuel==True"
+            "Detailed breakout (`detail_brkout`) cannot include `fuel types` if split_fuel==False"
         )
         self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
 
@@ -425,7 +425,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "rp_persist": True,
         "verbose": False,
         "health_costs": False,
-        "split_fuel": False,
+        "split_fuel": True,
         "no_scnd_lgt": False,
         "floor_start": None,
         "pkg_env_costs": "1",
@@ -470,6 +470,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
             "--detail_brkout",
             "regions",
             "fuel types",
+            "--split_fuel"
         ]
         args = ecm_args(cli_args)
         self.assertEqual(args.add_typ_eff, True)
