@@ -27,6 +27,7 @@ ecm_prep:
     tsv_energy_agg: average
     tsv_average_days: weekdays
   detail_brkout: [regions, fuel types]
+  split_fuel: true
   pkg_env_costs: include HVAC  
 
 run:
