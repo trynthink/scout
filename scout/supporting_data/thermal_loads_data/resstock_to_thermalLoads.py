@@ -557,7 +557,7 @@ def convert_to_thermalLoads(data: pd.DataFrame, final_data: pd.DataFrame) -> Non
                                 "CDIV": cdiv,
                                 "BLDG": bldg,
                                 "ENDUSE": output_enduse,
-                                "SUM_NBLDGS": sum_bldgs,
+                                "NBLDGS": sum_bldgs,
                             },
                             index=[0],
                         ),
@@ -588,6 +588,34 @@ def convert_to_thermalLoads(data: pd.DataFrame, final_data: pd.DataFrame) -> Non
                     ].div(row_total.values, axis=0)
 
     # Save to CSV with tab separator and txt extension
+    # Reorder columns to match original file
+    desired_order = [
+        "ENDUSE",
+        "CDIV",
+        "BLDG",
+        "NBLDGS",
+        "WIND_COND",
+        "WIND_SOL",
+        "ROOF",
+        "WALL",
+        "INFIL",
+        "PEOPLE",
+        "GRND",
+        "EQUIP",
+    ]
+
+    # Ensure all desired columns exist (create if missing)
+    for col in desired_order:
+        if col not in final_data.columns:
+            final_data[col] = 0.0
+
+    # Select and reorder
+    final_data = final_data[desired_order].copy()
+
+    # Round numeric columns to 4 decimal places
+    numeric_cols = final_data.select_dtypes(include=["number"]).columns
+    final_data[numeric_cols] = final_data[numeric_cols].round(4)
+
     final_data.to_csv(
         "scout/supporting_data/thermal_loads_data/Res_TLoads_Final.txt",
         sep="\t",
