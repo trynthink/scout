@@ -196,7 +196,7 @@ ecm_prep:
     incentive_restrictions: null
   price_sensitivity: null
   split_fuel: true 
-  detail_brkout: [regions, fuel types]
+  detail_brkout: [regions, codes/bps, fuel types]
   comstock_gap: true
 
 run:

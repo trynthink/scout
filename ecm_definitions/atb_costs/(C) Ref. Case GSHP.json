@@ -47,8 +47,8 @@
   },
   "installed_cost": {
     "comm_GSHP-heat": {
-      "new": 222.24,
-      "existing": 224.01
+      "new": 573.0,
+      "existing": 573.0
     },
     "comm_GSHP-cool": {
       "new": 0.0,
@@ -95,6 +95,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-09-05 09:31:45"
+    "timestamp": "2025-09-24 13:39:06"
   }
 }

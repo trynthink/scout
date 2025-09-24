@@ -29,8 +29,8 @@
     "source_data": "Buildings Annual Technology Baseline. NREL, forthcoming"
   },
   "installed_cost": {
-    "new": 29929.0,
-    "existing": 30014.0
+    "new": 42651.0,
+    "existing": 42651.0
   },
   "cost_units": "2023$/unit",
   "installed_cost_source": {
@@ -59,6 +59,6 @@
     "name": "Jared Langevin",
     "organization": "LBNL",
     "email": "jared.langevin@lbl.gov",
-    "timestamp": "2025-09-05 09:31:45"
+    "timestamp": "2025-09-24 13:39:06"
   }
 }
