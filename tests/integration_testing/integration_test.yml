@@ -1,8 +1,99 @@
 description: Defines arguments for integration testing runs
 ecm_prep:
-  ecm_packages: ["*"]
-  add_typ_eff: true
+  ecm_directory: ../../ecm_definitions/integration_testing
+  ecm_files: [
+    "(R) Ref. Case Other Fossil Furnace & AC",
+    "(R) Ref. Case Other Fossil Boiler & AC",
+    "(R) Ref. Case NG Furnace & AC",
+    "(R) Ref. Case NG Boiler & AC",
+    "(R) Ref. Case Resist. Heat & AC",
+    "(R) Ref. Case Bio or No Heat & AC",
+    "(R) Ref. Case ASHP",
+    "(R) Ref. Case NGHP",
+    "(R) Ref. Case GSHP",
+    "(R) Ref. Case Other Fossil Heat, No Cooling",
+    "(R) Ref. Case NG Heat, No Cooling",
+    "(R) Ref. Case Resist. Heat, No Cooling",
+    "(C) Ref. Case Other Fossil Furnace & AC",
+    "(C) Ref. Case NG Furnace & AC",
+    "(C) Ref. Case RTU, Other Fossil Heat",
+    "(C) Ref. Case RTU, NG Heat",
+    "(C) Ref. Case, Resist. Heat",
+    "(C) Ref. Case Other Fossil Boiler & Chiller",
+    "(C) Ref. Case NG Boiler & Chiller",
+    "(C) Ref. Case ASHP (RTU)",
+    "(C) Ref. Case GSHP",
+    "(R) Ref. Case Gas WH",
+    "(R) Ref. Case Resist. WH",
+    "(R) Ref. Case Gas Range",
+    "(R) Ref. Case Electric Range",
+    "(R) Ref. Case Gas Dryer",
+    "(R) Ref. Case Electric Dryer",
+    "(R) Ref. Case Clothes Washer",
+    "(R) Ref. Case Dishwasher",
+    "(R) Ref. Case Refrigerator",
+    "(R) Ref. Case Electronics",
+    "(R) Ref. Case Fans and Pumps",
+    "(R) Ref. Case Pool Pumps",
+    "(R) Ref. Case Misc. Electric Appliances",
+    "(R) Ref. Case Electric Other",
+    "(R) Ref. Case Fossil Other",
+    "(R) Ref. Case Lighting",
+    "(C) Ref. Case Gas WH",
+    "(C) Ref. Case Resist. WH",
+    "(C) Ref. Case Gas Range",
+    "(C) Ref. Case Electric Range",
+    "(C) Ref. Case Lighting",
+    "(C) Ref. Case Plug Loads",
+    "(C) Ref. Case Refrigeration",
+    "(C) Ref. Case Misc. Electric Appliances",
+    "(C) Ref. Case Electric Other",
+    "(C) Ref. Case Fossil Other",
+    "(R) ESTAR HP TS (Resist.)",
+    "(R) Brk. HP LFL",
+    "(R) Min. Efficiency ASHP FS (NG Furnace)",
+    "(R) Best HP FS (NG Furnace)",
+    "(R) Brk. HP FS (NG Furnace)",
+    "(R) IECC 2021 Walls & Air Sealing",
+    "(R) IECC 2021 Roofs",
+    "(R) ENERGY STAR Windows",
+    "(R) ESTAR 240V HPWH FS",
+    "(R) Best Gas WH",
+    "(R) ESTAR HPWH TS",
+    "(R) Brk. HPWH FS",
+    "(R) Induction Range FS",
+    "(R) Induction Range TS",
+    "(R) Best 120V HP Dryer FS",
+    "(R) Best 120V HP Dryer TS",
+    "(R) ENERGY STAR Clothes Washer",
+    "(R) ENERGY STAR Dishwasher",
+    "(R) ENERGY STAR Refrigerator",
+    "(R) ENERGY STAR Electronics",
+    "(R) ENERGY STAR Pool Pumps",
+    "(R) Best Residential LED Lighting",
+    "(C) Min. Efficiency HP FS (RTU, NG Heat)",
+    "(C) Best HP FS (RTU, NG Heat)",
+    "(C) ESTAR HP TS (Resist. Heat)",
+    "(C) 90.1-2022 Walls & Air Sealing",
+    "(C) 90.1-2022 Windows",
+    "(C) ESTAR HPWH FS",
+    "(C) ESTAR HPWH TS",
+    "(C) Induction Range FS",
+    "(C) Induction Range TS",
+    "(C) 90.1 Lighting",
+    "(C) 90.1 Plug Loads",
+    "(C) Best Refrigeration"
+    ]
+  ecm_packages: [
+    "(R) Bst. HP FS (NG Frn.) & Env.+",
+    "(C) Bst. HP FS (RTU, NG Ht.) & Env.+"
+    ]
+  alt_regions: State
+  pkg_env_costs: include HVAC
+  site_energy: true
   rp_persist: true
-  alt_regions: EMM
+  no_scnd_lgt: true
+  adopt_scn_restrict: Max adoption potential
+
 run: 
   None: None

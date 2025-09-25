@@ -823,7 +823,8 @@ class UsefulVars(object):
             # resistance + AC tech.
             self.com_RTU_fs_tech = [
                 "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
+                "pkg_terminal_AC-cool"]
             # Use non-RTU HP fuel switching rates for boiler/chiller tech.
             # and/or gas chillers/HPs
             self.com_nRTU_fs_tech = [
@@ -840,7 +841,8 @@ class UsefulVars(object):
             self.hp_rates = None
             self.com_RTU_fs_tech = [
                 "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC"]
+                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
+                "pkg_terminal_AC-cool"]
             self.com_nRTU_fs_tech = [
                 "elec_boiler", "gas_eng-driven_RTHP-heat",
                 "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
@@ -876,12 +878,12 @@ class UsefulVars(object):
             },
             "commercial": {
                 "heating": [
-                    "elec_boiler", "electric_res-heat", "gas_boiler",
+                    "elec_boiler", "electric_res-heat", "elec_res-heater", "gas_boiler",
                     "gas_furnace", "oil_boiler", "oil_furnace",
-                    "rooftop_ASHP-heat", "comm_GSHP-heat",
+                    "rooftop_ASHP-heat", "pkg_terminal_HP-heat", "comm_GSHP-heat",
                     "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
                 "cooling": [
-                    "rooftop_AC", "rooftop_ASHP-cool",
+                    "rooftop_AC", "rooftop_ASHP-cool", "pkg_terminal_AC-cool",
                     "reciprocating_chiller", "scroll_chiller",
                     "centrifugal_chiller", "screw_chiller",
                     "res_type_central_AC", "comm_GSHP-cool",
@@ -3204,8 +3206,7 @@ class Measure(object):
                         mskeys_swtch_tech = "HP water heater"
                     # Cooking
                     elif mskeys[4] == "cooking":
-                        mskeys_swtch_tech = \
-                            "electric_range_oven_24x24_griddle"
+                        mskeys_swtch_tech = "elec_range-combined"
                     # Lighting - switch to comparable LED product based
                     # on lighting class in baseline
                     elif mskeys[4] == "lighting":
