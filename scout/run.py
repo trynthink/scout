@@ -3127,7 +3127,7 @@ class Engine(object):
                     # Non-cooling tech. or cooling tech. is non-HP; find
                     # appropriate heating tech. to switch to
                     if any([x in mseg_key for x in [
-                            "rooftop_AC", "scroll_chiller",
+                            "rooftop_AC", "pkg_terminal_AC-cool", "scroll_chiller",
                             "res_type_central_AC", "reciprocating_chiller",
                             "centrifugal_chiller", "wall-window_room_AC",
                             "screw_chiller", "gas_chiller",
@@ -3140,14 +3140,14 @@ class Engine(object):
                         # Initialize list of heating technologies that would
                         # be expected for a non-HP cooling tech.
                         tech_search = [x for x in [
-                            "elec_boiler", "electric_res-heat", "gas_boiler",
+                            "elec_boiler", "electric_res-heat", "elec_res-heater", "gas_boiler",
                             "gas_furnace", "oil_boiler", "oil_furnace"] if x in
                             m.technology["primary"]]
                         # If the microsegment is non-cooling (e.g.,
                         # ventilation), expand to all commercial heating tech.
                         if "cooling" not in mseg_key:
                             tech_search.extend([
-                                "rooftop_ASHP-heat", "comm_GSHP-heat",
+                                "rooftop_ASHP-heat", "pkg_terminal_HP-heat", "comm_GSHP-heat",
                                 "gas_eng-driven_RTHP-heat",
                                 "res_type_gasHP-heat"])
                         if len(tech_search) == 0:
@@ -3178,6 +3178,8 @@ class Engine(object):
                         key_list[-2] = "gas_eng-driven_RTHP-heat"
                     elif "res_type_gasHP-cool" in mseg_key:
                         key_list[-2] = "res_type_gasHP-heat"
+                    elif "pkg_terminal_HP-cool" in mseg_key:
+                        key_list[-2] = "pkg_terminal_HP-heat"
                     # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
@@ -3227,8 +3229,8 @@ class Engine(object):
                     # technologies that the measure applies to, and set
                     # the fuel as appropriate to the selected tech.
                     tech_search = [x for x in [
-                         "rooftop_AC", "rooftop_ASHP-cool",
-                         "reciprocating_chiller", "scroll_chiller",
+                         "rooftop_AC", "pkg_terminal_AC-cool", "rooftop_ASHP-cool",
+                         "pkg_terminal_HP-cool", "reciprocating_chiller", "scroll_chiller",
                          "centrifugal_chiller", "screw_chiller",
                          "res_type_central_AC", "comm_GSHP-cool",
                          "gas_eng-driven_RTAC", "gas_chiller",

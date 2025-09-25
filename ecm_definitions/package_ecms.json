@@ -1,325 +1,514 @@
 [
- {"name": "ENERGY STAR Res. ASHP (FS) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (FS)",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. ASHP (FS) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (FS) CC",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. ASHP (LFL) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (LFL)",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. ASHP (RST) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (RST)",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. ASHP (LFL) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (LFL) CC",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Res. ASHP (RST) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Res. ASHP (RST) CC",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (FS)",
-    "Prospective Residential Ctls. (ASHP-FS)",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (FS) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (FS) CC",
-    "Prospective Res. Ctls. (ASHP-FS) CC",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (LFL) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (LFL)",
-    "Prospective Residential Ctls. (ASHP-LFL)",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (RST) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (RST)",
-    "Prospective Residential Ctls. (ASHP-RST)",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (LFL) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (LFL) CC",
-    "Prospective Res. Ctls. (ASHP-LFL) CC",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. ASHP (RST) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Residential ASHP (RST) CC",
-    "Prospective Res. Ctls. (ASHP-RST) CC",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (FS) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (FS)",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (FS) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (FS) CC",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (LFL) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (LFL)",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (RST) + Env.",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (RST)",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (LFL) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (LFL) CC",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ENERGY STAR Com. ASHP (RST) + Env. CC",
-  "contributing_ECMs": [
-    "ENERGY STAR Com. ASHP (RST) CC",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (FS)",
-    "Prospective Commercial Ctls. (ASHP-FS)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (FS) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (FS) CC",
-    "Prospective Com. Ctls. (ASHP-FS) CC",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (LFL) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (LFL)", "Prospective Commercial Ctls. (ASHP-LFL)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (RST) + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (RST)", "Prospective Commercial Ctls. (ASHP-RST)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (LFL) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (LFL) CC",
-    "Prospective Com. Ctls. (ASHP-LFL) CC",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. ASHP (RST) + Env. + Ctls. CC",
-  "contributing_ECMs": [
-    "Prospective Commercial ASHP (RST) CC",
-    "Prospective Com. Ctls. (ASHP-RST) CC",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. Chillers + Env. + Ctls.",
-  "contributing_ECMs": [
-    "Prospective Commercial Chillers", "Prospective Com. Ctls. (Chillers)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "ESTAR IECC Res. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Res. Fossil Heating, ESTAR",
-    "Other Res. Heating (N-Elec)",
-    "Res. Air Sealing (New), IECC c. 2021",
-    "Res. Air Sealing (Exist), IECC c. 2021",
-    "ENERGY STAR Windows v. 7.0",
-    "Residential Walls, IECC c. 2021",
-    "Residential Roof, IECC c. 2021",
-    "Residential Floors, IECC c. 2021"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Best Res. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Best Res. Fossil Heating",
-    "Other Res. Heating (N-Elec)",
-    "Best Residential Windows",
-    "Best Res. Air Sealing (New)",
-    "Best Res. Air Sealing (Exist)",
-    "Best Residential Walls",
-    "Best Residential Roof",
-    "Best Residential Floors"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}}, 
- {"name": "Prosp. Res. N-Elec. Env. + Ctls.",
-  "contributing_ECMs": [
-    "Res. Fossil Heating, ESTAR (2030)",
-    "Other Res. Heat (N-Elec) (2030)",
-    "Prospective Residential Ctls. (Non-Elec.)",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Res. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Res. Fossil Heating, ESTAR (2030)",
-    "Other Res. Heat (N-Elec) (2030)",
-    "Prospective Residential Windows",
-    "Prospective Residential Air Seal (New)",
-    "Prospective Residential Air Seal (Exist)",
-    "Prospective Residential CI Walls",
-    "Prospective Residential Foundations"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "90.1 Com. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Com. Fossil Heating, 90.1 c. 2022",
-    "Other Com. Heating (N-Elec)",
-    "Com. Air Sealing (New), 90.1 c. 2022",
-    "Com. Air Sealing (Exist), 90.1 c. 2022",
-    "Commercial Fenestration, 90.1 c. 2022",
-    "Commercial Walls, 90.1 c. 2022",
-    "Commercial Roofs, 90.1 c. 2022",
-    "Commercial Floors, 90.1 c. 2022"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Best Com. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Best Com. Fossil Heating",
-    "Other Com. Heating (N-Elec)",
-    "Best Com. Air Sealing (Exist)",
-    "Best Com. Air Sealing (New)",
-    "Best Commercial Fenestration",
-    "Best Commercial Walls",
-    "Best Commercial Roofs",
-    "Best Commercial Floors"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
- {"name": "Prosp. Com. N-Elec. Env. + Ctls.",
-  "contributing_ECMs": [
-    "Com. Fossil Heating, 90.1 c. 2022 (2030)",
-    "Other Com. Heat (N-Elec) (2030)",
-    "Prospective Commercial Ctls. (Non-Elec.)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}},
-{"name": "Prosp. Com. N-Elec. Env.",
-  "contributing_ECMs": [
-    "Com. Fossil Heating, 90.1 c. 2022 (2030)",
-    "Other Com. Heat (N-Elec) (2030)",
-    "Prospective Commercial Air Seal (Exist)",
-    "Prospective Commercial Windows",
-    "Prospective Commercial CI Walls",
-    "Prospective Commercial Roofs"],
-  "benefits": {"energy savings increase": 0, "cost reduction": 0, "source": null}}]
+  {
+    "name": "(R) Ref. NG Furnace & AC & Env.",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES HP Pt. FS (Oth. Fs. Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR HP Pt. FS (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES HP Pt. FS (NG Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR HP Pt. FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES HP FS (Oth. Fs. Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR HP FS (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES HP FS (NG Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR HP FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES GSHP (Oth. Fs. Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR GSHP (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES GSHP (NG Frn.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR GSHP (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) ES HP TS (Resist.) & Env.",
+    "contributing_ECMs": [
+      "(R) ESTAR HP TS (Resist.)",
+      "(R) IECC 2021 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) ES HP FS (RTU, NG Ht.) & Env.",
+    "contributing_ECMs": [
+      "(C) ESTAR HP FS (RTU, NG Heat)",
+      "(C) 90.1-2022 Walls & Air Sealing"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Ref. NG Furnace & AC & Env.+",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP Pt. FS (Oth. Fs. Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP Pt. FS (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP Pt. FS (NG Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP Pt. FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP FS (Oth. Fs. Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP FS (Other Fossil Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP FS (NG Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP FS (NG Boiler) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP FS (NG Boiler)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Bst. HP TS (Resist.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP TS (Resist.)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) Bst. HP FS (RTU, NG Ht.) & Env.+",
+    "contributing_ECMs": [
+      "(C) Best HP FS (RTU, NG Heat)",
+      "(C) 90.1-2022 Walls & Air Sealing",
+      "(C) 90.1-2022 Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) Bst. HP FS (NG Boiler) & Env.+",
+    "contributing_ECMs": [
+      "(C) Best HP FS (NG Boiler)",
+      "(C) 90.1-2022 Walls & Air Sealing",
+      "(C) 90.1-2022 Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Ref. NG Furnace & AC & Env.++",
+    "contributing_ECMs": [
+      "(R) Ref. Case NG Furnace & AC",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Brk. HP FS (Oth. Fs. Frn.) & Env.++",
+    "contributing_ECMs": [
+      "(R) Brk. HP FS (Other Fossil Furnace)",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Brk. HP FS (NG Frn.) & Env.++",
+    "contributing_ECMs": [
+      "(R) Brk. HP FS (NG Furnace)",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Brk. HP FS (NG Boiler) & Env.++",
+    "contributing_ECMs": [
+      "(R) Brk. HP FS (NG Boiler)",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(R) Brk. HP TS (Resist.) & Env.++",
+    "contributing_ECMs": [
+      "(R) Brk. HP TS (Resist.)",
+      "(R) BTO RDO Walls",
+      "(R) BTO RDO Air Sealing",
+      "(R) BTO RDO Windows",
+      "(R) BTO RDO Foundations"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) Bst. HP FS (RTU, NG Ht.) & Env.++",
+    "contributing_ECMs": [
+      "(C) Best HP FS (RTU, NG Heat)",
+      "(C) BTO RDO Walls",
+      "(C) BTO RDO Air Sealing (Exist)",
+      "(C) BTO RDO Roofs",
+      "(C) BTO RDO Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) Bst. HP FS (NG Boiler) & Env.++",
+    "contributing_ECMs": [
+      "(C) Best HP FS (NG Boiler)",
+      "(C) BTO RDO Walls",
+      "(C) BTO RDO Air Sealing (Exist)",
+      "(C) BTO RDO Roofs",
+      "(C) BTO RDO Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  }
+]

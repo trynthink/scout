@@ -1,0 +1,43 @@
+[
+  {
+    "name": "(R) Bst. HP FS (NG Frn.) & Env.+",
+    "contributing_ECMs": [
+      "(R) Best HP FS (NG Furnace)",
+      "(R) IECC 2021 Walls & Air Sealing",
+      "(R) IECC 2021 Roofs",
+      "(R) ENERGY STAR Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  },
+  {
+    "name": "(C) Bst. HP FS (RTU, NG Ht.) & Env.+",
+    "contributing_ECMs": [
+      "(C) Best HP FS (RTU, NG Heat)",
+      "(C) 90.1-2022 Walls & Air Sealing",
+      "(C) 90.1-2022 Windows"
+    ],
+    "benefits": {
+      "energy savings increase": null,
+      "cost reduction": null
+    },
+    "energy_savings_source": {
+      "notes": null,
+      "source_data": null
+    },
+    "cost_reduction_source": {
+      "notes": null,
+      "source_data": null
+    }
+  }
+]
