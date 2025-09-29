@@ -180,7 +180,14 @@ class ScoutCompare():
         if df.empty:
             logger.info(f"No changes above the threshold found, {output_path} not written")
             return
-        df[col_headers] = df["Results path"].apply(self.split_json_key_path).apply(pd.Series)
+        split_df = df["Results path"].apply(self.split_json_key_path).apply(pd.Series)
+
+        # Remove on-site generation diffs as it does not fit the results format
+        split_df = split_df[split_df[0] != "On-site Generation"]
+        if split_df.empty:
+            logger.info(f"No changes above the threshold found, {output_path} not written")
+            return
+        df[col_headers] = split_df
         df["Percent difference"] = [
             round(diff_dict["percent_diff"], 2) for diff_dict in diff_report.values()]
         df["Base value"] = [round(diff_dict["base"], 2) for diff_dict in diff_report.values()]
