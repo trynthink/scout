@@ -93,7 +93,6 @@ ecm_prep:
   site_energy: true
   rp_persist: true
   no_scnd_lgt: true
-  adopt_scn_restrict: Max adoption potential
 
 run: 
   None: None
