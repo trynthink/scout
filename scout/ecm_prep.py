@@ -9821,7 +9821,7 @@ class Measure(object):
                     tsv_carb_base * remain_fuel_frac
                 fs_energy_cost_eff_remain_switch[yr] = \
                     (energy_cost_tot_comp_meas_mkt +
-                     energy_cost_tot_uncomp_meas) * tsv_ecost_base * \
+                     energy_cost_tot_uncomp_meas_mkt) * tsv_ecost_base * \
                     cost_energy_base[yr] * remain_fuel_frac
 
         # Return partitioned stock, energy, and cost mseg information
