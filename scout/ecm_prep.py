@@ -7219,8 +7219,8 @@ class Measure(object):
                         # in the case of HPs where the full stock cost for HPs is already counted in
                         # the anchor end use, or in the case of minor HVAC techs that should be
                         # excluded from the cost calculations
-                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or \
-                                rmv_hp_dblct_base_stkcosts:
+                        if (opts.no_lnkd_stk_costs and "report" in opts.no_lnkd_stk_costs) or \
+                                rmv_minor_hvac_stkcosts or rmv_hp_dblct_base_stkcosts:
                             add_dict["cost"]["stock"]["total"]["baseline"], \
                                 add_dict["cost"]["stock"]["competed"]["baseline"] = ({
                                     yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
@@ -7228,20 +7228,11 @@ class Measure(object):
                         # in the case of HPs where the full stock cost for HPs is already counted in
                         # the anchor end use, or in the case of minor HVAC techs that should be
                         # excluded from the cost calculations
-                        if opts.no_lnkd_stk_costs or rmv_minor_hvac_stkcosts or \
-                                rmv_hp_dblct_meas_stkcosts:
+                        if (opts.no_lnkd_stk_costs and "report" in opts.no_lnkd_stk_costs) or \
+                                rmv_minor_hvac_stkcosts or rmv_hp_dblct_meas_stkcosts:
                             add_dict["cost"]["stock"]["total"]["efficient"], \
                                 add_dict["cost"]["stock"]["competed"]["efficient"] = ({
                                     yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
-                        # Remove all linked energy and carbon costs for baseline and measure when
-                        # suppressed by the user
-                        if opts.no_lnkd_op_costs:
-                            for var in ["energy", "carbon"]:
-                                for case in ["baseline", "efficient"]:
-                                    add_dict["cost"][var]["total"][case], \
-                                        add_dict["cost"][var]["competed"][case] = ({
-                                            yr: 0 for yr in self.handyvars.aeo_years}
-                                            for n in range(2))
 
                     # Append lifetime data multiplied by # of stock units (after any adjustments to
                     # remove linked stock totals above), to support later calculation of
@@ -11656,7 +11647,7 @@ class Measure(object):
                     tsv_carb_base * remain_fuel_frac
                 fs_energy_cost_eff_remain_switch[yr] = \
                     (energy_cost_tot_comp_meas_mkt +
-                     energy_cost_tot_uncomp_meas) * tsv_ecost_base * \
+                     energy_cost_tot_uncomp_meas_mkt) * tsv_ecost_base * \
                     cost_energy_base[yr] * remain_fuel_frac
 
         # Return partitioned stock, energy, and cost mseg information

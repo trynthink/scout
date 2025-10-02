@@ -105,7 +105,7 @@ class TestConfig(unittest.TestCase, Utils):
             "detail_brkout": [],
             "fugitive_emissions": [],
             "no_eff_capt": False,
-            "no_lnkd_stk_costs": False,
+            "no_lnkd_stk_costs": None,
             "no_lnkd_op_costs": False,
             "elec_upgrade_costs": "shares",
             "low_volume_rate": None,

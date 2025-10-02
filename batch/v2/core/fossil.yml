@@ -180,7 +180,7 @@ ecm_prep:
     retrofit_mult_year: null
   elec_upgrade_costs: all
   no_lnkd_costs:
-    no_lnkd_stk_costs: true
+    no_lnkd_stk_costs: in_adopt_only
     no_lnkd_op_costs: true
   sub_fed_policy:
     low_volume_rate: null

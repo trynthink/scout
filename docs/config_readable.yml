@@ -119,11 +119,12 @@ ecm_prep:
       only the anchor end use (rather than all end uses) in representing
       competition w/ other measures (default anchor is heating).
       Default False
-    no_lnkd_stk_costs: (boolean) For measures that span heating
+    no_lnkd_stk_costs: (string) For measures that span heating
       or cooling and other end uses, count stock costs for only
       the anchor end use (rather than all end uses) in representing
       competition w/ other measures (default anchor is heating).
-      Default False
+      Allowed values are {in_adopt_and_report, in_adopt_only,
+      null}. Default null
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
     heating and cooling energy effects from changes in lighting
     efficacy. Default False

@@ -218,8 +218,9 @@ properties:
         type: object
         properties:
           no_lnkd_stk_costs:
-            type: boolean
-            default: false
+            type: ["string", "null"]
+            enum: [in_adopt_and_report, in_adopt_only, null]
+            default: null
             description: For measures that span heating or cooling and other end uses, count stock costs for only the anchor end use (rather than all end uses) in representing competition w/ other measures (default anchor is heating).
           no_lnkd_op_costs:
             type: boolean
