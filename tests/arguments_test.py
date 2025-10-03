@@ -104,6 +104,9 @@ class TestConfig(unittest.TestCase, Utils):
             "pkg_env_sep": False,
             "detail_brkout": [],
             "fugitive_emissions": [],
+            "low_volume_rate": None,
+            "incentive_levels": "aeo",
+            "incentive_restrictions": None
         },
         "run": {
             "results_directory": None,
