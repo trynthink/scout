@@ -90,6 +90,19 @@ ecm_prep:
       Default null
   health_costs: (boolean) If true, enable health costs. Requires
     alt_regions to be set to `EMM`. Default False
+  incentives:
+    incentive_levels: (['string']) Level of federal and state
+      incentives (e.g., tax credits, rebates) for measure adoption.
+      The aeo option reverts to incentive levels in the AEO reference
+      case forecast. Allowed values are {aeo, aggressive, aggressive
+      state, optimistic, reference}. Default aeo
+    incentive_restrictions: (string) Restrictions to apply to
+      evaluation of incentives. Setting to all removes all incentives,
+      including those in the reference case, while null imposes
+      no additional restrictions. Allowed values are {all, no
+      electric, no federal, no federal electric, no federal fossil,
+      no fossil, no ira, no sub-fed fossil, no sub-federal, no
+      sub-federal electric, null}. Default null
   no_eff_capt: (boolean) If true, suppress reporting of ECM-captured
     efficient energy use. Default False
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
@@ -129,6 +142,11 @@ ecm_prep:
     Default False
   split_fuel: (boolean) If true, split out ECM results reporting
     by fuel type. Default False
+  sub_fed_policy:
+    low_volume_rate: (string) Reduce volumetric electric rates,
+      possibly with concurrent increase in fixed charges. Null
+      removes this driver entirely. Allowed values are {aggressive,
+      optimistic, reference, null}. Default null
   tsv_metrics:
     tsv_average_days: (string) The day type to average over. Required
       if tsv_type is `energy` or tsv_power_agg is `average`. Allowed
