@@ -2987,6 +2987,7 @@ class Measure(object):
                 "mseg_adjust", {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
+                    "capacity factor": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
                             "original energy (total)": {},
@@ -6485,7 +6486,7 @@ class Measure(object):
                      add_fs_energy_eff_remain_switch,
                      add_fs_carb_eff_remain_switch,
                      add_fs_energy_cost_eff_remain_switch,
-                     mkt_scale_frac_fin, warn_list] = \
+                     mkt_scale_frac_fin, stk_cap_fact, warn_list] = \
                         self.partition_microsegment(
                             adopt_scheme, diffuse_params, mskeys, mskeys_swtch, bldg_sect,
                             sqft_subst, mkt_scale_frac, new_constr, add_stock,
@@ -6620,38 +6621,41 @@ class Measure(object):
                                     "baseline": add_frefr_compete,
                                     "efficient": add_frefr_compete_eff}}}
 
+                    # Compile all data that need to be broken out in a list for further processing
+                    brk_in_dat = [
+                        add_dict["stock"]["total"]["all"],
+                        add_dict["energy"]["total"]["baseline"],
+                        add_dict["cost"]["energy"]["total"]["baseline"],
+                        add_dict["carbon"]["total"]["baseline"],
+                        add_dict["stock"]["total"]["measure"],
+                        add_dict["energy"]["total"]["efficient"],
+                        add_dict["energy"]["total"]["efficient-captured"],
+                        add_dict["cost"]["energy"]["total"]["efficient"],
+                        add_dict["carbon"]["total"]["efficient"],
+                        add_fs_stk_eff_remain,
+                        add_fs_energy_eff_remain_base,
+                        add_fs_energy_cost_eff_remain_base,
+                        add_fs_carb_eff_remain_base,
+                        add_fs_energy_eff_remain_switch,
+                        add_fs_energy_cost_eff_remain_switch,
+                        add_fs_carb_eff_remain_switch]
+
                     # Check for whether detailed market breakouts are needed
                     # for current adoption scenario, and if so, prepare data
                     if self.handyvars.full_dat_out[adopt_scheme]:
                         # Populate detailed breakout information for measure
                         breakout_mseg(
-                            self, mskeys, contrib_mseg_key, adopt_scheme, opts,
-                            add_dict["stock"]["total"]["all"],
-                            add_dict["energy"]["total"]["baseline"],
-                            add_dict["cost"]["energy"]["total"]["baseline"],
-                            add_dict["carbon"]["total"]["baseline"],
-                            add_dict["stock"]["total"]["measure"],
-                            add_dict["energy"]["total"]["efficient"],
-                            add_dict["energy"]["total"]["efficient-captured"],
-                            add_dict["cost"]["energy"]["total"]["efficient"],
-                            add_dict["carbon"]["total"]["efficient"],
-                            add_fs_stk_eff_remain,
-                            add_fs_energy_eff_remain_base,
-                            add_fs_energy_cost_eff_remain_base,
-                            add_fs_carb_eff_remain_base,
-                            add_fs_energy_eff_remain_switch,
-                            add_fs_energy_cost_eff_remain_switch,
-                            add_fs_carb_eff_remain_switch)
+                            self, mskeys, contrib_mseg_key, adopt_scheme, opts, brk_in_dat)
+
+                    # Record contributing microsegment data needed for ECM
+                    # competition in the analysis engine
+                    contrib_mseg_key_str = str(contrib_mseg_key)
 
                     # Check for whether detailed contributing mseg data
                     # are needed for current adoption scenario, and if so,
                     # prepare data
                     if self.handyvars.full_dat_out[adopt_scheme] or \
                             self.name in ctrb_ms_pkg_prep:
-                        # Record contributing microsegment data needed for ECM
-                        # competition in the analysis engine
-                        contrib_mseg_key_str = str(contrib_mseg_key)
-
                         # Case with no existing 'windows' contributing mseg
                         # for the current climate zone, building type, fuel,
                         # and end use (create new 'contributing mseg keys and
@@ -6701,6 +6705,44 @@ class Measure(object):
                             "contributing mseg keys and values"][
                             contrib_mseg_key_str]["sub-market scaling"] = \
                             mkt_scale_frac_fin
+                    else:
+                        # If full detailed data are not needed for current scenario, restrict
+                        # data to only those necessary to support high resolution competition
+                        # calculations, (measure capital costs, energy costs, lifetime) should user
+                        # opt for these calculations in the run module
+                        add_dict_limited = {
+                            "stock": {"competed": {"measure": add_dict[
+                                "stock"]["competed"]["measure"]}},
+                            "cost": {
+                                "stock": {"competed": {"efficient": add_dict[
+                                    "cost"]["stock"]["competed"]["efficient"]}},
+                                "energy": {"competed": {"efficient": add_dict[
+                                    "cost"]["energy"]["competed"]["efficient"]}}},
+                            "lifetime": {"measure": add_dict["lifetime"]["measure"]}}
+                        # Case with no existing 'windows' contributing mseg
+                        # for the current climate zone, building type, fuel,
+                        # and end use (create new 'contributing mseg keys and
+                        # values' and 'competed choice parameters' microsegment
+                        # information)
+                        if contrib_mseg_key_str not in self.markets[
+                            adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"].keys():
+                            # Register limited contributing microsegment info. on stock and
+                            # costs for potential later use in determining unit stock and energy
+                            self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                contrib_mseg_key_str] = add_dict_limited
+                        # Case with existing 'windows' contributing mseg
+                        # for the current climate zone, building type, fuel,
+                        # and end use (add to existing 'contributing mseg keys
+                        # and values' information)
+                        else:
+                            self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][
+                                contrib_mseg_key_str] = self.add_keyvals(
+                                    self.markets[adopt_scheme]["mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        contrib_mseg_key_str], add_dict_limited)
 
                     # Add all updated contributing microsegment stock, energy
                     # carbon, cost, and lifetime information to existing master
@@ -6709,6 +6751,9 @@ class Measure(object):
                     self.markets[adopt_scheme]["master_mseg"] = \
                         self.add_keyvals(self.markets[adopt_scheme][
                             "master_mseg"], add_dict)
+                    # Add capacity factor information to contributing microsegment data
+                    self.markets[adopt_scheme]["mseg_adjust"][
+                        "capacity factor"][contrib_mseg_key_str] = stk_cap_fact
 
         # Print warnings
         if len(warn_list) > 0:
@@ -6758,12 +6803,16 @@ class Measure(object):
                 # Shorthand for contributing microsegment information
                 contrib_msegs = self.markets[adopt_scheme]["mseg_adjust"][
                     "contributing mseg keys and values"]
-                for key in contrib_msegs.keys():
-                    contrib_msegs[key]["lifetime"]["baseline"] = {yr: (
-                        contrib_msegs[key]["lifetime"]["baseline"][yr] /
-                        contrib_msegs[key]["stock"]["total"]["all"][yr]) if
-                        contrib_msegs[key]["stock"]["total"]["all"][yr] != 0
-                        else 10 for yr in self.handyvars.aeo_years}
+                # Renormalize baseline lifetime data for each contributing microsegment; note that
+                # when scenario does not require full detailed data preparation, base life
+                # data for each mseg are not prepared
+                if self.handyvars.full_dat_out[adopt_scheme] or self.name in ctrb_ms_pkg_prep:
+                    for key in contrib_msegs.keys():
+                        contrib_msegs[key]["lifetime"]["baseline"] = {yr: (
+                            contrib_msegs[key]["lifetime"]["baseline"][yr] /
+                            contrib_msegs[key]["stock"]["total"]["all"][yr]) if
+                            contrib_msegs[key]["stock"]["total"]["all"][yr] != 0
+                            else 10 for yr in self.handyvars.aeo_years}
 
                 # In microsegments where square footage must be used as stock,
                 # the square footages (or number of households, in the
@@ -10903,7 +10952,8 @@ class Measure(object):
                 fs_stk_eff_remain, fs_energy_eff_remain_base,
                 fs_carb_eff_remain_base, fs_energy_cost_eff_remain_base,
                 fs_energy_eff_remain_switch, fs_carb_eff_remain_switch,
-                fs_energy_cost_eff_remain_switch, mkt_scale_frac_fin, warn_list]
+                fs_energy_cost_eff_remain_switch, mkt_scale_frac_fin,
+                stk_serv_cap_cnv, warn_list]
 
     def check_meas_inputs(self):
         """Check for valid inputs for key measure characteristics.
@@ -12401,6 +12451,7 @@ class MeasurePackage(Measure):
                 "mseg_adjust": {
                     "contributing mseg keys and values": {},
                     "competed choice parameters": {},
+                    "capacity factor": {},
                     "secondary mseg adjustments": {
                         "sub-market": {
                             "original energy (total)": {},
@@ -12678,7 +12729,8 @@ class MeasurePackage(Measure):
                     # the measure
                     elif msegs_pkg_init and k in [
                             "competed choice parameters",
-                            "secondary mseg adjustments"]:
+                            "secondary mseg adjustments",
+                            "capacity factor"]:
                         self.update_dict(msegs_pkg_init[k], msegs_meas_init[k])
                 # Record adjusted contributing microsegment, output
                 # breakout data, and sector shapes data for the measure for
@@ -14860,12 +14912,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             if not isinstance(m, MeasurePackage):
                 del m.markets[adopt_scheme]["mseg_adjust"][
                     "paired heat/cool mseg adjustments"]
-            # Add remaining contributing microsegment data to
-            # competition data dict, if the adoption scenario will be competed
-            # in the run.py module, then delete from measure
+            # Add fuel splits and sector shape data, if applicable and the adoption scenario will
+            # be competed in the run.py module, then delete from measure
             if full_dat_out[adopt_scheme]:
-                comp_data_dict[adopt_scheme] = \
-                    m.markets[adopt_scheme]["mseg_adjust"]
                 # If applicable, add efficient fuel split data to fuel split
                 # data dict
                 if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
@@ -14881,6 +14930,9 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
                 # If adoption scenario will not be competed in the run.py
                 # module, remove detailed mseg breakouts
                 del m.markets[adopt_scheme]["mseg_out_break"]
+            # Add remaining contributing microsegment data to competition data dict, then delete
+            # from measure
+            comp_data_dict[adopt_scheme] = m.markets[adopt_scheme]["mseg_adjust"]
             del m.markets[adopt_scheme]["mseg_adjust"]
         # Delete info. about efficient fuel splits for fuel switch measures
         del m.eff_fs_splt
@@ -14992,17 +15044,7 @@ def tsv_cost_carb_yrmap(tsv_data, aeo_years):
     return tsv_yr_map
 
 
-def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
-                  add_stock_total, add_energy_total, add_energy_cost,
-                  add_carb_total, add_stock_total_meas, add_energy_total_eff,
-                  add_energy_total_eff_capt, add_energy_cost_eff,
-                  add_carb_total_eff, add_fs_stk_eff_remain,
-                  add_fs_energy_eff_remain_base,
-                  add_fs_energy_cost_eff_remain_base,
-                  add_fs_carb_eff_remain_base,
-                  add_fs_energy_eff_remain_switch,
-                  add_fs_energy_cost_eff_remain_switch,
-                  add_fs_carb_eff_remain_switch):
+def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts, input_data):
     """Record mseg contributions to breakouts by region/bldg/end use/fuel.
 
     Args:
@@ -15011,46 +15053,22 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
             fuel->end use->technology type->structure type).
         adopt_scheme (string): Assumed consumer adoption scenario.
         opts (object): Stores user-specified execution options.
-        add_stock_total (dict): Total stock associated w/ mseg.
-        add_energy_total (dict): Total energy associated w/ mseg.
-        add_energy_cost (dict): Total energy cost associated w/ mseg.
-        add_carb_total (dict): Total carbon emissions associated w/ mseg.
-        add_stock_total_meas (dict): Total measure-captured stock in mseg.
-        add_energy_total_eff (dict): Total mseg energy after measure adoption.
-        add_energy_total_eff_capt (dict): Total mseg energy specifically
-            associated with measure stock units (vs. baseline).
-        add_energy_cost_eff (dict): Total mseg energy cost after measure
-            adoption.
-        add_carb_total_eff (dict): Total mseg carbon after measure adoption.
-        add_fs_stk_eff_remain (dict): Portion of efficient mseg stock that is
-            served by base fuel after measure application (applies to fuel
-            switching measures)
-        add_fs_energy_eff_remain_base (dict): Portion of efficient mseg energy
-            that is served by base fuel by baseline technology
-            after measure application (applies to fuel switching measures)
-        add_fs_energy_cost_eff_remain_base (dict): Portion of efficient mseg
-            energy cost that is served by base fuel by baseline technology
-            application (applies to fuel switching measures)
-        add_fs_carb_eff_remain_base (dict): Portion of efficient mseg carbon
-            that is served by base fuel by baseline technology after measure
-            application (applies to fuel switching measures)
-        add_fs_energy_eff_remain_switch (dict): Portion of efficient mseg
-            energy that is served by base fuel and switched to technology
-            after measure application (applies to fuel switching measures with
-            dual fuel operation)
-        add_fs_energy_cost_eff_remain_switch (dict): Portion of efficient mseg
-            energy cost that is associated with base fuel and switched to
-            technology after measure application (applies to fuel switching
-            measures with dual fuel operation)
-        add_fs_carb_eff_remain_switch (dict): Portion of efficient mseg carbon
-            that is from base fuel and switched to technology after measure
-            application (applies to fuel switching measures with dual fuel
-            operation)
+        input_data (list): Stores all segment-specific data that need to be assigned to breakouts.
+        gap_adj_frac (float): Fraction to apply to breakout data to represent
+            portions of msegs that are not covered by ComStock load shapes (if applicable)
     Returns:
         Updated measure market breakouts by region, building type, end use, and
         fuel type that reflect the influence of the current mseg being looped.
 
     """
+    # Pull out variables to use in developing breakout values
+    brk_stock_total, brk_energy_total, brk_energy_cost, brk_carb_total, brk_stock_total_meas, \
+        brk_energy_total_eff, brk_energy_total_eff_capt, brk_energy_cost_eff, \
+        brk_carb_total_eff, brk_fs_stk_eff_remain, brk_fs_energy_eff_remain_base, \
+        brk_fs_energy_cost_eff_remain_base, brk_fs_carb_eff_remain_base, \
+        brk_fs_energy_eff_remain_switch, brk_fs_energy_cost_eff_remain_switch, \
+        brk_fs_carb_eff_remain_switch = [
+            {yr: x[yr] for yr in self.handyvars.aeo_years} if x else None for x in input_data]
 
     # Using the key chain for the current microsegment, determine the output
     # climate zone, building type, and end use breakout categories to which the
@@ -15181,55 +15199,56 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts,
     # the measure applies to. Note that savings breakouts are not provided for
     # stock data as "savings" is not meaningful in this context.
     try:
-        # Define data indexing and reporting variables
+        # Set breakout variables
         breakout_vars = ["stock", "energy", "cost", "carbon"]
         # Create a shorthand for baseline and efficient stock/energy/carbon/
         # cost data to add to the breakout dict
-        base_data = [add_stock_total, add_energy_total,
-                     add_energy_cost, add_carb_total]
-        eff_data = [add_stock_total_meas, add_energy_total_eff,
-                    add_energy_cost_eff, add_carb_total_eff]
+        base_data = [brk_stock_total, brk_energy_total,
+                     brk_energy_cost, brk_carb_total]
+        eff_data = [brk_stock_total_meas, brk_energy_total_eff,
+                    brk_energy_cost_eff, brk_carb_total_eff]
+
         # Create a shorthand for efficient captured energy data to add to the
         # breakout dict
-        if add_energy_total_eff_capt:
-            capt_e = add_energy_total_eff_capt
+        if brk_energy_total_eff_capt:
+            capt_e = brk_energy_total_eff_capt
         else:
             capt_e = ""
         # Flag whether or not any captured efficient energy remains with
         # baseline fuel, for fuel switching cases
         swtch_tech_base_fuel = \
-            any([x != 0 for x in add_fs_energy_eff_remain_switch.values()])
+            any([x != 0 for x in brk_fs_energy_eff_remain_switch.values()])
 
         # For a fuel switching case where the user desires that the outputs
         # be split by fuel, create shorthands for any efficient-case
         # stock/energy/carbon/cost that remains with the baseline fuel
         if self.fuel_switch_to is not None and out_fuel_save:
-            eff_data_fs_base = [add_fs_stk_eff_remain,
-                                add_fs_energy_eff_remain_base,
-                                add_fs_energy_cost_eff_remain_base,
-                                add_fs_carb_eff_remain_base]
-            eff_data_fs_switch = [add_fs_energy_eff_remain_switch,
-                                  add_fs_energy_cost_eff_remain_switch,
-                                  add_fs_carb_eff_remain_switch]
+            eff_data_fs_base = [brk_fs_stk_eff_remain,
+                                brk_fs_energy_eff_remain_base,
+                                brk_fs_energy_cost_eff_remain_base,
+                                brk_fs_carb_eff_remain_base]
+            eff_data_fs_switch = [brk_fs_energy_eff_remain_switch,
+                                  brk_fs_energy_cost_eff_remain_switch,
+                                  brk_fs_carb_eff_remain_switch]
             # Record the efficient energy that has not yet fuel switched and
             # total efficient energy for the current mseg for later use in
             # packaging and/or competing measures
             self.eff_fs_splt[adopt_scheme][
                 str(contrib_mseg_key)] = {
                     "energy": [
-                        add_fs_energy_eff_remain_base,
-                        add_fs_energy_eff_remain_switch,
-                        add_energy_total_eff,
-                        add_energy_total_eff_capt,
+                        brk_fs_energy_eff_remain_base,
+                        brk_fs_energy_eff_remain_switch,
+                        brk_energy_total_eff,
+                        brk_energy_total_eff_capt,
                         swtch_tech_base_fuel],
                     "cost": [
-                        add_fs_energy_cost_eff_remain_base,
-                        add_fs_energy_cost_eff_remain_switch,
-                        add_energy_cost_eff],
+                        brk_fs_energy_cost_eff_remain_base,
+                        brk_fs_energy_cost_eff_remain_switch,
+                        brk_energy_cost_eff],
                     "carbon": [
-                        add_fs_carb_eff_remain_base,
-                        add_fs_carb_eff_remain_switch,
-                        add_carb_total_eff]}
+                        brk_fs_carb_eff_remain_base,
+                        brk_fs_carb_eff_remain_switch,
+                        brk_carb_total_eff]}
         # Handle case where output breakout includes fuel type breakout or not
         if out_fuel_save:
             # Update results for the baseline fuel; handle case where results
