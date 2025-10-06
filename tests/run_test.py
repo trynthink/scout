@@ -335,6 +335,31 @@ class CommonMethods(object):
                         " are not of the same type")
 
 
+class UserOptions(object):
+    """Generate sample user-specified execution options."""
+    def __init__(self, warnings, mkt_fracs, trim_results, report_stk,
+                 report_cfs, high_res_comp):
+        self.verbose = warnings
+        self.mkt_fracs = mkt_fracs
+        self.trim_results = trim_results
+        self.report_stk = report_stk
+        self.report_cfs = report_cfs
+        self.high_res_comp = high_res_comp
+
+
+class NullOpts(object):
+    """Generate null set of user-specified execution options.
+
+    Attributes:
+        opts (object): Sample null user options.
+    """
+
+    def __init__(self):
+        self.opts = UserOptions(
+            warnings=False, mkt_fracs=False, trim_results=False,
+            report_stk=False, report_cfs=False, high_res_comp=False)
+
+
 class TestMeasureInit(unittest.TestCase, Constants):
     """Ensure that measure attributes are correctly initiated.
 
@@ -432,6 +457,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     and financial metrics outputs.
 
     Attributes:
+        opts (object): User-specified options.
         handyvars (object): Useful variables across the class.
         sample_measure_res (object): Sample residential measure data.
         sample_measure_com (object): Sample commercial measure data.
@@ -477,7 +503,33 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
+        cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        # Hard code time preference premiums
+        cls.handyvars.com_timeprefs = {
+            "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
+            "distributions": {
+                "heating": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooling": {
+                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "water heating": {
+                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "ventilation": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooking": {
+                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "lighting": {
+                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
+                    for key in cls.handyvars.aeo_years},
+                "refrigeration": {
+                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years}}}
         # Hardcode adjustments to common cost year to 1
         cls.handyvars.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
         cls.sample_measure_res = CommonTestMeasures().sample_measure4
@@ -1274,7 +1326,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # For first test case, verify correct adoption/competition scenario
         # keys for measure markets/savings/portfolio metrics
         for adopt_scheme in self.handyvars.adopt_schemes:
@@ -1308,7 +1360,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_point_com[0])
@@ -1331,7 +1383,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist1[0])
@@ -1354,7 +1406,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist2[0])
@@ -1377,7 +1429,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist3[0])
@@ -1400,7 +1452,7 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
             self.handyvars, base_args, [test_meas], energy_out=[
                 "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
         engine_instance.calc_savings_metrics(
-            self.test_adopt_scheme, "uncompeted")
+            self.test_adopt_scheme, "uncompeted", self.opts)
         # Verify test measure results update status
         self.dict_check(engine_instance.measures[
             0].update_results, self.ok_out_dist4[0])
@@ -1419,6 +1471,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     outputs.
 
     Attributes:
+        opts (object): User-specified options.
         handyvars (object): Useful variables across the class.
         measure_list (list): List for Engine including one sample
             residential measure.
@@ -1444,8 +1497,33 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
+        cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        # Hard code time preference premiums
+        cls.handyvars.com_timeprefs = {
+            "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
+            "distributions": {
+                "heating": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooling": {
+                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "water heating": {
+                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "ventilation": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooking": {
+                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "lighting": {
+                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
+                    for key in cls.handyvars.aeo_years},
+                "refrigeration": {
+                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years}}}
         sample_measure = CommonTestMeasures().sample_measure4
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_base_life = 3
@@ -1477,7 +1555,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
             int(self.ok_product_lifetime), self.ok_base_scost,
             self.ok_meas_sdelt, self.ok_esave, self.ok_ecostsave,
             self.ok_csave, self.ok_ccostsave, self.ok_scost_meas,
-            self.ok_ecost_meas, self.ok_ccost_meas)
+            self.ok_ecost_meas, self.ok_ccost_meas, self.opts)
         # Test that valid inputs yield correct unit cost, irr, payback, and
         # cost of conserved energy/carbon outputs
         for ind, x in enumerate(self.ok_out_array):
@@ -1533,6 +1611,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     heating and cooling supply-demand overlaps.
 
     Attributes:
+        opts (object): User-specified options.
         handyvars (object): Useful variables across the class.
         test_adopt_scheme (string): Sample consumer adoption scheme.
         test_htcl_adj (dict): Sample dict with supply-demand overlap data.
@@ -1588,6 +1667,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
+        cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
@@ -16036,14 +16116,14 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         """Test outcomes given valid sample measures w/ point value inputs."""
         # Run the measure competition routine on sample demand-side measures
         self.a_run.compete_res_primary(
-            self.measures_demand, self.adjust_key1, self.test_adopt_scheme)
+            self.measures_demand, self.adjust_key1, self.test_adopt_scheme, self.opts)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run.htcl_adj(
             self.measures_demand, self.test_adopt_scheme, self.test_htcl_adj)
         # Run the measure competition routine on sample supply-side measures
         self.a_run.compete_res_primary(
-            self.measures_supply, self.adjust_key2, self.test_adopt_scheme)
+            self.measures_supply, self.adjust_key2, self.test_adopt_scheme, self.opts)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run.htcl_adj(
@@ -16069,7 +16149,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         # Run the measure competition routine on sample demand-side measures
         self.a_run_dist.compete_res_primary(
             self.measures_demand_dist, self.adjust_key1,
-            self.test_adopt_scheme)
+            self.test_adopt_scheme, self.opts)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run_dist.htcl_adj(
@@ -16078,7 +16158,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         # Run the measure competition routine on sample supply-side measures
         self.a_run_dist.compete_res_primary(
             self.measures_supply_dist, self.adjust_key2,
-            self.test_adopt_scheme)
+            self.test_adopt_scheme, self.opts)
         # Remove any market overlaps across the supply and demand sides of
         # heating and cooling
         self.a_run_dist.htcl_adj(
@@ -16104,6 +16184,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
 
 
     Attributes:
+        opts (object): User-specified options.
         handyvars (object): Useful variables across the class.
         test_adopt_scheme (string): Sample consumer adoption scheme.
         overlap_key (string): First sample string for competed primary market
@@ -16151,9 +16232,35 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
+        cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
+        # Hard code time preference premiums
+        cls.handyvars.com_timeprefs = {
+            "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
+            "distributions": {
+                "heating": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooling": {
+                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "water heating": {
+                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "ventilation": {
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
+                    for key in cls.handyvars.aeo_years},
+                "cooking": {
+                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
+                    for key in cls.handyvars.aeo_years},
+                "lighting": {
+                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
+                    for key in cls.handyvars.aeo_years},
+                "refrigeration": {
+                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
+                    for key in cls.handyvars.aeo_years}}}
         cls.test_adopt_scheme = "Technical potential"
         cls.overlap_key = str(
             ('primary', 'AIA_CZ1', 'assembly', 'electricity',
@@ -26573,7 +26680,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
         """Test outcomes given sample measures w/ point value inputs."""
         # Run measure competition routine on sample measures
         self.a_run.compete_com_primary(
-            self.measures_all, self.overlap_key, self.test_adopt_scheme)
+            self.measures_all, self.overlap_key, self.test_adopt_scheme, self.opts)
         # Run secondary microsegment adjustments on sample measure
         self.a_run.secondary_adj(
             self.measures_secondary, self.overlap_key_scnd,
@@ -26597,7 +26704,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
         """Test outcomes given valid sample measures w/ some array inputs."""
         # Run measure competition routine on sample measures
         self.a_run_dist.compete_com_primary(
-            self.measures_all_dist, self.overlap_key, self.test_adopt_scheme)
+            self.measures_all_dist, self.overlap_key, self.test_adopt_scheme, self.opts)
         # Run secondary microsegment adjustments on sample measure
         self.a_run_dist.secondary_adj(
             self.measures_secondary_dist, self.overlap_key_scnd,

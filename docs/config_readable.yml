@@ -179,6 +179,9 @@ ecm_prep:
       are {energy, power, null}. Default null
   verbose: (boolean) If true, enable verbose mode. Default False
 run:
+  high_res_comp: (boolean) If true, resolve competition cost data
+    to each market microsegment (rather than averaging across
+    all applicable markets). Default False
   mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
   report_cfs: (boolean) If true, report competition adjustment
