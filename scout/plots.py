@@ -39,7 +39,8 @@ def pretty(low, high, n):
     return numpy.arange(miny, maxy+0.5*d, d)
 
 
-def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
+def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
+             codes_bps_objlist, trim_out):
     # Set base directory
     # Set uncompeted ECM energy, carbon, and cost data
     uncompete_results = meas_summary
@@ -61,6 +62,9 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     # Combine the 'All ECMs' name with the ordered list of the individual
     # ECM names
     meas_names = ['All ECMs'] + meas_names_no_all
+    # If codes/BPS measures are present, add them to the measure set to be plotted
+    if codes_bps_objlist is not None:
+        meas_names.extend([mcbps.name for mcbps in codes_bps_objlist])
     # Set years in modeling time horizon and reorganize in ascending order
     years = list(a_run.output_all[meas_names[0]]
                  ['Markets and Savings (Overall)'][adopt_scenarios[0]]
@@ -137,10 +141,25 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     if compete_results_agg["Output Resolution"] == "detail" or \
             "bldg" in compete_results_agg["Output Resolution"]:
         bclasses_out_finmets = [
-            ['Single Family Homes', 'Multi Family Homes'],
-            ['Hospitals', 'Large Offices', 'Small/Medium Offices',
-             'Retail', 'Hospitality', 'Education', 'Assembly/Other',
-             'Warehouses']]
+            ['Single Family Homes (New)', 'Multi Family Homes (New)',
+             'Manufactured Homes (New)', 'Single Family Homes (Existing)',
+             'Multi Family Homes (Existing)', 'Manufactured Homes (Existing)',
+             'Hospitals (Existing)'],
+            ['Hospitals (New)',
+             'Large Offices (New)', 'Small/Medium Offices (New)',
+             'Retail (New)', 'Hospitality (New)', 'Education (New)'
+             'Assembly/Other (New)', 'Warehouses (New)',
+             'Large Offices (Existing)', 'Small/Medium Offices (Existing)',
+             'Retail (Existing)', 'Hospitality (Existing)',
+             'Education (Existing)', 'Assembly/Other (Existing)',
+             'Warehouses (Existing)']]
+    elif "codesbps" in compete_results_agg["Output Resolution"]:
+        bclasses_out_finmets = [
+            'Single Family/Manufactured Homes (New)',
+            'Single Family/Manufactured Homes (Existing)',
+            'Multi Family Homes (New)',
+            'Multi Family Homes (Existing)',
+            'Commercial (New)', 'Commercial (Existing)']
     else:
         bclasses_out_finmets = [
             ['Residential (New)', 'Residential (Existing)'],
@@ -354,10 +373,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
     plot_lims_finmets = [[-50, 150], [0, 25], [-50, 150], [-500, 1000]]
     # Cost effectiveness threshold lines for each financial metric
     plot_ablines_finmets = [0, 10, 13, 100]
-    # Financial metric type and key names for retrieving JSON data on each
-    fin_metrics = ['IRR (%)', 'Payback (years)',
-                   'Cost of Conserved Energy ($/MMBtu saved)',
-                   'Cost of Conserved CO\u2082 ($/MTon CO\u2082 avoided)']
+    # Financial metric type and key names for retrieving JSON data on each;
+    # handle case where outputs are trimmed, and only payback is reported
+    if not trim_out:
+        fin_metrics = ['IRR (%)', 'Payback (years)',
+                       'Cost of Conserved Energy ($/MMBtu saved)',
+                       'Cost of Conserved CO\u2082 ($/MTon CO\u2082 avoided)']
+    else:
+        fin_metrics = ['Payback (years)']
 
     # =========================================================================
     # Set high-level variables needed to generate XLSX data
@@ -580,8 +603,11 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                         uc_name_ind = uc
 
                 # Set the appropriate database of ECM financial metrics data
-                # (used across both competition schemes)
-                if meas_names[m] == "All ECMs":
+                # (used across both competition schemes for individual measures;
+                # not relevant to aggregated data across all ECMs or to codes/BPS
+                # measure data
+                if meas_names[m] == "All ECMs" or any([
+                        x in meas_names[m] for x in ["Codes", "Standards"]]):
                     results_database_finmets = numpy.nan
                 else:
                     results_database_finmets = compete_results[1][
@@ -604,8 +630,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                     # Find data for uncompeted energy, carbon, and/or cost;
                     # exclude the 'All ECMs' case
                     # (only competed data may be summed across all ECMs)
-                    if comp_schemes[cp] == "uncompeted" and \
-                       meas_names[m] != "All ECMs":
+                    # and the codes/BPS measures, which do not have uncompeted data
+                    if comp_schemes[cp] == "uncompeted" and (
+                       meas_names[m] != "All ECMs" and not any([
+                            x in meas_names[m] for x in ["Codes", "Standards"]])):
                         # Set the appropriate database of uncompeted energy,
                         # carbon, or cost totals (access keys vary based on
                         # plotted variable)
@@ -646,7 +674,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                     'efficient'][str(years[yr])]
 
                     # Find data for competed energy, carbon, and/or cost
-                    else:
+                    elif comp_schemes[cp] == "competed":
                         # Set the appropriate database of ECM competed energy,
                         # carbon, or cost totals
                         if meas_names[m] == "All ECMs":
@@ -806,25 +834,20 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                         # dict to the building class; otherwise
                                         # proceed to next region
                                         try:
-                                            r_agg_temp = \
-                                                results_database_agg[czone]
+                                            r_agg_temp = results_database_agg[czone]
                                         except KeyError:
                                             continue
                                         # Loop through all building classes
                                         for levtwo in range(len(
                                                 results_agg[1, 0])):
-                                            # Set the building class name to
-                                            # use in proceeding down to the
-                                            # end use level of the dict
+                                            # Set the building class name to use in proceeding down
+                                            # to the end use level of the dict
                                             bldg = results_agg[1, 0][levtwo]
-                                            # If the region/building type are
-                                            # valid, reduce the dict to the end
-                                            # use level; otherwise proceed to
+                                            # If the region/building type are valid, reduce the
+                                            # dict to the end use level; otherwise proceed to
                                             # the next building type
                                             try:
-                                                r_agg_temp = \
-                                                    results_database_agg[
-                                                        czone][bldg]
+                                                r_agg_temp = results_database_agg[czone][bldg]
                                             except KeyError:
                                                 continue
                                             # Loop through all end uses
@@ -834,78 +857,56 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                 # in retrieving data values
                                                 euse = results_agg[2, 0][
                                                     levthree]
-                                                # Reset the predefined
-                                                # 'Electronics' end use name
-                                                # (short for later use in plot
-                                                # legends) to the longer
-                                                # 'Computers and Electronics'
-                                                # name used in the dict
+                                                # Reset the predefined 'Electronics' end use name
+                                                # (short for later use in plot legends) to the
+                                                # longer 'Computers and Electronics' name used in
+                                                # the dict
                                                 if euse == "Electronics":
-                                                    euse = ("Computers and "
-                                                            "Electronics")
+                                                    euse = ("Computers and Electronics")
 
-                                                # If the region/building type/
-                                                # end use are valid, reduce the
-                                                # dict to the final level;
-                                                # otherwise proceed to
-                                                # the next end use
+                                                # If the region/building type/end use are valid,
+                                                # reduce the dict to the final level; otherwise
+                                                # proceed to the next end use
                                                 try:
                                                     r_agg_temp = \
-                                                        results_database_agg[
-                                                            czone][bldg][euse]
+                                                        results_database_agg[czone][bldg][euse]
                                                 except KeyError:
                                                     continue
 
-                                                # If data values exist, add
-                                                # them to the ECM's
-                                                # energy/carbon/cost
-                                                # savings-by-filter variable
+                                                # If data values exist, add them to the ECM's
+                                                # energy/carbon/cost savings-by-filter variable
                                                 # vector initialized above
 
                                                 if len(r_agg_temp) != 0:
 
-                                                    # Determine which index to
-                                                    # use in adding the
-                                                    # retrieved data to
-                                                    # the ECM's energy/carbon/
-                                                    # cost savings-by-filter
-                                                    # variable vector
+                                                    # Determine which index to use in adding the
+                                                    # retrieved data to the ECM's energy/carbon/
+                                                    # cost savings-by-filter variable vector
                                                     if fv == 0:
                                                         index = levone
                                                     elif fv == 1:
                                                         index = levtwo
                                                     else:
                                                         index = levthree
-                                                    # Add retrieved data to
-                                                    # ECM's savings-by-filter
-                                                    # variable vector; handle
-                                                    # case where end use
-                                                    # savings are further split
-                                                    # out by fuel type
+                                                    # Add retrieved data to ECM's savings-by-filter
+                                                    # variable vector; handle case where end use
+                                                    # savings are further split out by fuel type
 
-                                                    if any([
-                                                        str(years[yr]) in x
-                                                        for x in list(
-                                                            r_agg_temp.keys())]
-                                                           ):
-                                                        add_val[index] = \
-                                                            add_val[index] + \
-                                                            r_agg_temp[
-                                                            str(years[yr])]
+                                                    if any([str(years[yr]) in x for x in list(
+                                                            r_agg_temp.keys())]):
+                                                        add_val[index] = add_val[index] + \
+                                                            r_agg_temp[str(years[yr])]
                                                     else:
                                                         for fuel in ftypes_out:
-                                                            if fuel in (
-                                                                r_agg_temp.
-                                                                    keys()):
-                                                                add_val[
-                                                                    index] = \
-                                                                    add_val[
-                                                                    index] + \
-                                                                    r_agg_temp[
-                                                                    fuel][str(
-                                                                        years[
-                                                                            yr]
-                                                                            )]
+                                                            # Ensure fuel split data are available
+                                                            if fuel in (r_agg_temp.keys()):
+                                                                try:
+                                                                    add_val[index] = \
+                                                                        add_val[index] + \
+                                                                        r_agg_temp[fuel][str(
+                                                                            years[yr])]
+                                                                except KeyError:
+                                                                    continue
 
                                     # Add ECM's savings-by-filter variable
                                     # vector data to the aggregated total for
@@ -915,13 +916,13 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                             results_agg[fv, 1][fvo][yr] + \
                                             add_val[fvo]
 
-                                # If cycling through the year in which
-                                # snapshots of ECM cost effectiveness are taken
-                                # retrieve the ECM's competed financial
-                                # metrics, savings, and filter variable data
-                                # needed to develop those snapshots for the
-                                # cost effectiveness plots
-                                if str(years[yr]) == snap_yr:
+                                # If cycling through the year in which snapshots of ECM cost
+                                # effectiveness are taken retrieve the ECM's competed financial
+                                # metrics, savings, and filter variable data needed to develop
+                                # those snapshots for the cost effectiveness plots. Exclude codes/
+                                # BPS ECMs (no cost effectiveness data attached to these ECMs)
+                                if str(years[yr]) == snap_yr and not any([
+                                        x in meas_names[m] for x in ["Codes", "Standards"]]):
                                     # Retrieve ECM competed portfolio-level
                                     # and consumer-level financial metrics data
                                     for fm in range(len(fin_metrics)):
@@ -981,10 +982,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                                 for item in bldg]) > 0:
                                             bldg_match[b] = b
 
-                                    if pd.Series(bldg_match).nunique() > 1:
-                                        results_finmets[(m-1), 6] = "^"
+                                    if pd.Series(bldg_match).nunique() >= 1:
+                                        results_finmets[(m-1), (len(fin_metrics) + 2)] = "^"
                                     else:
-                                        results_finmets[(m-1), 6] = \
+                                        results_finmets[(m-1), (len(fin_metrics) + 2)] = \
                                             bclasses_out_finmets_shp[
                                             [x for x in list(pd.Series(
                                                 bldg_match)) if x is not None][
@@ -1012,10 +1013,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                                     # applicable end uses; otherwise set
                                     # to the point fill color appropriate for
                                     # the matched end use
-                                    if pd.Series(euse_match).nunique() > 1:
-                                        results_finmets[(m-1), 7] = "#7f7f7f"
+                                    if pd.Series(euse_match).nunique() >= 1:
+                                        results_finmets[
+                                            (m-1), (len(fin_metrics) + 3)] = "#7f7f7f"
                                     else:
-                                        results_finmets[(m-1), 7] = \
+                                        results_finmets[
+                                            (m-1), (len(fin_metrics) + 3)] = \
                                             euses_out_finmets_col[[
                                                 x for x in list(
                                                     pd.Series(euse_match)
@@ -1034,8 +1037,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
 
                 # Set uncompeted and competed baseline energy, carbon, or cost
                 # totals for given adoption scenario, plotting variable,
-                # and ECM (mean and low/high values for competed case)
-                base_uc = [y * unit_translate for y in [
+                # and ECM (mean and low/high values for competed case). Handle
+                # possible missing uncompeted values for codes/BPS measures,
+                # which are not assessed until the competition module
+                base_uc = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 0]]][0]]
                 base_c_m = [y * unit_translate for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 2]]][0]]
@@ -1045,12 +1050,14 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                     [] if x is numpy.NaN else x for x in [results[2, 2]]][0]]
                 # Set uncompeted and competed efficient energy, carbon, or cost
                 # totals for adoption scenario, plotting variable, and ECM
-                # (mean and low/high values)
-                eff_uc_m = [y * unit_translate for y in [
+                # (mean and low/high values).  Handle possible missing uncompeted
+                # values for codes/BPS measures, which are not assessed until the
+                # competition module
+                eff_uc_m = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 1]]][0]]
-                eff_uc_l = [y * unit_translate for y in [
+                eff_uc_l = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[1, 1]]][0]]
-                eff_uc_h = [y * unit_translate for y in [
+                eff_uc_h = [y * unit_translate if y else 0 for y in [
                     [] if x is numpy.NaN else x for x in [results[2, 1]]][0]]
                 eff_c_m = [y * unit_translate for y in [
                     [] if x is numpy.NaN else x for x in [results[0, 3]]][0]]
@@ -1418,7 +1425,7 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
             fig, axcs = plt.subplots(2, 2, figsize=(10, 7))
             for (axc, fmp) in zip(fig.axes, range(len(fin_metrics))):
                 # Shorthands for x and y data on the plot
-                s_x, s_y = [results_finmets[:, 4], results_finmets[:, fmp]]
+                s_x, s_y = [results_finmets[:, len(fin_metrics)], results_finmets[:, fmp]]
                 # Indices of sorted x data
                 sorted_ind = sorted(
                     range(len(s_x)), key=lambda k: s_x[k], reverse=True)
@@ -1443,11 +1450,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions):
                 results_sort_x, results_sort_y, results_sort_pch, \
                     results_sort_bg = [[
                         results_finmets[:, met][i] for i in final_index_non_na]
-                        for met in [4, fmp, 6, 7]]
+                        for met in [
+                            len(fin_metrics), fmp, (len(fin_metrics)+2), (len(fin_metrics)+3)]]
                 # Shorthands for rank-ordered cost-effective measure results
                 results_sort_x_ce, results_sort_y_ce = [[
                         results_finmets[:, met][i] for i in final_index_ce]
-                        for met in [4, fmp]]
+                        for met in [len(fin_metrics), fmp]]
 
                 # Sum total cost effective savings
                 total_save_ce = sum(s_x[final_index_ce])

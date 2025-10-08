@@ -106,15 +106,19 @@ class TestConfig(unittest.TestCase, Utils):
             "fugitive_emissions": [],
             "low_volume_rate": None,
             "incentive_levels": "aeo",
-            "incentive_restrictions": None
+            "incentive_restrictions": None,
+            "state_appl_regs": None,
+            "bps": None,
+            "codes": None
         },
         "run": {
             "results_directory": None,
             "verbose": False,
             "mkt_fracs": False,
-            "trim_results": False,
+            "trim_results": None,
             "report_stk": False,
             "report_cfs": False,
+            "no_comp": False,
             "high_res_comp": False
         },
     }
@@ -148,7 +152,7 @@ class TestConfig(unittest.TestCase, Utils):
         },
         "run": {"results_directory": "results/test_dir",
                 "mkt_fracs": True,
-                "trim_results": True},
+                "trim_results": "all_yrs"},
     }
 
     def tearDown(self):
