@@ -104,11 +104,11 @@ properties:
 
       detail_brkout:
         type: array
-        description: List of options by which to breakout results. The `fuel types` option is only valid if the split_fuel argument is set to false. The `all` option selects all three breakout categories.
+        description: List of options by which to breakout results. The `fuel types` option is only valid if the split_fuel argument is set to false. The `all` option selects all three breakout categories. The 'codes/bps' option sets the minimum building type/vintage breakouts needed to assess codes and performance standards.
         default: []
         items:
           type: ["string", "null"]
-          enum: [regions, buildings, fuel types, all]
+          enum: [regions, buildings, codes/bps, fuel types, all]
 
       no_scnd_lgt:
         type: boolean
@@ -218,6 +218,38 @@ properties:
             enum: [reference, optimistic, aggressive, null]
             default: null
             description: Reduce volumetric electric rates, possibly with concurrent increase in fixed charges. Reference case will represent currently-enacted rates of this type. Null removes this driver entirely.
+          state_appl_regs:
+            type: ["string", "null"]
+            enum: [reference, optimistic, aggressive, null]
+            default: null
+            description: State or local emissions-related regulations that remove certain appliance choices from the market. Null removes this driver entirely.
+          bps:
+            type: ["string", "null"]
+            enum: [reference, optimistic, aggressive, null]
+            default: null
+            description: State or local Building Performance Standards (BPS) including energy use index targets and/or onsite emissions reduction requirements, which apply to existing buildings. Null removes this driver entirely.
+          bps_comply_res:
+            type: ["number", "null"]
+            default: 1
+            description: Residential compliance fraction to assume for BPS scenario implementation.
+          bps_comply_com:
+            type: ["number", "null"]
+            default: 1
+            description: Commercial compliance fraction to assume for BPS scenario implementation.
+          codes:
+            type: ["string", "null"]
+            enum: [reference, optimistic, aggressive, null]
+            default: null
+            description: State or local new building codes w/ additional energy index improvements over model code and/or onsite emissions reduction requirements/incentives.Null removes this driver entirely.
+          code_comply_res:
+            type: ["number", "null"]
+            default: 1
+            description: Residential compliance fraction to assume for code scenario implementation.
+          code_comply_com:
+            type: ["number", "null"]
+            default: 1
+            description: Commercial compliance fraction to assume for code scenario implementation.
+>>>>>>> 20236075 (Represent state appliance regs, codes and BPS)
 
       incentives:
         type: object
@@ -261,9 +293,10 @@ properties:
         default: false
         description: If true, flag market penetration outputs.
       trim_results:
-        type: boolean
-        default: false
-        description: If true, reduce results file size.
+        type: ["string", "null"]
+        enum: [all_yrs, every_other_yr, every_five_yrs, every_ten_yrs, null]
+        default: null
+        description: Report limited results variables to reduce results file size. String indicates whether longer-than-annual reporting interval should also be used ('all_yrs' reports annually).
       report_stk:
         type: boolean
         default: false
@@ -272,6 +305,10 @@ properties:
         type: boolean
         default: false
         description: If true, report competition adjustment fractions.
+      no_comp:
+        type: boolean
+        default: false
+        description: If true, suppress measure competition.
       high_res_comp:
         type: boolean
         default: false

@@ -1340,7 +1340,7 @@ class UsefulVars(object):
         mktnames_all = ['all ' + x if 'all' not in x else x for
                         x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        if opts.detail_brkout in ['1', '2', '5', '6']:
+        if opts.detail_brkout in ['1', '2', '5', '6', '8', '10']:
             self.out_break_czones = OrderedDict(regions_out)
         else:
             if opts.alt_regions == "EMM":
@@ -1380,21 +1380,57 @@ class UsefulVars(object):
         if opts.detail_brkout in ['1', '3', '5', '7']:
             # Map to more granular building type definition
             self.out_break_bldgtypes = OrderedDict([
-                ('Single Family Homes', [
-                    'new', 'existing', 'single family home', 'mobile home']),
-                ('Multi Family Homes', [
-                    'new', 'existing', 'multi family home']),
-                ('Hospitals', ['new', 'existing', 'health care']),
-                ('Large Offices', ['new', 'existing', 'large office']),
-                ('Small/Medium Offices', ['new', 'existing', 'small office']),
-                ('Retail', ['new', 'existing', 'food sales',
-                            'mercantile/service']),
-                ('Hospitality', [
-                    'new', 'existing', 'lodging', 'food service']),
-                ('Education', ['new', 'existing', 'education']),
-                ('Assembly/Other', [
-                    'new', 'existing', 'assembly', 'other', 'unspecified']),
-                ('Warehouses', ['new', 'existing', 'warehouse'])])
+                ('Single Family Homes (New)', ['new', 'single family home']),
+                ('Multi Family Homes (New)', ['new', 'multi family home']),
+                ('Manufactured Homes (New)', ['new', 'mobile home']),
+                ('Hospitals (New)', ['new', 'health care']),
+                ('Large Offices (New)', ['new', 'large office']),
+                ('Small/Medium Offices (New)', ['new', 'small office']),
+                ('Retail (New)', ['new', 'food sales', 'mercantile/service']),
+                ('Hospitality (New)', ['new', 'lodging', 'food service']),
+                ('Education (New)', ['new', 'education']),
+                ('Assembly/Other (New)', [
+                    'new', 'assembly', 'other', 'unspecified']),
+                ('Warehouses (New)', ['new', 'warehouse']),
+                ('Single Family Homes (Existing)', [
+                    'existing', 'single family home']),
+                ('Multi Family Homes (Existing)', [
+                    'existing', 'multi family home']),
+                ('Manufactured Homes (Existing)', [
+                    'existing', 'mobile home']),
+                ('Hospitals (Existing)', ['existing', 'health care']),
+                ('Large Offices (Existing)', ['existing', 'large office']),
+                ('Small/Medium Offices (Existing)', [
+                    'existing', 'small office']),
+                ('Retail (Existing)', [
+                    'existing', 'food sales', 'mercantile/service']),
+                ('Hospitality (Existing)', [
+                    'existing', 'lodging', 'food service']),
+                ('Education (Existing)', [
+                    'existing', 'education']),
+                ('Assembly/Other (Existing)', [
+                    'existing', 'assembly', 'other', 'unspecified']),
+                ('Warehouses (Existing)', ['existing', 'warehouse'])])
+        elif opts.detail_brkout in ['8', '9', '10', '11']:
+            # Map to building type definition that is minimum breakout needed to support codes/BPS
+            # driver assessment
+            self.out_break_bldgtypes = OrderedDict([
+                ('Single Family/Manufactured Homes (New)', [
+                    'new', 'single family home', 'mobile home']),
+                ('Single Family/Manufactured Homes (Existing)', [
+                    'existing', 'single family home', 'mobile home']),
+                ('Multi Family Homes (New)', ['new', 'multi family home']),
+                ('Multi Family Homes (Existing)', ['existing', 'multi family home']),
+                ('Commercial (New)', [
+                    'new', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other', 'unspecified']),
+                ('Commercial (Existing)', [
+                    'existing', 'assembly', 'education', 'food sales',
+                    'food service', 'health care', 'mercantile/service',
+                    'lodging', 'large office', 'small office', 'warehouse',
+                    'other', 'unspecified'])])
         else:
             self.out_break_bldgtypes = OrderedDict([
                 ('Residential (New)', [
@@ -1431,21 +1467,25 @@ class UsefulVars(object):
         self.out_break_eus_w_fsplits = [
             "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
             "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
+        # Configure detailed and simple fuel mapping for use in out breaks and other subsequent
+        # operations
+        self.detailed_fuel_map = OrderedDict([
+            ('Electric', ["electricity"]),
+            ('Natural Gas', ["natural gas"]),
+            ('Propane', ["other fuel"]),
+            ('Distillate/Other', ['distillate', 'other fuel']),
+            ('Biomass', ["other fuel"])])
+        self.simple_fuel_map = OrderedDict([
+                ('Electric', ["electricity"]),
+                ('Non-Electric', [
+                    "natural gas", "distillate", "other fuel"])])
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
-            if opts.detail_brkout in ['1', '4', '6', '7']:
+            if opts.detail_brkout in ['1', '4', '6', '7', '8', '11']:
                 # Map to more granular fuel type breakout
-                self.out_break_fuels = OrderedDict([
-                    ('Electric', ["electricity"]),
-                    ('Natural Gas', ["natural gas"]),
-                    ('Propane', ["other fuel"]),
-                    ('Distillate/Other', ['distillate', 'other fuel']),
-                    ('Biomass', ["other fuel"])])
+                self.out_break_fuels = self.detailed_fuel_map
             else:
-                self.out_break_fuels = OrderedDict([
-                    ('Electric', ["electricity"]),
-                    ('Non-Electric', [
-                        "natural gas", "distillate", "other fuel"])])
+                self.out_break_fuels = self.simple_fuel_map
         else:
             self.out_break_fuels = {}
         # Use the above output categories to establish a dictionary with blank

@@ -214,6 +214,27 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
     else:
         opts.tsv_metrics = False
 
+    # If run execution is representing codes/BPS, ensure that the prep data are split by fuel type
+    # (can be electric/non-electric or the more detailed reporting of these splits and broken
+    # out by detailed regions (states) and bldg. types, which is required to assess codes/BPS in run
+    if (opts.bps is not None or opts.codes is not None) and (opts.split_fuel is False or (
+        not opts.detail_brkout or ("all" not in opts.detail_brkout and (
+            "regions" not in opts.detail_brkout or (
+                all([x not in opts.detail_brkout for x in ["buildings", "codes/bps"]])))))):
+        # Reset detail breakout options to comport with what BPS assessment needs
+        if "fuel types" in opts.detail_brkout:
+            opts.detail_brkout = ["regions", "codes/bps", "fuel types"]
+        else:
+            opts.detail_brkout = ["regions", "codes/bps"]
+        # Ensure that fuel splits are calculated when BPS are assessed
+        opts.split_fuel = True
+        warnings.warn(
+            "WARNING: Detailed building type and region breakouts (must include 'regions' and one "
+            "of 'buildings' or 'codes/bps' in the 'detail_brkout' option for ecm_prep) and/or fuel "
+            "splits (via 'split_fuel') option are both required to apply the effects of codes and "
+            "standards, but were not both used. These options have been added to the prep "
+            "execution.")
+
     # Set detailed breakout options
     if opts.detail_brkout:
         if "all" in opts.detail_brkout:
@@ -226,6 +247,10 @@ def translate_inputs(opts: argparse.NameSpace) -> argparse.NameSpace:  # noqa: F
             ("buildings", "regions"): "5",
             ("fuel types", "regions"): "6",
             ("buildings", "fuel types"): "7",
+            ("codes/bps", "fuel types", "regions"): "8",
+            ("codes/bps",): "9",
+            ("codes/bps", "regions"): "10",
+            ("codes/bps", "fuel types"): "11"
         }
         opts.detail_brkout.sort()
         opts.detail_brkout = tuple(opts.detail_brkout)

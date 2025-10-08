@@ -372,7 +372,9 @@ class TestMeasureInit(unittest.TestCase, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        handyvars = run.UsefulVars(Constants.HANDYFILES)
+        handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                   brkout="basic", regions="AIA",
+                                   state_appl_regs=None, codes=None, bps=None)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -402,7 +404,9 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        handyvars = run.UsefulVars(Constants.HANDYFILES)
+        handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                   brkout="basic", regions="AIA",
+                                   state_appl_regs=None, codes=None, bps=None)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
@@ -504,7 +508,9 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
 
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1498,7 +1504,9 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1583,7 +1591,9 @@ class PaybackTest(unittest.TestCase, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1668,7 +1678,9 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
 
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -16233,7 +16245,9 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
         """Define objects/variables for use across all class functions."""
 
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         # Hard code time preference premiums
@@ -26740,7 +26754,9 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -26789,13 +26805,16 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
         adopt_scheme (str): Technology adoption scheme.
         sample_measlist_out_data (list): Additional market shares to add
             to each measure after running the function.
+        sample_noapply_sbmkt_fracs_scale (list): Measure market scaling fractions to test.
     """
 
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
 
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES)
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+                                       brkout="basic", regions="AIA",
+                                       state_appl_regs=None, codes=None, bps=None)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]
@@ -26945,6 +26964,19 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
              {"2009": 1, "2010": 1}]]
         cls.sample_mseg_key = "sample mseg key"
         cls.adopt_scheme = "Technical potential"
+        cls.sample_noapply_sbmkt_fracs_scale = []
+        for m_s in cls.sample_measlist_in:
+            cls.sample_noapply_sbmkt_fracs_scale.append([
+                {yr: 1 - m.markets[cls.adopt_scheme]["competed"]["mseg_adjust"][
+                    "contributing mseg keys and values"][cls.sample_mseg_key][
+                    "sub-market scaling"] for yr in cls.handyvars.aeo_years}
+                if not isinstance(m.markets[cls.adopt_scheme]["competed"][
+                    "mseg_adjust"]["contributing mseg keys and values"][cls.sample_mseg_key][
+                    "sub-market scaling"], dict)
+                else {yr: 1 - m.markets[cls.adopt_scheme]["competed"]["mseg_adjust"][
+                    "contributing mseg keys and values"][cls.sample_mseg_key][
+                    "sub-market scaling"][yr] for yr in cls.handyvars.aeo_years}
+                for m in m_s])
         cls.sample_measlist_out_data = [
             [{"2009": 0, "2010": 0},
              {"2009": 0, "2010": 0},
@@ -26976,7 +27008,7 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
             measures_sbmkt_frac_data = a_run.find_added_sbmkt_fracs(
                 self.sample_mkt_fracs[ind], self.sample_measlist_in[ind],
                 self.sample_mseg_key, self.adopt_scheme,
-                self.handyvars.aeo_years)
+                self.handyvars.aeo_years, self.sample_noapply_sbmkt_fracs_scale[ind])
             # Check the added market fractions for each measure and year
             for ind_out in range(len(measures_sbmkt_frac_data)):
                 self.dict_check(self.sample_measlist_out_data[ind][ind_out],

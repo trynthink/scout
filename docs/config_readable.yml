@@ -21,8 +21,10 @@ ecm_prep:
   detail_brkout: (array) List of options by which to breakout
     results. The `fuel types` option is only valid if the split_fuel
     argument is set to false. The `all` option selects all three
-    breakout categories. Allowed values are 0 or more of {all,
-    buildings, fuel types, regions}. Default []
+    breakout categories. The 'codes/bps' option sets the minimum
+    building type/vintage breakouts needed to assess codes and
+    performance standards. Allowed values are 0 or more of {all,
+    buildings, codes/bps, fuel types, regions}. Default []
   ecm_directory: (string) Directory containing ECM definitions
     and savings shapes (if applicable). The directory path can
     be absolute or relative to either the configuration file (.yml)
@@ -143,11 +145,33 @@ ecm_prep:
   split_fuel: (boolean) If true, split out ECM results reporting
     by fuel type. Default False
   sub_fed_policy:
+    bps: (string) State or local Building Performance Standards
+      (BPS) including energy use index targets and/or onsite emissions
+      reduction requirements, which apply to existing buildings.
+      Null removes this driver entirely. Allowed values are {aggressive,
+      optimistic, reference, null}. Default null
+    bps_comply_com: (number) Commercial compliance fraction to
+      assume for BPS scenario implementation. Default 1
+    bps_comply_res: (number) Residential compliance fraction to
+      assume for BPS scenario implementation. Default 1
+    code_comply_com: (number) Commercial compliance fraction to
+      assume for code scenario implementation. Default 1
+    code_comply_res: (number) Residential compliance fraction
+      to assume for code scenario implementation. Default 1
+    codes: (string) State or local new building codes w/ additional
+      energy index improvements over model code and/or onsite
+      emissions reduction requirements/incentives.Null removes
+      this driver entirely. Allowed values are {aggressive, optimistic,
+      reference, null}. Default null
     low_volume_rate: (string) Reduce volumetric electric rates,
       possibly with concurrent increase in fixed charges. Reference
       case will represent currently-enacted rates of this type.
       Null removes this driver entirely. Allowed values are {aggressive,
       optimistic, reference, null}. Default null
+    state_appl_regs: (string) State or local emissions-related
+      regulations that remove certain appliance choices from the
+      market. Null removes this driver entirely. Allowed values
+      are {aggressive, optimistic, reference, null}. Default null
   tsv_metrics:
     tsv_average_days: (string) The day type to average over. Required
       if tsv_type is `energy` or tsv_power_agg is `average`. Allowed
@@ -184,6 +208,8 @@ run:
     all applicable markets). Default False
   mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
+  no_comp: (boolean) If true, suppress measure competition. Default
+    False
   report_cfs: (boolean) If true, report competition adjustment
     fractions. Default False
   report_stk: (boolean) If true, report baseline/measure stock
@@ -193,7 +219,10 @@ run:
     configuration file (.yml) or the command line path, depending
     on where the argument is assigned. If not provided, ./results
     will be used. Default null
-  trim_results: (boolean) If true, reduce results file size. Default
-    False
+  trim_results: (string) Report limited results variables to reduce
+    results file size. String indicates whether longer-than-annual
+    reporting interval should also be used ('all_yrs' reports
+    annually). Allowed values are {all_yrs, every_five_yrs, every_other_yr,
+    every_ten_yrs, null}. Default null
   verbose: (boolean) If true, print all warnings to stdout. Default
     False
