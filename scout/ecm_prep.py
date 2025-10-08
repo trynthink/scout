@@ -2259,6 +2259,9 @@ class Measure(object):
         self.remove = False
         # Set user options to the command line settings
         self.usr_opts = opts_dict
+        if self.usr_opts["ecm_field_updates"]:
+            for ecm_field, new_val in self.usr_opts["ecm_field_updates"].items():
+                setattr(self, ecm_field, new_val)
         # Check to ensure that proper settings are used for tsv metrics calcs
         if self.usr_opts["tsv_metrics"] is not False and (
             self.fuel_type not in ["electricity", ["electricity"]]) and \

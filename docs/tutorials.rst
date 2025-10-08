@@ -1585,6 +1585,11 @@ Suppress output of ECM-captured energy use
 
 ``--no_eff_capt`` suppresses the inclusion in the results of the portion of the efficient energy use associated with each ECM that is specifically captured by the ECM (versus remaining with the baseline technology).
 
+Update fields across all ECMs
+*****************************
+
+``--ecm_field_updates`` updates fields of all ECMs selected for preparation or included in packges to be prepared.
+
 Verbose mode
 ************
 

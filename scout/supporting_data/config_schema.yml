@@ -216,7 +216,12 @@ properties:
         enum: [highelec_lowfossil, lowelec_highfossil, null]
         default: null
         description: Use supply-side scenarios with relatively high electricity prices/low natural gas prices, or vice versa. Will not be assessed if grid_decarb_level is non-null.
-      
+
+      ecm_field_updates:
+        type: ["object", "null"]
+        default: null
+        description: Key-value pairs to update fields across all ECM definitions. Keys should correspond to ECM definition fields.
+
   run:
     type: object
     required: []

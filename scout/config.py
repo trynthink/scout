@@ -107,6 +107,8 @@ class Config:
             which includes validated config args and cli inputs
     """
 
+    DICT_ARGUMENTS = {"ecm_field_updates"}
+
     def __init__(self, parser: argparse.ArgumentParser,  # noqa: F821
                  key: str, cli_args: list = None):
         self.parser = parser
@@ -235,7 +237,7 @@ class Config:
         """
 
         for k, v in new_args.items():
-            if isinstance(v, dict):
+            if k not in self.DICT_ARGUMENTS and isinstance(v, dict):
                 self.update_args(existing_args, v)
             else:
                 existing_args.__dict__.update({k: v})
@@ -366,6 +368,15 @@ class Config:
                     nargs="*",
                     choices=arg_arr_choices,
                     help=arg_help,
+                    default=arg_default,
+                    metavar="",
+                )
+            elif arg_type == "object" and arg_name in self.DICT_ARGUMENTS:
+                parser.add_argument(
+                    f"--{arg_name}",
+                    type=dict,
+                    nargs="*",
+                    help=arg_help + " (YAML formatted key-value pairs)",
                     default=arg_default,
                     metavar="",
                 )
