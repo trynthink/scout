@@ -2356,24 +2356,29 @@ class Measure(object):
                     self.handyvars.aeo_years[-1]) + 1)):
             self.market_exit_year = int(self.handyvars.aeo_years[-1]) + 1
         # If a global year by which an elevated performance floor is
-        # implemented has been imposed by the user and the measure represents
-        # a typical/BAU efficiency level, remove the measure from the market
-        # once the elevated floor goes into effect
+        # implemented has been imposed by the user and the measure is flagged
+        # for removal under an increase in the global minimum efficiency floor, or the measure has
+        # been added as a reference case copy of existing measures in the analysis,
+        # remove measure from the market once elevated floor goes into effect
         if self.usr_opts["floor_start"] is not None and (
-                self.usr_opts["add_typ_eff"] and "(Ref. Analogue)" in self.name):
+                self.min_eff_elec_flag is not None or (
+                    self.usr_opts["add_typ_eff"] is not False and
+                "Analogue" in self.name)):
             self.market_exit_year = self.usr_opts["floor_start"]
         self.yrs_on_mkt = [str(i) for i in range(
             self.market_entry_year, self.market_exit_year)]
+        # Check for flag that measure is of a minimum efficiency level. Such measures will be
+        # removed from market under user-specified increased in global minimum performance floor
+        try:
+            self.min_eff_elec_flag
+        except AttributeError:
+            self.min_eff_elec_flag = None
         # Test for whether a user has set time sensitive valuation features
         # for the given measure. If no "tsv_features" parameter was
         # specified for the ECM, set this parameter to None
         try:
             # Try to access the ECM's TSV feature dict keys
             self.tsv_features.keys()
-            # Prevent assessment of copied over savings shapes for reference case analogue
-            # measures, as shape is not appropriate for such measures
-            if "(Ref. Analogue)" in self.name:
-                raise AttributeError
             # Flag for custom annual savings shape data
             has_ann_shp = (
                 "shape" in self.tsv_features.keys() and
@@ -11257,6 +11262,10 @@ class MeasurePackage(Measure):
             self.backup_fuel_fraction = True
         else:
             self.backup_fuel_fraction = None
+        # Set minimum efficiency flag to None, assuming that even if the package contains a min.
+        # efficiency HVAC measure, pairing with envelope pushes the measure above a minimum level of
+        # performance
+        self.min_eff_elec_flag = None
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -14847,8 +14856,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                     add_ref_meas = False
 
                 # Add reference case analogues of the measure if the user has flagged the
-                # measure as requiring such an analogue to subsequently compete against (via
-                # `ref_analogue` attribute.)
+                # measure as requiring such an analogue to subsequently compete against
                 if add_ref_meas:
                     # Determine unique measure copy name
                     new_name = meas_dict["name"] + " (Ref. Analogue)"
