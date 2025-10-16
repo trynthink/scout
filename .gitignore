@@ -9,6 +9,9 @@ __pycache__/
 
 .venv
 
+# Local environment variables (do not commit API keys)
+.env
+
 # EIA AEO microtable data files #
 #################################
 
