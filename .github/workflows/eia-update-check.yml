@@ -1,0 +1,32 @@
+name: EIA update check
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch: {}
+
+jobs:
+  eia-check:
+    runs-on: ubuntu-latest
+
+    env:
+      # EIA API key stored as a GitHub Actions secret
+      EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Run EIA baseline comparison (smoke)
+        run: |
+          python -m scout.AEO_update_helpers.baseline_comparison --year 2025
