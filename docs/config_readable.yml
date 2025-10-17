@@ -30,7 +30,8 @@ ecm_prep:
     is assigned. If not provided, ./ecm_definitions will be used.
     Default null
   ecm_field_updates: (object) Key-value pairs to update fields
-    across all ECM definitions. Keys should correspond to ECM
+    across all ECM definitions. Any number of ECM fields can be
+    updated with additional keys. Keys should correspond to ECM
     definition fields. Default null
   ecm_files: (array) Specify a subset of ECM definitions in the
     ECM directory. Values must contain exact matches to the ECM
