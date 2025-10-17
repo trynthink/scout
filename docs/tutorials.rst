@@ -1588,7 +1588,7 @@ Suppress output of ECM-captured energy use
 Update fields across all ECMs
 *****************************
 
-``--ecm_field_updates`` updates fields of all ECMs selected for preparation or included in packges to be prepared.
+``--ecm_field_updates`` updates fields of all ECMs selected for preparation or included in packages to be prepared. ECM fields are updated using key-value argument inputs. Any number of ECM fields can be updated with additional keys. Keys should correspond to ECM definition fields.
 
 Verbose mode
 ************

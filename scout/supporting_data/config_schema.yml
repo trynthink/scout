@@ -220,7 +220,7 @@ properties:
       ecm_field_updates:
         type: ["object", "null"]
         default: null
-        description: Key-value pairs to update fields across all ECM definitions. Keys should correspond to ECM definition fields.
+        description: Key-value pairs to update fields across all ECM definitions. Any number of ECM fields can be updated with additional keys. Keys should correspond to ECM definition fields.
 
   run:
     type: object

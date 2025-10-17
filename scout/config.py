@@ -4,6 +4,7 @@ import copy
 import sys
 import warnings
 import logging
+import json
 from pathlib import Path
 from jsonschema import validate
 
@@ -374,9 +375,8 @@ class Config:
             elif arg_type == "object" and arg_name in self.DICT_ARGUMENTS:
                 parser.add_argument(
                     f"--{arg_name}",
-                    type=dict,
-                    nargs="*",
-                    help=arg_help + " (YAML formatted key-value pairs)",
+                    type=json.loads,
+                    help=arg_help,
                     default=arg_default,
                     metavar="",
                 )
