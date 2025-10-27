@@ -3226,13 +3226,16 @@ class Measure(object):
                         else:
                             # Set to original cooling tech./fuel if not switching to HP
                             if "cooling" in mskeys:
-                                mskeys_swtch_tech, mskeys_swtch_fuel = [
-                                    mskeys[-2], mskeys[3]]
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [mskeys[-2], mskeys[3]]
                             else:
-                                mskeys_swtch_tech = "resistance heat"
+                                mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
                     elif mskeys[4] == "water heating":
-                        mskeys_swtch_tech = "electric WH"
+                        # Set any switched to electric res. WH technology to the Scout/EIA name
+                        if mskeys_swtch_fuel == "electricity":
+                            mskeys_swtch_tech = "electric WH"
+                        else:
+                            mskeys_swtch_tech = None
                     # Cooking and drying
                     elif mskeys[4] in ["cooking", "drying"]:
                         mskeys_swtch_tech = None
@@ -3265,13 +3268,25 @@ class Measure(object):
                                 mskeys[4] == "cooling":
                             mskeys_swtch_tech = "comm_GSHP-cool"
                         else:
-                            mskeys_swtch_tech = self.tech_switch_to
+                            # Set to original cooling tech./fuel if not switching to HP
+                            if "cooling" in mskeys:
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [mskeys[-2], mskeys[3]]
+                            else:
+                                mskeys_swtch_tech = self.tech_switch_to
                     # Water heating
                     elif mskeys[4] == "water heating":
-                        mskeys_swtch_tech = "HP water heater"
+                        # Ensure use of correct com. HP water heater name if in user name
+                        if "HP" in self.tech_switch_to:
+                            mskeys_swtch_tech = "HP water heater"
+                        else:
+                            mskeys_swtch_tech = self.tech_switch_to
                     # Cooking
                     elif mskeys[4] == "cooking":
-                        mskeys_swtch_tech = "elec_range-combined"
+                        # Com. cooking has only two names, one for electric and one for gas
+                        if mskeys_swtch_fuel == "electricity":
+                            mskeys_swtch_tech = "elec_range-combined"
+                        else:
+                            mskeys_swtch_tech = "gas_range-combined"
                     # Lighting - switch to comparable LED product based
                     # on lighting class in baseline
                     elif mskeys[4] == "lighting":
