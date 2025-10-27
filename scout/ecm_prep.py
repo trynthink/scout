@@ -5567,10 +5567,10 @@ class Measure(object):
                                              "choice data structure for segment '" + str(mskeys))
                         # Ensure dictionary has end point data to draw from; if not, set segment
                         # coefficients to a default and notify user in verbose mode
-                        if (tiered_flag and (
-                            any([x[1] in [0, "NA"] for x in choice_dict["typical"]["b1"].items()]))
-                            or (not tiered_flag and
-                                any([x[1] in [0, "NA"] for x in choice_dict["b1"].items()]))):
+                        if (tiered_flag and (any([any([not isinstance(x[1], float) for
+                            x in choice_dict["typical"][coef].items()]) for coef in ["b1", "b2"]]))
+                            or (not tiered_flag and any([any([not isinstance(x[1], float) for
+                                x in choice_dict[coef].items()]) for coef in ["b1", "b2"]]))):
                             choice_params = self.use_deflt_res_choice(mskeys, consume_warn, opts)
                         # Case where checks above have cleared and the coefficients are tiered
                         # (best vs. typical)
