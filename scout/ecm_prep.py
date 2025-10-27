@@ -2633,31 +2633,17 @@ class Measure(object):
         # given measure, and if so load in relevant data. If no
         # "backup_fuel_fraction" data are present, set this parameter to
         # None
-        try:
-            self.backup_fuel_fraction
-            # Retrieve backup fuel fraction data
-            if isinstance(self.backup_fuel_fraction, str):
-                # Determine the CSV file name, which is stored in the parameter
-                csv_bkup_fuel_file_name = self.backup_fuel_fraction
-                # Assuming the standard location for ECM savings shape CSV
-                # files, import custom savings shape data as numpy array and
-                # store it in the ECM's custom savings shape attribute for
-                # subsequent use in the 'apply_tsv' function
-                try:
-                    self.backup_fuel_fraction = \
-                        pd.read_csv(
-                            handyfiles.backup_fuel_data /
-                            csv_bkup_fuel_file_name)
-                except OSError:
-                    raise OSError(
-                        "Backup fuel fraction data file indicated in "
-                        "'backup_fuel_fraction' attribute of measure '" +
-                        self.name + "' not found; "
-                        "looking for file " + (
-                            str(handyfiles.backup_fuel_data) /
-                            csv_bkup_fuel_file_name) + ". ")
-        except AttributeError:
+        bkup_attr = getattr(self, "backup_fuel_fraction", None)
+        if bkup_attr is None:
             self.backup_fuel_fraction = None
+        elif isinstance(bkup_attr, str):
+            csv_path = handyfiles.backup_fuel_data / bkup_attr
+            if not csv_path.exists():
+                raise OSError(
+                    "Backup fuel fraction data file indicated in 'backup_fuel_fraction' "
+                    f"attribute of measure '{self.name}' not found; looking for file {csv_path}."
+                )
+            self.backup_fuel_fraction = pd.read_csv(csv_path)
         self.markets = {}
 
         for adopt_scheme in handyvars.adopt_schemes_prep:
