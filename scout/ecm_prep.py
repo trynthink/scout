@@ -1525,7 +1525,8 @@ class UsefulVars(object):
                 "cooling": [-0.00019, -0.00289],  # typical gas HP
                 "water heating": [-0.00250, -0.03841],  # typical gas WH
                 "cooking": [-0.00106, -0.01629],  # typical gas stove
-                "drying": [-0.00636, -0.09780]   # typical gas dryer
+                "drying": [-0.00636, -0.09780],   # typical gas dryer
+                "other": [-0.00106, -0.01629]  # typical gas stove (fossil other incls. gas grills)
             }
         }
 
