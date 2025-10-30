@@ -160,7 +160,7 @@ ecm_prep:
       to assume for code scenario implementation. Default 1
     codes: (string) State or local new building codes w/ additional
       energy index improvements over model code and/or onsite
-      emissions reduction requirements/incentives.Null removes
+      emissions reduction requirements/incentives. Null removes
       this driver entirely. Allowed values are {aggressive, optimistic,
       reference, null}. Default null
     low_volume_rate: (string) Reduce volumetric electric rates,

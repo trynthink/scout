@@ -240,7 +240,7 @@ properties:
             type: ["string", "null"]
             enum: [reference, optimistic, aggressive, null]
             default: null
-            description: State or local new building codes w/ additional energy index improvements over model code and/or onsite emissions reduction requirements/incentives.Null removes this driver entirely.
+            description: State or local new building codes w/ additional energy index improvements over model code and/or onsite emissions reduction requirements/incentives. Null removes this driver entirely.
           code_comply_res:
             type: ["number", "null"]
             default: 1
