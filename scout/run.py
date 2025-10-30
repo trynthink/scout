@@ -6086,7 +6086,24 @@ class Engine(object):
 
     def stack_impacts(self, code_std_flag, reg, bldg, regu_type, frac_already_in_place, impact_frac,
                       apply_frac, apply_yrs):
-        """."""
+        """Account for any overlaps in impact across code/BPS policies that apply to the same mseg.
+
+        Args:
+            code_std_flag (str): Flag for whether current policy is a code or BPS.
+            reg (str): Region name used for current mseg in Scout input/measure definitions.
+            bldg (str): Building name used for current mseg in Scout input/measure definitions.
+            regu_type (str): Flag for whether policy is at the full state or local level.
+            frac_already_in_place (dict): Onsite or energy reductions already assessed for mseg.
+            impact_frac (float): Level of impact (on onsite fuel or energy use) for current policy.
+            apply_frac (float): Portion of mseg to apply the current policy to.
+            apply_yrs (list): Applicable years range for code/BPS policy.
+
+        Returns:
+            Updated dict that tracks code/BPS policies that have been applied for the current mseg,
+            as well as an updated estimate of their composite impact on onsite fuel use or
+            total energy use for the current mseg.
+        """
+
         impact_times_apply_frac = {yr: apply_frac * impact_frac[yr] for yr in apply_yrs}
         # Adjust applicability factor to account for codes/BPS that are already in place
         if reg in frac_already_in_place[code_std_flag]["cum_fracs"].keys():
@@ -7266,32 +7283,26 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Set flag for fuel splits
     split_fuel = (meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True)
 
-    # Set a flag for detailed breakouts
-    if (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and split_fuel is True):
-        brkout = "detail"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '2':
-        brkout = "detail_reg"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '3':
-        brkout = "detail_bldg"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '4':
-        brkout = "detail_fuel"
-    elif (meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '5' or (
-            meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '1' and
-            split_fuel is not True)):
-        brkout = "detail_reg_bldg"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '6':
-        brkout = "detail_reg_fuel"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '7':
-        brkout = "detail_bldg_fuel"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '8':
-        brkout = "detail_reg_fuel_codesbps"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '9':
-        brkout = "detail_codesbps"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '10':
-        brkout = "detail_reg_codesbps"
-    elif meas_summary_restrict[0]["usr_opts"]["detail_brkout"] == '11':
-        brkout = "detail_codesbps_fuel"
-    else:
+    # Develop lookup dictionary to set the level of detail in output breakouts
+    brkout_lookup = {
+        "1": {"fuel splits": "detail", "no fuel splits": "detail_reg_bldg"},
+        "2": "detail_reg", "3": "detail_bldg", "4": "detail_fuel", "5": "detail_reg_bldg",
+        "6": "detail_reg_fuel", "7": "detail_bldg_fuel", "8": "detail_reg_fuel_codesbps",
+        "9": "detail_codesbps", "10": "detail_reg_codesbps", "11": "detail_codesbps_fuel"}
+    # Set detailed output breakouts, if any are desired by user
+    try:
+        brkout = brkout_lookup[meas_summary_restrict[0]["usr_opts"]["detail_brkout"]]
+        # When user asks for full level of detail in reporting, condition reporting on whether
+        # or not they have also prepared the data with fuel splits
+        if isinstance(brkout, dict):
+            # Given fuel splits in the data, full level of detail (reg, bldg, fuel) in breakouts
+            if split_fuel is True:
+                brkout = brkout["fuel splits"]
+            # Without fuel splits in the data, only use detailed reg and bldg breakouts
+            else:
+                brkout = brkout["no fuel splits"]
+    # In the absence of user-specified detail in output breakouts, use basic breakouts
+    except KeyError:
         brkout = "basic"
 
     # Set a flag for geographical breakout (currently possible to breakout
