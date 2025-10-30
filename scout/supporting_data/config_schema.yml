@@ -249,7 +249,6 @@ properties:
             type: ["number", "null"]
             default: 1
             description: Commercial compliance fraction to assume for code scenario implementation.
->>>>>>> 20236075 (Represent state appliance regs, codes and BPS)
 
       incentives:
         type: object
