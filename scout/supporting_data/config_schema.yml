@@ -217,7 +217,7 @@ properties:
             type: ["string", "null"]
             enum: [reference, optimistic, aggressive, null]
             default: null
-            description: Reduce volumetric electric rates, possibly with concurrent increase in fixed charges. Null removes this driver entirely.
+            description: Reduce volumetric electric rates, possibly with concurrent increase in fixed charges. Reference case will represent currently-enacted rates of this type. Null removes this driver entirely.
 
       incentives:
         type: object

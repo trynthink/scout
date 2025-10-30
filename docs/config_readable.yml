@@ -144,8 +144,9 @@ ecm_prep:
     by fuel type. Default False
   sub_fed_policy:
     low_volume_rate: (string) Reduce volumetric electric rates,
-      possibly with concurrent increase in fixed charges. Null
-      removes this driver entirely. Allowed values are {aggressive,
+      possibly with concurrent increase in fixed charges. Reference
+      case will represent currently-enacted rates of this type.
+      Null removes this driver entirely. Allowed values are {aggressive,
       optimistic, reference, null}. Default null
   tsv_metrics:
     tsv_average_days: (string) The day type to average over. Required

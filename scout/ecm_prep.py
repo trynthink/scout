@@ -1859,216 +1859,218 @@ class UsefulVars(object):
             try:
                 # Read in input-specific data
                 state_econ_dat = pd.read_csv(getattr(handyfiles, k))
-                # Filter by scenarios
-                state_econ_dat = state_econ_dat[state_econ_dat["scenario"] == scn_name]
-                # Remove scenario column from df
-                state_econ_dat = state_econ_dat.drop("scenario", axis=1)
-                # Initialize segment-specific list of state-level inputs
-                state_dat_init = []
-                # Loop through and finalize all rows in the data
-                for index, row in state_econ_dat.iterrows():
-                    # Set applicable state(s), building type(s), and vintage(s)
-                    state, bldg, vint = [
-                        [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                        for x in row.values[1:4]]
-                    # Set start and end years and applicability fraction
-                    start_yr, end_yr, apply_frac = [
-                        [row.values[-4]], [row.values[-3]], [row.values[-2]]]
-                    # Finalize applicability fraction if it is blank in the data
-                    if numpy.isnan(apply_frac):
-                        apply_frac = [1]
-                    # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
-                    # included in the USCA but not currently run in Scout simulations, add in
-                    # subsequently) or a row that applies to all states
-                    if len(state) == 1 and state[0].lower() == "usca":
-                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
-                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
-                    elif len(state) == 1 and state[0] == "all":
-                        state = valid_regions
-                    # Remove 'unspecified' from building types if present (not supported)
-                    bldg = [x for x in bldg if x != "unspecified"]
-                    # Set flags for the presence of 'all' building entry to fill out
-                    all_bldg_entries = ["all", "all residential", "all commercial"]
-                    # Set lists of all residential and commercial building types (note: this could
-                    # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
-                    # from that module to ensure consistency)
-                    all_res = ["single family home", "multi family home", "mobile home"]
-                    # Note: exclude 'unspecified' from being affected by state-level drivers
-                    all_com = ["assembly", "education", "food sales", "food service",
-                               "health care", "lodging", "large office", "small office",
-                               "mercantile/service", "warehouse", "other"]
-                    # Initialize flags as false for whether or not all res. or com. building types
-                    # need to be filled out
-                    all_res_flag, all_com_flag = (False for n in range(2))
-                    # Loop through all entries in building type input; when encountering an 'all'
-                    # entry for res./com., flag it for further processing
-                    for b_ind, b in enumerate(bldg):
-                        # Flag 'all' building type entries for res./com. separately
-                        if b in ["all", "all residential"]:
-                            all_res_flag = True
-                        elif b in ["all", "all commercial"]:
-                            all_com_flag = True
-                    # Fill out the building types while removing original "all" entries
-                    for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
-                        if flg and ind_flg == 0:
-                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_res
-                        elif flg:
-                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_com
-                    # Fill out 'all' entries for building vintage
-                    if len(vint) == 1 and vint[0] == "all":
-                        vint = ["new", "existing"]
-                    # Set applicable end use, technology, and fuel
-                    eu, tech, fuel = [
-                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                            [y.strip() for y in x.split(",")] if isinstance(x, str)
-                            else [x]) for x in row.values[4:7]]
-                    # Fill out 'all' entries for measure and base fuel type
-                    if len(fuel) == 1 and fuel[0] == "all":
-                        fuel = ["natural gas", "distillate", "other fuel", "electricity"]
-                    elif len(fuel) == 1 and fuel[0] == "all fossil":
-                        fuel = ["natural gas", "distillate", "other fuel"]
-                    # Fill out 'all fossil' entry for end use
-                    if len(eu) == 1 and eu[0] == "all fossil":
-                        eu = ["heating", "water heating", "cooking", "drying", "other"]
-
-                    # Finalize variable-specific inputs
-                    if k == "incentives":
-                        # Set baseline fuel data (e.g., fuel switched from if applicable)
-                        fuel_base = [
-                            [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                                [y.strip() for y in x.split(",")] if isinstance(x, str)
-                                else [x]) for x in row.values[7:8]][0]
-                        # Fill out nan or all entries for base fuel
-                        if len(fuel_base) == 1:
-                            if not isinstance(fuel_base[0], str):
-                                fuel_base = fuel
-                            elif fuel_base[0] == "all":
-                                fuel_base = [
-                                    "natural gas", "distillate", "other fuel", "electricity"]
-                            elif fuel_base[0] == "all fossil":
-                                fuel_base = ["natural gas", "distillate", "other fuel"]
-                        # Set backup fuel allowance (relevant to fuel switching incentives),
-                        # as well as the type of incentives modification (remove, extend, replace),
-                        # the scope of the modification (federal or non-federal incentives mod),
-                        # and, for extensions, the level of increase in incentive to pair w/
-                        # extension
-                        backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
-                        # Finalize flag for backup allowance; blanks or negative tags set to no
-                        if not isinstance(backup, str) or backup in [
-                                "N", "n", "no", "No", "false", "False"]:
-                            backup = ["no"]
-                        else:
-                            backup = ["yes"]
-                        # Finalize type of mod; ensure that modification is tagged correctly
-                        if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
-                            raise ValueError(
-                                "Blank cells not allowed in column 'modification' in "
-                                "file " + handyfiles.incentives + ", row " + str(index) +
-                                ". Set to one of 'remove' 'extend' or 'replace'")
-                        else:
-                            mod = [mod]
-                        # Finalize scope of modification; ensure scope is tagged correctly
-                        if not isinstance(scope, str) or scope not in [
-                                "federal", "non-federal", "all"]:
-                            scope = ["all"]
-                        else:
-                            scope = [scope]
-                        # Finalize ira flag
-                        if not isinstance(ira, str):
-                            ira = [False]
-                        else:
-                            ira = [True]
-                        # Finalize increase on extension as number if it is left blank
-                        if numpy.isnan(increase):
-                            increase = [0]
-                        else:
-                            increase = [increase]
-                        # Set information needed to replace existing incentives: performance level
-                        # and units for replacement, as well as the incentive level to use (either
-                        # a % credit on installed cost or a rebate amount in $)
-                        perf_lev, perf_units, credit, rebate, rebate_units = [
-                            [x] for x in row.values[-9:-4]]
-                        # Pull all parameters together in a master list
-                        params = [
-                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
-                            increase, perf_lev, perf_units, credit, rebate, rebate_units,
-                            start_yr, end_yr, apply_frac]
-                        # For heat pump segments, ensure that if a user has specified incentives
-                        # for one of heating or cooling end uses, the other end use is zeroed out
-                        # (otherwise user-specified HP incentives might be combined with HP
-                        # incentives already in the EIA/Scout baseline)
-                        if any([y in tech[0] for y in ["HP", "all"]]) and any([
-                                x in eu for x in ["heating", "cooling"]]):
-                            # Duplicate the user-specified incentives
-                            dup_params = copy.deepcopy(params)
-                            # For duplicate row, switch information to end use not covered in
-                            # original row (e.g., if heat, switch to cool info., or vice versa)
-                            if "heating" in eu:
-                                # Switch end use
-                                dup_params[3] = ["cooling"]
-                                # Switch technology name (if tech. name indicates heat/cool info.)
-                                if "-heat" in tech[0]:
-                                    dup_params[4] = [tech[0].replace("-heat", "-cool")]
-                                # Switch rebate units (if units indicate heat/cool info.)
-                                if isinstance(rebate_units[0], str) and \
-                                        "heating" in rebate_units[0]:
-                                    dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
-                            else:
-                                dup_params[3] = ["heating"]
-                                if "-cool" in tech[0]:
-                                    dup_params[4] = [tech[0].replace("-cool", "-heat")]
-                                if isinstance(rebate_units[0], str) and \
-                                        "cooling" in rebate_units[0]:
-                                    dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
-                            # Zero out all incentives in the duplicate row
-                            dup_params[-5], dup_params[-6] = ([0] for n in range(2))
-                        else:
-                            dup_params = []
-                    elif k == "low_volume_rate":
-                        # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
-                        # and added fixed costs (annual, if applicable).
-                        # **** NOTE that currently, fixed costs are read in as a placeholder,
-                        # but not further used below since they affect the whole electricity bill
-                        # and can't be directly attributed to a specific measure *****
-                        vol_abs, vol_rel, fix_add = [[x] for x in row.values[7:10]]
-                        # Handle blank cells for each of the above
-                        if numpy.isnan(vol_abs[0]):
-                            vol_abs = [False]
-                        elif numpy.isnan(vol_rel[0]):
-                            vol_rel = [False]
-                        else:
-                            raise ValueError(
-                                "Pick either absolute OR relative volumetric rate reduction "
-                                " in file " + handyfiles.rates + "; both cannot be used but are "
-                                "present in row " + str(index) + ".")
-                        if numpy.isnan(fix_add[0]):
-                            fix_add[0] = [0]
-                        # Pull all parameters together in a master list
-                        params = [
-                            state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
-                            start_yr, end_yr, apply_frac]
-                        # No need to duplicate rows for this driver (see for incentives above)
-                        dup_params = []
-                    else:
-                        raise ValueError("Unexpected sub-federal input type '" + k + "'")
-
-                    # Iterate all expanded parameter info. into a list of lists with every
-                    # possible combination of each parameter
-                    iterable = list(map(list, itertools.product(*params)))
-                    # Further iterate all duplicated parameter info. when one heating or cooling
-                    # end use for heat pump incentives is provided and the other end use needs to
-                    # be zeroed out
-                    if len(dup_params) > 0:
-                        dup_iterable = list(map(list, itertools.product(*dup_params)))
-                        iterable.extend(dup_iterable)
-
-                    # Update segment/row-specific list of state-level inputs and reset attribute
-                    state_dat_init.extend(iterable)
-                setattr(self, k, state_dat_init)
-
             except FileNotFoundError:
                 # Set segment-specific list of state-level inputs to empty list
                 setattr(self, k, [])
+                # Continue to next adoption input if no data are found
+                continue
+
+            # Filter by scenarios
+            state_econ_dat = state_econ_dat[state_econ_dat["scenario"] == scn_name]
+            # Remove scenario column from df
+            state_econ_dat = state_econ_dat.drop("scenario", axis=1)
+            # Initialize segment-specific list of state-level inputs
+            state_dat_init = []
+            # Loop through and finalize all rows in the data
+            for index, row in state_econ_dat.iterrows():
+                # Set applicable state(s), building type(s), and vintage(s)
+                state, bldg, vint = [
+                    [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
+                    for x in row.values[1:4]]
+                # Set start and end years and applicability fraction
+                start_yr, end_yr, apply_frac = [
+                    [row.values[-4]], [row.values[-3]], [row.values[-2]]]
+                # Finalize applicability fraction if it is blank in the data
+                if numpy.isnan(apply_frac):
+                    apply_frac = [1]
+                # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
+                # included in the USCA but not currently run in Scout simulations, add in
+                # subsequently) or a row that applies to all states
+                if len(state) == 1 and state[0].lower() == "usca":
+                    state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
+                             "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                elif len(state) == 1 and state[0] == "all":
+                    state = valid_regions
+                # Remove 'unspecified' from building types if present (not supported)
+                bldg = [x for x in bldg if x != "unspecified"]
+                # Set flags for the presence of 'all' building entry to fill out
+                all_bldg_entries = ["all", "all residential", "all commercial"]
+                # Set lists of all residential and commercial building types (note: this could
+                # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
+                # from that module to ensure consistency)
+                all_res = ["single family home", "multi family home", "mobile home"]
+                # Note: exclude 'unspecified' from being affected by state-level drivers
+                all_com = ["assembly", "education", "food sales", "food service",
+                           "health care", "lodging", "large office", "small office",
+                           "mercantile/service", "warehouse", "other"]
+                # Initialize flags as false for whether or not all res. or com. building types
+                # need to be filled out
+                all_res_flag, all_com_flag = (False for n in range(2))
+                # Loop through all entries in building type input; when encountering an 'all'
+                # entry for res./com., flag it for further processing
+                for b_ind, b in enumerate(bldg):
+                    # Flag 'all' building type entries for res./com. separately
+                    if b in ["all", "all residential"]:
+                        all_res_flag = True
+                    elif b in ["all", "all commercial"]:
+                        all_com_flag = True
+                # Fill out the building types while removing original "all" entries
+                for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
+                    if flg and ind_flg == 0:
+                        bldg = [b for b in bldg if b not in all_bldg_entries] + all_res
+                    elif flg:
+                        bldg = [b for b in bldg if b not in all_bldg_entries] + all_com
+                # Fill out 'all' entries for building vintage
+                if len(vint) == 1 and vint[0] == "all":
+                    vint = ["new", "existing"]
+                # Set applicable end use, technology, and fuel
+                eu, tech, fuel = [
+                    [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                        [y.strip() for y in x.split(",")] if isinstance(x, str)
+                        else [x]) for x in row.values[4:7]]
+                # Fill out 'all' entries for measure and base fuel type
+                if len(fuel) == 1 and fuel[0] == "all":
+                    fuel = ["natural gas", "distillate", "other fuel", "electricity"]
+                elif len(fuel) == 1 and fuel[0] == "all fossil":
+                    fuel = ["natural gas", "distillate", "other fuel"]
+                # Fill out 'all fossil' entry for end use
+                if len(eu) == 1 and eu[0] == "all fossil":
+                    eu = ["heating", "water heating", "cooking", "drying", "other"]
+
+                # Finalize variable-specific inputs
+                if k == "incentives":
+                    # Set baseline fuel data (e.g., fuel switched from if applicable)
+                    fuel_base = [
+                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                            [y.strip() for y in x.split(",")] if isinstance(x, str)
+                            else [x]) for x in row.values[7:8]][0]
+                    # Fill out nan or all entries for base fuel
+                    if len(fuel_base) == 1:
+                        if not isinstance(fuel_base[0], str):
+                            fuel_base = fuel
+                        elif fuel_base[0] == "all":
+                            fuel_base = [
+                                "natural gas", "distillate", "other fuel", "electricity"]
+                        elif fuel_base[0] == "all fossil":
+                            fuel_base = ["natural gas", "distillate", "other fuel"]
+                    # Set backup fuel allowance (relevant to fuel switching incentives),
+                    # as well as the type of incentives modification (remove, extend, replace),
+                    # the scope of the modification (federal or non-federal incentives mod),
+                    # and, for extensions, the level of increase in incentive to pair w/
+                    # extension
+                    backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
+                    # Finalize flag for backup allowance; blanks or negative tags set to no
+                    if not isinstance(backup, str) or backup in [
+                            "N", "n", "no", "No", "false", "False"]:
+                        backup = ["no"]
+                    else:
+                        backup = ["yes"]
+                    # Finalize type of mod; ensure that modification is tagged correctly
+                    if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
+                        raise ValueError(
+                            "Blank cells not allowed in column 'modification' in "
+                            "file " + handyfiles.incentives + ", row " + str(index) +
+                            ". Set to one of 'remove' 'extend' or 'replace'")
+                    else:
+                        mod = [mod]
+                    # Finalize scope of modification; ensure scope is tagged correctly
+                    if not isinstance(scope, str) or scope not in [
+                            "federal", "non-federal", "all"]:
+                        scope = ["all"]
+                    else:
+                        scope = [scope]
+                    # Finalize ira flag
+                    if not isinstance(ira, str):
+                        ira = [False]
+                    else:
+                        ira = [True]
+                    # Finalize increase on extension as number if it is left blank
+                    if numpy.isnan(increase):
+                        increase = [0]
+                    else:
+                        increase = [increase]
+                    # Set information needed to replace existing incentives: performance level
+                    # and units for replacement, as well as the incentive level to use (either
+                    # a % credit on installed cost or a rebate amount in $)
+                    perf_lev, perf_units, credit, rebate, rebate_units = [
+                        [x] for x in row.values[-9:-4]]
+                    # Pull all parameters together in a master list
+                    params = [
+                        state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
+                        increase, perf_lev, perf_units, credit, rebate, rebate_units,
+                        start_yr, end_yr, apply_frac]
+                    # For heat pump segments, ensure that if a user has specified incentives
+                    # for one of heating or cooling end uses, the other end use is zeroed out
+                    # (otherwise user-specified HP incentives might be combined with HP
+                    # incentives already in the EIA/Scout baseline)
+                    if any([y in tech[0] for y in ["HP", "all"]]) and any([
+                            x in eu for x in ["heating", "cooling"]]):
+                        # Duplicate the user-specified incentives
+                        dup_params = copy.deepcopy(params)
+                        # For duplicate row, switch information to end use not covered in
+                        # original row (e.g., if heat, switch to cool info., or vice versa)
+                        if "heating" in eu:
+                            # Switch end use
+                            dup_params[3] = ["cooling"]
+                            # Switch technology name (if tech. name indicates heat/cool info.)
+                            if "-heat" in tech[0]:
+                                dup_params[4] = [tech[0].replace("-heat", "-cool")]
+                            # Switch rebate units (if units indicate heat/cool info.)
+                            if isinstance(rebate_units[0], str) and \
+                                    "heating" in rebate_units[0]:
+                                dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
+                        else:
+                            dup_params[3] = ["heating"]
+                            if "-cool" in tech[0]:
+                                dup_params[4] = [tech[0].replace("-cool", "-heat")]
+                            if isinstance(rebate_units[0], str) and \
+                                    "cooling" in rebate_units[0]:
+                                dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
+                        # Zero out all incentives in the duplicate row
+                        dup_params[-5], dup_params[-6] = ([0] for n in range(2))
+                    else:
+                        dup_params = []
+                elif k == "low_volume_rate":
+                    # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
+                    # and added fixed costs (annual, if applicable).
+                    # **** NOTE that currently, fixed costs are read in as a placeholder,
+                    # but not further used below since they affect the whole electricity bill
+                    # and can't be directly attributed to a specific measure *****
+                    vol_abs, vol_rel, fix_add = [[x] for x in row.values[7:10]]
+                    # Handle blank cells for each of the above
+                    if numpy.isnan(vol_abs[0]):
+                        vol_abs = [False]
+                    elif numpy.isnan(vol_rel[0]):
+                        vol_rel = [False]
+                    else:
+                        raise ValueError(
+                            "Pick either absolute OR relative volumetric rate reduction "
+                            " in file " + handyfiles.rates + "; both cannot be used but are "
+                            "present in row " + str(index) + ".")
+                    if numpy.isnan(fix_add[0]):
+                        fix_add[0] = [0]
+                    # Pull all parameters together in a master list
+                    params = [
+                        state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
+                        start_yr, end_yr, apply_frac]
+                    # No need to duplicate rows for this driver (see for incentives above)
+                    dup_params = []
+                else:
+                    raise ValueError("Unexpected sub-federal input type '" + k + "'")
+
+                # Iterate all expanded parameter info. into a list of lists with every
+                # possible combination of each parameter
+                iterable = list(map(list, itertools.product(*params)))
+                # Further iterate all duplicated parameter info. when one heating or cooling
+                # end use for heat pump incentives is provided and the other end use needs to
+                # be zeroed out
+                if len(dup_params) > 0:
+                    dup_iterable = list(map(list, itertools.product(*dup_params)))
+                    iterable.extend(dup_iterable)
+
+                # Update segment/row-specific list of state-level inputs and reset attribute
+                state_dat_init.extend(iterable)
+            setattr(self, k, state_dat_init)
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -5016,8 +5018,8 @@ class Measure(object):
                             # Pull any relevant incentives mod data that apply to current mseg
                             incent_mod = [x for x in self.handyvars.incentives if (
                                 [x[0], x[1], x[2]] == [mskeys[1], mskeys[2], mskeys[-1]]
-                                # reg/bldg/vnt
-                                and (x[3] == "all" or x[3] == mskeys[4]))]  # end use
+                                # x[0]/x[1]/x[2] indices in incentives data map to reg/bldg/vnt
+                                and (x[3] == "all" or x[3] == mskeys[4]))]  # x[3] maps to end use
                             # Distinguish between modifications that apply to an applicable base seg
                             # vs. a segment that a measure switches to (the latter is only relevant
                             # for fuel or technology switching measures)
@@ -6979,17 +6981,24 @@ class Measure(object):
                 keys_to_check = [mskeys, mskeys_swtch]  # Measure switches from baseline segment
             else:
                 keys_to_check = [mskeys, mskeys]  # Measure does not switch from base segment
-            suppress_base_incentive, suppress_measure_incentive = [(("electricity" in keys and (
-                (seg in ["federal", "all"] and
-                 opts.incentive_restrictions == "no federal electric") or
-                (seg in ["non-federal", "all"] and
-                 opts.incentive_restrictions == "no sub-federal electric") or
-                opts.incentive_restrictions == "no electric")) or
-                ("electricity" not in keys and (
-                    (seg in ["federal", "all"] and
-                     opts.incentive_restrictions == "no federal fossil") or
+            suppress_base_incentive, suppress_measure_incentive = [
+                (("electricity" in keys and ((
+                    # Case 1: electric segment, fed. $, user has suppressed elec. fed. $
+                    seg in ["federal", "all"] and
+                    opts.incentive_restrictions == "no federal electric") or
+                    # Case 2: electric segment, non-fed. $, user suppressed non-fed elec. $
                     (seg in ["non-federal", "all"] and
+                     opts.incentive_restrictions == "no sub-federal electric") or
+                    # Case 3: electric segment, all electric $ suppressed
+                    opts.incentive_restrictions == "no electric")) or
+                 ("electricity" not in keys and (
+                    # Case 4: non-elec. segment, fed. $, user suppressed fed. non-elec. $
+                    (seg in ["federal", "all"] and
+                     opts.incentive_restrictions == "no federal fossil") or (
+                     # Case 5: non-elec. segment, non-fed. $, user suppressed non-fed. non-elec. $
+                     seg in ["non-federal", "all"] and
                      opts.incentive_restrictions == "no sub-federal fossil")
+                    # Case 6: non-elec. segment, all non-elec. $ suppressed
                     or opts.incentive_restrictions == "no fossil"))) for keys in keys_to_check]
             # Initialize tracking of annual incentive amounts
             base_val_yrs_max, meas_val_yrs_max = ([] for n in range(2))
@@ -10627,6 +10636,8 @@ class Measure(object):
                 # If alternatives apply, pull data on modifications to volumetric energy rates;
                 # if no alternates apply, set modifications to zero
                 if len(alt_rates) != 0:
+                    # Initialize cumulative reduced rate, to be updated with each loop below
+                    cost_energy_meas_adj_apply_cum = 0
                     # Initialize cumulative applicability fraction that covers all applicable
                     # rates for current mseg, to be updated with each loop below
                     cum_rate_apply_frac = 0
@@ -10646,8 +10657,7 @@ class Measure(object):
                             vol_reduce = vol_abs * kwh_mmbtu
                         # Relative volumetric reductions are applied to unadj. measure energy cost
                         else:
-                            vol_reduce = cost_energy_meas[yr] - cost_energy_meas[yr] * (
-                                vol_rel / 100)
+                            vol_reduce = cost_energy_meas[yr] * (vol_rel / 100)
                         apply_frac = alt_rate[-1]
                         # ***** NOTE Leave placeholder for possible future handling of added fixed
                         # costs (not readily assigned to single measure, apply across bill) *****
@@ -10660,17 +10670,21 @@ class Measure(object):
                         # fix_add_comp = (stock_compete_meas[yr] / unit_to_home) * fix_add
                         # fix_add_tot = (stock_total_meas[yr] / unit_to_home) * fix_add
 
-                        # Adjust cost of energy for measure to reflect alternate rate info. above,
-                        # taking into consideration applicability factors
-                        cost_energy_meas_adj_apply_cum = (
-                            cost_energy_meas[yr] - vol_reduce) * apply_frac
                         # Update the cumulative fraction of applicability across all rates that
                         # apply to the current mseg
-                        cum_rate_apply_frac += apply_frac
 
-                    # Ensure that cumulative applicability fraction never exceeds 1
-                    if cum_rate_apply_frac > 1:
-                        cum_rate_apply_frac = 1
+                        # Ensure that cumulative applicability fraction never exceeds 1
+                        if cum_rate_apply_frac + apply_frac > 1:
+                            # Reduce applicable fraction such that cumulative applicable is <=1
+                            apply_frac = 1 - cum_rate_apply_frac
+                            cum_rate_apply_frac = 1
+                        else:
+                            cum_rate_apply_frac += apply_frac
+                        # Adjust cost of energy for measure to reflect alternate rate info. above,
+                        # taking into consideration applicability factors
+                        cost_energy_meas_adj_apply_cum += (
+                            cost_energy_meas[yr] - vol_reduce) * apply_frac
+
                     # Finalize measure cost to reflect the cumulative impact of all applicable rates
                     cost_energy_meas_yr_adj = cost_energy_meas_adj_apply_cum + (
                         cost_energy_meas[yr] * (1 - cum_rate_apply_frac))
