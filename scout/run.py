@@ -6116,10 +6116,11 @@ class Engine(object):
                             "stock", "energy", "carbon", "cost"]}
                 except ValueError:
                     fmt.verboseprint(opts.verbose,
-                        ("No measures flagged as basis for setting relative efficiency of "
-                         "electric equipment for current region and building type. Setting "
-                         "relative efficiency of conversion to 1 across end uses and proceeding.",
-                         "warning"))
+                                     ("No measures flagged as basis for setting relative "
+                                      "efficiency of electric equipment for current region and "
+                                      "building type. Setting relative efficiency of conversion "
+                                      "to 1 across end uses and proceeding."),
+                                     "warning")
                 # Adjust onsite reduction frac. times apply frac. to account for overlaps
                 onsite_frac_already_in_place, onsite_times_apply_fracs = self.stack_impacts(
                     code_std_flag, reg, bldg, regu_type, onsite_frac_already_in_place,
