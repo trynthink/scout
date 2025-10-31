@@ -359,12 +359,9 @@ class ECMPrepHelper:
                 if not isinstance(m, MeasurePackage):
                     del m.markets[adopt_scheme]["mseg_adjust"][
                         "paired heat/cool mseg adjustments"]
-                # Add remaining contributing microsegment data to
-                # competition data dict, if the adoption scenario will be competed
-                # in the run.py module, then delete from measure
+                # Add fuel splits and sector shape data, if applicable and the adoption scenario
+                # will be competed in the run.py module, then delete from measure
                 if full_dat_out[adopt_scheme]:
-                    comp_data_dict[adopt_scheme] = \
-                        m.markets[adopt_scheme]["mseg_adjust"]
                     # If applicable, add efficient fuel split data to fuel split
                     # data dict
                     if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
@@ -380,6 +377,9 @@ class ECMPrepHelper:
                     # If adoption scenario will not be competed in the run.py
                     # module, remove detailed mseg breakouts
                     del m.markets[adopt_scheme]["mseg_out_break"]
+                # Add remaining contributing microsegment data to competition data dict, then
+                # delete from measure
+                comp_data_dict[adopt_scheme] = m.markets[adopt_scheme]["mseg_adjust"]
                 del m.markets[adopt_scheme]["mseg_adjust"]
             # Delete info. about efficient fuel splits for fuel switch measures
             del m.eff_fs_splt
@@ -10336,7 +10336,8 @@ class Measure(object):
                 fuel->end use->technology type->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
             opts (object): Stores user-specified execution options.
-            input_data (list): Stores all mseg-specific data that need to be assigned to breakouts.
+            input_data (list): Stores all segment-specific data that need to be assigned to
+                breakouts.
             gap_adj_frac (float): Fraction to apply to breakout data to represent
                 portions of msegs that are not covered by ComStock load shapes (if applicable)
         Returns:

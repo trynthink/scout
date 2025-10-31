@@ -3,11 +3,11 @@ import argparse
 import copy
 import itertools
 import numpy
+import pandas as pd
 from datetime import datetime
 from collections import OrderedDict
 from scout.utils import JsonIO
 from scout.config import FilePaths as fp
-import pandas as pd
 
 
 class UsefulVars(object):

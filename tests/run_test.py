@@ -28951,8 +28951,8 @@ class CodesBPSTest(unittest.TestCase, CommonMethods, Constants):
                                      brkout="basic")
         # Shorthand for the code/BPS measure objects that are generated via the tested function
         code_bps_meas_out = a_run_codes_bps.process_codes_bps(
-            self.test_adopt_scheme_code_bps, self.sample_msegs_sf_data, self.hv_code_bps,
-            verboseprint=None, trim_yrs=False, code_comply_res=1, code_comply_com=1,
+            self.opts, self.test_adopt_scheme_code_bps, self.sample_msegs_sf_data, self.hv_code_bps,
+            trim_yrs=False, code_comply_res=1, code_comply_com=1,
             bps_comply_res=1, bps_comply_com=1)
 
         # Check the outputs of all measures
