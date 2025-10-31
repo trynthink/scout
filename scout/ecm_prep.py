@@ -15936,7 +15936,21 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             # independent of required updates to packages they are a
             # part of (if applicable)
             if update_indiv_ecm:
-                meas_toprep_indiv_nopkg.append(meas_dict["name"])
+                # Verify that if a measure is a dual fuel measure, the regionality supports it
+                if "backup_fuel_fraction" in meas_dict.keys() and meas_dict[
+                        "backup_fuel_fraction"] is not None and opts.alt_regions != "State":
+                    # Shorthands for measure name and region for warning
+                    meas_name, regions = [meas_dict["name"], opts.alt_regions]
+                    # Throw warning message to user
+                    msg = (f"WARNING: Measure {meas_name} is a dual fuel measure, "
+                           "which is currently only supported when 'alt_regions' is 'State'"
+                           f" but 'alt_regions' is set to {regions}. Skipping this measure.")
+                    warnings.warn(msg)
+                    # Skip measure
+                    continue
+                # Otherwise add measure to those needing update
+                else:
+                    meas_toprep_indiv_nopkg.append(meas_dict["name"])
             # Register name of package measure is a part of, if applicable
             meas_in_pkgs = any([
                 meas_dict["name"] in pkg["contributing_ECMs"] for pkg in
