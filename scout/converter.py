@@ -854,11 +854,9 @@ def updater_emm(conv, api_key, aeo_yr, scen_elec):
 
         # Electricity CO2 intensities [Mt CO2/MWh]
         try:
-            co2_ints = ((z['elec_co2_total_' + key].astype('float') *
-                         conv_factor) /
+            co2_ints = ((z['elec_co2_total_' + key].astype('float') * conv_factor) /
                         # account for T&D losses by multiplying sales by 5%
-                        (z['elec_sales_total_' + key].astype('float') * \
-                         1.05))
+                        (z['elec_sales_total_' + key].astype('float') * 1.05))
             for idx, year in enumerate(yrs):
                 conv['CO2 intensity of electricity'][
                     'data'][value][year] = (

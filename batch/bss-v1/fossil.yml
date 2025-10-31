@@ -1,6 +1,6 @@
 description: AEO Reference case with additional drivers to raise demand for fossil fuels and early retrofitting.
 ecm_prep:
-  ecm_directory: ../../../ecm_definitions/atb_costs
+  ecm_directory: ../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",

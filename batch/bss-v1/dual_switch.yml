@@ -1,6 +1,6 @@
 description: AEO Reference case plus a high degree of switching to dual fuel heating equipment and minimum efficiency electric equipment for other end uses.
 ecm_prep:
-  ecm_directory: ../../../ecm_definitions/atb_costs
+  ecm_directory: ../../ecm_definitions/atb_costs
   ecm_files: [
     "(R) Ref. Case Other Fossil Furnace & AC",
     "(R) Ref. Case Other Fossil Boiler & AC",

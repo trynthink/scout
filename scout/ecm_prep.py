@@ -16229,7 +16229,7 @@ def breakout_mseg(self, mskeys, contrib_mseg_key, adopt_scheme, opts, input_data
         base_data = [brk_stock_total, brk_energy_total,
                      brk_energy_cost, brk_carb_total]
         eff_data = [brk_stock_total_meas, brk_energy_total_eff,
-                    brk_energy_cost_eff, brk_carb_total_eff]   
+                    brk_energy_cost_eff, brk_carb_total_eff]
         if self.gap_wts and gap_adj_frac is not None:
             # Update total energy use affected by measure/building type
             self.gap_wts[out_bldg]["total"] = {
