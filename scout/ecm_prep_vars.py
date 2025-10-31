@@ -1,7 +1,9 @@
 from __future__ import annotations
 import argparse
+import copy
 import itertools
 import numpy
+import pandas as pd
 from datetime import datetime
 from collections import OrderedDict
 from scout.utils import JsonIO
@@ -157,7 +159,7 @@ class UsefulVars(object):
         # Shorthand for current year
         self.current_yr = datetime.today().year
         # Load metadata including AEO year range
-        aeo_yrs = Utils.load_json(handyfiles.metadata)
+        aeo_yrs = JsonIO.load_json(handyfiles.metadata)
         # Set minimum modeling year to current year
         aeo_min = self.current_yr
         # Set maximum modeling year
@@ -258,16 +260,16 @@ class UsefulVars(object):
             raise ValueError(
                 f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
         # Read in commercial equipment capacity factors
-        self.cap_facts = Utils.load_json(handyfiles.cap_facts)
+        self.cap_facts = JsonIO.load_json(handyfiles.cap_facts)
         # Read in national-level site-source, emissions, and costs data
-        cost_ss_carb = Utils.load_json(handyfiles.ss_data)
+        cost_ss_carb = JsonIO.load_json(handyfiles.ss_data)
 
         # Set base-case emissions/cost data to use in assessing reductions for
         # non-fuel switching microsegments under a high grid decarbonization
         # case, if desired by the user
         if handyfiles.ss_data_nonfs is not None:
             # Read in national-level site-source, emissions, and costs data
-            cost_ss_carb_nonfs = Utils.load_json(handyfiles.ss_data_nonfs)
+            cost_ss_carb_nonfs = JsonIO.load_json(handyfiles.ss_data_nonfs)
         else:
             cost_ss_carb_nonfs = None
         # Set national site to source conversion factors
@@ -294,13 +296,13 @@ class UsefulVars(object):
         # data) or not (use national data)
         if self.regions in ["EMM", "State"]:
             # Read in EMM- or state-specific emissions factors and price data
-            cost_ss_carb_altreg = Utils.load_json(handyfiles.ss_data_altreg)
+            cost_ss_carb_altreg = JsonIO.load_json(handyfiles.ss_data_altreg)
             # Set base-case emissions/cost data to use in assessing reductions
             # for non-fuel switching microsegments under a high grid
             # decarbonization case, if desired by the user
             if handyfiles.ss_data_altreg_nonfs is not None:
                 # Read in EMM- or state-specific emissions factors and price data
-                cost_ss_carb_altreg_nonfs = Utils.load_json(handyfiles.ss_data_altreg_nonfs)
+                cost_ss_carb_altreg_nonfs = JsonIO.load_json(handyfiles.ss_data_altreg_nonfs)
             else:
                 cost_ss_carb_altreg_nonfs = None
             # Initialize CO2 intensities based on electricity intensities by
@@ -468,7 +470,7 @@ class UsefulVars(object):
                     for key in self.aeo_years}}}
         # Load external data on conversion rates for HP measures
         if opts.exog_hp_rates is not False:
-            self.hp_rates = Utils.load_json(handyfiles.hp_convert_rates)
+            self.hp_rates = JsonIO.load_json(handyfiles.hp_convert_rates)
 
             # Set a priori assumptions about which non-elec-HP heating/cooling
             # technologies in commercial buildings are part of an RTU config.
@@ -552,7 +554,7 @@ class UsefulVars(object):
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
         if opts.fugitive_emissions is not False:
-            self.fug_emissions = Utils.load_json(handyfiles.fug_emissions_dat)
+            self.fug_emissions = JsonIO.load_json(handyfiles.fug_emissions_dat)
         else:
             self.fug_emissions = None
 

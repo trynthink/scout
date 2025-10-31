@@ -359,12 +359,9 @@ class ECMPrepHelper:
                 if not isinstance(m, MeasurePackage):
                     del m.markets[adopt_scheme]["mseg_adjust"][
                         "paired heat/cool mseg adjustments"]
-                # Add remaining contributing microsegment data to
-                # competition data dict, if the adoption scenario will be competed
-                # in the run.py module, then delete from measure
+                # Add fuel splits and sector shape data, if applicable and the adoption scenario
+                # will be competed in the run.py module, then delete from measure
                 if full_dat_out[adopt_scheme]:
-                    comp_data_dict[adopt_scheme] = \
-                        m.markets[adopt_scheme]["mseg_adjust"]
                     # If applicable, add efficient fuel split data to fuel split
                     # data dict
                     if len(m.eff_fs_splt[adopt_scheme].keys()) != 0:
@@ -380,6 +377,9 @@ class ECMPrepHelper:
                     # If adoption scenario will not be competed in the run.py
                     # module, remove detailed mseg breakouts
                     del m.markets[adopt_scheme]["mseg_out_break"]
+                # Add remaining contributing microsegment data to competition data dict, then
+                # delete from measure
+                comp_data_dict[adopt_scheme] = m.markets[adopt_scheme]["mseg_adjust"]
                 del m.markets[adopt_scheme]["mseg_adjust"]
             # Delete info. about efficient fuel splits for fuel switch measures
             del m.eff_fs_splt
@@ -405,6 +405,12 @@ class ECMPrepHelper:
                 del m.linked_htcl_tover
                 del m.linked_htcl_tover_anchor_eu
                 del m.linked_htcl_tover_anchor_tech
+                # Delete flag for reference case measure, which is used for incentives calculations
+                del m.ref_case_flag
+                # If backup fuel fraction data exist (will be dataframe), convert to simple flag
+                # for JSON write-out and subsequent use in run
+                if m.backup_fuel_fraction is not None:
+                    m.backup_fuel_fraction = True
             # For measure packages, replace 'contributing_ECMs'
             # objects list with a list of these measures' names and remove
             # unnecessary heating/cooling equip/env overlap data
@@ -4825,9 +4831,9 @@ class Measure(object):
         # technology, print warning message
         if mskeys[4] not in consume_warn:
             consume_warn.append(mskeys[4])
-            verboseprint(opts.verbose, "WARNING: ECM '" + self.name + "' missing "
-                         "valid consumer choice data for segment '" + str(mskeys) +
-                         "'; using default choice data for refrigeration end use", "warning")
+            fmt.verboseprint(opts.verbose, "WARNING: ECM '" + self.name + "' missing "
+                             "valid consumer choice data for segment '" + str(mskeys) +
+                             "'; using default choice data for refrigeration end use", "warning")
         choice_params = {
             "b1": {yr: deflt_coefs[0] for yr in self.handyvars.aeo_years},
             "b2": {yr: deflt_coefs[1] for yr in self.handyvars.aeo_years}}
@@ -5185,7 +5191,7 @@ class Measure(object):
                                     rpl_vals.append(incent_lev * appl_frac)
                                 # If units don't match, append incentive value of zero and continue
                                 elif not suppress_ira and perf_thres_units != units:
-                                    verboseprint(
+                                    fmt.verboseprint(
                                         opts.verbose,
                                         "Incentive units of " + perf_thres_units +
                                         " do not match required units of " + units +
@@ -9774,7 +9780,8 @@ class Measure(object):
                 fuel->end use->technology type->structure type).
             adopt_scheme (string): Assumed consumer adoption scenario.
             opts (object): Stores user-specified execution options.
-            input_data (list): Stores all segment-specific data that need to be assigned to breakouts.
+            input_data (list): Stores all segment-specific data that need to be assigned to
+                breakouts.
             gap_adj_frac (float): Fraction to apply to breakout data to represent
                 portions of msegs that are not covered by ComStock load shapes (if applicable)
         Returns:
@@ -9826,7 +9833,7 @@ class Measure(object):
                         eu[0] in ["Heating (Env.)", "Cooling (Env.)"] and
                     mskeys[5] == "demand") or (
                     eu[0] not in ["Heating (Equip.)", "Cooling (Equip.)",
-                                "Heating (Env.)", "Cooling (Env.)"]):
+                                  "Heating (Env.)", "Cooling (Env.)"]):
                     out_eu = eu[0]
             elif "lighting gain" in mskeys:
                 out_eu = "Lighting"
@@ -9925,7 +9932,7 @@ class Measure(object):
             # Create a shorthand for baseline and efficient stock/energy/carbon/
             # cost data to add to the breakout dict
             base_data = [brk_stock_total, brk_energy_total,
-                        brk_energy_cost, brk_carb_total]
+                         brk_energy_cost, brk_carb_total]
             eff_data = [brk_stock_total_meas, brk_energy_total_eff,
                         brk_energy_cost_eff, brk_carb_total_eff]
 
@@ -9949,8 +9956,8 @@ class Measure(object):
                                     brk_fs_energy_cost_eff_remain_base,
                                     brk_fs_carb_eff_remain_base]
                 eff_data_fs_switch = [brk_fs_energy_eff_remain_switch,
-                                    brk_fs_energy_cost_eff_remain_switch,
-                                    brk_fs_carb_eff_remain_switch]
+                                      brk_fs_energy_cost_eff_remain_switch,
+                                      brk_fs_carb_eff_remain_switch]
                 # Record the efficient energy that has not yet fuel switched and
                 # total efficient energy for the current mseg for later use in
                 # packaging and/or competing measures
@@ -10006,7 +10013,7 @@ class Measure(object):
                                     "efficient"][out_cz][out_bldg][out_eu][
                                     out_fuel_save][yr] += \
                                     (eff_data_fs_base[ind][yr] +
-                                    eff_data_fs_switch[(ind-1)][yr])
+                                     eff_data_fs_switch[(ind-1)][yr])
                                 # Note that no baseline fuel, baseline technology
                                 # consumption (e.g., not in backup service to
                                 # measure) remains for captured stock by
@@ -10023,14 +10030,14 @@ class Measure(object):
                                         out_fuel_save][yr] += (
                                             base_data[ind][yr] -
                                             (eff_data_fs_base[ind][yr] +
-                                            eff_data_fs_switch[(ind-1)][yr]))
+                                             eff_data_fs_switch[(ind-1)][yr]))
                 except KeyError:
                     for ind, key in enumerate(breakout_vars):
                         # Baseline; add in baseline data as-is
                         self.markets[adopt_scheme]["mseg_out_break"][key][
                             "baseline"][out_cz][out_bldg][out_eu][
-                            out_fuel_save] = {yr: base_data[ind][yr] for
-                                            yr in self.handyvars.aeo_years}
+                             out_fuel_save] = {yr: base_data[ind][yr] for
+                                               yr in self.handyvars.aeo_years}
                         # Efficient and savings; if there is fuel switching, only
                         # the portion of the efficient case results that have not
                         # yet switched (due to stock turnover limitations) remain,
@@ -10059,7 +10066,7 @@ class Measure(object):
                                 "efficient"][out_cz][out_bldg][out_eu][
                                 out_fuel_save] = {
                                     yr: (eff_data_fs_base[ind][yr] +
-                                        eff_data_fs_switch[(ind-1)][yr]) for
+                                         eff_data_fs_switch[(ind-1)][yr]) for
                                     yr in self.handyvars.aeo_years}
                             # Note that no baseline fuel, baseline technology
                             # consumption (e.g., not in backup service to
@@ -10101,8 +10108,8 @@ class Measure(object):
                                         key]["efficient"][out_cz][out_bldg][
                                         out_eu][out_fuel_gain][yr] += \
                                         (eff_data[ind][yr] -
-                                        (eff_data_fs_base[ind][yr] +
-                                        eff_data_fs_switch[(ind - 1)][yr]))
+                                         (eff_data_fs_base[ind][yr] +
+                                          eff_data_fs_switch[(ind - 1)][yr]))
                                     # All captured efficient energy goes to
                                     # switched to fuel, except in the case where
                                     # the switched to measure has dual fuel
@@ -10120,7 +10127,7 @@ class Measure(object):
                                         out_fuel_gain][yr] -= (
                                             eff_data[ind][yr] -
                                             (eff_data_fs_base[ind][yr] +
-                                            eff_data_fs_switch[(ind - 1)][yr]))
+                                             eff_data_fs_switch[(ind - 1)][yr]))
                                 else:
                                     self.markets[adopt_scheme]["mseg_out_break"][
                                         key]["efficient"][out_cz][out_bldg][
@@ -10138,8 +10145,8 @@ class Measure(object):
                             # initialized as zero
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "baseline"][out_cz][out_bldg][out_eu][
-                                out_fuel_gain] = {yr: 0 for yr in
-                                                self.handyvars.aeo_years}
+                                    out_fuel_gain] = {yr: 0 for yr in
+                                                      self.handyvars.aeo_years}
                             # Efficient and savings; efficient case energy/
                             # emissions/cost that do not remain with the baseline
                             # fuel are added to the switched to fuel and
@@ -10163,8 +10170,8 @@ class Measure(object):
                                         "efficient-captured"][
                                         out_cz][out_bldg][out_eu][
                                             out_fuel_gain] = {
-                                            yr: (capt_e[yr] -
-                                                eff_data_fs_switch[(ind-1)][yr])
+                                                yr: (capt_e[yr] -
+                                                     eff_data_fs_switch[(ind-1)][yr])
                                             for yr in
                                             self.handyvars.aeo_years}
                                 self.markets[adopt_scheme][
@@ -10226,7 +10233,7 @@ class Measure(object):
                             self.markets[adopt_scheme]["mseg_out_break"][key][
                                 "savings"][out_cz][out_bldg][out_eu] = {
                                     yr: (base_data[ind][yr] -
-                                        eff_data[ind][yr]) for
+                                         eff_data[ind][yr]) for
                                     yr in self.handyvars.aeo_years}
 
         # Yield warning if current contributing microsegment cannot
