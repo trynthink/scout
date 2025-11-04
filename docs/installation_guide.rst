@@ -16,9 +16,34 @@
 Installation Guide
 ==================
 
-Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software. The first step is to `download or clone the latest version of Scout`_ to a local directory.
+Before you can use Scout, you'll need to install a few things that Scout relies upon to run. Preparing for and using Scout requires interacting a bit with the command line, but these instructions will walk through each step in the set up process with the specific commands required. While the basic prerequisites are the same for :ref:`Mac <qs-mac>` and :ref:`Windows <qs-windows>` users, because the details and order of the steps are somewhat different, separate instructions are provided. Before beginning, you'll need to be using a computer where you have administrator-level privileges so that you can install new software.
 
-.. _download or clone the latest version of Scout: https://github.com/trynthink/scout/releases/latest
+Getting Scout
+~~~~~~~~~~~~~
+
+The first step is to clone Scout from GitHub. Choose the appropriate command based on your use case:
+
+**For using Scout** (recommended for most users), clone the latest stable release.
+
+On Mac/Linux::
+
+   git clone --branch $(git ls-remote --tags --sort=v:refname https://github.com/trynthink/scout.git | tail -n1 | sed 's/.*\///;s/\^{}//') https://github.com/trynthink/scout.git
+
+On Windows (PowerShell)::
+
+   $tag = ((git ls-remote --tags --sort=v:refname https://github.com/trynthink/scout.git)[-1] -split '/')[-1] -replace '\^\{\}$', ''; git clone --branch $tag https://github.com/trynthink/scout.git
+
+Or simply clone with the current latest tag (v1.2)::
+
+   git clone --branch v1.2 https://github.com/trynthink/scout.git
+
+**For development**, clone the master branch::
+
+   git clone https://github.com/trynthink/scout.git
+
+After cloning, navigate to the Scout directory::
+
+   cd scout
 
 If you're comfortable at the command line, install or set up everything in this list of prerequisites and then skip straight to :ref:`step 2 <qsg-create-ecm-step>` of the Quick Start Guide.
 
