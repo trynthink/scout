@@ -314,6 +314,7 @@ class UsefulInputFiles(object):
         self.low_volume_rate = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
         self.panel_shares = fp.INPUTS / 'panel_shares.csv'
+        self.gshp_lot_shares = fp.INPUTS / 'gshp_lot_shares.csv'
         self.comstock_gap = fp.CONVERT_DATA / "com_gap_fracs.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
@@ -540,6 +541,8 @@ class UsefulVars(object):
         rates (list): List of alternate rate structures to use for electric equipment.
         panel_shares (dict): State-specific shares of single family homes with gas equipment that
             would require a panel upgrade if switching to min. efficiency electric equipment.
+        gshp_lot_shares (dict): Share of homes by state (or nationally) that have sufficient lot
+            size to support GSHP installation.
         elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
             to electricity.
         alt_panel_names (list): Panel upgrade requirement info. to append to tech. names.
@@ -2043,6 +2046,19 @@ class UsefulVars(object):
         else:
             self.panel_shares = None
 
+        # When states are used and GSHP lot share data not suppressed, import shares
+        if opts.alt_regions == "State" and opts.gshp_lot_restrict:
+            try:
+                gshp_lot_shares_csv = pd.read_csv(handyfiles.gshp_lot_shares)
+            except ValueError:
+                raise ValueError("Error reading in '" + handyfiles.gshp_lot_shares)
+            # Initialize final dict of GSHP lot shares data, using df values to set keys
+            self.gshp_lot_shares = {reg: None for reg in gshp_lot_shares_csv["state"].unique()}
+            for index, row in gshp_lot_shares_csv.iterrows():
+                self.gshp_lot_shares[row["state"]] = row["share_applicable"]
+        else:
+            self.gshp_lot_shares = None
+
         self.elec_infr_costs = {
             "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
             "panel management": 475,  # BENEFIT panels cost data, averaged across regions
@@ -2309,6 +2325,7 @@ class UsefulVars(object):
             except FileNotFoundError:
                 # Set segment-specific list of state-level inputs to empty list
                 setattr(self, k, [])
+
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -7060,6 +7077,20 @@ class Measure(object):
                             opts, contrib_mseg_key, ctrb_ms_pkg_prep, hp_rate,
                             retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base,
                             lkg_fmeth_meas, warn_list)
+
+                    # If needed, adjust market scaling fraction to account for GSHP lot size
+                    # requirements; handle switched to GSHPs and like-for-like replacements
+                    if self.handyvars.gshp_lot_shares and (
+                            mskeys_swtch_tech and mskeys_swtch_tech == "GSHP") or (
+                            not mskeys_swtch_tech and mskeys[-2] == "GSHP"):
+                        # Pull adjustment fraction
+                        try:
+                            gshp_adj_fact = self.handyvars.gshp_lot_shares[mskeys[1]]
+                        except KeyError:
+                            gshp_adj_fact = self.handyvars.gshp_lot_shares["USA_minus_states_above"]
+                        # Apply adjustment fraction
+                        mkt_scale_frac_fin = {yr: mkt_scale_frac_fin[yr] * gshp_adj_fact for
+                                              yr in self.handyvars.aeo_years}
 
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
