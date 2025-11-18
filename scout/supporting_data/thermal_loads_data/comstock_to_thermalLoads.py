@@ -328,7 +328,7 @@ def add_missing_building_type(df):
         for enduse in df['ENDUSE'].unique():
             subset = df[(df['CDIV'] == cdiv) & (df['ENDUSE'] == enduse)]
 
-            # Establish rows for "Assembly" building type as an average of the rows 
+            # Establish rows for "Assembly" building type as an average of the rows
             # for "Education", "Sm. Office", and "Merch./Service"
             assembly_avg = subset[subset['BLDG'].isin([2, 8, 9])][avg_cols].mean().round(4)
             # Establish rows for "Other" building type as an average of the rows
