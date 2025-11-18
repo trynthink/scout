@@ -26,6 +26,7 @@ Documentation Contents
    analysis_approach
    thermal_load_components
    ecm_reference
+   eia_update
 ..   maintenance
 
 

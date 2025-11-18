@@ -27,8 +27,8 @@ dependencies = [
     "numpy-financial",
     "xlsxwriter",
     "matplotlib",
-  "backoff",
-  "python-dotenv",
+    "backoff",
+    "python-dotenv",
     "pyyaml",
     "jsonschema"
 ]
