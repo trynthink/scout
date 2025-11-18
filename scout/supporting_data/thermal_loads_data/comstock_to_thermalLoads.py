@@ -34,6 +34,7 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 '''
 
 import pandas as pd
+import numpy as np
 
 CDIV_MAX = 9
 BLDG_MAX = 12
@@ -61,7 +62,7 @@ COMSTOCK_SEGMENT_TO_CATEGORY = {
     # Electric equipment gains
     "equip_gain": "EQUIP_ELEC",
     # Non Electric equipment gains
-    "ref_equip_gain": "QUIP_NELEC",
+    "ref_equip_gain": "EQUIP_NELEC",
     # Floor
     "ext_flr": "FLOOR",
     # Non Electric equipment gains
@@ -130,6 +131,9 @@ CDIV_MAPPING = {
     "WA": 9,
 }
 
+# BLDG: Building type code (assembly: 1, education: 2, food sales: 3, food service: 4,
+# health care: 5, lodging: 6, large office: 7, small office: 8, mercantile/service: 9,
+# warehouse: 10, other: 11, unspecified: 12)
 BLDG_MAPPING = {
     "Hospital": 5,
     "Outpatient": 5,
@@ -138,7 +142,7 @@ BLDG_MAPPING = {
     "SmallOffice": 8,
     "MediumOffice": 7,
     "SmallHotel": 6,
-    "QuickServiceRestaurant": 4,
+    "QuickServiceRestaurant": 4, # or 3?
     "RetailStandalone": 9,
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
@@ -316,6 +320,41 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
     return final_data
 
 
+def add_missing_building_type(df):
+    avg_cols = list(set(COMSTOCK_SEGMENT_TO_CATEGORY.values()))
+    result_list = []
+
+    # Iterate over CDIV × ENDUSE combinations
+    for cdiv in df['CDIV'].unique():
+        for enduse in df['ENDUSE'].unique():
+            subset = df[(df['CDIV'] == cdiv) & (df['ENDUSE'] == enduse)]
+
+            # Establish rows for "Assembly" building type as an average of the rows 
+            # for "Education", "Sm. Office", and "Merch./Service"
+            assembly_avg = subset[subset['BLDG'].isin([2, 8, 9])][avg_cols].mean().round(4)
+            # Establish rows for "Other" building type as an average of the rows 
+            # for "Lodging", "Lg. Office", and "Warehouse"
+            other_avg = subset[subset['BLDG'].isin([6, 7, 10])][avg_cols].mean().round(4)
+
+            for bldg in subset['BLDG'].unique():
+                block = subset[subset['BLDG'] == bldg].copy()
+
+                if bldg == 1:
+                    for col in avg_cols:
+                        block[col] = assembly_avg[col]
+                    block['AREA'] = 'NA'
+                elif bldg == 11:
+                    for col in avg_cols:
+                        block[col] = other_avg[col]
+                    block['AREA'] = 'NA'
+
+                result_list.append(block)
+
+    final_df = pd.concat(result_list, ignore_index=True)
+
+    return final_df
+
+
 def main():
     df = pd.read_csv(
         "scout/supporting_data/thermal_loads_data/upgrade0_agg.csv",
@@ -323,6 +362,7 @@ def main():
     )
     df = map_to_comstock(df)
     final_data = convert_to_thermalLoads(df)
+    final_data = add_missing_building_type(final_data)
     final_data.to_csv(
         "scout/supporting_data/thermal_loads_data/Com_TLoads_Final_test.txt",
         sep="\t",
