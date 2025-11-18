@@ -2,7 +2,9 @@ name: EIA update check
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+       - master
+       - issue-517/eia_update_helpers
   workflow_dispatch: {}
 
 jobs:
