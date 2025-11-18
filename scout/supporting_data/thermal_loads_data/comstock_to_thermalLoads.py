@@ -29,7 +29,8 @@ warehouse: 10, other: 11, unspecified: 12)
 
 - AREA: Area it represented
 
-- Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
+- Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND,
+EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 '''
 
 import pandas as pd
@@ -164,6 +165,7 @@ def map_to_comstock(df):
 
     print("Length before dropping NAs:", len(df))
     return df
+
 
 def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
     """Convert ComStock data to Scout thermal loads format
@@ -313,6 +315,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
 
     return final_data
 
+
 def main():
     df = pd.read_csv(
         "scout/supporting_data/thermal_loads_data/upgrade0_agg.csv",
@@ -331,3 +334,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+    
