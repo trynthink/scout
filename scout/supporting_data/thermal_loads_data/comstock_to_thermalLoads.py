@@ -34,7 +34,6 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 '''
 
 import pandas as pd
-import numpy as np
 
 CDIV_MAX = 9
 BLDG_MAX = 12
@@ -142,7 +141,7 @@ BLDG_MAPPING = {
     "SmallOffice": 8,
     "MediumOffice": 7,
     "SmallHotel": 6,
-    "QuickServiceRestaurant": 4, # or 3?
+    "QuickServiceRestaurant": 4,  # or 3?
     "RetailStandalone": 9,
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
@@ -332,7 +331,7 @@ def add_missing_building_type(df):
             # Establish rows for "Assembly" building type as an average of the rows 
             # for "Education", "Sm. Office", and "Merch./Service"
             assembly_avg = subset[subset['BLDG'].isin([2, 8, 9])][avg_cols].mean().round(4)
-            # Establish rows for "Other" building type as an average of the rows 
+            # Establish rows for "Other" building type as an average of the rows
             # for "Lodging", "Lg. Office", and "Warehouse"
             other_avg = subset[subset['BLDG'].isin([6, 7, 10])][avg_cols].mean().round(4)
 
