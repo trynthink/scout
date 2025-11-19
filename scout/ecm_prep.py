@@ -202,6 +202,7 @@ class UsefulInputFiles(object):
         local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
         panel_shares (tuple): State-level shares of single family homes that require or do not
             require panel upgrades when switching away from existing gas furnace.
+        gshp_lot_shares (tuple): State-level shares of homes with lots >=1 acre to support GSHPs.
         comstock_gap (type): Uncovered ComStock fractions of energy by commercial bldg. and fuel.
     """
 
@@ -2054,6 +2055,7 @@ class UsefulVars(object):
                 raise ValueError("Error reading in '" + handyfiles.gshp_lot_shares)
             # Initialize final dict of GSHP lot shares data, using df values to set keys
             self.gshp_lot_shares = {reg: None for reg in gshp_lot_shares_csv["state"].unique()}
+            # Key in GSHP lot shares by state
             for index, row in gshp_lot_shares_csv.iterrows():
                 self.gshp_lot_shares[row["state"]] = row["share_applicable"]
         else:
@@ -2325,7 +2327,6 @@ class UsefulVars(object):
             except FileNotFoundError:
                 # Set segment-specific list of state-level inputs to empty list
                 setattr(self, k, [])
-
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -7080,9 +7081,9 @@ class Measure(object):
 
                     # If needed, adjust market scaling fraction to account for GSHP lot size
                     # requirements; handle switched to GSHPs and like-for-like replacements
-                    if self.handyvars.gshp_lot_shares and (
+                    if self.handyvars.gshp_lot_shares and ((
                             mskeys_swtch_tech and mskeys_swtch_tech == "GSHP") or (
-                            not mskeys_swtch_tech and mskeys[-2] == "GSHP"):
+                            not mskeys_swtch_tech and mskeys[-2] == "GSHP")):
                         # Pull adjustment fraction
                         try:
                             gshp_adj_fact = self.handyvars.gshp_lot_shares[mskeys[1]]
