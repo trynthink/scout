@@ -202,6 +202,8 @@ class UsefulInputFiles(object):
         local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
         panel_shares (tuple): State-level shares of single family homes that require or do not
             require panel upgrades when switching away from existing gas furnace.
+        res_hp_perf_ratios (tuple): State-level ratios of actual vs. nameplate heating COP
+            performance, referenced to ENERGY STAR HP level of performance.
         gshp_lot_shares (tuple): State-level shares of homes with lots >=1 acre to support GSHPs.
         comstock_gap (type): Uncovered ComStock fractions of energy by commercial bldg. and fuel.
     """
@@ -315,6 +317,7 @@ class UsefulInputFiles(object):
         self.low_volume_rate = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
         self.panel_shares = fp.INPUTS / 'panel_shares.csv'
+        self.res_hp_perf_ratios = fp.INPUTS / 'heat_cop_ratios.csv'
         self.gshp_lot_shares = fp.INPUTS / 'gshp_lot_shares.csv'
         self.comstock_gap = fp.CONVERT_DATA / "com_gap_fracs.csv"
 
@@ -2060,6 +2063,21 @@ class UsefulVars(object):
                 self.gshp_lot_shares[row["state"]] = row["share_applicable"]
         else:
             self.gshp_lot_shares = None
+
+        # When states are used and actual/nameplate HP COP ratios not suppressed, import COP ratios
+        if opts.alt_regions == "State" and opts.actual_res_heat_cop:
+            try:
+                res_hp_perf_ratios_csv = pd.read_csv(handyfiles.res_hp_perf_ratios)
+            except ValueError:
+                raise ValueError("Error reading in '" + handyfiles.res_hp_perf_ratios)
+            # Initialize final dict of HP COP ratios, using df values to set keys
+            self.res_hp_perf_ratios = {
+                reg: None for reg in res_hp_perf_ratios_csv["state"].unique()}
+            # Key in HP ratios by state
+            for index, row in res_hp_perf_ratios_csv.iterrows():
+                self.res_hp_perf_ratios[row["state"]] = row["act_v_name_heat_cop"]
+        else:
+            self.res_hp_perf_ratios = None
 
         self.elec_infr_costs = {
             "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
@@ -5914,6 +5932,21 @@ class Measure(object):
                     cost_units, cost_base_units = ("$/unit" for n in range(2))
                 else:
                     sf_to_house_key = None
+
+                # Apply adjustment to reflect actual performance of residential heat pump
+                # COP performance by state, if applicable (e.g., ratio: simulated/nameplate COP)
+                if self.handyvars.res_hp_perf_ratios and ("heating" in mskeys and (
+                        "ASHP" in mskeys[-2] or (
+                            mskeys_swtch_tech and mskeys_swtch_tech == "ASHP"))):
+                    # Pull COP ratio
+                    cop_mult = self.handyvars.res_hp_perf_ratios[mskeys[1]]
+                    # Baseline mseg performance adjustment (baseline mseg is ASHP)
+                    if mskeys[-2] == "ASHP" and perf_base_units == "COP":
+                        perf_base = {
+                            yr: perf_base[yr] * cop_mult for yr in self.handyvars.aeo_years}
+                    # Measure mseg performance adjustment (like-for-like or switch to ASHP)
+                    if perf_units == "COP":
+                        perf_meas *= cop_mult
 
                 # HVAC equipment measure case where measure contributes to
                 # an HVAC/envelope package and is flagged as counterfactual
