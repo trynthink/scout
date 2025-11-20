@@ -25,10 +25,6 @@ mountain: 8, pacific: 9)
 health care: 5, lodging: 6, large office: 7, small office: 8, mercantile/service: 9,
 warehouse: 10, other: 11, unspecified: 12)
 
--AREA: how it is used, jermy
-
-- AREA: Area it represented
-
 - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND,
 EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 '''
@@ -36,7 +32,7 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 import pandas as pd
 
 CDIV_MAX = 9
-BLDG_MAX = 12
+BLDG_MAX = 11
 EUSES = ["HEAT", "COOL"]
 
 # Segment -> category aggregation (intermediate keys)
@@ -141,7 +137,7 @@ BLDG_MAPPING = {
     "SmallOffice": 8,
     "MediumOffice": 7,
     "SmallHotel": 6,
-    "QuickServiceRestaurant": 4,  # or 3?
+    "QuickServiceRestaurant": 4, 
     "RetailStandalone": 9,
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
@@ -149,7 +145,18 @@ BLDG_MAPPING = {
     "SecondarySchool": 2,
     "PrimarySchool": 2,
 }
-# no 'assembly', 'food sales', 'other', 'unspecified'
+'''
+Following mapping will be processed in the add_missing_building_type fuction
+1. Establish rows for "assembly" building type as an average of the rows
+for "education", "small office", and "mercantile/service"
+
+2. Establish rows for "other" building type as an average of the rows
+for "lodging", "large office", and "warehouse"
+
+3. Establish rows for "food sales" building type as an average of the rows
+for "food service" and "mercantile/service"
+4. Do not get the results for "unspecified"
+'''
 
 EUSES = ["HEAT", "COOL"]
 
@@ -334,6 +341,10 @@ def add_missing_building_type(df):
             # Establish rows for "Other" building type as an average of the rows
             # for "Lodging", "Lg. Office", and "Warehouse"
             other_avg = subset[subset['BLDG'].isin([6, 7, 10])][avg_cols].mean().round(4)
+            # Establish rows for "food sales" building type as an average of the rows
+            # for "food service" and "mercantile/service"
+            food_sales_avg = subset[subset['BLDG'].isin([4, 9])][avg_cols].mean().round(4)
+    
 
             for bldg in subset['BLDG'].unique():
                 block = subset[subset['BLDG'] == bldg].copy()
@@ -341,11 +352,12 @@ def add_missing_building_type(df):
                 if bldg == 1:
                     for col in avg_cols:
                         block[col] = assembly_avg[col]
-                    block['AREA'] = 'NA'
                 elif bldg == 11:
                     for col in avg_cols:
                         block[col] = other_avg[col]
-                    block['AREA'] = 'NA'
+                elif bldg == 3:
+                    for col in avg_cols:
+                        block[col] = food_sales_avg[col]
 
                 result_list.append(block)
 
