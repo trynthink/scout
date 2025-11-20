@@ -13,8 +13,6 @@ The conversion steps:
 
 Output format:
 Tab seperated text file with columns:
-
-
 - ENDUSE: 'HT' for heating, 'CL' for cooling
 
 - CDIV: Census Division code (new england: 1, mid atlantic: 2, east north central: 3,
@@ -164,10 +162,9 @@ EUSES = ["HEAT", "COOL"]
 def map_to_comstock(df):
     """Convert ComStock output dataframe to format suitable for thermal loads processing"""
 
-    # Create NAREA column from calc.weighted.sqft..ft2
-    weight_column = df["calc.weighted.sqft..ft2"]
-    df["AREA"] = weight_column
-    print("Number of None in BLDG:", df["AREA"].isna().sum())
+    # Create weight column
+    weight_column = df["weight"]
+    df["weight"] = weight_column
 
     # Map building types and census divisions to codes
     df["BLDG"] = df["in.comstock_building_type"].map(BLDG_MAPPING)
@@ -190,14 +187,12 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
                              the added following required columns:
             - 'CDIV': Census Division code (1-9)
             - 'BLDG': Building type code (1-12)
-            - 'AREA': Area represented by each row
 
     Returns:
         pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
             - 'ENDUSE': 'HT' for heating, 'CL' for cooling
             - 'CDIV': Census Division code
             - 'BLDG': Building type code
-            - 'AREA': Area represented by each row
             - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
             PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 
@@ -226,15 +221,15 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
                     for c in subset.columns
                     if (
                         "out.loads." + euse_lower in str(c).lower()
-                        or c in ["CDIV", "BLDG", "AREA"]
+                        or c in ["CDIV", "BLDG", "weight"]
                     )
                 ]
                 subset = subset[keep_cols]
 
                 # Compute weights and prepare a category accumulator
-                sum_bldgs = subset["AREA"].sum()
+                sum_bldgs = subset["weight"].sum()
                 # Per-row weight; if sum is zero, set weight to 0 (vector of zeros via broadcasting)
-                row_weight = subset["AREA"] / sum_bldgs if sum_bldgs > 0 else 0.0
+                row_weight = subset["weight"] / sum_bldgs if sum_bldgs > 0 else 0.0
 
                 # Accumulate weighted totals per category in this dict
                 cat_weighted = {cat: 0.0 for cat in categories}
@@ -260,7 +255,6 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
                                 "CDIV": cdiv,
                                 "BLDG": bldg,
                                 "ENDUSE": output_enduse,
-                                "AREA": sum_bldgs,
                             },
                             index=[0],
                         ),
@@ -296,7 +290,6 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         "ENDUSE",
         "CDIV",
         "BLDG",
-        "AREA",
         "WIND_COND",
         "WIND_SOL",
         "ROOF",
@@ -375,7 +368,7 @@ def main():
     final_data = convert_to_thermalLoads(df)
     final_data = add_missing_building_type(final_data)
     final_data.to_csv(
-        "scout/supporting_data/thermal_loads_data/Com_TLoads_Final_test.txt",
+        "scout/supporting_data/thermal_loads_data/Com_TLoads_Final_new.txt",
         sep="\t",
         index=False,
     )
