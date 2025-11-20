@@ -205,6 +205,7 @@ class UsefulInputFiles(object):
         res_hp_perf_ratios (tuple): State-level ratios of actual vs. nameplate heating COP
             performance, referenced to ENERGY STAR HP level of performance.
         gshp_lot_shares (tuple): State-level shares of homes with lots >=1 acre to support GSHPs.
+        lmi_rent_shares (tuple): State-level shares of low-income and renters.
         comstock_gap (type): Uncovered ComStock fractions of energy by commercial bldg. and fuel.
     """
 
@@ -319,6 +320,7 @@ class UsefulInputFiles(object):
         self.panel_shares = fp.INPUTS / 'panel_shares.csv'
         self.res_hp_perf_ratios = fp.INPUTS / 'heat_cop_ratios.csv'
         self.gshp_lot_shares = fp.INPUTS / 'gshp_lot_shares.csv'
+        self.lmi_rent_shares = fp.INPUTS / 'lmi_rent_shares.csv'
         self.comstock_gap = fp.CONVERT_DATA / "com_gap_fracs.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
@@ -547,6 +549,10 @@ class UsefulVars(object):
             would require a panel upgrade if switching to min. efficiency electric equipment.
         gshp_lot_shares (dict): Share of homes by state (or nationally) that have sufficient lot
             size to support GSHP installation.
+        res_hp_perf_ratios (dict): Ratio of ResStock-simulated to nameplate COP performance (for
+            ENERGY STAR heat pump performance) by state.
+        lmi_rent_shares (dict): Shares of low-income/renter households by state.
+        lmi_rent_names (list): Low-income/renter info. to append to tech. names.
         elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
             to electricity.
         alt_panel_names (list): Panel upgrade requirement info. to append to tech. names.
@@ -2078,6 +2084,25 @@ class UsefulVars(object):
                 self.res_hp_perf_ratios[row["state"]] = row["act_v_name_heat_cop"]
         else:
             self.res_hp_perf_ratios = None
+
+        # When states are used and low-income/rental sub-segments are not suppressed, import shares
+        # of low-income/rental households (4 segments: low-rent, low-own, non low-rent, non low-own)
+        if opts.alt_regions == "State" and opts.low_income_rent_subseg:
+            try:
+                lmi_rent_shares_csv = pd.read_csv(handyfiles.lmi_rent_shares)
+            except ValueError:
+                raise ValueError("Error reading in '" + handyfiles.lmi_rent_shares)
+            # Initialize final dict of low-income/rental shares, using df values to set keys
+            self.lmi_rent_shares = {
+                reg: None for reg in lmi_rent_shares_csv["state"].unique()}
+            # Key in low-income/rental sub-segment shares by state
+            for index, row in lmi_rent_shares_csv.iterrows():
+                self.lmi_rent_shares[row["state"]] = {
+                    "low-rent": row["low_rent"], "low-own": row["low_own"],
+                    "non-low-rent": row["reg_rent"], "non-low-own": row["reg_own"]}
+        else:
+            self.lmi_rent_shares = None
+        self.lmi_rent_names = ["-lowrent", "-lowown", "-nonlowrent"]
 
         self.elec_infr_costs = {
             "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
@@ -3725,7 +3750,8 @@ class Measure(object):
         # consider panel upgrade needs. When mseg technology is an anchor for linking heating w/
         # other microsegments, register variants on the technology name that are added
         # by this function to tag alternate panel upgrade requirements (e.g., no panel, management)
-        if self.handyvars.panel_shares is not None:
+        if self.handyvars.panel_shares is not None or \
+                self.handyvars.lmi_rent_shares is not None:
             # Check for linked heating/cooling turnover; in such cases, when there is sub-
             # segmentation of the anchor tech. in the link, the linked segment techs must be
             # updated as well to link to the new anchor tech. sub-segments
@@ -3734,8 +3760,14 @@ class Measure(object):
                     bldg_sect][self.linked_htcl_tover_anchor_eu]
             else:
                 anchor_techs = None
-            ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_panel_msegs(
-                ms_iterable, anchor_techs)
+            # Append panel msegs if necessary
+            if self.handyvars.panel_shares is not None:
+                ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_panel_msegs(
+                    ms_iterable, anchor_techs)
+            # Append income/rent msegs if necessary
+            if self.handyvars.lmi_rent_shares:
+                ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_income_rent_msegs(
+                    ms_iterable, anchor_techs)
         else:
             linked_htcl_tover_anchor_tech_alts = []
 
@@ -4427,7 +4459,8 @@ class Measure(object):
                 # for the purposes of pulling stock/energy data from AEO, strip any of this
                 # additional information and use the original key information
                 if mskeys[i] is not None and (
-                        any([x in mskeys[i] for x in self.handyvars.alt_panel_names])):
+                        any([x in mskeys[i] for x in self.handyvars.alt_panel_names]) or
+                        any([x in mskeys[i] for x in self.handyvars.lmi_rent_names])):
                     key_item = mskeys[i].split("-")[0]
                 elif mskeys[i] is not None and "(gap)" in mskeys[i]:
                     key_item = mskeys[i].split(" (")[0]
@@ -6400,6 +6433,27 @@ class Measure(object):
                                 "b2": {yr: base_cpl["consumer choice"][
                                         "competed market share"]["parameters"][
                                         coef_names[1]][yr] for yr in self.handyvars.aeo_years}}
+
+                        # Further modification of beta 1 choice parameter if sub-segmenting by
+                        # income/renter vs. owner status and the segment is a low-income renter or
+                        # non low-income owner
+                        if self.handyvars.lmi_rent_shares:
+                            # Non low income owner case (no appended info. on tech)
+                            if not any([x in mskeys[-2] for x in self.handyvars.lmi_rent_names]):
+                                b1_mod = 0.5
+                            # Low income renter case (first in set of subsegment names)
+                            elif self.handyvars.lmi_rent_names[0] in mskeys[-2]:
+                                b1_mod = 2
+                            # All other cases
+                            else:
+                                b1_mod = None
+                        else:
+                            b1_mod = None
+
+                        # Modify the beta 1 choice parameter
+                        if b1_mod:
+                            choice_params["b1"] = {yr: choice_params["b1"][yr] * b1_mod for
+                                                   yr in self.handyvars.aeo_years}
                         # Add to count of primary microsegment key chains
                         # with valid consumer choice data
                         valid_keys_consume += 1
@@ -6549,13 +6603,15 @@ class Measure(object):
                             + str(mskeys) + " for measure '" + self.name + "'")
 
                     # Pull stock/energy panel share fractions
-                    if "no panel" in mskeys[-2]:  # Sub-segment for homes not requiring upgrade
+                    if self.handyvars.alt_panel_names[0] \
+                            in mskeys[-2]:  # Sub-segment for homes not requiring upgrade
                         # Adjustment fractions (out of 1) to apply to original mseg stock and
                         # energy data to represent panel upgrade sub-segment
                         adj_stk, adj_energy = [self.handyvars.panel_shares[
                             reg_shr][x][fuel_shr]["BAU w/ HPWH"]["no panel"] for
                             x in ["stock", "energy"]]
-                    elif "manage" in mskeys[-2]:  # Sub-segment for homes avoiding upgrade w/ mgmt.
+                    elif self.handyvars.alt_panel_names[1] \
+                            in mskeys[-2]:  # Sub-segment for homes avoiding upgrade w/ mgmt.
                         adj_stk, adj_energy = [self.handyvars.panel_shares[
                             reg_shr][x][fuel_shr]["BAU w/ HPWH"]["management"] for
                             x in ["stock", "energy"]]
@@ -6568,6 +6624,35 @@ class Measure(object):
                 else:
                     # When there is no sub-segmentation required, adjustment fractions are 1
                     panel_adj = {"stock": 1, "energy": 1}
+
+                # If applicable, pull in information needed to sub-segment by income and renter/
+                # owner status
+                if self.handyvars.panel_shares is not None and any([y in mskeys for y in [
+                        "single family home", "multi family home", "mobile home"]]):
+                    # Identify income and renter/owner sub-segment category
+                    if self.handyvars.lmi_rent_names[0] \
+                            in mskeys[-2]:  # Sub-segment for low income renters
+                        # Adjustment fractions (out of 1) to apply to original mseg stock and
+                        # energy data to represent low income renter segment
+                        adj_stk_inc_rent, adj_energy_inc_rent = [self.handyvars.lmi_rent_shares[
+                            mskeys[1]]["low-rent"] for x in ["stock", "energy"]]
+                    elif self.handyvars.lmi_rent_names[1] \
+                            in mskeys[-2]:  # Sub-segment for low income owners
+                        adj_stk_inc_rent, adj_energy_inc_rent = [self.handyvars.lmi_rent_shares[
+                            mskeys[1]]["low-own"] for x in ["stock", "energy"]]
+                    elif self.handyvars.lmi_rent_names[2] \
+                            in mskeys[-2]:  # Sub-segment for non low income renters
+                        adj_stk_inc_rent, adj_energy_inc_rent = [self.handyvars.lmi_rent_shares[
+                            mskeys[1]]["non-low-rent"] for x in ["stock", "energy"]]
+                    else:  # Sub-segment for non low income owners
+                        adj_stk_inc_rent, adj_energy_inc_rent = [self.handyvars.lmi_rent_shares[
+                            mskeys[1]]["non-low-own"] for x in ["stock", "energy"]]
+                    # Store the income/renter vs owner fractions for stock/energy in a dict
+                    inc_rent_adj = {x: y for x, y in zip(
+                        ["stock", "energy"], [adj_stk_inc_rent, adj_energy_inc_rent])}
+                else:
+                    # When there is no sub-segmentation required, adjustment fractions are 1
+                    inc_rent_adj = {"stock": 1, "energy": 1}
 
                 # If applicable, pull in information needed to sub-segment commercial stock and
                 # energy use data by the service demand/energy that is covered vs. not covered in
@@ -6629,20 +6714,21 @@ class Measure(object):
                             self.handyvars.sf_to_house.keys():
                         add_stock = {
                             key: val * new_existing_frac[key] * panel_adj["stock"] *
+                            inc_rent_adj["stock"] *
                             self.handyvars.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                     else:
                         add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"]
-                            for key, val in mseg_sqft_stock[
+                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"] *
+                            inc_rent_adj["stock"] for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                 elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
-                        key: val * new_existing_frac[key] * panel_adj["stock"]
-                        for key, val in mseg["stock"].items() if key in
+                        key: val * new_existing_frac[key] * panel_adj["stock"] *
+                        inc_rent_adj["stock"] for key, val in mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
                 else:  # If no stock data exist, set stock to zero
                     add_stock = {
@@ -6665,7 +6751,7 @@ class Measure(object):
                 # upgrade with panel management approaches
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_existing_frac[key] * panel_adj["energy"]
+                    new_existing_frac[key] * panel_adj["energy"] * inc_rent_adj["energy"]
                     for key, val in mseg["energy"].items() if key in
                     self.handyvars.aeo_years}
                 # Total lighting energy use for climate zone, building type,
@@ -7193,10 +7279,17 @@ class Measure(object):
                         linked_mseg_elems = [mskeys[0], mskeys[1], mskeys[2], mskeys[-1]]
                         # If technology information is subsegmented to convey info. about panel
                         # upgrade needs, link to associated subsegment of anchor technology
-                        try:
-                            append_tech = [x for x in self.handyvars.alt_panel_names if
-                                           x in mskeys[-2]][0]
-                        except IndexError:
+                        # Search for appended panel upgrade bin
+                        append_tech_panel = [x for x in self.handyvars.alt_panel_names if
+                                             x in mskeys[-2]]
+                        # Search for appended income/rent bin
+                        append_tech_inc_rent = [x for x in self.handyvars.lmi_rent_names if
+                                                x in mskeys[-2]]
+                        # If either turns up something, combine, else append_tech is False
+                        if any([len(x) > 0 for x in [append_tech_panel, append_tech_inc_rent]]):
+                            append_list = append_tech_panel + append_tech_inc_rent
+                            append_tech = "-".join(append_list)
+                        else:
                             append_tech = False
                         # Find the specific contributing microsegment data for the anchor end use
                         # to add costs to. Ensure that linked data are only added to anchor end
@@ -7208,8 +7301,9 @@ class Measure(object):
                             "mseg_adjust"]["contributing mseg keys and values"].keys() if
                             "demand" not in x and self.linked_htcl_tover_anchor_eu in x and all([
                                 elem in x for elem in linked_mseg_elems]) and (
-                                (not append_tech and all(
-                                    [y not in x for y in self.handyvars.alt_panel_names])) or (
+                                (not append_tech and all([
+                                    y not in x for y in self.handyvars.alt_panel_names]) and
+                                 all([y not in x for y in self.handyvars.lmi_rent_names])) or (
                                     append_tech and append_tech in x))]
                         # Loop through the applicable msegs to add costs to and add costs
                         for add_to_mseg in ctb_mseg_to_add_cost_to:
@@ -9766,10 +9860,17 @@ class Measure(object):
             secnd_mseg_adjkey = None
             # Determine whether currently looped through mseg tech. serves as anchor tech for
             # linked turnover/switching calcs. across measure. Account for cases where info. about
-            # need to upgrade electrical panel is appended to the technology information
-            if mskeys[-2] and any([x in mskeys[-2] for x in self.handyvars.alt_panel_names]):
+            # need to upgrade electrical panel or income/rent vs. own status is appended to the
+            # technology information
+            # Shorthand for full set of panel upgrade bin names or income/rent bin names
+            panel_lmi_rent_bins = self.handyvars.alt_panel_names + self.handyvars.lmi_rent_names
+            if mskeys[-2] and any([x in mskeys[-2] for x in panel_lmi_rent_bins]):
                 # Pull out appended tech information to indicate alternate panel upgrade outcome
-                append_tech = mskeys[-2].split("-")[-1]
+                append_tech_init = mskeys[-2].split("-")
+                # Finalize appended tech information; strip any information not related to
+                # the panel upgrade or income/rent bin names
+                append_tech_init = [x for x in append_tech_init if x in panel_lmi_rent_bins]
+                append_tech = "-".join(append_tech_init)
                 # Make determination of whether current mseg tech is the anchor tech
                 linked_htcl_tover_anchor_tech = (
                     (self.linked_htcl_tover_anchor_tech + "-" + append_tech) == mskeys[-2])
@@ -12339,7 +12440,8 @@ class Measure(object):
             # no panel upgrade requirement or avoiding upgrade via panel management in the
             # technology portion of the microsegment information); assume full cost of panel
             if opts.elec_upgrade_costs == "all" or all(
-                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                    [x not in mskeys[-2] for x in [self.handyvars.alt_panel_names[0],
+                                                   self.handyvars.alt_panel_names[1]]]):
                 add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
             # Current mseg technology information flags a home that could avoid upgrade via
             # panel management; assign the cost of panel management
@@ -12358,7 +12460,8 @@ class Measure(object):
             # Incur full cost of panel upgrade in existing homes switching away from non-elec. heat
             if "electricity" not in mskeys and all(
                 [x in mskeys for x in ["existing", "heating"]]) and all(
-                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                    [x not in mskeys[-2] for x in [self.handyvars.alt_panel_names[0],
+                                                   self.handyvars.alt_panel_names[1]]]):
                 add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
             elif "electricity" not in mskeys and all(
                     [x in mskeys for x in ["existing", "heating"]]) and "manage" in mskeys[-2]:
@@ -12442,6 +12545,61 @@ class Measure(object):
                     anchor_tech_alts += [i_np[-2], i_mgmt[-2]]
             # Append the no panel upgrade or panel management segments for gas furnaces
             ms_iterable = ms_iterable + segs_to_subset_no_panel + segs_to_subset_mgmt
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Remove any duplicate anchor tech name alternates
+            anchor_tech_alts = list(set(anchor_tech_alts))
+        else:
+            anchor_tech_alts = []
+
+        return ms_iterable, anchor_tech_alts
+
+    def append_income_rent_msegs(self, ms_iterable, anchor_techs):
+        """Subset msegs into income and rent vs. owner groups, append to original mseg list.
+
+        Args:
+            ms_iterable: Original list of msegs the measure applies to.
+            anchor_techs: List of potential anchor techs to use in linking mseg calculations.
+
+        Returns:
+            Updated list of msegs the measure applies to that reflects the four subsets of
+            income/rent msegs (low-rent, low-own, nonlow-rent, nonlow-own). Also, a list of
+            alternate mseg tech names with appended info. that suggests income/rent for that mseg
+        """
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Initialize list of alternate names for the anchor tech that tag various panel upgrade
+            # contexts (no panel, management)
+            anchor_tech_alts = []
+        # Find applicable heating equipment segments and linked secondary heating and cooling
+        # segments for the measure
+        segs_to_subset = [list(x) for x in ms_iterable if any([
+            y in x for y in ["single family home", "multi family home", "mobile home"]])]
+        # Append copies of segments to represent cases where there are low income renters,
+        # low income owners, or non low income renters, where original seg. list is assumed to
+        # represent the 4th, non low-income + own category
+        if len(segs_to_subset) > 0:
+            # Initialize lists of segments with low-income and/or rent characteristics
+            segs_lowrent, segs_lowown, segs_nonlowrent = (
+                copy.deepcopy(segs_to_subset) for n in range(3))
+            # Update technology name in the segments to append relevant information about the
+            # alternate to panel upgrade case
+            for i_nlo, i_lr, i_lo, i_nlr in zip(
+                    segs_to_subset, segs_lowrent, segs_lowown, segs_nonlowrent):
+                # Alternate that doesn't require a panel upgrade
+                i_lr[-2] += self.handyvars.lmi_rent_names[0]
+                # Alternate that doesn't require a panel upgrade given added load management
+                i_lo[-2] += self.handyvars.lmi_rent_names[1]
+                # Alternate that doesn't require a panel upgrade given added load management
+                i_nlr[-2] += self.handyvars.lmi_rent_names[2]
+                # Case with anchor tech for linked heating/cooling msegs
+                # If the original technology name is in the list of anchor techs, record the
+                # modified versions of the anchor tech name that tag alternate panel upgrade
+                # outcomes (no panel, management) for later use
+                if anchor_techs and i_nlo[-2] in anchor_techs:
+                    anchor_tech_alts += [i_lr[-2], i_lo[-2], i_nlr[-2]]
+            # Append the no panel upgrade or panel management segments for gas furnaces
+            ms_iterable = ms_iterable + segs_lowrent + segs_lowown + segs_nonlowrent
         # Case with anchor tech for linked heating/cooling msegs
         if anchor_techs:
             # Remove any duplicate anchor tech name alternates
