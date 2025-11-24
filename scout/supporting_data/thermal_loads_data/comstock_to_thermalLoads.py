@@ -10,18 +10,20 @@ The conversion steps:
 2. Aggregate thermal load components by census division, building type, and end use.
 3. Compute weighted average based on ComStock sample weights.
 4. Normalize component loads as fractions of total thermal load.
+5. Obtain normalized component loads for missing building types by applying 
+a weighted area average of the existing building types.
 
 Output format:
 Tab seperated text file with columns:
 - ENDUSE: 'HT' for heating, 'CL' for cooling
 
-- CDIV: Census Division code (new england: 1, mid atlantic: 2, east north central: 3,
-west north central: 4, south atlantic: 5, east south central: 6, west south central: 7,
-mountain: 8, pacific: 9)
+- CDIV: Census Division code (1: new england, 2: mid atlantic, 3: east north central,
+4: west north central, 5: south atlantic, 6: east south central, 7: west south central,
+8: mountain, 9: pacific)
 
-- BLDG: Building type code (assembly: 1, education: 2, food sales: 3, food service: 4,
-health care: 5, lodging: 6, large office: 7, small office: 8, mercantile/service: 9,
-warehouse: 10, other: 11, unspecified: 12)
+- BLDG: Building type code (1: assembly, 2: education, 3: food sales, 4: food service,
+5: health care, 6: lodging, 7: large office, 8: small office, 9: mercantile/service,
+10: warehouse, 11: other, 12: unspecified)
 
 - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND,
 EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
@@ -30,7 +32,7 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 import pandas as pd
 
 CDIV_MAX = 9
-BLDG_MAX = 11
+BLDG_MAX = 13
 EUSES = ["HEAT", "COOL"]
 
 # Segment -> category aggregation (intermediate keys)
@@ -124,9 +126,10 @@ CDIV_MAPPING = {
     "WA": 9,
 }
 
-# BLDG: Building type code (assembly: 1, education: 2, food sales: 3, food service: 4,
-# health care: 5, lodging: 6, large office: 7, small office: 8, mercantile/service: 9,
-# warehouse: 10, other: 11, unspecified: 12)
+# Education building type has an ID of 2. “SecondarySchool” is 
+# classified as an education building type, 
+# but here it is mapped to 13 instead of 2 to calculate 
+# the component loads for the assembly building type.
 BLDG_MAPPING = {
     "Hospital": 5,
     "Outpatient": 5,
@@ -140,21 +143,10 @@ BLDG_MAPPING = {
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
     "Warehouse": 10,
-    "SecondarySchool": 2,
+    "SecondarySchool": 13,
     "PrimarySchool": 2,
+    'Grocery':3,
 }
-'''
-Following mapping will be processed in the add_missing_building_type fuction
-1. Establish rows for "assembly" building type as an average of the rows
-for "education", "small office", and "mercantile/service"
-
-2. Establish rows for "other" building type as an average of the rows
-for "lodging", "large office", and "warehouse"
-
-3. Establish rows for "food sales" building type as an average of the rows
-for "food service" and "mercantile/service"
-4. Do not get the results for "unspecified"
-'''
 
 EUSES = ["HEAT", "COOL"]
 
@@ -162,15 +154,12 @@ EUSES = ["HEAT", "COOL"]
 def map_to_comstock(df):
     """Convert ComStock output dataframe to format suitable for thermal loads processing"""
 
-    # Create weight column
-    weight_column = df["weight"]
-    df["weight"] = weight_column
-
     # Map building types and census divisions to codes
     df["BLDG"] = df["in.comstock_building_type"].map(BLDG_MAPPING)
     df["CDIV"] = df["in.state"].map(CDIV_MAPPING)
 
     print("Length before dropping NAs:", len(df))
+    print("Number of None:", df["weight"].isna().sum())
     return df
 
 
@@ -186,20 +175,21 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         data (pd.DataFrame): Input DataFrame containing ComStock simulation outputs with
                              the added following required columns:
             - 'CDIV': Census Division code (1-9)
-            - 'BLDG': Building type code (1-12)
+            - 'BLDG': Building type code (1-13)
 
     Returns:
         pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
             - 'ENDUSE': 'HT' for heating, 'CL' for cooling
             - 'CDIV': Census Division code
             - 'BLDG': Building type code
+            - 'weighted_sqft': weighted floor area
             - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
             PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 
     Process:
         1. Iterate over all combinations of CDIV, BLDG, and EUSE.
         2. For each combination, filter the data and compute weighted sums
-           for each thermal load category based on the number of buildings.
+           for each thermal load category based on the weight.
         3. Normalize the component loads to fractions of total thermal load.
         4. Compile results into a final DataFrame.
     """
@@ -211,7 +201,10 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
     for cdiv in range(1, CDIV_MAX + 1):
         for bldg in range(1, BLDG_MAX + 1):
             for euse in EUSES:
-                subset = data[(data["CDIV"] == cdiv) & (data["BLDG"] == bldg)]
+                if bldg == 2:
+                    subset = data[(data["CDIV"] == cdiv) & (data["BLDG"].isin([bldg, 13]))]
+                else:
+                    subset = data[(data["CDIV"] == cdiv) & (data["BLDG"] == bldg)]
 
                 # Determine internal end-use selector and output label
                 euse_lower = "htg" if euse == "HEAT" else "clg"
@@ -221,13 +214,16 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
                     for c in subset.columns
                     if (
                         "out.loads." + euse_lower in str(c).lower()
-                        or c in ["CDIV", "BLDG", "weight"]
+                        or c in ["CDIV", "BLDG", "weight", "calc.weighted.sqft..ft2"]
                     )
                 ]
                 subset = subset[keep_cols]
 
                 # Compute weights and prepare a category accumulator
                 sum_bldgs = subset["weight"].sum()
+
+                # Compute sum of weighted sqft
+                sum_weighted_sqft = subset["calc.weighted.sqft..ft2"].sum()
                 # Per-row weight; if sum is zero, set weight to 0 (vector of zeros via broadcasting)
                 row_weight = subset["weight"] / sum_bldgs if sum_bldgs > 0 else 0.0
 
@@ -255,6 +251,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
                                 "CDIV": cdiv,
                                 "BLDG": bldg,
                                 "ENDUSE": output_enduse,
+                                "weighted_sqft": sum_weighted_sqft,
                             },
                             index=[0],
                         ),
@@ -290,6 +287,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         "ENDUSE",
         "CDIV",
         "BLDG",
+        "weighted_sqft",
         "WIND_COND",
         "WIND_SOL",
         "ROOF",
@@ -319,7 +317,33 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
     return final_data
 
 
-def add_missing_building_type(df):
+def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
+    '''
+    The "assembly", "other", and "unspecified" building type in the Scout 
+    are not exit in ComStock
+    This fuction Establish rows for "assembly" building type as an 
+    weighted average of the rows for "SecondarySchool", "small office",
+    and "mercantile/service". Establish rows for "other" and "unspecified" 
+    building type as an weighted average of the rows for all building types
+
+    Parameters:
+        pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
+            - 'ENDUSE': 'HT' for heating, 'CL' for cooling
+            - 'CDIV': Census Division code (1-9)
+            - 'BLDG': Building type code(1-13)
+            - 'weighted_sqft': weighted floor area
+            - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
+            PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
+
+    Returns:
+        pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
+            - 'ENDUSE': 'HT' for heating, 'CL' for cooling
+            - 'CDIV': Census Division code (1-9)
+            - 'BLDG': Building type code (1-12)
+            - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
+            PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
+    '''
+
     avg_cols = list(set(COMSTOCK_SEGMENT_TO_CATEGORY.values()))
     result_list = []
 
@@ -328,33 +352,39 @@ def add_missing_building_type(df):
         for enduse in df['ENDUSE'].unique():
             subset = df[(df['CDIV'] == cdiv) & (df['ENDUSE'] == enduse)]
 
-            # Establish rows for "Assembly" building type as an average of the rows
-            # for "Education", "Sm. Office", and "Merch./Service"
-            assembly_avg = subset[subset['BLDG'].isin([2, 8, 9])][avg_cols].mean().round(4)
-            # Establish rows for "Other" building type as an average of the rows
-            # for "Lodging", "Lg. Office", and "Warehouse"
-            other_avg = subset[subset['BLDG'].isin([6, 7, 10])][avg_cols].mean().round(4)
-            # Establish rows for "food sales" building type as an average of the rows
-            # for "food service" and "mercantile/service"
-            food_sales_avg = subset[subset['BLDG'].isin([4, 9])][avg_cols].mean().round(4)
-    
+            # Establish rows for "Assembly" building type as an weighted average of the rows
+            # for "SecondarySchool", "Small. Office", and "Merch./Service"
+            assembly_sub = subset[subset['BLDG'].isin([8, 9, 13])]
+            assembly_avg = (
+                assembly_sub[avg_cols].mul(assembly_sub['weighted_sqft'], axis=0).sum()
+                / assembly_sub['weighted_sqft'].sum()
+                )
+            assembly_avg = assembly_avg.round(4)
 
+            # Establish rows for "Other" and "unspecified" building type as 
+            # an weighted average of the rows for all building types
+            other_sub = subset[subset['BLDG'] != 13]
+            other_avg = (
+                other_sub[avg_cols].mul(other_sub['weighted_sqft'], axis=0).sum()
+                / other_sub['weighted_sqft'].sum()
+                )
+            other_avg = other_avg.round(4)
+    
             for bldg in subset['BLDG'].unique():
                 block = subset[subset['BLDG'] == bldg].copy()
 
                 if bldg == 1:
                     for col in avg_cols:
                         block[col] = assembly_avg[col]
-                elif bldg == 11:
+                elif bldg == 11 or bldg ==12:
                     for col in avg_cols:
                         block[col] = other_avg[col]
-                elif bldg == 3:
-                    for col in avg_cols:
-                        block[col] = food_sales_avg[col]
 
                 result_list.append(block)
 
     final_df = pd.concat(result_list, ignore_index=True)
+    final_df = final_df.drop(columns=['weighted_sqft'])
+    final_df = final_df[final_df['BLDG'] != 13]
 
     return final_df
 
@@ -368,7 +398,7 @@ def main():
     final_data = convert_to_thermalLoads(df)
     final_data = add_missing_building_type(final_data)
     final_data.to_csv(
-        "scout/supporting_data/thermal_loads_data/Com_TLoads_Final_new.txt",
+        "scout/supporting_data/thermal_loads_data/Com_TLoads_Final.txt",
         sep="\t",
         index=False,
     )
