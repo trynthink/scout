@@ -27,8 +27,17 @@ jobs:
       - name: Install package
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .
+          python -m pip install ".[dev]"
 
-      - name: Run EIA baseline comparison (smoke)
+      - name: Run EIA baseline comparison (save output)
         run: |
-          python -m scout.AEO_update_helpers.baseline_comparison --year 2025
+          mkdir -p tests/eia_update
+          python -m scout.AEO_update_helpers.baseline_comparison --year 2025 | tee tests/eia_update/eia_baseline_output.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eia-baseline-results
+          path: |
+            ./tests/eia_update/
+            ./generated/log_*.txt

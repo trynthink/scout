@@ -87,6 +87,8 @@ ehthumbs.db
 *.log
 *.sqlite
 log_*.txt
+tests/eia_update/
+tests/eia_update/**/*
 
 # Software/language support files #
 ###################################
