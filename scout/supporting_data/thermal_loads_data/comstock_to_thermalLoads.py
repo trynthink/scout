@@ -10,7 +10,7 @@ The conversion steps:
 2. Aggregate thermal load components by census division, building type, and end use.
 3. Compute weighted average based on ComStock sample weights.
 4. Normalize component loads as fractions of total thermal load.
-5. Obtain normalized component loads for missing building types by applying 
+5. Obtain normalized component loads for missing building types by applying
 a weighted area average of the existing building types.
 
 Output format:
@@ -126,9 +126,9 @@ CDIV_MAPPING = {
     "WA": 9,
 }
 
-# Education building type has an ID of 2. “SecondarySchool” is 
-# classified as an education building type, 
-# but here it is mapped to 12 instead of 2 to calculate 
+# Education building type has an ID of 2. “SecondarySchool” is
+# classified as an education building type,
+# but here it is mapped to 12 instead of 2 to calculate
 # the component loads for the assembly building type.
 BLDG_MAPPING = {
     "Hospital": 5,
@@ -138,7 +138,7 @@ BLDG_MAPPING = {
     "SmallOffice": 8,
     "MediumOffice": 7,
     "SmallHotel": 6,
-    "QuickServiceRestaurant": 4, 
+    "QuickServiceRestaurant": 4,
     "RetailStandalone": 9,
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
@@ -146,7 +146,7 @@ BLDG_MAPPING = {
     "SecondarySchool": 12,
     "PrimarySchool": 2,
     'Grocery':3,
-}
+    }
 
 EUSES = ["HEAT", "COOL"]
 
@@ -319,11 +319,11 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
 
 def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
     '''
-    The "assembly", "other", and "unspecified" building type in the Scout 
+    The "assembly", "other", and "unspecified" building type in the Scout
     are not exit in ComStock
-    This fuction Establish rows for "assembly" building type as an 
+    This fuction Establish rows for "assembly" building type as an
     weighted average of the rows for "SecondarySchool", "small office",
-    and "mercantile/service". Establish rows for "other" and "unspecified" 
+    and "mercantile/service". Establish rows for "other" and "unspecified"
     building type as an weighted average of the rows for all building types
 
     Parameters:
@@ -361,15 +361,15 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
                 )
             assembly_avg = assembly_avg.round(4)
 
-            # Establish rows for "Other" and "unspecified" building type as 
+            # Establish rows for "Other" and "unspecified" building type as
             # an weighted average of the rows for all building types in ComStock
-            other_sub = subset[subset['BLDG'].isin([2,3,4,5,6,7,8,9,10,12])]
+            other_sub = subset[subset['BLDG'].isin([2, 3, 4, 5, 6, 7, 8, 9, 10, 12])]
             other_avg = (
                 other_sub[avg_cols].mul(other_sub['weighted_sqft'], axis=0).sum()
                 / other_sub['weighted_sqft'].sum()
                 )
             other_avg = other_avg.round(4)
-    
+
             for bldg in subset['BLDG'].unique():
                 block = subset[subset['BLDG'] == bldg].copy()
 
