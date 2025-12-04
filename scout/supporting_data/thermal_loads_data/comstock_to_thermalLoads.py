@@ -32,7 +32,7 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 import pandas as pd
 
 CDIV_MAX = 9
-BLDG_MAX = 13
+BLDG_MAX = 12
 EUSES = ["HEAT", "COOL"]
 
 # Segment -> category aggregation (intermediate keys)
@@ -362,8 +362,8 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
             assembly_avg = assembly_avg.round(4)
 
             # Establish rows for "Other" and "unspecified" building type as 
-            # an weighted average of the rows for all building types
-            other_sub = subset[subset['BLDG'] != 13]
+            # an weighted average of the rows for all building types in ComStock
+            other_sub = subset[subset['BLDG'].isin([2,3,4,5,6,7,8,9,10,13])]
             other_avg = (
                 other_sub[avg_cols].mul(other_sub['weighted_sqft'], axis=0).sum()
                 / other_sub['weighted_sqft'].sum()
