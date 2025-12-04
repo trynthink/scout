@@ -23,7 +23,7 @@ Tab seperated text file with columns:
 
 - BLDG: Building type code (1: assembly, 2: education, 3: food sales, 4: food service,
 5: health care, 6: lodging, 7: large office, 8: small office, 9: mercantile/service,
-10: warehouse, 11: other, 12: unspecified)
+10: warehouse, 11: other)
 
 - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND,
 EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
@@ -32,7 +32,7 @@ EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
 import pandas as pd
 
 CDIV_MAX = 9
-BLDG_MAX = 12
+BLDG_MAX = 11
 EUSES = ["HEAT", "COOL"]
 
 # Segment -> category aggregation (intermediate keys)
@@ -128,7 +128,7 @@ CDIV_MAPPING = {
 
 # Education building type has an ID of 2. “SecondarySchool” is 
 # classified as an education building type, 
-# but here it is mapped to 13 instead of 2 to calculate 
+# but here it is mapped to 12 instead of 2 to calculate 
 # the component loads for the assembly building type.
 BLDG_MAPPING = {
     "Hospital": 5,
@@ -143,7 +143,7 @@ BLDG_MAPPING = {
     "FullServiceRestaurant": 4,
     "LargeHotel": 6,
     "Warehouse": 10,
-    "SecondarySchool": 13,
+    "SecondarySchool": 12,
     "PrimarySchool": 2,
     'Grocery':3,
 }
@@ -175,7 +175,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         data (pd.DataFrame): Input DataFrame containing ComStock simulation outputs with
                              the added following required columns:
             - 'CDIV': Census Division code (1-9)
-            - 'BLDG': Building type code (1-13)
+            - 'BLDG': Building type code (1-12)
 
     Returns:
         pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
@@ -202,7 +202,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         for bldg in range(1, BLDG_MAX + 1):
             for euse in EUSES:
                 if bldg == 2:
-                    subset = data[(data["CDIV"] == cdiv) & (data["BLDG"].isin([bldg, 13]))]
+                    subset = data[(data["CDIV"] == cdiv) & (data["BLDG"].isin([bldg, 12]))]
                 else:
                     subset = data[(data["CDIV"] == cdiv) & (data["BLDG"] == bldg)]
 
@@ -330,7 +330,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
             - 'ENDUSE': 'HT' for heating, 'CL' for cooling
             - 'CDIV': Census Division code (1-9)
-            - 'BLDG': Building type code(1-13)
+            - 'BLDG': Building type code(1-12)
             - 'weighted_sqft': weighted floor area
             - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
             PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
@@ -339,7 +339,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame formatted for Scout thermal loads with columns:
             - 'ENDUSE': 'HT' for heating, 'CL' for cooling
             - 'CDIV': Census Division code (1-9)
-            - 'BLDG': Building type code (1-12)
+            - 'BLDG': Building type code (1-11)
             - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
             PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
     '''
@@ -354,7 +354,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
 
             # Establish rows for "Assembly" building type as an weighted average of the rows
             # for "SecondarySchool", "Small. Office", and "Merch./Service"
-            assembly_sub = subset[subset['BLDG'].isin([8, 9, 13])]
+            assembly_sub = subset[subset['BLDG'].isin([8, 9, 12])]
             assembly_avg = (
                 assembly_sub[avg_cols].mul(assembly_sub['weighted_sqft'], axis=0).sum()
                 / assembly_sub['weighted_sqft'].sum()
@@ -363,7 +363,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
 
             # Establish rows for "Other" and "unspecified" building type as 
             # an weighted average of the rows for all building types in ComStock
-            other_sub = subset[subset['BLDG'].isin([2,3,4,5,6,7,8,9,10,13])]
+            other_sub = subset[subset['BLDG'].isin([2,3,4,5,6,7,8,9,10,12])]
             other_avg = (
                 other_sub[avg_cols].mul(other_sub['weighted_sqft'], axis=0).sum()
                 / other_sub['weighted_sqft'].sum()
@@ -376,7 +376,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
                 if bldg == 1:
                     for col in avg_cols:
                         block[col] = assembly_avg[col]
-                elif bldg == 11 or bldg ==12:
+                elif bldg == 11:
                     for col in avg_cols:
                         block[col] = other_avg[col]
 
@@ -384,7 +384,7 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
 
     final_df = pd.concat(result_list, ignore_index=True)
     final_df = final_df.drop(columns=['weighted_sqft'])
-    final_df = final_df[final_df['BLDG'] != 13]
+    final_df = final_df[final_df['BLDG'] != 12]
 
     return final_df
 
