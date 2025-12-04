@@ -145,7 +145,7 @@ BLDG_MAPPING = {
     "Warehouse": 10,
     "SecondarySchool": 12,
     "PrimarySchool": 2,
-    'Grocery':3,
+    'Grocery': 3,
     }
 
 EUSES = ["HEAT", "COOL"]
