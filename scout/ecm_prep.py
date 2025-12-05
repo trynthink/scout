@@ -7252,7 +7252,7 @@ class Measure(object):
                         perf, units, cost = [perf_meas_yr, perf_units, cost_meas[yr_str]]
                         # If there is no switching element of the measure, assign the measure's
                         # incentives modifications to that of the baseline mseg
-                        if not cost_incentives_meas:
+                        if not mskeys_swtch:
                             rmv, ext, rpl = [rmv_base, ext_base, rpl_base]
                         else:
                             rmv, ext, rpl = [rmv_swtch, ext_swtch, rpl_swtch]
