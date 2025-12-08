@@ -206,15 +206,15 @@ run:
   high_res_comp: (boolean) If true, resolve competition cost data
     to each market microsegment (rather than averaging across
     all applicable markets). Default False
-  change_yr_interval: (integer) Change reporting to every N years,
-    where N is the integer specified in this argument. Default
-    null
   mkt_fracs: (boolean) If true, flag market penetration outputs.
     Default False
   no_comp: (boolean) If true, suppress measure competition. Default
     False
   report_cfs: (boolean) If true, report competition adjustment
     fractions. Default False
+  report_custom_yrs: (array) Enter a custom list of years to use
+    for reporting. When left blank, all years are reported. Default
+    []
   report_stk: (boolean) If true, report baseline/measure stock
     data. Default False
   results_directory: (string) Directory in which to output results.

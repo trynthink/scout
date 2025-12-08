@@ -116,7 +116,7 @@ class TestConfig(unittest.TestCase, Utils):
             "verbose": False,
             "mkt_fracs": False,
             "trim_vars": False,
-            "change_yr_interval": None,
+            "report_custom_yrs": [],
             "report_stk": False,
             "report_cfs": False,
             "no_comp": False,
@@ -154,7 +154,7 @@ class TestConfig(unittest.TestCase, Utils):
         "run": {"results_directory": "results/test_dir",
                 "mkt_fracs": True,
                 "trim_vars": False,
-                "change_yr_interval": None},
+                "report_custom_yrs": []},
     }
 
     def tearDown(self):
