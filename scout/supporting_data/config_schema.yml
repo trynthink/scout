@@ -291,10 +291,12 @@ properties:
         type: boolean
         default: false
         description: If true, flag market penetration outputs.
-      change_yr_interval:
-        type: ["integer", "null"]
-        default: null
-        description: Change reporting to every N years, where N is the integer specified in this argument.
+      report_custom_yrs:
+        type: array
+        items:
+          type: ["integer", "null"]
+        default: []
+        description: Enter a custom list of years to use for reporting. When left blank, all years are reported.
       trim_vars:
         type: boolean
         default: false

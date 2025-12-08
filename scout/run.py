@@ -5129,14 +5129,9 @@ class Engine(object):
                         adopt_scheme] = (OrderedDict([
                             ("Baseline Energy Use (MMBtu)", energy_base_avg),
                             ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                            ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                                carb_base_avg),
-                            ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                                carb_eff_avg),
-                            ("Energy Savings (MMBtu)", energy_save_avg),
-                            ("Avoided CO2 Emissions (MMTons)".
-                                translate(sub), carb_save_avg)
-                            ]) for n in range(2))
+                            ("Baseline Energy Cost (USD)", energy_cost_base_avg),
+                            ("Efficient Energy Cost (USD)", energy_cost_eff_avg)])
+                        for n in range(2))
                 if eff_capt and energy_eff_capt_avg is not None:
                     self.output_ecms[m.name][
                         "Markets and Savings (Overall)"][adopt_scheme][
@@ -5150,21 +5145,18 @@ class Engine(object):
                 # output breakouts below
                 mkt_base_keys = [
                     "Baseline Energy Use (MMBtu)",
-                    "Baseline CO2 Emissions (MMTons)".translate(sub)]
+                    "Baseline Energy Cost (USD)"]
                 # Record list of efficient variable names for use in finalizing
                 # output breakouts below
                 mkt_eff_keys = [
                     "Efficient Energy Use (MMBtu)",
-                    "Efficient CO2 Emissions (MMTons)".translate(sub)]
+                    "Efficient Energy Cost (USD)".translate(sub)]
                 # Add efficient-captured to efficient breakout names if present
                 if eff_capt:
                     mkt_eff_keys.append(
                         "Efficient Energy Use, Measure (MMBtu)")
-                # Record list of savings variable names for use in finalizing
-                # output breakouts below
-                save_keys = [
-                    "Energy Savings (MMBtu)",
-                    "Avoided CO2 Emissions (MMTons)".translate(sub)]
+                # Do not report savings variables when reduced set of outputs is desired
+                save_keys = []
 
                 # Record updated (post-competed) fugitive emissions results
                 # for individual ECM if applicable
@@ -7129,33 +7121,6 @@ class Engine(object):
         return codes_bps_dict_out
 
 
-def gen_trim_yrs(yr_interval, yr_range):
-    """
-    Generates a list of years that occur every N years within a given range.
-
-    Args:
-      yr_interval: A user-specified string indicating desired year interval.
-      yr_range: The full range of years in the projection horizon.
-
-    Returns:
-      A list of integers representing the starting year plus any year after that
-      which is exactly divisible by the desired interval.
-    """
-    # Set start and end year based on AEO range
-    start_yr, end_yr = [int(yr_range[0]), int(yr_range[-1])]
-    # Always include the start year in the final list
-    years = [start_yr]
-    # Generate the list of years
-    for year in range(start_yr + 1, end_yr + 1):
-        # Year must be exactly divisible by desired year interval
-        if year % yr_interval == 0:
-            years.append(year)
-    # Ensure that the final year of the horizon is in the list
-    if end_yr not in years:
-        years.append(end_yr)
-    return years
-
-
 def measure_opts_match(option_dicts: list[dict]) -> bool:
     """Checks if a list of measure options have common argument values, excluding those that
         do not influence final results
@@ -7210,18 +7175,10 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         trim_out = True
     else:
         trim_out = False
-    # User desires trimmed down year intervals
-    if opts.change_yr_interval not in [None, 1]:
-        # Check length of AEO years
-        aeo_len = len(handyvars.aeo_years)
-        # Ensure length of year reporting interval doesnt exceed the full length of time horizon
-        if opts.change_yr_interval > aeo_len:
-            opts.change_yr_interval = aeo_len
-            # Notify user of the change
-            warnings.warn(
-                "'trim_yrs' user option exceeds length of time horizon. Resetting to the "
-                "time horizon length of " + str(aeo_len) + " years")
-        trim_yrs = gen_trim_yrs(opts.change_yr_interval, handyvars.aeo_years)
+    # User desires custom year reporting
+    if len(opts.report_custom_yrs) > 0:
+        # Ensure that all custom years are within the current range
+        trim_yrs = [x for x in opts.report_custom_yrs if str(x) in handyvars.aeo_years]
     else:
         trim_yrs = False
 
