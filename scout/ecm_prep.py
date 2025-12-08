@@ -10967,8 +10967,9 @@ class Measure(object):
                     new_cool_units["competed"][yr] * uec_eff_yr
                 energy_total_eff[yr] = \
                     new_cool_units["total"][yr] * uec_eff_yr_tot
-                energy_total_eff_capt[yr] = \
-                    new_cool_units["total"][yr] * uec_eff_yr_tot
+                if eff_capt:
+                    energy_total_eff_capt[yr] = \
+                        new_cool_units["total"][yr] * uec_eff_yr_tot
                 # Carbon
                 # Reset competed and total carbon
                 carb_compete_eff[yr] = \
