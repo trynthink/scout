@@ -56,6 +56,20 @@ from tabulate import tabulate
 #: maximum allowed average percent error before a comparison is highlighted
 ERROR_THRESHOLD = 0.01  # 1 %
 
+#: maximum allowed average percent error across all combinations before
+#: the script exits with a non-zero status for CI. The tolerance must be
+#: provided via environment variable `AEO_MAX_ERR` (fraction, e.g. 0.0674).
+#: This is set in the GitHub Actions workflow file
+#: (.github/workflows/eia-update-check.yml).
+val_str = os.getenv("AEO_MAX_ERR")
+try:
+    MAX_ALLOWED_ERR = float(val_str)
+except (TypeError, ValueError):
+    raise SystemExit(
+        "AEO_MAX_ERR is not set or invalid. "
+        "Provide a numeric fraction, e.g. 0.0674."
+    )
+
 #: path to the Scout microsegments JSON file (relative to project root)
 MSEG_PATH = "scout/supporting_data/stock_energy_tech_data/mseg_res_com_cz.json"
 
@@ -645,6 +659,30 @@ def report_large_errors() -> None:
         )
 
 
+def enforce_max_error_or_fail() -> None:
+    """Exit non-zero if the max average error exceeds the allowed threshold.
+
+    This is intended for CI usage: it scans the collected `_error_log` for
+    the highest average percent error and fails the run if it is greater than
+    `MAX_ALLOWED_ERR`. You can override the tolerance via `AEO_MAX_ERR`.
+    """
+
+    # Add sleep for 1 sec to ensure all previous 
+    # print statements are flushed
+    time.sleep(1.0)
+    
+    max_err = max((rec["avg_pct_err"] for rec in _error_log), default=0.0)
+    if max_err > MAX_ALLOWED_ERR:
+        raise SystemExit(
+            (
+                f"Max average percent error {max_err:.2%} exceeds allowed "
+                f"tolerance {MAX_ALLOWED_ERR:.2%}. \n"
+                f"Check above list for problem series.\n"
+                f"Failing run."
+            )
+        )
+
+
 def report_zero_division_cases() -> None:
     """Summarize all places where division by zero occurred."""
 
@@ -752,6 +790,7 @@ def main() -> None:
     print_rollups()
     report_large_errors()
     report_zero_division_cases()
+    enforce_max_error_or_fail()
 
 
 if __name__ == "__main__":  # pragma: no cover - direct CLI execution
