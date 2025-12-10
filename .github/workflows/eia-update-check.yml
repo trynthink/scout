@@ -4,7 +4,6 @@ on:
   push:
     branches: 
        - master
-       - issue-517/eia_update_helpers
   workflow_dispatch: {}
 
 jobs:
@@ -14,8 +13,6 @@ jobs:
     env:
       # EIA API key stored as a GitHub Actions secret
       EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
-      # Maximum allowed average percent error (fraction). CI fails if exceeded.
-      AEO_MAX_ERR: 0.0673
 
     steps:
       - name: Checkout repository
