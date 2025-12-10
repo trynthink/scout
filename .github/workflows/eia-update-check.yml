@@ -14,6 +14,8 @@ jobs:
     env:
       # EIA API key stored as a GitHub Actions secret
       EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+      # Maximum allowed average percent error (fraction). CI fails if exceeded.
+      AEO_MAX_ERR: 0.0673
 
     steps:
       - name: Checkout repository
@@ -31,8 +33,10 @@ jobs:
 
       - name: Run EIA baseline comparison (save output)
         run: |
+          # Fail the step if the Python command fails, even when piped through tee
+          set -o pipefail
           mkdir -p tests/eia_update
-          python -m scout.AEO_update_helpers.baseline_comparison --year 2025 | tee tests/eia_update/eia_baseline_output.txt
+          python -m scout.AEO_update_helpers.baseline_comparison --year 2025 2>&1 | tee tests/eia_update/eia_baseline_output.txt
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
