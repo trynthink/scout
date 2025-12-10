@@ -56,19 +56,6 @@ from tabulate import tabulate
 #: maximum allowed average percent error before a comparison is highlighted
 ERROR_THRESHOLD = 0.01  # 1 %
 
-#: maximum allowed average percent error across all combinations before
-#: the script exits with a non-zero status for CI. The tolerance must be
-#: provided via environment variable `AEO_MAX_ERR` (fraction, e.g. 0.0674).
-#: This is set in the GitHub Actions workflow file
-#: (.github/workflows/eia-update-check.yml).
-val_str = os.getenv("AEO_MAX_ERR")
-try:
-    MAX_ALLOWED_ERR = float(val_str)
-except (TypeError, ValueError):
-    raise SystemExit(
-        "AEO_MAX_ERR is not set or invalid. "
-        "Provide a numeric fraction, e.g. 0.0674."
-    )
 
 #: path to the Scout microsegments JSON file (relative to project root)
 MSEG_PATH = "scout/supporting_data/stock_energy_tech_data/mseg_res_com_cz.json"
@@ -228,6 +215,63 @@ _totals: dict[tuple[str, str], dict[str, dict[str, float]]] = defaultdict(
 )
 _error_log: list[dict] = []
 _zero_division_errors: list[dict] = []
+_series_results: list[dict] = []
+
+# Baseline per-series tolerance map (fractions). If a series is missing,
+# the fallback tolerance is 0.0 (zero tolerance).
+SERIES_TOLERANCE: dict[str, float] = {
+
+    # Explicitly mark known 0.00% error series with 0 tolerance
+    "cnsm_NA_resd_clw_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_cdr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_cmpr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_cgr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_dsw_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_fpr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_frz_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_lghtng_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_othu_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_refr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_spc_elc_NA_usa_qbtu": 0.0,
+    "cnsm_hhd_resd_sph_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_tvr_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_wtht_elc_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_cdr_ng_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_cgr_ng_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_othu_ng_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_spc_ng_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_sph_ng_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_othu_dfo_NA_usa_qbtu": 0.0,
+    "cnsm_NA_resd_wtht_dfo_NA_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_cgr_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_lghtng_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_otheqpnpc_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_otheqppc_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_refr_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_spc_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_sph_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_prc_vntc_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_ng_cgr_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_ng_othu_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_ng_sph_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_ng_wtht_usa_qbtu": 0.0,
+    "cnsm_NA_comm_NA_dfo_othu_usa_qbtu": 0.0,
+
+    # Residential – notable non-zero averages
+    "cnsm_NA_resd_wtht_ng_NA_usa_qbtu": 0.0002,   # 0.02%
+    "cnsm_NA_resd_sph_dfo_NA_usa_qbtu": 0.00232,  # 0.232%
+
+    # Commercial – electricity
+    "cnsm_NA_comm_NA_prc_othu_usa_qbtu": 0.0008,  # 0.08%
+    "cnsm_NA_comm_NA_prc_wtht_usa_qbtu": 0.00064,  # 0.064%
+
+    # Commercial – distillate
+    "cnsm_NA_comm_NA_dfo_sph_usa_qbtu": 0.0096,   # 0.96%
+    "cnsm_NA_comm_NA_dfo_wtht_usa_qbtu": 0.0674,  # 6.74%
+
+    # Commercial – natural gas
+    "cnsm_NA_comm_NA_ng_spc_usa_qbtu": 0.05802,   # 5.802%
+}
 
 
 # ---------------------------------------------------------------------------
@@ -346,6 +390,10 @@ def construct_eia_series_id(filters: FilterStrings, year: str, uv: UsefulVars) -
         condition_2 = uv.end_use_translator[end_use]
         condition_3 = "NA"
         fuel = fuel_for_api
+
+    # condition_1 is end_use for residential
+    # condition_2 is end_use for commercial
+    # condition_3 is hdd if electric_heating else NA
 
     eia_series_id = (
         f"cnsm_{condition_3}_"
@@ -598,6 +646,17 @@ def compare_one_combination(
             }
         )
 
+    # Record all series average errors for per-series enforcement
+    _series_results.append(
+        {
+            "building": bldg,
+            "fuel": fuel,
+            "end_use": end_use,
+            "series_id": series_id,
+            "avg_pct_err": avg_pct_err,
+        }
+    )
+
 
 def print_rollups() -> None:
     """Print table of total Scout vs. EIA energy by building and fuel."""
@@ -660,24 +719,45 @@ def report_large_errors() -> None:
 
 
 def enforce_max_error_or_fail() -> None:
-    """Exit non-zero if the max average error exceeds the allowed threshold.
+    """Exit non-zero if any series exceeds its per-series tolerance.
 
-    This is intended for CI usage: it scans the collected `_error_log` for
-    the highest average percent error and fails the run if it is greater than
-    `MAX_ALLOWED_ERR`. You can override the tolerance via `AEO_MAX_ERR`.
+    Compares all collected `_series_results` against `SERIES_TOLERANCE`.
+    Aggregates all violations and raises one `SystemExit` with a summary.
     """
 
-    # Add sleep for 1 sec to ensure all previous 
-    # print statements are flushed
+    # Ensure prior prints are flushed to the log
     time.sleep(1.0)
-    
-    max_err = max((rec["avg_pct_err"] for rec in _error_log), default=0.0)
-    if max_err > MAX_ALLOWED_ERR:
+
+    violations: list[dict] = []
+    min_tol_floor = 5e-5  # 0.005%
+    for rec in _series_results:
+        sid = rec["series_id"]
+        avg = rec["avg_pct_err"]
+        base_tol = SERIES_TOLERANCE.get(sid, 0.0)
+        tol = base_tol if base_tol > 0.0 else min_tol_floor
+        eps = 1e-9
+        if (avg - tol) > eps and not np.isclose(avg, tol, rtol=1e-9, atol=1e-12):
+            violations.append({
+                "series_id": sid,
+                "avg_pct_err": avg,
+                "tolerance": tol,
+                "building": rec["building"],
+                "fuel": rec["fuel"],
+                "end_use": rec["end_use"],
+            })
+
+    if violations:
+        print("\nPer-series tolerance violations:")
+        for v in violations:
+            print(
+                f"  {v['building'].upper()} | {v['fuel'].title()} | {v['end_use'].title()}\n"
+                f"    Series ID: {v['series_id']}\n"
+                f"    Avg error: {v['avg_pct_err']:.6%} | Allowed: {v['tolerance']:.6%}"
+            )
+
         raise SystemExit(
             (
-                f"Max average percent error {max_err:.2%} exceeds allowed "
-                f"tolerance {MAX_ALLOWED_ERR:.2%}. \n"
-                f"Check above list for problem series.\n"
+                f"{len(violations)} series exceeded per-series tolerances.\n"
                 f"Failing run."
             )
         )
