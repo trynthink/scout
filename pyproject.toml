@@ -30,7 +30,8 @@ dependencies = [
     "backoff",
     "python-dotenv",
     "pyyaml",
-    "jsonschema"
+    "jsonschema",
+    "pytest"
 ]
 
 [tool.setuptools_scm]

@@ -11,6 +11,7 @@ import numpy
 import copy
 import itertools
 import numpy_financial as npf
+import pytest
 from pathlib import Path
 
 base_args = run.parse_args([])
@@ -16184,6 +16185,1009 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
                 self.measures_master_msegs_out_dist[ind],
                 self.a_run_dist.measures[ind].markets[self.test_adopt_scheme][
                     "competed"]["master_mseg"])
+
+    def test_compete_state_appl_stds_high_res(self):
+        """Test handling of state-level appliance regs within residential competition routine."""
+
+        # Adjust options to suit test
+        opts_a_stds = copy.deepcopy(self.opts)
+        # Compete on the basis of individual microsegments, rather than global cost data
+        # (across all of the measure's microsegments)
+        opts_a_stds.high_res_comp = True
+
+        # Adjust handyvars to suit test
+        # Adjust out break categories to reflect limited CA SFH heating test case
+        hv_a_stds = copy.deepcopy(self.handyvars)
+        hv_a_stds.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
+        hv_a_stds.out_break_czones = {"CA": ["CA"]}
+        hv_a_stds.out_break_bldg_types = {
+            "Residential (Existing)": ["existing", "single family home"]}
+        hv_a_stds.out_break_enduses = {"Heating (Equip.)": ["heating"]}
+
+        # Sample state-level appliance emissions regulation input that effectively removes
+        # natural gas furnaces from market availability in CA starting in 2010
+        hv_a_stds.state_appl_regs = [[
+            "CA", "single family home", "existing", "natural gas", "heating", "all", 2010, 1]]
+
+        # Test max adoption potential case
+        test_adopt_scheme_a_stds = "Max adoption potential"
+        # Set competition key
+        comp_key = str(
+            ('primary', 'CA', 'single family home', 'natural gas',
+             'heating', 'supply', 'furnace (NG)', 'existing'))
+        # Set measures
+        comp_a_std_meas = [{
+            "name": "sample FS measure appl. stds.",
+            "climate_zone": ["CA"],
+            "bldg_type": ["single family home"],
+            "end_use": {"primary": ["heating"], "secondary": None},
+            "fuel_type": {"primary": ["natural gas"], "secondary": None},
+            "fuel_switch_to": "electricity",
+            "backup_fuel_fraction": None,
+            "technology": ["furnace (NG)"],
+            "technology_type": {"primary": "supply", "secondary": None},
+            "tech_switch_to": "ASHP",
+            "market_entry_year": 2009,
+            "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False, "alt_regions": "State"},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            comp_key: {
+                                "stock": {
+                                    "competed": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 5, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}},
+                                        "competed": {
+                                            "baseline": {"2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 1, "2010": 1}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 1},
+                                "sub-market scaling": 1}},
+                        "competed choice parameters": {
+                            comp_key: {
+                                "b1": {"2009": -0.95, "2010": -0.95},
+                                "b2": {"2009": -0.10, "2010": -0.10}}},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
+                    "mseg_out_break": {
+                        "stock": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "energy": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "carbon": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "cost": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}}
+
+                    }},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            comp_key: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 10, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 5, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 15, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 20, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}},
+                                        "competed": {
+                                            "baseline": {"2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 1, "2010": 1}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 1},
+                                "sub-market scaling": 1},
+                            "dummy key": {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 10, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 5, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 15, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 20, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}},
+                                        "competed": {
+                                            "baseline": {"2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": 0, "2010": 0}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 1},
+                                "sub-market scaling": 1}},
+                        "competed choice parameters": {
+                            comp_key: {
+                                "b1": {"2009": -0.95, "2010": -0.95},
+                                "b2": {"2009": -0.10, "2010": -0.10}}},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
+                    "mseg_out_break": {
+                        "stock": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "energy": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "carbon": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "cost": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}}
+
+                    }}}},
+            {
+            "name": "sample furnace measure appl. stds.",
+            "climate_zone": ["CA"],
+            "bldg_type": ["single family home"],
+            "end_use": {"primary": ["heating"], "secondary": None},
+            "fuel_type": {"primary": ["natural gas"], "secondary": None},
+            "fuel_switch_to": None,
+            "backup_fuel_fraction": None,
+            "technology": ["furnace (NG)"],
+            "technology_type": {"primary": "supply", "secondary": None},
+            "tech_switch_to": None,
+            "market_entry_year": 2009,
+            "market_exit_year": None,
+            "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False, "alt_regions": "State"},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            comp_key: {
+                                "stock": {
+                                    "competed": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 5, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 30, "2010": 30}},
+                                        "competed": {
+                                            "baseline": {"2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 1},
+                                "sub-market scaling": 1}},
+                        "competed choice parameters": {
+                            comp_key: {
+                                "b1": {"2009": -0.95, "2010": -0.95},
+                                "b2": {"2009": -0.10, "2010": -0.10}}},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}},
+                    "mseg_out_break": {
+                        "stock": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "energy": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "carbon": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "cost": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}}
+
+                    }},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}},
+                            "competed": {
+                                "all": {"2009": 5, "2010": 5},
+                                "measure": {"2009": 5, "2010": 5}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 15, "2010": 15}},
+                            "competed": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "baseline": {"2009": 15, "2010": 15},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 20, "2010": 20}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 5, "2010": 5}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_adjust": {
+                        "contributing mseg keys and values": {
+                            comp_key: {
+                                "stock": {
+                                    "total": {
+                                        "all": {"2009": 10, "2010": 10},
+                                        "measure": {"2009": 10, "2010": 10}},
+                                    "competed": {
+                                        "all": {"2009": 5, "2010": 5},
+                                        "measure": {"2009": 5, "2010": 5}}},
+                                "energy": {
+                                    "total": {
+                                        "baseline": {"2009": 20, "2010": 20},
+                                        "efficient": {"2009": 15, "2010": 15}},
+                                    "competed": {
+                                        "baseline": {"2009": 10, "2010": 10},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "carbon": {
+                                    "total": {
+                                        "baseline": {"2009": 30, "2010": 30},
+                                        "efficient": {"2009": 20, "2010": 20}},
+                                    "competed": {
+                                        "baseline": {"2009": 15, "2010": 15},
+                                        "efficient": {"2009": 5, "2010": 5}}},
+                                "cost": {
+                                    "stock": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 10, "2010": 10}},
+                                        "competed": {
+                                            "baseline": {"2009": 5, "2010": 5},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}},
+                                    "energy": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 20, "2010": 20},
+                                            "efficient": {
+                                                "2009": 15, "2010": 15}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 10, "2010": 10},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}},
+                                    "carbon": {
+                                        "total": {
+                                            "baseline": {
+                                                "2009": 30, "2010": 30},
+                                            "efficient": {
+                                                "2009": 20, "2010": 20}},
+                                        "competed": {
+                                            "baseline": {
+                                                "2009": 15, "2010": 15},
+                                            "efficient": {
+                                                "2009": 5, "2010": 5}}}},
+                                "lifetime": {
+                                    "baseline": {"2009": 1, "2010": 1},
+                                    "measure": 1},
+                                "sub-market scaling": 1}},
+                        "competed choice parameters": {
+                            comp_key: {
+                                "b1": {"2009": -0.95, "2010": -0.95},
+                                "b2": {"2009": -0.10, "2010": -0.10}}},
+                        "secondary mseg adjustments": {
+                            "market share": {
+                                "original energy (total captured)": {},
+                                "original energy (competed and captured)": {},
+                                "adjusted energy (total captured)": {},
+                                "adjusted energy (competed and captured)": {}}}
+                                },
+                    "mseg_out_break": {
+                        "stock": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "energy": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "carbon": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}},
+                        "cost": {
+                            "baseline": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 100,
+                                            "2010": 100
+                                        }}}},
+                            "efficient": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}},
+                            "savings": {
+                                "CA": {
+                                    'Residential (Existing)': {
+                                        "Heating (Equip.)": {
+                                            "2009": 50,
+                                            "2010": 50
+                                        }}}}}
+
+                    }}}}]
+        # Instantiate test measure objects
+        measures_a_stds = [run.Measure(hv_a_stds, **x) for x in comp_a_std_meas]
+
+        # Set information needed to finalize measure global tech choice inputs
+        consume_metrics_a_stds = [{
+            "stock cost": {
+                "residential": {
+                    "2009": 10000,
+                    "2010": 10000},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
+            "energy cost": {
+                "residential": {
+                    "2009": 100,
+                    "2010": 100},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
+            "carbon cost": {
+                "residential": {
+                    "2009": 100,
+                    "2010": 100},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}},
+            {
+            "stock cost": {
+                "residential": {
+                    "2009": 1000,
+                    "2010": 1000},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
+            "energy cost": {
+                "residential": {
+                    "2009": 500,
+                    "2010": 500},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}},
+            "carbon cost": {
+                "residential": {
+                    "2009": 500,
+                    "2010": 500},
+                "commercial": {
+                    "2009": None,
+                    "2010": None}}}]
+        # Finalize unit cost settings for all measures
+        for ind, m in enumerate(measures_a_stds):
+            m.financial_metrics['unit cost'] = consume_metrics_a_stds[ind]
+
+        # Energy output (after competition considering state-level appliance stds.) that
+        # the test should produce
+        comp_a_std_out = [{
+            "total": {
+                "baseline": {"2009": 22.78867746, "2010": 31.39433873},
+                "efficient": {"2009": 17.09150809, "2010": 23.54575405}},
+            "competed": {
+                "baseline": {"2009": 11.39433873, "2010": 20},
+                "efficient": {"2009": 5.697169365, "2010": 10}}},
+            {
+            "total": {
+                "baseline": {"2009": 17.21132254, "2010": 8.60566127},
+                "efficient": {"2009": 12.90849191, "2010": 6.454245953}},
+            "competed": {
+                "baseline": {"2009": 8.60566127, "2010": 0},
+                "efficient": {"2009": 4.302830635, "2010": 0}}}]
+
+        # Generate Engine object with competing sample measures
+        a_run_a_stds = run.Engine(
+            hv_a_stds, base_args, measures_a_stds, energy_out=[
+                "fossil_equivalent", "NA", "NA", "NA", "NA"], brkout="basic")
+        # Run the measure competition routine
+        a_run_a_stds.compete_res_primary(
+            measures_a_stds, comp_key, test_adopt_scheme_a_stds, opts_a_stds)
+
+        # Check for correct updated energy use totals for each sample measure following competition/
+        # application of appliance regs under high-res competition settings (e.g., based on the cost
+        # characteristics of each microsegment being competed, rather than average measure costs
+        # across all microsegments the measure applies to
+        for ind in range(len(measures_a_stds)):
+            self.dict_check(comp_a_std_out[ind], a_run_a_stds.measures[ind].markets[
+                test_adopt_scheme_a_stds]["competed"]["master_mseg"]["energy"])
+
+        # Now reset to using average measure costs across all applicable microsegments (which are
+        # different than the mseg-specific costs) and verify that doing so changes the result
+        # from what is expected under high-res competition and generates an error
+
+        # Reset to competition on the basis of costs averaged across all measure microsegments
+        opts_a_stds.high_res_comp = False
+        # Run the measure competition routine and verify error is raised for each measure
+        a_run_a_stds.compete_res_primary(
+            measures_a_stds, comp_key, test_adopt_scheme_a_stds, opts_a_stds)
+        for ind in range(len(measures_a_stds)):
+            # Check that the test raises an assertion error for incorrect output values
+            with pytest.raises(AssertionError):
+                self.dict_check(comp_a_std_out[ind], a_run_a_stds.measures[ind].markets[
+                    test_adopt_scheme_a_stds]["competed"]["master_mseg"]["energy"])
 
 
 class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
