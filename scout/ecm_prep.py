@@ -7239,20 +7239,28 @@ class Measure(object):
                         ((numpy.isnan(x[-3]) or x[-3] <= yr_int) and
                          (numpy.isnan(x[-2]) or x[-2] >= yr_int)))] for y in [
                     "remove", "extend", "replace"]]
-                # Apply incentives mods to original incentives values pulled above
+                # Apply incentives mods to original incentives values pulled above, for both
+                # baseline tech. and measure tech.
                 for val_adjs_i, val_adjs in enumerate([
                         x for x in [base_val_yr_max_init, meas_val_yr_max_init]]):
                     # Set appropriate supporting variables to use for adjustment of baseline or
-                    # switched to segment incentives
+                    # measure tech. incentives
+
+                    # Baseline tech. incentives
                     if val_adjs_i == 0:
                         rmv, ext, rpl, perf, units, cost = [
                             rmv_base, ext_base, rpl_base, perf_base[yr_str], perf_base_units,
                             cost_base[yr_str]]
+                    # Measure tech. incentives
                     else:
+                        # Create legible flag for whether current mseg being processed for measure
+                        # incentives represents like-for-like replacement of the baseline tech.
+                        # or a switch to another type of fuel/technology class.
+                        like_for_like_replace = (not mskeys_swtch)
                         perf, units, cost = [perf_meas_yr, perf_units, cost_meas[yr_str]]
                         # If there is no switching element of the measure, assign the measure's
                         # incentives modifications to that of the baseline mseg
-                        if not mskeys_swtch:
+                        if like_for_like_replace:
                             rmv, ext, rpl = [rmv_base, ext_base, rpl_base]
                         else:
                             rmv, ext, rpl = [rmv_swtch, ext_swtch, rpl_swtch]
@@ -7266,7 +7274,7 @@ class Measure(object):
                             meas_val_yr_max = False
                     # If no removal is given, replace or extend segment incentives
                     else:
-                        # Add to tracking of base and switched to incentives that weren't removed
+                        # Add to tracking of base and measure incentives that weren't removed
                         if val_adjs_i == 0 and val_adjs:
                             base_val_yrs_max.append(val_adjs)
                         elif val_adjs_i == 1 and val_adjs:
@@ -7418,7 +7426,7 @@ class Measure(object):
                                     rpl_vals.append(0)
                                     continue
                             # Determine the sum of replacement incentives to use based on data
-                            # assembled above; reset baseline or switched to mseg incentive
+                            # assembled above; reset baseline or measure tech. incentive
                             # to this value.
                             if val_adjs_i == 0:
                                 base_val_yr_max = sum(rpl_vals)
@@ -7437,7 +7445,7 @@ class Measure(object):
                             # Convert extension increase input to a fraction
                             ext_incr_pct = ext_row[-8] / 100
 
-                            # Reflect the extension on the baseline or switched to mseg
+                            # Reflect the extension on the baseline or measure val.
                             if val_adjs_i == 0:
                                 # Base extension/increase on maximum existing incentive level
                                 # across all years to this point, if any are available; if not,
