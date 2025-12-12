@@ -2,7 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 from scout.config import LogConfig, Config, FilePaths as fp
 from scout.ecm_prep_args import ecm_args
-from scout.ecm_prep import Utils, main as ecm_prep_main
+from scout.ecm_prep import ECMPrepHelper, main as ecm_prep_main
+from scout.utils import JsonIO
 from scout import run
 from argparse import ArgumentParser
 import logging
@@ -122,20 +123,23 @@ class BatchRun():
             ecm_prep_main(ecm_prep_opts)
 
             # Run run.main() for each yml in the group, set custom results directories
-            run_setup = Utils.load_json(fp.GENERATED / "run_setup.json")
+            run_setup = JsonIO.load_json(fp.GENERATED / "run_setup.json")
             # Find subset of ECMs that were set to inactive or skipped in the prep run
             inactive_skipped_ecms = run_setup["inactive"] + run_setup["skipped"]
             ecm_files_list = self.get_ecm_files(yml_grp)
             for ct, config in enumerate(yml_grp):
                 # Set all ECMs inactive
-                run_setup = Utils.update_active_measures(run_setup,
-                                                         to_inactive=ecm_prep_opts.ecm_files)
+                run_setup = ECMPrepHelper.update_active_measures(
+                    run_setup,
+                    to_inactive=ecm_prep_opts.ecm_files
+                )
+                # Set yml-specific ECMs active
                 # Find yml-specific individual ECMs not marked inactive or skipped
                 active_ecms = [ecm for ecm in ecm_files_list[ct] if
                                ecm not in inactive_skipped_ecms]
                 # Set yml-specific ECMs not marked inactive or skipped active
-                run_setup = Utils.update_active_measures(run_setup, to_active=active_ecms)
-                Utils.dump_json(run_setup, fp.GENERATED / "run_setup.json")
+                run_setup = ECMPrepHelper.update_active_measures(run_setup, to_active=active_ecms)
+                JsonIO.dump_json(run_setup, fp.GENERATED / "run_setup.json")
                 run_opts = self.get_run_opts(config)
                 logger.info(f"Running run.py for {config}")
                 run.main(run_opts)
