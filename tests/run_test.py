@@ -339,13 +339,15 @@ class CommonMethods(object):
 class UserOptions(object):
     """Generate sample user-specified execution options."""
     def __init__(self, warnings, mkt_fracs, trim_results, report_stk,
-                 report_cfs, high_res_comp):
+                 report_cfs, no_comp, high_res_comp, write_elec_conv_fracs):
         self.verbose = warnings
         self.mkt_fracs = mkt_fracs
         self.trim_results = trim_results
         self.report_stk = report_stk
         self.report_cfs = report_cfs
+        self.no_comp = no_comp
         self.high_res_comp = high_res_comp
+        self.write_elec_conv_fracs = write_elec_conv_fracs
 
 
 class NullOpts(object):
@@ -358,7 +360,8 @@ class NullOpts(object):
     def __init__(self):
         self.opts = UserOptions(
             warnings=False, mkt_fracs=False, trim_results=False,
-            report_stk=False, report_cfs=False, high_res_comp=False)
+            report_stk=False, report_cfs=False, no_comp=False,
+            high_res_comp=False, write_elec_conv_fracs=False)
 
 
 class TestMeasureInit(unittest.TestCase, Constants):
@@ -372,10 +375,9 @@ class TestMeasureInit(unittest.TestCase, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA",
-                                   state_appl_regs=None, codes=None, bps=None)
+                                   state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.sample_measure = CommonTestMeasures().sample_measure
         measure_instance = run.Measure(handyvars, **cls.sample_measure)
         cls.attribute_dict = measure_instance.__dict__
@@ -404,10 +406,9 @@ class OutputBreakoutDictWalkTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                    brkout="basic", regions="AIA",
-                                   state_appl_regs=None, codes=None, bps=None)
+                                   state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.focus_yrs_test = handyvars.aeo_years
         sample_measure = CommonTestMeasures().sample_measure
         measure_list = [run.Measure(handyvars, **sample_measure)]
@@ -507,11 +508,10 @@ class PrioritizationMetricsTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1507,7 +1507,7 @@ class MetricUpdateTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Hard code time preference premiums
         cls.handyvars.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
@@ -1591,10 +1591,9 @@ class PaybackTest(unittest.TestCase, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         sample_measure = CommonTestMeasures().sample_measure
         cls.measure_list = [run.Measure(cls.handyvars, **sample_measure)]
         cls.ok_cashflows = [[-10, 1, 1, 1, 1, 5, 7, 8], [-10, 14, 2, 3, 4],
@@ -1677,11 +1676,10 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         cls.opts = NullOpts().opts
-        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
+        cls.handyvars = run.UsefulVars(Constants.HANDYFILES, cls.opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         cls.test_adopt_scheme = "Technical potential"
@@ -1716,6 +1714,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r1",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
@@ -3101,6 +3100,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r1 dist",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
@@ -4571,6 +4571,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r2",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["windows"],
             "technology_type": {"primary": "demand", "secondary": None},
@@ -6083,6 +6084,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r3",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
@@ -7471,6 +7473,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r3 dist",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "demand", "secondary": None},
@@ -8893,6 +8896,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r4",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
@@ -10405,6 +10409,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure r5",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["cooling"], "secondary": None},
             "technology": ["ASHP"],
             "technology_type": {"primary": "supply", "secondary": None},
@@ -16220,6 +16225,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample FS measure appl. stds.",
             "climate_zone": ["CA"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["heating"], "secondary": None},
             "fuel_type": {"primary": ["natural gas"], "secondary": None},
             "fuel_switch_to": "electricity",
@@ -16686,6 +16692,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample furnace measure appl. stds.",
             "climate_zone": ["CA"],
             "bldg_type": ["single family home"],
+            "structure_type": ["new", "existing"],
             "end_use": {"primary": ["heating"], "secondary": None},
             "fuel_type": {"primary": ["natural gas"], "secondary": None},
             "fuel_switch_to": None,
@@ -17251,7 +17258,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Reset meta retro rate
         cls.handyvars.retro_rate = {yr: 0 for yr in cls.handyvars.aeo_years}
         # Hard code time preference premiums
@@ -17291,6 +17298,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure c1",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["assembly"],
+            "structure_type": ["new", "existing"],
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
@@ -18814,6 +18822,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure c2",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["assembly"],
+            "structure_type": ["new", "existing"],
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": ["heating", "secondary heating", "cooling"]},
@@ -20337,6 +20346,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure c2 dist",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["assembly"],
+            "structure_type": ["new", "existing"],
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": ["heating", "secondary heating", "cooling"]},
@@ -21890,6 +21900,7 @@ class ComCompeteTest(unittest.TestCase, CommonMethods, Constants):
             "name": "sample compete measure c3",
             "climate_zone": ["AIA_CZ1"],
             "bldg_type": ["assembly"],
+            "structure_type": ["new", "existing"],
             "end_use": {
                 "primary": ["lighting"],
                 "secondary": None},
@@ -27757,10 +27768,9 @@ class NumpyConversionTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         cls.sample_measure = {
             "market_entry_year": None,
             "market_exit_year": None,
@@ -27815,13 +27825,13 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
     @classmethod
     def setUpClass(cls):
         """Define objects/variables for use across all class functions."""
-
         cls.handyvars = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts,
                                        brkout="basic", regions="AIA",
-                                       state_appl_regs=None, codes=None, bps=None)
+                                       state_appl_regs=None, codes=None, bps=None, exog_rates=False)
         # Set standard adoption schemes
         cls.handyvars.adopt_schemes = [
             "Technical potential", "Max adoption potential"]
+        cls.handyvars.aeo_years = ["2009", "2010"]
         sample_measure1 = {
             "name": "sample sub-market test measure 1",
             "measure_type": "full service",
