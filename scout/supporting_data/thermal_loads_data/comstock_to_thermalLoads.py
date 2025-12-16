@@ -54,10 +54,10 @@ COMSTOCK_SEGMENT_TO_CATEGORY = {
     "people_gain": "PEOPLE",
     # Ground contact
     "gnd_flr": "GRND",
-    # Electric equipment gains
-    "equip_gain": "EQUIP_ELEC",
-    # Non Electric equipment gains
-    "ref_equip_gain": "EQUIP_NELEC",
+    # equipment gains
+    "equip_gain": "EQUIP",
+    # refrigeration gains
+    "ref_equip_gain": "REFRIG",
     # Floor
     "ext_flr": "FLOOR",
     # Non Electric equipment gains
@@ -295,8 +295,8 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
         "INFIL",
         "PEOPLE",
         "GRND",
-        "EQUIP_ELEC",
-        "EQUIP_NELEC",
+        "EQUIP",
+        "REFRIG",
         "FLOOR",
         "LIGHTS",
         "VENT",
