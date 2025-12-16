@@ -14,7 +14,7 @@ ecm_prep:
     retrofit_multiplier: 1.2
     retrofit_mult_year: 2030
   exog_hp_rates: 
-    exog_hp_rate_scenario: aggressive
+    exog_hp_rate_scenario: gh-aggressive
     switch_all_retrofit_hp: false
   grid_decarb:
     grid_decarb_level: 100by2035

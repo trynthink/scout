@@ -130,12 +130,12 @@ properties:
         properties:
           exog_hp_rate_scenario:
             type: ["string", "null"]
-            enum: [conservative, optimistic, aggressive, most aggressive, null]
-            description: Guidehouse E3HP conversion scenario to use for exogenous HP rates.
+            enum: [gh-conservative, gh-optimistic, gh-aggressive, gh-most aggressive, bss-brk, null]
+            description: Conversion scenario to use for exogenous rates of conversion to HPs/electric equipment. May be drawn from legacy Guidehouse ('gh-') conversion scenarios or scenario(s) that were produced via endogenously running measure competition and pulling out conversion rates from results.
           switch_all_retrofit_hp:
             type: boolean
             default: false
-            description: If true, assume all retrofits convert to heat pumps, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
+            description: Only relevant to Guidehouse scenarios. If true, assume all retrofits convert to heat pumps/electric alternative, otherwise, retrofits are subject to the same external heat pump conversion rates assumed for new/replacement decisions. Only applicable if `exog_hp_rate_scenario` and `retrofit_type` are defined.
 
       alt_ref_carb:
         type: ["string", "null"]
@@ -210,6 +210,24 @@ properties:
         type: boolean
         default: false
         description: If true, suppress reporting of ECM-captured efficient energy use.
+      no_lnkd_costs:
+        type: object
+        properties:
+          no_lnkd_stk_costs:
+            type: ["string", "null"]
+            enum: [in_adopt_and_report, in_adopt_only, null]
+            default: null
+            description: For measures that span heating or cooling and other end uses, count stock costs for only the anchor end use (rather than all end uses) in representing competition w/ other measures (default anchor is heating).
+          no_lnkd_op_costs:
+            type: boolean
+            default: false
+            description: For measures that span heating or cooling and other end uses, count operating costs for only the anchor end use (rather than all end uses) in representing competition w/ other measures (default anchor is heating).
+      elec_upgrade_costs:
+        type: ["string", "null"]
+        enum: [shares, all, ignore, null]
+        default: shares
+        description: Determine how to assign (or not) electrical infastructure upgrade costs.
+
       sub_fed_policy:
         type: object
         properties:
@@ -317,4 +335,8 @@ properties:
         type: boolean
         default: false
         description: If true, resolve competition cost data to each market microsegment (rather than averaging across all applicable markets).
-
+      write_hp_conv_fracs:
+        type: boolean
+        default: false
+        description: If true, writes out rates of conversions to electric heat pump equipment for any non-heat pump equipment.   
+          

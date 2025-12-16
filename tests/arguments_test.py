@@ -104,6 +104,10 @@ class TestConfig(unittest.TestCase, Utils):
             "pkg_env_sep": False,
             "detail_brkout": [],
             "fugitive_emissions": [],
+            "no_eff_capt": False,
+            "no_lnkd_stk_costs": None,
+            "no_lnkd_op_costs": False,
+            "elec_upgrade_costs": "shares",
             "low_volume_rate": None,
             "incentive_levels": "aeo",
             "incentive_restrictions": None,
@@ -120,7 +124,8 @@ class TestConfig(unittest.TestCase, Utils):
             "report_stk": False,
             "report_cfs": False,
             "no_comp": False,
-            "high_res_comp": False
+            "high_res_comp": False,
+            "write_hp_conv_fracs": False
         },
     }
 
@@ -138,7 +143,7 @@ class TestConfig(unittest.TestCase, Utils):
             "retrofit_type": "increasing",
             "retrofit_multiplier": 1.2,
             "retrofit_mult_year": 2030,
-            "exog_hp_rate_scenario": "aggressive",
+            "exog_hp_rate_scenario": "gh-aggressive",
             "switch_all_retrofit_hp": False,
             "grid_decarb_level": "100by2035",
             "grid_assessment_timing": "after",
@@ -423,7 +428,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "no_scnd_lgt": False,
         "floor_start": None,
         "pkg_env_costs": "1",
-        "exog_hp_rate_scenario": "aggressive",
+        "exog_hp_rate_scenario": "gh-aggressive",
         "switch_all_retrofit_hp": False,
         "alt_ref_carb": None,
         "grid_decarb_level": "100by2035",
@@ -437,7 +442,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         "detail_brkout": "6",
         "fugitive_emissions": [3, 2, 2],
         "retro_set": ["3", 1.2, 2030],
-        "exog_hp_rates": ["aggressive", "2"],
+        "exog_hp_rates": ["gh-aggressive", "2"],
         "grid_decarb": True,
         "tsv_metrics": ["1", "1", "1", "2", "1", "2"],
     }
@@ -471,7 +476,6 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
         self.assertEqual(args.alt_regions, "EMM")
         self.assertEqual(args.detail_brkout, "6")
         self.assertEqual(args.ecm_files, ["Best Com. Air Sealing (Exist)"])
-
         cli_args = [
             "--detail_brkout",
             "buildings",
