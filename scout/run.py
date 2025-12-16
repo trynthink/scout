@@ -6010,11 +6010,23 @@ class Engine(object):
             # meet a code/BPS requirement for a given region/bldg/vintage, after having already
             # reflected the performance impacts of electrification from codes/BPS above
             if impact_thres_tyr != 0:
+                # Flag any already-available codes/BPS measures (added on top of initial input
+                # measures for postprocessing) that should be reflected in energy sums to determine
+                # whether measure set collectively meets energy target
+                if code_std_flag == "code":
+                    code_bps_meas_to_sum = [m for m in [
+                        codes_res_measure, codes_com_measure] if len(
+                        m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk]
+                else:
+                    code_bps_meas_to_sum = [m for m in [
+                        bps_res_measure, bps_com_measure] if len(
+                        m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk]
                 # Sum efficient and base-case energy use for current region/building type/vintage
                 # and across all measures; these sums will be compared to determine the relative
                 # overall energy improvement in the efficient case vs. the baseline, which in turn
                 # is compared against the improvement required by the code/BPS
-                energy_sums = self.sum_energy_data(reg, bldg, vint, adopt_scheme, prior_yr_rmv)
+                energy_sums = self.sum_energy_data(
+                    reg, bldg, vint, adopt_scheme, prior_yr_rmv, code_bps_meas_to_sum)
 
                 # Finalize determination of relative energy reduction in the efficient case. For
                 # BPS, this is normalized by sf and compared to a benchmark baseline year. For
@@ -6069,10 +6081,10 @@ class Engine(object):
                         add_energy_times_apply_fracs, rel_elec_eff, prior_yr_rmv, m_cdbps,
                         focus_yrs, res_focus)
 
-            # Ensure that no blank codes or BPS measures are returned and written out
-            fin_code_bps_meas = [m for m in [
-                codes_res_measure, codes_com_measure, bps_res_measure, bps_com_measure] if
-                len(m.reg_brk) != 0]
+        # Ensure that no blank codes or BPS measures are returned and written out
+        fin_code_bps_meas = [m for m in [
+            codes_res_measure, codes_com_measure, bps_res_measure, bps_com_measure] if
+            len(m.reg_brk) != 0]
 
         return fin_code_bps_meas
 
@@ -6846,7 +6858,7 @@ class Engine(object):
                                         brk_dat_eu_base[fuel][yr] for yr in apply_yrs}
         return rel_elec_eff_init
 
-    def sum_energy_data(self, reg, bldg, vint, adopt_scheme, prior_yr_rmv):
+    def sum_energy_data(self, reg, bldg, vint, adopt_scheme, prior_yr_rmv, code_bps_meas_to_sum):
         """Sum energy use across all measure data and a given region, building type and vintage.
 
         reg_brk (str): Region name used for current mseg in Scout breakout data.
@@ -6857,6 +6869,7 @@ class Engine(object):
         adopt_scheme (string): Assumed consumer adoption scenario.
         prior_yr_rmv (str): Year before policy goes into affect (all stock/energy/carbon/cost
             from this yr. is removed from policy impact in the case of new building additions.)
+        code_bps_meas_to_sum (list): Code or BPS measure objects to include in energy calculations.
 
         Returns:
             Dict of baseline/efficient case energy use sums across applicable regions, building
@@ -6869,12 +6882,29 @@ class Engine(object):
             "efficient": {yr: 0 for yr in self.handyvars.aeo_years}
         }
 
-        # Loop through all measures and sum energy across given regions, building types/vintages
-        # of focus for the current code/BPS policy
-        for m in [m_s for m_s in self.measures if (
-                reg in m_s.climate_zone and bldg in m_s.bldg_type and vint in m_s.structure_type)]:
-            # Shorthand for measure energy breakout data
-            brk_dat = m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"]
+        # Input measure set to sum (exclusive of any code/BPS measures that have been added on top
+        # of the input measure set). Ensure measures apply to current region, building type, and
+        # building vintage being processed
+        start_meas_to_sum = [m_s for m_s in self.measures if (
+            any([x in self.handyvars.out_break_czones[reg] for x in m_s.climate_zone]) and
+            any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m_s.bldg_type]) and
+            vint in m_s.structure_type)]
+
+        # Add any code/BPS measures to the original measure set to get a full picture of energy use,
+        # inclusive of the energy effects of any code/BPS policies that require reductions of
+        # onsite emissions (and fuel switching to electric equipment, which may be more efficient).
+        # These onsite policies will have already been reflected.
+        meas_to_sum = start_meas_to_sum + code_bps_meas_to_sum
+
+        # Loop through all measures (including previously-assessed code/BPS policies) and sum energy
+        # across given regions, building types/vintages of focus for the current code/BPS policy
+        for m in meas_to_sum:
+            # Shorthand for measure energy breakout data; handle code/BPS measure data, which will
+            # not be broken out by 'uncompeted' and 'competed' keys (see Codes_BPS_Measure object)
+            try:
+                brk_dat = m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"]
+            except KeyError:
+                brk_dat = m.markets[adopt_scheme]["mseg_out_break"]["energy"]
             # Loop through baseline and efficient energy cases
             for out in ["baseline", "efficient"]:
                 # Loop through end uses

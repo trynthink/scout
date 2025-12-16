@@ -16200,7 +16200,7 @@ class ResCompeteTest(unittest.TestCase, CommonMethods, Constants):
         hv_a_stds = copy.deepcopy(self.handyvars)
         hv_a_stds.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
         hv_a_stds.out_break_czones = {"CA": ["CA"]}
-        hv_a_stds.out_break_bldg_types = {
+        hv_a_stds.out_break_bldgtypes = {
             "Residential (Existing)": ["existing", "single family home"]}
         hv_a_stds.out_break_enduses = {"Heating (Equip.)": ["heating"]}
 
@@ -28017,6 +28017,946 @@ class AddedSubMktFractionsTest(unittest.TestCase, CommonMethods, Constants):
             for ind_out in range(len(measures_sbmkt_frac_data)):
                 self.dict_check(self.sample_measlist_out_data[ind][ind_out],
                                 measures_sbmkt_frac_data[ind_out])
+
+
+class CodesBPSTest(unittest.TestCase, CommonMethods, Constants):
+    """Test the operation of the 'process_codes_bps' function.
+
+    Verify that the function correctly processes and applies code/BPS provisions by adjusting input
+    Measure market data and creating new code/BPS Measures with market data to reflect the impacts
+    of these policies.
+
+    Attributes:
+        opts (object): User option settings for the run module.
+        hv_code_bps (object): Useful variables across the class.
+        test_adopt_scheme_code_bps (str): Test adoption scheme.
+        start_meas (list): Initial Measure objects to postprocess code/BPS impacts for.
+        sample_msegs_sf_data (dict): Sample square footage data to use in developing EUI benchmarks.
+        start_meas_out (dict): Outputs for initial Measures after code/BPS postprocessing.
+        code_bps_meas_out (dict): Outputs for code/BPS Measures after code/BPS postprocessing.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Define objects/variables for use across all class functions."""
+        cls.opts = NullOpts().opts
+        cls.hv_code_bps = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts, brkout="detail",
+                                         regions="State", state_appl_regs=None, codes="reference",
+                                         bps="reference")
+        # Adjust to test years
+        cls.hv_code_bps.aeo_years = ["2009", "2010"]
+        # Set cost conversions to 1
+        cls.hv_code_bps.cost_convert = {"stock": 1, "energy": 1, "carbon": 1}
+        # Adjust out break categories to reflect limited CA large office heating test case, broken
+        # out by electric/non-electric fuel
+        cls.hv_code_bps.out_break_czones = {"CA": ["CA"]}
+        cls.hv_code_bps.out_break_bldgtypes = {
+            "Commercial (Existing)": ["existing", "large office"],
+            "Commercial (New)": ["new", "large office"]}
+        cls.hv_code_bps.out_break_enduses = {"Heating (Equip.)": ["heating"]}
+        cls.hv_code_bps.out_break_fuels = {
+            "Electric": ["electricity"],
+            "Non-Electric": ["natural gas", "distillate", "other fuel"]}
+        # Sample code/BPS policies to represent via handyvars
+        cls.hv_code_bps.codes = [["CA", "Commercial (New)", 50, 0, 75, 2009, 1, "state"]]
+        cls.hv_code_bps.bps = [["CA", "Commercial (Existing)", 20, 75, 2009, 2010, 1, "state"]]
+        # Test max adoption potential case
+        cls.test_adopt_scheme_code_bps = "Max adoption potential"
+        # HP measure breakout information to use across measure data
+        hp_brkout = {
+            "stock": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}}},
+            "energy": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}}},
+            "carbon": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}}},
+            "cost": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                },
+                                "Non-Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                }
+                            }}}}}
+
+        }
+        # Boiler measure breakout information to use across measure data
+        boiler_brkout = {
+            "stock": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}}},
+            "energy": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}}},
+            "carbon": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}}},
+            "cost": {
+                "baseline": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 20,
+                                    "2010": 20
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }}}},
+                "efficient": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}},
+                "savings": {
+                    "CA": {
+                        'Commercial (Existing)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 10,
+                                    "2010": 10
+                                }
+                            }},
+                        'Commercial (New)': {
+                            "Heating (Equip.)": {
+                                "Electric": {
+                                    "2009": 0,
+                                    "2010": 0
+                                },
+                                "Non-Electric": {
+                                    "2009": 5,
+                                    "2010": 5
+                                }
+                            }}}}}
+
+        }
+        # Sample measure data; test a case with a HP fuel switching measure at minimum efficiency
+        # that competes with a gas boiler
+        start_meas = [{
+            "name": "sample FS measure codes BPS",
+            "climate_zone": ["CA"],
+            "bldg_type": ["large office"],
+            "structure_type": ["new", "existing"],
+            "end_use": {"primary": ["heating"], "secondary": None},
+            "fuel_type": {"primary": ["natural gas"], "secondary": None},
+            "fuel_switch_to": "electricity",
+            "backup_fuel_fraction": None,
+            "technology": ["gas_boiler"],
+            "technology_type": {"primary": "supply", "secondary": None},
+            "tech_switch_to": "ASHP",
+            "market_entry_year": 2009,
+            "market_exit_year": None,
+            "min_eff_elec_flag": True,
+            "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False, "alt_regions": "State",
+                         "bps": "reference", "bps_comply_com": 1,
+                         "codes": "reference", "code_comply_com": 1},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_out_break": hp_brkout},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_out_break": hp_brkout}}},
+            {
+            "name": "sample furnace measure codes bps",
+            "climate_zone": ["CA"],
+            "bldg_type": ["large office"],
+            "structure_type": ["new", "existing"],
+            "end_use": {"primary": ["heating"], "secondary": None},
+            "fuel_type": {"primary": ["natural gas"], "secondary": None},
+            "fuel_switch_to": "electricity",
+            "backup_fuel_fraction": None,
+            "technology": ["gas_boiler"],
+            "technology_type": {"primary": "supply", "secondary": None},
+            "tech_switch_to": None,
+            "market_entry_year": 2009,
+            "market_exit_year": None,
+            "min_eff_elec_flag": None,
+            "yrs_on_mkt": ["2009", "2010"],
+            "usr_opts": {"exog_hp_rates": False, "alt_regions": "State",
+                         "bps": "reference", "bps_comply_com": 1,
+                         "codes": "reference", "code_comply_com": 1},
+            "markets": {
+                "Technical potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 20, "2010": 20},
+                                "measure": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 40, "2010": 40},
+                                "efficient": {"2009": 30, "2010": 30}},
+                            "competed": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 60, "2010": 60},
+                                "efficient": {"2009": 40, "2010": 40}},
+                            "competed": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 10, "2010": 10}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 60, "2010": 60},
+                                    "efficient": {"2009": 40, "2010": 40}},
+                                "competed": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 10, "2010": 10}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_out_break": boiler_brkout},
+                "Max adoption potential": {
+                    "master_mseg": {
+                        "stock": {
+                            "total": {
+                                "all": {"2009": 10, "2010": 10},
+                                "measure": {"2009": 10, "2010": 10}},
+                            "competed": {
+                                "all": {"2009": 5, "2010": 5},
+                                "measure": {"2009": 5, "2010": 5}}},
+                        "energy": {
+                            "total": {
+                                "baseline": {"2009": 20, "2010": 20},
+                                "efficient": {"2009": 15, "2010": 15}},
+                            "competed": {
+                                "baseline": {"2009": 10, "2010": 10},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "carbon": {
+                            "total": {
+                                "baseline": {"2009": 30, "2010": 30},
+                                "efficient": {"2009": 20, "2010": 20}},
+                            "competed": {
+                                "baseline": {"2009": 15, "2010": 15},
+                                "efficient": {"2009": 5, "2010": 5}}},
+                        "cost": {
+                            "stock": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "energy": {
+                                "total": {
+                                    "baseline": {"2009": 10, "2010": 10},
+                                    "efficient": {"2009": 5, "2010": 5}},
+                                "competed": {
+                                    "baseline": {"2009": 5, "2010": 5},
+                                    "efficient": {"2009": 1, "2010": 1}}},
+                            "carbon": {
+                                "total": {
+                                    "baseline": {"2009": 30, "2010": 30},
+                                    "efficient": {"2009": 20, "2010": 20}},
+                                "competed": {
+                                    "baseline": {"2009": 15, "2010": 15},
+                                    "efficient": {"2009": 5, "2010": 5}}}},
+                        "lifetime": {"baseline": {"2009": 1, "2010": 1},
+                                     "measure": 1}},
+                    "mseg_out_break": boiler_brkout}}}]
+        # Instantiate test measure objects
+        cls.start_meas = [run.Measure(cls.hv_code_bps, **x) for x in start_meas]
+        # Set test savings data for measures (in a normal run, this would be calculated as part of
+        # the measure competition and is required later in the code/BPS postprocessing)
+        for m in cls.start_meas:
+            m.savings[cls.test_adopt_scheme_code_bps]["competed"] = {
+                "stock": {
+                    "cost savings": {"2009": 5, "2010": 5}},
+                "energy": {
+                    "savings": {"2009": 10, "2010": 10},
+                    "cost savings": {"2009": 5, "2010": 5}},
+                "carbon": {
+                    "savings": {"2009": 20, "2010": 20},
+                    "cost savings": {"2009": 20, "2010": 20}}
+                }
+
+        # Set sample square footage data; this is used to normalize summed energy data to EUIs
+        # for the purposes of comparing the collective EUI of the measure set against some
+        # benchmark year EUI, as is done to assess most BPS targets
+        cls.sample_msegs_sf_data = {
+            "CA": {
+                "large office": {
+                    "total square footage": {"2009": 100, "2010": 100},
+                    "new square footage": {"2009": 10, "2010": 10}
+                }
+
+            }
+        }
+        # Set the outputs that should be generated at the highest level of market resolution for
+        # both the initial two measures and the code/BPS measures that will be generated via
+        # the postprocessing function
+        cls.start_meas_out = [{
+            "baseline": {"2009": 37.5, "2010": 32.5},
+            "efficient": {"2009": 27.5, "2010": 22.5}}, {
+            "baseline": {"2009": 15.625, "2010": 9.125},
+            "efficient": {"2009": 10.625, "2010": 4.125}}]
+        cls.code_bps_meas_out = [{
+            "baseline": {"2009": 6.875, "2010": 6.875},
+            "efficient": {"2009": 2.5, "2010": 2.5}}, {
+            "baseline": {"2009": 0, "2010": 11.5},
+            "efficient": {"2009": 0, "2010": 2}}]
+
+    def test_code_bps_postprocess(self):
+        """Test for correct function output given valid input."""
+
+        # Generate an engine object with the initial sample measures. Take the measure markets
+        # in for further code/BPS adjustments "as-is" (in practice, they would be adjusted for
+        # competition first)
+        a_run_codes_bps = run.Engine(self.hv_code_bps, self.opts, self.start_meas,
+                                     energy_out=["fossil_equivalent", "NA", "NA", "NA", "NA"],
+                                     brkout="basic")
+        # Shorthand for the code/BPS measure objects that are generated via the tested function
+        code_bps_meas_out = a_run_codes_bps.process_codes_bps(
+            self.test_adopt_scheme_code_bps, self.sample_msegs_sf_data, self.hv_code_bps,
+            verboseprint=None, trim_yrs=False, code_comply_res=1, code_comply_com=1,
+            bps_comply_res=1, bps_comply_com=1)
+
+        # Check the outputs of all measures
+
+        # Check that initial measure market data has been properly adjusted for code/BPS
+        for ind_start_meas in range(len(self.start_meas_out)):
+            self.dict_check(self.start_meas_out[ind_start_meas],
+                            a_run_codes_bps.measures[ind_start_meas].markets[
+                self.test_adopt_scheme_code_bps]["competed"]["master_mseg"]["energy"]["total"])
+        # Check that newly-generated code/BPS measure market data are correct
+        for ind_code_bps in range(len(code_bps_meas_out)):
+            self.dict_check(self.code_bps_meas_out[ind_code_bps], code_bps_meas_out[
+                ind_code_bps].markets[self.test_adopt_scheme_code_bps]["master_mseg"][
+                "energy"]["total"])
 
 
 # Offer external code execution (include all lines below this point in all
