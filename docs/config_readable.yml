@@ -53,13 +53,20 @@ ecm_prep:
     for specified packages will automatically be prepared regardless
     of their presence in the `ecm_directory`, `ecm_files`, and/or
     `ecm_files_regex` arguments. Default []
+  elec_upgrade_costs: (string) Determine how to assign (or not)
+    electrical infastructure upgrade costs. Allowed values are
+    {all, ignore, shares, null}. Default shares
   exog_hp_rates:
-    exog_hp_rate_scenario: (string) Guidehouse E3HP conversion
-      scenario to use for exogenous HP rates. Allowed values are
-      {aggressive, conservative, most aggressive, optimistic,
-      null}. Default null
-    switch_all_retrofit_hp: (boolean) If true, assume all retrofits
-      convert to heat pumps, otherwise, retrofits are subject
+    exog_hp_rate_scenario: (string) Conversion scenario to use
+      for exogenous rates of conversion to HPs/electric equipment.
+      May be drawn from legacy Guidehouse ('gh-') conversion scenarios
+      or scenario(s) that were produced via endogenously running
+      measure competition and pulling out conversion rates from
+      results. Allowed values are {bss-brk, gh-aggressive, gh-conservative,
+      gh-most aggressive, gh-optimistic, null}. Default null
+    switch_all_retrofit_hp: (boolean) Only relevant to Guidehouse
+      scenarios. If true, assume all retrofits convert to heat
+      pumps/electric alternative, otherwise, retrofits are subject
       to the same external heat pump conversion rates assumed
       for new/replacement decisions. Only applicable if `exog_hp_rate_scenario`
       and `retrofit_type` are defined. Default False
@@ -107,6 +114,18 @@ ecm_prep:
       sub-federal electric, null}. Default null
   no_eff_capt: (boolean) If true, suppress reporting of ECM-captured
     efficient energy use. Default False
+  no_lnkd_costs:
+    no_lnkd_op_costs: (boolean) For measures that span heating
+      or cooling and other end uses, count operating costs for
+      only the anchor end use (rather than all end uses) in representing
+      competition w/ other measures (default anchor is heating).
+      Default False
+    no_lnkd_stk_costs: (string) For measures that span heating
+      or cooling and other end uses, count stock costs for only
+      the anchor end use (rather than all end uses) in representing
+      competition w/ other measures (default anchor is heating).
+      Allowed values are {in_adopt_and_report, in_adopt_only,
+      null}. Default null
   no_scnd_lgt: (boolean) If true, disable the calculation of secondary
     heating and cooling energy effects from changes in lighting
     efficacy. Default False
@@ -226,3 +245,6 @@ run:
     variables is reported. Default False
   verbose: (boolean) If true, print all warnings to stdout. Default
     False
+  write_hp_conv_fracs: (boolean) If true, writes out rates of
+    conversions to electric heat pump equipment for any non-heat
+    pump equipment. Default False

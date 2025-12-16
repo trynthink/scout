@@ -213,6 +213,8 @@ class UsefulInputFiles(object):
         aia_altreg_map (tuple): Maps AIA climates to EMM regions or states.
         state_emm_map (tuple): Maps states to EMM regions.
         state_aia_map (tuple): Maps states to AIA regions.
+        htcl_totals (tuple): Heating/cooling energy totals by climate zone,
+            building type, and structure type.
         metadata (str) = Baseline metadata inc. min/max for year range.
         glob_vars (str) = Global settings from ecm_prep to use later in run
         cost_convert_in (tuple): Database of measure cost unit conversions.
@@ -262,6 +264,9 @@ class UsefulInputFiles(object):
             data to asses fugitive emissions sources.
         incentives (tuple): Settings to modify federal and state measure incentives.
         rates (tuple): Settings to represent rate structures that support electric heating.
+        local_cost_adj (tuple): State-level cost adjustment indices from RSMeans 2021.
+        panel_shares (tuple): State-level shares of single family homes that require or do not
+            require panel upgrades when switching away from existing gas furnace.
     """
 
     def __init__(self, opts):
@@ -276,6 +281,21 @@ class UsefulInputFiles(object):
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_AIA_ColSums.txt"
             self.state_aia_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_RowSums.txt"
             self.tsv_load_data = None
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
         elif opts.alt_regions == 'EMM':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
@@ -285,6 +305,21 @@ class UsefulInputFiles(object):
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_EMM_ColSums.txt"
             self.state_emm_map = fp.CONVERT_DATA / "geo_map" / "EMM_State_RowSums.txt"
             self.tsv_load_data = fp.TSV_DATA / "tsv_load_EMM.gz"
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_emm.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_emm.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm.json"
         elif opts.alt_regions == 'State':
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
@@ -292,6 +327,21 @@ class UsefulInputFiles(object):
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_State_ColSums.txt"
             self.ba_reg_map = fp.CONVERT_DATA / "geo_map" / "BA_State_ColSums.txt"
             self.tsv_load_data = fp.TSV_DATA / "tsv_load_State.gz"
+            # Set heating/cooling energy totals file conditional on: 1)
+            # regional breakout used, and 2) whether site energy data, source
+            # energy data (fossil equivalent site-source conversion), or source
+            # energy data (captured energy site-source conversion) are needed
+            if opts.site_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-site_state.json"
+            elif opts.captured_energy is not False:
+                self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals-ce_state.json"
+            else:
+                # Further condition the file based on whether a high grid
+                # decarb case has been selected by the user
+                if opts.grid_decarb_level:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
+                else:
+                    self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
         else:
             raise ValueError(
                 "Unsupported regional breakout (" + opts.alt_regions + ")")
@@ -326,6 +376,8 @@ class UsefulInputFiles(object):
         self.backup_fuel_data = fp.ECM_DEF / "energyplus_data" / "dual_fuel_ratios"
         self.incentives = fp.SUB_FED / "incentives.csv"
         self.low_volume_rate = fp.SUB_FED / "rates.csv"
+        self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
+        self.panel_shares = fp.INPUTS / 'panel_shares.csv'
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -458,11 +510,15 @@ class UsefulVars(object):
         com_timeprefs (dict): Commercial adoption time preference premiums.
         hp_rates (dict): Exogenous rates of conversions from baseline
             equipment to heat pumps, if applicable.
-        link_htcl_tover_anchor_tech_opts = For measures that apply to separate
+        htcl_anchor_tech_opts (dict): For measures that apply to separate
             heating and cooling technologies, stock turnover and exogenous
             switching rates will be anchored on whichever technology in the
             measure's definition appears first in the lists in this dict,
             given the anchor end use above and applicable bldg. type (res/com)
+        htcl_linked_unitcosts (dict): For measures that apply to separate
+            heating and cooling technologies, this dict determines which
+            linked tech. should serve as the basis for determining linked unit costs
+            (e.g., furnace + central AC when central AC and room AC are both in measure)
         fug_emissions (dict): Refrigerant leakage data and supply chain
             methane data to support assessments of fugitive emissions.
         in_all_map (dict): Maps any user-defined measure inputs marked 'all' to
@@ -477,6 +533,8 @@ class UsefulVars(object):
             the end use categories used in summarizing measure outputs.
         out_break_eus_w_fsplits (List): List of end use categories that
             would potentially apply across multiple fuels.
+        detailed_fuel_map (List): Detailed fuel split categories.
+        simple_fuel_map (List): Simple fuel split categories.
         out_break_fuels (OrderedDict): Maps measure fuel types to electric vs.
             non-electric fuels (for heating, cooling, WH, and cooking).
         out_break_in (OrderedDict): Breaks out key measure results by
@@ -492,8 +550,9 @@ class UsefulVars(object):
         com_eqp_eus_nostk (list): Flags commercial equipment end uses for
             which no service demand data (which are used to represent com.
             "stock") are available and square footage should be used for stock.
-        res_lts_per_home (list): RECS 2015 Table HC5.1 number of lights per
-            household, by building type, used to get from $/home to $/bulb
+        res_units_per_home (list): RECS 2020 Table HC5.1 number of units per
+            household, by end use and building type, used to get from e.g., $/home to $/bulb
+            (lighting) or $/heating unit to $/customer (heating).
         cconv_tech_mltstage_map (dict): Maps measure cost units to cost
             conversion dict keys for demand-side heating/cooling
             technologies and controls technologies requiring multiple
@@ -538,9 +597,15 @@ class UsefulVars(object):
         env_heat_ls_scrn (tuple): Envelope heat gains to screen out of time-
             sensitive valuation for heating (no load shapes for these gains).
         skipped_ecms (int): List of names for ECMs skipped due to errors.
-        save_shp_warn (list): Tracks missing savings shape error history.
+        htcl_totals (dict): Heating/cooling energy totals by climate zone,
+            building type, and structure type.
         incentives (list): List of modifications to make to AEO incentive levels.
         rates (list): List of alternate rate structures to use for electric equipment.
+        panel_shares (dict): State-specific shares of single family homes with gas equipment that
+            would require a panel upgrade if switching to min. efficiency electric equipment.
+        elec_infr_costs (dict): Electrical infrastructure costs to add when fuel switching equipment
+            to electricity.
+        alt_panel_names (list): Panel upgrade requirement info. to append to tech. names.
     """
 
     def __init__(self, base_dir, handyfiles, opts):
@@ -569,7 +634,6 @@ class UsefulVars(object):
         self.full_dat_out = {
             a_s: (True if a_s in self.adopt_schemes_run else False)
             for a_s in self.adopt_schemes_prep}
-
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
@@ -676,6 +740,21 @@ class UsefulVars(object):
         except ValueError as e:
             raise ValueError(
                 f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
+        # If states are used, read in state-level cost adjustment data
+        if self.regions == "State":
+            # Read in adjustment factors
+            reg_cost_adj_array = pd.read_csv(handyfiles.local_cost_adj)
+            # Store factors for each state and building type (res/com) in a dict for
+            # efficient access subsequently
+            self.reg_cost_adj = {}
+            for row in reg_cost_adj_array.index:
+                # Dict is organized by state and building type (res/com) levels
+                self.reg_cost_adj[reg_cost_adj_array.loc[row, "state"]] = {
+                    bldg: reg_cost_adj_array.loc[row, bldg] for
+                    bldg in ["residential", "commercial"]
+                }
+        else:
+            self.reg_cost_adj = None
         # Read in commercial equipment capacity factors
         self.cap_facts = Utils.load_json(handyfiles.cap_facts)
         # Read in national-level site-source, emissions, and costs data
@@ -942,7 +1021,7 @@ class UsefulVars(object):
 
         # Technology anchor – list order assigns priority for which technology
         # in a measure's definition serves as the anchor
-        self.link_htcl_tover_anchor_tech_opts = {
+        self.htcl_anchor_tech_opts = {
             "residential": {
                 "heating": [
                     "resistance heat", "furnace (NG)", "boiler (NG)",
@@ -967,6 +1046,41 @@ class UsefulVars(object):
                     "wall-window_room_AC"]
             }
         }
+        # List order assigns priority for linked end use techs that should be paired
+        # with anchor end use techs for the purposes of calculating unit-level stock and
+        # operating costs for competition
+        self.htcl_linked_unitcosts = {
+            "residential": {
+                "resistance heat": ["central AC", "room AC"],
+                "furnace (NG)": ["central AC", "room AC"],
+                "boiler (NG)": ["central AC", "room AC"],
+                "furnace (distillate)": ["central AC", "room AC"],
+                "boiler (distillate)": ["central AC", "room AC"],
+                "furnace (LPG)": ["central AC", "room AC"],
+                "furnace (kerosene)": ["central AC", "room AC"],
+                "stove (wood)": ["central AC", "room AC"],
+                "ASHP": ["ASHP"],
+                "GSHP": ["GSHP"],
+                "NGHP": ["NGHP"]
+            },
+            "commercial": {
+                "elec_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                                "screw_chiller", "scroll_chiller"],
+                "electric_res-heat": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
+                "elec_res-heater": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
+                "gas_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                               "screw_chiller", "scroll_chiller"],
+                "gas_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
+                "oil_boiler": ["reciprocating_chiller", "centrifugal_chiller",
+                               "screw_chiller", "scroll_chiller"],
+                "oil_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
+                "rooftop_ASHP-heat": ["rooftop_ASHP-cool"],
+                "pkg_terminal_HP-heat": ["pkg_terminal_HP-cool"],
+                "comm_GSHP-heat": ["comm_GSHP-cool"],
+                "gas_eng-driven_RTHP-heat": ["gas_eng-driven_RTHP-cool"],
+                "res_type_gasHP-heat": ["res_type_gasHP-cool"]
+            }
+            }
 
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
@@ -1342,7 +1456,8 @@ class UsefulVars(object):
                                 'private branch exchanges',
                                 'voice-over-IP telecom',
                                 'point-of-sale systems', 'warehouse robots',
-                                'televisions', 'telecom systems', 'other'
+                                'televisions',  'water services',
+                                'telecom systems', 'other'
                             ],
                             'lighting': [
                                 '100W A19 Incandescent',
@@ -1517,6 +1632,7 @@ class UsefulVars(object):
                     'food service', 'health care', 'mercantile/service',
                     'lodging', 'large office', 'small office', 'warehouse',
                     'other', 'unspecified'])])
+
         self.out_break_enduses = OrderedDict([
             ('Heating (Equip.)', ["heating", "secondary heating"]),
             ('Cooling (Equip.)', ["cooling"]),
@@ -1609,10 +1725,20 @@ class UsefulVars(object):
         self.com_eqp_eus_nostk = [
             "PCs", "non-PC office equipment", "MELs", "other",
             "unspecified"]
-        self.res_lts_per_home = {
-            "single family home": 36,
-            "multi family home": 15,
-            "mobile home": 19
+        # For lighting, take the upper bound on each bin of # of lights in the RECS HC5.1 data
+        # and do a weighted sum of portion of homes reporting that bin. For heating, use the
+        # AEO23 residential microtables to find number of primary heating units by building type
+        # and normalize by the number of homes by building type (account for division of ASHP and
+        # GSHP heating stock by 2 in the summary tables)
+        self.res_units_per_home = {
+            "lighting": {
+                "single family home": 8,
+                "multi family home": 6,
+                "mobile home": 6},
+            "heating": {
+                "single family home": 1.13,
+                "multi family home": 0.99,
+                "mobile home": 1.06}
         }
         # Set missing technology choice parameters for each of the Scout end uses
         # Note: Uses AEO choice coefficients for representative techs in each end use where
@@ -1640,7 +1766,7 @@ class UsefulVars(object):
                 "water heating": [-0.00250, -0.03841],  # typical gas WH
                 "cooking": [-0.00106, -0.01629],  # typical gas stove
                 "drying": [-0.00636, -0.09780],   # typical gas dryer
-                "other": [-0.00106, -0.01629]  # typical gas stove (fossil other incls. gas grills)
+                "other": [-0.00017, -0.00263]  # typical gas furnace
             }
         }
 
@@ -1928,6 +2054,15 @@ class UsefulVars(object):
         self.env_heat_ls_scrn = (
             "windows solar", "equipment gain", "people gain",
             "other heat gain", "internal gains")
+        self.skipped_ecms = []
+        # Import total absolute heating and cooling energy use data, used in
+        # calculating overall envelope relative performance for packages
+        with open(handyfiles.htcl_totals, 'r') as msi:
+            try:
+                self.htcl_totals = json.load(msi)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.htcl_totals)
         # Import/finalize input data on federal or sub-federal incentive level modifications
         # if state regions are used
         state_vars = ["incentives", "low_volume_rate"]
@@ -1936,8 +2071,36 @@ class UsefulVars(object):
         else:
             for k in state_vars:
                 setattr(self, k, None)
-        self.skipped_ecms = []
         self.save_shp_warn = []
+        # When states are used and consideration for panel share data not suppressed, import shares
+        if opts.alt_regions == "State" and opts.elec_upgrade_costs not in ["all", "ignore"]:
+            try:
+                panel_shares_csv = pd.read_csv(handyfiles.panel_shares)
+            except ValueError:
+                raise ValueError(
+                    "Error reading in '" + handyfiles.panel_shares)
+            # Initialize final dict of panel shares data, using df values to set keys
+            self.panel_shares = {reg: {var: {fuel: {
+                scenario: {} for scenario in panel_shares_csv["scenario"].unique()} for
+                fuel in panel_shares_csv["heating_fuel"].unique()} for
+                var in panel_shares_csv["variable"].unique()} for
+                reg in panel_shares_csv["region"].unique()}
+            for index, row in panel_shares_csv.iterrows():
+                self.panel_shares[row["region"]][row["variable"]][
+                    row["heating_fuel"]][row["scenario"]] = {
+                    "no panel": row["no_replacement"],
+                    "panel": row["replacement"],
+                    "management": row["management"]
+                }
+        else:
+            self.panel_shares = None
+
+        self.elec_infr_costs = {
+            "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
+            "panel management": 475,  # BENEFIT panels cost data, averaged across regions
+            "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
+        }
+        self.alt_panel_names = ["-no panel", "-manage"]
 
     def import_state_data(self, handyfiles, state_vars, valid_regions, opts):
         """Import and further prepare sub-federal adoption driver data.
@@ -1967,218 +2130,216 @@ class UsefulVars(object):
             try:
                 # Read in input-specific data
                 state_econ_dat = pd.read_csv(getattr(handyfiles, k))
+                # Filter by scenarios
+                state_econ_dat = state_econ_dat[state_econ_dat["scenario"] == scn_name]
+                # Remove scenario column from df
+                state_econ_dat = state_econ_dat.drop("scenario", axis=1)
+                # Initialize segment-specific list of state-level inputs
+                state_dat_init = []
+                # Loop through and finalize all rows in the data
+                for index, row in state_econ_dat.iterrows():
+                    # Set applicable state(s), building type(s), and vintage(s)
+                    state, bldg, vint = [
+                        [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
+                        for x in row.values[1:4]]
+                    # Set start and end years and applicability fraction
+                    start_yr, end_yr, apply_frac = [
+                        [row.values[-4]], [row.values[-3]], [row.values[-2]]]
+                    # Finalize applicability fraction if it is blank in the data
+                    if numpy.isnan(apply_frac):
+                        apply_frac = [1]
+                    # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
+                    # included in the USCA but not currently run in Scout simulations, add in
+                    # subsequently) or a row that applies to all states
+                    if len(state) == 1 and state[0].lower() == "usca":
+                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
+                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                    elif len(state) == 1 and state[0] == "all":
+                        state = valid_regions
+                    # Remove 'unspecified' from building types if present (not supported)
+                    bldg = [x for x in bldg if x != "unspecified"]
+                    # Set flags for the presence of 'all' building entry to fill out
+                    all_bldg_entries = ["all", "all residential", "all commercial"]
+                    # Set lists of all residential and commercial building types (note: this could
+                    # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
+                    # from that module to ensure consistency)
+                    all_res = ["single family home", "multi family home", "mobile home"]
+                    # Note: exclude 'unspecified' from being affected by state-level drivers
+                    all_com = ["assembly", "education", "food sales", "food service",
+                               "health care", "lodging", "large office", "small office",
+                               "mercantile/service", "warehouse", "other"]
+                    # Initialize flags as false for whether or not all res. or com. building types
+                    # need to be filled out
+                    all_res_flag, all_com_flag = (False for n in range(2))
+                    # Loop through all entries in building type input; when encountering an 'all'
+                    # entry for res./com., flag it for further processing
+                    for b_ind, b in enumerate(bldg):
+                        # Flag 'all' building type entries for res./com. separately
+                        if b in ["all", "all residential"]:
+                            all_res_flag = True
+                        elif b in ["all", "all commercial"]:
+                            all_com_flag = True
+                    # Fill out the building types while removing original "all" entries
+                    for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
+                        if flg and ind_flg == 0:
+                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_res
+                        elif flg:
+                            bldg = [b for b in bldg if b not in all_bldg_entries] + all_com
+                    # Fill out 'all' entries for building vintage
+                    if len(vint) == 1 and vint[0] == "all":
+                        vint = ["new", "existing"]
+                    # Set applicable end use, technology, and fuel
+                    eu, tech, fuel = [
+                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                            [y.strip() for y in x.split(",")] if isinstance(x, str)
+                            else [x]) for x in row.values[4:7]]
+                    # Fill out 'all' entries for measure and base fuel type
+                    if len(fuel) == 1 and fuel[0] == "all":
+                        fuel = ["natural gas", "distillate", "other fuel", "electricity"]
+                    elif len(fuel) == 1 and fuel[0] == "all fossil":
+                        fuel = ["natural gas", "distillate", "other fuel"]
+                    # Fill out 'all fossil' entry for end use
+                    if len(eu) == 1 and eu[0] == "all fossil":
+                        eu = ["heating", "water heating", "cooking", "drying", "other"]
+
+                    # Finalize variable-specific inputs
+                    if k == "incentives":
+                        # Set baseline fuel data (e.g., fuel switched from if applicable)
+                        fuel_base = [
+                            [x.strip()] if (isinstance(x, str) and "," not in x) else (
+                                [y.strip() for y in x.split(",")] if isinstance(x, str)
+                                else [x]) for x in row.values[7:8]][0]
+                        # Fill out nan or all entries for base fuel
+                        if len(fuel_base) == 1:
+                            if not isinstance(fuel_base[0], str):
+                                fuel_base = fuel
+                            elif fuel_base[0] == "all":
+                                fuel_base = [
+                                    "natural gas", "distillate", "other fuel", "electricity"]
+                            elif fuel_base[0] == "all fossil":
+                                fuel_base = ["natural gas", "distillate", "other fuel"]
+                        # Set backup fuel allowance (relevant to fuel switching incentives),
+                        # as well as the type of incentives modification (remove, extend, replace),
+                        # the scope of the modification (federal or non-federal incentives mod),
+                        # and, for extensions, the level of increase in incentive to pair w/
+                        # extension
+                        backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
+                        # Finalize flag for backup allowance; blanks or negative tags set to no
+                        if not isinstance(backup, str) or backup in [
+                                "N", "n", "no", "No", "false", "False"]:
+                            backup = ["no"]
+                        else:
+                            backup = ["yes"]
+                        # Finalize type of mod; ensure that modification is tagged correctly
+                        if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
+                            raise ValueError(
+                                "Blank cells not allowed in column 'modification' in "
+                                "file " + handyfiles.incentives + ", row " + str(index) +
+                                ". Set to one of 'remove' 'extend' or 'replace'")
+                        else:
+                            mod = [mod]
+                        # Finalize scope of modification; ensure scope is tagged correctly
+                        if not isinstance(scope, str) or scope not in [
+                                "federal", "non-federal", "all"]:
+                            scope = ["all"]
+                        else:
+                            scope = [scope]
+                        # Finalize ira flag
+                        if not isinstance(ira, str):
+                            ira = [False]
+                        else:
+                            ira = [True]
+                        # Finalize increase on extension as number if it is left blank
+                        if numpy.isnan(increase):
+                            increase = [0]
+                        else:
+                            increase = [increase]
+                        # Set information needed to replace existing incentives: performance level
+                        # and units for replacement, as well as the incentive level to use (either
+                        # a % credit on installed cost or a rebate amount in $)
+                        perf_lev, perf_units, credit, rebate, rebate_units = [
+                            [x] for x in row.values[-9:-4]]
+                        # Pull all parameters together in a master list
+                        params = [
+                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
+                            increase, perf_lev, perf_units, credit, rebate, rebate_units,
+                            start_yr, end_yr, apply_frac]
+                        # For heat pump segments, ensure that if a user has specified incentives
+                        # for one of heating or cooling end uses, the other end use is zeroed out
+                        # (otherwise user-specified HP incentives might be combined with HP
+                        # incentives already in the EIA/Scout baseline)
+                        if any([y in tech[0] for y in ["HP", "all"]]) and any([
+                                x in eu for x in ["heating", "cooling"]]):
+                            # Duplicate the user-specified incentives
+                            dup_params = copy.deepcopy(params)
+                            # For duplicate row, switch information to end use not covered in
+                            # original row (e.g., if heat, switch to cool info., or vice versa)
+                            if "heating" in eu:
+                                # Switch end use
+                                dup_params[3] = ["cooling"]
+                                # Switch technology name (if tech. name indicates heat/cool info.)
+                                if "-heat" in tech[0]:
+                                    dup_params[4] = [tech[0].replace("-heat", "-cool")]
+                                # Switch rebate units (if units indicate heat/cool info.)
+                                if isinstance(rebate_units[0], str) and \
+                                        "heating" in rebate_units[0]:
+                                    dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
+                            else:
+                                dup_params[3] = ["heating"]
+                                if "-cool" in tech[0]:
+                                    dup_params[4] = [tech[0].replace("-cool", "-heat")]
+                                if isinstance(rebate_units[0], str) and \
+                                        "cooling" in rebate_units[0]:
+                                    dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
+                            # Zero out all incentives in the duplicate row
+                            dup_params[-5], dup_params[-6] = ([0] for n in range(2))
+                        else:
+                            dup_params = []
+                    elif k == "low_volume_rate":
+                        # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
+                        # and added fixed costs (annual, if applicable).
+                        # **** NOTE that currently, fixed costs are read in as a placeholder,
+                        # but not further used below since they affect the whole electricity bill
+                        # and can't be directly attributed to a specific measure *****
+                        vol_abs, vol_rel, fix_add = [[x] for x in row.values[7:10]]
+                        # Handle blank cells for each of the above
+                        if numpy.isnan(vol_abs[0]):
+                            vol_abs = [False]
+                        elif numpy.isnan(vol_rel[0]):
+                            vol_rel = [False]
+                        else:
+                            raise ValueError(
+                                "Pick either absolute OR relative volumetric rate reduction "
+                                " in file " + handyfiles.rates + "; both cannot be used but are "
+                                "present in row " + str(index) + ".")
+                        if numpy.isnan(fix_add[0]):
+                            fix_add[0] = [0]
+                        # Pull all parameters together in a master list
+                        params = [
+                            state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
+                            start_yr, end_yr, apply_frac]
+                        # No need to duplicate rows for this driver (see for incentives above)
+                        dup_params = []
+                    else:
+                        raise ValueError("Unexpected sub-federal input type '" + k + "'")
+
+                    # Iterate all expanded parameter info. into a list of lists with every
+                    # possible combination of each parameter
+                    iterable = list(map(list, itertools.product(*params)))
+                    # Further iterate all duplicated parameter info. when one heating or cooling
+                    # end use for heat pump incentives is provided and the other end use needs to
+                    # be zeroed out
+                    if len(dup_params) > 0:
+                        dup_iterable = list(map(list, itertools.product(*dup_params)))
+                        iterable.extend(dup_iterable)
+
+                    # Update segment/row-specific list of state-level inputs and reset attribute
+                    state_dat_init.extend(iterable)
+                setattr(self, k, state_dat_init)
+
             except FileNotFoundError:
                 # Set segment-specific list of state-level inputs to empty list
                 setattr(self, k, [])
-                # Continue to next adoption input if no data are found
-                continue
-
-            # Filter by scenarios
-            state_econ_dat = state_econ_dat[state_econ_dat["scenario"] == scn_name]
-            # Remove scenario column from df
-            state_econ_dat = state_econ_dat.drop("scenario", axis=1)
-            # Initialize segment-specific list of state-level inputs
-            state_dat_init = []
-            # Loop through and finalize all rows in the data
-            for index, row in state_econ_dat.iterrows():
-                # Set applicable state(s), building type(s), and vintage(s)
-                state, bldg, vint = [
-                    [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                    for x in row.values[1:4]]
-                # Set start and end years and applicability fraction
-                start_yr, end_yr, apply_frac = [
-                    [row.values[-4]], [row.values[-3]], [row.values[-2]]]
-                # Finalize applicability fraction if it is blank in the data
-                if numpy.isnan(apply_frac):
-                    apply_frac = [1]
-                # Check for bundle of U.S. Climate Alliance (UCSA) states (note that HI is
-                # included in the USCA but not currently run in Scout simulations, add in
-                # subsequently) or a row that applies to all states
-                if len(state) == 1 and state[0].lower() == "usca":
-                    state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
-                             "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
-                elif len(state) == 1 and state[0] == "all":
-                    state = valid_regions
-                # Remove 'unspecified' from building types if present (not supported)
-                bldg = [x for x in bldg if x != "unspecified"]
-                # Set flags for the presence of 'all' building entry to fill out
-                all_bldg_entries = ["all", "all residential", "all commercial"]
-                # Set lists of all residential and commercial building types (note: this could
-                # eventually be set as a UsefulVars() attribute in ecm_prep and pulled
-                # from that module to ensure consistency)
-                all_res = ["single family home", "multi family home", "mobile home"]
-                # Note: exclude 'unspecified' from being affected by state-level drivers
-                all_com = ["assembly", "education", "food sales", "food service",
-                           "health care", "lodging", "large office", "small office",
-                           "mercantile/service", "warehouse", "other"]
-                # Initialize flags as false for whether or not all res. or com. building types
-                # need to be filled out
-                all_res_flag, all_com_flag = (False for n in range(2))
-                # Loop through all entries in building type input; when encountering an 'all'
-                # entry for res./com., flag it for further processing
-                for b_ind, b in enumerate(bldg):
-                    # Flag 'all' building type entries for res./com. separately
-                    if b in ["all", "all residential"]:
-                        all_res_flag = True
-                    elif b in ["all", "all commercial"]:
-                        all_com_flag = True
-                # Fill out the building types while removing original "all" entries
-                for ind_flg, flg in enumerate([all_res_flag, all_com_flag]):
-                    if flg and ind_flg == 0:
-                        bldg = [b for b in bldg if b not in all_bldg_entries] + all_res
-                    elif flg:
-                        bldg = [b for b in bldg if b not in all_bldg_entries] + all_com
-                # Fill out 'all' entries for building vintage
-                if len(vint) == 1 and vint[0] == "all":
-                    vint = ["new", "existing"]
-                # Set applicable end use, technology, and fuel
-                eu, tech, fuel = [
-                    [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                        [y.strip() for y in x.split(",")] if isinstance(x, str)
-                        else [x]) for x in row.values[4:7]]
-                # Fill out 'all' entries for measure and base fuel type
-                if len(fuel) == 1 and fuel[0] == "all":
-                    fuel = ["natural gas", "distillate", "other fuel", "electricity"]
-                elif len(fuel) == 1 and fuel[0] == "all fossil":
-                    fuel = ["natural gas", "distillate", "other fuel"]
-                # Fill out 'all fossil' entry for end use
-                if len(eu) == 1 and eu[0] == "all fossil":
-                    eu = ["heating", "water heating", "cooking", "drying", "other"]
-
-                # Finalize variable-specific inputs
-                if k == "incentives":
-                    # Set baseline fuel data (e.g., fuel switched from if applicable)
-                    fuel_base = [
-                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                            [y.strip() for y in x.split(",")] if isinstance(x, str)
-                            else [x]) for x in row.values[7:8]][0]
-                    # Fill out nan or all entries for base fuel
-                    if len(fuel_base) == 1:
-                        if not isinstance(fuel_base[0], str):
-                            fuel_base = fuel
-                        elif fuel_base[0] == "all":
-                            fuel_base = [
-                                "natural gas", "distillate", "other fuel", "electricity"]
-                        elif fuel_base[0] == "all fossil":
-                            fuel_base = ["natural gas", "distillate", "other fuel"]
-                    # Set backup fuel allowance (relevant to fuel switching incentives),
-                    # as well as the type of incentives modification (remove, extend, replace),
-                    # the scope of the modification (federal or non-federal incentives mod),
-                    # and, for extensions, the level of increase in incentive to pair w/
-                    # extension
-                    backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
-                    # Finalize flag for backup allowance; blanks or negative tags set to no
-                    if not isinstance(backup, str) or backup in [
-                            "N", "n", "no", "No", "false", "False"]:
-                        backup = ["no"]
-                    else:
-                        backup = ["yes"]
-                    # Finalize type of mod; ensure that modification is tagged correctly
-                    if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
-                        raise ValueError(
-                            "Blank cells not allowed in column 'modification' in "
-                            "file " + handyfiles.incentives + ", row " + str(index) +
-                            ". Set to one of 'remove' 'extend' or 'replace'")
-                    else:
-                        mod = [mod]
-                    # Finalize scope of modification; ensure scope is tagged correctly
-                    if not isinstance(scope, str) or scope not in [
-                            "federal", "non-federal", "all"]:
-                        scope = ["all"]
-                    else:
-                        scope = [scope]
-                    # Finalize ira flag
-                    if not isinstance(ira, str):
-                        ira = [False]
-                    else:
-                        ira = [True]
-                    # Finalize increase on extension as number if it is left blank
-                    if numpy.isnan(increase):
-                        increase = [0]
-                    else:
-                        increase = [increase]
-                    # Set information needed to replace existing incentives: performance level
-                    # and units for replacement, as well as the incentive level to use (either
-                    # a % credit on installed cost or a rebate amount in $)
-                    perf_lev, perf_units, credit, rebate, rebate_units = [
-                        [x] for x in row.values[-9:-4]]
-                    # Pull all parameters together in a master list
-                    params = [
-                        state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
-                        increase, perf_lev, perf_units, credit, rebate, rebate_units,
-                        start_yr, end_yr, apply_frac]
-                    # For heat pump segments, ensure that if a user has specified incentives
-                    # for one of heating or cooling end uses, the other end use is zeroed out
-                    # (otherwise user-specified HP incentives might be combined with HP
-                    # incentives already in the EIA/Scout baseline)
-                    if any([y in tech[0] for y in ["HP", "all"]]) and any([
-                            x in eu for x in ["heating", "cooling"]]):
-                        # Duplicate the user-specified incentives
-                        dup_params = copy.deepcopy(params)
-                        # For duplicate row, switch information to end use not covered in
-                        # original row (e.g., if heat, switch to cool info., or vice versa)
-                        if "heating" in eu:
-                            # Switch end use
-                            dup_params[3] = ["cooling"]
-                            # Switch technology name (if tech. name indicates heat/cool info.)
-                            if "-heat" in tech[0]:
-                                dup_params[4] = [tech[0].replace("-heat", "-cool")]
-                            # Switch rebate units (if units indicate heat/cool info.)
-                            if isinstance(rebate_units[0], str) and \
-                                    "heating" in rebate_units[0]:
-                                dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
-                        else:
-                            dup_params[3] = ["heating"]
-                            if "-cool" in tech[0]:
-                                dup_params[4] = [tech[0].replace("-cool", "-heat")]
-                            if isinstance(rebate_units[0], str) and \
-                                    "cooling" in rebate_units[0]:
-                                dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
-                        # Zero out all incentives in the duplicate row
-                        dup_params[-5], dup_params[-6] = ([0] for n in range(2))
-                    else:
-                        dup_params = []
-                elif k == "low_volume_rate":
-                    # Set volumetric rate reduction (absolute in cents/kWh or relative in %)
-                    # and added fixed costs (annual, if applicable).
-                    # **** NOTE that currently, fixed costs are read in as a placeholder,
-                    # but not further used below since they affect the whole electricity bill
-                    # and can't be directly attributed to a specific measure *****
-                    vol_abs, vol_rel, fix_add = [[x] for x in row.values[7:10]]
-                    # Handle blank cells for each of the above
-                    if numpy.isnan(vol_abs[0]):
-                        vol_abs = [False]
-                    elif numpy.isnan(vol_rel[0]):
-                        vol_rel = [False]
-                    else:
-                        raise ValueError(
-                            "Pick either absolute OR relative volumetric rate reduction "
-                            " in file " + handyfiles.rates + "; both cannot be used but are "
-                            "present in row " + str(index) + ".")
-                    if numpy.isnan(fix_add[0]):
-                        fix_add[0] = [0]
-                    # Pull all parameters together in a master list
-                    params = [
-                        state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
-                        start_yr, end_yr, apply_frac]
-                    # No need to duplicate rows for this driver (see for incentives above)
-                    dup_params = []
-                else:
-                    raise ValueError("Unexpected sub-federal input type '" + k + "'")
-
-                # Iterate all expanded parameter info. into a list of lists with every
-                # possible combination of each parameter
-                iterable = list(map(list, itertools.product(*params)))
-                # Further iterate all duplicated parameter info. when one heating or cooling
-                # end use for heat pump incentives is provided and the other end use needs to
-                # be zeroed out
-                if len(dup_params) > 0:
-                    dup_iterable = list(map(list, itertools.product(*dup_params)))
-                    iterable.extend(dup_iterable)
-
-                # Update segment/row-specific list of state-level inputs and reset attribute
-                state_dat_init.extend(iterable)
-            setattr(self, k, state_dat_init)
 
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
@@ -2613,6 +2774,8 @@ class Measure(object):
         htcl_tech_link (str, None): For HVAC measures, flags specific heating/
             cooling pairs which further restricts the measure's competition (
             it is only competed with other measures w/ same pairs).
+        ref_analogue (boolean): Flag for whether measure should serve as basis
+            for a copy of measure with reference case performance/cost.
         linked_htcl_tover (str, None): Flags the need to link stock turnover
             and exogenous rate switching calculations for measures that apply
             to separate heating and cooling technologies/segments (initialized
@@ -2632,12 +2795,13 @@ class Measure(object):
                energy, carbon, cost),
             b) 'mseg_adjust': all microsegments that contribute to each master
                microsegment (required later for measure competition); competed
-               choice model parameters; information need to link stock turnover
-               and/or exogenous fuel/tech switching rates across msegs.
+               choice model parameters; capacity factors for equipment where costs
+               are described per unit service capacity; information need to link stock
+               turnover and/or exogenous fuel/tech switching rates across msegs.
             c) 'mseg_out_break': master microsegment breakdowns by key
                variables (climate zone, building class, end use, fuel)
         sector_shapes (dict): Sector-level hourly baseline and efficient load
-            shapes by adopt scheme, EMM region, and year
+            shapes by adopt scheme, EMM region, and year.
     """
 
     def __init__(
@@ -2719,7 +2883,22 @@ class Measure(object):
         self.hp_convert_flag = (
             self.tech_switch_to not in [
                 None, "NA", "same"] and "HP" in self.tech_switch_to)
+        # Check for electrical infrastructure upgrade flags in measure definition, if unavailable
+        # set to None
+        try:
+            self.add_elec_infr_cost
+            if self.add_elec_infr_cost is None:
+                self.add_elec_infr_cost = ""
+        except AttributeError:
+            self.add_elec_infr_cost = ""
         self.add_cool_anchor_tech = None
+        # Check for reference case analogue attribute, and if not there set None
+        try:
+            self.ref_analogue
+            if self.ref_analogue is None:
+                self.ref_analogue = ""
+        except AttributeError:
+            self.ref_analogue = ""
         # Check for flag for heating and cooling equipment pairing, if not
         # there or not applicable set to blank string
         try:
@@ -2744,6 +2923,16 @@ class Measure(object):
         # 'demand_tech' list are of the 'supply' side technology type
         else:
             self.technology_type = "supply"
+        # Reset flag for whether to consider panel upgrade needs in cases where
+        # measures do not apply to heating equipment in existing single family homes
+        if self.handyvars.panel_shares is not None \
+            and self.technology_type != "demand" and not all([(
+                (x in y) or ("all" in y)) for x, y in zip([
+                "heating", "single family home", "existing"],
+                [self.end_use, self.bldg_type, self.structure_type])]):
+            self.handyvars.panel_shares = ""
+        else:
+            self.handyvars.panel_shares = None
         # Reset market entry year if None or earlier than min. year
         if self.market_entry_year is None or (int(
                 self.market_entry_year) < int(self.handyvars.aeo_years[0])):
@@ -2753,18 +2942,6 @@ class Measure(object):
                 self.market_exit_year) > (int(
                     self.handyvars.aeo_years[-1]) + 1)):
             self.market_exit_year = int(self.handyvars.aeo_years[-1]) + 1
-        # If a global year by which an elevated performance floor is
-        # implemented has been imposed by the user and the measure is flagged
-        # for removal under an increase in the global minimum efficiency floor, or the measure has
-        # been added as a reference case copy of existing measures in the analysis,
-        # remove measure from the market once elevated floor goes into effect
-        if self.usr_opts["floor_start"] is not None and (
-                self.min_eff_elec_flag is not None or (
-                    self.usr_opts["add_typ_eff"] is not False and
-                "Analogue" in self.name)):
-            self.market_exit_year = self.usr_opts["floor_start"]
-        self.yrs_on_mkt = [str(i) for i in range(
-            self.market_entry_year, self.market_exit_year)]
         # Check for flag that measure is of a minimum efficiency level. Such measures will be
         # removed from market under user-specified increased in global minimum performance floor
         try:
@@ -2779,6 +2956,18 @@ class Measure(object):
             self.ref_case_flag
         except AttributeError:
             self.ref_case_flag = None
+        # If a global year by which an elevated performance floor is
+        # implemented has been imposed by the user and the measure is flagged
+        # for removal under an increase in the global minimum efficiency floor, or the measure has
+        # been added as a reference case copy of existing measures in the analysis,
+        # remove measure from the market once elevated floor goes into effect
+        if self.usr_opts["floor_start"] is not None and (
+                self.min_eff_elec_flag is not None or (
+                    self.usr_opts["add_typ_eff"] is not False and
+                "Analogue" in self.name)):
+            self.market_exit_year = self.usr_opts["floor_start"]
+        self.yrs_on_mkt = [str(i) for i in range(
+            self.market_entry_year, self.market_exit_year)]
         # Test for whether a user has set time sensitive valuation features
         # for the given measure. If no "tsv_features" parameter was
         # specified for the ECM, set this parameter to None
@@ -3388,6 +3577,22 @@ class Measure(object):
         # Determine "primary" microsegment key chains
         ms_iterable, ms_lists = self.create_keychain("primary")
 
+        # Set applicable building sector for the measure to use in
+        # linking heating/cooling turnover and switching calculations.
+        # Note that if measure applies to both residential and
+        # commercial buildings (which is not recommended or typical
+        # practice for ECM definitions), this approach will result in
+        # the use of residential technologies to anchor linked turnover
+        # across measure markets
+        if any([x in ["single family home", "mobile home",
+                      "multi family home"] for x in self.bldg_type]):
+            bldg_sect = "residential"
+        else:
+            bldg_sect = "commercial"
+
+        # Flag envelope/demand-focused measure
+        dmd_meas = ("demand" in self.technology_type["primary"])
+
         # Update information needed to link the stock turnover rates and
         # exogenous HP conversion rates for measures that apply to separate
         # heating and/or cooling + other (e.g., ventilation, lighting) msegs,
@@ -3395,8 +3600,7 @@ class Measure(object):
         # (e.g., not envelope)
         if (len(self.end_use["primary"]) > 1 and any([
             x in self.end_use["primary"] for x in [
-                "heating", "cooling"]])) and (
-                    "demand" not in self.technology_type["primary"]):
+                "heating", "cooling"]])):
             # Reset flag for linked heating/cooling mseg turnover
             self.linked_htcl_tover = True
             # Reset anchor end use for linked heating/cooling mseg turnover;
@@ -3405,70 +3609,66 @@ class Measure(object):
                 self.linked_htcl_tover_anchor_eu = "heating"
             else:
                 self.linked_htcl_tover_anchor_eu = "cooling"
-            try:
-                # Set applicable building sector for the measure to use in
-                # linking heating/cooling turnover and switching calculations.
-                # Note that if measure applies to both residential and
-                # commercial buildings (which is not recommended or typical
-                # practice for ECM definitions), this approach will result in
-                # the use of residential technologies to anchor linked turnover
-                # across measure markets
-                if any([x in ["single family home", "mobile home",
-                              "multi family home"] for x in self.bldg_type]):
-                    bldg_sect = "residential"
-                else:
-                    bldg_sect = "commercial"
-                # Pull the ordered list of candidate technologies to serve as
-                # anchor for linked heating/cooling turnover and switching
-                # calculations (these are specified by building sector and by
-                # the anchor end use set in UsefulVars class earlier)
-                linked_htcl_tover_anchor_tech_list = [
-                    x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
-                        bldg_sect][self.linked_htcl_tover_anchor_eu]]
-                # Find the first in the ordered list of candidate technologies
-                # that the measure applies to, use as anchor for linked
-                # heating/cooling mseg turnover and switching calculations
-                self.linked_htcl_tover_anchor_tech = [
-                    x for x in linked_htcl_tover_anchor_tech_list if x in
-                    self.technology["primary"]][0]
-            except IndexError:
-                # Throw error if no anchor technology could be determined
-                raise ValueError(
-                    "Cannot find anchor technology to link heating "
-                    "and cooling microsegment stock turnover rates for "
-                    "measure '" + self.name + "'. Check measure "
-                    "'technology' attribute to ensure one or more items "
-                    "are included in the following list: " +
-                    str(linked_htcl_tover_anchor_tech_list))
-            # Given no error after the calculations above, reset the iterable
-            # that determines how measure msegs are looped through to ensure
-            # that msegs with the the anchor end use and technology for linked
-            # heating/cooling turnover and switching calculations are always
-            # looped through first (so linked turnover data will already be
-            # available for heating/cooling msegs that do not serve as anchor)
-
-            # Register initial length of ms_iterable for check
-            iter_len_check = len(ms_iterable)
-            # Set end use and technology anchor names
-            first_eu_tech = [self.linked_htcl_tover_anchor_eu,
-                             self.linked_htcl_tover_anchor_tech]
-            # Find subset of iterable with msegs that apply to the anchor
-            # end use and technology
-            ms_iterable_first = [x for x in ms_iterable if all([
-                y in x for y in first_eu_tech])]
-            # Find subset of iterable with msegs that do not apply to the
-            # anchor end use and technology
-            ms_iterable_second = [x for x in ms_iterable if any([
-                y not in x for y in first_eu_tech])]
-            # Recombined two subsets above into updated iterable to loop
-            ms_iterable = ms_iterable_first + ms_iterable_second
-            # Ensure that resorted iterable is of same length as original
-            if len(ms_iterable) != iter_len_check:
-                raise ValueError(
-                    "Microsegments list for measure '" + self.name +
-                    "' changed after resorting list to ensure proper "
-                    "linking of heating/cooling stock turnover and switching "
-                    "calculations")
+            if dmd_meas:
+                self.linked_htcl_tover_anchor_tech = self.technology["primary"][0]
+                self.linked_htcl_tover_linked_tech = "all"
+            else:
+                try:
+                    # Pull the ordered list of candidate technologies to serve as
+                    # anchor for linked heating/cooling turnover and switching
+                    # calculations (these are specified by building sector and by
+                    # the anchor end use set in UsefulVars class earlier)
+                    linked_htcl_tover_anchor_tech_list = self.handyvars.htcl_anchor_tech_opts[
+                        bldg_sect][self.linked_htcl_tover_anchor_eu]
+                    # Find the first in the ordered list of candidate technologies
+                    # that the measure applies to, use as anchor for linked
+                    # heating/cooling mseg turnover and switching calculations
+                    self.linked_htcl_tover_anchor_tech = [
+                        x for x in linked_htcl_tover_anchor_tech_list if x in
+                        self.technology["primary"]][0]
+                except IndexError:
+                    # Print warning if no anchor end use technology to link heating/cooling segments
+                    # could be determined; continue calculations without any links
+                    raise ValueError(
+                        "Cannot find anchor end use technology to link heating "
+                        "and cooling microsegment calculations for "
+                        "measure '" + self.name + "'. Check measure "
+                        "'technology' attribute to ensure one or more items "
+                        "are included in the following list: " +
+                        str(linked_htcl_tover_anchor_tech_list))
+                if self.linked_htcl_tover_anchor_tech and (
+                        not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs):
+                    try:
+                        # Pull the ordered list of candidate technologies to serve as
+                        # tech. for adding linked stock and/or operating costs (these are specified
+                        # by building sector and by the linked end use set in UsefulVars class
+                        # earlier)
+                        linked_htcl_tover_linked_tech_list = self.handyvars.htcl_linked_unitcosts[
+                            bldg_sect]
+                        # Find the technology to use in determining linked stock or operating costs;
+                        # determination depends on whether heating or cooling end use is used as
+                        # anchor
+                        if self.linked_htcl_tover_anchor_eu == "heating":
+                            # Find lists of paired cooling tech
+                            link_tech_candidates = [
+                                x[1] for x in linked_htcl_tover_linked_tech_list.items() if
+                                self.linked_htcl_tover_anchor_tech == x[0]][0]
+                        else:
+                            link_tech_candidates = [
+                                x[0] for x in linked_htcl_tover_linked_tech_list.items() if
+                                self.linked_htcl_tover_anchor_tech in x[1]]
+                        # Select first technology in retrieved list that is present in measure def.
+                        self.linked_htcl_tover_linked_tech = [
+                            x for x in link_tech_candidates if x in self.technology["primary"]][0]
+                    except IndexError:
+                        # Print warning if no linked end use technology to link heating/cooling
+                        # segments could be determined; continue calculations without any links
+                        raise ValueError(
+                            "Cannot find linked end use technology to use as basis for linking "
+                            "heating and cooling costs for measure '" + self.name + "'. Check "
+                            "measure 'technology' attribute to ensure one or more items "
+                            "are included in the following list: " +
+                            str(link_tech_candidates))
 
             # If HP conversions are flagged, determine in which cooling/mseg
             # any additions in homes that don't have existing cooling will
@@ -3480,7 +3680,7 @@ class Measure(object):
                     # as anchor for additional cooling accounting under
                     # switching to HPs (these are specified by building sector)
                     add_cool_anchor_tech_list = [
-                        x for x in self.handyvars.link_htcl_tover_anchor_tech_opts[
+                        x for x in self.handyvars.htcl_anchor_tech_opts[
                             bldg_sect]["cooling"]]
                     self.add_cool_anchor_tech = [
                         x for x in add_cool_anchor_tech_list if x in
@@ -3494,6 +3694,57 @@ class Measure(object):
                         "'technology' attribute to ensure one or more items "
                         "are included in the following list: " +
                         str(add_cool_anchor_tech_list))
+
+        # If needed, append additional msegs to enable sub-segmentation of heating equipment and
+        # any linked segments (e.g., secondary heating, cooling) in existing single family homes to
+        # consider panel upgrade needs. When mseg technology is an anchor for linking heating w/
+        # other microsegments, register variants on the technology name that are added
+        # by this function to tag alternate panel upgrade requirements (e.g., no panel, management)
+        if self.handyvars.panel_shares is not None:
+            # Check for linked heating/cooling turnover; in such cases, when there is sub-
+            # segmentation of the anchor tech. in the link, the linked segment techs must be
+            # updated as well to link to the new anchor tech. sub-segments
+            if self.linked_htcl_tover is not None:
+                anchor_techs = self.handyvars.htcl_anchor_tech_opts[
+                    bldg_sect][self.linked_htcl_tover_anchor_eu]
+            else:
+                anchor_techs = None
+            ms_iterable, linked_htcl_tover_anchor_tech_alts = self.append_panel_msegs(
+                ms_iterable, anchor_techs)
+        else:
+            linked_htcl_tover_anchor_tech_alts = []
+
+        # If there is linked stock turnover and no error after the calculations above, reset the
+        # iterable that determines how measure msegs are looped through to ensure that msegs with
+        # the anchor end use and technology for linked heating/cooling turnover and switching
+        # calculations are always looped through first (so linked turnover data will already be
+        # available for heating/cooling msegs that do not serve as anchor)
+        if self.linked_htcl_tover:
+            # Register initial length of ms_iterable for check
+            iter_len_check = len(ms_iterable)
+            # Set anchor tech + any variants of the tech name to indicate different panel upgrade
+            # requirements)
+            anchor_tech_w_alts = [self.linked_htcl_tover_anchor_tech] + \
+                linked_htcl_tover_anchor_tech_alts
+            # Find subset of iterable with msegs that apply to the anchor
+            # end use and technology
+            ms_iterable_comes_first = [
+                x for x in ms_iterable if self.linked_htcl_tover_anchor_eu in x and any([
+                    y in x for y in anchor_tech_w_alts])]
+            # Find subset of iterable with msegs that do not apply to the
+            # anchor end use and technology
+            ms_iterable_comes_last = [
+                x for x in ms_iterable if self.linked_htcl_tover_anchor_eu not in x or all([
+                    y not in x for y in anchor_tech_w_alts])]
+            # Recombined two subsets above into updated iterable to loop
+            ms_iterable = ms_iterable_comes_first + ms_iterable_comes_last
+            # Ensure that resorted iterable is of same length as original
+            if len(ms_iterable) != iter_len_check:
+                raise ValueError(
+                    "Microsegments list for measure '" + self.name +
+                    "' changed after resorting list to ensure proper "
+                    "linking of heating/cooling stock turnover and switching "
+                    "calculations")
 
         # If needed, fill out any secondary microsegment fuel type, end use,
         # and/or technology input attributes marked 'all' by users. Determine
@@ -3560,15 +3811,22 @@ class Measure(object):
         # Initialize lists of warnings and list of suppressed incentives data
         warn_list, suppress_incent = ([] for n in range(2))
 
-        # Initialize flag for whether loop through previous microsegment
-        # has modified original measure costs/units when pulling incentives
-        # information and these need to be reset for future microsegment
-        # measure cost updates
-        meas_incent_flag = ""
+        # Initialize flag for whether loop through previous microsegment has modified original
+        # measure costs/units when pulling incentives information and/or electrical infrastructure
+        # upgrade costs and these need to be reset for future microsegment measure cost updates
+        meas_incent_flag, elec_infr_flag = ("" for n in range(2))
 
         # Loop through discovered key chains to find needed performance/cost
         # and stock/energy information for measure
         for ind, mskeys in enumerate(ms_iterable):
+            # For cases where secondary heating is paired with primary heating equipment, assume
+            # that secondary heating mseg fuel must match that of the primary heating tech
+            # and move to next key chain for any segments that don't meet this criterion
+            if "demand" not in mskeys and "secondary heating" in mskeys and "heating" in \
+                self.end_use["primary"] and all([x not in self.handyvars.in_all_map[
+                        "technology"]["residential"]["supply"][mskeys[3]]["heating"] for x in
+                    self.technology["primary"]]):
+                continue
             # Move to next key chain for 'unspecified' building type and 'new'
             # vintage; there are no new/existing floor space data for this
             # building type and all data are pulled into 'existing' key chains.
@@ -3582,13 +3840,6 @@ class Measure(object):
                 sqft_subst = 1
             else:
                 sqft_subst = 0
-
-            # Set building sector for the current microsegment
-            if mskeys[2] in [
-                    "single family home", "mobile home", "multi family home"]:
-                bldg_sect = "residential"
-            else:
-                bldg_sect = "commercial"
 
             # Develop "switched to" microsegment information for measures
             # that change to a different technology from the baseline;
@@ -3606,7 +3857,7 @@ class Measure(object):
                 # Handle switching of secondary heating to ASHP heating
                 # (switched from info. has secondary heating as end use, but
                 # switched to info. needs heating end use to pull ASHP data)
-                if mskeys[4] == "secondary heating":
+                if mskeys[4] == "secondary heating" and self.tech_switch_to != "secondary heater":
                     mskeys_swtch_eu = "heating"
                 else:
                     mskeys_swtch_eu = mskeys[4]
@@ -3623,16 +3874,13 @@ class Measure(object):
                         else:
                             # Set to original cooling tech./fuel if not switching to HP
                             if "cooling" in mskeys:
-                                mskeys_swtch_tech, mskeys_swtch_fuel = [mskeys[-2], mskeys[3]]
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [
+                                    mskeys[-2], mskeys[3]]
                             else:
-                                mskeys_swtch_tech = self.tech_switch_to
+                                mskeys_swtch_tech = "resistance heat"
                     # Water heating
                     elif mskeys[4] == "water heating":
-                        # Set any switched to electric res. WH technology to the Scout/EIA name
-                        if mskeys_swtch_fuel == "electricity":
-                            mskeys_swtch_tech = "electric WH"
-                        else:
-                            mskeys_swtch_tech = None
+                        mskeys_swtch_tech = "electric WH"
                     # Cooking and drying
                     elif mskeys[4] in ["cooking", "drying"]:
                         mskeys_swtch_tech = None
@@ -3667,23 +3915,17 @@ class Measure(object):
                         else:
                             # Set to original cooling tech./fuel if not switching to HP
                             if "cooling" in mskeys:
-                                mskeys_swtch_tech, mskeys_swtch_fuel = [mskeys[-2], mskeys[3]]
+                                mskeys_swtch_tech, mskeys_swtch_fuel = [
+                                    mskeys[-2], mskeys[3]]
                             else:
-                                mskeys_swtch_tech = self.tech_switch_to
+                                mskeys_swtch_tech = "elec_boiler"
                     # Water heating
                     elif mskeys[4] == "water heating":
-                        # Ensure use of correct com. HP water heater name if in user name
-                        if "HP" in self.tech_switch_to:
-                            mskeys_swtch_tech = "HP water heater"
-                        else:
-                            mskeys_swtch_tech = self.tech_switch_to
+                        mskeys_swtch_tech = "HP water heater"
                     # Cooking
                     elif mskeys[4] == "cooking":
-                        # Com. cooking has only two names, one for electric and one for gas
-                        if mskeys_swtch_fuel == "electricity":
-                            mskeys_swtch_tech = "elec_range-combined"
-                        else:
-                            mskeys_swtch_tech = "gas_range-combined"
+                        mskeys_swtch_tech = \
+                            "elec_range-combined"
                     # Lighting - switch to comparable LED product based
                     # on lighting class in baseline
                     elif mskeys[4] == "lighting":
@@ -3712,7 +3954,28 @@ class Measure(object):
                         mskeys[0], mskeys[1], mskeys[2], mskeys_swtch_fuel,
                         mskeys_swtch_eu, mskeys_swtch_tech, mskeys[6]]
             else:
-                mskeys_swtch = ""
+                mskeys_swtch, mskeys_swtch_fuel, mskeys_swtch_eu, mskeys_swtch_tech = (
+                    "" for n in range(4))
+
+            # Flag that will suppress inclusion of baseline heat pump segment stock costs for
+            # non-anchor segments to avoid double counting. For example, if the default anchor
+            # segment is heating, all HP costs are counted in the heating segment, while cooling
+            # segment stock costs are suppressed by this flag.
+            # (costs already fully reflected in anchor end use)
+            rmv_hp_dblct_base_stkcosts = (mskeys[-2] and "HP" in mskeys[-2])
+            # Flag to suppress inclusion of measure (e.g., switched to or like-for-like replacement)
+            # heat pump segment stock costs for non-anchor segments to avoid double counting.
+            rmv_hp_dblct_meas_stkcosts = (
+                (mskeys_swtch_tech and "HP" in mskeys_swtch_tech) or
+                (not mskeys_swtch_tech and rmv_hp_dblct_base_stkcosts))
+            # Flag to remove minor HVAC tech stock costs from calculations when the measure applies
+            # to major HVAC techs (e.g., unit costs in competition should be based on major heating/
+            # cooling tech. unit costs, not room ACs or secondary heaters)
+            rmv_minor_hvac_stkcosts = (
+                # Multiple techs. including minor HVAC tech.
+                any([mskeys[-2] is not None and
+                    x in mskeys[-2] for x in self.handyvars.minor_hvac_tech]) and not
+                all([x in self.handyvars.minor_hvac_tech for x in self.technology["primary"]]))
 
             # Check whether early retrofit rates are specified at the
             # component (microsegment) level; if so, restrict early retrofit
@@ -3790,15 +4053,17 @@ class Measure(object):
                 mkt_scale_frac, mkt_scale_frac_source = (
                     None for n in range(2))
             else:
-                # Case where incentives were added in previous mseg update;
-                # reset costs/units to those of original measure
-                if meas_incent_flag:
+                # Case where incentives or electrical infrastructure costs were added in previous
+                # mseg update; reset costs/units to those of original measure
+                if meas_incent_flag or elec_infr_flag:
                     cost_units, cost_meas = [
                         self.cost_units, self.installed_cost]
-                    # Reset flag for original measure cost reset due to its
-                    # modification in incentives calculations for previous
-                    # microsegments
-                    meas_incent_flag = ""
+                    # Reset flag for original measure cost reset due to its modification in
+                    # incentives or electrical infr. cost calculations for previous microsegments
+                    if meas_incent_flag:
+                        meas_incent_flag = ""
+                    if elec_infr_flag:
+                        elec_infr_flag = ""
                 # Case where square footage cost units are used or there is
                 # a switch from one end use, building type, or building vintage
                 # to another, or original cost/cost units are in dict format;
@@ -4131,6 +4396,21 @@ class Measure(object):
             # as nested dicts, loop recursively through dict levels until
             # appropriate terminal value is reached
             for i in range(0, len(mskeys)):
+                # Handle case where heating equipment key has been further modified
+                # to enable assessment of panel upgrade sub-segments and/or commercial technology
+                # key has been modified to flag the isolation of ComStock gap segments;
+                # for the purposes of pulling stock/energy data from AEO, strip any of this
+                # additional information and use the original key information
+                if mskeys[i] is not None and (
+                        any([x in mskeys[i] for x in self.handyvars.alt_panel_names])):
+                    key_item = mskeys[i].split("-")[0]
+                elif mskeys[i] is not None and "(gap)" in mskeys[i]:
+                    key_item = mskeys[i].split(" (")[0]
+                elif mskeys[i] is not None and mskeys[i] == "gap":
+                    key_item = None
+                else:
+                    key_item = mskeys[i]
+
                 # For use of state regions, cost/performance/lifetime data
                 # are broken out by census division; map the state of the
                 # current microsegment to the census division it belongs to,
@@ -4160,15 +4440,15 @@ class Measure(object):
                 # census divisions and must be mapped to the state breakouts
                 # used in the stock_energy market data
                 if (isinstance(base_cpl, dict) and (
-                    (mskeys[i] in base_cpl.keys()) or (
+                    (key_item in base_cpl.keys()) or (
                      reg_cpl_map and reg_cpl_map in base_cpl.keys())) or
-                    mskeys[i] in [
+                    key_item in [
                         "primary", "secondary", "new", "existing", None]):
                     # Skip over "primary", "secondary", "new", and "existing"
                     # keys in updating baseline stock/energy, cost and lifetime
                     # information (this information is not broken out by these
                     # categories)
-                    if mskeys[i] not in [
+                    if key_item not in [
                             "primary", "secondary", "new", "existing"]:
 
                         # Restrict base cost/performance/lifetime dict to key
@@ -4181,8 +4461,8 @@ class Measure(object):
                                 base_cpl_swtch = \
                                     base_cpl_swtch[reg_cpl_map]
                         else:
-                            if mskeys[i] is not None:  # Handle 'None' tech.
-                                base_cpl = base_cpl[mskeys[i]]
+                            if key_item is not None:  # Handle 'None' tech.
+                                base_cpl = base_cpl[key_item]
                             # Do the same for "switched to" data if applicable
                             if base_cpl_swtch and mskeys_swtch[i] is not None:
                                 try:
@@ -4206,13 +4486,13 @@ class Measure(object):
                                         str(self.tech_switch_to) +
                                         ", respectively")
 
-                        if mskeys[i] is not None:
+                        if key_item is not None:
                             # Restrict stock/energy dict to key chain info.
-                            mseg = mseg[mskeys[i]]
+                            mseg = mseg[key_item]
 
                             # Restrict ft^2 floor area dict to key chain info.
                             if i < 3:  # Note: ft^2 fl. broken out 2 levels
-                                mseg_sqft_stock = mseg_sqft_stock[mskeys[i]]
+                                mseg_sqft_stock = mseg_sqft_stock[key_item]
 
                     # Handle a superfluous 'undefined' key in the ECM
                     # cost, performance, and lifetime fields that is generated
@@ -4318,7 +4598,7 @@ class Measure(object):
                         # Case where data are broken out directly by mseg info.
                         if isinstance(perf_meas, dict) and break_keys and all([
                                 x in perf_meas.keys() for x in break_keys]):
-                            perf_meas = perf_meas[mskeys[i]]
+                            perf_meas = perf_meas[key_item]
                         # Case where region is being looped through in the mseg
                         # and performance data use alternate regional breakout
                         elif isinstance(perf_meas, dict) and alt_break_keys:
@@ -4376,7 +4656,7 @@ class Measure(object):
                                         x in perf_meas[0][k].keys()
                                         for x in break_keys]):
                                     perf_meas[0][k] = perf_meas[0][k][
-                                        mskeys[i]]
+                                        key_item]
                             # If none of the performance data in the first
                             # element of the list needs to be keyed in further,
                             # perform a weighted sum of the data across the
@@ -4401,7 +4681,7 @@ class Measure(object):
                         if isinstance(cost_meas, dict) and break_keys and \
                             all([x in cost_meas.keys() for
                                  x in break_keys]):
-                            cost_meas = cost_meas[mskeys[i]]
+                            cost_meas = cost_meas[key_item]
                         # Case where region is being looped through in the mseg
                         # and cost data use alternate regional breakout
                         elif isinstance(cost_meas, dict) and alt_break_keys:
@@ -4457,7 +4737,7 @@ class Measure(object):
                                         x in cost_meas[0][k].keys()
                                         for x in break_keys]):
                                     cost_meas[0][k] = cost_meas[0][k][
-                                        mskeys[i]]
+                                        key_item]
                             # If none of the cost data in the first element of
                             # the list needs to be keyed in further, perform a
                             # weighted sum of the data across the alternate
@@ -4482,7 +4762,7 @@ class Measure(object):
                         if isinstance(perf_units, dict) and break_keys and \
                                 all([x in perf_units.keys() for
                                      x in break_keys]):
-                            perf_units = perf_units[mskeys[i]]
+                            perf_units = perf_units[key_item]
                         elif isinstance(perf_units, dict) and any(
                                 [x in perf_units.keys() for x in break_keys]):
                             raise KeyError(
@@ -4495,7 +4775,7 @@ class Measure(object):
                         if isinstance(cost_units, dict) and break_keys and \
                             all([x in cost_units.keys() for
                                  x in break_keys]):
-                            cost_units = cost_units[mskeys[i]]
+                            cost_units = cost_units[key_item]
                         elif isinstance(cost_units, dict) and any(
                                 [x in cost_units.keys() for x in break_keys]):
                             raise KeyError(
@@ -4506,7 +4786,7 @@ class Measure(object):
                         # Lifetime data
                         if isinstance(life_meas, dict) and break_keys and all([
                                 x in life_meas.keys() for x in break_keys]):
-                            life_meas = life_meas[mskeys[i]]
+                            life_meas = life_meas[key_item]
                         elif isinstance(life_meas, dict) and any(
                                 [x in life_meas.keys() for x in break_keys]):
                             raise KeyError(
@@ -4519,7 +4799,7 @@ class Measure(object):
                         if isinstance(mkt_scale_frac, dict) and break_keys \
                             and all([x in mkt_scale_frac.keys() for
                                      x in break_keys]):
-                            mkt_scale_frac = mkt_scale_frac[mskeys[i]]
+                            mkt_scale_frac = mkt_scale_frac[key_item]
                         # Case where region is being looped through in the mseg
                         # and scaling data use alternate regional breakout
                         elif isinstance(mkt_scale_frac, dict) and \
@@ -4578,7 +4858,7 @@ class Measure(object):
                                         x in mkt_scale_frac[0][k].keys()
                                         for x in break_keys]):
                                     mkt_scale_frac[0][k] = mkt_scale_frac[
-                                        0][k][mskeys[i]]
+                                        0][k][key_item]
                             # If none of the scaling data in the first
                             # element of the list needs to be keyed in further,
                             # perform a weighted sum of the data across the
@@ -4605,7 +4885,7 @@ class Measure(object):
                                 x in mkt_scale_frac_source.keys() for
                                 x in break_keys]):
                             mkt_scale_frac_source = \
-                                mkt_scale_frac_source[mskeys[i]]
+                                mkt_scale_frac_source[key_item]
                         elif isinstance(mkt_scale_frac_source, dict) and any(
                                 [x in mkt_scale_frac_source.keys() for
                                  x in break_keys]):
@@ -4618,7 +4898,7 @@ class Measure(object):
 
                 # If no key match, break the loop
                 else:
-                    if mskeys[i] is not None:
+                    if key_item is not None:
                         mseg = {}
                     break
 
@@ -4669,8 +4949,8 @@ class Measure(object):
                         no_stk_mseg = ""
 
                 # Flag whether exogenous HP rates apply to current mseg.
-                # Assume only heating, water heating, and cooking end uses are
-                # covered by these exogenous rates (no secondary heating); do
+                # Assume only heating, secondary heating, water heating, and cooking
+                # end uses are covered by these exogenous rates; do
                 # not apply rates to wood stoves; and ensure that these rates
                 # are only assessed for equipment microsegments (e.g., they do
                 # not apply to envelope component heating energy msegs); are
@@ -4682,8 +4962,9 @@ class Measure(object):
                 if (self.handyvars.hp_rates and "demand" not in mskeys) and \
                     ("stove (wood)" not in self.technology["primary"]) and \
                     (mskeys[-2] is None or "HP" not in mskeys[-2]) and (any([
-                        x in mskeys for x in [
-                        "heating", "water heating", "cooking"]]) or (
+                        mskeys[4] == x for x in [
+                        "heating", "secondary heating", "water heating", "drying",
+                        "cooking", "other", "unspecified"]]) or (
                             self.linked_htcl_tover and
                             self.linked_htcl_tover_anchor_eu == "heating")):
                     hp_rate_flag = True
@@ -4763,80 +5044,137 @@ class Measure(object):
                     # Map secondary heating end use to heating HP switch rates
                     if mskeys[4] == "secondary heating":
                         hp_eu_key = "heating"
+                    elif mskeys[4] == "unspecified":
+                        hp_eu_key = "other"
                     else:
                         hp_eu_key = mskeys[4]
-                    # Map the current mseg region to the regionality of the
-                    # HP conversion rate data
-                    reg = [r[0] for r in
-                           self.handyvars.hp_rates_reg_map.items() if
-                           mskeys[1] in r[1]][0]
-                    # Pull in HP conversion rate data for the user-selected
-                    # fuel switching scenario and the region and building type
-                    # of the current microsegment
-                    hp_rate_dat = self.handyvars.hp_rates[
-                        "data (by scenario)"][opts.exog_hp_rates[0]][reg][
-                        bldg_sect]
-                    # Attempt to further restrict HP conversion data by
-                    # fuel type, end use, technology, and building vintage;
-                    # handle cases where data are applicable to "all"
-                    # technologies within a given combination of fuel, end use,
-                    # and vintage, or otherwise set the HP conversion rate to
-                    # None if no data are available for the current mseg
-                    try:
-                        hp_rate = hp_rate_dat[
-                            mskeys[3]][hp_eu_key][mskeys[-2]][mskeys[-1]]
-                    except KeyError:
+                    # Handle scenarios based on legacy Guidehouse scenarios (prepended "gh")
+                    # differently than all other scenarios
+                    if "gh" in opts.exog_hp_rates[0]:
+                        # Map the current mseg region to the regionality of the
+                        # HP conversion rate data
+                        reg = [r[0] for r in self.handyvars.hp_rates_reg_map.items() if
+                               mskeys[1] in r[1]][0]
+                        # Pull in HP conversion rate data for the user-selected
+                        # fuel switching scenario and the region and building type
+                        # of the current microsegment
+                        hp_rate_dat = self.handyvars.hp_rates[
+                            "data (by scenario)"][opts.exog_hp_rates[0]][reg][bldg_sect]
+                        # Attempt to further restrict HP conversion data by
+                        # fuel type, end use, technology, and building vintage;
+                        # handle cases where data are applicable to "all"
+                        # technologies within a given combination of fuel, end use,
+                        # and vintage, or otherwise set the HP conversion rate to
+                        # None if no data are available for the current mseg
                         try:
                             hp_rate = hp_rate_dat[
-                                mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
+                                mskeys[3]][hp_eu_key][mskeys[-2]][mskeys[-1]]
                         except KeyError:
-                            # Handle switch from commercial heating in RTUs vs.
-                            # other technologies
-                            if hp_eu_key == "heating" and \
-                                bldg_sect == "commercial" and any([
-                                    mskeys[-2] in x for x in [
-                                        self.handyvars.com_RTU_fs_tech,
-                                        self.handyvars.com_nRTU_fs_tech]]):
-                                # Determine whether the current heating tech.
-                                # falls into switch from an RTU or other tech.
-                                if mskeys[-2] in \
-                                        self.handyvars.com_RTU_fs_tech:
-                                    tech_key = "RTUs"
-                                else:
-                                    tech_key = "all other"
-                                # Try resultant tech. key
-                                try:
-                                    hp_rate = hp_rate_dat[mskeys[3]][
-                                        hp_eu_key][tech_key][mskeys[-1]]
-                                except KeyError:
-                                    hp_rate = None
-                            # Residential secondary heating
-                            elif mskeys[4] == "secondary heating" and \
-                                    bldg_sect == "residential":
-                                # For the tech key, use resistance and/or
-                                # furnace tech. depending on the fuel
-                                if mskeys[3] == "electricity":
-                                    tech_key = "resistance heat"
-                                elif mskeys[3] == "distillate":
-                                    tech_key = "furnace (distillate)"
-                                elif mskeys[3] == "natural gas":
-                                    tech_key = "furnace (NG)"
-                                else:
-                                    tech_key = "furnace (LPG)"
+                            try:
+                                hp_rate = hp_rate_dat[
+                                    mskeys[3]][hp_eu_key]["all"][mskeys[-1]]
+                            except KeyError:
+                                # Handle switch from commercial heating in RTUs vs.
+                                # other technologies
+                                if hp_eu_key == "heating" and \
+                                    bldg_sect == "commercial" and any([
+                                        mskeys[-2] in x for x in [
+                                            self.handyvars.com_RTU_fs_tech,
+                                            self.handyvars.com_nRTU_fs_tech]]):
+                                    # Determine whether the current heating tech.
+                                    # falls into switch from an RTU or other tech.
+                                    if mskeys[-2] in \
+                                            self.handyvars.com_RTU_fs_tech:
+                                        tech_key = "RTUs"
+                                    else:
+                                        tech_key = "all other"
+                                    # Try resultant tech. key
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            hp_eu_key][tech_key][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # Residential secondary heating
+                                elif mskeys[4] == "secondary heating" and \
+                                        bldg_sect == "residential":
+                                    # For the tech key, use resistance and/or
+                                    # furnace tech. depending on the fuel
+                                    if mskeys[3] == "electricity":
+                                        tech_key = "resistance heat"
+                                    elif mskeys[3] == "distillate":
+                                        tech_key = "furnace (distillate)"
+                                    elif mskeys[3] == "natural gas":
+                                        tech_key = "furnace (NG)"
+                                    else:
+                                        tech_key = "furnace (LPG)"
 
-                                # Try resultant tech. key
-                                try:
-                                    hp_rate = hp_rate_dat[mskeys[3]][
-                                        hp_eu_key][tech_key][mskeys[-1]]
-                                except KeyError:
+                                    # Try resultant tech. key
+                                    try:
+                                        hp_rate = hp_rate_dat[mskeys[3]][
+                                            hp_eu_key][tech_key][mskeys[-1]]
+                                    except KeyError:
+                                        hp_rate = None
+                                # Cases where no direct exogenous rate is found
+                                # for the mseg but the mseg is linked to another
+                                # mseg that does have a rate; set flag
+                                elif self.linked_htcl_tover and \
+                                        hp_eu_key != self.linked_htcl_tover_anchor_eu:
+                                    hp_rate = "linked"
+                                else:
                                     hp_rate = None
-                            # Cases where no direct exogenous rate is found
-                            # for the mseg but the mseg is linked to another
-                            # mseg that does have a rate; set flag
-                            elif self.linked_htcl_tover:
-                                hp_rate = "linked"
-                            else:
-                                hp_rate = None
+                    # Non-guidehouse scenario data will be broken out by output type (total/
+                    # competed), region, building type, fuel type, end use, and vintage
+                    else:
+                        # Read in and copy data for user-designated scenario name
+                        hp_rate_in = self.handyvars.hp_rates[
+                            "data (by scenario)"][opts.exog_hp_rates[0]]
+                        # Check to ensure that the current regionality being prepared in the
+                        # data is directly supported in the HP rate data
+                        try:
+                            hp_rate = {out_typ: hp_rate_in[out_typ][mskeys[1]] for
+                                       out_typ in hp_rate_in.keys()}
+                            try:
+                                # Assume rates are reported by detailed fuel type first
+                                fuel_detail, fuel_simple = [
+                                    [x[0].lower() for x in y.items() if mskeys[3] in x[1]][0]
+                                    for y in [self.handyvars.detailed_fuel_map,
+                                              self.handyvars.simple_fuel_map]]
+                                # Key in data by output type, region, bldg. type, fuel, end use,
+                                # and vintage. Handle reporting of conversion rates using both
+                                # detailed and simple/higher-level fuel type breakouts
+                                try:
+                                    hp_rate = {
+                                        out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][
+                                            fuel_detail][hp_eu_key][mskeys[-1]] for
+                                        out_typ in hp_rate_in.keys()}
+                                except KeyError:
+                                    hp_rate = {
+                                        out_typ: hp_rate_in[out_typ][mskeys[1]][bldg_sect][
+                                            fuel_simple][hp_eu_key][mskeys[-1]] for
+                                        out_typ in hp_rate_in.keys()}
+                            # Handle end uses that are flagged for HP rates but do
+                            # not have direct rates in the data (e.g., cooling, which is
+                            # typically linked to the heating end use conversion rates)
+                            except KeyError:
+                                # When end use is linked to the rates of another, flag this
+                                if self.linked_htcl_tover and \
+                                        hp_eu_key != self.linked_htcl_tover_anchor_eu:
+                                    hp_rate = "linked"
+                                # Otherwise warn the user of the missing data and do not apply any
+                                # rates to the end use
+                                else:
+                                    warnings.warn("End use " + hp_eu_key + " is flagged for "
+                                                  "exogenous conversion rate data but does not "
+                                                  "have direct data available for scenario " +
+                                                  opts.exog_hp_rates[0] + "; exogenous conversion "
+                                                  "rates will not be applied.")
+                                    hp_rate = None
+                        except KeyError:
+                            hp_rate = None
+                            warnings.warn(
+                                "Region " + mskeys[1] + " not found in exogenous HP rate data "
+                                "for scenario " + opts.exog_hp_rates[0] + "; skipping and moving "
+                                "on to next region.")
                 else:
                     hp_rate = None
 
@@ -5127,8 +5465,8 @@ class Measure(object):
                             # Pull any relevant incentives mod data that apply to current mseg
                             incent_mod = [x for x in self.handyvars.incentives if (
                                 [x[0], x[1], x[2]] == [mskeys[1], mskeys[2], mskeys[-1]]
-                                # x[0]/x[1]/x[2] indices in incentives data map to reg/bldg/vnt
-                                and (x[3] == "all" or x[3] == mskeys[4]))]  # x[3] maps to end use
+                                # reg/bldg/vnt
+                                and (x[3] == "all" or x[3] == mskeys[4]))]  # end use
                             # Distinguish between modifications that apply to an applicable base seg
                             # vs. a segment that a measure switches to (the latter is only relevant
                             # for fuel or technology switching measures)
@@ -5544,7 +5882,7 @@ class Measure(object):
                     # must be converted to $/unit via units/household RECS data
                     if sqft_subst != 1 and "lighting" in mskeys:
                         cost_meas = {yr: cost_meas[yr] /
-                                     self.handyvars.res_lts_per_home[mskeys[2]]
+                                     self.handyvars.res_units_per_home["lighting"][mskeys[2]]
                                      for yr in self.handyvars.aeo_years}
                     # Convert residential envelope baseline costs, which will
                     # be in $/ft^2 floor, to $/home (again, household is
@@ -5893,6 +6231,25 @@ class Measure(object):
                         "Invalid performance or cost units for ECM '" +
                         self.name + "'")
 
+                # Adjust measure costs to consider added electrical infrastructure costs (only
+                # applicable for residential fuel switching measures or res. measures that tech.
+                # switch from an existing electric technology). Ensure that when linked measure
+                # microsegments are present (e.g., heating + cooling), electrical infrastructure
+                # costs are only assessed once in the anchor end use microsegments
+                if bldg_sect == "residential" and opts.elec_upgrade_costs != "ignore" and \
+                    "existing" in mskeys and (
+                        self.fuel_switch_to == "electricity" or self.tech_switch_to not in [
+                            None, "NA", "same"]) and (not self.linked_htcl_tover or (
+                        self.linked_htcl_tover and mskeys[4] == self.linked_htcl_tover_anchor_eu)):
+                    cost_meas, elec_infr_flag = \
+                        self.add_elec_infr_costs(cost_meas, mskeys, elec_infr_flag, opts)
+
+                # Adjust baseline and measure costs to current region, if applicable
+                if self.handyvars.reg_cost_adj is not None:
+                    cost_meas, cost_base = [
+                        {yr: x[yr] * self.handyvars.reg_cost_adj[mskeys[1]][bldg_sect]
+                         for yr in self.handyvars.aeo_years} for x in [cost_meas, cost_base]]
+
                 # Set stock turnover info. and consumer choice info. to
                 # appropriate building type
                 if bldg_sect == "residential":
@@ -6087,6 +6444,77 @@ class Measure(object):
                     new_existing_frac = {key: (1 - val) for key, val in
                                          new_constr["new fraction"].items()}
 
+                # If applicable, pull in information needed to sub-segment heating and linked
+                # cooling and/or secondary heating segments in existing single family homes into
+                # those homes that would require a panel upgrade; would not require one; or could
+                # avoid one with management. Note that these sub-segments are prepared even for gas
+                # measures that do not involve fuel switching to ensure apples-to-apples competition
+                # of segments between gas and electric fuel switching measures later on
+                if self.handyvars.panel_shares is not None and all([
+                        y in mskeys for y in ["single family home", "existing"]]) and any([
+                        y in mskeys for y in ["heating", "secondary heating", "cooling"]]):
+                    # Handle both CDIV-resolved and state-resolved panel share regionality in shares
+                    if mskeys[1] in self.handyvars.panel_shares.keys():
+                        reg_shr = mskeys[1]
+                    else:
+                        reg_shr = [x[0] for x in self.handyvars.region_cpl_mapping.items() if
+                                   mskeys[1] in x[1]][0]
+                    # Set the fuel type name to pull for the share
+                    if any([x in mskeys for x in ["electricity", "natural gas", "distillate"]]):
+                        # For linked segments, pull fuel type for linked to segment
+                        if (mskeys[4] != self.linked_htcl_tover_anchor_eu) and \
+                                self.linked_htcl_tover_anchor_tech:
+                            # Segment is linked to gas heating tech.; pull gas fuel
+                            if any([x in self.linked_htcl_tover_anchor_tech for x in [
+                                    "NG", "gas", "natural gas"]]):
+                                fuel_shr = "natural gas"
+                            # Segment is linked to non-electric heating tech. other than gas;
+                            # pull first non-electric fuel in measure definition
+                            elif any([x != "electricity" for x in self.fuel_type["primary"]]):
+                                fuel_shr = [x for x in self.fuel_type if x != "electricity"][0]
+                            # Segment is linked to electric heating tech.
+                            else:
+                                fuel_shr = "electricity"
+                        # For segments without linkages to other segments, fuel type is same as
+                        # that in the segment
+                        else:
+                            fuel_shr = mskeys[3]
+                    elif "other fuel" in mskeys:
+                        # Biomass
+                        if "wood" in mskeys[-2]:
+                            fuel_shr = "wood"
+                        # Propane
+                        elif "LPG" in mskeys[-2]:
+                            fuel_shr = "propane"
+                        # All other fuels
+                        else:
+                            fuel_shr = "other fuel"
+                    else:
+                        raise ValueError(
+                            "Unexpected fuel type in contributing microsegment "
+                            + str(mskeys) + " for measure '" + self.name + "'")
+
+                    # Pull stock/energy panel share fractions
+                    if "no panel" in mskeys[-2]:  # Sub-segment for homes not requiring upgrade
+                        # Adjustment fractions (out of 1) to apply to original mseg stock and
+                        # energy data to represent panel upgrade sub-segment
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["no panel"] for
+                            x in ["stock", "energy"]]
+                    elif "manage" in mskeys[-2]:  # Sub-segment for homes avoiding upgrade w/ mgmt.
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["management"] for
+                            x in ["stock", "energy"]]
+                    else:  # Sub-segment for homes that do require panel upgrade
+                        adj_stk, adj_energy = [self.handyvars.panel_shares[
+                            reg_shr][x][fuel_shr]["BAU w/ HPWH"]["panel"] for
+                            x in ["stock", "energy"]]
+                    # Store the panel adjustment fractions for stock/energy in a dict
+                    panel_adj = {x: y for x, y in zip(["stock", "energy"], [adj_stk, adj_energy])}
+                else:
+                    # When there is no sub-segmentation required, adjustment fractions are 1
+                    panel_adj = {"stock": 1, "energy": 1}
+
                 # Update bass diffusion parameters needed to determine the
                 # fraction of the baseline microsegment that will be captured
                 # by efficient alternatives to the baseline technology
@@ -6118,30 +6546,32 @@ class Measure(object):
                 if mskeys[0] == 'secondary':
                     add_stock = dict.fromkeys(self.handyvars.aeo_years, 0)
                 elif sqft_subst == 1:  # Use ft^2 floor area in lieu of # units
-                    # For residential envelope microsegments, stock is
-                    # converted to a per house (per "unit") basis to facilitate
-                    # comparison and packaging with res. equipment measures;
-                    # the required conversion factor was already calculated
-                    # above and applied to the stock costs for these
-                    # microsegments, and is reused here for the stock
+                    # For residential envelope microsegments, stock is converted to a per house
+                    # (per "unit") basis to facilitate comparison and packaging with res. equipment
+                    # measures; the required conversion factor was already calculated above and
+                    # applied to the stock costs for these microsegments, and is reused here for the
+                    # stock. Also apply any adjustment needed to sub-segment existing single family
+                    # gas furnace segments into homes that would require panel upgrade if switching
+                    # to electric, those that wouldn't, and those that could avoid the upgrade with
+                    # panel management approaches
                     if sf_to_house_key and sf_to_house_key in \
                             self.handyvars.sf_to_house.keys():
                         add_stock = {
-                            key: val * new_existing_frac[key] *
+                            key: val * new_existing_frac[key] * panel_adj["stock"] *
                             self.handyvars.sf_to_house[sf_to_house_key][key] *
                             1000000 for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                     else:
                         add_stock = {
-                            key: val * new_existing_frac[key] * 1000000 for
-                            key, val in mseg_sqft_stock[
+                            key: val * new_existing_frac[key] * 1000000 * panel_adj["stock"]
+                            for key, val in mseg_sqft_stock[
                                 "total square footage"].items()
                             if key in self.handyvars.aeo_years}
                 elif not no_stk_mseg:  # Check stock (units/service) data exist
                     add_stock = {
-                        key: val * new_existing_frac[key] for key, val in
-                        mseg["stock"].items() if key in
+                        key: val * new_existing_frac[key] * panel_adj["stock"]
+                        for key, val in mseg["stock"].items() if key in
                         self.handyvars.aeo_years}
                 else:  # If no stock data exist, set stock to zero
                     add_stock = {
@@ -6158,11 +6588,14 @@ class Measure(object):
                     add_stock = {yr: add_stock[yr] * 2 for
                                  yr in self.handyvars.aeo_years}
 
-                # Total energy use
+                # Total energy use. Apply any adjustment needed to sub-segment existing single
+                # family gas furnace segments into homes that would require panel upgrade if
+                # switching to electric, those that wouldn't, and those that could avoid the
+                # upgrade with panel management approaches
                 add_energy = {
                     key: val * site_source_conv_base[key] *
-                    new_existing_frac[key] for key, val in mseg[
-                        "energy"].items() if key in
+                    new_existing_frac[key] * panel_adj["energy"]
+                    for key, val in mseg["energy"].items() if key in
                     self.handyvars.aeo_years}
                 # Total lighting energy use for climate zone, building type,
                 # and structure type of current primary lighting
@@ -6608,40 +7041,6 @@ class Measure(object):
                             retro_rate_mseg, calc_sect_shapes, lkg_fmeth_base,
                             lkg_fmeth_meas, warn_list)
 
-                    # Remove minor HVAC equipment stocks in cases where major
-                    # HVAC tech. is also covered by the measure definition, as
-                    # well as double counted stock and stock cost for equipment
-                    # measures that apply to more than one end use that
-                    # includes heating or cooling. In the latter cases, anchor
-                    # stock/cost on on heating end use tech.,
-                    # provided heating is included, because they are
-                    # generally of greatest interest for the stock of measures
-                    # like ASHPs and span fuels (e.g., electric resistance, gas
-                    # furnace, oil furnace, etc.). If heating is not covered,
-                    # anchor on the cooling end use technologies. This
-                    # adjustment covers all measures that apply across
-                    # heating/cooling (and possibly other) end uses
-                    if sqft_subst != 1 and ((
-                        # Multiple techs. including minor HVAC tech.
-                        any([x in mskeys for x in
-                             self.handyvars.minor_hvac_tech]) and not
-                        all([x in self.handyvars.minor_hvac_tech for
-                             x in self.technology["primary"]])) or (
-                        # Multiple end uses
-                        len(ms_lists[3]) > 1 and ((
-                            "heating" in ms_lists[3] and
-                            "heating" not in mskeys) or (
-                            "heating" not in ms_lists[3] and
-                            "cooling" in ms_lists[3] and
-                                "cooling" not in mskeys)))):
-                        add_stock_total, add_stock_compete, \
-                            add_stock_total_meas, add_stock_compete_meas, \
-                            add_stock_cost, add_stock_cost_compete, \
-                            add_stock_cost_meas, \
-                            add_stock_cost_compete_meas = ({
-                                yr: 0 for yr in self.handyvars.aeo_years}
-                                for n in range(8))
-
                     # Combine stock/energy/carbon/cost/lifetime updating info.
                     # into a dict. Note that baseline lighting lifetimes are
                     # adjusted by the stock of the contributing microsegment
@@ -6691,12 +7090,138 @@ class Measure(object):
                                     "efficient": add_carb_cost_eff},
                                 "competed": {
                                     "baseline": add_carb_cost_compete,
-                                    "efficient": add_carb_cost_compete_eff}}},
-                        "lifetime": {
-                            "baseline": {
-                                yr: life_base[yr] * add_stock_total[yr] for
-                                yr in self.handyvars.aeo_years},
-                            "measure": life_meas}}
+                                    "efficient": add_carb_cost_compete_eff}}}}
+
+                    # If user has not suppress the inclusion of linked stock/operating costs for
+                    # measures that apply to heating or cooling and other end use segments, transfer
+                    # any costs from the primary linked tech segments over to the anchor end use
+                    # segments (by default this is the heating end use segments).
+                    if adopt_scheme == "Technical potential" and (
+                            not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
+                            (self.linked_htcl_tover and
+                             self.linked_htcl_tover_anchor_eu not in mskeys and (
+                            mskeys[-2] is not None and self.linked_htcl_tover_linked_tech in [
+                                mskeys[-2], "all"]))):
+                        # Set the list of contributing mseg information to use in matching
+                        # the linked segments to the anchor segment, including primary/secondary
+                        # mseg type, region, building type, and building vintage
+                        linked_mseg_elems = [mskeys[0], mskeys[1], mskeys[2], mskeys[-1]]
+                        # If technology information is subsegmented to convey info. about panel
+                        # upgrade needs, link to associated subsegment of anchor technology
+                        try:
+                            append_tech = [x for x in self.handyvars.alt_panel_names if
+                                           x in mskeys[-2]][0]
+                        except IndexError:
+                            append_tech = False
+                        # Find the specific contributing microsegment data for the anchor end use
+                        # to add costs to. Ensure that linked data are only added to anchor end
+                        # use segments that apply to the same mseg type (primary/secondary),
+                        # region, building type, building vintage, and if applicable, panel upgrade
+                        # sub-segment; also ensure that no envelope ("demand") msegs are pulled
+                        # into this calculation, which applies to equipment segments only
+                        ctb_mseg_to_add_cost_to = [x for x in self.markets[adopt_scheme][
+                            "mseg_adjust"]["contributing mseg keys and values"].keys() if
+                            "demand" not in x and self.linked_htcl_tover_anchor_eu in x and all([
+                                elem in x for elem in linked_mseg_elems]) and (
+                                (not append_tech and all(
+                                    [y not in x for y in self.handyvars.alt_panel_names])) or (
+                                    append_tech and append_tech in x))]
+                        # Loop through the applicable msegs to add costs to and add costs
+                        for add_to_mseg in ctb_mseg_to_add_cost_to:
+                            # Shorthand for mseg data to add costs to
+                            add_to_dict = self.markets[adopt_scheme]["mseg_adjust"][
+                                "contributing mseg keys and values"][add_to_mseg]
+                            # If full detailed data were not prepared for current scenario (see var
+                            # 'add_dict_limited' below, account for this by only linking to the
+                            # data available (efficient/measure variables only)
+                            if not self.handyvars.full_dat_out[adopt_scheme] and \
+                                    self.name not in ctrb_ms_pkg_prep:
+                                ecarb_cases, stk_cases, rmv_hp_cases, outputs, cost_keys = [
+                                    ["efficient"], ["measure"], [rmv_hp_dblct_meas_stkcosts],
+                                    ["competed"], ["stock", "energy"]]
+                            else:
+                                ecarb_cases, stk_cases, rmv_hp_cases, outputs, cost_keys = [
+                                    ["baseline", "efficient"], ["all", "measure"],
+                                    [rmv_hp_dblct_base_stkcosts, rmv_hp_dblct_meas_stkcosts],
+                                    ["total", "competed"], ["stock", "energy", "carbon"]]
+                            # Track data to be converted over
+
+                            # Add in all cost data (stock, energy, and carbon)
+                            add_to_dict["cost"] = {cost_key: {output: {
+                                # Add to cost data for baseline/efficient cases
+                                case: {
+                                    # anchor mseg cost data plus unit costs for current
+                                    # linked mseg, multiplied by the number of anchor mseg units.
+                                    # Handle cases where linked mseg units are zero, or a heat pump
+                                    # case where stock costs will already have been counted in the
+                                    # anchor end use, or user has suppressed linked stock or
+                                    # operating cost calcs, or the current linked mseg represents a
+                                    # minor technology that shouldn't be counted towards stock costs
+                                    # (do not modify anchor mseg data further)
+                                    yr: (add_to_dict["cost"][cost_key][output][
+                                        case][yr] + ((add_dict["cost"][
+                                            cost_key][output][case][yr] / (
+                                            add_dict["stock"][output][stk_var][yr] * stk_cap_fact))
+                                            * (add_to_dict["stock"][output][stk_var][yr] *
+                                               self.markets[adopt_scheme]["mseg_adjust"][
+                                                "capacity factor"][add_to_mseg])))
+                                    if (add_dict["stock"][output][stk_var][yr] != 0 and (
+                                        (cost_key == "stock" and not opts.no_lnkd_stk_costs
+                                         and not dmd_meas
+                                         and not rmv_hp
+                                         and not rmv_minor_hvac_stkcosts)
+                                        or cost_key != "stock" and not opts.no_lnkd_op_costs)) else
+                                    add_to_dict["cost"][cost_key][output][case][yr]
+                                    for yr in self.handyvars.aeo_years} for case, stk_var, rmv_hp in
+                                zip(ecarb_cases, stk_cases, rmv_hp_cases)
+                                } for output in outputs} for cost_key in cost_keys}
+                    # Remove minor HVAC equipment stocks in cases where major HVAC tech. is also
+                    # covered by the measure definition, as well as double counted stock and stock
+                    # cost for equipment measures that apply to more than one end use that includes
+                    # heating or cooling. In the latter cases, anchor stock/cost on on heating end
+                    # use tech., provided heating is included, because they are generally of
+                    # greatest interest for the stock of measures like ASHPs and span fuels (e.g.,
+                    # electric resistance, gas furnace, oil furnace, etc.). If heating is not
+                    # covered, anchor on the cooling end use technologies. This adjustment covers
+                    # all measures that apply across heating/cooling (and possibly other) end uses
+                    if sqft_subst != 1 and (rmv_minor_hvac_stkcosts or (len(ms_lists[3]) > 1 and ((
+                            "heating" in ms_lists[3] and "heating" not in mskeys) or (
+                            "heating" not in ms_lists[3] and "cooling" in ms_lists[3] and
+                            "cooling" not in mskeys)))):
+                        # Only count stock in anchor end uses (e.g., when heating and cooling
+                        # stock are both assessed, only count number of heating units, such that
+                        # all stock costs are normalized to only the number of heating units)
+                        add_dict["stock"]["total"]["all"], add_dict["stock"]["competed"]["all"], \
+                            add_dict["stock"]["total"]["measure"], \
+                            add_dict["stock"]["competed"]["measure"] = ({
+                                yr: 0 for yr in self.handyvars.aeo_years} for n in range(4))
+                        # Remove all linked stock costs for baseline when suppressed by the user or
+                        # in the case of HPs where the full stock cost for HPs is already counted in
+                        # the anchor end use, or in the case of minor HVAC techs that should be
+                        # excluded from the cost calculations
+                        if (opts.no_lnkd_stk_costs and "report" in opts.no_lnkd_stk_costs) or \
+                                rmv_minor_hvac_stkcosts or rmv_hp_dblct_base_stkcosts:
+                            add_dict["cost"]["stock"]["total"]["baseline"], \
+                                add_dict["cost"]["stock"]["competed"]["baseline"] = ({
+                                    yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+                        # Remove all linked stock costs for measure when suppressed by the user or
+                        # in the case of HPs where the full stock cost for HPs is already counted in
+                        # the anchor end use, or in the case of minor HVAC techs that should be
+                        # excluded from the cost calculations
+                        if (opts.no_lnkd_stk_costs and "report" in opts.no_lnkd_stk_costs) or \
+                                rmv_minor_hvac_stkcosts or rmv_hp_dblct_meas_stkcosts:
+                            add_dict["cost"]["stock"]["total"]["efficient"], \
+                                add_dict["cost"]["stock"]["competed"]["efficient"] = ({
+                                    yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+
+                    # Append lifetime data multiplied by # of stock units (after any adjustments to
+                    # remove linked stock totals above), to support later calculation of
+                    # stock-weighted overall lifetime
+                    add_dict["lifetime"] = {
+                        "baseline": {
+                            yr: life_base[yr] * add_dict["stock"]["total"]["all"][yr] for
+                            yr in self.handyvars.aeo_years},
+                        "measure": life_meas}
 
                     # Add captured efficient energy if not suppressed
                     if add_energy_total_eff_capt:
@@ -9032,7 +9557,9 @@ class Measure(object):
         stock_total_hp_convert_frac = 0
         turnover_cap_not_reached = True
         # Initialize turnover fractions that may have already been determined
-        # for heating/cooling msegs with linked turnover calculations
+        # for heating/cooling msegs with linked turnover calculations; also
+        # initialize variables needed to calculate added cooling under
+        # electrification to heat pumps
         diffuse_frac_linked, comp_frac_diffuse_linked, cum_frac_linked, \
             new_cool_units, uec_eff_yr, ci_eff_yr, uecst_eff_yr, \
             uec_eff_yr_tot, ci_eff_yr_tot, uecst_eff_yr_tot = (
@@ -9149,13 +9676,27 @@ class Measure(object):
         elif self.linked_htcl_tover:
             # Set secondary adjustment key to None
             secnd_mseg_adjkey = None
-            # Determine whether currently looped through mseg tech. serves as
-            # anchor tech for linked turnover/switching calcs. across measure
-            linked_htcl_tover_anchor_tech = (
-                self.linked_htcl_tover_anchor_tech == mskeys[-2])
+            # Determine whether currently looped through mseg tech. serves as anchor tech for
+            # linked turnover/switching calcs. across measure. Account for cases where info. about
+            # need to upgrade electrical panel is appended to the technology information
+            if mskeys[-2] and any([x in mskeys[-2] for x in self.handyvars.alt_panel_names]):
+                # Pull out appended tech information to indicate alternate panel upgrade outcome
+                append_tech = mskeys[-2].split("-")[-1]
+                # Make determination of whether current mseg tech is the anchor tech
+                linked_htcl_tover_anchor_tech = (
+                    (self.linked_htcl_tover_anchor_tech + "-" + append_tech) == mskeys[-2])
+            else:
+                # No appended tech information is applicable
+                append_tech = None
+                # Make determination of whether current mseg tech is the anchor tech
+                linked_htcl_tover_anchor_tech = (self.linked_htcl_tover_anchor_tech == mskeys[-2])
             # Determine the region, building type, and structure type that is
-            # shared by the linked heating and cooling microsegments
-            htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
+            # shared by the linked heating and cooling microsegments; when additional tech. info.
+            # is appended to indicate alternate panel upgrade outcomes, add this info.
+            if append_tech:
+                htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1], append_tech))
+            else:
+                htcl_lnk_adjkey = str((mskeys[1], mskeys[2], mskeys[-1]))
             # Set shorthands for pulling linked turnover data from
             # measure market information
             total_htcl_lnk, total_htcl_lnk_adj, compete_htcl_lnk, \
@@ -9732,11 +10273,19 @@ class Measure(object):
                 if any(comp_frac_sbmkt > 1):
                     comp_frac_sbmkt[numpy.where(comp_frac_sbmkt > 1)] = 1
 
-            # Diffusion of electric HPs according to pre-determined rates;
-            # these calculations need not proceed if the mseg is a heating/
-            # cooling mseg with links to the switching rates of another mseg
-            # that have already been determined
-            if not diffuse_frac_linked and hp_rate and mskeys[0] == "primary":
+            # Diffusion of electric HPs according to pre-determined rates, using Guidehouse scns (
+            # signified by the lack of breakout by 'total' vs. 'competed' keys); these calculations
+            # need not proceed if the mseg is a heating/cooling mseg with links to the switching
+            # rates of another mseg that have already been determined
+            if not diffuse_frac_linked and hp_rate and mskeys[0] == "primary" and \
+                    yr in hp_rate.keys():
+                # Set HP rate for the year; if year is before HP rates are
+                # available, set to zero.
+                try:
+                    hp_rate_yr = hp_rate[yr]
+                except KeyError:
+                    hp_rate_yr = 0
+
                 # Find the annual fraction of the total stock that is converted
                 # to a heat pump; set to 100% for technical potential,
                 # otherwise set to the new/replacement stock (and, if user
@@ -9759,9 +10308,9 @@ class Measure(object):
                         retro_remain = 0
                     elif opts.exog_hp_rates[1] == '2':  # Frac. retro. to HPs
                         # Converted retrofits
-                        retro_convert = retro_frac * hp_rate[yr]
+                        retro_convert = retro_frac * hp_rate_yr
                         # Remaining retrofits
-                        retro_remain = retro_frac * (1 - hp_rate[yr])
+                        retro_remain = retro_frac * (1 - hp_rate_yr)
                     # Case with exogenous rates but no early retrofits
                     else:
                         retro_convert, retro_remain = [retro_frac, 0]
@@ -9772,10 +10321,10 @@ class Measure(object):
                     if stock_total_hp_convert_frac != 1:
                         # Frac. total stock that converted to HP in year
                         annual_hp_convert_frac = (new_frac + repl_frac) * \
-                            hp_rate[yr] + retro_convert
+                            hp_rate_yr + retro_convert
                         # Frac. total stock that remains with base fuel in year
                         annual_hp_remain_frac = (new_frac + repl_frac) * (
-                            1 - hp_rate[yr]) + retro_remain
+                            1 - hp_rate_yr) + retro_remain
                     else:
                         annual_hp_convert_frac = \
                             new_frac + repl_frac + retro_convert
@@ -9847,6 +10396,38 @@ class Measure(object):
                 # by further fraction to represent slow diffusion of info.
                 # for emerging technologies
                 diffuse_frac *= years_diff_fraction_dictionary[yr]
+            # Diffusion of electric HPs according to pre-determined rates, using non-Guidehouse
+            # scenarios (which will be broken out by 'total' vs. 'competed' keys); these calcs
+            # need not proceed if the mseg is a heating/cooling mseg with links to the switching
+            # rates of another mseg that have already been determined
+            elif not diffuse_frac_linked and hp_rate and mskeys[0] == "primary" and all([
+                    x in hp_rate.keys() for x in ["total", "competed"]]):
+                # Case where measure is switching away from baseline; use conversion rate directly
+                if (self.fuel_switch_to == "electricity" or (
+                        self.tech_switch_to not in [None, "NA"])):
+                    diffuse_frac = hp_rate["total"][yr]
+                # Case where measure stays with baseline tech.; use inverse of conversion rate
+                else:
+                    diffuse_frac = (1 - hp_rate["total"][yr])
+                # Multiply diffusion fractions calculated above
+                # (to represent exogenous HP switching rates, if applicable)
+                # by further fraction to represent slow diffusion of info.
+                # for emerging technologies
+                diffuse_frac *= years_diff_fraction_dictionary[yr]
+                # Define competed stock in each year as the percentage of total converted stock
+                # that is added incrementally in each year
+                # Set total converted stock
+                stock_total_converted_yr = stock_total_sbmkt[yr] * hp_rate["total"][yr]
+                # Find portion of total converted stock that occurs in each year
+                if yr == self.handyvars.aeo_years[0]:
+                    comp_frac_diffuse = 1
+                else:
+                    if stock_total_converted_yr != 0:
+                        comp_frac_diffuse = (
+                            stock_total_converted_yr - stock_total_meas[str(int(yr) - 1)]) / \
+                            stock_total_converted_yr
+                    else:
+                        comp_frac_diffuse = 0
             # All other measure diffusion cases where diffusion scaling and
             # competed diffusion fractions were not already calculated
             elif not diffuse_frac_linked:
@@ -9886,7 +10467,6 @@ class Measure(object):
             # Note that for measures that have exited the market, the effects
             # of the market exit on captured stock are reflected later in the
             # competition routine, run.py
-            # if measure_on_mkt:
             if measure_on_mkt or measure_exited_mkt:
                 comp_frac_diffuse_meas = comp_frac_diffuse
             else:
@@ -10270,12 +10850,10 @@ class Measure(object):
                                 stk_tot_diff[yr] - stk_cmp_diff[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
-                        # 'unspecified' no stock data will be available; base
-                        # cumulative competed/captured fraction on the sum of
-                        # competed fractions until this point
+                        # 'unspecified' no stock data will be available; set
+                        # cumulative competed/captured fraction to 100%
                         else:
-                            meas_cum_frac += (
-                                diffuse_frac * comp_frac_diffuse_meas)
+                            meas_cum_frac = 1
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
@@ -10283,8 +10861,7 @@ class Measure(object):
                             meas_cum_frac = (stk_cum_m[prev_yr] / (
                                 stk_tot_diff[yr] - stk_cmp_diff[yr]))
                         else:
-                            meas_cum_frac += (
-                                diffuse_frac * comp_frac_diffuse_meas)
+                            meas_cum_frac = 1
                 # Calculate portion of total stock previously competed
                 # if not already 100%
                 if (not isinstance(comp_cum_frac, numpy.ndarray) and
@@ -10297,11 +10874,10 @@ class Measure(object):
                                 (stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr])
                         # For tech. potential cases, total - competed stock is
                         # zero; also, when end use and building type are
-                        # 'unspecified' no stock data will be available; base
-                        # cumulative competed/captured fraction on the sum of
-                        # competed fractions until this point
+                        # 'unspecified' no stock data will be available; set
+                        # cumulative competed fraction to 100%
                         else:
-                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                            comp_cum_frac = 1
                     # Handle case where captured efficient stock total
                     # is a numpy array
                     except ValueError:
@@ -10309,7 +10885,7 @@ class Measure(object):
                             comp_cum_frac = (stk_cum_cmp[prev_yr] / (
                                 stk_tot_sbmkt[yr] - stk_cmp_sbmkt[yr]))
                         else:
-                            comp_cum_frac += (diffuse_frac * comp_frac_diffuse)
+                            comp_cum_frac = 1
 
                 # Ensure neither fraction goes above 1
 
@@ -11669,6 +12245,140 @@ class Measure(object):
         # Output list of key chains
         return ms_iterable, ms_lists
 
+    def add_elec_infr_costs(self, cost_meas, mskeys, elec_infr_flag, opts):
+        """Adjust fuel switching measure costs to reflect cost of added electrical infrastructure.
+
+        Args:
+            cost_meas (dict): Original measure installed cost.
+            mskeys (tuple): Current contributing microsegment information for measure.
+            elec_infr_flag (boolean): Flag for whether original measure costs have been adjusted.
+            opts (object): Stores user-specified execution options.
+
+        Returns:
+            Updated measure costs after considering additional costs of electrical infrastructure
+            upgrades (panel/service upgrades and/or circuit breaker upgrades) for fuel switching
+            measures.
+        """
+        # Pull panel upgrade cost
+        # Measure is flagged as triggering panel upgrade; add this cost to measure
+        if self.add_elec_infr_cost and "panel" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["panel"] is True:
+            # Current mseg represents a home that cannot avoid upgrade (lacks any flags for
+            # no panel upgrade requirement or avoiding upgrade via panel management in the
+            # technology portion of the microsegment information); assume full cost of panel
+            if opts.elec_upgrade_costs == "all" or all(
+                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
+            # Current mseg technology information flags a home that could avoid upgrade via
+            # panel management; assign the cost of panel management
+            elif "manage" in mskeys[-2]:
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel management"]
+            # Current mseg represents home that avoids panel upgrade cost entirely; set to zero
+            else:
+                add_pnl_cost = 0
+        # Measure does not trigger panel upgrade; set cost to zero
+        elif self.add_elec_infr_cost and "panel" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["panel"] is False:
+            add_pnl_cost = 0
+        # User has not specified one way or another whether measure incurs panel upgrade
+        else:
+            # Pull panel upgrade cost
+            # Incur full cost of panel upgrade in existing homes switching away from non-elec. heat
+            if "electricity" not in mskeys and all(
+                [x in mskeys for x in ["existing", "heating"]]) and all(
+                    [x not in mskeys[-2] for x in ["no panel", "manage"]]):
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel replacement"]
+            elif "electricity" not in mskeys and all(
+                    [x in mskeys for x in ["existing", "heating"]]) and "manage" in mskeys[-2]:
+                add_pnl_cost = self.handyvars.elec_infr_costs["panel management"]
+            # Current mseg is either not assessed a panel cost or would be but represents
+            # home that avoids panel upgrade cost entirely; set to zero
+            else:
+                add_pnl_cost = 0
+
+        # Pull circuit upgrade cost
+        # Measure is flagged as triggering a circuit upgrade; add this cost to measure
+        if self.add_elec_infr_cost and "240V circuit" in self.add_elec_infr_cost.keys() and \
+                self.add_elec_infr_cost["240V circuit"] is True:
+            add_crct_cost = self.handyvars.elec_infr_costs["240V circuit"]
+        # Measure does not trigger circuit upgrade (e.g., plugs into 120V); set cost to zero
+        elif self.add_elec_infr_cost and "240V circuit" in self.add_elec_infr_cost.keys() \
+                and self.add_elec_infr_cost["240V circuit"] is False:
+            add_crct_cost = 0
+        # User has not specified one way or another whether measure incurs panel upgrade
+        else:
+            # If no specific circuit cost flag is available, assume full circuit cost when the
+            # measure is switching from a fuel-fired segment (but not a segment w/ existing elec.
+            # heating)
+            if "electricity" not in mskeys:
+                add_crct_cost = self.handyvars.elec_infr_costs["240V circuit"]
+            else:
+                add_crct_cost = 0
+        # Adjust measure costs to reflect any non-zero electrical infrastructure costs
+        if any([x != 0 for x in [add_pnl_cost, add_crct_cost]]):
+            cost_meas = {
+                yr: cost_meas[yr] + add_pnl_cost + add_crct_cost for yr in self.handyvars.aeo_years}
+            # Set flag for application of electrical infrastructure costs to original measure cost
+            elec_infr_flag = True
+
+        return cost_meas, elec_infr_flag
+
+    def append_panel_msegs(self, ms_iterable, anchor_techs):
+        """Subset gas furnace msegs into panel/no panel/mgmt groups, append to original mseg list.
+
+        Args:
+            ms_iterable: Original list of msegs the measure applies to.
+            anchor_techs: List of potential anchor techs to use in linking mseg calculations.
+
+        Returns:
+            Updated list of msegs the measure applies to that reflects the three subsets of
+            gas furnace msegs (panel/no panel/mgmt). Also, a list of alternate mseg tech names with
+            appended info. that suggests alternate panel outcome for that mseg (no panel/mgmt.)
+        """
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Initialize list of alternate names for the anchor tech that tag various panel upgrade
+            # contexts (no panel, management)
+            anchor_tech_alts = []
+        # Find applicable heating equipment segments and linked secondary heating and cooling
+        # segments for the measure
+        segs_to_subset = [list(x) for x in ms_iterable if (all([
+            y in x for y in ["single family home", "existing"]]) and
+            any([y in x for y in ["heating", "secondary heating", "cooling"]]))]
+        # Append copies of gas segments to represent cases where a) no panel upgrade would
+        # be required under electrification or b) panel upgrade could be avoided via
+        # load management strategies (the original segments represent the default case, where
+        # a panel upgrade is assumed)
+        if len(segs_to_subset) > 0:
+            # Initialize lists of segments with no panel/management outcomes to append to
+            # segments with panel upgrade requirements
+            segs_to_subset_no_panel, segs_to_subset_mgmt = (
+                copy.deepcopy(segs_to_subset) for n in range(2))
+            # Update technology name in the segments to append relevant information about the
+            # alternate to panel upgrade case
+            for i_orig, i_np, i_mgmt in zip(
+                    segs_to_subset, segs_to_subset_no_panel, segs_to_subset_mgmt):
+                # Alternate that doesn't require a panel upgrade
+                i_np[-2] += self.handyvars.alt_panel_names[0]
+                # Alternate that doesn't require a panel upgrade given added load management
+                i_mgmt[-2] += self.handyvars.alt_panel_names[1]
+                # Case with anchor tech for linked heating/cooling msegs
+                # If the original technology name is in the list of anchor techs, record the
+                # modified versions of the anchor tech name that tag alternate panel upgrade
+                # outcomes (no panel, management) for later use
+                if anchor_techs and i_orig[-2] in anchor_techs:
+                    anchor_tech_alts += [i_np[-2], i_mgmt[-2]]
+            # Append the no panel upgrade or panel management segments for gas furnaces
+            ms_iterable = ms_iterable + segs_to_subset_no_panel + segs_to_subset_mgmt
+        # Case with anchor tech for linked heating/cooling msegs
+        if anchor_techs:
+            # Remove any duplicate anchor tech name alternates
+            anchor_tech_alts = list(set(anchor_tech_alts))
+        else:
+            anchor_tech_alts = []
+
+        return ms_iterable, anchor_tech_alts
+
     def find_scnd_overlp(self, vint_frac, ss_conv, dict1, energy_tot):
         """Find total lighting energy for climate/building/structure type.
 
@@ -12505,6 +13215,7 @@ class MeasurePackage(Measure):
         # efficiency HVAC measure, pairing with envelope pushes the measure above a minimum level of
         # performance
         self.min_eff_elec_flag = None
+
         # Set market entry year as earliest of all the packaged eqp. measures
         if any([x.market_entry_year is None or (int(
                 x.market_entry_year) < int(x.handyvars.aeo_years[0])) for x in
@@ -12595,16 +13306,14 @@ class MeasurePackage(Measure):
                             "original energy (total captured)": {},
                             "original energy (competed and captured)": {},
                             "adjusted energy (total captured)": {},
-                            "adjusted energy (competed and captured)": {}}}},
-                "mseg_out_break": {key: {
-                    "baseline": copy.deepcopy(self.handyvars.out_break_in),
-                    "efficient": copy.deepcopy(self.handyvars.out_break_in),
-                    "savings": copy.deepcopy(self.handyvars.out_break_in)} for
-                    key in ["energy", "carbon", "cost"]}}
+                            "adjusted energy (competed and captured)": {}}}}}
+
             # Initialize efficient captured energy if not suppressed by user
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
                     "efficient-captured"] = None
+                self.markets[adopt_scheme]["master_mseg"]["energy"]["total"][
+                    "efficient-captured-envelope"] = None
 
             # Add fugitive emissions key to output dict if fugitive
             # emissions option is set
@@ -12659,8 +13368,12 @@ class MeasurePackage(Measure):
             # variable
             if self.usr_opts["no_eff_capt"] is not True:
                 self.markets[adopt_scheme][
-                    "mseg_out_break"]["energy"]["efficient-captured"] = \
-                    copy.deepcopy(self.handyvars.out_break_in)
+                    "mseg_out_break"]["energy"]["efficient-captured"], \
+                    self.markets[adopt_scheme][
+                    "mseg_out_break"]["energy"][
+                    "efficient-captured-envelope"] = \
+                    (copy.deepcopy(self.handyvars.out_break_in) for n in
+                     range(2))
 
     def merge_measures(self, opts):
         """Merge the markets information of multiple individual measures.
@@ -12895,6 +13608,16 @@ class MeasurePackage(Measure):
                 # required for the current adoption scenario
                 if self.handyvars.full_dat_out[adopt_scheme]:
                     mseg_out_break_fin = m[adopt_scheme]["breakouts"]
+                    # If efficient-captured data for buildings with both
+                    # HVAC and envelope impacts are being isolated, add
+                    # a new branch to the energy breakout dict to use in
+                    # reporting these data
+                    if "efficient-captured-envelope" in \
+                        self.markets[adopt_scheme]["mseg_out_break"][
+                            "energy"].keys():
+                        mseg_out_break_fin["energy"][
+                            "efficient-captured-envelope"] = copy.deepcopy(
+                            mseg_out_break_fin["energy"]["efficient-captured"])
                     # Set shorthand for data used to track annual electricity
                     # use that concerns the measure's sector shape after
                     # package adjustments
@@ -12959,26 +13682,34 @@ class MeasurePackage(Measure):
                         msegs_pkg_fin[cm] = self.add_keyvals(
                             msegs_pkg_fin[cm], msegs_meas_fin[cm])
                 # Generate a dictionary including data on how much of the
-                # packaged measure's baseline stock/energy/carbon/cost is attributed
+                # packaged measure's baseline energy/carbon/cost is attributed
                 # to each of the output climate zones, building types, and end
                 # uses it applies to if full data reporting is required for the
                 # current adoption scenario
                 if mseg_out_break_fin:
-                    for v in self.markets[adopt_scheme]["mseg_out_break"].keys():
-                        for s in ["baseline", "efficient", "savings"]:
-                            if v == "stock" and s == "savings":
-                                continue
+                    for v in ["stock", "energy", "carbon", "cost"]:
+                        for s in ["baseline", "efficient"]:
                             self.merge_out_break(self.markets[adopt_scheme][
                                 "mseg_out_break"][v][s],
                                 mseg_out_break_fin[v][s])
+                        if v != "stock":  # no stk save breakout
+                            self.merge_out_break(self.markets[adopt_scheme][
+                                "mseg_out_break"][v]["savings"],
+                                mseg_out_break_fin[v]["savings"])
                         # Merge in efficient captured energy breakouts if
                         # this reporting variable is not suppressed by user
                         if v == "energy" and self.usr_opts[
                                 "no_eff_capt"] is not True:
-                            # Merge out breaks for captured efficient energy
-                            self.merge_out_break(self.markets[adopt_scheme][
-                                "mseg_out_break"]["energy"]["efficient-captured"],
-                                mseg_out_break_fin["energy"]["efficient-captured"])
+                            # Merge out breaks for captured efficient energy;
+                            # for packages, includes variable that isolates
+                            # portion of efficient-captured energy where
+                            # HVAC/envelope are deployed together
+                            for v_sub in ["efficient-captured",
+                                          "efficient-captured-envelope"]:
+                                self.merge_out_break(
+                                    self.markets[adopt_scheme][
+                                        "mseg_out_break"]["energy"][v_sub],
+                                    mseg_out_break_fin["energy"][v_sub])
 
                 # Adjust individual measure's contributing sector shape
                 # information to account for overlaps with other measures in
@@ -13123,10 +13854,15 @@ class MeasurePackage(Measure):
                         # Determine which, if any, envelope ECMs overlap with
                         # the region, building type/vintage, fuel type, and
                         # end use for the current contributing mseg for the
-                        # equipment ECM
+                        # equipment ECM. Avoid case where "heating" end use
+                        # erroneously generates a match for "secondary heating"
+                        # (b/c "heating" will be in the mseg for the latter)
                         dmd_match_ECMs = [
                             x for x in self.contributing_ECMs_env if
-                            any([all([k in z for k in cm_key_match]) for z in
+                            any([all([(k != "heating" and k in z) or
+                                      (k == "heating" and k in z and
+                                      "secondary heating" not in z)
+                                      for k in cm_key_match]) for z in
                                 x.markets[adopt_scheme]["mseg_adjust"][
                                 "contributing mseg keys and values"].keys()])]
                         # If an overlap is identified, record all necessary
@@ -13141,7 +13877,10 @@ class MeasurePackage(Measure):
                             cm_keys_dmd = [[x for x in z.markets[adopt_scheme][
                                 "mseg_adjust"][
                                 "contributing mseg keys and values"].keys()
-                                if all([k in x for k in cm_key_match])] for
+                                if all([(k != "heating" and k in x) or
+                                        (k == "heating" and k in x and
+                                        "secondary heating" not in x) for
+                                        k in cm_key_match])] for
                                 z in dmd_match_ECMs]
                             # Record envelope energy savings across all
                             # envelope measures that overlap with current mseg
@@ -13159,17 +13898,40 @@ class MeasurePackage(Measure):
                                         len(cm_keys_dmd[m]))]) for
                                 m in range(len(dmd_match_ECMs))]) for yr in
                                 self.handyvars.aeo_years}
-                            # Record envelope energy baselines across all
-                            # envelope measures that overlap with current mseg
-                            dmd_base = {yr: sum([sum([
-                                dmd_match_ECMs[m].markets[adopt_scheme][
-                                    "mseg_adjust"][
-                                    "contributing mseg keys and values"][
-                                    cm_keys_dmd[m][k]]["energy"][
-                                    "total"]["baseline"][yr] for k in range(
-                                        len(cm_keys_dmd[m]))]) for
-                                m in range(len(dmd_match_ECMs))]) for yr in
+                            # Record baseline demand for the given region,
+                            # building type/vintage, and end use combination
+                            # to use as denominator for relative savings
+                            # calculation below
+                            dmd_base = {
+                                yr: self.handyvars.htcl_totals[
+                                    keys[1]][keys[2]][keys[-1]][
+                                    keys[3]][keys[4]][yr] for yr in
                                 self.handyvars.aeo_years}
+                            if "efficient-captured" in m.markets[
+                                    adopt_scheme]["master_mseg"][
+                                    "energy"]["total"].keys():
+                                dmd_eff_capt = {yr: sum([sum([(
+                                    dmd_match_ECMs[m].markets[adopt_scheme][
+                                        "mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        cm_keys_dmd[m][k]]["energy"][
+                                        "total"]["efficient-captured"][yr])
+                                    for k in range(len(cm_keys_dmd[m]))]) for
+                                    m in range(len(dmd_match_ECMs))]) for yr in
+                                    self.handyvars.aeo_years}
+                                dmd_eff = {yr: sum([sum([(
+                                    dmd_match_ECMs[m].markets[adopt_scheme][
+                                        "mseg_adjust"][
+                                        "contributing mseg keys and values"][
+                                        cm_keys_dmd[m][k]]["energy"][
+                                        "total"]["efficient"][yr])
+                                    for k in range(len(cm_keys_dmd[m]))]) for
+                                    m in range(len(dmd_match_ECMs))]) for yr in
+                                    self.handyvars.aeo_years}
+                            else:
+                                dmd_eff_capt, dmd_eff = (
+                                    None for n in range(2))
+
                             # If the user opts to include envelope costs in
                             # the total costs of the HVAC/envelope package,
                             # record those overlapping costs
@@ -13202,13 +13964,15 @@ class MeasurePackage(Measure):
                                     adopt_scheme]["data"].keys():
                                 # Data include the overlapping energy savings
                                 # and baselines recorded for the equipment/
-                                # envelope measures above, as well as the
-                                # total energy use that could have overlapped,
-                                # pulled from pre-calculated values
+                                # envelope measures above, as well as stock
+                                # and stock costs if available, pulled from
+                                # pre-calculated values
                                 self.htcl_overlaps[adopt_scheme]["data"][
                                         cm_key_store] = {
                                     "affected savings": dmd_save,
                                     "total affected": dmd_base,
+                                    "efficient-captured": dmd_eff_capt,
+                                    "total efficient": dmd_eff,
                                     "stock costs": dmd_stk_cost,
                                     "stock": dmd_stk}
 
@@ -13273,9 +14037,10 @@ class MeasurePackage(Measure):
             # operations in the loop
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions
-            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
-                msegs_meas_init, cm_key, adopt_scheme,
-                name_meas, htcl_key_match, overlap_meas)
+            base_adj, eff_adj, eff_adj_c, eff_capt_env_frac = \
+                self.find_base_eff_adj_fracs(
+                    msegs_meas_init, cm_key, adopt_scheme,
+                    name_meas, htcl_key_match, overlap_meas)
             # Adjust stock, energy, carbon, and energy/carbon cost data
             # based on savings contribution of the measure and overlapping
             # measure(s) in this contributing microsegment, as well as the
@@ -13286,8 +14051,8 @@ class MeasurePackage(Measure):
                     tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
                     tot_eff_orig_ecost, tot_save_orig_ecost = \
                     self.make_base_eff_adjs(
-                            k, cm_key, msegs_meas, base_adj,
-                            eff_adj, eff_adj_c)
+                        k, cm_key, msegs_meas, base_adj,
+                        eff_adj, eff_adj_c, eff_capt_env_frac)
                 # Make adjustments to energy/carbon/cost output breakouts if
                 # full data reporting is required for the current adoption
                 # scenario
@@ -13297,7 +14062,7 @@ class MeasurePackage(Measure):
                         tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
                         tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                         tot_save_orig_ecost, key_list, fuel_switch_to,
-                        fs_eff_splt)
+                        fs_eff_splt, eff_capt_env_frac)
             # Special handling for cost merge when add-on measure is packaged
             if meas_typ == "add-on":
                 # Determine whether any of the measures overlapping with the
@@ -13460,7 +14225,8 @@ class MeasurePackage(Measure):
             msegs_meas_init = copy.deepcopy(msegs_meas)
             # Find base and efficient adjustment fractions; directly
             # overlapping measures are none in this case
-            base_adj, eff_adj, eff_adj_c = self.find_base_eff_adj_fracs(
+            base_adj, eff_adj, eff_adj_c, eff_capt_env_frac = \
+                self.find_base_eff_adj_fracs(
                     msegs_meas_init, cm_key, adopt_scheme, name_meas,
                     htcl_key_match, overlap_meas="")
             # Adjust energy, carbon, and energy/carbon cost data based on
@@ -13473,7 +14239,8 @@ class MeasurePackage(Measure):
                     tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
                     tot_eff_orig_ecost, tot_save_orig_ecost = \
                     self.make_base_eff_adjs(
-                        k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c)
+                        k, cm_key, msegs_meas, base_adj,
+                        eff_adj, eff_adj_c, eff_capt_env_frac)
                 # Make adjustments to energy/carbon/cost output breakouts if
                 # full data reporting is required for the current adoption
                 # scenario
@@ -13484,7 +14251,7 @@ class MeasurePackage(Measure):
                         tot_base_orig, tot_eff_orig, tot_eff_capt_orig,
                         tot_save_orig, tot_base_orig_ecost, tot_eff_orig_ecost,
                         tot_save_orig_ecost, key_list, fuel_switch_to,
-                        fs_eff_splt)
+                        fs_eff_splt, eff_capt_env_frac)
 
             # If necessary, adjust fugitive emissions data
 
@@ -13512,7 +14279,7 @@ class MeasurePackage(Measure):
     def add_env_costs_to_pkg(
             self, msegs_meas, adopt_scheme, htcl_key_match, key_list, cm_key,
             common_stk):
-        """Reflect envelope stock costs in HVAC/envelope package data.
+        """Reflect incremental envelope stock costs in HVAC/envelope package data.
 
         Args:
             msegs_meas (dict): Data for the contributing microsegment of an
@@ -13554,7 +14321,9 @@ class MeasurePackage(Measure):
                     yr: 0 for yr in self.handyvars.aeo_years}
                     for n in range(8))
             # Loop through all contributing microsegments for the overlapping
-            # envelope measure and add to initialized stock cost/stock data
+            # envelope measure and add to initialized stock cost/stock data. Note
+            # that any overlaps in stock data across multiple envelope components within
+            # the same measure have been worked out/adjusted already in fill_mkts
             for c_mseg in range(len(olm_sc)):
                 tot_stk_eff, tot_stk_cost_eff, tot_stk_base, \
                     tot_stk_cost_base, comp_stk_eff, comp_stk_cost_eff, \
@@ -13670,50 +14439,48 @@ class MeasurePackage(Measure):
                         1 if comp_stk_eff_hvac_unadj[yr] != 0 else 0)
                 for yr in self.handyvars.aeo_years}
 
-            # Set efficient and baseline envelope costs, normalized by the
-            # stock (converted above to same units as HVAC equipment), to add
-            # to the unit costs of the HVAC equipment measure; note that in
-            # both cases, aggregate costs are anchored on the measure-captured
-            # stock numbers
+            # Set efficient and baseline envelope costs, normalized by the stock (converted above
+            # to same units as HVAC equipment), and calculate incremental difference between the
+            # two to add to the unit costs of the HVAC equipment measure
             env_cost_eff_tot_unit = {
                 yr: ((tot_stk_cost_eff[yr] / tot_stk_eff[yr]) *
                      tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             env_cost_base_tot_unit = {
-                yr: ((tot_stk_cost_base[yr] / tot_stk_eff[yr]) *
+                yr: ((tot_stk_cost_base[yr] / tot_stk_base[yr]) *
                      tot_env_to_hvac_stk[yr]) if tot_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
+            # Incremental
+            env_cost_inc_tot_unit = {
+                yr: (env_cost_eff_tot_unit[yr] - env_cost_base_tot_unit[yr])
+                if (env_cost_eff_tot_unit[yr] - env_cost_base_tot_unit[yr]) >= 0 else 0
+                for yr in self.handyvars.aeo_years
+            }
             env_cost_eff_comp_unit = {
                 yr: ((comp_stk_cost_eff[yr] / comp_stk_eff[yr]) *
                      comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
             env_cost_base_comp_unit = {
-                yr: ((comp_stk_cost_base[yr] / comp_stk_eff[yr]) *
-                     comp_env_to_hvac_stk[yr]) if comp_stk_eff[yr] != 0
+                yr: ((comp_stk_cost_base[yr] / comp_stk_base[yr]) *
+                     comp_env_to_hvac_stk[yr]) if comp_stk_base[yr] != 0
                 else 0 for yr in self.handyvars.aeo_years}
+            # Incremental
+            env_cost_inc_comp_unit = {
+                yr: (env_cost_eff_comp_unit[yr] - env_cost_base_comp_unit[yr])
+                if (env_cost_eff_comp_unit[yr] - env_cost_base_comp_unit[yr]) >= 0 else 0
+                for yr in self.handyvars.aeo_years
+            }
 
-            # Adjust total efficient stock cost to account for envelope
+            # Adjust total efficient stock cost to account for incr. envelope cost over base
             msegs_meas["cost"]["stock"]["total"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["total"][
-                     "efficient"][yr] + env_cost_eff_tot_unit[yr] *
+                     "efficient"][yr] + env_cost_inc_tot_unit[yr] *
                 msegs_meas["stock"]["total"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
-            # Adjust total baseline stock cost to account for envelope
-            msegs_meas["cost"]["stock"]["total"]["baseline"] = {
-                yr: msegs_meas["cost"]["stock"]["total"][
-                     "baseline"][yr] + env_cost_base_tot_unit[yr] *
-                msegs_meas["stock"]["total"]["measure"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Adjust competed efficient stock cost to account for envelope
+            # Adjust competed efficient stock cost to account for incr. envelope cost over base
             msegs_meas["cost"]["stock"]["competed"]["efficient"] = {
                 yr: msegs_meas["cost"]["stock"]["competed"][
-                    "efficient"][yr] + env_cost_eff_comp_unit[yr] *
-                msegs_meas["stock"]["competed"]["measure"][yr] for
-                yr in self.handyvars.aeo_years}
-            # Adjust competed baseline stock cost to account for envelope
-            msegs_meas["cost"]["stock"]["competed"]["baseline"] = {
-                yr: msegs_meas["cost"]["stock"]["competed"][
-                     "baseline"][yr] + env_cost_base_comp_unit[yr] *
+                    "efficient"][yr] + env_cost_inc_comp_unit[yr] *
                 msegs_meas["stock"]["competed"]["measure"][yr] for
                 yr in self.handyvars.aeo_years}
 
@@ -13753,18 +14520,21 @@ class MeasurePackage(Measure):
         # resultant adjustment fractions will be applied to the equipment
         # measure's energy, energy cost and carbon data only
         if not overlap_meas and htcl_key_match:
-            # Initialize estimates of the portion of total potential
-            # overlapping energy use in the current microsegment that is
-            # affected by measure(s) of the overlapping tech type; the savings
-            # of these overlapping measure(s); the portion of total overlapping
-            # savings that the current measure contributes; and the relative
-            # performance of the overlapping measure(s)
-            save_overlp_htcl, rp_overlp_htcl = ({
-                yr: 1 for yr in self.handyvars.aeo_years} for n in range(2))
+            # Initialize estimates of total savings fraction for measures in
+            # the overlapping tech. type;
+            save_overlp_htcl = {yr: 0 for yr in self.handyvars.aeo_years}
+            # Initialize estimates of total relative performance fraction for
+            # measures in the overlapping tech. type (1-savings frac.)
+            rp_overlp_htcl = {yr: 1 for yr in self.handyvars.aeo_years}
             # Set shorthand for total savings and affected energy use
             # for the overlapping tech type in the current contributing mseg
             overlp_data = self.htcl_overlaps[adopt_scheme]["data"][
                 htcl_key_match]
+            # If efficient-captured data are reported, initialize dict that
+            # isolates the fraction of efficient-captured energy where both
+            # envelope and HVAC measures are having an impact
+            if overlp_data["efficient-captured"]:
+                eff_capt_env_frac = {yr: 0 for yr in self.handyvars.aeo_years}
 
             # Loop through all years in the modeling time horizon and use
             # data above to develop baseline/efficient adjustment factors
@@ -13793,6 +14563,53 @@ class MeasurePackage(Measure):
                     elif overlp_data["affected savings"][yr] > 0 and \
                             rp_overlp_htcl[yr] < 0:
                         rp_overlp_htcl[yr] = 0
+
+                    # If needed to isolate efficient-captured totals for cases
+                    # where both envelope and HVAC measures are having impacts,
+                    # pull the ratio of the efficient-captured energy use for
+                    # all overlapping envelope measures vs. the total efficient
+                    # energy use for these measures (this is later applied
+                    # to the efficient-captured totals for the pkg.)
+                    if overlp_data["efficient-captured"]:
+                        # Find efficient-captured-envelope fraction for the
+                        # overlapping measure(s); handle zero denominator
+                        try:
+                            eff_capt_env_frac[yr] = (
+                                overlp_data["efficient-captured"][yr] /
+                                overlp_data["total efficient"][yr])
+                            # Ensure that total efficient-captured energy is
+                            # never greater than total efficient energy for
+                            # overlapping envelope measures in a given region,
+                            # building type/vintage, and end use combination
+                            if eff_capt_env_frac[yr] > 1:
+                                eff_capt_env_frac[yr] = 1
+                            # In certain cases with aggressive envelope
+                            # improvements where the measure enters the market
+                            # later in the horizon, total efficient energy
+                            # (representing energy use of all the baseline
+                            # stock captured before the measure entered the
+                            # market) will be positive while total efficient-
+                            # captured energy (representing energy use of all
+                            # the stock the measure captures after market entry
+                            # ) will be negative – or vice versa, depending on
+                            # the direction of the env. component impact. For
+                            # this case, compare the absolute value of the
+                            # efficient-captured to the absolute value of the
+                            # total sum of efficient-captured and total
+                            # efficient values, to avoid a negative fraction.
+                            elif eff_capt_env_frac[yr] < 0:
+                                eff_capt_env_frac[yr] = (abs(overlp_data[
+                                    "efficient-captured"][yr]) / (
+                                    abs(overlp_data[
+                                        "efficient-captured"][yr]) +
+                                    abs(overlp_data["total efficient"][yr])))
+                        except ZeroDivisionError:
+                            eff_capt_env_frac[yr] = 0
+                        # Handle numpy NaNs
+                        if not numpy.isfinite(eff_capt_env_frac[yr]):
+                            eff_capt_env_frac[yr] = 0
+                    else:
+                        eff_capt_env_frac = None
 
             # Overlapping envelope measures only affect the efficient case
             # energy/carbon results for an HVAC equipment measure; set base
@@ -14019,15 +14836,18 @@ class MeasurePackage(Measure):
             # Implement competed efficient adjustment
             eff_adj_comp = {yr: base_adj[yr] * rp_overlp_comp[yr]
                             for yr in self.handyvars.aeo_years}
+            eff_capt_env_frac = None
         # If neither case 1 or 2 above, set baseline/efficient adjustments to 1
         else:
             base_adj, eff_adj, eff_adj_comp = (
               {yr: 1 for yr in self.handyvars.aeo_years} for n in range(2))
+            eff_capt_env_frac = None
 
-        return base_adj, eff_adj, eff_adj_comp
+        return base_adj, eff_adj, eff_adj_comp, eff_capt_env_frac
 
     def make_base_eff_adjs(
-            self, k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c):
+            self, k, cm_key, msegs_meas, base_adj, eff_adj, eff_adj_c,
+            eff_capt_env_frac):
         """Apply overlap adjustments for measure mseg in a package.
 
         Args:
@@ -14039,6 +14859,8 @@ class MeasurePackage(Measure):
             base_adj (dict): Overlap adjustments for baseline data.
             eff_adj (dict): Overlap adjustments for total efficient data.
             eff_adj_c (dict): Overlap adjustments for competed efficient data.
+            eff_capt_env_frac (dict): Efficient-captured portion of efficient
+                energy total across all envelope measures in HVAC/envelope pkg.
 
         Returns:
             Adjusted baseline/efficient stock, energy and carbon data that accounts
@@ -14056,6 +14878,8 @@ class MeasurePackage(Measure):
             tot_base_orig = copy.deepcopy(mseg_adj["total"]["all"])
             # Total efficient stock
             tot_eff_orig = copy.deepcopy(mseg_adj["total"]["measure"])
+            # Total efficient-captured stock is not relevant
+            tot_eff_capt_orig = ""
             # Stock costs do not require adjustment b/c they are additive
             # (not overlapping)
             mseg_cost_adj = None
@@ -14106,6 +14930,16 @@ class MeasurePackage(Measure):
             self.adj_pkg_mseg_keyvals(
                 mseg_cost_adj, base_adj, eff_adj, eff_adj_c,
                 base_eff_flag=None, comp_flag=None)
+        # If necessary, for energy, add further tracking to isolate
+        # efficient-captured data where both envelope and HVAC measures are
+        # having impacts within an HVAC/envelope pkg.; calculated as
+        # efficient-captured total for the HVAC/envelope pkg. multiplied by
+        # the efficient-captured portion of the efficient total across all
+        # envelope measures that contribute to the package
+        if k == "energy" and eff_capt_env_frac:
+            mseg_adj["total"]["efficient-captured-envelope"] = {
+                yr: mseg_adj["total"]["efficient-captured"][yr] *
+                eff_capt_env_frac[yr] for yr in self.handyvars.aeo_years}
 
         return mseg_adj, mseg_cost_adj, tot_base_orig, tot_eff_orig, \
             tot_eff_capt_orig, tot_save_orig, tot_base_orig_ecost, \
@@ -14115,7 +14949,7 @@ class MeasurePackage(Measure):
             self, k, cm_key, msegs_ecarb, msegs_ecarb_cost, mseg_out_break_adj,
             tot_base_orig, tot_eff_orig, tot_eff_capt_orig, tot_save_orig,
             tot_base_orig_ecost, tot_eff_orig_ecost, tot_save_orig_ecost,
-            key_list, fuel_switch_to, fs_eff_splt):
+            key_list, fuel_switch_to, fs_eff_splt, eff_capt_env_frac):
         """Adjust output breakouts after removing stock/energy/carbon data overlaps.
 
         Args:
@@ -14137,7 +14971,9 @@ class MeasurePackage(Measure):
             fuel_switch_to (string): Indicator of which baseline fuel the
                 measure switches to (if applicable).
             fs_eff_splt (dict): If applicable, the fuel splits for efficient-
-                case measure stock/energy/carb/cost (used to adj. output breakouts).
+                case measure energy/carb/cost (used to adj. output breakouts).
+            eff_capt_env_frac (dict): Efficient-captured portion of efficient
+                energy total across all envelope measures in HVAC/envelope pkg.
 
         Returns:
             Updated stock, energy, carbon, and energy cost output breakouts adjusted
@@ -14272,7 +15108,7 @@ class MeasurePackage(Measure):
             out_fuel_save, out_fuel_gain = ("" for n in range(2))
 
         # Shorthands for data used to adjust original output breakouts
-        base_orig, eff_orig, save_orig, = tot_base_orig, tot_eff_orig, tot_save_orig
+        base_orig, eff_orig, save_orig = tot_base_orig, tot_eff_orig, tot_save_orig
         if k == "stock":
             base_adj, eff_adj = msegs_ecarb["total"]["all"], msegs_ecarb["total"]["measure"]
         else:
@@ -14353,6 +15189,18 @@ class MeasurePackage(Measure):
                             eff_capt_orig[yr] - eff_capt_adj[yr]) *
                         fs_eff_splt_var_capt[yr] for
                     yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked; calculated as the efficient-captured
+                # total for the HVAC/envelope pkg. multiplied by the efficient-
+                # captured portion of the efficient total across all envelope
+                # measures that contribute to the package
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_save] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_save][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
 
             # No savings breakouts for stock variable
             if k != "stock":
@@ -14390,6 +15238,15 @@ class MeasurePackage(Measure):
                             eff_capt_orig[yr] - eff_capt_adj[yr]) * (
                             1 - fs_eff_splt_var_capt[yr])
                     for yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_gain] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_gain][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted efficient is added to the existing savings for
@@ -14489,6 +15346,13 @@ class MeasurePackage(Measure):
                     yr in self.handyvars.aeo_years}
                 # Update efficient captured for envelope portion of pkg. if
                 # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu][out_fuel_save] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][out_fuel_save][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted
@@ -14550,6 +15414,15 @@ class MeasurePackage(Measure):
                             out_cz][out_bldg][out_eu][yr] - (
                                 eff_capt_orig[yr] - eff_capt_adj[yr]) for
                         yr in self.handyvars.aeo_years}
+                # Update efficient captured for envelope portion of pkg. if
+                # this is being tracked
+                if eff_capt_env_frac:
+                    mseg_out_break_adj[k]["efficient-captured-envelope"][
+                        out_cz][out_bldg][out_eu] = {
+                            yr: mseg_out_break_adj[k]["efficient-captured"][
+                                out_cz][out_bldg][out_eu][yr] *
+                            eff_capt_env_frac[yr] for yr in
+                            self.handyvars.aeo_years}
             # No savings breakouts for stock variable
             if k != "stock":
                 # Adjusted savings is difference between adjusted
@@ -15088,12 +15961,12 @@ def split_clean_data(meas_prepped_objs, full_dat_out):
             del m.linked_htcl_tover
             del m.linked_htcl_tover_anchor_eu
             del m.linked_htcl_tover_anchor_tech
-            # Delete flag for reference case measure, which is used for incentives calculations
-            del m.ref_case_flag
             # If backup fuel fraction data exist (will be dataframe), convert to simple flag for
             # JSON write-out and subsequent use in run
             if m.backup_fuel_fraction is not None:
                 m.backup_fuel_fraction = True
+            del m.ref_analogue
+            del m.add_elec_infr_cost
         # For measure packages, replace 'contributing_ECMs'
         # objects list with a list of these measures' names and remove
         # unnecessary heating/cooling equip/env overlap data
@@ -16074,7 +16947,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
 
                 # Check for whether a reference case analogue measure should be added, which a
                 # user flags via the `ref_analogue` attribute
-                if meas_dict.get("ref_analogue") and opts.add_typ_eff:
+                if meas_dict.get("ref_analogue") and meas_dict["ref_analogue"] is True:
                     add_ref_meas = True
                 else:
                     add_ref_meas = False
