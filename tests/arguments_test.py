@@ -125,7 +125,7 @@ class TestConfig(unittest.TestCase, Utils):
             "report_cfs": False,
             "no_comp": False,
             "high_res_comp": False,
-            "write_hp_conv_fracs": False
+            "write_elec_conv_fracs": False
         },
     }
 

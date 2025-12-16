@@ -335,8 +335,8 @@ properties:
         type: boolean
         default: false
         description: If true, resolve competition cost data to each market microsegment (rather than averaging across all applicable markets).
-      write_hp_conv_fracs:
+      write_elec_conv_fracs:
         type: boolean
         default: false
-        description: If true, writes out rates of conversions to electric heat pump equipment for any non-heat pump equipment.   
+        description: If true, writes out rates of either fuel or tech. switching to electric equipment.   
           

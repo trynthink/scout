@@ -245,6 +245,6 @@ run:
     variables is reported. Default False
   verbose: (boolean) If true, print all warnings to stdout. Default
     False
-  write_hp_conv_fracs: (boolean) If true, writes out rates of
-    conversions to electric heat pump equipment for any non-heat
-    pump equipment. Default False
+  write_elec_conv_fracs: (boolean) If true, writes out rates of
+    either fuel or tech. switching to electric equipment. Default
+    False
