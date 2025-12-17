@@ -28052,7 +28052,7 @@ class CodesBPSTest(unittest.TestCase, CommonMethods, Constants):
         cls.opts = NullOpts().opts
         cls.hv_code_bps = run.UsefulVars(Constants.HANDYFILES, NullOpts().opts, brkout="detail",
                                          regions="State", state_appl_regs=None, codes="reference",
-                                         bps="reference")
+                                         bps="reference", exog_rates=False)
         # Adjust to test years
         cls.hv_code_bps.aeo_years = ["2009", "2010"]
         # Set cost conversions to 1
