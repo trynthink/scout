@@ -61,7 +61,8 @@ Select appropriate options when prompted
 Run converter tests
 `python tests/final_mseg_converter_test.py`
 
-## Step 3: Move these final output files to the scout/scout/supporting_data/supporting_data/stock_energy_tech_data folder, commit and push to github:
+## Step 3: Commit final output files
+Move these final output files to the scout/scout/supporting_data/supporting_data/stock_energy_tech_data folder, commit and push to github:
 - mseg_res_com_cz.json
 - mseg_res_com_emm.gz
 - mseg_res_com_state.gz
