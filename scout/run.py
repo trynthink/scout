@@ -557,6 +557,8 @@ class Codes_BPS_Measure(object):
                variables (climate zone, building class, end use, fuel),
         savings (dict): Energy, carbon, and stock, energy, and carbon cost
             savings for measure over baseline technology case.
+        gap_wts (dict): Data used to calculate portions of Scout/AEO msegs that
+            ComStock load shapes do not cover.
     """
 
     def __init__(self, handyvars, name):
@@ -635,6 +637,8 @@ class Codes_BPS_Measure(object):
         self.markets[adopt_scheme][
             "mseg_out_break"]["stock"] = {
                 key: copy.deepcopy(out_break_in) for key in ["baseline", "efficient"]}
+        # Initialize gap weights (may or may not be needed, depending on user settings)
+        self.gap_wts = {}
 
 
 class Measure(object):
@@ -885,6 +889,9 @@ class Engine(object):
                     adopt_scheme] = OrderedDict()
                 # Initialize measure financial metrics
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
+            # Report through ComStock gap weights if these are specified for measure
+            if hasattr(m, 'gap_wts'):
+                self.output_ecms[m.name]["ComStock Gap Weights"] = m.gap_wts
 
     def trim_code_bps_yrs(self, orig_dict, focus_yrs):
         """Trims code/BPS measure results to reduced year set if specified.
@@ -6314,6 +6321,8 @@ class Engine(object):
         # breakout categories; these will be updated as the measure is adjusted below
         cdbps_regs, cdbps_bldgs, cdbps_eus = [
             m_cdbps.reg_brk, m_cdbps.bldg_vnt_brk, m_cdbps.end_use_brk]
+        # Set shorthand for code/BPS ComStock gap fraction attribute
+        cdbps_gap_fracs = m_cdbps.gap_wts
 
         # Loop through all existing non-code/BPS measures that pertain to the current combination
         # of region, building type and vintage and adjust their data and the code/BPS measure data
@@ -6325,6 +6334,11 @@ class Engine(object):
 
             # Set measure fuel type attribute for later use in tracking fuel switching
             meas_fuel, meas_eus = [m.fuel_type["primary"], m.end_use["primary"]]
+            # Set shorthand for measure ComStock gap fraction attribute
+            if hasattr(m, "gap_wts"):
+                meas_gap_fracs = m.gap_wts
+            else:
+                meas_gap_fracs = None
             # Loop through four metrics that are broken out in measure data. (Note that costs
             # denote energy costs only, and carbon costs are not broken out/won't be adjusted)
             for var in ["stock", "energy", "carbon", "cost"]:
@@ -6408,7 +6422,7 @@ class Engine(object):
                         mast_dat_cdbps_base, mast_dat_cdbps_save, reg, bldg, apply_yrs,
                         onsite_times_apply_fracs, rel_elec_eff[var], prior_yr_rmv, var,
                         cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, reg, bldg, vint, meas_fuel,
-                        meas_eus, res_focus, adopt_scheme)
+                        meas_eus, res_focus, meas_gap_fracs, cdbps_gap_fracs, adopt_scheme)
                 # Apply any additional energy reduction requirements, leveraging data shorthands
                 # above. Note that stock remains the same for code reductions, such that per unit
                 # energy/carb/cost will be reduced
@@ -6419,7 +6433,7 @@ class Engine(object):
                         brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
                         mast_dat_cdbps_base, mast_dat_cdbps_save, reg, bldg, apply_yrs,
                         add_energy_times_apply_fracs, prior_yr_rmv, cdbps_regs, cdbps_bldgs,
-                        cdbps_eus, focus_yrs)
+                        cdbps_eus, focus_yrs, meas_gap_fracs, cdbps_gap_fracs)
 
         return
 
@@ -6429,7 +6443,7 @@ class Engine(object):
             brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
             reg, bldg, apply_yrs, onsite_times_apply_fracs, rel_elec_eff,
             prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, reg_in, bldg_in,
-            vint_in, meas_fuel, meas_eus, res_focus, adopt_scheme):
+            vint_in, meas_fuel, meas_eus, res_focus, meas_gap_fracs, cdbps_gap_fracs, adopt_scheme):
         """Apply onsite emissions reductions required via code/BPS.
 
         Args:
@@ -6467,6 +6481,8 @@ class Engine(object):
             meas_fuel (str): Measure fuel type (used to track fuel and/or technology switch to HPs).
             meas_eus (str): Measure end uses (used to track fuel and/or tech. switch to HPs).
             res_focus (str): Flag for whether current building type is residential (or not).
+            meas_gap_fracs (dict or None): Measure ComStock gap shape weight.
+            cdbps_gap_frac (dict): Code/BPS measure ComStock gap shape weight.
             adopt_scheme (string): Assumed consumer adoption scenario.
         """
 
@@ -6621,6 +6637,13 @@ class Engine(object):
                             if len(brk_dat_cdbps_base[reg][bldg][eu][fossil_fuel].keys()) == 0:
                                 for yr in focus_yrs:
                                     brk_dat_cdbps_base[reg][bldg][eu][fossil_fuel][yr] = 0
+                                # Initialize gap fractions if needed
+                                if meas_gap_fracs is not None and \
+                                    bldg in meas_gap_fracs.keys() and \
+                                        bldg not in cdbps_gap_fracs.keys():
+                                    cdbps_gap_fracs[bldg] = {
+                                        "total": {yr: 0 for yr in focus_yrs},
+                                        "gap": {yr: 0 for yr in focus_yrs}}
                             # Initialize efficient data
                             if len(brk_dat_cdbps_eff[reg][bldg][eu][elec_key].keys()) == 0:
                                 for yr in focus_yrs:
@@ -6685,6 +6708,11 @@ class Engine(object):
                                 # master data for the codes/BPS measure
                                 brk_dat_cdbps_base[reg][bldg][eu][fossil_fuel][yr] += \
                                     added_elec_base[yr]  # This will be fossil
+                                # Adjust gap fractions if needed
+                                if bldg in cdbps_gap_fracs.keys():
+                                    cdbps_gap_fracs[bldg]["total"][yr] += added_elec_base[yr]
+                                    cdbps_gap_fracs[bldg]["gap"][yr] += (
+                                        added_elec_base[yr] * meas_gap_fracs[bldg][yr])
                                 brk_dat_cdbps_eff[reg][bldg][eu][elec_key][yr] += \
                                     added_elec_eff[yr]  # This will be electric
                                 # Only update savings breakout data if applicable
@@ -6711,7 +6739,7 @@ class Engine(object):
             mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
             brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
             reg, bldg, apply_yrs, add_energy_times_apply_fracs, prior_yr_rmv,
-            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs):
+            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, meas_gap_fracs, cdbps_gap_fracs):
         """Apply additional energy reduction impacts needed to meet code/BPS.
 
         Args:
@@ -6741,6 +6769,8 @@ class Engine(object):
             cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
             cdbps_eus (list): Applicable end use categories for codes/BPS measure.
             focus_yrs (str): Years to report the output data for (can be full AEO range or trimmed).
+            meas_gap_fracs (dict or None): Measure ComStock gap shape weight.
+            cdbps_gap_frac (dict): Code/BPS measure ComStock gap shape weight.
         """
 
         # Loop through all end uses for the given region and building type/vintage breakout
@@ -6772,7 +6802,8 @@ class Engine(object):
                     brk_dat_cdbps_save[reg][bldg][eu],
                     mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
                     reg, bldg, eu, apply_yrs, add_energy_times_apply_fracs,
-                    prior_yr_rmv, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                    prior_yr_rmv, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs,
+                    meas_gap_fracs, cdbps_gap_fracs)
             else:
                 # Loop through fuel types under end use breakout
                 for fuel in brk_dat_base[reg][bldg][eu].keys():
@@ -6806,14 +6837,15 @@ class Engine(object):
                             brk_dat_cdbps_save[reg][bldg][eu][fuel],
                             mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
                             reg, bldg, eu, apply_yrs, add_energy_times_apply_fracs, prior_yr_rmv,
-                            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, meas_gap_fracs,
+                            cdbps_gap_fracs)
 
     def adjust_data(self, brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base,
                     brk_dat_save, mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff,
                     brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base,
                     mast_dat_cdbps_save, reg, bldg, eu, apply_yrs,
                     add_energy_times_apply_fracs, prior_yr_rmv, cdbps_regs,
-                    cdbps_bldgs, cdbps_eus, focus_yrs):
+                    cdbps_bldgs, cdbps_eus, focus_yrs, meas_gap_fracs, cdbps_gap_fracs):
         """Make the actual adjustments to reflect additional energy reductions to meet code/BPS.
 
         brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
@@ -6843,6 +6875,8 @@ class Engine(object):
         cdbps_bldgs (list): Applicable building type/vintage categories for codes/BPS measure.
         cdbps_eus (list): Applicable end use categories for codes/BPS measure.
         focus_yrs (str): Years to report the output data for (can be full AEO range or trimmed).
+        meas_gap_fracs (dict or None): Measure ComStock gap shape weight.
+        cdbps_gap_frac (dict): Code/BPS measure ComStock gap shape weight.
         """
 
         # Determine energy/carbon/cost data that should be removed from the additional energy
@@ -6920,6 +6954,21 @@ class Engine(object):
             for yr in focus_yrs:
                 brk_dat_cdbps_base[yr] += reduce_base_to_meet_thres[yr]
 
+        # Initialize gap fractions if needed
+        if (meas_gap_fracs is not None) and (bldg in meas_gap_fracs.keys()) and (
+                bldg not in cdbps_gap_fracs.keys()):
+            cdbps_gap_fracs[bldg] = {
+                "total": {yr: reduce_base_to_meet_thres[yr] for yr in focus_yrs},
+                "gap": {yr: reduce_base_to_meet_thres[yr] * meas_gap_fracs[bldg][yr]
+                        for yr in focus_yrs}}
+        # Add to gap fractions if needed
+        elif (meas_gap_fracs is not None) and (bldg in meas_gap_fracs.keys()):
+            cdbps_gap_fracs[bldg]["total"] = {
+                yr: cdbps_gap_fracs[bldg]["total"][yr] + reduce_base_to_meet_thres[yr]
+                for yr in focus_yrs}
+            cdbps_gap_fracs[bldg]["gap"] = {
+                yr: cdbps_gap_fracs[bldg]["gap"][yr] + (
+                    reduce_base_to_meet_thres[yr] * meas_gap_fracs[bldg][yr]) for yr in focus_yrs}
         # Initialize efficient breakout data if needed as zero; since this is always zero for
         # codes/BPS measures, no subsequent update is needed
         if len(brk_dat_cdbps_eff.keys()) == 0:
@@ -7231,6 +7280,9 @@ class Engine(object):
         codes_bps_dict_out["Markets and Savings (Overall)"], \
             codes_bps_dict_out["Markets and Savings (by Category)"] = (
                 OrderedDict() for n in range(2))
+        # Finalize gap fractions data, if applicable
+        if len(cbps.gap_wts.keys()) != 0:
+            codes_bps_dict_out["ComStock Gap Weights"] = self.finalize_gap_wts(cbps.gap_wts)
 
         # Loop through adoption schemes and finalize format of markets data
         for adopt_scheme in handyvars.adopt_schemes:
