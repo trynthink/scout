@@ -1,0 +1,354 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Building Energy Efficiency Measure",
+  "type": "object",
+   "required": [
+    "name",
+    "_description",
+    "measure_type",
+    "climate_zone",
+    "bldg_type",
+    "structure_type",
+    "end_use",
+    "fuel_type",
+    "technology",
+    "energy_efficiency",
+    "energy_efficiency_units",
+    "installed_cost",
+    "cost_units",
+    "product_lifetime",
+    "product_lifetime_units"
+  ],
+  "definitions": {
+    "climateZoneEnum": {
+      "type": "string",
+      "enum": [
+        "all", "warm climates", "cold climates", 
+        "TRE", "FRCC", "MISW", "MISC", "MISE", "MISS", "ISNE", "NYCW", "NYUP", "PJME", "PJMW", "PJMC", "PJMD",
+        "SRCA", "SRSE", "SRCE", "SPPS", "SPPC", "SPPN", "SRSG", "CANO", "CASO", "NWPP", "RMRG", "BASN",
+        "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
+        "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL", "IN", "IA", "KS", "KY", "LA", 
+        "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", 
+        "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+      ]
+    },
+    "bldgTypeEnum": {
+      "type": "string",
+      "enum": [
+        "all",
+        "all residential", "single family home", "multi family home", "mobile home",
+        "all commercial", "assembly", "education", "food sales", "food service", "health care", 
+        "lodging", "large office", "small office", "mercantile/service", "warehouse", 
+        "other", "unspecified"
+      ]
+    },
+    "endUseEnum": {
+      "type": "string",
+      "enum": [
+        "all", "heating", "secondary heating", "cooling", "water heating", "cooking", 
+        "drying", "lighting", "refrigeration", "ceiling fan", "fans and pumps", "computers", 
+        "TVs", "ventilation", "PCs", "non-PC office equipment", "MELs", "unspecified", "other"]
+    },
+    "energyEfficiencyType": {
+      "type": ["number", "object"],
+      "patternProperties": {
+        "^.*$": { "$ref": "#/definitions/energyEfficiencyType" }
+      }
+    },
+    "energyEfficiencyUnitsType": {
+      "type": ["string", "object"],
+      "patternProperties": {
+        "^.*$": { "$ref": "#/definitions/energyEfficiencyUnitsType" }
+      }
+    },
+    "marketScalingFractionsType": {
+      "type": ["number", "object", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "patternProperties": {
+        "^.*$": { "$ref": "#/definitions/marketScalingFractionsType" }
+      }
+    },
+    "sourceSchema": {
+      "type": ["object", "null"],
+      "properties": {
+        "notes":  { 
+          "type": ["string", "array", "null"],
+          "items": { "type": "string" }
+        },
+        "source_data": {
+          "type": ["string", "object", "array", "null"],
+          "properties": {
+              "title": { "type": "string" },
+              "author": { "type": ["string", "null"] },
+              "organization": { "type": "string" },
+              "year": { "type": "integer" },
+              "pages": {
+                "type": ["integer", "string", "array", "null"],
+                "items": { "type": "integer" }
+              },
+              "URL": { "type": "string", "format": "uri" }
+            },
+            "required": ["title", "year"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "author": { "type": ["string", "null"] },
+              "organization": { "type": "string" },
+              "year": { "type": "integer" },
+              "pages": {
+                "type": ["integer", "string", "array", "null"],
+                "items": { "type": "integer" }
+              },
+              "URL": { "type": "string", "format": "uri" }
+            },
+            "required": ["title", "year"]
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "name": { "type": "string", "maxLength": 55 },
+    "_description": { 
+          "type": ["string", "array"],
+          "items": { "type": "string" }
+        },
+    "_notes": { "type": "string" },
+    "measure_type": { "type": "string" , "enum": ["full service", "add-on"]},
+    "ref_analogue": { "type": "boolean" },
+    "market_entry_year": { "type": ["integer", "null"] },
+    "market_entry_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "market_exit_year": { "type": ["integer", "null"] },
+    "market_exit_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "min_eff_elec_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null]
+    },
+    "ref_case_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null]
+    },
+    "climate_zone": {
+      "oneOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bldgTypeEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "bldg_type": {
+      "oneOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bldgTypeEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "structure_type": {
+      "oneOf": [
+        { "type": "string", 
+        "enum": ["new", "existing", "all"] },
+        {
+          "type": "array",
+          "items": {
+            "type": "string", 
+            "enum": ["new", "existing", "all"] },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "end_use": {
+      "oneOf": [
+        { "$ref": "#/definitions/endUseEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/endUseEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "fuel_type": {
+      "oneOf": [
+        { "type": "string", 
+        "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"] },
+        {
+          "type": "array",
+          "items": {
+            "type": "string", 
+            "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"] },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "fuel_switch_to": { 
+      "enum": ["electricity", "natural gas", "distillate", "other fuel", "all", null]
+    },
+    "backup_fuel_fraction": { "type": ["string", "null"] },
+    "technology": { 
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": {
+            "type": "string" }
+        }
+      ]
+    }, 
+    "htcl_tech_link": { "type": ["string", "null"] },
+    "tech_switch_to": { 
+      "enum": ["ASHP", "GSHP", "HPWH","resistance heat", "Electric cooking", "induction", "Electric drying", 
+      "HP dryer", "elec_water_heater", "elec_range-combined", "elec_boiler",
+      "LED", "electric WH", "electric range", "electric dryer", "electric other", "same", null]
+    },
+    "energy_efficiency": {"$ref": "#/definitions/energyEfficiencyType"},
+    "energy_efficiency_units": {"$ref": "#/definitions/energyEfficiencyUnitsType"},
+    "energy_efficiency_source": { "$ref": "#/definitions/sourceSchema" },
+    "installed_cost": {
+      "type": ["number", "object"],
+      "patternProperties": {
+        ".*": {  
+          "type": ["number", "object"],
+          "patternProperties": {
+            ".*": {  
+              "type": ["number", "object"],
+              "patternProperties": {
+                ".*": { 
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cost_units": {
+      "type": ["string", "object"],
+      "patternProperties": {
+        ".*": {  
+          "type": ["string", "object"],
+          "patternProperties": {
+            ".*": { 
+              "type": ["string", "object"],
+              "patternProperties": {
+                ".*": { 
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "installed_cost_source": { "$ref": "#/definitions/sourceSchema" },
+    "add_elec_infr_cost": { "type": ["object", "null"] }, 
+    "product_lifetime": {
+      "type": ["integer", "number", "object"],
+      "minimum": 1,
+      "patternProperties": {
+        ".*": { 
+          "type": "integer",
+          "minimum": 1 
+        }
+      }
+    },
+    "product_lifetime_units": { "type": "string", "enum": ["years"] },
+    "product_lifetime_source": { "$ref": "#/definitions/sourceSchema" },
+    "tsv_features": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/tsv_features"
+        }
+      }
+    },
+    "tsv_source": { 
+      "type": "object", 
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/sourceSchema"
+        }
+      }
+    },
+    "market_scaling_fractions": {"$ref": "#/definitions/marketScalingFractionsType"},
+    "market_scaling_fractions_source":{
+      "type": ["object", "null"],
+      "properties": {
+        "notes": { 
+          "type": ["string", "array", "null"],
+          "items": { "type": "string" }
+        },
+        "source_data": {
+          "type": ["string", "object", "array", "null"],
+          "properties": {
+              "title": { "type": "string" },
+              "author": { "type": ["string", "null"] },
+              "organization": { "type": "string" },
+              "year": { "type": "integer" },
+              "pages": {
+                "type": ["integer", "string", "array", "null"],
+                "items": { "type": "integer" }
+              },
+              "URL": { "type": "string", "format": "uri" },
+              "fraction_derivation": {"type": "string"}
+            },
+            "required": ["title", "year"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "author": { "type": ["string", "null"] },
+              "organization": { "type": "string" },
+              "year": { "type": "integer" },
+              "pages": {
+                "type": ["integer", "string", "array", "null"],
+                "items": { "type": "integer" }
+              },
+              "URL": { "type": "string", "format": "uri" },
+              "fraction_derivation": {"type": "string"}
+            },
+            "required": ["title", "year"]
+          }
+        }
+      },
+      "required": ["source_data"]
+    },
+    "retro_rate": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "retro_rate_source": { "$ref": "#/definitions/sourceSchema" },
+    "_added_by": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "organization": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"]
+    },
+    "_updated_by": {
+      "type": ["object", "null"],
+      "properties": {
+        "name": { "type": "string" },
+        "organization": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"]
+    }
+  }
+}
