@@ -608,12 +608,11 @@ class Measure(object):
         # Reset flag for whether to consider panel upgrade needs in cases where
         # measures do not apply to heating equipment in existing single family homes
         if self.handyvars.panel_shares is not None \
-            and self.technology_type != "demand" and not all([(
+            and (self.technology_type == "demand" or (
+                self.technology_type != "demand" and not all([(
                 (x in y) or ("all" in y)) for x, y in zip([
                 "heating", "single family home", "existing"],
-                [self.end_use, self.bldg_type, self.structure_type])]):
-            self.handyvars.panel_shares = ""
-        else:
+                [self.end_use, self.bldg_type, self.structure_type])]))):
             self.handyvars.panel_shares = None
         # Reset market entry year if None or earlier than min. year
         if self.market_entry_year is None or (int(
@@ -3120,11 +3119,13 @@ class Measure(object):
 
                         # In some cases, typical cost data will be split
                         # further by new vs. existing keys; handle accordingly
-                        # and finalize costs (before incentives)
+                        # and finalize costs (before incentives). Note: deep copy is
+                        # necessary to ensure that subsequent modification of base costs
+                        # for incentives does not change original data (before incentives)
                         if mskeys[-1] in cost_base_init["typical"].keys():
-                            cost_base = cost_base_init["typical"][mskeys[-1]]
+                            cost_base = copy.deepcopy(cost_base_init["typical"][mskeys[-1]])
                         else:
-                            cost_base = cost_base_init["typical"]
+                            cost_base = copy.deepcopy(cost_base_init["typical"])
                         # Set baseline cost units
                         cost_base_units = cost_base_init["units"]
 
