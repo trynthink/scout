@@ -26,10 +26,10 @@ for example, AEO2025 data (https://nrel.sharepoint.com/:f:/r/sites/Scout2/Shared
 # Processing Workflow
 ## Preliminary Steps
 - Run tests to confirm they're passing
-python -m unittest discover -s tests -p "*_test.py"
+`python -m unittest discover -s tests -p "*_test.py"`
 - Check entry lines against actual files
 - Generate required data input files in the scout/inputs folder
-python scout/eia_file.py
+`python scout/eia_file.py`
 
 ## Step 1: Generate Metadata
 `python scout/mseg_meta.py`
