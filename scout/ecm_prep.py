@@ -4105,7 +4105,8 @@ class Measure(object):
                             # Segment is linked to non-electric heating tech. other than gas;
                             # pull first non-electric fuel in measure definition
                             elif any([x != "electricity" for x in self.fuel_type["primary"]]):
-                                fuel_shr = [x for x in self.fuel_type if x != "electricity"][0]
+                                fuel_shr = [
+                                    x for x in self.fuel_type["primary"] if x != "electricity"][0]
                             # Segment is linked to electric heating tech.
                             else:
                                 fuel_shr = "electricity"
