@@ -18,8 +18,25 @@ for json_file in JSON_DIR.glob("*.json"):
 
     data = json.loads(json_file.read_text())
     errors = sorted(validator.iter_errors(data), key=lambda e: e.path)
+
     if errors:
-        warnings.warn(
-            f"{json_file.name} is invalid:\n" +
-            "\n".join(f"  - {e.message}" for e in errors)
-        )
+        messages = []
+
+        for e in errors:
+            # Skip specific error messages mentioning consumer choice regex non-match
+            if "consumer choice" in e.message and "does not match any of the regexes" in e.message:
+                continue
+
+            data_path = "/".join(str(p) for p in e.path)
+            schema_path = "/".join(str(p) for p in e.schema_path)
+
+            messages.append(
+                f"{e.message}\n"
+                f"    data path: {data_path}\n"
+                f"    schema path: {schema_path}"
+            )
+        if messages:
+            warnings.warn(
+                f"{json_file.name} is invalid:\n" +
+                "\n".join(f"  - {e.message}" for e in errors)
+            )

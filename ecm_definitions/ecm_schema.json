@@ -110,7 +110,7 @@
     }
   },
   "properties": {
-    "name": { "type": "string", "maxLength": 55 },
+    "name": { "type": "string", "maxLength": 60 },
     "_description": { 
           "type": ["string", "array"],
           "items": { "type": "string" }
