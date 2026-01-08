@@ -86,6 +86,11 @@
         "ventilation", "lighting gain", "other heat gain", "all ventilation"
       ]
     },
+     "dayEnum": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365
+    },
     "energyEfficiencyType": {
       "type": ["number", "object"],
       "patternProperties": {
@@ -296,19 +301,160 @@
     },
     "product_lifetime_units": { "type": "string", "enum": ["years"] },
     "product_lifetime_source": { "$ref": "#/definitions/sourceSchema" },
-    "tsv_features": {
+    "tsv_features": { 
       "type": "object",
-      "patternProperties": {
-        "^.*$": {
-          "$ref": "#/tsv_features"
+      "propertyNames": { "$ref": "#/definitions/climateZoneEnum" },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": { "$ref": "#/definitions/bldgTypeEnum" },
+        "additionalProperties": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/definitions/endUseEnum" },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+                    "shed": { 
+                      "type": "object",
+                      "properties":{
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["relative energy change fraction", "start_hour", "stop_hour", "stop_day"]
+                    },
+                    "shift": { 
+                      "type": "object",
+                      "properties":{
+                        "offset_hrs_earlier": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        },
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["offset_hrs_earlier", "relative energy change fraction", "start_hour", "stop_hour", "stop_day"]
+                    },
+                    "shape": { 
+                      "type": "object",
+                      "properties":{
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        },
+                        "custom_daily_savings":{
+                          "type": "array",
+                          "items": { 
+                            "type": "number"
+                          },
+                          "minItems": 24,
+                          "maxItems": 24
+                        },
+                        "custom_annual_savings":{
+                          "type": "string"
+                        }
+                      },
+                      "required": ["stop_day"]
+                    }
+            }
+          }
         }
       }
     },
     "tsv_source": { 
-      "type": "object", 
-      "patternProperties": {
-        "^.*$": {
-          "$ref": "#/definitions/sourceSchema"
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/climateZoneEnum" },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": { "$ref": "#/definitions/bldgTypeEnum" },
+        "additionalProperties": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/definitions/endUseEnum" },
+          "additionalProperties": {
+            "type": "object",
+            "properties": { "$ref": "#/definitions/sourceSchema" }
+          }
         }
       }
     },
