@@ -4744,8 +4744,9 @@ class Measure(object):
                             not opts.no_lnkd_stk_costs or not opts.no_lnkd_op_costs) and (
                             (self.linked_htcl_tover and
                              self.linked_htcl_tover_anchor_eu not in mskeys and (
-                            mskeys[-2] is not None and self.linked_htcl_tover_linked_tech in [
-                                mskeys[-2], "all"]))):
+                            mskeys[-2] is not None and (
+                                self.linked_htcl_tover_linked_tech == "all" or
+                                self.linked_htcl_tover_linked_tech in mskeys[-2])))):
                         # Set the list of contributing mseg information to use in matching
                         # the linked segments to the anchor segment, including primary/secondary
                         # mseg type, region, building type, and building vintage
