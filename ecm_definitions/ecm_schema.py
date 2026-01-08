@@ -23,10 +23,6 @@ for json_file in JSON_DIR.glob("*.json"):
         messages = []
 
         for e in errors:
-            # Skip specific error messages mentioning consumer choice regex non-match
-            if "consumer choice" in e.message and "does not match any of the regexes" in e.message:
-                continue
-
             data_path = "/".join(str(p) for p in e.path)
             schema_path = "/".join(str(p) for p in e.schema_path)
 
