@@ -2,7 +2,7 @@
 
 import json
 from collections import OrderedDict
-from datetime import datetime
+# from datetime import datetime
 import gzip
 from scout.config import FilePaths as fp
 
@@ -106,9 +106,9 @@ class UsefulVars(object):
                 raise ValueError(
                     "Error reading in '" +
                     handyfiles.metadata + "': " + str(e)) from None
-        # Set minimum AEO modeling year
-        # aeo_min = aeo_yrs["min year"]
-        aeo_min = datetime.today().year
+        # Set minimum modeling year to 2024 for BSS
+        # aeo_min = datetime.today().year
+        aeo_min = 2024
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
