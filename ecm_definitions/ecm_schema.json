@@ -50,40 +50,163 @@
         "TVs", "ventilation", "PCs", "non-PC office equipment", "MELs", "unspecified", "other"
       ]
     },
-    "technologyEnum": {
+    "techResHeatingEnum": {
       "type": "string",
       "enum": [
-        "all",  "ASHP", "GSHP", "resistance heat", "NGHP", "boiler (NG)", "furnace (NG)",
-        "boiler (distillate)", "furnace (distillate)", "furnace (LPG)", "furnace (kerosene)", "stove (wood)",
-        "secondary heater", "secondary heater (wood)", "secondary heater (coal)", "secondary heater (kerosene)", 
-        "secondary heater (LPG)", "room AC", "central AC", "electric WH", "solar WH",
+        "ASHP", "GSHP", "resistance heat", 
+        "NGHP", "boiler (NG)", "furnace (NG)",
+        "boiler (distillate)", "furnace (distillate)", 
+        "furnace (LPG)", "furnace (kerosene)", "stove (wood)"
+      ]
+    },
+    "techResSecondaryHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "secondary heater", "secondary heater (wood)", 
+        "secondary heater (coal)", "secondary heater (kerosene)", 
+        "secondary heater (LPG)"
+      ]
+    },
+    "techResCoolingEnum": {
+      "type": "string",
+      "enum": [
+        "room AC", "central AC", "ASHP", "GSHP", "NGHP"
+      ]
+    },
+    "techResWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "electric WH", "solar WH"
+      ]
+    },
+    "techResLightingEnum": {
+      "type": "string",
+      "enum": [
         "general service (incandescent)", "reflector (incandescent)", "reflector (halogen)", "external (incandescent)",
         "external (high pressure sodium)", "general service (CFL)", "reflector (CFL)", "linear fluorescent (T-8)",
         "linear fluorescent (T-12)", "external (CFL)", "general service (LED)", "reflector (LED)", 
-        "linear fluorescent (LED)", "external (LED)", "desktop PC", "laptop PC", "network equipment", "monitors",
-        "home theater and audio", "set top box", "video game consoles", "OTT streaming devices", "TV",
+        "linear fluorescent (LED)", "external (LED)"
+      ]
+    },
+    "techResComputersEnum": {
+      "type": "string",
+      "enum": [
+        "desktop PC", "laptop PC", "network equipment", "monitors"
+      ]
+    },
+    "techResTVsEnum": {
+      "type": "string",
+      "enum": [
+        "home theater and audio", "set top box", "video game consoles", "OTT streaming devices", "TV"
+      ]
+    },
+    "techResOtherEnum": {
+      "type": "string",
+      "enum": [
         "dishwasher", "clothes washing", "freezers", "rechargeables", "coffee maker", "dehumidifier", "electric other", 
         "small kitchen appliances", "microwave", "smartphones", "pool heaters", "pool pumps", "security system", 
-        "portable electric spas", "smart speakers", "tablets", "wine coolers", "other appliances", 
-        "roof", "wall", "infiltration", "ground", "windows solar", "windows conduction", "equipment gain", "people gain",
-        "electric_res-heat", "elec_res-heater", "comm_GSHP-heat", "rooftop_ASHP-heat", "elec_boiler", "pkg_terminal_HP-heat",
-        "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace",
-        "rooftop_AC", "scroll_chiller", "res_type_central_AC", "reciprocating_chiller", "comm_GSHP-cool", 
+        "portable electric spas", "smart speakers", "tablets", "wine coolers", "other appliances"
+      ]
+    },
+    "techResdemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "infiltration", "ground", "windows solar", "windows conduction", "equipment gain", "people gain"
+      ]
+    },
+    "techComHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_res-heat", "elec_res-heater", "comm_GSHP-heat", "rooftop_ASHP-heat", "elec_boiler", "pkg_terminal_HP-heat",
+        "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"
+      ]
+    },
+    "techComCoolingEnum": {
+      "type": "string",
+      "enum": [
+       "rooftop_AC", "scroll_chiller", "res_type_central_AC", "reciprocating_chiller", "comm_GSHP-cool", 
         "centrifugal_chiller", "rooftop_ASHP-cool", "wall-window_room_AC", "screw_chiller", "pkg_terminal_AC-cool", 
-        "pkg_terminal_HP-cool", "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
-        "CAV_Vent", "VAV_Vent", "solar water heater", "solar_water_heater_north", "HP water heater", "elec_water_heater",
-        "gas_water_heater", "gas_instantaneous_water_heater", "oil_water_heater", "100W A19 Incandescent", 
-        "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
+        "pkg_terminal_HP-cool", "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"
+      ]
+    },
+    "techComVentilationEnum": {
+      "type": "string",
+      "enum": [
+       "CAV_Vent", "VAV_Vent", "all ventilation"
+      ]
+    },
+    "techComWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "solar water heater", "solar_water_heater_north", "HP water heater", "elec_water_heater",
+        "gas_water_heater", "gas_instantaneous_water_heater", "oil_water_heater"
+      ]
+    },
+    "techComLightingEnum": {
+      "type": "string",
+      "enum": [
+       "100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
         "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED PAR38", "T5 F28", "T8 F28", "T8 F32", "T8 F59", 
-        "T8 F96", "T5 4xF54 HO High Bay", "Mercury Vapor", "Metal Halide", "Sodium Vapor", "LED Integrated Luminaire",
-        "Commercial Beverage Merchandisers", "Commercial Ice Machines", "Commercial Reach-In Freezers", 
+        "T8 F96", "T5 4xF54 HO High Bay", "Mercury Vapor", "Metal Halide", "Sodium Vapor", "LED Integrated Luminaire"
+      ]
+    },
+    "techComRefrigerationEnum": {
+      "type": "string",
+      "enum": [
+       "Commercial Beverage Merchandisers", "Commercial Ice Machines", "Commercial Reach-In Freezers", 
         "Commercial Reach-In Refrigerators", "Commercial Refrigerated Vending Machines", "Commercial Supermarket Display Cases", 
-        "Commercial Walk-In Freezers", "Commercial Walk-In Refrigerators", "electric_range-combined", "gas_range-combined",
-        "distribution transformers", "kitchen ventilation", "security systems", "lab fridges and freezers", "medical imaging", 
+        "Commercial Walk-In Freezers", "Commercial Walk-In Refrigerators"
+      ]
+    },
+    "techComCookingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_range-combined", "gas_range-combined"
+      ]
+    },
+    "techComMELsEnum": {
+      "type": "string",
+      "enum": [
+       "distribution transformers", "kitchen ventilation", "security systems", "lab fridges and freezers", "medical imaging", 
         "large video boards", "coffee brewers", "non-road electric vehicles", "fume hoods", "laundry", "elevators", 
         "escalators", "IT equipment", "office UPS", "data center UPS", "shredders", "private branch exchanges", 
-        "voice-over-IP telecom", "point-of-sale systems", "warehouse robots", "televisions", "water services", "floor",
-        "ventilation", "lighting gain", "other heat gain", "all ventilation"
+        "voice-over-IP telecom", "point-of-sale systems", "warehouse robots", "televisions", "water services",
+        "telecom systems", "other"
+      ]
+    },
+    "techComDemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "ground", "floor", "infiltration", "ventilation", "windows conduction", "windows solar", 
+       "lighting gain", "equipment gain", "people gain", "other heat gain"
+      ]
+    },
+    "techAllEnum": {
+      "type": "string",
+      "enum": [
+       "all"
+      ]
+    },
+    "technologyEnum": {
+      "anyOf": [
+        { "$ref": "#/definitions/techResHeatingEnum" },
+        { "$ref": "#/definitions/techResSecondaryHeatingEnum" },
+        { "$ref": "#/definitions/techResCoolingEnum" },
+        { "$ref": "#/definitions/techResWaterHeatingEnum" },
+        { "$ref": "#/definitions/techResLightingEnum" },
+        { "$ref": "#/definitions/techResComputersEnum" },
+        { "$ref": "#/definitions/techResTVsEnum" },
+        { "$ref": "#/definitions/techResOtherEnum" },
+        { "$ref": "#/definitions/techResdemandEnum" },
+        { "$ref": "#/definitions/techComHeatingEnum" },
+        { "$ref": "#/definitions/techComCoolingEnum" },
+        { "$ref": "#/definitions/techComVentilationEnum" },
+        { "$ref": "#/definitions/techComWaterHeatingEnum" },
+        { "$ref": "#/definitions/techComRefrigerationEnum" },
+        { "$ref": "#/definitions/techComCookingEnum" },
+        { "$ref": "#/definitions/techComMELsEnum" },
+        { "$ref": "#/definitions/techComDemandEnum" },
+        { "$ref": "#/definitions/techAllEnum" }
       ]
     },
      "dayEnum": {
@@ -233,7 +356,7 @@
     },
     "backup_fuel_fraction": { "type": ["string", "null"] },
     "technology": { 
-      "oneOf": [
+      "anyOf": [
         { "$ref": "#/definitions/technologyEnum" },
         {
           "type": "array",
