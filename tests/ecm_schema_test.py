@@ -3,8 +3,8 @@ import warnings
 from pathlib import Path
 from jsonschema import Draft202012Validator
 
-SCHEMA_PATH = Path("C:/Users/ylou2/Desktop\/Scout/repo/scout/ecm_definitions/ecm_schema.json")
-JSON_DIR = Path("C:/Users/ylou2/Desktop\/Scout/repo/scout/ecm_definitions")
+SCHEMA_PATH = Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
+JSON_DIR = Path(__file__).parent.parent / "ecm_definitions"
 
 schema = json.loads(SCHEMA_PATH.read_text())
 validator = Draft202012Validator(schema)
