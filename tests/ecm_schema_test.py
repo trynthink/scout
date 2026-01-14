@@ -52,4 +52,3 @@ for json_file in JSON_DIR.glob("*.json"):
     else:
         # Display colored success message
         print(GREEN + f"{json_file.name} is valid ✅" + RESET)
-        

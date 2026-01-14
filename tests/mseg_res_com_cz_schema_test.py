@@ -57,4 +57,3 @@ if errors:
     )
 else:
     print(GREEN + f"{JSON_PATH.name} is valid ✅" + RESET)
-    
