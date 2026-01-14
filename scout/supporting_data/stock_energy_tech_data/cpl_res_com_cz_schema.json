@@ -1,725 +1,738 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "patternProperties": {
-    "^AIA_CZ[1-5]$": { 
-      "type": "object",
-      "properties": {
-        "single family home": { "$ref": "#/definitions/buildingTypeRes" },
-        "multi family home": { "$ref": "#/definitions/buildingTypeRes" },
-        "mobile home": { "$ref": "#/definitions/buildingTypeRes" },
-        "assembly": { "$ref": "#/definitions/buildingTypeCom" },
-        "education": { "$ref": "#/definitions/buildingTypeCom" },
-        "food sales": { "$ref": "#/definitions/buildingTypeCom" },
-        "food service": { "$ref": "#/definitions/buildingTypeCom" },
-        "health care": { "$ref": "#/definitions/buildingTypeCom" },
-        "lodging": { "$ref": "#/definitions/buildingTypeCom" },
-        "large office": { "$ref": "#/definitions/buildingTypeCom" },
-        "small office": { "$ref": "#/definitions/buildingTypeCom" },
-        "mercantile/service": { "$ref": "#/definitions/buildingTypeCom" },
-        "warehouse": { "$ref": "#/definitions/buildingTypeCom" },
-        "other": { "$ref": "#/definitions/buildingTypeCom" },
-        "unspecified": { "$ref": "#/definitions/buildingTypeCom" }
-      },
-      "additionalProperties": false
-    }
-  },
-  "definitions": {
-    "buildingTypeRes": {
-      "type": "object",
-      "properties": {
-        "total homes": { "$ref": "#/definitions/yearNumberObject" },
-        "new homes": { "$ref": "#/definitions/yearNumberObject" },
-        "total square footage": { "$ref": "#/definitions/yearNumberObject" },
-        "electricity": {
-            "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "resistance heat": {"$ref": "#/definitions/cplObject"},
-                                "ASHP": {"$ref": "#/definitions/cplObject"},
-                                "GSHP": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^secondary heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "secondary heater": { "type": "number", "const": 0 }
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "cooling": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "central AC": {"$ref": "#/definitions/cplObject"},
-                                "room AC": {"$ref": "#/definitions/cplObject"},
-                                "ASHP": {"$ref": "#/definitions/cplObject"},
-                                "GSHP": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "fans and pumps": {"$ref": "#/definitions/cplObject"},
-                "ceiling fan": {"$ref": "#/definitions/cplObject"},
-                "lighting": {
-                    "type": "object",
-                    "patternProperties": {
-                        "linear fluorescent \\(T-12\\)$": { "$ref": "#/definitions/cplObject" },
-                        "^linear fluorescent \\(T-8\\)$":  { "$ref": "#/definitions/cplObject" },
-                        "^linear fluorescent \\(LED\\)$":  { "$ref": "#/definitions/cplObject" },
-                        "^general service \\(incandescent\\)$": { "type": "number", "const": 0 },
-                        "^general service \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^general service \\(LED\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^reflector \\(incandescent\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^reflector \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^reflector \\(halogen\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^reflector \\(LED\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^external \\(incandescent\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^external \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^external \\(high pressure sodium\\)$": {"$ref": "#/definitions/cplObject"},
-                        "^external \\(LED\\)$": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "water heating": {
-                    "type": "object",
-                    "patternProperties": {
-                        "electric WH": {"$ref": "#/definitions/cplObject"},
-                        "solar WH": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "refrigeration": {"$ref": "#/definitions/cplObject"},
-                "cooking": {"$ref": "#/definitions/cplObject"},
-                "drying": {"$ref": "#/definitions/cplObject"},
-                "TVs": {
-                    "type": "object",
-                    "patternProperties": {
-                        "TV": {"$ref": "#/definitions/cplObject"},
-                        "set top box": {"$ref": "#/definitions/cplObject"},
-                        "home theater and audio": {"$ref": "#/definitions/cplObject"},
-                        "OTT streaming devices": { "type": "number", "const": 0 },
-                        "video game consoles": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "computers": {
-                    "type": "object",
-                    "patternProperties": {
-                        "desktop PC": {"$ref": "#/definitions/cplObject"},
-                        "laptop PC": {"$ref": "#/definitions/cplObject"},
-                        "monitor": {"$ref": "#/definitions/cplObject"},
-                        "network equipment": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "other": {
-                    "type": "object",
-                    "patternProperties": {
-                        "clothes washing": {"$ref": "#/definitions/cplObject"},
-                        "dishwasher": {"$ref": "#/definitions/cplObject"},
-                        "freezers": {"$ref": "#/definitions/cplObject"},
-                        "rechargeables": { "type": "number", "const": 0 },
-                        "coffee maker": { "type": "number", "const": 0 },
-                        "dehumidifier": {"$ref": "#/definitions/cplObject"},
-                        "electric other": { "type": "number", "const": 0 },
-                        "small kitchen appliances": { "type": "number", "const": 0 },
-                        "microwave": {"$ref": "#/definitions/cplObject"},
-                        "smartphones": { "type": "number", "const": 0 },
-                        "pool heaters": { "type": "number", "const": 0 },
-                        "pool pumps": { "type": "number", "const": 0 },
-                        "security system": { "type": "number", "const": 0 },
-                        "portable electric spas": {"$ref": "#/definitions/cplObject"},
-                        "smart speakers": { "type": "number", "const": 0 },
-                        "tablets": { "type": "number", "const": 0 },
-                        "wine coolers": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "onsite generation": {"$ref": "#/definitions/cplObject"}
-            },
-            "additionalProperties": false
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "patternProperties": {
+        "^AIA_CZ[1-5]$": { 
+        "type": "object",
+        "properties": {
+            "single family home": { "$ref": "#/definitions/buildingTypeRes" },
+            "multi family home": { "$ref": "#/definitions/buildingTypeRes" },
+            "mobile home": { "$ref": "#/definitions/buildingTypeRes" },
+            "assembly": { "$ref": "#/definitions/buildingTypeCom" },
+            "education": { "$ref": "#/definitions/buildingTypeCom" },
+            "food sales": { "$ref": "#/definitions/buildingTypeCom" },
+            "food service": { "$ref": "#/definitions/buildingTypeCom" },
+            "health care": { "$ref": "#/definitions/buildingTypeCom" },
+            "lodging": { "$ref": "#/definitions/buildingTypeCom" },
+            "large office": { "$ref": "#/definitions/buildingTypeCom" },
+            "small office": { "$ref": "#/definitions/buildingTypeCom" },
+            "mercantile/service": { "$ref": "#/definitions/buildingTypeCom" },
+            "warehouse": { "$ref": "#/definitions/buildingTypeCom" },
+            "other": { "$ref": "#/definitions/buildingTypeCom" },
+            "unspecified": { "$ref": "#/definitions/buildingTypeCom" }
         },
-        "natural gas": {
+        "additionalProperties": false
+        }
+    },
+    "definitions": {
+        "buildingTypeRes": {
             "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "furnace (NG)": {"$ref": "#/definitions/cplObject"},
-                                "boiler (NG)": {"$ref": "#/definitions/cplObject"},
-                                "NGHP": {"$ref": "#/definitions/cplObject"}
-                            }
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^secondary heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "secondary heater": { "type": "number", "const": 0 }
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "cooling": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "NGHP": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "water heating": {"$ref": "#/definitions/cplObject"},
-                "cooking": {"$ref": "#/definitions/cplObject"},
-                "drying": {"$ref": "#/definitions/cplObject"},
-                "other": {
+            "properties": {
+                "total homes": { "$ref": "#/definitions/yearNumberObject" },
+                "new homes": { "$ref": "#/definitions/yearNumberObject" },
+                "total square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "electricity": {
                     "type": "object",
                     "patternProperties": {
-                        "other appliances": { "type": "number", "const": 0 }
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "resistance heat": {"$ref": "#/definitions/cplObject"},
+                                        "ASHP": {"$ref": "#/definitions/cplObject"},
+                                        "GSHP": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^secondary heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "secondary heater": { "type": "number", "const": 0 }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "cooling": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "central AC": {"$ref": "#/definitions/cplObject"},
+                                        "room AC": {"$ref": "#/definitions/cplObject"},
+                                        "ASHP": {"$ref": "#/definitions/cplObject"},
+                                        "GSHP": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "fans and pumps": {"$ref": "#/definitions/cplObject"},
+                        "ceiling fan": {"$ref": "#/definitions/cplObject"},
+                        "lighting": {
+                            "type": "object",
+                            "patternProperties": {
+                                "linear fluorescent \\(T-12\\)$": { "$ref": "#/definitions/cplObject" },
+                                "^linear fluorescent \\(T-8\\)$":  { "$ref": "#/definitions/cplObject" },
+                                "^linear fluorescent \\(LED\\)$":  { "$ref": "#/definitions/cplObject" },
+                                "^general service \\(incandescent\\)$": { "type": "number", "const": 0 },
+                                "^general service \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^general service \\(LED\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^reflector \\(incandescent\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^reflector \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^reflector \\(halogen\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^reflector \\(LED\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^external \\(incandescent\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^external \\(CFL\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^external \\(high pressure sodium\\)$": {"$ref": "#/definitions/cplObject"},
+                                "^external \\(LED\\)$": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "water heating": {
+                            "type": "object",
+                            "patternProperties": {
+                                "electric WH": {"$ref": "#/definitions/cplObject"},
+                                "solar WH": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "refrigeration": {"$ref": "#/definitions/cplObject"},
+                        "cooking": {"$ref": "#/definitions/cplObject"},
+                        "drying": {"$ref": "#/definitions/cplObject"},
+                        "TVs": {
+                            "type": "object",
+                            "patternProperties": {
+                                "TV": {"$ref": "#/definitions/cplObject"},
+                                "set top box": {"$ref": "#/definitions/cplObject"},
+                                "home theater and audio": {"$ref": "#/definitions/cplObject"},
+                                "OTT streaming devices": { "type": "number", "const": 0 },
+                                "video game consoles": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "computers": {
+                            "type": "object",
+                            "patternProperties": {
+                                "desktop PC": {"$ref": "#/definitions/cplObject"},
+                                "laptop PC": {"$ref": "#/definitions/cplObject"},
+                                "monitor": {"$ref": "#/definitions/cplObject"},
+                                "network equipment": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "other": {
+                            "type": "object",
+                            "patternProperties": {
+                                "clothes washing": {"$ref": "#/definitions/cplObject"},
+                                "dishwasher": {"$ref": "#/definitions/cplObject"},
+                                "freezers": {"$ref": "#/definitions/cplObject"},
+                                "rechargeables": { "type": "number", "const": 0 },
+                                "coffee maker": { "type": "number", "const": 0 },
+                                "dehumidifier": {"$ref": "#/definitions/cplObject"},
+                                "electric other": { "type": "number", "const": 0 },
+                                "small kitchen appliances": { "type": "number", "const": 0 },
+                                "microwave": {"$ref": "#/definitions/cplObject"},
+                                "smartphones": { "type": "number", "const": 0 },
+                                "pool heaters": { "type": "number", "const": 0 },
+                                "pool pumps": { "type": "number", "const": 0 },
+                                "security system": { "type": "number", "const": 0 },
+                                "portable electric spas": {"$ref": "#/definitions/cplObject"},
+                                "smart speakers": { "type": "number", "const": 0 },
+                                "tablets": { "type": "number", "const": 0 },
+                                "wine coolers": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "onsite generation": {"$ref": "#/definitions/cplObject"}
+                    },
+                    "additionalProperties": false
+                },
+                "natural gas": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "furnace (NG)": {"$ref": "#/definitions/cplObject"},
+                                        "boiler (NG)": {"$ref": "#/definitions/cplObject"},
+                                        "NGHP": {"$ref": "#/definitions/cplObject"}
+                                    }
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^secondary heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "secondary heater": { "type": "number", "const": 0 }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "cooling": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "NGHP": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "water heating": {"$ref": "#/definitions/cplObject"},
+                        "cooking": {"$ref": "#/definitions/cplObject"},
+                        "drying": {"$ref": "#/definitions/cplObject"},
+                        "other": {
+                            "type": "object",
+                            "patternProperties": {
+                                "other appliances": { "type": "number", "const": 0 }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "distillate": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "furnace \\(distillate\\)": {"$ref": "#/definitions/cplObject"},
+                                        "boiler \\(distillate\\)": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^secondary heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "secondary heater": { "type": "number", "const": 0 }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^water heating$": {"$ref": "#/definitions/cplObject"},
+                        "other": {
+                            "type": "object",
+                            "patternProperties": {
+                                "other appliances":{ "type": "number", "const": 0 }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "other fuel": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": ["object", "null"],
+                                    "patternProperties": {
+                                        "^furnace \\(LPG\\)$":       { "$ref": "#/definitions/cplObject" },
+                                        "^furnace \\(kerosene\\)$":  { "$ref": "#/definitions/cplObject" },
+                                        "^resistance$":              { "type": "number", "const": 0 },
+                                        "^stove \\(wood\\)$":        { "$ref": "#/definitions/cplObject" }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^secondary heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandResObject" },
+                                "supply": {
+                                    "type": ["object", "null"],
+                                    "patternProperties": {
+                                        "^secondary heater \\(LPG\\)$":       { "type": "number", "const": 0 },
+                                        "^secondary heater \\(coal\\)$":      { "type": "number", "const": 0 },
+                                        "^secondary heater \\(kerosene\\)$":  { "type": "number", "const": 0 },
+                                        "^secondary heater \\(wood\\)$":      { "type": "number", "const": 0 }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "water heating": {"$ref": "#/definitions/cplObject"},
+                        "cooking": {"$ref": "#/definitions/cplObject"},
+                        "other": {
+                            "type": "object",
+                            "patternProperties": {
+                                "other appliances": { "type": "number", "const": 0 }
+                            },
+                            "additionalProperties": false
+                        }
                     },
                     "additionalProperties": false
                 }
             },
-            "additionalProperties": false
+        "additionalProperties": false
         },
-        "distillate": {
+        "buildingTypeCom": {
             "type": "object",
-            "patternProperties": {
-                "^heating$": {
+            "properties": {
+                "total square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "new square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "electricity": {
                     "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
+                    "patternProperties": {
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandComObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "comm_GSHP-heat": {"$ref": "#/definitions/cplObject"},
+                                        "elec_boiler": {"$ref": "#/definitions/cplObject"},
+                                        "elec_res-heater": {"$ref": "#/definitions/cplObject"},
+                                        "electric_res-heat": {"$ref": "#/definitions/cplObject"},
+                                        "pkg_terminal_HP-heat": {"$ref": "#/definitions/cplObject"},
+                                        "rooftop_ASHP-heat": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "cooling": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandComObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "centrifugal_chiller": {"$ref": "#/definitions/cplObject"},
+                                        "comm_GSHP-cool": {"$ref": "#/definitions/cplObject"},
+                                        "pkg_terminal_AC-cool": {"$ref": "#/definitions/cplObject"},
+                                        "pkg_terminal_HP-cool": {"$ref": "#/definitions/cplObject"},
+                                        "reciprocating_chiller": {"$ref": "#/definitions/cplObject"},
+                                        "res_type_central_AC": {"$ref": "#/definitions/cplObject"},
+                                        "rooftop_AC": {"$ref": "#/definitions/cplObject"},
+                                        "rooftop_ASHP-cool": {"$ref": "#/definitions/cplObject"},
+                                        "screw_chiller": {"$ref": "#/definitions/cplObject"},
+                                        "scroll_chiller": {"$ref": "#/definitions/cplObject"},
+                                        "wall-window_room_AC": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^water heating$": {
                             "type": "object",
                             "patternProperties": {
-                                "furnace \\(distillate\\)": {"$ref": "#/definitions/cplObject"},
-                                "boiler \\(distillate\\)": {"$ref": "#/definitions/cplObject"}
+                                "HP water heater": {"$ref": "#/definitions/cplObject"},
+                                "elec_water_heater": {"$ref": "#/definitions/cplObject"},
+                                "solar water heater": {"$ref": "#/definitions/cplObject"},
+                                "solar_water_heater_north": {"$ref": "#/definitions/cplObject"}
                             },
                             "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^secondary heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
+                        },
+                        "ventilation": {
                             "type": "object",
                             "patternProperties": {
-                                "secondary heater": { "type": "number", "const": 0 }
+                                "CAV_Vent": {"$ref": "#/definitions/cplObject"},
+                                "VAV_Vent": {"$ref": "#/definitions/cplObject"}
                             },
                             "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^water heating$": {"$ref": "#/definitions/cplObject"},
-                "other": {
-                    "type": "object",
-                    "patternProperties": {
-                        "other appliances":{ "type": "number", "const": 0 }
-                    },
-                    "additionalProperties": false
-                }
-            },
-            "additionalProperties": false
-        },
-        "other fuel": {
-            "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": ["object", "null"],
-                            "patternProperties": {
-                                "^furnace \\(LPG\\)$":       { "$ref": "#/definitions/cplObject" },
-                                "^furnace \\(kerosene\\)$":  { "$ref": "#/definitions/cplObject" },
-                                "^resistance$":              { "type": "number", "const": 0 },
-                                "^stove \\(wood\\)$":        { "$ref": "#/definitions/cplObject" }
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^secondary heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandResObject" },
-                        "supply": {
-                            "type": ["object", "null"],
-                            "patternProperties": {
-                                "^secondary heater \\(LPG\\)$":       { "type": "number", "const": 0 },
-                                "^secondary heater \\(coal\\)$":      { "type": "number", "const": 0 },
-                                "^secondary heater \\(kerosene\\)$":  { "type": "number", "const": 0 },
-                                "^secondary heater \\(wood\\)$":      { "type": "number", "const": 0 }
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "water heating": {"$ref": "#/definitions/cplObject"},
-                "cooking": {"$ref": "#/definitions/cplObject"},
-                "other": {
-                    "type": "object",
-                    "patternProperties": {
-                        "other appliances": { "type": "number", "const": 0 }
-                    },
-                    "additionalProperties": false
-                }
-            },
-            "additionalProperties": false
-        }
-    },
-    "additionalProperties": false
-    },
-    "buildingTypeCom": {
-      "type": "object",
-      "properties": {
-        "total square footage": { "$ref": "#/definitions/yearNumberObject" },
-        "new square footage": { "$ref": "#/definitions/yearNumberObject" },
-        "electricity": {
-            "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandComObject" },
-                        "supply": {
+                        },
+                        "cooking": {
                             "type": "object",
                             "patternProperties": {
-                                "comm_GSHP-heat": {"$ref": "#/definitions/cplObject"},
-                                "elec_boiler": {"$ref": "#/definitions/cplObject"},
-                                "elec_res-heater": {"$ref": "#/definitions/cplObject"},
-                                "electric_res-heat": {"$ref": "#/definitions/cplObject"},
-                                "pkg_terminal_HP-heat": {"$ref": "#/definitions/cplObject"},
-                                "rooftop_ASHP-heat": {"$ref": "#/definitions/cplObject"}
+                                "elec_range-combined": {"$ref": "#/definitions/cplObject"}
                             },
                             "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "cooling": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandComObject" },
-                        "supply": {
+                        },
+                        "lighting": {
                             "type": "object",
                             "patternProperties": {
-                                "centrifugal_chiller": {"$ref": "#/definitions/cplObject"},
-                                "comm_GSHP-cool": {"$ref": "#/definitions/cplObject"},
-                                "pkg_terminal_AC-cool": {"$ref": "#/definitions/cplObject"},
-                                "pkg_terminal_HP-cool": {"$ref": "#/definitions/cplObject"},
-                                "reciprocating_chiller": {"$ref": "#/definitions/cplObject"},
-                                "res_type_central_AC": {"$ref": "#/definitions/cplObject"},
-                                "rooftop_AC": {"$ref": "#/definitions/cplObject"},
-                                "rooftop_ASHP-cool": {"$ref": "#/definitions/cplObject"},
-                                "screw_chiller": {"$ref": "#/definitions/cplObject"},
-                                "scroll_chiller": {"$ref": "#/definitions/cplObject"},
-                                "wall-window_room_AC": {"$ref": "#/definitions/cplObject"}
+                                "100W A19 Incandescent": {"$ref": "#/definitions/cplObject"},
+                                "100W Equivalent A19 Halogen": {"$ref": "#/definitions/cplObject"},
+                                "100W Equivalent CFL Bare Spiral": {"$ref": "#/definitions/cplObject"},
+                                "100W Equivalent LED A Lamp": {"$ref": "#/definitions/cplObject"},
+                                "Halogen Infrared Reflector HIR\\) PAR38": {"$ref": "#/definitions/cplObject"},
+                                "Halogen PAR38": {"$ref": "#/definitions/cplObject"},
+                                "LED Integrated Luminaire": {"$ref": "#/definitions/cplObject"},
+                                "LED PAR38": {"$ref": "#/definitions/cplObject"},
+                                "Mercury Vapor": {"$ref": "#/definitions/cplObject"},
+                                "Metal Halide": {"$ref": "#/definitions/cplObject"},
+                                "Sodium Vapor": {"$ref": "#/definitions/cplObject"},
+                                "T5 4xF54 HO High Bay": {"$ref": "#/definitions/cplObject"},
+                                "T5 F28": {"$ref": "#/definitions/cplObject"},
+                                "T8 F28": {"$ref": "#/definitions/cplObject"},
+                                "T8 F32": {"$ref": "#/definitions/cplObject"},
+                                "T8 F59": {"$ref": "#/definitions/cplObject"},
+                                "T8 F96": {"$ref": "#/definitions/cplObject"}
                             },
                             "additionalProperties": false
-                        }
+                        },
+                        "refrigeration": {
+                            "type": "object",
+                            "patternProperties": {
+                                "Commercial Beverage Merchandisers": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Ice Machines": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Reach-In Freezers": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Reach-In Refrigerators": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Refrigerated Vending Machines": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Supermarket Display Cases": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Walk-In Freezers": {"$ref": "#/definitions/cplObject"},
+                                "Commercial Walk-In Refrigerators": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "PCs": {"$ref": "#/definitions/cplObject"},
+                        "non-PC office equipment": { "type": "number", "const": 0 },
+                        "MELs": {
+                            "type": "object",
+                            "patternProperties": {
+                                "distribution transformers": { "type": "number", "const": 0 },
+                                "kitchen ventilation": { "type": "number", "const": 0 },
+                                "security systems": { "type": "number", "const": 0 },
+                                "lab fridges and freezers": { "type": "number", "const": 0 },
+                                "medical imaging": { "type": "number", "const": 0 },
+                                "large video boards": { "type": "number", "const": 0 },
+                                "coffee brewers": { "type": "number", "const": 0 },
+                                "non-road electric vehicles": { "type": "number", "const": 0 },
+                                "fume hoods": { "type": "number", "const": 0 },
+                                "laundry": { "type": "number", "const": 0 },
+                                "elevators": { "type": "number", "const": 0 },
+                                "escalators": { "type": "number", "const": 0 },
+                                "IT equipment": { "type": "number", "const": 0 },
+                                "office UPS": { "type": "number", "const": 0 },
+                                "data center UPS": { "type": "number", "const": 0 },
+                                "shredders": { "type": "number", "const": 0 },
+                                "private branch exchanges": { "type": "number", "const": 0 },
+                                "voice-over-IP telecom": { "type": "number", "const": 0 },
+                                "point-of-sale systems": { "type": "number", "const": 0 },
+                                "warehouse robots": { "type": "number", "const": 0 },
+                                "televisions": { "type": "number", "const": 0 },
+                                "water services": { "type": "number", "const": 0 },
+                                "telecom systems": { "type": "number", "const": 0 },
+                                "other": { "type": "number", "const": 0 }
+                            },
+                            "additionalProperties": false
+                        },
+                        "unspecified": { "type": "number", "const": 0 }
                     },
                     "additionalProperties": false
                 },
-                "^water heating$": {
+                "natural gas": {
                     "type": "object",
                     "patternProperties": {
-                        "HP water heater": {"$ref": "#/definitions/cplObject"},
-                        "elec_water_heater": {"$ref": "#/definitions/cplObject"},
-                        "solar water heater": {"$ref": "#/definitions/cplObject"},
-                        "solar_water_heater_north": {"$ref": "#/definitions/cplObject"}
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandComObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "gas_boiler": {"$ref": "#/definitions/cplObject"},
+                                        "gas_eng-driven_RTHP-heat": {"$ref": "#/definitions/cplObject"},
+                                        "gas_furnace": {"$ref": "#/definitions/cplObject"},
+                                        "res_type_gasHP-heat": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "cooling": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandComObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "gas_chiller": {"$ref": "#/definitions/cplObject"},
+                                        "gas_eng-driven_RTAC": {"$ref": "#/definitions/cplObject"},
+                                        "gas_eng-driven_RTHP-cool": {"$ref": "#/definitions/cplObject"},
+                                        "res_type_gasHP-cool": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^water heating$": {
+                            "type": "object",
+                            "patternProperties": {
+                                "gas_instantaneous_water_heater": {"$ref": "#/definitions/cplObject"},
+                                "gas_water_heater": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "cooking": {
+                            "type": "object",
+                            "patternProperties": {
+                                "gas_range-combined": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "other": { "type": "number", "const": 0 },
+                        "unspecified": { "type": "number", "const": 0 }
                     },
                     "additionalProperties": false
                 },
-                "ventilation": {
+                "distillate": {
                     "type": "object",
                     "patternProperties": {
-                        "CAV_Vent": {"$ref": "#/definitions/cplObject"},
-                        "VAV_Vent": {"$ref": "#/definitions/cplObject"}
+                        "^heating$": {
+                            "type": "object",
+                            "properties": {
+                                "demand": { "$ref": "#/definitions/demandComObject" },
+                                "supply": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "oil_boiler": {"$ref": "#/definitions/cplObject"},
+                                        "oil_furnace": {"$ref": "#/definitions/cplObject"}
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "^water heating$": {
+                            "type": "object",
+                            "patternProperties": {
+                                "oil_water_heater": {"$ref": "#/definitions/cplObject"}
+                            },
+                            "additionalProperties": false
+                        },
+                        "other": { "type": "number", "const": 0 },
+                        "unspecified": { "type": "number", "const": 0 }
                     },
                     "additionalProperties": false
                 },
-                "cooking": {
+                "other fuel": {
                     "type": "object",
                     "patternProperties": {
-                        "elec_range-combined": {"$ref": "#/definitions/cplObject"}
+                        "unspecified": { "type": "number", "const": 0 }
                     },
                     "additionalProperties": false
                 },
-                "lighting": {
-                    "type": "object",
-                    "patternProperties": {
-                        "100W A19 Incandescent": {"$ref": "#/definitions/cplObject"},
-                        "100W Equivalent A19 Halogen": {"$ref": "#/definitions/cplObject"},
-                        "100W Equivalent CFL Bare Spiral": {"$ref": "#/definitions/cplObject"},
-                        "100W Equivalent LED A Lamp": {"$ref": "#/definitions/cplObject"},
-                        "Halogen Infrared Reflector HIR\\) PAR38": {"$ref": "#/definitions/cplObject"},
-                        "Halogen PAR38": {"$ref": "#/definitions/cplObject"},
-                        "LED Integrated Luminaire": {"$ref": "#/definitions/cplObject"},
-                        "LED PAR38": {"$ref": "#/definitions/cplObject"},
-                        "Mercury Vapor": {"$ref": "#/definitions/cplObject"},
-                        "Metal Halide": {"$ref": "#/definitions/cplObject"},
-                        "Sodium Vapor": {"$ref": "#/definitions/cplObject"},
-                        "T5 4xF54 HO High Bay": {"$ref": "#/definitions/cplObject"},
-                        "T5 F28": {"$ref": "#/definitions/cplObject"},
-                        "T8 F28": {"$ref": "#/definitions/cplObject"},
-                        "T8 F32": {"$ref": "#/definitions/cplObject"},
-                        "T8 F59": {"$ref": "#/definitions/cplObject"},
-                        "T8 F96": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "refrigeration": {
-                    "type": "object",
-                    "patternProperties": {
-                        "Commercial Beverage Merchandisers": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Ice Machines": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Reach-In Freezers": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Reach-In Refrigerators": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Refrigerated Vending Machines": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Supermarket Display Cases": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Walk-In Freezers": {"$ref": "#/definitions/cplObject"},
-                        "Commercial Walk-In Refrigerators": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "PCs": {"$ref": "#/definitions/cplObject"},
-                "non-PC office equipment": { "type": "number", "const": 0 },
-                "MELs": {
-                    "type": "object",
-                    "patternProperties": {
-                        "distribution transformers": { "type": "number", "const": 0 },
-                        "kitchen ventilation": { "type": "number", "const": 0 },
-                        "security systems": { "type": "number", "const": 0 },
-                        "lab fridges and freezers": { "type": "number", "const": 0 },
-                        "medical imaging": { "type": "number", "const": 0 },
-                        "large video boards": { "type": "number", "const": 0 },
-                        "coffee brewers": { "type": "number", "const": 0 },
-                        "non-road electric vehicles": { "type": "number", "const": 0 },
-                        "fume hoods": { "type": "number", "const": 0 },
-                        "laundry": { "type": "number", "const": 0 },
-                        "elevators": { "type": "number", "const": 0 },
-                        "escalators": { "type": "number", "const": 0 },
-                        "IT equipment": { "type": "number", "const": 0 },
-                        "office UPS": { "type": "number", "const": 0 },
-                        "data center UPS": { "type": "number", "const": 0 },
-                        "shredders": { "type": "number", "const": 0 },
-                        "private branch exchanges": { "type": "number", "const": 0 },
-                        "voice-over-IP telecom": { "type": "number", "const": 0 },
-                        "point-of-sale systems": { "type": "number", "const": 0 },
-                        "warehouse robots": { "type": "number", "const": 0 },
-                        "televisions": { "type": "number", "const": 0 },
-                        "water services": { "type": "number", "const": 0 },
-                        "telecom systems": { "type": "number", "const": 0 },
-                        "other": { "type": "number", "const": 0 }
-                    },
-                    "additionalProperties": false
-                },
-                "onsite generation": {"$ref": "#/definitions/cplObject"}
+                "additionalProperties": false
             }
         },
-        "natural gas": {
-            "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandComObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "gas_boiler": {"$ref": "#/definitions/cplObject"},
-                                "gas_eng-driven_RTHP-heat": {"$ref": "#/definitions/cplObject"},
-                                "gas_furnace": {"$ref": "#/definitions/cplObject"},
-                                "res_type_gasHP-heat": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "cooling": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandComObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "gas_chiller": {"$ref": "#/definitions/cplObject"},
-                                "gas_eng-driven_RTAC": {"$ref": "#/definitions/cplObject"},
-                                "gas_eng-driven_RTHP-cool": {"$ref": "#/definitions/cplObject"},
-                                "res_type_gasHP-cool": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^water heating$": {
-                    "type": "object",
-                    "patternProperties": {
-                        "gas_instantaneous_water_heater": {"$ref": "#/definitions/cplObject"},
-                        "gas_water_heater": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "cooking": {
-                    "type": "object",
-                    "patternProperties": {
-                        "gas_range-combined": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "other": { "type": "number", "const": 0 }
-            }
-        },
-        "distillate": {
-            "type": "object",
-            "patternProperties": {
-                "^heating$": {
-                    "type": "object",
-                    "properties": {
-                        "demand": { "$ref": "#/definitions/demandComObject" },
-                        "supply": {
-                            "type": "object",
-                            "patternProperties": {
-                                "oil_boiler": {"$ref": "#/definitions/cplObject"},
-                                "oil_furnace": {"$ref": "#/definitions/cplObject"}
-                            },
-                            "additionalProperties": false
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                "^water heating$": {
-                    "type": "object",
-                    "patternProperties": {
-                        "oil_water_heater": {"$ref": "#/definitions/cplObject"}
-                    },
-                    "additionalProperties": false
-                },
-                "other": { "type": "number", "const": 0 }
-            }
-        }
-    }
-    },
-    "yearNumberObject": {
-        "anyOf": [
-        {
-            "type": "object",
-            "patternProperties": {
-            "^(202[0-9]|203[0-9]|204[0-9]|2050)$": { "type": "number" }
-            }
-        },
-        {
-            "type": "number"
-        }
-        ]
-    },
-    "cplObject": {
-      "type": "object",
-      "properties": {
-        "installed cost": {
+        "yearNumberObject": {
             "anyOf": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "typical": {"$ref": "#/definitions/yearNumberObject"},
-                        "units": { "type": "string" },
-                        "source": { "type": "string" }
-                    }
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "before incentives": {
+            {
+                "type": "object",
+                "patternProperties": {
+                "^(202[0-9]|203[0-9]|204[0-9]|2050)$": { "type": "number" }
+                }
+            },
+            { "type": "number" }
+            ]
+        },
+        "cplObject": {
+            "type": "object",
+            "properties": {
+                "installed cost": {
+                    "anyOf": [
+                        {
                             "type": "object",
-                            "patternProperties": {
-                                "^(typical|best)$": { 
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/definitions/yearNumberObject"
-                                        },
-                                        {
-                                            "type": "object",
-                                            "patternProperties": {
-                                                "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
-                                            }
-                                        }
-                                    ]
-                                },
+                            "properties": {
+                                "typical": {"$ref": "#/definitions/yearNumberObject"},
                                 "units": { "type": "string" },
                                 "source": { "type": "string" }
                             }
                         },
-                        "incentives": { 
+                        {
                             "type": "object",
                             "properties": {
-                                "by performance tier": {
+                                "before incentives": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^(typical|best)$": { 
+                                            "anyOf": [
+                                                { "$ref": "#/definitions/yearNumberObject" },
+                                                {
+                                                    "type": "object",
+                                                    "patternProperties": {
+                                                        "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
+                                                    },
+                                                    "additionalProperties": false
+                                                }
+                                            ]
+                                        },
+                                        "units": { "type": "string" },
+                                        "source": { "type": "string" }
+                                    },
+                                    "additionalProperties": false
+                                },
+                                "incentives": { 
+                                    "type": "object",
+                                    "properties": {
+                                        "by performance tier": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "performance units": { "type": "string" }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            }
+                        }
+                    ]
+                },
+                "performance": {
+                    "type": "object",
+                    "properties": {
+                        "units": { "type": "string" },
+                        "source": { "type": ["string", "object"] },
+                        "typical": { 
+                            "anyOf": [
+                                { "$ref": "#/definitions/yearNumberObject" },
+                                {
                                     "type": "object",
                                     "patternProperties": {
                                         "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
+                                    },
+                                    "additionalProperties": false
                                 }
-                            },
-                                "performance units": { "type": "string" }
-                            }
+                            ]
+                        },
+                        "best": { 
+                            "anyOf": [
+                                { "$ref": "#/definitions/yearNumberObject" },
+                                {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            ]
                         }
-                    }
-                }
-            ]
-        },
-        "performance": {
-            "type": "object",
-            "properties": {
-                "units": { "type": "string" },
-                "source": { "type": ["string", "object"] },
-                "typical": { 
-                    "anyOf": [
-                        { "$ref": "#/definitions/yearNumberObject" },
-                        {
-                            "type": "object",
-                            "patternProperties": {
-                                "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
-                            },
-                            "additionalProperties": false
-                        }
-                    ]
-                },
-                "best": { 
-                    "anyOf": [
-                        { "$ref": "#/definitions/yearNumberObject" },
-                        {
-                            "type": "object",
-                            "patternProperties": {
-                                "^(new|existing)$": { "$ref": "#/definitions/yearNumberObject" }
-                            },
-                            "additionalProperties": false
-                        }
-                    ]
-                }
-            }
-        },
-        "lifetime": {
-          "type": "object",
-          "properties": {
-            "average": {"$ref": "#/definitions/yearNumberObject"},
-            "range": {
-                "anyOf": [
-                    {
-                        "type": "number"
                     },
-                    {
-                        "$ref": "#/definitions/yearNumberObject"
-                    }
-                ]
-            },
-            "units": { "type": "string" },
-            "source": { "type": ["string", "object"] }
-          },
-          "required": ["average", "range", "units", "source"]
-        },
-        "consumer choice": {
-          "type": "object",
-          "properties": {
-            "competed market share": {
-              "type": "object",
-              "properties": {
-                "model type": {"type": "string"},
-                "parameters": {
-                  "type": "object",
-                  "properties": {
-                    "b1": {"$ref": "#/definitions/yearNumberObject"},
-                    "b2": {"$ref": "#/definitions/yearNumberObject"}
-                  }
+                    "additionalProperties": false
                 },
-                "source": { "type": "string" }
-              },
-              "required": ["parameters", "source"]
-            }
-          },
-          "required": ["competed market share"]
+                "lifetime": {
+                "type": "object",
+                "properties": {
+                    "average": {"$ref": "#/definitions/yearNumberObject"},
+                    "range": {
+                        "anyOf": [
+                            { "type": "number" },
+                            { "$ref": "#/definitions/yearNumberObject" }
+                        ]
+                    },
+                    "units": { "type": "string" },
+                    "source": { "type": ["string", "object"] }
+                },
+                "required": ["average", "range", "units", "source"],
+                "additionalProperties": false
+                },
+                "consumer choice": {
+                "type": "object",
+                "properties": {
+                    "competed market share": {
+                    "type": "object",
+                    "properties": {
+                        "model type": {"type": "string"},
+                        "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "b1": {"$ref": "#/definitions/yearNumberObject"},
+                            "b2": {"$ref": "#/definitions/yearNumberObject"}
+                        }
+                        },
+                        "source": { "type": "string" }
+                    },
+                    "required": ["parameters", "source"],
+                    "additionalProperties": false
+                    }
+                },
+                "required": ["competed market share"],
+                "additionalProperties": false
+                }
+            },
+            "required": ["installed cost", "performance", "lifetime"],
+            "additionalProperties": false
+        },
+        "demandResObject": {
+            "type": "object",
+            "patternProperties": {
+                "windows conduction": { "$ref": "#/definitions/cplObject" },
+                "windows solar": { "$ref": "#/definitions/cplObject" },
+                "wall": { "$ref": "#/definitions/cplObject" },
+                "roof": { "$ref": "#/definitions/cplObject" },
+                "ground": { "$ref": "#/definitions/cplObject" },
+                "infiltration": { "$ref": "#/definitions/cplObject" },
+                "people gain": { "type": "number", "const": 0 },
+                "equipment gain": { "type": "number", "const": 0 }
+            },
+            "additionalProperties": false
+        },
+        "demandComObject": {
+            "type": "object",
+            "patternProperties": {
+                "windows conduction": { "$ref": "#/definitions/cplObject" },
+                "windows solar": { "$ref": "#/definitions/cplObject" },
+                "wall": { "$ref": "#/definitions/cplObject" },
+                "roof": { "$ref": "#/definitions/cplObject" },
+                "ground": { "$ref": "#/definitions/cplObject" },
+                "floor":  { "type": "number", "const": 0 },
+                "infiltration": { "$ref": "#/definitions/cplObject" },
+                "ventilation":  { "type": "number", "const": 0 },
+                "people gain": { "type": "number", "const": 0 },
+                "equipment gain":  { "type": "number", "const": 0 },
+                "lighting gain":  { "type": "number", "const": 0 },
+                "other heat gain": { "type": "number", "const": 0 }
+            },
+            "additionalProperties": false
         }
-      },
-      "required": ["installed cost", "performance", "lifetime"],
-      "additionalProperties": false
-    },
-    "demandResObject": {
-      "type": "object",
-      "patternProperties": {
-        "windows conduction": { "$ref": "#/definitions/cplObject" },
-        "windows solar": { "$ref": "#/definitions/cplObject" },
-        "wall": { "$ref": "#/definitions/cplObject" },
-        "roof": { "$ref": "#/definitions/cplObject" },
-        "ground": { "$ref": "#/definitions/cplObject" },
-        "infiltration": { "$ref": "#/definitions/cplObject" },
-        "people gain": { "type": "number", "const": 0 },
-        "equipment gain": { "type": "number", "const": 0 }
-      },
-      "additionalProperties": false
-    },
-    "demandComObject": {
-      "type": "object",
-      "patternProperties": {
-        "windows conduction": { "$ref": "#/definitions/cplObject" },
-        "windows solar": { "$ref": "#/definitions/cplObject" },
-        "wall": { "$ref": "#/definitions/cplObject" },
-        "roof": { "$ref": "#/definitions/cplObject" },
-        "ground": { "$ref": "#/definitions/cplObject" },
-        "floor":  { "type": "number", "const": 0 },
-        "infiltration": { "$ref": "#/definitions/cplObject" },
-        "ventilation":  { "type": "number", "const": 0 },
-        "people gain": { "type": "number", "const": 0 },
-        "equipment gain":  { "type": "number", "const": 0 },
-        "lighting gain":  { "type": "number", "const": 0 },
-        "other heat gain": { "type": "number", "const": 0 }
-      },
-      "additionalProperties": false
     }
-}
 }
