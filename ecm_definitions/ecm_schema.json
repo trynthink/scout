@@ -1,0 +1,756 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Building Energy Efficiency Measure",
+  "type": "object",
+   "required": [
+    "name",
+    "_description",
+    "measure_type",
+    "climate_zone",
+    "bldg_type",
+    "structure_type",
+    "end_use",
+    "fuel_type",
+    "technology",
+    "energy_efficiency",
+    "energy_efficiency_units",
+    "installed_cost",
+    "cost_units",
+    "product_lifetime",
+    "product_lifetime_units"
+  ],
+  "definitions": {
+    "climateZoneEnum": {
+      "type": "string",
+      "enum": [
+        "all", "warm climates", "cold climates", 
+        "TRE", "FRCC", "MISW", "MISC", "MISE", "MISS", "ISNE", "NYCW", "NYUP", "PJME", "PJMW", "PJMC", "PJMD",
+        "SRCA", "SRSE", "SRCE", "SPPS", "SPPC", "SPPN", "SRSG", "CANO", "CASO", "NWPP", "RMRG", "BASN",
+        "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
+        "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL", "IN", "IA", "KS", "KY", "LA", 
+        "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", 
+        "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+      ]
+    },
+    "IECCclimateZoneEnum": {
+      "type": "string",
+      "enum": [
+        "all", "warm climates", "cold climates", 
+        "IECC_CZ1", "IECC_CZ2", "IECC_CZ3", "IECC_CZ4", "IECC_CZ5", "IECC_CZ6", "IECC_CZ7", "IECC_CZ8"
+      ]
+    },
+    "BAclimateZoneEnum": {
+      "type": "string",
+      "enum": [
+        "BA_Hot-Humid", "BA_Mixed-Humid", "BA_Very Cold", "BA_Subarctic",
+        "BA_Cold", "BA_Hot-Dry", "BA_Mixed-Dry", "BA_Marine"
+      ]
+    },
+    "bldgTypeEnum": {
+      "type": "string",
+      "enum": [
+        "all",
+        "all residential", "single family home", "multi family home", "mobile home",
+        "all commercial", "assembly", "education", "food sales", "food service", "health care", 
+        "lodging", "large office", "small office", "mercantile/service", "warehouse", 
+        "other", "unspecified"
+      ]
+    },
+    "endUseEnum": {
+      "type": "string",
+      "enum": [
+        "all", "heating", "secondary heating", "cooling", "water heating", "cooking", 
+        "drying", "lighting", "refrigeration", "ceiling fan", "fans and pumps", "computers", 
+        "TVs", "ventilation", "PCs", "non-PC office equipment", "MELs", "unspecified", "other"
+      ]
+    },
+    "structureTypeEnum": {
+      "type": "string",
+      "enum": [ "new", "existing", "all" ]
+    },
+    "techResHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "ASHP", "GSHP", "resistance heat", 
+        "NGHP", "boiler (NG)", "furnace (NG)",
+        "boiler (distillate)", "furnace (distillate)", 
+        "furnace (LPG)", "furnace (kerosene)", "stove (wood)"
+      ]
+    },
+    "techResSecondaryHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "secondary heater", "secondary heater (wood)", 
+        "secondary heater (coal)", "secondary heater (kerosene)", 
+        "secondary heater (LPG)"
+      ]
+    },
+    "techResCoolingEnum": {
+      "type": "string",
+      "enum": [
+        "room AC", "central AC", "ASHP", "GSHP", "NGHP"
+      ]
+    },
+    "techResWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "electric WH", "solar WH"
+      ]
+    },
+    "techResLightingEnum": {
+      "type": "string",
+      "enum": [
+        "general service (incandescent)", "reflector (incandescent)", "reflector (halogen)", "external (incandescent)",
+        "external (high pressure sodium)", "general service (CFL)", "reflector (CFL)", "linear fluorescent (T-8)",
+        "linear fluorescent (T-12)", "external (CFL)", "general service (LED)", "reflector (LED)", 
+        "linear fluorescent (LED)", "external (LED)"
+      ]
+    },
+    "techResComputersEnum": {
+      "type": "string",
+      "enum": [
+        "desktop PC", "laptop PC", "network equipment", "monitors"
+      ]
+    },
+    "techResTVsEnum": {
+      "type": "string",
+      "enum": [
+        "home theater and audio", "set top box", "video game consoles", "OTT streaming devices", "TV"
+      ]
+    },
+    "techResOtherEnum": {
+      "type": "string",
+      "enum": [
+        "dishwasher", "clothes washing", "freezers", "rechargeables", "coffee maker", "dehumidifier", "electric other", 
+        "small kitchen appliances", "microwave", "smartphones", "pool heaters", "pool pumps", "security system", 
+        "portable electric spas", "smart speakers", "tablets", "wine coolers", "other appliances"
+      ]
+    },
+    "techResdemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "infiltration", "ground", "windows solar", "windows conduction", "equipment gain", "people gain"
+      ]
+    },
+    "techComHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_res-heat", "elec_res-heater", "comm_GSHP-heat", "rooftop_ASHP-heat", "elec_boiler", "pkg_terminal_HP-heat",
+        "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"
+      ]
+    },
+    "techComCoolingEnum": {
+      "type": "string",
+      "enum": [
+       "rooftop_AC", "scroll_chiller", "res_type_central_AC", "reciprocating_chiller", "comm_GSHP-cool", 
+        "centrifugal_chiller", "rooftop_ASHP-cool", "wall-window_room_AC", "screw_chiller", "pkg_terminal_AC-cool", 
+        "pkg_terminal_HP-cool", "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"
+      ]
+    },
+    "techComVentilationEnum": {
+      "type": "string",
+      "enum": [
+       "CAV_Vent", "VAV_Vent", "all ventilation"
+      ]
+    },
+    "techComWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "solar water heater", "solar_water_heater_north", "HP water heater", "elec_water_heater",
+        "gas_water_heater", "gas_instantaneous_water_heater", "oil_water_heater"
+      ]
+    },
+    "techComLightingEnum": {
+      "type": "string",
+      "enum": [
+       "100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
+        "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED PAR38", "T5 F28", "T8 F28", "T8 F32", "T8 F59", 
+        "T8 F96", "T5 4xF54 HO High Bay", "Mercury Vapor", "Metal Halide", "Sodium Vapor", "LED Integrated Luminaire"
+      ]
+    },
+    "techComRefrigerationEnum": {
+      "type": "string",
+      "enum": [
+       "Commercial Beverage Merchandisers", "Commercial Ice Machines", "Commercial Reach-In Freezers", 
+        "Commercial Reach-In Refrigerators", "Commercial Refrigerated Vending Machines", "Commercial Supermarket Display Cases", 
+        "Commercial Walk-In Freezers", "Commercial Walk-In Refrigerators"
+      ]
+    },
+    "techComCookingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_range-combined", "gas_range-combined"
+      ]
+    },
+    "techComMELsEnum": {
+      "type": "string",
+      "enum": [
+       "distribution transformers", "kitchen ventilation", "security systems", "lab fridges and freezers", "medical imaging", 
+        "large video boards", "coffee brewers", "non-road electric vehicles", "fume hoods", "laundry", "elevators", 
+        "escalators", "IT equipment", "office UPS", "data center UPS", "shredders", "private branch exchanges", 
+        "voice-over-IP telecom", "point-of-sale systems", "warehouse robots", "televisions", "water services",
+        "telecom systems", "other"
+      ]
+    },
+    "techComDemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "ground", "floor", "infiltration", "ventilation", "windows conduction", "windows solar", 
+       "lighting gain", "equipment gain", "people gain", "other heat gain"
+      ]
+    },
+    "techAllEnum": {
+      "type": "string",
+      "enum": [
+       "all"
+      ]
+    },
+    "technologyEnum": {
+      "anyOf": [
+        { "$ref": "#/definitions/techResHeatingEnum" },
+        { "$ref": "#/definitions/techResSecondaryHeatingEnum" },
+        { "$ref": "#/definitions/techResCoolingEnum" },
+        { "$ref": "#/definitions/techResWaterHeatingEnum" },
+        { "$ref": "#/definitions/techResLightingEnum" },
+        { "$ref": "#/definitions/techResComputersEnum" },
+        { "$ref": "#/definitions/techResTVsEnum" },
+        { "$ref": "#/definitions/techResOtherEnum" },
+        { "$ref": "#/definitions/techResdemandEnum" },
+        { "$ref": "#/definitions/techComHeatingEnum" },
+        { "$ref": "#/definitions/techComCoolingEnum" },
+        { "$ref": "#/definitions/techComVentilationEnum" },
+        { "$ref": "#/definitions/techComWaterHeatingEnum" },
+        { "$ref": "#/definitions/techComRefrigerationEnum" },
+        { "$ref": "#/definitions/techComCookingEnum" },
+        { "$ref": "#/definitions/techComMELsEnum" },
+        { "$ref": "#/definitions/techComDemandEnum" },
+        { "$ref": "#/definitions/techAllEnum" }
+      ]
+    },
+     "dayEnum": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365
+    },
+    "energyEffFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/IECCclimateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/endUseEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/structureTypeEnum" }
+      ]
+    },
+    "energyEffFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/energyEffFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "number" },
+          { "$ref": "#/definitions/energyEffFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "energyEffFlexibleLevelString": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/energyEffFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "$ref": "#/definitions/energyEffFlexibleLevelString" }
+        ]
+      }
+    },
+    "marketScalingFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/BAclimateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/endUseEnum" }
+      ]
+    },
+    "marketScalingFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/marketScalingFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "number" },
+          { "$ref": "#/definitions/marketScalingFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "costFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/structureTypeEnum" }
+      ]
+    },
+    "costFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/costFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "number" },
+          { "$ref": "#/definitions/costFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "costFlexibleLevelString": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/costFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "$ref": "#/definitions/costFlexibleLevelString" }
+        ]
+      }
+    },
+    "lifetimeFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" }
+      ]
+    },
+    "lifetimeFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/lifetimeFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "number" , "minimum": 0 },
+          { "$ref": "#/definitions/lifetimeFlexibleLevel" }
+        ]
+      }
+    },
+    "tsvFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/climateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" }
+      ]
+    },
+    "tsvFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/tsvFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+                    "shed": { 
+                      "type": "object",
+                      "properties":{
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["relative energy change fraction", "start_hour", "stop_hour", "stop_day"]
+                    },
+                    "shift": { 
+                      "type": "object",
+                      "properties":{
+                        "offset_hrs_earlier": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        },
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["offset_hrs_earlier", "relative energy change fraction", "start_hour", "stop_hour", "stop_day"]
+                    },
+                    "shape": { 
+                      "type": "object",
+                      "properties":{
+                        "start_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "oneOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        },
+                        "custom_daily_savings":{
+                          "type": "array",
+                          "items": { 
+                            "type": "number"
+                          },
+                          "minItems": 24,
+                          "maxItems": 24
+                        },
+                        "custom_annual_savings":{
+                          "type": "string"
+                        }
+                      },
+                      "required": ["stop_day"]
+                    }
+            }
+          },
+          { "$ref": "#/definitions/tsvFlexibleLevel" }
+        ]
+      }
+    },
+    "tsvScourceFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/tsvFlexibleKey" },
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/definitions/sourceSchema" },
+          { "$ref": "#/definitions/tsvScourceFlexibleLevel" }
+        ]
+      }
+    },
+    "sourceDataObject": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": ["string", "null"] },
+        "organization": { "type": "string" },
+        "year": { "type": "integer" },
+        "pages": {
+          "type": ["integer", "string", "array", "null"],
+          "items": { "type": "integer" }
+        },
+        "URL": { "type": "string", "format": "uri" }
+      },
+      "required": ["title", "year"]
+    },
+    "sourceSchema": {
+      "type": ["object", "null"],
+      "properties": {
+        "notes":  { 
+          "type": ["string", "array", "null"],
+          "items": { "type": "string" }
+        },
+        "source_data": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" },
+            { "$ref": "#/definitions/sourceDataObject" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/sourceDataObject" }
+            }
+          ]
+        }
+      }
+    },
+    "marketSourceDataObject": {
+      "type": ["string", "object", "array", "null"],
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": ["string", "null"] },
+        "organization": { "type": "string" },
+        "year": { "type": "integer" },
+        "pages": {
+          "type": ["integer", "string", "array", "null"],
+          "items": { "type": "integer" }
+        },
+        "URL": { "type": "string", "format": "uri" },
+        "fraction_derivation": { "type": "string" }
+      },
+      "required": ["title", "year"]
+    }
+  },
+  "properties": {
+    "name": { "type": "string", "maxLength": 60 },
+    "_description": { 
+      "type": ["string", "array"],
+      "items": { "type": "string" }
+    },
+    "_notes": { "type": "string" },
+    "measure_type": { "type": "string" , "enum": ["full service", "add-on"]},
+    "ref_analogue": { "type": "boolean" },
+    "market_entry_year": { "type": ["integer", "null"] },
+    "market_entry_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "market_exit_year": { "type": ["integer", "null"] },
+    "market_exit_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "min_eff_elec_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null]
+    },
+    "ref_case_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null]
+    },
+    "climate_zone": {
+      "oneOf": [
+        { "$ref": "#/definitions/climateZoneEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/climateZoneEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "bldg_type": {
+      "oneOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bldgTypeEnum" },
+          "uniqueItems": true
+        }
+      ]
+    }, 
+    "structure_type": {
+      "oneOf": [
+        { "$ref": "#/definitions/structureTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/structureTypeEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "end_use": {
+      "oneOf": [
+        { "$ref": "#/definitions/endUseEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/endUseEnum" },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "fuel_type": {
+      "oneOf": [
+        { 
+          "type": "string", 
+          "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"] 
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string", 
+            "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"] },
+          "uniqueItems": true
+        }
+      ]
+    },
+    "fuel_switch_to": { 
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"] }
+      ]
+    },
+    "backup_fuel_fraction": { "type": [ "null", "string" ] },
+    "technology": { 
+      "anyOf": [
+        { "$ref": "#/definitions/technologyEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/technologyEnum" },
+          "uniqueItems": true
+        }
+      ]
+    }, 
+    "htcl_tech_link": { "type": ["string", "null"] },
+    "tech_switch_to": { 
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "enum": [
+            "ASHP", "GSHP", "HPWH","resistance heat", "Electric cooking", "induction", "Electric drying", 
+            "HP dryer", "elec_water_heater", "elec_range-combined", "elec_boiler",
+            "LED", "electric WH", "electric range", "electric dryer", "electric other", "same"
+            ]
+          }
+      ]
+    },
+    "energy_efficiency": {
+      "oneOf": [
+        { "type": "number" },
+        { "$ref": "#/definitions/energyEffFlexibleLevelNumber" }
+      ]
+    },
+    "energy_efficiency_units": {
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/definitions/energyEffFlexibleLevelString" }
+      ]
+    },
+    "energy_efficiency_source": { "$ref": "#/definitions/sourceSchema" },
+    "installed_cost": {
+      "oneOf": [
+        { "type": "number" },
+        { "$ref": "#/definitions/costFlexibleLevelNumber" }
+      ]
+    },
+    "cost_units": {
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/definitions/costFlexibleLevelString" }
+      ]
+    },
+    "installed_cost_source": { "$ref": "#/definitions/sourceSchema" },
+    "add_elec_infr_cost": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "panel": { "type": "boolean" },
+            "240V circuit": { "type": "boolean" }
+          },
+          "required": ["panel", "240V circuit"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "product_lifetime": {
+      "oneOf": [
+        { "type": "number", "minimum": 0 },
+        { "$ref": "#/definitions/lifetimeFlexibleLevel" }
+      ]
+    },
+    "product_lifetime_units": { "type": "string", "enum": ["years"] },
+    "product_lifetime_source": { "$ref": "#/definitions/sourceSchema" },
+    "tsv_features": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/tsvFlexibleLevel" }
+      ]
+    },
+    "tsv_source": {
+      "oneOf": [
+        { "type": "null" },
+        {"$ref": "#/definitions/tsvScourceFlexibleLevel" }
+      ]
+    },
+    "market_scaling_fractions": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "number" },
+        { "$ref": "#/definitions/marketScalingFlexibleLevelNumber" }
+      ]
+    },
+    "market_scaling_fractions_source":{
+      "type": ["object", "null"],
+      "properties": {
+        "notes": { 
+          "type": ["string", "array", "null"],
+          "items": { "type": "string" }
+        },
+        "source_data": {
+          "type": ["string", "object", "array", "null"],
+          "items": { "$ref": "#/definitions/marketSourceDataObject" },
+          "$ref": "#/definitions/marketSourceDataObject"
+        }
+      },
+      "required": ["source_data"]
+    },
+    "retro_rate": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "retro_rate_source": { "$ref": "#/definitions/sourceSchema" },
+    "_added_by": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "organization": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"]
+    },
+    "_updated_by": {
+      "type": ["object", "null"],
+      "properties": {
+        "name": { "type": "string" },
+        "organization": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"]
+    }
+  }
+}
