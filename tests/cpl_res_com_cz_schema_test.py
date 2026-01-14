@@ -68,3 +68,4 @@ if errors:
         print(GREEN + f"{JSON_GZ_PATH.name} is valid ✅" + RESET)
 else:
     print(GREEN + f"{JSON_GZ_PATH.name} is valid ✅" + RESET)
+    
