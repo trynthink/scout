@@ -1,6 +1,6 @@
 # Download Required Input Files
-Download following required input files from EIA data and put it in the scout/inputs folder
-for example, AEO2025 data (https://nrel.sharepoint.com/:f:/r/sites/Scout2/Shared%20Documents/General/EIA%20Data/AEO2025?csf=1&web=1&e=bgotpS)
+Download following required input files from EIA data and put it in the scout/inputs folder.
+For example, the AEO2025 data can be found in the Scout Teams channel under Documents/General/EIA Data/AEO2025
 - RDM_DBOUT.TXT
 - RDM_DGENOUT.txt
 - rsmlgt.txt
