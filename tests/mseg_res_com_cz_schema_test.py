@@ -64,6 +64,5 @@ def test_mseg_res_com_cz_schema_validity(schema, data, json_path):
             "\n".join(error_messages)
         )
         pytest.fail(error_report)
-        
     # If we reach here, validation passed
     assert True, f"{json_path.name} is valid"
