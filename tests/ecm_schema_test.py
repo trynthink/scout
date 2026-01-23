@@ -74,7 +74,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                 allowable_info.append(f"max length: {e.schema['maxLength']}")
             if "format" in e.schema:
                 allowable_info.append(f"expected format: {e.schema['format']}")
-            
+                
             # Build the error message
             msg_parts = [
                 f"{e.message}",
@@ -84,7 +84,7 @@ def test_ecm_json_schema_validation(json_file, validator):
             
             if allowable_info:
                 msg_parts.append(f"    constraints: {', '.join(allowable_info)}")
-            
+                
             msg_parts.append(f"    schema path: {schema_path}")
             
             messages.append("\n".join(msg_parts))
@@ -115,7 +115,7 @@ def test_schema_is_valid_json_schema():
     
     # Check if the validator can be created (validates schema structure)
     try:
-        validator = Draft202012Validator(schema)
+        Draft202012Validator(schema)
         # Check the schema itself for validity
         Draft202012Validator.check_schema(schema)
     except Exception as e:
