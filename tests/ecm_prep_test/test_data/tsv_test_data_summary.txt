@@ -1,0 +1,23 @@
+TimeSensitiveValuationTest Data Summary
+================================================================================
+
+Total attributes: 15
+Pickle file size: 50.26 MB
+
+Attributes:
+--------------------------------------------------------------------------------
+longMessage                              bool                 
+maxDiff                                  int                  
+ok_tsv_facts_out_features                list                  (length: 8)
+ok_tsv_facts_out_metrics                 list                  (length: 16)
+ok_tsv_measures_in_features              list                  (length: 8)
+ok_tsv_measures_in_metrics               list                  (length: 16)
+opts_tsv_features                        Namespace            
+opts_tsv_metrics                         list                  (length: 16)
+sample_ash_czone_wts                     ndarray              
+sample_bldg_sect                         str                  
+sample_cost_convert                      dict                  (keys: 1)
+sample_cost_energy_meas                  dict                  (keys: 2)
+sample_mskeys_features                   tuple                 (length: 8)
+sample_mskeys_metrics                    ndarray              
+sample_tsv_data                          dict                  (keys: 5)

@@ -1,0 +1,136 @@
+PartitionMicrosegment Test Data Summary
+================================================================================
+
+opts:
+  Type: Namespace
+
+time_horizons:
+  Type: list
+  Length: 3
+
+handyfiles:
+  Type: UsefulInputFiles
+
+handyvars:
+  Type: UsefulVars
+
+ok_diffuse_params_in:
+  Type: NoneType
+
+ok_mskeys_in:
+  Type: list
+  Length: 2
+
+ok_mskeys_swtch_in:
+  Type: str
+
+ok_bldg_sect_in:
+  Type: list
+  Length: 2
+
+ok_sqft_subst_in:
+  Type: list
+  Length: 2
+
+ok_mkt_scale_frac_in:
+  Type: int
+
+ok_new_bldg_constr:
+  Type: dict
+  Keys: 2 keys
+
+ok_stock_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_energy_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_energy_scnd_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_carb_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_fcarb_in:
+  Type: NoneType
+
+ok_f_refr_in:
+  Type: NoneType
+
+ok_base_cost_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_cost_meas_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_cost_energy_base_in:
+  Type: ndarray
+
+ok_cost_energy_meas_in:
+  Type: ndarray
+
+ok_relperf_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_life_base_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_life_meas_in:
+  Type: int
+
+ok_ssconv_base_in:
+  Type: ndarray
+
+ok_ssconv_meas_in:
+  Type: ndarray
+
+ok_carbint_base_in:
+  Type: ndarray
+
+ok_carbint_meas_in:
+  Type: ndarray
+
+ok_tsv_scale_fracs_in:
+  Type: dict
+  Keys: 3 keys
+
+ok_tsv_shapes_in:
+  Type: NoneType
+
+ok_out:
+  Type: list
+  Length: 2
+
+ok_out_fraction:
+  Type: list
+  Length: 2
+
+measure_instance_fraction:
+  Type: Measure
+
+measure_instance_bass:
+  Type: Measure
+
+measure_instance_fraction_string:
+  Type: Measure
+
+measure_instance_bass_string:
+  Type: Measure
+
+measure_instance_bad_string:
+  Type: Measure
+
+measure_instance_bad_values:
+  Type: Measure
+
+measure_instance_wrong_name:
+  Type: Measure
+

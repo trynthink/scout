@@ -1,0 +1,71 @@
+MergeMeasures Test Data Summary
+================================================================================
+
+cost_convert_data:
+  Type: dict
+  Keys: 2 keys
+
+opts:
+  Type: Namespace
+
+opts_env_costs:
+  Type: Namespace
+
+opts_sect_shapes:
+  Type: Namespace
+
+sample_package_in_test1_highlevel:
+  Type: list
+  Length: 3
+
+sample_package_in_test1_env_costs:
+  Type: MeasurePackage
+
+sample_package_in_test1_attr_breaks:
+  Type: MeasurePackage
+
+sample_package_in_test2:
+  Type: MeasurePackage
+
+sample_package_in_sect_shapes:
+  Type: MeasurePackage
+
+sample_package_in_sect_shapes_bens:
+  Type: MeasurePackage
+
+markets_ok_out_test1:
+  Type: list
+  Length: 3
+
+markets_ok_out_test1_env_costs:
+  Type: dict
+  Keys: 5 keys
+
+genattr_ok_out_test1:
+  Type: list
+  Length: 6
+
+breaks_ok_out_test1:
+  Type: dict
+  Keys: 4 keys
+
+contrib_ok_out_test1:
+  Type: dict
+  Keys: 3 keys
+
+sect_shapes_ok_out:
+  Type: dict
+  Keys: 1 keys
+
+sect_shapes_ok_out_bens:
+  Type: dict
+  Keys: 1 keys
+
+mseg_ok_in_test2:
+  Type: dict
+  Keys: 5 keys
+
+mseg_ok_out_test2:
+  Type: dict
+  Keys: 5 keys
+

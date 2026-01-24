@@ -1,0 +1,57 @@
+MarketUpdatesTest Data Summary
+================================================================================
+
+Total attributes: 49
+Pickle file size: 57.61 MB
+
+Attributes:
+--------------------------------------------------------------------------------
+convert_data                             dict                  (keys: 0)
+failmeas_inputs_in                       list                  (length: 8)
+failmeas_missing_in                      Measure              
+longMessage                              bool                 
+maxDiff                                  int                  
+ok_distmeas_in                           list                  (length: 4)
+ok_distmeas_out                          list                  (length: 4)
+ok_hpmeas_rates_breakouts                list                  (length: 2)
+ok_hpmeas_rates_mkts_out                 list                  (length: 4)
+ok_map_frefr_chk_in                      list                  (length: 10)
+ok_map_frefr_mkts_out                    list                  (length: 10)
+ok_mapmas_partchck_msegout               list                  (length: 2)
+ok_mapmeas_hp_chk_in                     list                  (length: 4)
+ok_mapmeas_partchk_in                    list                  (length: 2)
+ok_partialmeas_in                        list                  (length: 2)
+ok_partialmeas_out                       list                  (length: 2)
+ok_tp_fmeth_chk_in                       list                  (length: 4)
+ok_tp_fmeth_mkts_out                     list                  (length: 4)
+ok_tpmeas_fullchk_break_out              list                  (length: 3)
+ok_tpmeas_fullchk_competechoiceout       list                  (length: 5)
+ok_tpmeas_fullchk_in                     list                  (length: 5)
+ok_tpmeas_fullchk_msegadjout             list                  (length: 3)
+ok_tpmeas_fullchk_msegout                list                  (length: 3)
+ok_tpmeas_fullchk_supplydemandout        list                  (length: 3)
+ok_tpmeas_partchk_emm_in                 list                  (length: 2)
+ok_tpmeas_partchk_in                     list                  (length: 19)
+ok_tpmeas_partchk_msegout                list                  (length: 19)
+ok_tpmeas_partchk_msegout_emm            list                  (length: 2)
+ok_tpmeas_partchk_msegout_state          list                  (length: 1)
+ok_tpmeas_partchk_state_in               list                  (length: 1)
+ok_tpmeas_sitechk_in                     list                  (length: 1)
+ok_tpmeas_sitechk_msegout                list                  (length: 1)
+ok_warnmeas_out                          list                  (length: 3)
+opts                                     Namespace            
+opts_emm                                 Namespace            
+opts_fmeth                               list                  (length: 4)
+opts_frefr                               list                  (length: 10)
+opts_hp_no_rates                         Namespace            
+opts_hp_rates                            Namespace            
+opts_site_energy                         Namespace            
+opts_state                               Namespace            
+sample_cpl_in                            dict                  (keys: 3)
+sample_cpl_in_emm                        dict                  (keys: 2)
+sample_cpl_in_state                      dict                  (keys: 1)
+sample_mseg_in                           dict                  (keys: 3)
+sample_mseg_in_emm                       dict                  (keys: 2)
+sample_mseg_in_state                     dict                  (keys: 2)
+tsv_data                                 dict                  (keys: 0)
+warnmeas_in                              list                  (length: 3)

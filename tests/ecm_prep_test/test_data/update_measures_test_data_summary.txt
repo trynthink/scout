@@ -1,0 +1,38 @@
+UpdateMeasuresTest Data Summary
+================================================================================
+
+Total attributes: 30
+Pickle file size: 4.84 MB
+
+Attributes:
+--------------------------------------------------------------------------------
+aia_measures                             list                  (length: 1)
+base_dir                                 str                  
+cbecs_sf_byvint                          dict                  (keys: 10)
+convert_data                             dict                  (keys: 1)
+emm_measures_features                    list                  (length: 4)
+emm_measures_metrics                     list                  (length: 2)
+handyfiles_aia                           UsefulInputFiles     
+handyfiles_emm                           UsefulInputFiles     
+handyvars_aia                            UsefulVars           
+handyvars_emm                            UsefulVars           
+handyvars_health                         UsefulVars           
+health_cost_measures                     list                  (length: 1)
+longMessage                              bool                 
+maxDiff                                  int                  
+ok_out_aia                               list                  (length: 1)
+ok_out_emm_features                      list                  (length: 4)
+ok_out_emm_metrics_mkts                  list                  (length: 2)
+ok_out_emm_metrics_sect_shapes           list                  (length: 2)
+ok_out_health_costs                      list                  (length: 1)
+opts_aia                                 Namespace            
+opts_emm                                 list                  (length: 3)
+opts_empty                               Namespace            
+opts_health                              list                  (length: 1)
+package_ecms_file                        WindowsPath          
+sample_cpl_in_aia                        dict                  (keys: 2)
+sample_cpl_in_emm                        dict                  (keys: 2)
+sample_mseg_in_aia                       dict                  (keys: 2)
+sample_mseg_in_emm                       dict                  (keys: 2)
+sample_tsv_data                          dict                  (keys: 5)
+sample_tsv_metric_settings               list                  (length: 3)
