@@ -37,27 +37,27 @@ class TestTimeSensitiveValuation:
     @pytest.fixture(scope="class")
     def test_data(self):
         """Load pre-extracted test data from pickle file.
-        
+
         The test data was extracted from the original unittest class using
         dump_tsv_test_data.py. This approach keeps the test file manageable
         while preserving all the complex test scenarios.
         """
         pickle_file = Path(__file__).parent / "test_data" / "tsv_test_data.pkl"
-        
+
         if not pickle_file.exists():
             pytest.fail(
                 f"Test data file not found: {pickle_file}\n"
                 "Run 'python tests/ecm_prep_test/dump_tsv_test_data.py' to generate it."
             )
-        
+
         with open(pickle_file, 'rb') as f:
             data = pickle.load(f)
-        
+
         return data
 
     def test_load_modification(self, test_data):
         """Test 'gen_tsv_facts' and nested 'apply_tsv' given valid inputs.
-        
+
         This test covers both TSV features and TSV metrics functionality.
         """
         # Tests for measures with time sensitive valuation features
@@ -75,7 +75,7 @@ class TestTimeSensitiveValuation:
                 gen_tsv_facts_out_features[0],
                 test_data['ok_tsv_facts_out_features'][idx]
             )
-        
+
         # Test for measure with time sensitive valuation metrics
         for idx in range(len(test_data['ok_tsv_measures_in_metrics'])):
             measure = test_data['ok_tsv_measures_in_metrics'][idx]

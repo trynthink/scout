@@ -25,15 +25,15 @@ class TestCleanUp:
         # Null user options/options dict
         null_opts = NullOpts()
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
-        
+
         benefits = {
             "energy savings increase": None,
             "cost reduction": None
         }
-        
+
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measindiv_dicts = [
             {
                 "name": "cleanup 1",
@@ -64,28 +64,28 @@ class TestCleanUp:
                 }
             }
         ]
-        
+
         sample_measlist_in = [
             Measure(base_dir, handyvars, handyfiles, opts_dict, **x)
             for x in sample_measindiv_dicts
         ]
-        
+
         sample_full_dat_out = {
             a_s: True for a_s in ["Technical potential", "Max adoption potential"]
         }
-        
+
         # Hard code proper technology type format for use in packaging
         # (normally this format is achieved by running Measures through the
         # 'fill_mkts' function, which isn't tested here)
         for m in sample_measlist_in:
             m.technology_type = {"primary": ["supply"], "secondary": None}
-        
+
         sample_measpackage = MeasurePackage(
             copy.deepcopy(sample_measlist_in), "cleanup 3",
             benefits, handyvars, handyfiles, opts, convert_data=None
         )
         sample_measlist_in.append(sample_measpackage)
-        
+
         sample_measlist_out_comp_data = [
             {
                 "Technical potential": {
@@ -172,7 +172,7 @@ class TestCleanUp:
                 }
             }
         ]
-        
+
         sample_measlist_out_shape_data = [
             {} for m in range(len(sample_measlist_in))
         ]
@@ -202,7 +202,7 @@ class TestCleanUp:
              'usr_opts', 'fuel_switch_to', 'min_eff_elec_flag', 'backup_fuel_fraction']
         ]
         sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
-        
+
         return {
             'handyvars': handyvars,
             'sample_measlist_in': sample_measlist_in,
@@ -221,7 +221,7 @@ class TestCleanUp:
         measures_comp_data, measures_summary_data, \
             measures_shape_data, measures_eff_fs_splt_data = ECMPrepHelper.split_clean_data(
                 test_data['sample_measlist_in'], test_data['sample_full_dat_out'])
-        
+
         # Check function outputs
         for ind in range(0, len(test_data['sample_measlist_in'])):
             # Check measure competition data
@@ -229,22 +229,25 @@ class TestCleanUp:
                 test_data['sample_measlist_out_comp_data'][ind],
                 measures_comp_data[ind]
             )
-            
+
             # Check measure sector shape data
             assert test_data['sample_measlist_out_shape_data'][ind] == measures_shape_data[ind]
-            
+
             # Check measure efficient fuel split data
-            assert test_data['sample_measlist_out_eff_fs_data'][ind] == measures_eff_fs_splt_data[ind]
-            
+            assert (
+                test_data['sample_measlist_out_eff_fs_data'][ind]
+                == measures_eff_fs_splt_data[ind]
+            )
+
             # Check measure summary data
             for adopt_scheme in test_data['handyvars'].adopt_schemes_prep:
                 assert (sorted(list(measures_summary_data[ind].keys())) ==
-                       sorted(test_data['sample_measlist_out_highlev_keys'][ind]))
+                        sorted(test_data['sample_measlist_out_highlev_keys'][ind]))
                 assert (sorted(list(measures_summary_data[ind]["markets"][adopt_scheme].keys())) ==
-                       sorted(test_data['sample_measlist_out_mkt_keys']))
-                
+                        sorted(test_data['sample_measlist_out_mkt_keys']))
+
                 # Verify correct updating of 'contributing_ECMs'
                 # MeasurePackage attribute
                 if "Package: " in measures_summary_data[ind]["name"]:
                     assert (measures_summary_data[ind]["contributing_ECMs"] ==
-                           test_data['sample_pkg_meas_names'])
+                            test_data['sample_pkg_meas_names'])

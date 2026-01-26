@@ -24,7 +24,7 @@ class TestCheckMarkets:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measures_fail_dicts = [
             {
                 "name": "sample measure 5",
@@ -93,17 +93,17 @@ class TestCheckMarkets:
                 }
             }
         ]
-        
+
         sample_measures_fail = [
             Measure(base_dir, handyvars, handyfiles, opts_dict, **x)
             for x in sample_measures_fail_dicts
         ]
-        
+
         return sample_measures_fail
 
     def test_invalid_mkts(self, sample_measures_fail):
         """Test 'check_meas_inputs' function given invalid inputs.
-        
+
         Verify that measures with invalid market input names raise
         exceptions when checked.
         """

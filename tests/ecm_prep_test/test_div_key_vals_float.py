@@ -25,7 +25,7 @@ class TestDivKeyValsFloat:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measure_dict = {
             "name": "sample measure 1",
             "active": 1,
@@ -51,14 +51,14 @@ class TestDivKeyValsFloat:
                 "secondary": None
             }
         }
-        
+
         sample_measure_in = Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **sample_measure_dict
         )
-        
+
         ok_reduce_num = 4
-        
+
         ok_dict_in = {
             "stock": {
                 "total": {"2009": 100, "2010": 200},
@@ -87,7 +87,7 @@ class TestDivKeyValsFloat:
                 }
             }
         }
-        
+
         ok_out = {
             "stock": {
                 "total": {"2009": 25, "2010": 50},
@@ -116,7 +116,7 @@ class TestDivKeyValsFloat:
                 }
             }
         }
-        
+
         ok_out_restrict = {
             "stock": {
                 "total": {"2009": 25, "2010": 50},
@@ -145,7 +145,7 @@ class TestDivKeyValsFloat:
                 }
             }
         }
-        
+
         return {
             'sample_measure_in': sample_measure_in,
             'ok_reduce_num': ok_reduce_num,
@@ -156,7 +156,7 @@ class TestDivKeyValsFloat:
 
     def test_ok_div(self, test_data):
         """Test 'div_keyvals_float' function given valid inputs.
-        
+
         Verify that the function correctly divides dictionary values
         by a given factor.
         """
@@ -168,7 +168,7 @@ class TestDivKeyValsFloat:
 
     def test_ok_div_restrict(self, test_data):
         """Test 'div_keyvals_float_restrict' function given valid inputs.
-        
+
         Verify that the function correctly divides dictionary values
         by a given factor while respecting restricted keys.
         """

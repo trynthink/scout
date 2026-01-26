@@ -1,8 +1,6 @@
 """Test append_keyvals function for generating valid market names."""
 
 import pytest
-import os
-from pathlib import Path
 
 
 class TestAppendKeyVals:
@@ -108,11 +106,11 @@ class TestAppendKeyVals:
 
     def test_ok_append(self, handy_vars, expected_mktnames):
         """Test 'append_keyvals' function given valid inputs.
-        
+
         Validates that the handy_vars.valid_mktnames contains the expected
         market names.
         """
         actual_mktnames = sorted([x for x in handy_vars.valid_mktnames if x is not None])
         expected_sorted = sorted([x for x in expected_mktnames if x is not None])
-        
+
         assert actual_mktnames == expected_sorted

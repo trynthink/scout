@@ -2,7 +2,6 @@
 
 import pickle
 import sys
-import os
 import importlib.util
 from pathlib import Path
 
@@ -11,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import the original unittest class from the archived monolithic file
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     "ecm_prep_test_original",
     Path(__file__).parent.parent / "archive" / "ecm_prep_test_ORIGINAL.py"
@@ -25,17 +23,17 @@ MergeMeasuresandApplyBenefitsTest = orig_tests.MergeMeasuresandApplyBenefitsTest
 def main():
     """Extract and save test data to pickle files."""
     print("Setting up MergeMeasuresandApplyBenefitsTest class...")
-    
+
     # Call setUpClass to initialize all class variables
     MergeMeasuresandApplyBenefitsTest.setUpClass()
-    
+
     # Create test_data directory
     test_data_dir = Path(__file__).parent / "test_data"
     test_data_dir.mkdir(exist_ok=True)
-    
+
     # Dictionary to store all the data we need
     test_data = {}
-    
+
     # Extract class-level data
     class_attrs = [
         'cost_convert_data',
@@ -58,7 +56,7 @@ def main():
         'mseg_ok_in_test2',
         'mseg_ok_out_test2'
     ]
-    
+
     print("\nExtracting data...")
     for attr_name in class_attrs:
         if hasattr(MergeMeasuresandApplyBenefitsTest, attr_name):
@@ -67,15 +65,15 @@ def main():
             print(f"  [OK] {attr_name}")
         else:
             print(f"  [MISSING] {attr_name}")
-    
+
     # Save to pickle file
     pickle_file = test_data_dir / "merge_measures_test_data.pkl"
     with open(pickle_file, 'wb') as f:
         pickle.dump(test_data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    
+
     print(f"\n[SUCCESS] Saved test data to: {pickle_file}")
     print(f"  File size: {pickle_file.stat().st_size / 1024 / 1024:.2f} MB")
-    
+
     # Also save a summary
     summary_file = test_data_dir / "merge_measures_test_data_summary.txt"
     with open(summary_file, 'w', encoding='utf-8') as f:
@@ -89,7 +87,7 @@ def main():
             elif isinstance(attr_value, dict):
                 f.write(f"  Keys: {len(attr_value)} keys\n")
             f.write("\n")
-    
+
     print(f"[SUCCESS] Saved summary to: {summary_file}")
     print("\nDone!")
 

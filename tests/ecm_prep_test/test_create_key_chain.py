@@ -24,7 +24,7 @@ class TestCreateKeyChain:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measure_dict = {
             "name": "sample measure 2",
             "active": 1,
@@ -77,18 +77,18 @@ class TestCreateKeyChain:
                 }
             }
         }
-        
+
         sample_measure_in = Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **sample_measure_dict
         )
-        
+
         # Finalize the measure's 'technology_type' attribute (handled by the
         # 'fill_attr' function, which is not run as part of this test)
         sample_measure_in.technology_type = {
             "primary": "supply", "secondary": "supply"
         }
-        
+
         ok_out_primary = [
             ('primary', 'AIA_CZ1', 'single family home',
              'electricity', 'heating', 'supply',
@@ -187,7 +187,7 @@ class TestCreateKeyChain:
              'electricity', 'cooling', 'supply', 'room AC',
              'existing')
         ]
-        
+
         ok_out_secondary = [
             ('secondary', 'AIA_CZ1', 'single family home',
              'electricity', 'lighting',
@@ -202,7 +202,7 @@ class TestCreateKeyChain:
              'electricity', 'lighting',
              'general service (LED)', 'existing')
         ]
-        
+
         return {
             'sample_measure_in': sample_measure_in,
             'ok_out_primary': ok_out_primary,
@@ -211,7 +211,7 @@ class TestCreateKeyChain:
 
     def test_primary(self, test_data):
         """Test 'create_keychain' function given valid inputs.
-        
+
         Tests generation of primary microsegment key chains.
         """
         result = test_data['sample_measure_in'].create_keychain("primary")[0]
@@ -219,7 +219,7 @@ class TestCreateKeyChain:
 
     def test_secondary(self, test_data):
         """Test 'create_keychain' function given valid inputs.
-        
+
         Tests generation of secondary microsegment key chains.
         """
         result = test_data['sample_measure_in'].create_keychain("secondary")[0]

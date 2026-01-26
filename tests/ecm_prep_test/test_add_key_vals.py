@@ -23,7 +23,7 @@ class TestAddKeyVals:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measure_dict = {
             "name": "sample measure 1",
             "active": 1,
@@ -49,12 +49,12 @@ class TestAddKeyVals:
                 "secondary": None
             }
         }
-        
+
         sample_measure_in = Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **sample_measure_dict
         )
-        
+
         ok_dict1_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -65,7 +65,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         ok_dict2_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -76,7 +76,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         ok_dict3_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -87,7 +87,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         ok_dict4_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -98,7 +98,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         fail_dict1_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -109,7 +109,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         fail_dict2_in = {
             "level 1a": {
                 "level 2aa": {"2009": 2, "2010": 3},
@@ -120,7 +120,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2011": 9}
             }
         }
-        
+
         ok_out = {
             "level 1a": {
                 "level 2aa": {"2009": 4, "2010": 6},
@@ -131,7 +131,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 16, "2010": 18}
             }
         }
-        
+
         ok_out_restrict = {
             "level 1a": {
                 "level 2aa": {"2009": 4, "2010": 6},
@@ -142,7 +142,7 @@ class TestAddKeyVals:
                 "level 2bb": {"2009": 8, "2010": 9}
             }
         }
-        
+
         return {
             'sample_measure_in': sample_measure_in,
             'ok_dict1_in': ok_dict1_in,
@@ -157,7 +157,7 @@ class TestAddKeyVals:
 
     def test_ok_add_keyvals(self, test_data):
         """Test 'add_keyvals' function given valid inputs.
-        
+
         Verify that the function correctly adds together dictionary values.
         """
         result = test_data['sample_measure_in'].add_keyvals(
@@ -168,7 +168,7 @@ class TestAddKeyVals:
 
     def test_fail_add_keyvals(self, test_data):
         """Test 'add_keyvals' function given invalid inputs.
-        
+
         Verify that KeyError is raised when dict keys don't match.
         """
         with pytest.raises(KeyError):
@@ -179,7 +179,7 @@ class TestAddKeyVals:
 
     def test_ok_add_keyvals_restrict(self, test_data):
         """Test 'add_keyvals_restrict' function given valid inputs.
-        
+
         Verify that the function correctly adds together dictionary values
         while allowing restricted keys.
         """

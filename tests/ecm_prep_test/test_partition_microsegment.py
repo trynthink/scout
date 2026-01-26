@@ -36,22 +36,22 @@ class TestPartitionMicrosegment:
     @pytest.fixture(scope="class")
     def test_data(self):
         """Load pre-extracted test data from pickle file.
-        
+
         The test data was extracted from the original unittest class using
         dump_partition_test_data.py. This approach keeps the test file manageable
         while preserving all the complex test scenarios.
         """
         pickle_file = Path(__file__).parent / "test_data" / "partition_microsegment_test_data.pkl"
-        
+
         if not pickle_file.exists():
             pytest.fail(
                 f"Test data file not found: {pickle_file}\n"
                 "Run 'python tests/ecm_prep_test/dump_partition_test_data.py' to generate it."
             )
-        
+
         with open(pickle_file, 'rb') as f:
             data = pickle.load(f)
-        
+
         return data
 
     def test_partition_runs_successfully(self, test_data):
@@ -75,7 +75,7 @@ class TestPartitionMicrosegment:
             test_data['measure_instance_bass_string']
         ]:
             warn_list = []
-            
+
             # Run partition_microsegment
             result = meas.partition_microsegment(
                 test_data['handyvars'].adopt_schemes_prep[0],  # Use first scenario
@@ -115,7 +115,7 @@ class TestPartitionMicrosegment:
                 lkg_fmeth_meas=None,
                 warn_list=warn_list
             )
-            
+
             # Verify function completed and returned results
             assert result is not None, "Function should return a result"
             assert isinstance(result, list), "Result should be a list"
@@ -140,7 +140,7 @@ class TestPartitionMicrosegment:
             test_data['measure_instance_wrong_name']
         ]:
             warn_list = []
-            
+
             # Run partition_microsegment
             result = meas.partition_microsegment(
                 test_data['handyvars'].adopt_schemes_prep[0],
@@ -180,7 +180,7 @@ class TestPartitionMicrosegment:
                 lkg_fmeth_meas=None,
                 warn_list=warn_list
             )
-            
+
             # Verify function handled invalid parameters gracefully
             assert result is not None, "Function should still return a result with invalid params"
             assert isinstance(result, list), "Result should be a list"

@@ -57,22 +57,22 @@ class TestUpdateMeasures:
     @pytest.fixture(scope="class")
     def test_data(self):
         """Load pre-extracted test data from pickle file.
-        
+
         The test data was extracted from the original unittest class using
         dump_update_measures_test_data.py. This approach keeps the test file manageable
         while preserving all the complex test scenarios.
         """
         pickle_file = Path(__file__).parent / "test_data" / "update_measures_test_data.pkl"
-        
+
         if not pickle_file.exists():
             pytest.fail(
                 f"Test data file not found: {pickle_file}\n"
                 "Run 'python tests/ecm_prep_test/dump_update_measures_test_data.py' to generate it."
             )
-        
+
         with open(pickle_file, 'rb') as f:
             data = pickle.load(f)
-        
+
         return data
 
     def test_filter_packages(self, test_data):
@@ -98,7 +98,7 @@ class TestUpdateMeasures:
             "ENERGY STAR Res. ASHP (FS) + Env. CC",
             "Prosp. Res. ASHP (FS) + Env. + Ctls."
         ]
-        
+
         with open(test_data['package_ecms_file'], 'r') as f:
             packages = json.load(f)
 
@@ -111,7 +111,7 @@ class TestUpdateMeasures:
             opts_pkgs.ecm_files,
             opts_pkgs
         )
-        
+
         # Check list of valid packages
         valid_pkg_names = [pkg["name"] for pkg in valid_pkgs]
         expected_pkgs = [
@@ -119,7 +119,7 @@ class TestUpdateMeasures:
             "ENERGY STAR Res. ASHP (FS) + Env. CC"
         ]
         assert valid_pkg_names == expected_pkgs
-        
+
         # Check list of invalid packages
         expected_invalid = ["Prosp. Res. ASHP (FS) + Env. + Ctls."]
         assert invalid_pkgs == expected_invalid
@@ -131,7 +131,7 @@ class TestUpdateMeasures:
             "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
             "another_field": "another_val"
         }
-        
+
         measures_out_aia = ECMPrep.prepare_measures(
             test_data['aia_measures'],
             test_data['convert_data'],
@@ -146,7 +146,7 @@ class TestUpdateMeasures:
             ctrb_ms_pkg_prep=[],
             tsv_data_nonfs=None
         )
-        
+
         # Verify climate zone was updated
         assert measures_out_aia[0].climate_zone == ["AIA_CZ1", "AIA_CZ2"]
         # Verify new field was added
@@ -181,14 +181,14 @@ class TestUpdateMeasures:
             ctrb_ms_pkg_prep=[],
             tsv_data_nonfs=None
         )
-        
+
         # Assess AIA-resolved test measures
         for oc_aia in range(len(test_data['ok_out_aia'])):
             dict_check(
                 measures_out_aia[oc_aia].markets['Technical potential']['master_mseg'],
                 test_data['ok_out_aia'][oc_aia]
             )
-        
+
         # Check for measures using EMM baseline data and tsv features
         measures_out_emm_features = ECMPrep.prepare_measures(
             test_data['emm_measures_features'],
@@ -204,7 +204,7 @@ class TestUpdateMeasures:
             ctrb_ms_pkg_prep=[],
             tsv_data_nonfs=None
         )
-        
+
         # Check for measures using EMM baseline data and public health energy cost adders
         measures_out_health_benefits = ECMPrep.prepare_measures(
             test_data['health_cost_measures'],
@@ -220,14 +220,14 @@ class TestUpdateMeasures:
             ctrb_ms_pkg_prep=[],
             tsv_data_nonfs=None
         )
-        
+
         # Assess EMM-resolved test measures with time sensitive features
         for oc_emm in range(len(test_data['ok_out_emm_features'])):
             dict_check(
                 measures_out_emm_features[oc_emm].markets['Technical potential']['master_mseg'],
                 test_data['ok_out_emm_features'][oc_emm]
             )
-        
+
         # Assess EMM-resolved test measures with time sensitive output metrics
         # or sector-level load shape output options
         for oc_emm in range(len(test_data['emm_measures_metrics'])):
@@ -247,13 +247,13 @@ class TestUpdateMeasures:
                 ctrb_ms_pkg_prep=[],
                 tsv_data_nonfs=None
             )
-            
+
             # Check master microsegment output under technical potential case
             dict_check(
                 measures_out_emm_metrics[0].markets['Technical potential']['master_mseg'],
                 test_data['ok_out_emm_metrics_mkts'][oc_emm]
             )
-            
+
             # Check sector-level load shape output under tech. potential case
             # if info. is available; otherwise check for None values
             if test_data['ok_out_emm_metrics_sect_shapes'][oc_emm]:
@@ -262,8 +262,11 @@ class TestUpdateMeasures:
                     test_data['ok_out_emm_metrics_sect_shapes'][oc_emm]
                 )
             else:
-                assert measures_out_emm_metrics[0].sector_shapes == test_data['ok_out_emm_metrics_sect_shapes'][oc_emm]
-        
+                assert (
+                    measures_out_emm_metrics[0].sector_shapes ==
+                    test_data['ok_out_emm_metrics_sect_shapes'][oc_emm]
+                )
+
         # Assess EMM-resolved test measures with public health benefits
         for oc_ph in range(len(test_data['ok_out_health_costs'])):
             dict_check(

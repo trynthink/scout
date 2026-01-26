@@ -25,13 +25,13 @@ class TestCostConversion:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         # Hardcode AEO years – first year in AEO time horizon (which is set
         # to the current year in actual runs of ecm_prep) is the
         # year that cost conversion assumes when no year is given in measure
         # or baseline cost units
         handyvars.aeo_years = ["2016", "2017", "2018", "2019", "2020"]
-        
+
         # Set sample consumer price index data to ensure the test is not
         # dependent on any external price data files
         handyvars.consumer_price_ind = numpy.array([
@@ -103,7 +103,7 @@ class TestCostConversion:
             ('2016-03-01', 239.41),
             ('2016-04-01', 239.41), ('2016-05-01', 239.41)],
             dtype=[('DATE', '<U50'), ('VALUE', '<f8')])
-        
+
         sample_measure_dict = {
             "name": "sample measure cost convert",
             "remove": False,
@@ -147,11 +147,11 @@ class TestCostConversion:
                         "original energy (competed and captured)": {},
                         "adjusted energy (total captured)": {},
                         "adjusted energy (competed and captured)": {}}}}}
-        
+
         sample_measure_in = Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **sample_measure_dict)
-        
+
         # Sample cost conversion data (large nested dictionary)
         sample_convertdata_ok_in = {
             "building type conversions": {
@@ -469,12 +469,12 @@ class TestCostConversion:
                 "MELs": {}
             }
         }
-        
+
         sample_bldgsect_ok_in = [
             "residential", "commercial", "commercial", "commercial",
             "commercial", "commercial", "commercial", "commercial",
             "residential"]
-        
+
         sample_mskeys_ok_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -494,7 +494,7 @@ class TestCostConversion:
              'CAV_Vent', 'existing'),
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing')]
-        
+
         sample_mskeys_fail_in = [
             ('primary', 'marine', 'single family home', 'electricity',
              'cooling', 'demand', 'windows conduction', 'existing'),
@@ -504,7 +504,7 @@ class TestCostConversion:
              'supply', 'rooftop_ASHP-heat', 'new'),
             ('primary', 'marine', 'assembly', 'electricity', 'heating',
              'supply', 'rooftop_ASHP-heat', 'new')]
-        
+
         cost_meas_ok_in = 10
         cost_meas_units_ok_in_yronly = '2008$/ft^2 floor'
         cost_meas_units_ok_in_all = [
@@ -527,7 +527,7 @@ class TestCostConversion:
         ok_out_costs_yronly = 11.325  # last row in 2016 vs. last row 2008
         ok_out_costs_all = [
             1.5, 500, 10, 6.3, 3.85, 10489.86, 2, 10000, 10.85898]
-        
+
         return {
             'verbose': None,
             'sample_measure_in': sample_measure_in,
@@ -556,7 +556,7 @@ class TestCostConversion:
             test_data['cost_meas_units_ok_in_yronly'],
             test_data['cost_base_units_ok_in'][0],
             test_data['verbose'])
-        
+
         numpy.testing.assert_almost_equal(
             func_output[0], test_data['ok_out_costs_yronly'], decimal=2)
         assert func_output[1] == test_data['cost_meas_units_ok_out'][0]
@@ -572,7 +572,7 @@ class TestCostConversion:
                 test_data['cost_meas_units_ok_in_all'][k],
                 test_data['cost_base_units_ok_in'][k],
                 test_data['verbose'])
-            
+
             numpy.testing.assert_almost_equal(
                 func_output[0], test_data['ok_out_costs_all'][k], decimal=2)
             assert func_output[1] == test_data['cost_meas_units_ok_out'][k]

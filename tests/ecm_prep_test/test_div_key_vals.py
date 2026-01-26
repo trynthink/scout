@@ -26,7 +26,7 @@ class TestDivKeyVals:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measure_dict = {
             "name": "sample measure 1",
             "active": 1,
@@ -52,14 +52,14 @@ class TestDivKeyVals:
                 "secondary": None
             }
         }
-        
+
         sample_measure_in = Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **sample_measure_dict
         )
-        
+
         ok_reduce_dict = {"2009": 100, "2010": 100}
-        
+
         ok_dict_in = {
             "AIA CZ1": {
                 "Residential": {
@@ -82,7 +82,7 @@ class TestDivKeyVals:
                 }
             }
         }
-        
+
         ok_out = {
             "AIA CZ1": {
                 "Residential": {
@@ -105,7 +105,7 @@ class TestDivKeyVals:
                 }
             }
         }
-        
+
         return {
             'sample_measure_in': sample_measure_in,
             'ok_reduce_dict': ok_reduce_dict,
@@ -115,7 +115,7 @@ class TestDivKeyVals:
 
     def test_ok(self, test_data):
         """Test 'div_keyvals' function given valid inputs.
-        
+
         Verify that the function correctly divides dictionary values
         and produces normalized output fractions.
         """

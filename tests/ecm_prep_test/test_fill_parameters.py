@@ -26,7 +26,7 @@ class TestFillParameters:
         opts, opts_dict = [null_opts.opts, null_opts.opts_dict]
         handyfiles = UsefulInputFiles(opts)
         handyvars = UsefulVars(base_dir, handyfiles, opts)
-        
+
         sample_measures = [{
             "name": "sample measure 1",
             "market_entry_year": None,
@@ -191,11 +191,11 @@ class TestFillParameters:
             "fuel_switch_to": None,
             "end_use": "heating",
             "technology": "all"}]
-        
+
         sample_measures_in = [Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **x) for x in sample_measures]
-        
+
         ok_primary_cpl_out = [[{
             'assembly': 2, 'education': 2, 'food sales': 2,
             'food service': 2, 'health care': 2,
@@ -261,7 +261,7 @@ class TestFillParameters:
              {
              'assembly': 22, 'education': 22, 'mobile home': 11,
              'multi family home': 11, 'single family home': 11}]]
-        
+
         ok_primary_mkts_out = [[
             ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
             ["single family home", "multi family home", "mobile home",
@@ -528,7 +528,7 @@ class TestFillParameters:
             "heating", [
                 "res_type_gasHP-heat", "gas_eng-driven_RTHP-heat",
                 "gas_boiler", "gas_furnace"]]]
-        
+
         return {
             'sample_measures_in': sample_measures_in,
             'ok_primary_cpl_out': ok_primary_cpl_out,
@@ -537,7 +537,7 @@ class TestFillParameters:
 
     def test_fill(self, test_data):
         """Test 'fill_attr' function given valid inputs.
-        
+
         Tests that measure attributes containing 'all' are properly
         filled in with the appropriate attribute details.
         """
@@ -550,13 +550,13 @@ class TestFillParameters:
             # 'all commercial' keys were properly filled out
             if ind < 2:
                 for x, y in zip([
-                    m.installed_cost, m.cost_units,
-                    m.energy_efficiency["primary"],
-                    m.energy_efficiency_units["primary"],
-                    m.product_lifetime],
-                    [o for o in test_data['ok_primary_cpl_out'][ind]]):
+                        m.installed_cost, m.cost_units,
+                        m.energy_efficiency["primary"],
+                        m.energy_efficiency_units["primary"],
+                        m.product_lifetime],
+                        [o for o in test_data['ok_primary_cpl_out'][ind]]):
                     dict_check(x, y)
-            
+
             # For each sample measure, check that 'all' climate zone,
             # building type/vintage, fuel type, end use, and technology
             # attributes were properly filled out
@@ -566,9 +566,9 @@ class TestFillParameters:
                     m.climate_zone, m.bldg_type, m.structure_type,
                     m.fuel_type['primary'], m.end_use['primary'],
                     m.technology['primary']]]
-            
+
             expected = [
                 sorted(x, key=lambda x: (x is None, x)) if isinstance(x, list)
                 else x for x in test_data['ok_primary_mkts_out'][ind]]
-            
+
             assert result == expected

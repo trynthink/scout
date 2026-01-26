@@ -39,22 +39,22 @@ class TestMarketUpdates:
     @pytest.fixture(scope="class")
     def test_data(self):
         """Load pre-extracted test data from pickle file.
-        
+
         The test data was extracted from the original unittest class using
         dump_market_updates_test_data.py. This approach keeps the test file manageable
         while preserving all the complex test scenarios.
         """
         pickle_file = Path(__file__).parent / "test_data" / "market_updates_test_data.pkl"
-        
+
         if not pickle_file.exists():
             pytest.fail(
                 f"Test data file not found: {pickle_file}\n"
                 "Run 'python tests/ecm_prep_test/dump_market_updates_test_data.py' to generate it."
             )
-        
+
         with open(pickle_file, 'rb') as f:
             data = pickle.load(f)
-        
+
         return data
 
     def test_mseg_ok_full_tp(self, test_data):
@@ -62,7 +62,7 @@ class TestMarketUpdates:
 
         Checks all branches of measure 'markets' attribute
         under a Technical potential scenario.
-        
+
         Note: Due to numpy.str_ vs str type mismatches in dictionary keys
         after pickle roundtrip, this test verifies successful execution
         and output structure rather than exact dictionary comparison.
@@ -77,18 +77,24 @@ class TestMarketUpdates:
                 ctrb_ms_pkg_prep=[],
                 tsv_data_nonfs=None
             )
-            
+
             # Verify successful execution and output structure
             assert 'Technical potential' in measure.markets
             assert 'master_mseg' in measure.markets['Technical potential']
             assert 'mseg_adjust' in measure.markets['Technical potential']
-            assert 'competed choice parameters' in measure.markets['Technical potential']['mseg_adjust']
-            
+            assert (
+                'competed choice parameters' in
+                measure.markets['Technical potential']['mseg_adjust']
+            )
+
             # For first three measures, check additional branches
             if idx < 3:
-                assert 'secondary mseg adjustments' in measure.markets['Technical potential']['mseg_adjust']
+                assert (
+                    'secondary mseg adjustments' in
+                    measure.markets['Technical potential']['mseg_adjust']
+                )
                 assert 'mseg_out_break' in measure.markets['Technical potential']
-            
+
             # Verify data structures are populated
             master_mseg = measure.markets['Technical potential']['master_mseg']
             assert len(master_mseg) > 0
@@ -141,7 +147,7 @@ class TestMarketUpdates:
 
         Checks the 'master_mseg' branch of measure 'markets' attribute
         under a Sectoral adoption scenario with distribution.
-        
+
         Note: The expected output format may differ from actual due to code evolution.
         This test verifies successful execution and output structure.
         """
@@ -158,12 +164,12 @@ class TestMarketUpdates:
             # Check that markets were created successfully
             assert 'markets' in measure.__dict__
             assert len(measure.markets) > 0
-            
+
             # Get first scenario key and verify structure
             scenario_key = list(measure.markets.keys())[0]
             assert 'master_mseg' in measure.markets[scenario_key]
             master_mseg = measure.markets[scenario_key]['master_mseg']
-            
+
             # Verify data structures are populated
             assert len(master_mseg) > 0
             assert isinstance(master_mseg, dict)
@@ -227,15 +233,15 @@ class TestMarketUpdates:
                     ctrb_ms_pkg_prep=[],
                     tsv_data_nonfs=None
                 )
-                
+
                 # Check that all warnings are UserWarnings
                 assert all(issubclass(wn.category, UserWarning) for wn in w)
-                
+
                 # Check that expected warning messages are present
                 warning_msgs = str([wmt.message for wmt in w])
                 for expected_warning in test_data['ok_warnmeas_out'][idx]:
                     assert expected_warning in warning_msgs
-                
+
                 # Check that measure is marked inactive for critical warnings
                 has_critical = any('CRITICAL' in x for x in test_data['ok_warnmeas_out'][idx])
                 assert mw.remove == has_critical
@@ -287,7 +293,7 @@ class TestMarketUpdates:
 
         Checks heat pump measures with exogenous conversion rates
         under a Max adoption potential scenario.
-        
+
         Note: Output values may differ from expected due to code evolution.
         This test verifies successful execution and output structure.
         """
@@ -304,11 +310,11 @@ class TestMarketUpdates:
             # Verify successful execution and output structure
             assert 'Max adoption potential' in measure.markets
             assert 'master_mseg' in measure.markets['Max adoption potential']
-            
+
             master_mseg = measure.markets['Max adoption potential']['master_mseg']
             assert len(master_mseg) > 0
             assert 'stock' in master_mseg or 'energy' in master_mseg
-            
+
             # Check breakouts if they exist
             if 'mseg_out_break' in measure.markets['Max adoption potential']:
                 breakouts = measure.markets['Max adoption potential']['mseg_out_break']
@@ -376,14 +382,14 @@ class TestMarketUpdates:
 
     def test_dual_fuel(self, test_data):
         """Test dual-fuel (STATE breakout, CA).
-        
+
         Verify the outputs master_mseg and mseg_out_break are produced,
         contains both Electric and Non-Electric for Heating (Equip.),
         and compare against the expected one.
         """
         # Initialize dummy measure with state-level inputs to draw from
         base_state_meas = test_data['ok_tpmeas_partchk_state_in'][0]
-        
+
         # Pull handyvars from first sample measure and set year range
         hv = copy.deepcopy(base_state_meas.handyvars)
         years = [str(y) for y in hv.aeo_years]
@@ -398,7 +404,7 @@ class TestMarketUpdates:
             ("Electric", ["electricity"]),
             ("Non-Electric", ["natural gas", "distillate", "residual", "other fuel"]),
         ])
-        
+
         # Rebuild the blank breakout template
         out_levels = [
             list(hv.out_break_czones.keys()),
@@ -444,7 +450,7 @@ class TestMarketUpdates:
 
     def test_added_cooling(self, test_data):
         """Test added cooling only (no dual-fuel).
-        
+
         Construct a minimal NG→Electric (ASHP) full-service HP measure that
         verifies added cooling functionality.
         """
@@ -452,7 +458,7 @@ class TestMarketUpdates:
         # Simplified version: verify test data contains the necessary components
         assert 'opts_state' in test_data
         assert test_data['opts_state'] is not None
-        
+
         # Additional validation could be added here, but the full test
         # would require recreating significant portions of the original setup
         # The pickle approach already validates the core functionality
@@ -462,7 +468,7 @@ class TestMarketUpdates:
         # This test involves complex incentive calculations
         # Simplified version: verify the opts_state data is available
         assert 'opts_state' in test_data
-        
+
         # The full test would require setting up custom incentives and
         # verifying their application, which is already validated by
         # the pickle extraction process
@@ -473,6 +479,6 @@ class TestMarketUpdates:
         # Simplified version: verify necessary data structures exist
         assert 'opts_emm' in test_data
         assert 'sample_mseg_in_emm' in test_data
-        
+
         # The full test would require custom rate structures, which are
         # already validated through the pickle extraction process

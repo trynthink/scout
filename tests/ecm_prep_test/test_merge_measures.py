@@ -50,25 +50,25 @@ class TestMergeMeasures:
     @pytest.fixture(scope="class")
     def test_data(self):
         """Load pre-extracted test data from pickle file.
-        
+
         The test data was extracted from the original MergeMeasuresandApplyBenefitsTest
         class using data_generators/dump_merge_test_data.py. This approach keeps the test
         file manageable while preserving all the complex test scenarios.
-        
+
         The pickle file contains 20 attributes including Measure objects, MeasurePackage
         objects, microsegment data, competition data, and various option configurations.
         """
         pickle_file = Path(__file__).parent / "test_data" / "merge_measures_test_data.pkl"
-        
+
         if not pickle_file.exists():
             pytest.fail(
                 f"Test data file not found: {pickle_file}\n"
                 "Run 'python tests/ecm_prep_test/dump_merge_test_data.py' to generate it."
             )
-        
+
         with open(pickle_file, 'rb') as f:
             data = pickle.load(f)
-        
+
         return data
 
     def test_merge_measure_highlevel(self, test_data):
@@ -76,7 +76,7 @@ class TestMergeMeasures:
         sample_packages = test_data['sample_package_in_test1_highlevel']
         expected_markets = test_data['markets_ok_out_test1']
         opts = test_data['opts']
-        
+
         for ind, m in enumerate(sample_packages):
             # Check for/record any potential heating/cooling equip/env measure
             # overlaps in the package
@@ -95,7 +95,7 @@ class TestMergeMeasures:
         sample_package = test_data['sample_package_in_test1_env_costs']
         expected_markets = test_data['markets_ok_out_test1_env_costs']
         opts_env_costs = test_data['opts_env_costs']
-        
+
         # Check for/record any potential heating/cooling equip/env measure
         # overlaps in the package
         sample_package.htcl_adj_rec(opts_env_costs)
@@ -115,13 +115,13 @@ class TestMergeMeasures:
         expected_breaks = test_data['breaks_ok_out_test1']
         expected_contrib = test_data['contrib_ok_out_test1']
         opts = test_data['opts']
-        
+
         # Check for/record any potential heating/cooling equip/env measure
         # overlaps in the package
         sample_package.htcl_adj_rec(opts)
         # Merge packaged measure data
         sample_package.merge_measures(opts)
-        
+
         output_lists = [
             sample_package.name,
             sample_package.climate_zone,
@@ -130,17 +130,17 @@ class TestMergeMeasures:
             sample_package.fuel_type["primary"],
             sample_package.end_use["primary"]
         ]
-        
+
         # Test measure attributes (climate, building type, end use, etc.)
         for ind in range(0, len(output_lists)):
             assert sorted(expected_attrs[ind]) == sorted(output_lists[ind])
-        
+
         # Test detailed output breakouts
         dict_check(
             sample_package.markets["Technical potential"]["mseg_out_break"],
             expected_breaks
         )
-        
+
         # Test contributing microsegments
         dict_check(
             sample_package.markets["Technical potential"]["mseg_adjust"][
@@ -153,13 +153,13 @@ class TestMergeMeasures:
         sample_package = test_data['sample_package_in_test2']
         mseg_input = test_data['mseg_ok_in_test2']
         expected_mseg = test_data['mseg_ok_out_test2']
-        
+
         result = sample_package.apply_pkg_benefits(
             mseg_input,
             adopt_scheme="Technical potential",
             cm_key=""
         )
-        
+
         dict_check(result, expected_mseg)
 
     def test_merge_measure_sect_shapes(self, test_data):
@@ -168,7 +168,7 @@ class TestMergeMeasures:
         sample_package = test_data['sample_package_in_sect_shapes']
         expected_shapes = test_data['sect_shapes_ok_out']
         opts_sect_shapes = test_data['opts_sect_shapes']
-        
+
         # Check for/record any potential heating/cooling equip/env measure
         # overlaps in the package
         sample_package.htcl_adj_rec(opts_sect_shapes)
@@ -180,11 +180,11 @@ class TestMergeMeasures:
             sample_package.sector_shapes["Technical potential"],
             expected_shapes
         )
-        
+
         # Package with additional performance/cost benefits
         sample_package_bens = test_data['sample_package_in_sect_shapes_bens']
         expected_shapes_bens = test_data['sect_shapes_ok_out_bens']
-        
+
         # Check for/record any potential heating/cooling equip/env measure
         # overlaps in the package
         sample_package_bens.htcl_adj_rec(opts_sect_shapes)

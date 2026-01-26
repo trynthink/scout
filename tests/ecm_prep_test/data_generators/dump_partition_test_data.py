@@ -2,7 +2,6 @@
 
 import pickle
 import sys
-import os
 import importlib.util
 from pathlib import Path
 
@@ -24,17 +23,17 @@ PartitionMicrosegmentTest = orig_tests.PartitionMicrosegmentTest
 def main():
     """Extract and save test data to pickle files."""
     print("Setting up PartitionMicrosegmentTest class...")
-    
+
     # Call setUpClass to initialize all class variables
     PartitionMicrosegmentTest.setUpClass()
-    
+
     # Create test_data directory
     test_data_dir = Path(__file__).parent / "test_data"
     test_data_dir.mkdir(exist_ok=True)
-    
+
     # Dictionary to store all the data we need
     test_data = {}
-    
+
     # Extract class-level data
     class_attrs = [
         'opts',
@@ -77,7 +76,7 @@ def main():
         'measure_instance_bad_values',
         'measure_instance_wrong_name'
     ]
-    
+
     print("\nExtracting data...")
     for attr_name in class_attrs:
         if hasattr(PartitionMicrosegmentTest, attr_name):
@@ -86,15 +85,15 @@ def main():
             print(f"  [OK] {attr_name}")
         else:
             print(f"  [MISSING] {attr_name}")
-    
+
     # Save to pickle file
     pickle_file = test_data_dir / "partition_microsegment_test_data.pkl"
     with open(pickle_file, 'wb') as f:
         pickle.dump(test_data, f, protocol=pickle.HIGHEST_PROTOCOL)
-    
+
     print(f"\n[SUCCESS] Saved test data to: {pickle_file}")
     print(f"  File size: {pickle_file.stat().st_size / 1024 / 1024:.2f} MB")
-    
+
     # Also save a summary
     summary_file = test_data_dir / "partition_microsegment_test_data_summary.txt"
     with open(summary_file, 'w', encoding='utf-8') as f:
@@ -108,7 +107,7 @@ def main():
             elif isinstance(attr_value, dict):
                 f.write(f"  Keys: {len(attr_value)} keys\n")
             f.write("\n")
-    
+
     print(f"[SUCCESS] Saved summary to: {summary_file}")
     print("\nDone!")
 

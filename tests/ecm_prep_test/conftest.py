@@ -1,9 +1,9 @@
 """Shared pytest fixtures and utilities for ECM prep tests."""
 
 # Import code to be tested
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import ECMPrepHelper, ECMPrep  # noqa: F401
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
+from scout.config import FilePaths as fp  # noqa: F401
 from scout.ecm_prep_args import ecm_args
 
 # Import needed packages
@@ -11,24 +11,24 @@ from pathlib import Path
 import pytest
 import numpy
 import os
-import warnings
-import copy
-import json
+import warnings  # noqa: F401
+import copy  # noqa: F401
+import json  # noqa: F401
 import itertools
-import pandas as pd
-from collections import OrderedDict
+import pandas as pd  # noqa: F401
+from collections import OrderedDict  # noqa: F401
 
 
 def dict_check(dict1, dict2):
     """Check the equality of two dicts.
-    
+
     This replaces the CommonMethods.dict_check method from the original
     unittest-based tests. Can be used as: dict_check(result, expected)
-    
+
     Args:
         dict1 (dict): First dictionary to be compared
         dict2 (dict): Second dictionary to be compared
-    
+
     Raises:
         AssertionError: If dictionaries are not equal.
     """
@@ -89,12 +89,14 @@ def dict_check(dict1, dict2):
 
 class UserOptions:
     """Generate sample user-specified execution options."""
+
     def __init__(self, site_energy, capt_energy, regions, tsv_metrics,
                  sect_shapes, rp_persist, health_costs, split_fuel,
                  no_scnd_lgt, floor_start, pkg_env_costs, exog_hp_rates,
                  grid_decarb, adopt_scn_restrict, retro_set, add_typ_eff,
                  pkg_env_sep, alt_ref_carb, detail_brkout, fugitive_emissions,
-                 warnings, no_eff_capt, no_lnkd_stk, no_lnkd_op, elec_upgrade_costs,
+                 verbose, no_eff_capt, no_lnkd_stk, no_lnkd_op,
+                 elec_upgrade_costs,
                  low_volume_rate, state_appl_regs, bps, codes, incentive_levels,
                  incentive_restrictions):
         # Options include site energy outputs, captured energy site-source
@@ -104,7 +106,7 @@ class UserOptions:
         self.captured_energy = capt_energy
         self.alt_regions = regions
         self.rp_persist = rp_persist
-        self.verbose = warnings
+        self.verbose = verbose
         self.tsv_metrics = tsv_metrics
         self.health_costs = health_costs
         self.sect_shapes = sect_shapes
@@ -135,7 +137,7 @@ class UserOptions:
 
 class NullOpts:
     """Generate null set of user-specified execution options.
-    
+
     Attributes:
         opts (object): Sample null user options.
         opts_dict (dict): Dict-formatted sample null user options.
