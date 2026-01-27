@@ -3,6 +3,13 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from tests.schema_test_helpers import (
+    resolve_ref,
+    extract_enums,
+    extract_descriptions,
+    extract_patterns,
+)
+
 
 # ============================================================================
 # Constants
@@ -23,170 +30,6 @@ ECM_JSON_FILES = [
     for json_file in JSON_DIR.glob("*.json")
     if json_file.name not in EXCLUDE_FILES
 ]
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-def resolve_ref(schema, validator, depth=0, max_depth=10):
-    """Resolve a $ref to its actual schema definition.
-
-    Args:
-        schema: Schema (or sub-schema) potentially containing $ref
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth to prevent infinite loops
-
-    Returns:
-        Resolved schema definition
-    """
-    if depth > max_depth or "$ref" not in schema:
-        return schema
-    ref_path = schema["$ref"]
-    if ref_path.startswith("#/definitions/"):
-        def_name = ref_path.split("/")[-1]
-        resolved = validator.schema.get("definitions", {}).get(def_name, {})
-        return resolve_ref(resolved, validator, depth + 1)
-    return schema
-
-
-def extract_enums(schema, validator, depth=0, max_depth=10):
-    """Recursively extract enum values from schema and references.
-
-    Handles complex schema structures including:
-    - Direct enum arrays
-    - anyOf/oneOf with nested schemas
-    - $ref definitions
-    - Array items with enums
-
-    Args:
-        schema: Schema (or sub-schema) to extract enums from
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth to prevent infinite loops
-
-    Returns:
-        List of all enum values found (may contain duplicates)
-
-    Example:
-        >>> schema = {"anyOf": [{"enum": ["A", "B"]}, {"enum": ["C"]}]}
-        >>> extract_enums(schema, validator)
-        ["A", "B", "C"]
-    """
-    if depth > max_depth:
-        return []
-
-    enums = []
-
-    # Direct enum
-    if "enum" in schema:
-        enums.extend(schema["enum"])
-        return enums
-
-    # Handle anyOf (standard) and oneOf (legacy support)
-    for key in ["anyOf", "oneOf"]:
-        if key in schema:
-            for sub_schema in schema[key]:
-                enums.extend(
-                    extract_enums(sub_schema, validator, depth + 1)
-                )
-
-    # Handle $ref
-    if "$ref" in schema:
-        resolved = resolve_ref(schema, validator, depth)
-        if resolved != schema:
-            enums.extend(extract_enums(resolved, validator, depth + 1))
-
-    # Handle array items
-    if "items" in schema:
-        enums.extend(extract_enums(schema["items"], validator, depth + 1))
-
-    return enums
-
-
-def extract_descriptions(schema, validator, depth=0, max_depth=10):
-    """Extract descriptions from schema and its references.
-
-    Traverses complex schema structures to find description fields,
-    including nested anyOf/oneOf and $ref definitions.
-
-    Args:
-        schema: Schema to extract descriptions from
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth to prevent infinite loops
-
-    Returns:
-        List of description strings found in schema
-
-    Example:
-        >>> schema = {"description": "Main", "anyOf": [{"description": "Sub"}]}
-        >>> extract_descriptions(schema, validator)
-        ["Main", "Sub"]
-    """
-    if depth > max_depth:
-        return []
-    descs = []
-    if "description" in schema:
-        descs.append(schema["description"])
-
-    for key in ["anyOf", "oneOf"]:
-        if key in schema:
-            for sub_schema in schema[key]:
-                resolved = resolve_ref(sub_schema, validator, depth)
-                descs.extend(
-                    extract_descriptions(resolved, validator, depth + 1)
-                )
-
-    if "$ref" in schema and "description" not in schema:
-        resolved = resolve_ref(schema, validator, depth)
-        if resolved != schema:
-            descs.extend(extract_descriptions(resolved, validator, depth + 1))
-
-    return descs
-
-
-def extract_patterns(schema, validator, depth=0, max_depth=10):
-    """Extract pattern constraints from schema and its references.
-
-    Finds regex patterns used for string validation, including
-    patterns in nested anyOf/oneOf structures and $ref definitions.
-
-    Args:
-        schema: Schema to extract patterns from
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth to prevent infinite loops
-
-    Returns:
-        List of pattern strings (regex)
-
-    Example:
-        >>> schema = {"pattern": "^[0-9]+$"}
-        >>> extract_patterns(schema, validator)
-        ["^[0-9]+$"]
-    """
-    if depth > max_depth:
-        return []
-    patterns = []
-    if "pattern" in schema:
-        patterns.append(schema["pattern"])
-
-    for key in ["anyOf", "oneOf"]:
-        if key in schema:
-            for sub_schema in schema[key]:
-                resolved = resolve_ref(sub_schema, validator, depth)
-                patterns.extend(
-                    extract_patterns(resolved, validator, depth + 1)
-                )
-
-    if "$ref" in schema and "pattern" not in schema:
-        resolved = resolve_ref(schema, validator, depth)
-        if resolved != schema:
-            patterns.extend(extract_patterns(resolved, validator, depth + 1))
-
-    return patterns
 
 
 # ============================================================================
@@ -384,7 +227,7 @@ def test_schema_is_valid_json_schema(schema):
 
 
 def test_schema_has_metadata(schema):
-    """Test that ECM schema has proper metadata (Item #2).
+    """Test that ECM schema has proper metadata.
 
     Verifies the schema includes:
     - $schema: JSON Schema version (Draft-07)

@@ -4,102 +4,11 @@ import gzip
 from pathlib import Path
 from jsonschema import Draft202012Validator
 
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-def resolve_ref(schema, validator, depth=0, max_depth=10):
-    """Resolve a $ref to its actual schema definition.
-
-    Args:
-        schema: Schema (or sub-schema) potentially containing $ref
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth to prevent infinite loops
-
-    Returns:
-        Resolved schema definition
-    """
-    if depth > max_depth or "$ref" not in schema:
-        return schema
-    ref_path = schema["$ref"]
-    if ref_path.startswith("#/definitions/"):
-        def_name = ref_path.split("/")[-1]
-        resolved = validator.schema.get("definitions", {}).get(def_name, {})
-        return resolve_ref(resolved, validator, depth + 1)
-    return schema
-
-
-def extract_descriptions(schema, validator, depth=0, max_depth=10):
-    """Extract descriptions from schema and its references.
-
-    Args:
-        schema: Schema to extract descriptions from
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth
-
-    Returns:
-        List of description strings found in schema
-    """
-    if depth > max_depth:
-        return []
-    descs = []
-    if "description" in schema:
-        descs.append(schema["description"])
-
-    for key in ["anyOf", "oneOf"]:
-        if key in schema:
-            for sub_schema in schema[key]:
-                resolved = resolve_ref(sub_schema, validator, depth)
-                descs.extend(
-                    extract_descriptions(resolved, validator, depth + 1)
-                )
-
-    if "$ref" in schema and "description" not in schema:
-        resolved = resolve_ref(schema, validator, depth)
-        if resolved != schema:
-            descs.extend(extract_descriptions(resolved, validator, depth + 1))
-
-    return descs
-
-
-def extract_patterns(schema, validator, depth=0, max_depth=10):
-    """Extract pattern constraints from schema and its references.
-
-    Args:
-        schema: Schema to extract patterns from
-        validator: JSON schema validator instance
-        depth: Current recursion depth
-        max_depth: Maximum recursion depth
-
-    Returns:
-        List of pattern strings (regex or patternProperties keys)
-    """
-    if depth > max_depth:
-        return []
-    patterns = []
-
-    if "pattern" in schema:
-        patterns.append(schema["pattern"])
-    if "patternProperties" in schema:
-        patterns.extend(schema["patternProperties"].keys())
-
-    for key in ["anyOf", "oneOf"]:
-        if key in schema:
-            for sub_schema in schema[key]:
-                resolved = resolve_ref(sub_schema, validator, depth)
-                patterns.extend(
-                    extract_patterns(resolved, validator, depth + 1)
-                )
-
-    if "$ref" in schema and "pattern" not in schema:
-        resolved = resolve_ref(schema, validator, depth)
-        if resolved != schema:
-            patterns.extend(extract_patterns(resolved, validator, depth + 1))
-
-    return patterns
+from tests.schema_test_helpers import (
+    resolve_ref,
+    extract_descriptions,
+    extract_patterns,
+)
 
 
 # ============================================================================
