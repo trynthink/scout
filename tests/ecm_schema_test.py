@@ -9,7 +9,9 @@ from jsonschema import Draft202012Validator
 # ============================================================================
 
 # Paths
-SCHEMA_PATH = Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
+SCHEMA_PATH = (
+    Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
+)
 JSON_DIR = Path(__file__).parent.parent / "ecm_definitions"
 
 # Files to exclude from validation
@@ -29,13 +31,13 @@ ECM_JSON_FILES = [
 
 def resolve_ref(schema, validator, depth=0, max_depth=10):
     """Resolve a $ref to its actual schema definition.
-    
+
     Args:
         schema: Schema (or sub-schema) potentially containing $ref
         validator: JSON schema validator instance
         depth: Current recursion depth
         max_depth: Maximum recursion depth to prevent infinite loops
-        
+
     Returns:
         Resolved schema definition
     """
@@ -50,23 +52,23 @@ def resolve_ref(schema, validator, depth=0, max_depth=10):
 
 
 def extract_enums(schema, validator, depth=0, max_depth=10):
-    """Recursively extract enum values from schema and its references.
-    
+    """Recursively extract enum values from schema and references.
+
     Handles complex schema structures including:
     - Direct enum arrays
     - anyOf/oneOf with nested schemas
     - $ref definitions
     - Array items with enums
-    
+
     Args:
         schema: Schema (or sub-schema) to extract enums from
         validator: JSON schema validator instance
         depth: Current recursion depth
         max_depth: Maximum recursion depth to prevent infinite loops
-        
+
     Returns:
         List of all enum values found (may contain duplicates)
-        
+
     Example:
         >>> schema = {"anyOf": [{"enum": ["A", "B"]}, {"enum": ["C"]}]}
         >>> extract_enums(schema, validator)
@@ -86,7 +88,9 @@ def extract_enums(schema, validator, depth=0, max_depth=10):
     for key in ["anyOf", "oneOf"]:
         if key in schema:
             for sub_schema in schema[key]:
-                enums.extend(extract_enums(sub_schema, validator, depth + 1))
+                enums.extend(
+                    extract_enums(sub_schema, validator, depth + 1)
+                )
 
     # Handle $ref
     if "$ref" in schema:
@@ -103,19 +107,19 @@ def extract_enums(schema, validator, depth=0, max_depth=10):
 
 def extract_descriptions(schema, validator, depth=0, max_depth=10):
     """Extract descriptions from schema and its references.
-    
+
     Traverses complex schema structures to find description fields,
     including nested anyOf/oneOf and $ref definitions.
-    
+
     Args:
         schema: Schema to extract descriptions from
         validator: JSON schema validator instance
         depth: Current recursion depth
         max_depth: Maximum recursion depth to prevent infinite loops
-        
+
     Returns:
         List of description strings found in schema
-        
+
     Example:
         >>> schema = {"description": "Main", "anyOf": [{"description": "Sub"}]}
         >>> extract_descriptions(schema, validator)
@@ -131,7 +135,9 @@ def extract_descriptions(schema, validator, depth=0, max_depth=10):
         if key in schema:
             for sub_schema in schema[key]:
                 resolved = resolve_ref(sub_schema, validator, depth)
-                descs.extend(extract_descriptions(resolved, validator, depth + 1))
+                descs.extend(
+                    extract_descriptions(resolved, validator, depth + 1)
+                )
 
     if "$ref" in schema and "description" not in schema:
         resolved = resolve_ref(schema, validator, depth)
@@ -143,19 +149,19 @@ def extract_descriptions(schema, validator, depth=0, max_depth=10):
 
 def extract_patterns(schema, validator, depth=0, max_depth=10):
     """Extract pattern constraints from schema and its references.
-    
+
     Finds regex patterns used for string validation, including
     patterns in nested anyOf/oneOf structures and $ref definitions.
-    
+
     Args:
         schema: Schema to extract patterns from
         validator: JSON schema validator instance
         depth: Current recursion depth
         max_depth: Maximum recursion depth to prevent infinite loops
-        
+
     Returns:
         List of pattern strings (regex)
-        
+
     Example:
         >>> schema = {"pattern": "^[0-9]+$"}
         >>> extract_patterns(schema, validator)
@@ -171,7 +177,9 @@ def extract_patterns(schema, validator, depth=0, max_depth=10):
         if key in schema:
             for sub_schema in schema[key]:
                 resolved = resolve_ref(sub_schema, validator, depth)
-                patterns.extend(extract_patterns(resolved, validator, depth + 1))
+                patterns.extend(
+                    extract_patterns(resolved, validator, depth + 1)
+                )
 
     if "$ref" in schema and "pattern" not in schema:
         resolved = resolve_ref(schema, validator, depth)
@@ -204,7 +212,7 @@ def validator(schema):
 @pytest.mark.parametrize("json_file", ECM_JSON_FILES, ids=lambda f: f.name)
 def test_ecm_json_schema_validation(json_file, validator):
     """Test that each ECM definition validates against ecm_schema.json.
-    
+
     Validates all ECM definition JSON files in the ecm_definitions directory
     against the ECM schema. Provides comprehensive error messages including:
     - Actual value that failed validation
@@ -213,13 +221,18 @@ def test_ecm_json_schema_validation(json_file, validator):
     - Numeric/string constraints (min/max, lengths)
     - Type requirements and format specifications
     - Data and schema paths for debugging
-    
+
     Example validation errors caught:
-    - Invalid cost_units (e.g., "20$/unit" missing 4-digit year prefix)
-    - Invalid energy_efficiency_units (e.g., "kW/h" instead of enum value like "COP")
-    - Out-of-range numeric values (e.g., negative energy_efficiency with minimum: 0)
-    - Missing required properties (e.g., "name", "climate_zone")
-    - Invalid TSV nested structure (shed/shift/shape with wrong properties)
+    - Invalid cost_units
+      (e.g., "20$/unit" missing 4-digit year prefix)
+    - Invalid energy_efficiency_units
+      (e.g., "kW/h" instead of enum value like "COP")
+    - Out-of-range numeric values
+      (e.g., negative energy_efficiency with minimum: 0)
+    - Missing required properties
+      (e.g., "name", "climate_zone")
+    - Invalid TSV nested structure
+      (shed/shift/shape with wrong properties)
     - Malformed htcl_tech_link patterns
     - Empty strings where minLength: 1 is required
     - Wrong data types (e.g., string instead of number)
@@ -239,7 +252,7 @@ def test_ecm_json_schema_validation(json_file, validator):
 
             # Get the actual value that failed validation
             actual_value = e.instance
-            
+
             # Build comprehensive error information
             allowable_info = []
 
@@ -249,7 +262,9 @@ def test_ecm_json_schema_validation(json_file, validator):
             # Handle anyOf/oneOf schemas by extracting enum values
             for schema_key in ["anyOf", "oneOf"]:
                 if schema_key in e.schema:
-                    all_enums = extract_enums(e.schema, validator)
+                    all_enums = extract_enums(
+                        e.schema, validator
+                    )
                     # Remove duplicates
                     if all_enums:
                         all_enums = sorted(set(all_enums))
@@ -259,7 +274,9 @@ def test_ecm_json_schema_validation(json_file, validator):
                     all_patterns = extract_patterns(e.schema, validator)
                     if all_patterns:
                         # Show first pattern (usually most relevant)
-                        allowable_info.append(f"expected pattern: {all_patterns[0]}")
+                        allowable_info.append(
+                            f"expected pattern: {all_patterns[0]}"
+                        )
                     break  # Only process once
 
             # Extract direct constraints
@@ -283,7 +300,7 @@ def test_ecm_json_schema_validation(json_file, validator):
             if "format" in e.schema:
                 fmt = e.schema['format']
                 allowable_info.append(f"expected format: {fmt}")
-            
+
             msg_parts = [
                 f"ERROR: {e.message}",
                 "",  # Blank line for readability
@@ -291,9 +308,11 @@ def test_ecm_json_schema_validation(json_file, validator):
                 f"  data path: {data_path}",
                 f"  schema path: {schema_path_str}",
             ]
-            
+
             # Add actual value section
-            if isinstance(actual_value, (dict, list)) and len(json.dumps(actual_value)) > 100:
+            if isinstance(actual_value, (dict, list)) and len(
+                json.dumps(actual_value)
+            ) > 100:
                 # For large objects, show truncated version
                 value_str = json.dumps(actual_value)[:100] + "..."
                 msg_parts.extend([
@@ -307,7 +326,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                     "Actual Value:",
                     f"  {json.dumps(actual_value)}",
                 ])
-            
+
             # Add description if available
             if descriptions:
                 msg_parts.extend([
@@ -315,7 +334,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                     "Description:",
                     f"  {descriptions[0]}",
                 ])
-            
+
             # Add constraints if any
             if allowable_info:
                 msg_parts.extend([
@@ -323,7 +342,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                     "Expected Constraints:",
                     f"  {', '.join(allowable_info)}",
                 ])
-            
+
             messages.append("\n".join(msg_parts))
 
         error_message = (
@@ -342,7 +361,7 @@ def test_schema_file_exists():
 
 def test_schema_is_valid_json():
     """Test that the ECM schema file is valid JSON.
-    
+
     Verifies that the schema file can be parsed as JSON without errors.
     """
     try:
@@ -353,7 +372,7 @@ def test_schema_is_valid_json():
 
 def test_schema_is_valid_json_schema(schema):
     """Test that the ECM schema is a valid JSON Schema (Draft-07).
-    
+
     Verifies that the schema itself conforms to JSON Schema specification.
     This ensures the schema can be used for validation.
     """
@@ -366,14 +385,14 @@ def test_schema_is_valid_json_schema(schema):
 
 def test_schema_has_metadata(schema):
     """Test that ECM schema has proper metadata (Item #2).
-    
+
     Verifies the schema includes:
     - $schema: JSON Schema version (Draft-07)
     - $id: Unique schema identifier
     - version: Schema version number (semantic versioning)
     - title: Human-readable title
     - description: Comprehensive description
-    
+
     These metadata fields are important for:
     - Schema identification and versioning
     - Documentation and tooling support
@@ -386,12 +405,15 @@ def test_schema_has_metadata(schema):
     assert "version" in schema, "Schema missing version"
     assert "title" in schema, "Schema missing title"
     assert "description" in schema, "Schema missing description"
-    
+
     # Check values are not empty
     assert schema.get("version"), "Schema version is empty"
     assert schema.get("title"), "Schema title is empty"
     assert schema.get("description"), "Schema description is empty"
-    
+
     # Verify version format (semantic versioning: x.y.z)
     version = schema.get("version", "")
-    assert version.count(".") >= 2, f"Schema version should be semantic (e.g., 1.0.0), got: {version}"
+    assert version.count(".") >= 2, (
+        f"Schema version should be semantic (e.g., 1.0.0), "
+        f"got: {version}"
+    )
