@@ -114,18 +114,18 @@ def test_ecm_json_schema_validation(json_file, validator):
                 descs = []
                 if "description" in schema:
                     descs.append(schema["description"])
-                
+
                 for key in ["anyOf", "oneOf"]:
                     if key in schema:
                         for sub_schema in schema[key]:
                             resolved = resolve_ref(sub_schema, depth)
                             descs.extend(extract_descriptions(resolved, depth + 1))
-                
+
                 if "$ref" in schema and "description" not in schema:
                     resolved = resolve_ref(schema, depth)
                     if resolved != schema:
                         descs.extend(extract_descriptions(resolved, depth + 1))
-                
+
                 return descs
 
             # Extract patterns from anyOf/oneOf schemas
@@ -136,23 +136,23 @@ def test_ecm_json_schema_validation(json_file, validator):
                 patterns = []
                 if "pattern" in schema:
                     patterns.append(schema["pattern"])
-                
+
                 for key in ["anyOf", "oneOf"]:
                     if key in schema:
                         for sub_schema in schema[key]:
                             resolved = resolve_ref(sub_schema, depth)
                             patterns.extend(extract_patterns(resolved, depth + 1))
-                
+
                 if "$ref" in schema and "pattern" not in schema:
                     resolved = resolve_ref(schema, depth)
                     if resolved != schema:
                         patterns.extend(extract_patterns(resolved, depth + 1))
-                
+
                 return patterns
 
             # Collect descriptions
             descriptions = extract_descriptions(e.schema)
-            
+
             # Handle anyOf/oneOf schemas by extracting enum values
             for schema_key in ["anyOf", "oneOf"]:
                 if schema_key in e.schema:
@@ -161,7 +161,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                     if all_enums:
                         all_enums = sorted(set(all_enums))
                         allowable_info.append(f"allowed values: {all_enums}")
-                    
+
                     # Extract patterns from anyOf/oneOf
                     all_patterns = extract_patterns(e.schema)
                     if all_patterns:
