@@ -4,6 +4,10 @@ import pytest
 from jsonschema import Draft202012Validator
 
 
+# ============================================================================
+# Constants
+# ============================================================================
+
 # Paths
 SCHEMA_PATH = Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
 JSON_DIR = Path(__file__).parent.parent / "ecm_definitions"
@@ -11,35 +15,215 @@ JSON_DIR = Path(__file__).parent.parent / "ecm_definitions"
 # Files to exclude from validation
 EXCLUDE_FILES = {"ecm_schema.json", "package_ecms.json"}
 
+# ECM JSON files to validate
+ECM_JSON_FILES = [
+    json_file
+    for json_file in JSON_DIR.glob("*.json")
+    if json_file.name not in EXCLUDE_FILES
+]
+
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+def resolve_ref(schema, validator, depth=0, max_depth=10):
+    """Resolve a $ref to its actual schema definition.
+    
+    Args:
+        schema: Schema (or sub-schema) potentially containing $ref
+        validator: JSON schema validator instance
+        depth: Current recursion depth
+        max_depth: Maximum recursion depth to prevent infinite loops
+        
+    Returns:
+        Resolved schema definition
+    """
+    if depth > max_depth or "$ref" not in schema:
+        return schema
+    ref_path = schema["$ref"]
+    if ref_path.startswith("#/definitions/"):
+        def_name = ref_path.split("/")[-1]
+        resolved = validator.schema.get("definitions", {}).get(def_name, {})
+        return resolve_ref(resolved, validator, depth + 1)
+    return schema
+
+
+def extract_enums(schema, validator, depth=0, max_depth=10):
+    """Recursively extract enum values from schema and its references.
+    
+    Handles complex schema structures including:
+    - Direct enum arrays
+    - anyOf/oneOf with nested schemas
+    - $ref definitions
+    - Array items with enums
+    
+    Args:
+        schema: Schema (or sub-schema) to extract enums from
+        validator: JSON schema validator instance
+        depth: Current recursion depth
+        max_depth: Maximum recursion depth to prevent infinite loops
+        
+    Returns:
+        List of all enum values found (may contain duplicates)
+        
+    Example:
+        >>> schema = {"anyOf": [{"enum": ["A", "B"]}, {"enum": ["C"]}]}
+        >>> extract_enums(schema, validator)
+        ["A", "B", "C"]
+    """
+    if depth > max_depth:
+        return []
+
+    enums = []
+
+    # Direct enum
+    if "enum" in schema:
+        enums.extend(schema["enum"])
+        return enums
+
+    # Handle anyOf (standard) and oneOf (legacy support)
+    for key in ["anyOf", "oneOf"]:
+        if key in schema:
+            for sub_schema in schema[key]:
+                enums.extend(extract_enums(sub_schema, validator, depth + 1))
+
+    # Handle $ref
+    if "$ref" in schema:
+        resolved = resolve_ref(schema, validator, depth)
+        if resolved != schema:
+            enums.extend(extract_enums(resolved, validator, depth + 1))
+
+    # Handle array items
+    if "items" in schema:
+        enums.extend(extract_enums(schema["items"], validator, depth + 1))
+
+    return enums
+
+
+def extract_descriptions(schema, validator, depth=0, max_depth=10):
+    """Extract descriptions from schema and its references.
+    
+    Traverses complex schema structures to find description fields,
+    including nested anyOf/oneOf and $ref definitions.
+    
+    Args:
+        schema: Schema to extract descriptions from
+        validator: JSON schema validator instance
+        depth: Current recursion depth
+        max_depth: Maximum recursion depth to prevent infinite loops
+        
+    Returns:
+        List of description strings found in schema
+        
+    Example:
+        >>> schema = {"description": "Main", "anyOf": [{"description": "Sub"}]}
+        >>> extract_descriptions(schema, validator)
+        ["Main", "Sub"]
+    """
+    if depth > max_depth:
+        return []
+    descs = []
+    if "description" in schema:
+        descs.append(schema["description"])
+
+    for key in ["anyOf", "oneOf"]:
+        if key in schema:
+            for sub_schema in schema[key]:
+                resolved = resolve_ref(sub_schema, validator, depth)
+                descs.extend(extract_descriptions(resolved, validator, depth + 1))
+
+    if "$ref" in schema and "description" not in schema:
+        resolved = resolve_ref(schema, validator, depth)
+        if resolved != schema:
+            descs.extend(extract_descriptions(resolved, validator, depth + 1))
+
+    return descs
+
+
+def extract_patterns(schema, validator, depth=0, max_depth=10):
+    """Extract pattern constraints from schema and its references.
+    
+    Finds regex patterns used for string validation, including
+    patterns in nested anyOf/oneOf structures and $ref definitions.
+    
+    Args:
+        schema: Schema to extract patterns from
+        validator: JSON schema validator instance
+        depth: Current recursion depth
+        max_depth: Maximum recursion depth to prevent infinite loops
+        
+    Returns:
+        List of pattern strings (regex)
+        
+    Example:
+        >>> schema = {"pattern": "^[0-9]+$"}
+        >>> extract_patterns(schema, validator)
+        ["^[0-9]+$"]
+    """
+    if depth > max_depth:
+        return []
+    patterns = []
+    if "pattern" in schema:
+        patterns.append(schema["pattern"])
+
+    for key in ["anyOf", "oneOf"]:
+        if key in schema:
+            for sub_schema in schema[key]:
+                resolved = resolve_ref(sub_schema, validator, depth)
+                patterns.extend(extract_patterns(resolved, validator, depth + 1))
+
+    if "$ref" in schema and "pattern" not in schema:
+        resolved = resolve_ref(schema, validator, depth)
+        if resolved != schema:
+            patterns.extend(extract_patterns(resolved, validator, depth + 1))
+
+    return patterns
+
+
+# ============================================================================
+# Fixtures
+# ============================================================================
 
 @pytest.fixture(scope="module")
-def validator():
-    """Load and return the JSON schema validator."""
-    schema = json.loads(SCHEMA_PATH.read_text())
+def schema():
+    """Load and return the ECM schema."""
+    return json.loads(SCHEMA_PATH.read_text())
+
+
+@pytest.fixture(scope="module")
+def validator(schema):
+    """Create and return the JSON schema validator."""
     return Draft202012Validator(schema)
 
 
-@pytest.fixture(scope="module")
-def json_files():
-    """Collect all JSON files to validate."""
-    return [
-        json_file
-        for json_file in JSON_DIR.glob("*.json")
-        if json_file.name not in EXCLUDE_FILES
-    ]
+# ============================================================================
+# Tests
+# ============================================================================
 
-
-@pytest.mark.parametrize(
-    "json_file",
-    [
-        json_file
-        for json_file in (Path(__file__).parent.parent / "ecm_definitions").glob("*.json")
-        if json_file.name not in EXCLUDE_FILES
-    ],
-    ids=lambda f: f.name,
-)
+@pytest.mark.parametrize("json_file", ECM_JSON_FILES, ids=lambda f: f.name)
 def test_ecm_json_schema_validation(json_file, validator):
-    """Test that each ECM definition JSON file validates against the schema."""
+    """Test that each ECM definition validates against ecm_schema.json.
+    
+    Validates all ECM definition JSON files in the ecm_definitions directory
+    against the ECM schema. Provides comprehensive error messages including:
+    - Actual value that failed validation
+    - Schema descriptions for context
+    - Allowed values (enums) or patterns (regex)
+    - Numeric/string constraints (min/max, lengths)
+    - Type requirements and format specifications
+    - Data and schema paths for debugging
+    
+    Example validation errors caught:
+    - Invalid cost_units (e.g., "20$/unit" missing 4-digit year prefix)
+    - Invalid energy_efficiency_units (e.g., "kW/h" instead of enum value like "COP")
+    - Out-of-range numeric values (e.g., negative energy_efficiency with minimum: 0)
+    - Missing required properties (e.g., "name", "climate_zone")
+    - Invalid TSV nested structure (shed/shift/shape with wrong properties)
+    - Malformed htcl_tech_link patterns
+    - Empty strings where minLength: 1 is required
+    - Wrong data types (e.g., string instead of number)
+    """
     # Load JSON data
     data = json.loads(json_file.read_text())
 
@@ -51,124 +235,34 @@ def test_ecm_json_schema_validation(json_file, validator):
         messages = []
         for e in errors:
             data_path = "/".join(str(p) for p in e.path)
-            schema_path = "/".join(str(p) for p in e.schema_path)
+            schema_path_str = "/".join(str(p) for p in e.schema_path)
 
             # Get the actual value that failed validation
             actual_value = e.instance
-            # Build allowable values info from schema
+            
+            # Build comprehensive error information
             allowable_info = []
-            descriptions = []
-
-            # Helper function to resolve $ref
-            def resolve_ref(schema, depth=0, max_depth=10):
-                """Resolve a $ref to its actual schema definition."""
-                if depth > max_depth or "$ref" not in schema:
-                    return schema
-                ref_path = schema["$ref"]
-                if ref_path.startswith("#/definitions/"):
-                    def_name = ref_path.split("/")[-1]
-                    resolved = validator.schema.get("definitions", {}).get(def_name, {})
-                    return resolve_ref(resolved, depth + 1)
-                return schema
-
-            # Helper function to recursively extract enums from schema
-            def extract_enums(schema, depth=0, max_depth=10):
-                """Recursively extract enum values from a schema.
-
-                Handles anyOf (and legacy oneOf) structures with nested
-                $ref definitions and array items.
-                """
-                if depth > max_depth:
-                    return []
-
-                enums = []
-
-                # Direct enum
-                if "enum" in schema:
-                    enums.extend(schema["enum"])
-                    return enums
-
-                # Handle anyOf (standard) and oneOf (legacy support)
-                for key in ["anyOf", "oneOf"]:
-                    if key in schema:
-                        for sub_schema in schema[key]:
-                            enums.extend(extract_enums(sub_schema, depth + 1))
-
-                # Handle $ref
-                if "$ref" in schema:
-                    resolved = resolve_ref(schema, depth)
-                    if resolved != schema:
-                        enums.extend(extract_enums(resolved, depth + 1))
-
-                # Handle array items
-                if "items" in schema:
-                    enums.extend(extract_enums(schema["items"], depth + 1))
-
-                return enums
-
-            # Extract descriptions from anyOf/oneOf schemas
-            def extract_descriptions(schema, depth=0, max_depth=10):
-                """Extract descriptions from schema and its references."""
-                if depth > max_depth:
-                    return []
-                descs = []
-                if "description" in schema:
-                    descs.append(schema["description"])
-
-                for key in ["anyOf", "oneOf"]:
-                    if key in schema:
-                        for sub_schema in schema[key]:
-                            resolved = resolve_ref(sub_schema, depth)
-                            descs.extend(extract_descriptions(resolved, depth + 1))
-
-                if "$ref" in schema and "description" not in schema:
-                    resolved = resolve_ref(schema, depth)
-                    if resolved != schema:
-                        descs.extend(extract_descriptions(resolved, depth + 1))
-
-                return descs
-
-            # Extract patterns from anyOf/oneOf schemas
-            def extract_patterns(schema, depth=0, max_depth=10):
-                """Extract pattern constraints from schema and its references."""
-                if depth > max_depth:
-                    return []
-                patterns = []
-                if "pattern" in schema:
-                    patterns.append(schema["pattern"])
-
-                for key in ["anyOf", "oneOf"]:
-                    if key in schema:
-                        for sub_schema in schema[key]:
-                            resolved = resolve_ref(sub_schema, depth)
-                            patterns.extend(extract_patterns(resolved, depth + 1))
-
-                if "$ref" in schema and "pattern" not in schema:
-                    resolved = resolve_ref(schema, depth)
-                    if resolved != schema:
-                        patterns.extend(extract_patterns(resolved, depth + 1))
-
-                return patterns
 
             # Collect descriptions
-            descriptions = extract_descriptions(e.schema)
+            descriptions = extract_descriptions(e.schema, validator)
 
             # Handle anyOf/oneOf schemas by extracting enum values
             for schema_key in ["anyOf", "oneOf"]:
                 if schema_key in e.schema:
-                    all_enums = extract_enums(e.schema)
+                    all_enums = extract_enums(e.schema, validator)
                     # Remove duplicates
                     if all_enums:
                         all_enums = sorted(set(all_enums))
                         allowable_info.append(f"allowed values: {all_enums}")
 
                     # Extract patterns from anyOf/oneOf
-                    all_patterns = extract_patterns(e.schema)
+                    all_patterns = extract_patterns(e.schema, validator)
                     if all_patterns:
                         # Show first pattern (usually most relevant)
                         allowable_info.append(f"expected pattern: {all_patterns[0]}")
                     break  # Only process once
 
+            # Extract direct constraints
             if "enum" in e.schema:
                 allowable_info.append(f"allowed values: {e.schema['enum']}")
             if "type" in e.schema:
@@ -189,48 +283,115 @@ def test_ecm_json_schema_validation(json_file, validator):
             if "format" in e.schema:
                 fmt = e.schema['format']
                 allowable_info.append(f"expected format: {fmt}")
-            # Build the error message
+            
             msg_parts = [
-                f"{e.message}",
-                f"    data path: {data_path}",
-                f"    actual value: {json.dumps(actual_value)}",
+                f"ERROR: {e.message}",
+                "",  # Blank line for readability
+                "Location:",
+                f"  data path: {data_path}",
+                f"  schema path: {schema_path_str}",
             ]
+            
+            # Add actual value section
+            if isinstance(actual_value, (dict, list)) and len(json.dumps(actual_value)) > 100:
+                # For large objects, show truncated version
+                value_str = json.dumps(actual_value)[:100] + "..."
+                msg_parts.extend([
+                    "",
+                    "Actual Value:",
+                    f"  {value_str}",
+                ])
+            else:
+                msg_parts.extend([
+                    "",
+                    "Actual Value:",
+                    f"  {json.dumps(actual_value)}",
+                ])
+            
+            # Add description if available
             if descriptions:
-                # Show first description (most specific)
-                msg_parts.append(f"    description: {descriptions[0]}")
+                msg_parts.extend([
+                    "",
+                    "Description:",
+                    f"  {descriptions[0]}",
+                ])
+            
+            # Add constraints if any
             if allowable_info:
-                constraints = ', '.join(allowable_info)
-                msg_parts.append(f"    constraints: {constraints}")
-            msg_parts.append(f"    schema path: {schema_path}")
+                msg_parts.extend([
+                    "",
+                    "Expected Constraints:",
+                    f"  {', '.join(allowable_info)}",
+                ])
+            
             messages.append("\n".join(msg_parts))
 
         error_message = (
-            f"{json_file.name} is invalid:\n" +
-            "\n".join(f"  - {msg}" for msg in messages)
+            f"\n{'='*70}\n"
+            f"{json_file.name} is invalid\n"
+            f"{'='*70}\n\n" +
+            "\n\n".join(f"{msg}" for msg in messages)
         )
         pytest.fail(error_message)
 
 
 def test_schema_file_exists():
-    """Test that the ECM schema file exists."""
+    """Test that the ECM schema file exists at expected location."""
     assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
 
 
 def test_schema_is_valid_json():
-    """Test that the schema file is valid JSON."""
+    """Test that the ECM schema file is valid JSON.
+    
+    Verifies that the schema file can be parsed as JSON without errors.
+    """
     try:
         json.loads(SCHEMA_PATH.read_text())
     except json.JSONDecodeError as e:
         pytest.fail(f"Schema file is not valid JSON: {e}")
 
 
-def test_schema_is_valid_json_schema():
-    """Test that the schema file is a valid JSON Schema."""
-    schema = json.loads(SCHEMA_PATH.read_text())
-    # Check if the validator can be created (validates schema structure)
+def test_schema_is_valid_json_schema(schema):
+    """Test that the ECM schema is a valid JSON Schema (Draft-07).
+    
+    Verifies that the schema itself conforms to JSON Schema specification.
+    This ensures the schema can be used for validation.
+    """
     try:
         Draft202012Validator(schema)
-        # Check the schema itself for validity
         Draft202012Validator.check_schema(schema)
     except Exception as e:
         pytest.fail(f"Schema file is not a valid JSON Schema: {e}")
+
+
+def test_schema_has_metadata(schema):
+    """Test that ECM schema has proper metadata (Item #2).
+    
+    Verifies the schema includes:
+    - $schema: JSON Schema version (Draft-07)
+    - $id: Unique schema identifier
+    - version: Schema version number (semantic versioning)
+    - title: Human-readable title
+    - description: Comprehensive description
+    
+    These metadata fields are important for:
+    - Schema identification and versioning
+    - Documentation and tooling support
+    - Professional schema quality standards
+    - Integration with schema registries and validators
+    """
+    # Check required metadata fields exist
+    assert "$schema" in schema, "Schema missing $schema"
+    assert "$id" in schema, "Schema missing $id"
+    assert "version" in schema, "Schema missing version"
+    assert "title" in schema, "Schema missing title"
+    assert "description" in schema, "Schema missing description"
+    
+    # Check values are not empty
+    assert schema.get("version"), "Schema version is empty"
+    assert schema.get("title"), "Schema title is empty"
+    assert schema.get("description"), "Schema description is empty"
+    
+    # Verify version format (semantic versioning: x.y.z)
+    version = schema.get("version", "")
+    assert version.count(".") >= 2, f"Schema version should be semantic (e.g., 1.0.0), got: {version}"

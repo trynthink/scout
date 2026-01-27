@@ -1,9 +1,15 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://scout.energy.gov/schemas/cpl/v1.0.0",
+    "version": "1.0.0",
+    "title": "Cost Performance Lifetime Data by Climate Zone",
+    "description": "Schema for validating equipment cost, performance, and lifetime (CPL) data for residential and commercial buildings by AIA climate zone. This schema defines cost structures (including incentives), performance metrics, lifetime data, and consumer choice parameters.",
     "type": "object",
     "patternProperties": {
-        "^AIA_CZ[1-5]$": { 
+        "^AIA_CZ[1-5]$": {
         "type": "object",
+        "title": "AIA Climate Zone",
+        "description": "American Institute of Architects (AIA) Climate Zones 1-5 representing different climatic regions (CZ1=Hot-Humid, CZ2=Hot-Dry, CZ3=Warm, CZ4=Mixed, CZ5=Cold)",
         "properties": {
             "single family home": { "$ref": "#/definitions/buildingTypeRes" },
             "multi family home": { "$ref": "#/definitions/buildingTypeRes" },
@@ -27,10 +33,23 @@
     "definitions": {
         "buildingTypeRes": {
             "type": "object",
+            "description": "Residential building type with homes count, square footage, and CPL (Cost, Performance, Lifetime) data by fuel type and end use",
             "properties": {
-                "total homes": { "$ref": "#/definitions/yearNumberObject" },
-                "new homes": { "$ref": "#/definitions/yearNumberObject" },
-                "total square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "total homes": {
+                    "title": "Total Homes",
+                    "description": "Total number of residential homes by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "new homes": {
+                    "title": "New Homes",
+                    "description": "Number of new homes constructed by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "total square footage": {
+                    "title": "Total Square Footage",
+                    "description": "Total residential floor space (square feet) by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
                 "electricity": {
                     "type": "object",
                     "patternProperties": {
@@ -57,7 +76,11 @@
                                 "supply": {
                                     "type": "object",
                                     "patternProperties": {
-                                        "secondary heater": { "type": "number", "const": 0 }
+                                        "secondary heater": {
+                                            "type": "number",
+                                            "const": 0,
+                                            "description": "Secondary heating not modeled separately in CPL data"
+                                        }
                                     },
                                     "additionalProperties": false
                                 }
@@ -187,7 +210,11 @@
                                 "supply": {
                                     "type": "object",
                                     "patternProperties": {
-                                        "secondary heater": { "type": "number", "const": 0 }
+                                        "secondary heater": {
+                                            "type": "number",
+                                            "const": 0,
+                                            "description": "Secondary heating not modeled separately in CPL data"
+                                        }
                                     },
                                     "additionalProperties": false
                                 }
@@ -246,7 +273,11 @@
                                 "supply": {
                                     "type": "object",
                                     "patternProperties": {
-                                        "secondary heater": { "type": "number", "const": 0 }
+                                        "secondary heater": {
+                                            "type": "number",
+                                            "const": 0,
+                                            "description": "Secondary heating not modeled separately in CPL data"
+                                        }
                                     },
                                     "additionalProperties": false
                                 }
@@ -563,27 +594,52 @@
             }
         },
         "yearNumberObject": {
+            "description": "Year-keyed numeric data (2020-2050) or single constant value",
             "anyOf": [
             {
                 "type": "object",
+                "description": "Object with year keys mapping to numeric values",
                 "patternProperties": {
-                "^(202[0-9]|203[0-9]|204[0-9]|2050)$": { "type": "number" }
+                "^(201[0-9]|202[0-9]|203[0-9]|204[0-9]|2050)$": {
+                    "type": "number"
                 }
+                },
+                "additionalProperties": false
             },
-            { "type": "number" }
+            {
+                "type": "number",
+                "description": "Single numeric value constant across all years",
+                "minimum": 0
+            }
+            ],
+            "examples": [
+                {"2020": 5000, "2030": 5200, "2050": 5500},
+                1500,
+                {"2020": 3.5, "2030": 4.0}
             ]
         },
         "cplObject": {
             "type": "object",
+            "description": "Cost, Performance, and Lifetime data for equipment or envelope components including installed cost, performance metrics, lifetime characteristics, and optional consumer choice parameters",
             "properties": {
                 "installed cost": {
+                    "title": "Installed Cost",
+                    "description": "Equipment/component installed cost - either simple (typical only) or detailed (with before/after incentives)",
                     "anyOf": [
                         {
                             "type": "object",
                             "properties": {
                                 "typical": {"$ref": "#/definitions/yearNumberObject"},
-                                "units": { "type": "string" },
-                                "source": { "type": "string" }
+                                "units": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Cost units (e.g., 2023$/unit, $/kBtu/h)"
+                                },
+                                "source": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Data source reference"
+                                }
                             }
                         },
                         {
@@ -604,8 +660,16 @@
                                                 }
                                             ]
                                         },
-                                        "units": { "type": "string" },
-                                        "source": { "type": "string" }
+                                        "units": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "description": "Cost units"
+                                        },
+                                        "source": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "description": "Data source reference"
+                                        }
                                     },
                                     "additionalProperties": false
                                 },
@@ -619,7 +683,11 @@
                                             },
                                             "additionalProperties": false
                                         },
-                                        "performance units": { "type": "string" }
+                                        "performance units": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "description": "Performance units for incentive tiers"
+                                        }
                                     },
                                     "additionalProperties": false
                                 }
@@ -630,8 +698,15 @@
                 "performance": {
                     "type": "object",
                     "properties": {
-                        "units": { "type": "string" },
-                        "source": { "type": ["string", "object"] },
+                        "units": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Performance units (e.g., COP, EER, SEER, R-value)"
+                        },
+                        "source": {
+                            "type": ["string", "object"],
+                            "description": "Data source reference"
+                        },
                         "typical": { 
                             "anyOf": [
                                 { "$ref": "#/definitions/yearNumberObject" },
@@ -657,9 +732,12 @@
                             ]
                         }
                     },
+                    "required": ["units", "source", "typical"],
                     "additionalProperties": false
                 },
                 "lifetime": {
+                "title": "Equipment Lifetime",
+                "description": "Expected equipment lifetime with average value, range, and source data",
                 "type": "object",
                 "properties": {
                     "average": {"$ref": "#/definitions/yearNumberObject"},
@@ -676,12 +754,18 @@
                 "additionalProperties": false
                 },
                 "consumer choice": {
+                "title": "Consumer Choice Parameters",
+                "description": "Consumer choice model parameters for competed market share calculations",
                 "type": "object",
                 "properties": {
                     "competed market share": {
                     "type": "object",
                     "properties": {
-                        "model type": {"type": "string"},
+                        "model type": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Consumer choice model type"
+                        },
                         "parameters": {
                         "type": "object",
                         "properties": {
@@ -689,7 +773,11 @@
                             "b2": {"$ref": "#/definitions/yearNumberObject"}
                         }
                         },
-                        "source": { "type": "string" }
+                        "source": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Data source for consumer choice parameters"
+                        }
                     },
                     "required": ["parameters", "source"],
                     "additionalProperties": false
@@ -704,6 +792,7 @@
         },
         "demandResObject": {
             "type": "object",
+            "description": "Residential demand-side components (envelope, infiltration) with CPL data. Internal gains (people, equipment) set to 0 as not modeled separately.",
             "patternProperties": {
                 "windows conduction": { "$ref": "#/definitions/cplObject" },
                 "windows solar": { "$ref": "#/definitions/cplObject" },
@@ -711,26 +800,59 @@
                 "roof": { "$ref": "#/definitions/cplObject" },
                 "ground": { "$ref": "#/definitions/cplObject" },
                 "infiltration": { "$ref": "#/definitions/cplObject" },
-                "people gain": { "type": "number", "const": 0 },
-                "equipment gain": { "type": "number", "const": 0 }
+                "people gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "People gains not included in CPL demand modeling"
+                },
+                "equipment gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Equipment gains not included in CPL demand modeling"
+                }
             },
             "additionalProperties": false
         },
         "demandComObject": {
             "type": "object",
+            "description": "Commercial demand-side components (envelope, infiltration) with CPL data. Internal gains and ventilation set to 0 as not modeled separately.",
             "patternProperties": {
                 "windows conduction": { "$ref": "#/definitions/cplObject" },
                 "windows solar": { "$ref": "#/definitions/cplObject" },
                 "wall": { "$ref": "#/definitions/cplObject" },
                 "roof": { "$ref": "#/definitions/cplObject" },
                 "ground": { "$ref": "#/definitions/cplObject" },
-                "floor":  { "type": "number", "const": 0 },
+                "floor": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Floor component not included in CPL demand modeling"
+                },
                 "infiltration": { "$ref": "#/definitions/cplObject" },
-                "ventilation":  { "type": "number", "const": 0 },
-                "people gain": { "type": "number", "const": 0 },
-                "equipment gain":  { "type": "number", "const": 0 },
-                "lighting gain":  { "type": "number", "const": 0 },
-                "other heat gain": { "type": "number", "const": 0 }
+                "ventilation": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Ventilation not included in CPL demand modeling"
+                },
+                "people gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "People gains not included in CPL demand modeling"
+                },
+                "equipment gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Equipment gains not included in CPL demand modeling"
+                },
+                "lighting gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Lighting gains not included in CPL demand modeling"
+                },
+                "other heat gain": {
+                    "type": "number",
+                    "const": 0,
+                    "description": "Other heat gains not included in CPL demand modeling"
+                }
             },
             "additionalProperties": false
         }

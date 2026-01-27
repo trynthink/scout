@@ -1,9 +1,15 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://scout.energy.gov/schemas/mseg/v1.0.0",
+    "version": "1.0.0",
+    "title": "Microsegment Stock Energy Technology Data",
+    "description": "Schema for validating microsegment (residential and commercial) stock energy and technology data by climate zone. This schema defines the structure for building stock, energy consumption, and equipment data across AIA climate zones.",
     "type": "object",
     "patternProperties": {
-        "^AIA_CZ[1-5]$": { 
+        "^AIA_CZ[1-5]$": {
         "type": "object",
+        "title": "AIA Climate Zone",
+        "description": "American Institute of Architects (AIA) Climate Zones 1-5 representing different climatic regions (CZ1=Hot-Humid, CZ2=Hot-Dry, CZ3=Warm, CZ4=Mixed, CZ5=Cold)",
         "properties": {
             "single family home": { "$ref": "#/definitions/buildingTypeRes" },
             "multi family home": { "$ref": "#/definitions/buildingTypeRes" },
@@ -27,10 +33,23 @@
     "definitions": {
         "buildingTypeRes": {
             "type": "object",
+            "description": "Residential building type data including homes count, square footage, and energy consumption by fuel type and end use",
             "properties": {
-                "total homes": { "$ref": "#/definitions/yearNumberObject" },
-                "new homes": { "$ref": "#/definitions/yearNumberObject" },
-                "total square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "total homes": {
+                    "title": "Total Homes",
+                    "description": "Total number of homes by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "new homes": {
+                    "title": "New Homes",
+                    "description": "Number of new homes constructed by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "total square footage": {
+                    "title": "Total Square Footage",
+                    "description": "Total residential floor space (square feet) by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
                 "electricity": {
                     "type": "object",
                     "patternProperties": {
@@ -318,9 +337,18 @@
         },
         "buildingTypeCom": {
             "type": "object",
+            "description": "Commercial building type data including floor space and energy consumption by fuel type and end use",
             "properties": {
-                "total square footage": { "$ref": "#/definitions/yearNumberObject" },
-                "new square footage": { "$ref": "#/definitions/yearNumberObject" },
+                "total square footage": {
+                    "title": "Total Square Footage",
+                    "description": "Total commercial floor space (square feet) by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "new square footage": {
+                    "title": "New Square Footage",
+                    "description": "New commercial floor space constructed (square feet) by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
                 "electricity": {
                     "type": "object",
                     "patternProperties": {
@@ -564,30 +592,66 @@
         },
         "yearNumberObject": {
             "type": "object",
+            "description": "Object with year keys (2020-2050) mapping to numeric values",
             "patternProperties": {
-                "^(202[0-9]|203[0-9]|204[0-9]|2050)$": { "type": "number" }
-            }
+                "^(2019|202[0-9]|203[0-9]|204[0-9]|2050)$": {
+                    "type": "number"
+                }
+            },
+            "additionalProperties": false,
+            "examples": [
+                {"2020": 1000000, "2025": 1050000, "2030": 1100000, "2050": 1300000},
+                {"2020": 5.5, "2030": 6.2, "2040": 7.1, "2050": 8.0}
+            ]
         },
         "yearEnergyObject": {
             "type": "object",
+            "description": "Demand-side object with stock identifier/formula and annual energy consumption data",
             "properties": {
-                "stock": { "type": "string" },
-                "energy": { "$ref": "#/definitions/yearNumberObject" }
+                "stock": {
+                    "type": "string",
+                    "description": "Stock identifier or formula for demand component",
+                    "minLength": 1
+                },
+                "energy": {
+                    "description": "Annual energy consumption by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                }
             },
             "required": ["stock", "energy"],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "examples": [
+                {
+                    "stock": "total square footage",
+                    "energy": {"2020": 1000.5, "2030": 950.2, "2050": 900.0}
+                }
+            ]
         },
         "yearStockEnergyObject": {
             "type": "object",
+            "description": "Supply-side object with annual stock count and energy consumption data by year",
             "properties": {
-                "stock": { "$ref": "#/definitions/yearNumberObject" },
-                "energy": { "$ref": "#/definitions/yearNumberObject" }
+                "stock": {
+                    "description": "Annual equipment stock count by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                },
+                "energy": {
+                    "description": "Annual energy consumption by year",
+                    "$ref": "#/definitions/yearNumberObject"
+                }
             },
             "required": ["stock", "energy"],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "examples": [
+                {
+                    "stock": {"2020": 5000, "2030": 5500, "2050": 6000},
+                    "energy": {"2020": 150.5, "2030": 145.2, "2050": 140.0}
+                }
+            ]
         },
         "demandResObject": {
         "type": "object",
+        "description": "Residential demand-side components (envelope, infiltration, internal gains) with energy data",
         "patternProperties": {
             "windows conduction": { "$ref": "#/definitions/yearEnergyObject" },
             "windows solar": { "$ref": "#/definitions/yearEnergyObject" },
@@ -602,6 +666,7 @@
         },
         "demandComObject": {
         "type": "object",
+        "description": "Commercial demand-side components (envelope, infiltration, ventilation, internal gains) with energy data",
         "patternProperties": {
             "windows conduction": { "$ref": "#/definitions/yearEnergyObject" },
             "windows solar": { "$ref": "#/definitions/yearEnergyObject" },
