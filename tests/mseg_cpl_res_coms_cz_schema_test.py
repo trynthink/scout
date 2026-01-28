@@ -47,7 +47,7 @@ def schema_config(request):
 @pytest.fixture
 def schema_path(schema_config):
     """Return the path to the schema file."""
-    schema_name, config = schema_config
+    _, config = schema_config
     return (
         Path(__file__).parent.parent
         / "scout"
@@ -60,7 +60,7 @@ def schema_path(schema_config):
 @pytest.fixture
 def data_path(schema_config):
     """Return the path to the data file."""
-    schema_name, config = schema_config
+    _, config = schema_config
     return (
         Path(__file__).parent.parent
         / "scout"
@@ -80,7 +80,7 @@ def schema(schema_path):
 @pytest.fixture
 def data(data_path, schema_config):
     """Load and return JSON data (compressed and uncompressed)."""
-    schema_name, config = schema_config
+    _, config = schema_config
 
     if config["compressed"]:
         with gzip.open(data_path, "rt", encoding="utf-8") as f:
