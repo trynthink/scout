@@ -51,6 +51,71 @@ def validator(schema):
 # Tests
 # ============================================================================
 
+def test_schema_file_exists():
+    """Test that the ECM schema file exists at expected location."""
+    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
+
+
+def test_schema_is_valid_json():
+    """Test that the ECM schema file is valid JSON.
+
+    Verifies that the schema file can be parsed as JSON without errors.
+    """
+    try:
+        json.loads(SCHEMA_PATH.read_text())
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Schema file is not valid JSON: {e}")
+
+
+def test_schema_is_valid_json_schema(schema):
+    """Test that the ECM schema is a valid JSON Schema (Draft-07).
+
+    Verifies that the schema itself conforms to JSON Schema specification.
+    This ensures the schema can be used for validation.
+    """
+    try:
+        Draft202012Validator(schema)
+        Draft202012Validator.check_schema(schema)
+    except Exception as e:
+        pytest.fail(f"Schema file is not a valid JSON Schema: {e}")
+
+
+def test_schema_has_metadata(schema):
+    """Test that ECM schema has proper metadata.
+
+    Verifies the schema includes:
+    - $schema: JSON Schema version (Draft-07)
+    - $id: Unique schema identifier
+    - version: Schema version number (semantic versioning)
+    - title: Human-readable title
+    - description: Comprehensive description
+
+    These metadata fields are important for:
+    - Schema identification and versioning
+    - Documentation and tooling support
+    - Professional schema quality standards
+    - Integration with schema registries and validators
+    """
+    # Check required metadata fields exist
+    assert "$schema" in schema, "Schema missing $schema"
+    assert "$id" in schema, "Schema missing $id"
+    assert "version" in schema, "Schema missing version"
+    assert "title" in schema, "Schema missing title"
+    assert "description" in schema, "Schema missing description"
+
+    # Check values are not empty
+    assert schema.get("version"), "Schema version is empty"
+    assert schema.get("title"), "Schema title is empty"
+    assert schema.get("description"), "Schema description is empty"
+
+    # Verify version format (semantic versioning: x.y.z)
+    version = schema.get("version", "")
+    assert version.count(".") >= 2, (
+        f"Schema version should be semantic (e.g., 1.0.0), "
+        f"got: {version}"
+    )
+
+
 @pytest.mark.parametrize("json_file", ECM_JSON_FILES, ids=lambda f: f.name)
 def test_ecm_json_schema_validation(json_file, validator):
     """Test that each ECM definition validates against ecm_schema.json.
@@ -194,68 +259,3 @@ def test_ecm_json_schema_validation(json_file, validator):
             "\n\n".join(f"{msg}" for msg in messages)
         )
         pytest.fail(error_message)
-
-
-def test_schema_file_exists():
-    """Test that the ECM schema file exists at expected location."""
-    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
-
-
-def test_schema_is_valid_json():
-    """Test that the ECM schema file is valid JSON.
-
-    Verifies that the schema file can be parsed as JSON without errors.
-    """
-    try:
-        json.loads(SCHEMA_PATH.read_text())
-    except json.JSONDecodeError as e:
-        pytest.fail(f"Schema file is not valid JSON: {e}")
-
-
-def test_schema_is_valid_json_schema(schema):
-    """Test that the ECM schema is a valid JSON Schema (Draft-07).
-
-    Verifies that the schema itself conforms to JSON Schema specification.
-    This ensures the schema can be used for validation.
-    """
-    try:
-        Draft202012Validator(schema)
-        Draft202012Validator.check_schema(schema)
-    except Exception as e:
-        pytest.fail(f"Schema file is not a valid JSON Schema: {e}")
-
-
-def test_schema_has_metadata(schema):
-    """Test that ECM schema has proper metadata.
-
-    Verifies the schema includes:
-    - $schema: JSON Schema version (Draft-07)
-    - $id: Unique schema identifier
-    - version: Schema version number (semantic versioning)
-    - title: Human-readable title
-    - description: Comprehensive description
-
-    These metadata fields are important for:
-    - Schema identification and versioning
-    - Documentation and tooling support
-    - Professional schema quality standards
-    - Integration with schema registries and validators
-    """
-    # Check required metadata fields exist
-    assert "$schema" in schema, "Schema missing $schema"
-    assert "$id" in schema, "Schema missing $id"
-    assert "version" in schema, "Schema missing version"
-    assert "title" in schema, "Schema missing title"
-    assert "description" in schema, "Schema missing description"
-
-    # Check values are not empty
-    assert schema.get("version"), "Schema version is empty"
-    assert schema.get("title"), "Schema title is empty"
-    assert schema.get("description"), "Schema description is empty"
-
-    # Verify version format (semantic versioning: x.y.z)
-    version = schema.get("version", "")
-    assert version.count(".") >= 2, (
-        f"Schema version should be semantic (e.g., 1.0.0), "
-        f"got: {version}"
-    )

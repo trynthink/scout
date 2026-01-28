@@ -94,6 +94,86 @@ def data(data_path, schema_config):
 # Tests
 # ============================================================================
 
+def test_schema_file_exists(schema_path):
+    """Test that schema files exist at expected locations."""
+    assert schema_path.exists(), f"Schema file not found at {schema_path}"
+
+
+def test_schema_is_valid_json(schema_path):
+    """Test that schema files are valid JSON.
+
+    Verifies schema files can be parsed as JSON without errors.
+    """
+    try:
+        json.loads(schema_path.read_text())
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Schema file is not valid JSON: {e}")
+
+
+def test_schema_is_valid_json_schema(schema):
+    """Test that schemas are valid JSON Schemas (Draft-07).
+
+    Verifies that schemas conform to JSON Schema specification.
+    This ensures the schemas can be used for validation.
+    """
+    try:
+        Draft202012Validator(schema)
+        Draft202012Validator.check_schema(schema)
+    except Exception as e:
+        pytest.fail(f"Schema file is not a valid JSON Schema: {e}")
+
+
+def test_schema_has_metadata(schema, schema_config):
+    """Test that schemas have proper metadata.
+
+    Verifies each schema includes:
+    - $schema: JSON Schema version
+    - $id: Unique schema identifier
+    - version: Schema version number (semantic versioning)
+    - title: Human-readable title
+    - description: Comprehensive description
+
+    These metadata fields are important for:
+    - Schema identification and versioning
+    - Documentation and tooling support
+    - Professional schema quality standards
+
+    Tested schemas:
+    - mseg: Microsegment Stock and Energy Data schema
+    - cpl: Cost, Performance and Lifetime Data schema
+    """
+    schema_name, _ = schema_config
+
+    # Check required metadata fields exist
+    assert "$schema" in schema, f"{schema_name}: Schema missing $schema"
+    assert "$id" in schema, f"{schema_name}: Schema missing $id"
+    assert "version" in schema, f"{schema_name}: Schema missing version"
+    assert "title" in schema, (
+        f"{schema_name}: Schema missing title"
+    )
+    assert "description" in schema, (
+        f"{schema_name}: Schema missing description"
+    )
+
+    # Check values are not empty
+    assert schema.get("version"), (
+        f"{schema_name}: Schema version is empty"
+    )
+    assert schema.get("title"), (
+        f"{schema_name}: Schema title is empty"
+    )
+    assert schema.get("description"), (
+        f"{schema_name}: Schema description is empty"
+    )
+
+    # Verify version format (semantic versioning: x.y.z)
+    version = schema.get("version", "")
+    assert version.count(".") >= 2, (
+        f"{schema_name}: Schema version should be semantic "
+        f"(e.g., 1.0.0), got: {version}"
+    )
+
+
 def test_schema_data_validity(schema, data, data_path, schema_config):
     """Test that data files validate against their schemas.
 
@@ -118,7 +198,7 @@ def test_schema_data_validity(schema, data, data_path, schema_config):
     - cpl: Cost, performance, and lifetime data
       (cpl_res_com_cz.gz)
     """
-    schema_name, config = schema_config
+    _, config = schema_config
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(data), key=lambda e: e.path)
 
@@ -209,86 +289,3 @@ def test_schema_data_validity(schema, data, data_path, schema_config):
 
     # If we reach here, validation passed
     assert True, f"{data_path.name} is valid"
-
-
-def test_schema_file_exists(schema_path, schema_config):
-    """Test that schema files exist at expected locations."""
-    schema_name, config = schema_config
-    assert schema_path.exists(), f"Schema file not found at {schema_path}"
-
-
-def test_schema_is_valid_json(schema_path, schema_config):
-    """Test that schema files are valid JSON.
-
-    Verifies schema files can be parsed as JSON without errors.
-    """
-    schema_name, config = schema_config
-    try:
-        json.loads(schema_path.read_text())
-    except json.JSONDecodeError as e:
-        pytest.fail(f"Schema file is not valid JSON: {e}")
-
-
-def test_schema_is_valid_json_schema(schema, schema_config):
-    """Test that schemas are valid JSON Schemas (Draft-07).
-
-    Verifies that schemas conform to JSON Schema specification.
-    This ensures the schemas can be used for validation.
-    """
-    schema_name, config = schema_config
-    try:
-        Draft202012Validator(schema)
-        Draft202012Validator.check_schema(schema)
-    except Exception as e:
-        pytest.fail(f"Schema file is not a valid JSON Schema: {e}")
-
-
-def test_schema_has_metadata(schema, schema_config):
-    """Test that schemas have proper metadata.
-
-    Verifies each schema includes:
-    - $schema: JSON Schema version
-    - $id: Unique schema identifier
-    - version: Schema version number (semantic versioning)
-    - title: Human-readable title
-    - description: Comprehensive description
-
-    These metadata fields are important for:
-    - Schema identification and versioning
-    - Documentation and tooling support
-    - Professional schema quality standards
-
-    Tested schemas:
-    - mseg: Microsegment Stock and Energy Data schema
-    - cpl: Cost, Performance and Lifetime Data schema
-    """
-    schema_name, config = schema_config
-
-    # Check required metadata fields exist
-    assert "$schema" in schema, f"{schema_name}: Schema missing $schema"
-    assert "$id" in schema, f"{schema_name}: Schema missing $id"
-    assert "version" in schema, f"{schema_name}: Schema missing version"
-    assert "title" in schema, (
-        f"{schema_name}: Schema missing title"
-    )
-    assert "description" in schema, (
-        f"{schema_name}: Schema missing description"
-    )
-
-    # Check values are not empty
-    assert schema.get("version"), (
-        f"{schema_name}: Schema version is empty"
-    )
-    assert schema.get("title"), (
-        f"{schema_name}: Schema title is empty"
-    )
-    assert schema.get("description"), (
-        f"{schema_name}: Schema description is empty"
-    )
-
-    # Verify version format (semantic versioning: x.y.z)
-    version = schema.get("version", "")
-    assert version.count(".") >= 2, (
-        f"{schema_name}: Schema version should be semantic "
-        f"(e.g., 1.0.0), got: {version}"
-    )
