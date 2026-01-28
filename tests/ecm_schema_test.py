@@ -4,7 +4,6 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from tests.schema_test_helpers import (
-    resolve_ref,
     extract_enums,
     extract_descriptions,
     extract_patterns,
