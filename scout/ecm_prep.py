@@ -427,7 +427,6 @@ class ECMPrepHelper:
             meas_eff_fs_splt
 
 
-
 def _nested_defaultdict(depth: int, leaf_factory=dict):
     """Create a nested defaultdict of specified depth.
 
@@ -477,7 +476,11 @@ class HandyVarsView:
         overrides[name] = value
 
     def __repr__(self):
-        return f"HandyVarsView(shared={type(self._shared).__name__}, overrides={list(self._overrides.keys())})"
+        return (
+            f"HandyVarsView(shared={type(self._shared).__name__}, "
+            f"overrides={list(self._overrides.keys())})"
+        )
+
 
 class Measure(object):
     """Set up a class representing efficiency measures as objects.
