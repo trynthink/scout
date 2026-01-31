@@ -83,7 +83,7 @@ def main():
 
     # Save to pickle file
     print("\n[4/4] Saving to pickle file...")
-    output_dir = Path(__file__).parent / "test_data"
+    output_dir = Path(__file__).parent.parent / "test_data"
     output_dir.mkdir(exist_ok=True)
 
     pickle_file = output_dir / "update_measures_test_data.pkl"
@@ -125,6 +125,40 @@ def main():
                 size_info = f" (keys: {len(attr_value)})"
 
             f.write(f"{attr_name:40s} {attr_type:20s} {size_info}\n")
+
+        # Add detailed examples for key attributes
+        f.write("\n")
+        f.write("=" * 80 + "\n")
+        f.write("Detailed Examples\n")
+        f.write("=" * 80 + "\n\n")
+
+        # Show structure of some key attributes
+        examples = {
+            'opts_aia': ['Configuration for AIA (Additional Impacts Analysis)', 'Namespace with settings for non-energy impacts'],
+            'opts_emm': ['List of EMM region configuration options', 'Contains 3 different EMM scenarios'],
+            'opts_health': ['Configuration for health cost analysis', 'List with health impact calculation settings'],
+            'handyfiles_aia': ['UsefulInputFiles for AIA analysis', 'Contains paths to ancillary benefits data'],
+            'handyvars_emm': ['UsefulVars for EMM calculations', 'Common variables for electricity market modeling'],
+            'sample_mseg_in_emm': ['Sample microsegment data for EMM regions', 'Dict with regional energy consumption data'],
+            'sample_tsv_data': ['Time-sensitive valuation data', 'Dict with temporal load profiles'],
+            'emm_measures_features': ['EMM measures for features testing', 'List of 4 measures with EMM-specific attributes'],
+            'ok_out_health_costs': ['Expected outputs with health cost impacts', 'List of 1 measure updated with health benefits'],
+        }
+
+        for attr_name, description in examples.items():
+            if attr_name in test_data:
+                f.write(f"{attr_name}:\n")
+                for line in description:
+                    f.write(f"  {line}\n")
+                
+                # Show first-level structure for dicts
+                attr_value = test_data[attr_name]
+                if isinstance(attr_value, dict) and len(attr_value) <= 10:
+                    f.write(f"  Keys: {list(attr_value.keys())}\n")
+                elif isinstance(attr_value, list) and len(attr_value) > 0:
+                    f.write(f"  First item type: {type(attr_value[0]).__name__}\n")
+                
+                f.write("\n")
 
     print(f"   [OK] Summary saved to: {summary_file}")
 

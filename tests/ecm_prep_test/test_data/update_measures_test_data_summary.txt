@@ -36,3 +36,50 @@ sample_mseg_in_aia                       dict                  (keys: 2)
 sample_mseg_in_emm                       dict                  (keys: 2)
 sample_tsv_data                          dict                  (keys: 5)
 sample_tsv_metric_settings               list                  (length: 3)
+
+================================================================================
+Detailed Examples
+================================================================================
+
+opts_aia:
+  Configuration for AIA (Additional Impacts Analysis)
+  Namespace with settings for non-energy impacts
+
+opts_emm:
+  List of EMM region configuration options
+  Contains 3 different EMM scenarios
+  First item type: Namespace
+
+opts_health:
+  Configuration for health cost analysis
+  List with health impact calculation settings
+  First item type: Namespace
+
+handyfiles_aia:
+  UsefulInputFiles for AIA analysis
+  Contains paths to ancillary benefits data
+
+handyvars_emm:
+  UsefulVars for EMM calculations
+  Common variables for electricity market modeling
+
+sample_mseg_in_emm:
+  Sample microsegment data for EMM regions
+  Dict with regional energy consumption data
+  Keys: ['FRCC', 'ERCT']
+
+sample_tsv_data:
+  Time-sensitive valuation data
+  Dict with temporal load profiles
+  Keys: ['load', 'price', 'price_yr_map', 'emissions', 'emissions_yr_map']
+
+emm_measures_features:
+  EMM measures for features testing
+  List of 4 measures with EMM-specific attributes
+  First item type: dict
+
+ok_out_health_costs:
+  Expected outputs with health cost impacts
+  List of 1 measure updated with health benefits
+  First item type: dict
+

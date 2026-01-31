@@ -27,8 +27,8 @@ def main():
     # Call setUpClass to initialize all class variables
     PartitionMicrosegmentTest.setUpClass()
 
-    # Create test_data directory
-    test_data_dir = Path(__file__).parent / "test_data"
+    # Create test_data directory (parent of data_generators)
+    test_data_dir = Path(__file__).parent.parent / "test_data"
     test_data_dir.mkdir(exist_ok=True)
 
     # Dictionary to store all the data we need
@@ -91,22 +91,66 @@ def main():
     with open(pickle_file, 'wb') as f:
         pickle.dump(test_data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    print(f"\n[SUCCESS] Saved test data to: {pickle_file}")
-    print(f"  File size: {pickle_file.stat().st_size / 1024 / 1024:.2f} MB")
+    file_size = pickle_file.stat().st_size
+    file_size_mb = file_size / (1024 * 1024)
 
-    # Also save a summary
+    print(f"\n[SUCCESS] Saved test data to: {pickle_file}")
+    print(f"  File size: {file_size_mb:.2f} MB")
+
+    # Also save a summary with enhanced format
     summary_file = test_data_dir / "partition_microsegment_test_data_summary.txt"
     with open(summary_file, 'w', encoding='utf-8') as f:
-        f.write("PartitionMicrosegment Test Data Summary\n")
+        f.write("PartitionMicrosegmentTest Data Summary\n")
         f.write("=" * 80 + "\n\n")
-        for attr_name, attr_value in test_data.items():
-            f.write(f"{attr_name}:\n")
-            f.write(f"  Type: {type(attr_value).__name__}\n")
+        f.write(f"Total attributes: {len(test_data)}\n")
+        f.write(f"Pickle file size: {file_size_mb:.2f} MB\n\n")
+        f.write("Attributes:\n")
+        f.write("-" * 80 + "\n")
+
+        for attr_name in sorted(test_data.keys()):
+            attr_value = test_data[attr_name]
+            attr_type = type(attr_value).__name__
+
+            # Add size info for containers
+            size_info = ""
             if isinstance(attr_value, (list, tuple)):
-                f.write(f"  Length: {len(attr_value)}\n")
+                size_info = f" (length: {len(attr_value)})"
             elif isinstance(attr_value, dict):
-                f.write(f"  Keys: {len(attr_value)} keys\n")
-            f.write("\n")
+                size_info = f" (keys: {len(attr_value)})"
+
+            f.write(f"{attr_name:45s} {attr_type:25s} {size_info}\n")
+
+        # Add detailed examples for key attributes
+        f.write("\n")
+        f.write("=" * 80 + "\n")
+        f.write("Detailed Examples\n")
+        f.write("=" * 80 + "\n\n")
+
+        # Show structure of some key attributes
+        examples = {
+            'opts': ['Namespace with configuration options for partitioning'],
+            'handyfiles': ['UsefulInputFiles instance with paths to input data'],
+            'handyvars': ['UsefulVars instance with common variables'],
+            'ok_stock_in': ['Stock data input for testing', 'Dict with nested climate zone and technology data'],
+            'ok_energy_in': ['Energy consumption data', 'Dict with regional breakdowns'],
+            'ok_out': ['Expected output after partitioning', 'List of 2 partitioned measure instances'],
+            'measure_instance_fraction': ['Measure instance with fraction adoption', 'Uses fractional market penetration model'],
+        }
+
+        for attr_name, description in examples.items():
+            if attr_name in test_data:
+                f.write(f"{attr_name}:\n")
+                for line in description:
+                    f.write(f"  {line}\n")
+                
+                # Show first-level structure for dicts
+                attr_value = test_data[attr_name]
+                if isinstance(attr_value, dict) and len(attr_value) <= 10:
+                    f.write(f"  Keys: {list(attr_value.keys())}\n")
+                elif isinstance(attr_value, list) and len(attr_value) > 0:
+                    f.write(f"  First item type: {type(attr_value[0]).__name__}\n")
+                
+                f.write("\n")
 
     print(f"[SUCCESS] Saved summary to: {summary_file}")
     print("\nDone!")

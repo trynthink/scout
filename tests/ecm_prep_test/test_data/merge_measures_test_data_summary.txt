@@ -1,71 +1,50 @@
-MergeMeasures Test Data Summary
+MergeMeasuresandApplyBenefitsTest Data Summary
 ================================================================================
 
-cost_convert_data:
-  Type: dict
-  Keys: 2 keys
+Total attributes: 19
+Pickle file size: 3.52 MB
+
+Attributes:
+--------------------------------------------------------------------------------
+breaks_ok_out_test1                           dict                       (keys: 4)
+contrib_ok_out_test1                          dict                       (keys: 3)
+cost_convert_data                             dict                       (keys: 2)
+genattr_ok_out_test1                          list                       (length: 6)
+markets_ok_out_test1                          list                       (length: 3)
+markets_ok_out_test1_env_costs                dict                       (keys: 5)
+mseg_ok_in_test2                              dict                       (keys: 5)
+mseg_ok_out_test2                             dict                       (keys: 5)
+opts                                          Namespace                 
+opts_env_costs                                Namespace                 
+opts_sect_shapes                              Namespace                 
+sample_package_in_sect_shapes                 MeasurePackage            
+sample_package_in_sect_shapes_bens            MeasurePackage            
+sample_package_in_test1_attr_breaks           MeasurePackage            
+sample_package_in_test1_env_costs             MeasurePackage            
+sample_package_in_test1_highlevel             list                       (length: 3)
+sample_package_in_test2                       MeasurePackage            
+sect_shapes_ok_out                            dict                       (keys: 1)
+sect_shapes_ok_out_bens                       dict                       (keys: 1)
+
+================================================================================
+Detailed Examples
+================================================================================
 
 opts:
-  Type: Namespace
-
-opts_env_costs:
-  Type: Namespace
-
-opts_sect_shapes:
-  Type: Namespace
+  Namespace with configuration options
 
 sample_package_in_test1_highlevel:
-  Type: list
-  Length: 3
-
-sample_package_in_test1_env_costs:
-  Type: MeasurePackage
-
-sample_package_in_test1_attr_breaks:
-  Type: MeasurePackage
-
-sample_package_in_test2:
-  Type: MeasurePackage
-
-sample_package_in_sect_shapes:
-  Type: MeasurePackage
-
-sample_package_in_sect_shapes_bens:
-  Type: MeasurePackage
+  List of MeasurePackage instances
+  Contains 3 packages for testing high-level merge operations
+  First item type: MeasurePackage
 
 markets_ok_out_test1:
-  Type: list
-  Length: 3
-
-markets_ok_out_test1_env_costs:
-  Type: dict
-  Keys: 5 keys
-
-genattr_ok_out_test1:
-  Type: list
-  Length: 6
-
-breaks_ok_out_test1:
-  Type: dict
-  Keys: 4 keys
-
-contrib_ok_out_test1:
-  Type: dict
-  Keys: 3 keys
-
-sect_shapes_ok_out:
-  Type: dict
-  Keys: 1 keys
-
-sect_shapes_ok_out_bens:
-  Type: dict
-  Keys: 1 keys
+  Expected market data outputs
+  List of 3 market dicts with keys: year, climate_zone, region
+  First item type: dict
 
 mseg_ok_in_test2:
-  Type: dict
-  Keys: 5 keys
-
-mseg_ok_out_test2:
-  Type: dict
-  Keys: 5 keys
+  Microsegment input data
+  Dict with keys: stock, energy, carbon, cost, lifetime
+  Keys: ['stock', 'energy', 'carbon', 'cost', 'lifetime']
 

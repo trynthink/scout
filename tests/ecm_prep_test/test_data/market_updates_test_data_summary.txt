@@ -55,3 +55,44 @@ sample_mseg_in_emm                       dict                  (keys: 2)
 sample_mseg_in_state                     dict                  (keys: 2)
 tsv_data                                 dict                  (keys: 0)
 warnmeas_in                              list                  (length: 3)
+
+================================================================================
+Detailed Examples
+================================================================================
+
+opts:
+  Namespace with base configuration options
+  Contains standard market update settings
+
+opts_site_energy:
+  Configuration for site energy analysis
+  Namespace with site-level calculation settings
+
+opts_emm:
+  Configuration for EMM region analysis
+  Namespace with electricity market module settings
+
+opts_hp_rates:
+  Heat pump rate structure options
+  Includes utility rate schedules and time-of-use pricing
+
+sample_mseg_in:
+  Sample microsegment input data
+  Dict with stock, energy, and cost data by climate zone
+  Keys: ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3']
+
+sample_cpl_in:
+  Sample cost/performance/lifetime data
+  Dict with technology characteristics
+  Keys: ['AIA_CZ1', 'AIA_CZ2', 'AIA_CZ3']
+
+ok_tpmeas_fullchk_in:
+  Technology pathway measures for full check
+  List of 5 measures with complete metadata
+  First item type: Measure
+
+ok_distmeas_out:
+  Expected distributed measure outputs
+  List of 4 measures with regional distribution
+  First item type: Measure
+

@@ -21,3 +21,35 @@ sample_cost_energy_meas                  dict                  (keys: 2)
 sample_mskeys_features                   tuple                 (length: 8)
 sample_mskeys_metrics                    ndarray              
 sample_tsv_data                          dict                  (keys: 5)
+
+================================================================================
+Detailed Examples
+================================================================================
+
+opts_tsv_features:
+  Namespace with TSV configuration for features analysis
+
+opts_tsv_metrics:
+  List of metric names to analyze
+  Contains 16 different metrics (energy, cost, carbon, etc.)
+  First item type: Namespace
+
+sample_tsv_data:
+  Time-sensitive valuation data structure
+  Dict with temporal profiles and load shapes
+  Keys: ['load', 'price', 'price_yr_map', 'emissions', 'emissions_yr_map']
+
+sample_ash_czone_wts:
+  ASHRAE climate zone weighting factors
+  NumPy array for regional aggregations
+
+ok_tsv_measures_in_features:
+  Expected TSV input measures for features
+  List of 8 test measures with various characteristics
+  First item type: Measure
+
+sample_cost_energy_meas:
+  Energy cost data for measures
+  Dict with cost profiles by fuel type
+  Keys: ['2009', '2010']
+

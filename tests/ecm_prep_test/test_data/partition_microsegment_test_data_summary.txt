@@ -1,136 +1,80 @@
-PartitionMicrosegment Test Data Summary
+PartitionMicrosegmentTest Data Summary
+================================================================================
+
+Total attributes: 39
+Pickle file size: 3.59 MB
+
+Attributes:
+--------------------------------------------------------------------------------
+handyfiles                                    UsefulInputFiles          
+handyvars                                     UsefulVars                
+measure_instance_bad_string                   Measure                   
+measure_instance_bad_values                   Measure                   
+measure_instance_bass                         Measure                   
+measure_instance_bass_string                  Measure                   
+measure_instance_fraction                     Measure                   
+measure_instance_fraction_string              Measure                   
+measure_instance_wrong_name                   Measure                   
+ok_base_cost_in                               dict                       (keys: 3)
+ok_bldg_sect_in                               list                       (length: 2)
+ok_carb_in                                    dict                       (keys: 3)
+ok_carbint_base_in                            ndarray                   
+ok_carbint_meas_in                            ndarray                   
+ok_cost_energy_base_in                        ndarray                   
+ok_cost_energy_meas_in                        ndarray                   
+ok_cost_meas_in                               dict                       (keys: 3)
+ok_diffuse_params_in                          NoneType                  
+ok_energy_in                                  dict                       (keys: 3)
+ok_energy_scnd_in                             dict                       (keys: 3)
+ok_f_refr_in                                  NoneType                  
+ok_fcarb_in                                   NoneType                  
+ok_life_base_in                               dict                       (keys: 3)
+ok_life_meas_in                               int                       
+ok_mkt_scale_frac_in                          int                       
+ok_mskeys_in                                  list                       (length: 2)
+ok_mskeys_swtch_in                            str                       
+ok_new_bldg_constr                            dict                       (keys: 2)
+ok_out                                        list                       (length: 2)
+ok_out_fraction                               list                       (length: 2)
+ok_relperf_in                                 dict                       (keys: 3)
+ok_sqft_subst_in                              list                       (length: 2)
+ok_ssconv_base_in                             ndarray                   
+ok_ssconv_meas_in                             ndarray                   
+ok_stock_in                                   dict                       (keys: 3)
+ok_tsv_scale_fracs_in                         dict                       (keys: 3)
+ok_tsv_shapes_in                              NoneType                  
+opts                                          Namespace                 
+time_horizons                                 list                       (length: 3)
+
+================================================================================
+Detailed Examples
 ================================================================================
 
 opts:
-  Type: Namespace
-
-time_horizons:
-  Type: list
-  Length: 3
+  Namespace with configuration options for partitioning
 
 handyfiles:
-  Type: UsefulInputFiles
+  UsefulInputFiles instance with paths to input data
 
 handyvars:
-  Type: UsefulVars
-
-ok_diffuse_params_in:
-  Type: NoneType
-
-ok_mskeys_in:
-  Type: list
-  Length: 2
-
-ok_mskeys_swtch_in:
-  Type: str
-
-ok_bldg_sect_in:
-  Type: list
-  Length: 2
-
-ok_sqft_subst_in:
-  Type: list
-  Length: 2
-
-ok_mkt_scale_frac_in:
-  Type: int
-
-ok_new_bldg_constr:
-  Type: dict
-  Keys: 2 keys
+  UsefulVars instance with common variables
 
 ok_stock_in:
-  Type: dict
-  Keys: 3 keys
+  Stock data input for testing
+  Dict with nested climate zone and technology data
+  Keys: ['2009', '2010', '2011']
 
 ok_energy_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_energy_scnd_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_carb_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_fcarb_in:
-  Type: NoneType
-
-ok_f_refr_in:
-  Type: NoneType
-
-ok_base_cost_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_cost_meas_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_cost_energy_base_in:
-  Type: ndarray
-
-ok_cost_energy_meas_in:
-  Type: ndarray
-
-ok_relperf_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_life_base_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_life_meas_in:
-  Type: int
-
-ok_ssconv_base_in:
-  Type: ndarray
-
-ok_ssconv_meas_in:
-  Type: ndarray
-
-ok_carbint_base_in:
-  Type: ndarray
-
-ok_carbint_meas_in:
-  Type: ndarray
-
-ok_tsv_scale_fracs_in:
-  Type: dict
-  Keys: 3 keys
-
-ok_tsv_shapes_in:
-  Type: NoneType
+  Energy consumption data
+  Dict with regional breakdowns
+  Keys: ['2009', '2010', '2011']
 
 ok_out:
-  Type: list
-  Length: 2
-
-ok_out_fraction:
-  Type: list
-  Length: 2
+  Expected output after partitioning
+  List of 2 partitioned measure instances
+  First item type: list
 
 measure_instance_fraction:
-  Type: Measure
-
-measure_instance_bass:
-  Type: Measure
-
-measure_instance_fraction_string:
-  Type: Measure
-
-measure_instance_bass_string:
-  Type: Measure
-
-measure_instance_bad_string:
-  Type: Measure
-
-measure_instance_bad_values:
-  Type: Measure
-
-measure_instance_wrong_name:
-  Type: Measure
+  Measure instance with fraction adoption
+  Uses fractional market penetration model
 
