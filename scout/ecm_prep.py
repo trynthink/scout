@@ -4,7 +4,7 @@ import numpy
 import re
 import itertools
 import json
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from os import getcwd, stat
 import copy
 import warnings
@@ -427,61 +427,6 @@ class ECMPrepHelper:
             meas_eff_fs_splt
 
 
-def _nested_defaultdict(depth: int, leaf_factory=dict):
-    """Create a nested defaultdict of specified depth.
-
-    Used to create per-measure cache containers without deep-copying the full
-    shared UsefulVars object.
-    """
-    if depth <= 1:
-        return defaultdict(leaf_factory)
-    return defaultdict(lambda: _nested_defaultdict(depth - 1, leaf_factory))
-
-
-class HandyVarsView:
-    """Read-mostly view over the shared UsefulVars (handyvars).
-
-    - Reads fall through to the shared object.
-    - Attribute *assignments* are stored locally on this view (per-measure).
-    - In-place mutation of returned objects (e.g., dict updates) will mutate the
-      shared object unless that attribute is overridden locally.
-
-    This is used to avoid expensive deepcopy(handyvars) per Measure while still
-    keeping truly per-measure state isolated.
-    """
-
-    __slots__ = ("_shared", "_overrides")
-
-    def __init__(self, shared, overrides=None):
-        object.__setattr__(self, "_shared", shared)
-        object.__setattr__(self, "_overrides", overrides or {})
-
-    def __getattr__(self, name):
-        overrides = object.__getattribute__(self, "_overrides")
-        if name in overrides:
-            return overrides[name]
-        return getattr(object.__getattribute__(self, "_shared"), name)
-
-    def __setattr__(self, name, value):
-        # Bootstrap safely during deepcopy or early construction
-        if name in ("_shared", "_overrides"):
-            object.__setattr__(self, name, value)
-            return
-        try:
-            overrides = object.__getattribute__(self, "_overrides")
-        except AttributeError:
-            # _overrides not yet initialized; set attribute directly
-            object.__setattr__(self, name, value)
-            return
-        overrides[name] = value
-
-    def __repr__(self):
-        return (
-            f"HandyVarsView(shared={type(self._shared).__name__}, "
-            f"overrides={list(self._overrides.keys())})"
-        )
-
-
 class Measure(object):
     """Set up a class representing efficiency measures as objects.
 
@@ -576,14 +521,7 @@ class Measure(object):
         self.sector_shapes = None
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
-        # Avoid expensive deepcopy(handyvars) per measure by using a shared
-        # read-mostly view and overriding only truly per-measure pieces.
-        _hv_overrides = {}
-        # Per-measure TSV cache: depends on the measure's TSV features and
-        # should not be shared across measures/packages.
-        if getattr(handyvars, "tsv_hourly_lafs", None) is not None:
-            _hv_overrides["tsv_hourly_lafs"] = _nested_defaultdict(3, dict)
-        self.handyvars = HandyVarsView(handyvars, overrides=_hv_overrides)
+        self.handyvars = copy.deepcopy(handyvars)
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
             # Check first to see whether pulling up retrofit rate errors
@@ -10923,11 +10861,7 @@ class MeasurePackage(Measure):
     def __init__(self, measure_list_package, p, bens, handyvars, handyfiles,
                  opts, convert_data):
         self.name = p
-        # Use shared handyvars for the run, but keep per-package TSV cache local.
-        _hv_overrides = {}
-        if getattr(handyvars, "tsv_hourly_lafs", None) is not None:
-            _hv_overrides["tsv_hourly_lafs"] = _nested_defaultdict(3, dict)
-        self.handyvars = HandyVarsView(handyvars, overrides=_hv_overrides)
+        self.handyvars = handyvars
         self.contributing_ECMs = copy.deepcopy(measure_list_package)
         # Check to ensure energy output settings for all measures that
         # contribute to the package are identical
