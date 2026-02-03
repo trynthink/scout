@@ -1031,7 +1031,8 @@ class Measure(object):
             # Add market breakout information
 
             # Add energy, carbon, and cost breakouts
-            print(f"Line 1034: Deepcopying self.handyvars.out_break_in: {type(self.handyvars.out_break_in)}")
+            print(f"Line 1034: Deepcopying self.handyvars.out_break_in: "
+                  f"{type(self.handyvars.out_break_in)}")
             self.markets[adopt_scheme]["mseg_out_break"] = {key: {
                 "baseline": copy.deepcopy(self.handyvars.out_break_in),
                 "efficient": copy.deepcopy(self.handyvars.out_break_in),
@@ -2243,11 +2244,12 @@ class Measure(object):
                                     # the second element is the portion of
                                     # each alternate region that falls in the
                                     # current mseg region
-                                    print(f"Line 2246: Deepcopying list: {type([perf_meas, self.handyvars.alt_attr_brk_map[alt_key_reg_typ][mskeys[1]]])}")
-                                    perf_meas = copy.deepcopy([
+                                    val_to_copy = [
                                         perf_meas,
                                         self.handyvars.alt_attr_brk_map[
-                                            alt_key_reg_typ][mskeys[1]]])
+                                            alt_key_reg_typ][mskeys[1]]]
+                                    print(f"Line 2246: Deepcopying list: {type(val_to_copy)}")
+                                    perf_meas = copy.deepcopy(val_to_copy)
                                 # If unexpected keys are present, yield error
                                 else:
                                     raise KeyError(
@@ -2325,11 +2327,12 @@ class Measure(object):
                                     # the second element is the portion of
                                     # each alternate region that falls in the
                                     # current mseg region
-                                    print(f"Line 2328: Deepcopying list: {type([cost_meas, self.handyvars.alt_attr_brk_map[alt_key_reg_typ][mskeys[1]]])}")
-                                    cost_meas = copy.deepcopy([
+                                    val_to_copy = [
                                         cost_meas,
                                         self.handyvars.alt_attr_brk_map[
-                                            alt_key_reg_typ][mskeys[1]]])
+                                            alt_key_reg_typ][mskeys[1]]]
+                                    print(f"Line 2328: Deepcopying list: {type(val_to_copy)}")
+                                    cost_meas = copy.deepcopy(val_to_copy)
                                 # If unexpected keys are present, yield error
                                 else:
                                     raise KeyError(
@@ -2447,11 +2450,12 @@ class Measure(object):
                                     # the second element is the portion of
                                     # each alternate region that falls in the
                                     # current mseg region
-                                    print(f"Line 2450: Deepcopying list: {type([mkt_scale_frac, self.handyvars.alt_attr_brk_map[alt_key_reg_typ][mskeys[1]]])}")
-                                    mkt_scale_frac = copy.deepcopy([
+                                    val_to_copy = [
                                         mkt_scale_frac,
                                         self.handyvars.alt_attr_brk_map[
-                                            alt_key_reg_typ][mskeys[1]]])
+                                            alt_key_reg_typ][mskeys[1]]]
+                                    print(f"Line 2450: Deepcopying list: {type(val_to_copy)}")
+                                    mkt_scale_frac = copy.deepcopy(val_to_copy)
                                 # If unexpected keys are present, yield error
                                 else:
                                     raise KeyError(
@@ -4379,7 +4383,8 @@ class Measure(object):
                             if (mskeys[-2] is not None and
                                 "HP" in mskeys[-2]) \
                                     or "cooling" not in mskeys:
-                                print(f"Line 4382: Deepcopying tech_name_chk_e: {type(tech_name_chk_e)}")
+                                print(f"Line 4382: Deepcopying tech_name_chk_e: "
+                                      f"{type(tech_name_chk_e)}")
                                 tech_name_chk_b = copy.deepcopy(
                                     tech_name_chk_e)
                                 # Given like-for-like HP replacement, anchor
@@ -4432,14 +4437,16 @@ class Measure(object):
                             # pump WH replacement or the case of switching to
                             # a HPWH from another baseline WH technology (e.g.,
                             # in all possible cases)
-                            print(f"Line 4435: Deepcopying tech_name_chk_e: {type(tech_name_chk_e)}")
+                            print(f"Line 4435: Deepcopying tech_name_chk_e: "
+                                  f"{type(tech_name_chk_e)}")
                             tech_name_chk_b = copy.deepcopy(tech_name_chk_e)
                             # Given like-for-like HPWH replacement, do not
                             # set flag to zero out baseline refrigerant
                             # emissions (since they occur in baseline too)
                             if (mskeys[-2] is not None and
                                     "HP" in mskeys[-2]):
-                                print(f"Line 4442: Deepcopying tech_name_chk_e: {type(tech_name_chk_e)}")
+                                print(f"Line 4442: Deepcopying tech_name_chk_e: "
+                                      f"{type(tech_name_chk_e)}")
                                 tech_name_chk_b = copy.deepcopy(
                                     tech_name_chk_e)
                                 zero_b_r_flag, zero_m_r_flag = (
@@ -11119,7 +11126,8 @@ class MeasurePackage(Measure):
             # Add market breakout information
 
             # Add energy, carbon, and cost breakouts
-            print(f"Line 11121: Deepcopying self.handyvars.out_break_in: {type(self.handyvars.out_break_in)}")
+            print(f"Line 11121: Deepcopying self.handyvars.out_break_in: "
+                  f"{type(self.handyvars.out_break_in)}")
             self.markets[adopt_scheme]["mseg_out_break"] = {key: {
                 "baseline": copy.deepcopy(self.handyvars.out_break_in),
                 "efficient": copy.deepcopy(self.handyvars.out_break_in),
@@ -11174,9 +11182,10 @@ class MeasurePackage(Measure):
                 # Loop through all adoption scenarios
                 for a_s in self.handyvars.adopt_schemes_prep:
                     # Shorthand deep copy of measure stock data
-                    print(f"Line 11176: Deepcopying dict: {type(m.markets[a_s]['mseg_adjust']['contributing mseg keys and values'])}")
-                    stk_cpy = copy.deepcopy(m.markets[a_s]["mseg_adjust"][
-                        "contributing mseg keys and values"])
+                    val_to_copy = m.markets[a_s]["mseg_adjust"][
+                        "contributing mseg keys and values"]
+                    print(f"Line 11176: Deepcopying dict: {type(val_to_copy)}")
+                    stk_cpy = copy.deepcopy(val_to_copy)
                     # Loop through all contributing msegs for measure
                     for cm in stk_cpy.keys():
                         # If contributing mseg is not already
@@ -11254,18 +11263,18 @@ class MeasurePackage(Measure):
                 # Set contributing microsegment data for individual measure;
                 # deep copy to ensure that initial measure data are retained
                 # throughout the updates
-                print(f"Line 11256: Deepcopying dict: {type(m.markets[adopt_scheme]['mseg_adjust'])}")
-                msegs_meas_init = copy.deepcopy(
-                    m.markets[adopt_scheme]["mseg_adjust"])
+                val_to_copy = m.markets[adopt_scheme]["mseg_adjust"]
+                print(f"Line 11256: Deepcopying dict: {type(val_to_copy)}")
+                msegs_meas_init = copy.deepcopy(val_to_copy)
 
                 # Set output breakout data for individual measure (used to
                 # break out results by climate, building, and end use) if
                 # full data reporting is required for the current adoption
                 # scenario
                 if self.handyvars.full_dat_out[adopt_scheme]:
-                    print(f"Line 11265: Deepcopying dict: {type(m.markets[adopt_scheme]['mseg_out_break'])}")
-                    mseg_out_break_init = copy.deepcopy(
-                        m.markets[adopt_scheme]["mseg_out_break"])
+                    val_to_copy = m.markets[adopt_scheme]["mseg_out_break"]
+                    print(f"Line 11265: Deepcopying dict: {type(val_to_copy)}")
+                    mseg_out_break_init = copy.deepcopy(val_to_copy)
                     # Initialize variables to track adjustments to sector load
                     # shapes for each individual measure to support packaging,
                     # if sector-level load shapes are being generated for the
@@ -11305,7 +11314,8 @@ class MeasurePackage(Measure):
                                 # in this package attribute
                                 if cm not in self.eff_fs_splt[
                                         adopt_scheme].keys():
-                                    print(f"Line 11307: Deepcopying fs_eff_splt: {type(fs_eff_splt)}")
+                                    print(f"Line 11307: Deepcopying fs_eff_splt: "
+                                          f"{type(fs_eff_splt)}")
                                     self.eff_fs_splt[adopt_scheme][cm] = \
                                         copy.deepcopy(fs_eff_splt)
                             else:
@@ -11386,10 +11396,13 @@ class MeasurePackage(Measure):
                     if "efficient-captured-envelope" in \
                         self.markets[adopt_scheme]["mseg_out_break"][
                             "energy"].keys():
-                        print(f"Line 11388: Deepcopying efficient-captured: {type(mseg_out_break_fin['energy']['efficient-captured'])}")
+                        val_to_copy = \
+                            mseg_out_break_fin["energy"]["efficient-captured"]
+                        print(f"Line 11388: Deepcopying efficient-captured: "
+                              f"{type(val_to_copy)}")
                         mseg_out_break_fin["energy"][
                             "efficient-captured-envelope"] = copy.deepcopy(
-                            mseg_out_break_fin["energy"]["efficient-captured"])
+                            val_to_copy)
                     # Set shorthand for data used to track annual electricity
                     # use that concerns the measure's sector shape after
                     # package adjustments
@@ -12670,9 +12683,9 @@ class MeasurePackage(Measure):
             tot_eff_orig = copy.deepcopy(mseg_adj["total"]["efficient"])
             # Total efficient captured energy if not suppressed by user
             if k == "energy" and self.usr_opts["no_eff_capt"] is not True:
-                print(f"Line 12672: Deepcopying dict: {type(mseg_adj['total']['efficient-captured'])}")
-                tot_eff_capt_orig = copy.deepcopy(
-                    mseg_adj["total"]["efficient-captured"])
+                val_to_copy = mseg_adj["total"]["efficient-captured"]
+                print(f"Line 12672: Deepcopying dict: {type(val_to_copy)}")
+                tot_eff_capt_orig = copy.deepcopy(val_to_copy)
             else:
                 tot_eff_capt_orig = ""
             # Total energy/carbon savings
