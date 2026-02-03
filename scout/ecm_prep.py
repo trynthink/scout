@@ -26,7 +26,7 @@ from scout.config import LogConfig, FilePaths as fp
 import traceback
 import logging
 logger = logging.getLogger(__name__)
-
+print("Logger for ecm_prep.py initialized.")
 
 class ECMPrepHelper:
     """Shared methods used throughout ecm_prep.py"""
