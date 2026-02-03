@@ -521,7 +521,7 @@ class Measure(object):
         self.sector_shapes = None
         # Deep copy handy vars to avoid any dependence of changes to these vars
         # across other measures that use them
-        print(f"Line 524: Deepcopying handyvars: {type(handyvars)}")
+        print(f"Line 524: Deepcopying handyvars: {type(handyvars)}.")
         self.handyvars = copy.deepcopy(handyvars)
         # Set the rate of baseline retrofitting for ECM stock-and-flow calcs
         try:
