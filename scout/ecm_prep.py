@@ -8707,8 +8707,9 @@ class Measure(object):
             # market entry
             if int(yr) <= self.market_entry_year:
                 # Update overall and previously captured measure stock RP
+                print(f"Line 8710: Deepcopying rel_perf[yr]: {type(rel_perf[yr])}")
                 rel_perf_overall, rel_perf_capt = (
-                    rel_perf[yr] for n in range(2))
+                    copy.deepcopy(rel_perf[yr]) for n in range(2))
                 # Update overall and previously captured measure unit
                 # refrigerant emissions, if needed
                 if f_refr_assess:
@@ -10099,10 +10100,8 @@ class Measure(object):
                     self.add_keyvals(i, i2)
                 else:
                     if dict1[k] is None:
-                        if isinstance(dict2[k2], (dict, list)):
-                            dict1[k] = copy.deepcopy(dict2[k2])
-                        else:
-                            dict1[k] = dict2[k2]
+                        print(f"Line 10106: Deepcopying dict2[k2]: {type(dict2[k2])}")
+                        dict1[k] = copy.deepcopy(dict2[k2])
                     else:
                         dict1[k] = dict1[k] + dict2[k]
             else:
