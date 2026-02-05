@@ -13,7 +13,8 @@ import json
 import itertools
 from pathlib import Path
 from tests.ecm_prep_test.common import NullOpts, dict_check
-from tests.ecm_prep_test.test_data.time_sensitive_valuation_test_data import sample_tsv_data_update_measures as sample_tsv_data
+from tests.ecm_prep_test.test_data.time_sensitive_valuation_test_data import (
+    sample_tsv_data_update_measures as sample_tsv_data)
 from tests.ecm_prep_test.test_data.update_measures_test_data import (
     sample_cpl_in_aia,
     sample_cpl_in_emm,
@@ -18287,8 +18288,8 @@ def test_fillmeas_ok(update_test_data):
         update_test_data["sample_mseg_in_aia"],
         update_test_data["sample_cpl_in_aia"], update_test_data["handyvars_aia"],
         update_test_data["handyfiles_aia"], update_test_data["cbecs_sf_byvint"],
-        update_test_data["sample_tsv_data"], update_test_data["base_dir"], update_test_data["opts_aia"],
-        ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        update_test_data["sample_tsv_data"], update_test_data["base_dir"],
+        update_test_data["opts_aia"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
     # Assess AIA-resolved test measures
     for oc_aia in range(0, len(update_test_data["ok_out_aia"])):
         dict_check(
@@ -18301,8 +18302,8 @@ def test_fillmeas_ok(update_test_data):
         update_test_data["sample_mseg_in_emm"],
         update_test_data["sample_cpl_in_emm"], update_test_data["handyvars_emm"],
         update_test_data["handyfiles_emm"], update_test_data["cbecs_sf_byvint"],
-        update_test_data["sample_tsv_data"], update_test_data["base_dir"], update_test_data["opts_emm"][0],
-        ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        update_test_data["sample_tsv_data"], update_test_data["base_dir"],
+        update_test_data["opts_emm"][0], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
     # Check for measures using EMM baseline data and public health energy
     # cost adders
     measures_out_health_benefits = ECMPrep.prepare_measures(
@@ -18310,8 +18311,8 @@ def test_fillmeas_ok(update_test_data):
         update_test_data["sample_mseg_in_emm"],
         update_test_data["sample_cpl_in_emm"], update_test_data["handyvars_health"],
         update_test_data["handyfiles_emm"], update_test_data["cbecs_sf_byvint"],
-        update_test_data["sample_tsv_data"], update_test_data["base_dir"], update_test_data["opts_health"][0],
-        ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        update_test_data["sample_tsv_data"], update_test_data["base_dir"],
+        update_test_data["opts_health"][0], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
     # Assess EMM-resolved test measures with time sensitive features
     for oc_emm in range(0, len(update_test_data["ok_out_emm_features"])):
         dict_check(

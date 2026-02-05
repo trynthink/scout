@@ -11,31 +11,32 @@ from scout.ecm_prep_args import ecm_args
 
 def dict_check(dict1, dict2):
     """Check the equality of two dicts (standalone function for pytest).
-    
+
     Args:
         dict1 (dict): First dictionary to be compared
         dict2 (dict): Second dictionary to be compared
-        
+
     Raises:
         AssertionError: If dictionaries are not equal.
     """
     fill_val = ('substituted entry', 5.2)
-    
+
     def normalize_key(key):
         """Convert numpy strings to Python strings for comparison."""
         if isinstance(key, tuple):
             return tuple(str(k) for k in key)
         return str(key)
-    
+
     def keys_equal(k1, k2):
         """Check if two keys are equal, handling numpy strings."""
-        # For string keys (like in 'competed choice parameters'), normalize numpy string representations
+        # For string keys (like in 'competed choice parameters'),
+        # normalize numpy string representations
         if isinstance(k1, str) and isinstance(k2, str):
             # Normalize numpy string representations like "np.str_('value')" to "'value'"
             k1_norm = k1.replace("np.str_('", "'").replace("')'", "'")
             k2_norm = k2.replace("np.str_('", "'").replace("')'", "'")
             return k1_norm == k2_norm
-        
+
         # For tuple keys, Python's native equality handles numpy strings correctly
         try:
             return k1 == k2
@@ -44,30 +45,35 @@ def dict_check(dict1, dict2):
             if isinstance(k1, tuple) and isinstance(k2, tuple):
                 return all(str(a) == str(b) for a, b in zip(k1, k2))
             return str(k1) == str(k2)
-    
+
     # Sort using normalized keys for consistent ordering
     def sort_key(item):
         return normalize_key(item[0])
-    
+
     for (k, i), (k2, i2) in itertools.zip_longest(
             sorted(dict1.items(), key=sort_key),
             sorted(dict2.items(), key=sort_key),
             fillvalue=fill_val):
         # Check keys are equal (handling numpy strings in both tuple and string keys)
         assert keys_equal(k, k2), f"Keys don't match: {k} != {k2}"
-        
+
         if isinstance(i, dict):
             assert sorted(i.keys()) == sorted(i2.keys()), "Dict keys don't match"
             dict_check(i, i2)
         elif isinstance(i, numpy.ndarray) or isinstance(i, list):
-            assert type(i) is type(i2) and len(i) == len(i2), f"Types or lengths don't match: {type(i)} vs {type(i2)}, {len(i)} vs {len(i2)}"
+            assert type(i) is type(i2) and len(i) == len(i2), (
+                f"Types or lengths don't match: {type(i)} vs {type(i2)}, "
+                f"{len(i)} vs {len(i2)}")
             for x in range(0, len(i)):
                 if isinstance(i[x], str):
-                    assert i[x] == i2[x], f"String values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert i[x] == i2[x], (
+                        f"String values don't match at index {x}: {i[x]} != {i2[x]}")
                 elif round(i[x], 5) != 0:
-                    assert abs(i[x] - i2[x]) < 10**(-5), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert abs(i[x] - i2[x]) < 10**(-5), (
+                        f"Values don't match at index {x}: {i[x]} != {i2[x]}")
                 else:
-                    assert abs(i[x] - i2[x]) < 10**(-10), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert abs(i[x] - i2[x]) < 10**(-10), (
+                        f"Values don't match at index {x}: {i[x]} != {i2[x]}")
         elif isinstance(i, str):
             assert i == i2, f"String values don't match: {i} != {i2}"
         else:

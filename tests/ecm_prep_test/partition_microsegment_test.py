@@ -3351,9 +3351,9 @@ def test_ok(test_data):
     # Set measure-specific retrofit rate to test
     meas_retro_rate_fraction = test_data["measure_instance_fraction"].retro_rate
     meas_retro_rate_bass = test_data["measure_instance_bass"].retro_rate
-    meas_retro_rate_fraction_string = test_data[\
+    meas_retro_rate_fraction_string = test_data[
         "measure_instance_fraction_string"].retro_rate
-    meas_retro_rate_bass_string = test_data[\
+    meas_retro_rate_bass_string = test_data[
         "measure_instance_bass_string"].retro_rate
 
     warnings_check = \
@@ -3664,11 +3664,11 @@ def test_overrides(test_data):
         int(test_data["time_horizons"][-1]) + 1
 
     # Set measure-specific retrofit rate to test
-    meas_retro_rate_bad_string = test_data[\
+    meas_retro_rate_bad_string = test_data[
         "measure_instance_bad_string"].retro_rate
-    meas_retro_rate_bad_values = test_data[\
+    meas_retro_rate_bad_values = test_data[
         "measure_instance_bad_values"].retro_rate
-    meas_retro_rate_instance_wrong_name = test_data[\
+    meas_retro_rate_instance_wrong_name = test_data[
         "measure_instance_wrong_name"].retro_rate
 
     warnings_check = \

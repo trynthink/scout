@@ -3621,10 +3621,10 @@ def market_test_data():
 
     # Convert ok_partialmeas_in from dicts to Measure objects
     ok_partialmeas_in_measures = [
-        Measure(base_dir, handyvars, handyfiles, opts_dict, **x) 
+        Measure(base_dir, handyvars, handyfiles, opts_dict, **x)
         for x in ok_partialmeas_in
     ]
-    
+
     # Return all test data (imported + generated)
     return {
         "ok_tpmeas_fullchk_break_out": ok_tpmeas_fullchk_break_out,
@@ -3688,9 +3688,10 @@ def test_mseg_ok_full_tp(market_test_data):
     """
     # Run function on all measure objects and check output
     for idx, measure in enumerate(market_test_data["ok_tpmeas_fullchk_in"]):
-        measure.fill_mkts(market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-                          market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-                          ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        measure.fill_mkts(
+            market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         # Restrict the full check of all branches of 'markets' to only
         # the first three measures in this set. For the remaining two
         # measures, only check the competed choice parameter outputs.
@@ -3726,9 +3727,10 @@ def test_mseg_ok_part_tp(market_test_data):
         AssertionError: If function yields unexpected results.
     """
     for idx, measure in enumerate(market_test_data["ok_tpmeas_partchk_in"]):
-        measure.fill_mkts(market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-                          market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-                          ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        measure.fill_mkts(
+            market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'],
             market_test_data["ok_tpmeas_partchk_msegout"][idx])
@@ -3747,9 +3749,10 @@ def test_mseg_ok_part_map(market_test_data):
     # Run function on all measure objects and check for correct
     # output
     for idx, measure in enumerate(market_test_data["ok_mapmeas_partchk_in"]):
-        measure.fill_mkts(market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-                          market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-                          ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        measure.fill_mkts(
+            market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Max adoption potential']['master_mseg'],
             market_test_data["ok_mapmas_partchck_msegout"][idx])
@@ -3772,8 +3775,8 @@ def test_mseg_ok_distrib(market_test_data):
         # Generate lists of energy and cost output values
         measure.fill_mkts(
             market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-            market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-            ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         test_outputs = measure.markets[
             'Technical potential']['master_mseg']
         test_e = test_outputs["energy"]["total"]["efficient"]["2009"]
@@ -3836,9 +3839,10 @@ def test_mseg_partial(market_test_data):
     """
     # Run function on all measure objects and check output
     for idx, measure in enumerate(market_test_data["ok_partialmeas_in"]):
-        measure.fill_mkts(market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-                          market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-                          ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+        measure.fill_mkts(
+            market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'],
             market_test_data["ok_partialmeas_out"][idx])
@@ -3868,9 +3872,10 @@ def test_mseg_warn(market_test_data):
         # Assert that inputs generate correct warnings and that measure
         # is marked inactive where necessary
         with warnings.catch_warnings(record=True) as w:
-            mw.fill_mkts(market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
-                         market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts"],
-                         ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+            mw.fill_mkts(
+                market_test_data["sample_mseg_in"], market_test_data["sample_cpl_in"],
+                market_test_data["convert_data"], market_test_data["tsv_data"],
+                market_test_data["opts"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
             # Check correct number of warnings is yielded
             assert all([issubclass(wn.category, UserWarning) for wn in w])
             for wm in market_test_data["ok_warnmeas_out"][idx]:
@@ -3898,9 +3903,10 @@ def test_mseg_ok_part_tp_emm(market_test_data):
         # Assert that inputs generate correct warnings and that measure
         # is marked inactive where necessary
         measure.fill_mkts(
-            market_test_data["sample_mseg_in_emm"], market_test_data["sample_cpl_in_emm"],
-            market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_emm"],
-            ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+            market_test_data["sample_mseg_in_emm"],
+            market_test_data["sample_cpl_in_emm"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts_emm"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'],
             market_test_data["ok_tpmeas_partchk_msegout_emm"][idx])
@@ -3918,9 +3924,10 @@ def test_mseg_ok_part_tp_state(market_test_data):
     """
     for idx, measure in enumerate(market_test_data["ok_tpmeas_partchk_state_in"]):
         measure.fill_mkts(
-            market_test_data["sample_mseg_in_state"], market_test_data["sample_cpl_in_state"],
-            market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_state"],
-            ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
+            market_test_data["sample_mseg_in_state"],
+            market_test_data["sample_cpl_in_state"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts_state"], ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'],
             market_test_data["ok_tpmeas_partchk_msegout_state"][idx])
@@ -3945,13 +3952,17 @@ def test_mseg_ok_hp_rates_map(market_test_data):
         # rates specified
         if "no rates" in measure.name:
             measure.fill_mkts(
-                market_test_data["sample_mseg_in_emm"], market_test_data["sample_cpl_in_emm"],
-                market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_hp_no_rates"],
+                market_test_data["sample_mseg_in_emm"],
+                market_test_data["sample_cpl_in_emm"],
+                market_test_data["convert_data"], market_test_data["tsv_data"],
+                market_test_data["opts_hp_no_rates"],
                 ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         else:
             measure.fill_mkts(
-                market_test_data["sample_mseg_in_emm"], market_test_data["sample_cpl_in_emm"],
-                market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_hp_rates"],
+                market_test_data["sample_mseg_in_emm"],
+                market_test_data["sample_cpl_in_emm"],
+                market_test_data["convert_data"], market_test_data["tsv_data"],
+                market_test_data["opts_hp_rates"],
                 ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Max adoption potential']['master_mseg'],
@@ -3984,8 +3995,10 @@ def test_mseg_ok_fmeth_co2_tp(market_test_data):
     """
     for idx, measure in enumerate(market_test_data["ok_tp_fmeth_chk_in"]):
         measure.fill_mkts(
-            market_test_data["sample_mseg_in_emm"], market_test_data["sample_cpl_in_emm"],
-            market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_fmeth"][idx],
+            market_test_data["sample_mseg_in_emm"],
+            market_test_data["sample_cpl_in_emm"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts_fmeth"][idx],
             ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'][
@@ -4006,8 +4019,10 @@ def test_mseg_ok_frefr_co2_map(market_test_data):
     """
     for idx, measure in enumerate(market_test_data["ok_map_frefr_chk_in"]):
         measure.fill_mkts(
-            market_test_data["sample_mseg_in_emm"], market_test_data["sample_cpl_in_emm"],
-            market_test_data["convert_data"], market_test_data["tsv_data"], market_test_data["opts_frefr"][idx],
+            market_test_data["sample_mseg_in_emm"],
+            market_test_data["sample_cpl_in_emm"],
+            market_test_data["convert_data"], market_test_data["tsv_data"],
+            market_test_data["opts_frefr"][idx],
             ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Max adoption potential']['master_mseg'][

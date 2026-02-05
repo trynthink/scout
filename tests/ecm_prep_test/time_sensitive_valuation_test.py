@@ -122,15 +122,15 @@ def tsv_test_data():
         "primary", "ISNE", "large office", "electricity",
         "heating", "supply", "ASHP", "new"), (8, 1)), axis=0)
     sample_bldg_sect = "commercial"
-    # Use imported sample_cost_convert and sample_tsv_measures_in_features 
+    # Use imported sample_cost_convert and sample_tsv_measures_in_features
     # from test_data/tsv_test_data.py
-    
+
     # Reset user options to reflect settings for TSV features tests
     opts_tsv_features = copy.deepcopy(opts)
     opts_dict_tsv_features = copy.deepcopy(opts_dict)
     opts_tsv_features.alt_regions = "EMM"
     opts_dict_tsv_features["alt_regions"] = "EMM"
-    
+
     ok_tsv_measures_in_features = [Measure(
       base_dir, handyvars, handyfiles, opts_dict_tsv_features, **x) for
       x in sample_tsv_measures_in_features]

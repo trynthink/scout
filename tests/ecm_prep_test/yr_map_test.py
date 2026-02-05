@@ -15,9 +15,9 @@ def yr_map_test_data():
         yr: {} for yr in [str(x) for x in range(2018, 2047, 4)]},
         {
         yr: {} for yr in [str(x) for x in range(2014, 2055, 4)]}]
-    
+
     test_aeo_years_in = [str(x) for x in range(2015, 2051)]
-    
+
     test_out_map = [{
         "2018": [str(x) for x in range(2015, 2022)],
         "2022": [str(x) for x in range(2022, 2026)],
@@ -50,7 +50,7 @@ def yr_map_test_data():
         "2050": [str(x) for x in range(2050, 2054)],
         "2054": []
     }]
-    
+
     return {
         "test_tsv_data_in": test_tsv_data_in,
         "test_aeo_years_in": test_aeo_years_in,
@@ -61,7 +61,7 @@ def yr_map_test_data():
 def test_yrmap(yr_map_test_data):
     """Test 'tsv_cost_carb_yrmap' function given valid inputs."""
     from tests.ecm_prep_test.common import dict_check
-    
+
     # Loop across all tested year input scenarios
     for ind in range(0, len(yr_map_test_data["test_tsv_data_in"])):
         # Execute the function

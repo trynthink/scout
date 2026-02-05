@@ -2634,12 +2634,12 @@ def test_data():
                 }
             }
         }}]
-    
+
     # Save the raw dictionary data before converting to Measure objects
     sample_measures_in_mkts_data = sample_measures_in_mkts[:]
     sample_measures_in_env_costs_data = sample_measures_in_env_costs[:]
     sample_measures_in_sect_shapes_data = sample_measures_in_sect_shapes[:]
-    
+
     sample_measures_in_mkts = [Measure(
         base_dir, handyvars, handyfiles, opts_dict,
         **x) for x in sample_measures_in_mkts_data]
