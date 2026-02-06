@@ -3262,7 +3262,6 @@ def test_data():
              {"2009": 1, "2010": 1, "2011": 1},
              1]]]
 
-
     return {
         "time_horizons": time_horizons,
         "handyfiles": handyfiles,

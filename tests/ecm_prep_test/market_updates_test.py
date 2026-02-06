@@ -3618,7 +3618,6 @@ def market_test_data():
                 "2009": 0.000008614311264, "2010": 0.0000058703}}}
         ]
 
-
     # Convert ok_partialmeas_in from dicts to Measure objects
     ok_partialmeas_in_measures = [
         Measure(base_dir, handyvars, handyfiles, opts_dict, **x)
@@ -4120,6 +4119,7 @@ def test_dual_fuel(market_test_data):
 
     # C/P/L for baseline NG furnace and switched-to ELECTRIC ASHP
 
+
 def test_added_cooling(market_test_data):
     """
     Added cooling only (no dual-fuel).
@@ -4325,6 +4325,7 @@ def test_incentives(market_test_data):
     }
 
     # Function to produce year range
+
 
 def test_alt_rates(market_test_data):
     """Test 'fill_mkts' function given user-defined alternate electricity rate inputs.

@@ -3371,7 +3371,6 @@ def test_data():
             "baseline": {"2009": 5, "2010": 5},
             "measure": 10}}
 
-
     return {
         "opts": opts,
         "opts_env_costs": opts_env_costs,

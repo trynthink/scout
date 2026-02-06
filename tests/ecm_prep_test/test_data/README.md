@@ -87,18 +87,77 @@ Consider extracting data structures when:
 
 ## Current Status
 
-The test files have been successfully refactored, and large data structures have been extracted:
+The test files have been successfully refactored, and large data structures have been extracted into modular folder structures:
 
-### Extracted Data Modules
+### Refactored Data Modules (Folder Structure)
 
-- ✅ **time_sensitive_valuation_test_data.py** (~79K lines): Contains `sample_tsv_data`, `sample_tsv_data_update_measures`, TSV measure definitions, and expected output data
-- ✅ **market_updates_test_data.py** (~900 lines): Contains microsegment data, choice parameters, and market test fixtures
-- ✅ **update_measures_test_data.py** (~3K lines): Contains measure lists, package definitions, and expected outputs
+Each large test data file has been converted into a folder with individual files for each variable:
 
-### Result
+- ✅ **time_sensitive_valuation_test_data/** (8 variables)
+  - `sample_tsv_data.py`
+  - `sample_cost_convert.py`
+  - `sample_tsv_measures_in_features.py`
+  - `sample_tsv_measure_in_metrics.py`
+  - `sample_tsv_metric_settings.py`
+  - `ok_tsv_facts_out_features_raw.py`
+  - `ok_tsv_facts_out_metrics_raw.py`
+  - `sample_tsv_data_update_measures.py`
+  - `_helpers.py` (helper functions)
+  - `__init__.py` (imports all variables)
 
-- `time_sensitive_valuation_test.py` reduced from 44,698 to 225 lines (99.5% reduction)
-- `market_updates_test.py` reduced from 19,425 to 4,395 lines (77.4% reduction)
-- `update_measures_test.py` reduced from 55,717 to 18,360 lines (67.0% reduction)
+- ✅ **market_updates_test_data/** (14 variables)
+  - `ok_tpmeas_fullchk_break_out.py`
+  - `sample_cpl_in.py`
+  - `ok_tpmeas_partchk_msegout.py`
+  - `sample_cpl_in_state.py`
+  - `sample_cpl_in_emm.py`
+  - `sample_mseg_in.py`
+  - `ok_hpmeas_rates_breakouts.py`
+  - `ok_partialmeas_in.py`
+  - `ok_hpmeas_rates_mkts_out.py`
+  - `ok_tpmeas_fullchk_msegout.py`
+  - `sample_mseg_in_emm.py`
+  - `sample_mseg_in_state.py`
+  - `ok_tpmeas_partchk_msegout_emm.py`
+  - `ok_tpmeas_partchk_msegout_state.py`
+  - `_helpers.py` (helper functions)
+  - `__init__.py` (imports all variables)
 
-All data has been properly extracted and all 45 tests are passing.
+- ✅ **update_measures_test_data/** (6 variables)
+  - `sample_cpl_in_aia.py`
+  - `sample_cpl_in_emm.py`
+  - `ok_out_emm_features.py`
+  - `sample_mseg_in_emm.py`
+  - `ok_out_emm_metrics_mkts.py`
+  - `sample_mseg_in_aia.py`
+  - `_helpers.py` (helper functions)
+  - `__init__.py` (imports all variables)
+
+- ✅ **partition_microsegment_test_data/** (8 variables)
+  - `ok_out_fraction.py`
+  - `ok_out_bass.py`
+  - `ok_out_fraction_string.py`
+  - `ok_out_bass_string.py`
+  - `ok_out_bad_string.py`
+  - `ok_out_bad_values.py`
+  - `ok_out_wrong_name.py`
+  - `ok_out.py`
+  - `__init__.py` (imports all variables)
+
+### Benefits of Folder Structure
+
+- Each variable is in its own file, making it easier to locate and modify specific test data
+- Helper functions are isolated in `_helpers.py` files
+- The `__init__.py` handles imports and any necessary data transformations
+- Reduces file size and improves maintainability
+- Import statements in test files remain unchanged
+
+### Usage
+
+Import from these modules as before:
+
+```python
+from tests.ecm_prep_test.test_data.time_sensitive_valuation_test_data import sample_tsv_data
+```
+
+The folder structure is transparent to the importing code - Python treats the folders as packages.

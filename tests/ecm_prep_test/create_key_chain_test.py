@@ -184,7 +184,6 @@ def test_data():
          'electricity', 'lighting',
          'general service (LED)', 'existing')]
 
-
     return {
         "sample_measure_in": sample_measure_in,
         "ok_out_primary": ok_out_primary,
@@ -205,6 +204,7 @@ def test_primary(test_data):
             test_data["ok_out_primary"])
 
 # Test the generation of a list of secondary mseg key chains
+
 
 def test_secondary(test_data):
     """Test 'create_keychain' function given valid inputs.

@@ -111,7 +111,6 @@ def test_data():
                 "energy": {"2009": 1100, "2010": 1200},
                 "carbon": {"2009": 1100, "2010": 1200}}}}
 
-
     return {
         "sample_measure_in": sample_measure_in,
         "ok_reduce_num": ok_reduce_num,

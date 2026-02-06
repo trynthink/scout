@@ -156,7 +156,6 @@ def test_data():
          'usr_opts', 'fuel_switch_to', 'min_eff_elec_flag', 'backup_fuel_fraction']]
     sample_pkg_meas_names = [x["name"] for x in sample_measindiv_dicts]
 
-
     return {
         "handyfiles": handyfiles,
         "handyvars": handyvars,

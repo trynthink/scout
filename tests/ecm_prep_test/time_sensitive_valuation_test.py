@@ -193,7 +193,6 @@ def tsv_test_data():
                   yr in handyvars.aeo_years
                 }
 
-
     # Use extracted sample_tsv_data from external file
     # (imported at top of file)
 

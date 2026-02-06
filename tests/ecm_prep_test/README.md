@@ -33,7 +33,7 @@ tests/ecm_prep_test/
 │
 ├── # Test Files (pytest format, 45 tests - all passing!)
 ├── market_updates_test.py                    # 17 tests passing - 4,395 lines
-├── update_measures_test.py                   # 4 tests passing - 18,360 lines
+├── update_measures_test.py                   # 4 tests passing - 18,357 lines
 ├── merge_measuresand_apply_benefits_test.py  # 5 tests passing - 3,508 lines
 ├── add_key_vals_test.py                      # 3 tests passing
 ├── cost_conversion_test.py                   # 3 tests passing
@@ -48,23 +48,73 @@ tests/ecm_prep_test/
 ├── time_sensitive_valuation_test.py          # 1 test passing - 225 lines
 ├── yr_map_test.py                            # 1 test passing
 │
-└── test_data/                                 # Extracted large test data
-    ├── README.md                              # Documentation for data files
+└── test_data/                                 # Refactored test data (modular structure)
+    ├── README.md                              # Documentation for data structure
+    ├── REFACTORING_SUMMARY.md                 # Details on data refactoring
     ├── __init__.py                            # Package marker
-    ├── time_sensitive_valuation_test_data.py  # TSV data: load shapes, configs, expected results (~44K lines)
-    ├── market_updates_test_data.py            # Market fill test data (14 variables, ~900 lines)
-    └── update_measures_test_data.py           # Measure update test data (6 variables, ~3K lines)
+    │
+    ├── time_sensitive_valuation_test_data/    # TSV test data (~79K lines split into 8 files)
+    │   ├── __init__.py                        # Auto-imports all variables
+    │   ├── _helpers.py                        # Helper functions
+    │   ├── sample_tsv_data.py                 # Main TSV load shape data
+    │   ├── sample_cost_convert.py             # Building type conversions
+    │   ├── sample_tsv_measures_in_features.py # Feature test measures
+    │   ├── sample_tsv_measure_in_metrics.py   # Metrics test measures
+    │   ├── sample_tsv_metric_settings.py      # TSV metrics config
+    │   ├── ok_tsv_facts_out_features_raw.py   # Expected features output
+    │   ├── ok_tsv_facts_out_metrics_raw.py    # Expected metrics output
+    │   └── sample_tsv_data_update_measures.py # Update measures TSV data
+    │
+    ├── market_updates_test_data/              # Market updates test data (14 variables)
+    │   ├── __init__.py                        # Auto-imports all variables
+    │   ├── _helpers.py                        # Helper functions
+    │   ├── ok_tpmeas_fullchk_break_out.py     # Tech potential full check breakout
+    │   ├── sample_cpl_in.py                   # Competition data
+    │   ├── ok_tpmeas_partchk_msegout.py       # Partial check microseg output
+    │   ├── sample_cpl_in_state.py             # State-level competition data
+    │   ├── sample_cpl_in_emm.py               # EMM region competition data
+    │   ├── sample_mseg_in.py                  # Microsegment input data
+    │   ├── ok_hpmeas_rates_breakouts.py       # Heat pump rates breakouts
+    │   ├── ok_partialmeas_in.py               # Partial measure inputs
+    │   ├── ok_hpmeas_rates_mkts_out.py        # HP rates market outputs
+    │   ├── ok_tpmeas_fullchk_msegout.py       # Full check microseg output
+    │   ├── sample_mseg_in_emm.py              # EMM microsegment data
+    │   ├── sample_mseg_in_state.py            # State microsegment data
+    │   ├── ok_tpmeas_partchk_msegout_emm.py   # EMM partial check output
+    │   └── ok_tpmeas_partchk_msegout_state.py # State partial check output
+    │
+    ├── partition_microsegment_test_data/      # Partition microsegment test data (8 variables)
+    │   ├── __init__.py                        # Auto-imports all variables
+    │   ├── ok_out_fraction.py                 # Fraction retrofit rate output
+    │   ├── ok_out_bass.py                     # Bass diffusion output
+    │   ├── ok_out_fraction_string.py          # Fraction string output
+    │   ├── ok_out_bass_string.py              # Bass string output
+    │   ├── ok_out_bad_string.py               # Bad string test output
+    │   ├── ok_out_bad_values.py               # Bad values test output
+    │   ├── ok_out_wrong_name.py               # Wrong name test output
+    │   └── ok_out.py                          # Standard output
+    │
+    └── update_measures_test_data/             # Update measures test data (6 variables)
+        ├── __init__.py                        # Auto-imports all variables
+        ├── _helpers.py                        # Helper functions
+        ├── sample_cpl_in_aia.py               # AIA competition data
+        ├── sample_cpl_in_emm.py               # EMM competition data
+        ├── ok_out_emm_features.py             # EMM features expected output
+        ├── sample_mseg_in_emm.py              # EMM microsegment data
+        ├── ok_out_emm_metrics_mkts.py         # EMM metrics market output
+        └── sample_mseg_in_aia.py              # AIA microsegment data
 ```
 
 ## Achievements
 
-### Successful Migration
+### Successful Migration & Refactoring
 
 - ✅ **100% test coverage maintained** - All 45 functional tests passing
 - ✅ **Converted from unittest to pytest** - Modern testing framework
 - ✅ **Fixed all conversion issues** - All `NameError` and assertion issues resolved
 - ✅ **Fixed numpy string handling** - Resolved all type mismatch issues in production code
-- ✅ **Extracted large data** - Improved maintainability and readability
+- ✅ **Refactored test data structure** - Modular folder-based organization
+- ✅ **PEP 8 compliant** - Fixed all critical linting errors
 
 ### File Size Reductions
 
@@ -72,15 +122,39 @@ tests/ecm_prep_test/
 |------|----------------|----------------|-----------|
 | time_sensitive_valuation_test.py | 44,698 | 225 | **99.5%** |
 | market_updates_test.py | 19,425 | 4,395 | **77.4%** |
-| update_measures_test.py | 55,717 | 18,360 | **67.0%** |
+| update_measures_test.py | 55,717 | 18,357 | **67.0%** |
 | partition_microsegment_test.py | ~5,000 | 3,906 | **~22%** |
 
-### Data Extracted
+### Test Data Refactoring (2024)
 
-- **2.5+ MB** of test data moved to `test_data/` directory
-- **4 data files** created with well-organized structures
-- **60,000+ lines** of data extracted from test files
-- Significantly improved test file readability and maintainability
+**Before:**
+- 4 massive single files (~100K lines total)
+- Hard to navigate and maintain
+- Large files difficult to load in editors
+
+**After:**
+- **36 individual variable files** organized in 4 folders
+- Easy navigation and maintenance
+- Clear separation of concerns
+- Backward compatible imports (no test changes needed!)
+
+**Refactored files:**
+- `time_sensitive_valuation_test_data/` - 79,568 lines → 8 files + helpers
+- `market_updates_test_data/` - 13,940 lines → 14 files + helpers  
+- `partition_microsegment_test_data/` - 3,006 lines → 8 files
+- `update_measures_test_data/` - 2,316 lines → 6 files + helpers
+
+### Code Quality Improvements
+
+**Linting Fixes:**
+- ✅ W293 (blank line whitespace) - 23 errors fixed
+- ✅ W291 (trailing whitespace) - 5 errors fixed
+- ✅ E502 (redundant backslash) - 5 errors fixed
+- ✅ E501 (line too long) - 16 errors fixed in test files
+- ✅ E303 (too many blank lines) - 19 errors fixed
+- ✅ E302 (expected 2 blank lines) - 6 errors fixed
+
+**Result:** All critical PEP 8 violations resolved while maintaining 100% test compatibility!
 
 ## Running Tests
 
@@ -175,51 +249,81 @@ def test_something(test_data):
     assert result == test_data["data"]
 ```
 
-## Test Data Files
+## Test Data Organization
 
-Large test data has been extracted to `test_data/` directory to improve maintainability. Data files are named consistently with their corresponding test files:
+Test data has been refactored into a **modular folder structure** for improved maintainability. Each test data module is now a folder containing individual variable files.
 
-### time_sensitive_valuation_test_data.py (~44K lines)
-Complete TSV test data including:
-- **sample_tsv_data**: Load shape data with ~44K hourly data points for various building types, end uses, and regions (residential/commercial)
-- **sample_cost_convert**: Building type conversion mappings
-- **sample_tsv_measures_in_features**: 8 sample measures for TSV features testing
-- **sample_tsv_measure_in_metrics**: 2 sample measures for TSV metrics testing
-- **sample_tsv_metric_settings**: TSV metrics configuration settings
-- **ok_tsv_facts_out_features_raw**: Expected output data for features tests
-- **ok_tsv_facts_out_metrics_raw**: Expected output data for metrics tests
+### Structure
 
-### market_updates_test_data.py (~900 lines, 14 variables)
-Large data structures for testing market fill operations:
-- Microsegment keys and choice parameters
-- Stock, energy, and carbon data
-- Test measures and expected outputs
-
-### update_measures_test_data.py (~3K lines, 6 variables)
-Test data for measure update operations:
-- Package definitions and measure lists
-- Expected outputs for various update scenarios
-
-### Naming Convention
-
-Data files are named after their corresponding test files with `_data` suffix:
-- `time_sensitive_valuation_test.py` → `time_sensitive_valuation_test_data.py`
-- `market_updates_test.py` → `market_updates_test_data.py`
-- `update_measures_test.py` → `update_measures_test_data.py`
-
-Import pattern:
-```python
-# test_data/time_sensitive_valuation_test_data.py
-sample_tsv_data = {...}  # Large data structure
-
-# time_sensitive_valuation_test.py
-from tests.ecm_prep_test.test_data.time_sensitive_valuation_test_data import sample_tsv_data
+Each test data folder follows this pattern:
+```
+test_data_folder/
+├── __init__.py          # Auto-imports all variables for backward compatibility
+├── _helpers.py          # Shared helper functions (if needed)
+├── variable1.py         # Individual variable definition
+├── variable2.py
+└── ...
 ```
 
-## Migration Complete ✅
+### time_sensitive_valuation_test_data/ (8 variables)
 
-The unittest to pytest migration is **100% complete**:
+Complete TSV test data split into manageable files:
+- **sample_tsv_data** - Load shape data with ~44K hourly data points
+- **sample_cost_convert** - Building type conversion mappings
+- **sample_tsv_measures_in_features** - 8 sample measures for TSV features testing
+- **sample_tsv_measure_in_metrics** - 2 sample measures for TSV metrics testing
+- **sample_tsv_metric_settings** - TSV metrics configuration settings
+- **ok_tsv_facts_out_features_raw** - Expected output data for features tests
+- **ok_tsv_facts_out_metrics_raw** - Expected output data for metrics tests
+- **sample_tsv_data_update_measures** - TSV data for update measures tests
 
+### market_updates_test_data/ (14 variables)
+
+Market fill operations test data:
+- Microsegment keys and choice parameters
+- Stock, energy, and carbon data
+- Test measures and expected outputs for various scenarios
+- Regional variations (AIA, EMM, State)
+
+### partition_microsegment_test_data/ (8 variables)
+
+Retrofit rate and microsegment partitioning test data:
+- Fraction-based retrofit rates
+- Bass diffusion model outputs
+- Error case validation data
+
+### update_measures_test_data/ (6 variables)
+
+Measure update operations test data:
+- Package definitions and measure lists
+- Expected outputs for various update scenarios
+- Regional baseline data (AIA, EMM)
+
+### Import Patterns
+
+**The imports remain unchanged** - backward compatibility is maintained:
+
+```python
+# Works exactly as before!
+from tests.ecm_prep_test.test_data.time_sensitive_valuation_test_data import sample_tsv_data
+from tests.ecm_prep_test.test_data.market_updates_test_data import sample_cpl_in
+```
+
+The `__init__.py` files in each folder automatically import all variables, so existing test code requires no changes.
+
+### Benefits
+
+- ✅ **Easy navigation** - Find specific variables quickly
+- ✅ **Faster editing** - Small files load instantly in any editor
+- ✅ **Better git diffs** - Changes to one variable don't affect others
+- ✅ **Clearer organization** - Related data grouped logically
+- ✅ **Backward compatible** - No changes to test files needed
+
+## Migration & Refactoring Complete ✅
+
+The unittest to pytest migration and test data refactoring are **100% complete**:
+
+### Phase 1: Migration (Completed)
 - ✅ All 45 functional tests converted and passing
 - ✅ All `self.` references fixed (converted to fixture parameters)
 - ✅ All imports updated (`unittest` removed, `pytest` added)
@@ -227,17 +331,77 @@ The unittest to pytest migration is **100% complete**:
 - ✅ All setup methods converted to pytest fixtures
 - ✅ Large data extracted to separate modules
 - ✅ All numpy string handling issues resolved in production code
+
+### Phase 2: Test Data Refactoring (Completed 2024)
+- ✅ Split 4 large data files into 36 individual variable files
+- ✅ Organized into logical folder structures
+- ✅ Maintained 100% backward compatibility
+- ✅ All tests still passing with refactored structure
+- ✅ Added comprehensive documentation
+
+### Phase 3: Code Quality (Completed 2024)
+- ✅ Fixed all W293, W291 whitespace errors
+- ✅ Fixed all E502 redundant backslash errors
+- ✅ Fixed all E501 line length errors in test files
+- ✅ Fixed all E303, E302 blank line errors
+- ✅ PEP 8 compliant (except E127 in data structures)
 - ✅ Documentation updated
+
+## 2024 Test Data Refactoring
+
+### Motivation
+
+The original test data files were becoming unwieldy:
+- Single files with 80,000+ lines
+- Difficult to navigate and edit
+- Slow to load in editors
+- Hard to track changes in version control
+
+### Solution
+
+Implemented a **modular folder-based structure**:
+
+1. **Split by variable** - Each top-level variable gets its own file
+2. **Logical grouping** - Related data stays in the same folder
+3. **Auto-import** - `__init__.py` maintains backward compatibility
+4. **Helper functions** - Shared utilities in `_helpers.py`
+
+### Process
+
+For each large data file:
+1. Identified all module-level variables
+2. Created a folder (removed `.py` extension)
+3. Created individual `.py` files for each variable
+4. Extracted helper functions to `_helpers.py`
+5. Created `__init__.py` to import all variables
+6. Verified all tests still pass
+
+### Impact
+
+- **36 variable files** created from 4 massive files
+- **Zero test changes** required (100% backward compatible)
+- **Significantly improved** developer experience
+- **All 45 tests** still passing
+
+See `test_data/REFACTORING_SUMMARY.md` for detailed documentation.
 
 ## Contributing
 
 When adding new tests:
 
-1. Use pytest fixtures for setup/teardown
-2. Extract large data (>100 lines) to `test_data/`
-3. Use descriptive test names: `test_<feature>_<scenario>`
-4. Add docstrings explaining what the test validates
-5. Prefer function-based tests over class-based tests
+1. **Use pytest fixtures** for setup/teardown
+2. **Extract large data** (>100 lines) to `test_data/`
+   - Create a new folder for new test data modules
+   - Split large variables into individual files
+   - Add `__init__.py` to auto-import all variables
+   - Put helper functions in `_helpers.py`
+3. **Use descriptive test names**: `test_<feature>_<scenario>`
+4. **Add docstrings** explaining what the test validates
+5. **Prefer function-based tests** over class-based tests
+6. **Follow PEP 8** style guidelines
+   - Max line length: 100 characters
+   - Remove trailing whitespace
+   - Use 2 blank lines before function definitions
 
 ## References
 

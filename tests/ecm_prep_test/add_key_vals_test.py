@@ -90,7 +90,6 @@ def test_data():
             "level 2ba": {"2009": 6, "2010": 7},
             "level 2bb": {"2009": 8, "2010": 9}}}
 
-
     return {
         "sample_measure_in": sample_measure_in,
         "ok_dict1_in": ok_dict1_in,
@@ -131,6 +130,3 @@ def test_ok_add_keyvals_restrict(test_data):
     dict_check(
         test_data["sample_measure_in"].add_keyvals_restrict(
             test_data["ok_dict3_in"], test_data["ok_dict4_in"]), test_data["ok_out_restrict"])
-
-
-

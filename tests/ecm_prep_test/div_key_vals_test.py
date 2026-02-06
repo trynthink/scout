@@ -79,7 +79,6 @@ def test_data():
                 "Heating": {"2009": .40, "2010": .40},
                 "Cooling": {"2009": .45, "2010": .45}}}}
 
-
     return {
         "sample_measure_in": sample_measure_in,
         "ok_reduce_dict": ok_reduce_dict,

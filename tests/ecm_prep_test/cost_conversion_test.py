@@ -518,7 +518,6 @@ def test_data():
     ok_out_costs_all = [
         1.5, 500, 10, 6.3, 3.85, 10489.86, 2, 10000, 10.85898]
 
-
     return {
         "verbose": verbose,
         "sample_measure_in": sample_measure_in,

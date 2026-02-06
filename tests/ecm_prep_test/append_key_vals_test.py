@@ -112,7 +112,6 @@ def test_data():
         'all ceiling fan', 'all unspecified', 'all ventilation',
         'all MELs', 'all non-PC office equipment', 'all PCs']
 
-
     return {
         "handyfiles": handyfiles,
         "handyvars": handyvars,
@@ -128,6 +127,3 @@ def test_ok_append(test_data):
     """
     assert sorted([x for x in test_data["handyvars"].valid_mktnames if x is not None]) == \
         sorted([x for x in test_data["ok_mktnames_out"] if x is not None])
-
-
-

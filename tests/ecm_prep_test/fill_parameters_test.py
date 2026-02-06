@@ -522,7 +522,6 @@ def test_data():
             "res_type_gasHP-heat", "gas_eng-driven_RTHP-heat",
             "gas_boiler", "gas_furnace"]]]
 
-
     return {
         "sample_measures_in": sample_measures_in,
         "ok_primary_cpl_out": ok_primary_cpl_out,

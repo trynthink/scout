@@ -78,7 +78,6 @@ def test_data():
         base_dir, handyvars, handyfiles, opts_dict, **x) for
         x in sample_measures_fail]
 
-
     return {
         "sample_measures_fail": sample_measures_fail,
     }
