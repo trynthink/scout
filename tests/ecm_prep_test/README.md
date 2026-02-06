@@ -32,8 +32,8 @@ tests/ecm_prep_test/
 ├── common.py                                  # Shared fixtures and helpers (dict_check, NullOpts)
 │
 ├── # Test Files (pytest format, 45 tests - all passing!)
-├── market_updates_test.py                    # 17 tests passing - 4,395 lines
-├── update_measures_test.py                   # 4 tests passing - 18,357 lines
+├── market_updates_test.py                    # 17 tests passing - 2,071 lines (53% reduction!)
+├── update_measures_test.py                   # 4 tests passing - 832 lines (95% reduction!)
 ├── merge_measuresand_apply_benefits_test.py  # 5 tests passing - 3,508 lines
 ├── add_key_vals_test.py                      # 3 tests passing
 ├── cost_conversion_test.py                   # 3 tests passing
@@ -65,7 +65,7 @@ tests/ecm_prep_test/
     │   ├── ok_tsv_facts_out_metrics_raw.py    # Expected metrics output
     │   └── sample_tsv_data_update_measures.py # Update measures TSV data
     │
-    ├── market_updates_test_data/              # Market updates test data (14 variables)
+    ├── market_updates_test_data/              # Market updates test data (27 variables)
     │   ├── __init__.py                        # Auto-imports all variables
     │   ├── _helpers.py                        # Helper functions
     │   ├── ok_tpmeas_fullchk_break_out.py     # Tech potential full check breakout
@@ -81,7 +81,20 @@ tests/ecm_prep_test/
     │   ├── sample_mseg_in_emm.py              # EMM microsegment data
     │   ├── sample_mseg_in_state.py            # State microsegment data
     │   ├── ok_tpmeas_partchk_msegout_emm.py   # EMM partial check output
-    │   └── ok_tpmeas_partchk_msegout_state.py # State partial check output
+    │   ├── ok_tpmeas_partchk_msegout_state.py # State partial check output
+    │   ├── ok_fmeth_measures_in.py            # Methane fugitive emissions measures
+    │   ├── ok_frefr_measures_in.py            # Refrigerant fugitive emissions measures
+    │   ├── frefr_fug_emissions.py             # Refrigerant emissions data
+    │   ├── ok_measures_in.py                  # Standard measure inputs (768 lines!)
+    │   ├── ok_distmeas_in.py                  # Distribution measures
+    │   ├── failmeas_in.py                     # Failure test measures
+    │   ├── warnmeas_in.py                     # Warning test measures
+    │   ├── ok_hp_measures_in.py               # Heat pump measures
+    │   ├── ok_tpmeas_fullchk_competechoiceout.py  # Consumer choice output
+    │   ├── ok_tpmeas_fullchk_supplydemandout.py   # Supply/demand output
+    │   ├── ok_mapmas_partchck_msegout.py      # Partial check microseg adjustment
+    │   ├── ok_partialmeas_out.py              # Partial measure outputs
+    │   └── ok_map_frefr_mkts_out.py           # Refrigerant market outputs
     │
     ├── partition_microsegment_test_data/      # Partition microsegment test data (8 variables)
     │   ├── __init__.py                        # Auto-imports all variables
@@ -94,7 +107,7 @@ tests/ecm_prep_test/
     │   ├── ok_out_wrong_name.py               # Wrong name test output
     │   └── ok_out.py                          # Standard output
     │
-    └── update_measures_test_data/             # Update measures test data (6 variables)
+    └── update_measures_test_data/             # Update measures test data (8 variables)
         ├── __init__.py                        # Auto-imports all variables
         ├── _helpers.py                        # Helper functions
         ├── sample_cpl_in_aia.py               # AIA competition data
@@ -102,7 +115,9 @@ tests/ecm_prep_test/
         ├── ok_out_emm_features.py             # EMM features expected output
         ├── sample_mseg_in_emm.py              # EMM microsegment data
         ├── ok_out_emm_metrics_mkts.py         # EMM metrics market output
-        └── sample_mseg_in_aia.py              # AIA microsegment data
+        ├── sample_mseg_in_aia.py              # AIA microsegment data
+        ├── base_out_2009.py                   # 8,760 hourly baseline values for 2009
+        └── base_out_2010.py                   # 8,760 hourly baseline values for 2010
 ```
 
 ## Achievements
@@ -121,8 +136,8 @@ tests/ecm_prep_test/
 | File | Original Lines | After Refactor | Reduction |
 |------|----------------|----------------|-----------|
 | time_sensitive_valuation_test.py | 44,698 | 225 | **99.5%** |
-| market_updates_test.py | 19,425 | 4,395 | **77.4%** |
-| update_measures_test.py | 55,717 | 18,357 | **67.0%** |
+| update_measures_test.py | 55,717 | 832 | **98.5%** |
+| market_updates_test.py | 19,425 | 2,071 | **89.3%** |
 | partition_microsegment_test.py | ~5,000 | 3,906 | **~22%** |
 
 ### Test Data Refactoring (2024)
@@ -133,16 +148,16 @@ tests/ecm_prep_test/
 - Large files difficult to load in editors
 
 **After:**
-- **36 individual variable files** organized in 4 folders
+- **49 individual variable files** organized in 4 folders
 - Easy navigation and maintenance
 - Clear separation of concerns
 - Backward compatible imports (no test changes needed!)
 
 **Refactored files:**
 - `time_sensitive_valuation_test_data/` - 79,568 lines → 8 files + helpers
-- `market_updates_test_data/` - 13,940 lines → 14 files + helpers  
+- `update_measures_test_data/` - 19,844 lines → 8 files + helpers (includes 17,528 lines of hourly baseline data)
+- `market_updates_test_data/` - 16,264 lines → 27 files + helpers  
 - `partition_microsegment_test_data/` - 3,006 lines → 8 files
-- `update_measures_test_data/` - 2,316 lines → 6 files + helpers
 
 ### Code Quality Improvements
 

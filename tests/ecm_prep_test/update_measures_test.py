@@ -595,7 +595,9 @@ def update_test_data():
                         "2009": 5836.413654, "2010": 5784.800117},
                     "efficient": {
                         "2009": 2897.117291 / 2,
-                        "2010": 2871.497025 / 2}}}}}]
+                        "2010": 2871.497025 / 2}}}},
+        "lifetime": {"baseline": {"2009": 15, "2010": 15},
+                     "measure": 1}}]
     ok_out_emm_metrics_sect_shapes = [
         None,
         {"FRCC": {
