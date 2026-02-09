@@ -2,7 +2,7 @@
 
 """ Tests for Update Measures (update_results function) """
 
-from scout.ecm_prep import Measure, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import ECMPrepHelper, ECMPrep
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
 from scout.config import FilePaths as fp
 import pytest
@@ -826,7 +826,3 @@ def test_fillmeas_ok(update_test_data):
             measures_out_health_benefits[oc_ph].markets[
                 "Technical potential"]["master_mseg"],
             update_test_data["ok_out_health_costs"][oc_ph])
-
-
-
-

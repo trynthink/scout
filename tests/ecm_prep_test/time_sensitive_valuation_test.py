@@ -234,5 +234,3 @@ def test_load_modification(tsv_test_data):
             tsv_test_data["opts_tsv_metrics"][idx], tsv_test_data["sample_cost_energy_meas"])
         dict_check(gen_tsv_facts_out_metrics[0],
                    tsv_test_data["ok_tsv_facts_out_metrics"][idx])
-
-

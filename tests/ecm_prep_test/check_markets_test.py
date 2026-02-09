@@ -2,16 +2,11 @@
 
 """ Tests for CheckMarketsTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
-import numpy
 import os
-import copy
-from tests.ecm_prep_test.common import NullOpts, dict_check
+from tests.ecm_prep_test.common import NullOpts
 
 
 @pytest.fixture(scope="module")
@@ -88,6 +83,3 @@ def test_invalid_mkts(test_data):
     for m in test_data["sample_measures_fail"]:
         with pytest.raises(Exception):
             m.check_meas_inputs()
-
-
-

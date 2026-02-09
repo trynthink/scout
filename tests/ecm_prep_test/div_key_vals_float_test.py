@@ -2,13 +2,9 @@
 
 """ Tests for DivKeyValsFloatTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
-import numpy
 import os
 import copy
 from tests.ecm_prep_test.common import NullOpts, dict_check
@@ -142,6 +138,3 @@ def test_ok_div_restrict(test_data):
         test_data["sample_measure_in"].div_keyvals_float_restrict(
             copy.deepcopy(test_data["ok_dict_in"]), test_data["ok_reduce_num"]),
         test_data["ok_out_restrict"])
-
-
-

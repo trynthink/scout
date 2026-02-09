@@ -283,7 +283,7 @@ class MyTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.data = {...}
-    
+
     def test_something(self):
         self.assertEqual(result, self.data)
 ```

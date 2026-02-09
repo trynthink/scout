@@ -2,13 +2,9 @@
 
 """ Tests for CleanUpTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
-import numpy
 import os
 import copy
 from tests.ecm_prep_test.common import NullOpts, dict_check
@@ -198,6 +194,3 @@ def test_cleanup(test_data):
             if "Package: " in measures_summary_data[ind]["name"]:
                 assert measures_summary_data[ind][
                     "contributing_ECMs"] == test_data["sample_pkg_meas_names"]
-
-
-

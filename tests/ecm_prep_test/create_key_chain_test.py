@@ -2,15 +2,10 @@
 
 """ Tests for CreateKeyChainTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
-import numpy
 import os
-import copy
 from tests.ecm_prep_test.common import NullOpts, dict_check
 
 
@@ -217,6 +212,3 @@ def test_secondary(test_data):
     """
     assert (test_data["sample_measure_in"].create_keychain("secondary")[0] ==
             test_data["ok_out_secondary"])
-
-
-
