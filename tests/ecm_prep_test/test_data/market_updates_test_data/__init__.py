@@ -24,6 +24,10 @@ from .ok_tpmeas_partchk_msegout_state import ok_tpmeas_partchk_msegout_state
 from .ok_fmeth_measures_in import ok_fmeth_measures_in
 from .ok_frefr_measures_in import ok_frefr_measures_in
 from .frefr_fug_emissions import frefr_fug_emissions
+from .fmeth_fug_emissions import fmeth_fug_emissions
+from .frefr_hp_rates import frefr_hp_rates
+from .carb_int_data import fmeth_carb_int, frefr_carb_int
+from .ecosts_data import fmeth_ecosts, frefr_ecosts
 from .ok_measures_in import ok_measures_in
 from .ok_distmeas_in import ok_distmeas_in
 from .failmeas_in import failmeas_in
@@ -53,6 +57,12 @@ __all__ = [
     'ok_fmeth_measures_in',
     'ok_frefr_measures_in',
     'frefr_fug_emissions',
+    'fmeth_fug_emissions',
+    'frefr_hp_rates',
+    'fmeth_carb_int',
+    'frefr_carb_int',
+    'fmeth_ecosts',
+    'frefr_ecosts',
     'ok_measures_in',
     'ok_distmeas_in',
     'failmeas_in',

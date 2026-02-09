@@ -8,12 +8,13 @@ This directory contains pytest-based tests for the Scout ECM preparation module,
 
 ### Test Files (45 total tests)
 
-- `market_updates_test.py` - **17 passed** (Market fill_mkts function)
-- `merge_measuresand_apply_benefits_test.py` - **5 passed** (Measure merging and packaging)
-- `update_measures_test.py` - **4 passed** (Update results function)
+- `market_updates_test.py` - **17 passed** - 1,553 lines (Market fill_mkts function) - **25% reduction**
+- `merge_measuresand_apply_benefits_test.py` - **5 passed** - 524 lines (Measure merging and packaging) - **85% reduction**
+- `update_measures_test.py` - **4 passed** - 832 lines (Update results function) - **98.5% reduction**
+- `partition_microsegment_test.py` - **2 passed** - 910 lines (Microsegment partitioning) - **76.6% reduction**
+- `time_sensitive_valuation_test.py` - **1 passed** - 225 lines (TSV calculations) - **99.5% reduction**
 - `add_key_vals_test.py` - **3 passed** (Add key values function)
 - `cost_conversion_test.py` - **3 passed** (Cost conversion)
-- `partition_microsegment_test.py` - **2 passed** (Microsegment partitioning)
 - `create_key_chain_test.py` - **2 passed** (Key chain creation)
 - `div_key_vals_float_test.py` - **2 passed** (Divide key values float)
 - `append_key_vals_test.py` - **1 passed** (Append key values function)
@@ -21,7 +22,6 @@ This directory contains pytest-based tests for the Scout ECM preparation module,
 - `clean_up_test.py` - **1 passed** (Result cleanup)
 - `div_key_vals_test.py` - **1 passed** (Divide key values)
 - `fill_parameters_test.py` - **1 passed** (Parameter filling)
-- `time_sensitive_valuation_test.py` - **1 passed** (TSV calculations)
 - `yr_map_test.py` - **1 passed** (Year mapping)
 
 ## Directory Structure
@@ -32,12 +32,13 @@ tests/ecm_prep_test/
 ├── common.py                                  # Shared fixtures and helpers (dict_check, NullOpts)
 │
 ├── # Test Files (pytest format, 45 tests - all passing!)
-├── market_updates_test.py                    # 17 tests passing - 2,071 lines (53% reduction!)
-├── update_measures_test.py                   # 4 tests passing - 832 lines (95% reduction!)
-├── merge_measuresand_apply_benefits_test.py  # 5 tests passing - 3,508 lines
+├── market_updates_test.py                    # 17 tests passing - 1,553 lines (92% reduction)
+├── merge_measuresand_apply_benefits_test.py  # 5 tests passing - 524 lines (85% reduction!)
+├── update_measures_test.py                   # 4 tests passing - 832 lines (98.5% reduction!)
+├── partition_microsegment_test.py            # 2 tests passing - 910 lines (76.6% reduction!)
+├── time_sensitive_valuation_test.py          # 1 test passing - 225 lines (99.5% reduction!)
 ├── add_key_vals_test.py                      # 3 tests passing
 ├── cost_conversion_test.py                   # 3 tests passing
-├── partition_microsegment_test.py            # 2 tests passing - 3,906 lines
 ├── create_key_chain_test.py                  # 2 tests passing
 ├── div_key_vals_float_test.py                # 2 tests passing
 ├── append_key_vals_test.py                   # 1 test passing
@@ -45,7 +46,6 @@ tests/ecm_prep_test/
 ├── clean_up_test.py                          # 1 test passing
 ├── div_key_vals_test.py                      # 1 test passing
 ├── fill_parameters_test.py                   # 1 test passing
-├── time_sensitive_valuation_test.py          # 1 test passing - 225 lines
 ├── yr_map_test.py                            # 1 test passing
 │
 └── test_data/                                 # Refactored test data (modular structure)
@@ -65,7 +65,7 @@ tests/ecm_prep_test/
     │   ├── ok_tsv_facts_out_metrics_raw.py    # Expected metrics output
     │   └── sample_tsv_data_update_measures.py # Update measures TSV data
     │
-    ├── market_updates_test_data/              # Market updates test data (27 variables)
+    ├── market_updates_test_data/              # Market updates test data (31 variables)
     │   ├── __init__.py                        # Auto-imports all variables
     │   ├── _helpers.py                        # Helper functions
     │   ├── ok_tpmeas_fullchk_break_out.py     # Tech potential full check breakout
@@ -85,6 +85,10 @@ tests/ecm_prep_test/
     │   ├── ok_fmeth_measures_in.py            # Methane fugitive emissions measures
     │   ├── ok_frefr_measures_in.py            # Refrigerant fugitive emissions measures
     │   ├── frefr_fug_emissions.py             # Refrigerant emissions data
+    │   ├── fmeth_fug_emissions.py             # Methane fugitive emissions data
+    │   ├── frefr_hp_rates.py                  # Refrigerant HP rates
+    │   ├── carb_int_data.py                   # Carbon intensity data
+    │   ├── ecosts_data.py                     # Energy costs data
     │   ├── ok_measures_in.py                  # Standard measure inputs (768 lines!)
     │   ├── ok_distmeas_in.py                  # Distribution measures
     │   ├── failmeas_in.py                     # Failure test measures
@@ -95,6 +99,15 @@ tests/ecm_prep_test/
     │   ├── ok_mapmas_partchck_msegout.py      # Partial check microseg adjustment
     │   ├── ok_partialmeas_out.py              # Partial measure outputs
     │   └── ok_map_frefr_mkts_out.py           # Refrigerant market outputs
+    │
+    ├── merge_measuresand_apply_benefits_test_data/  # Merge measures test data (6 variables)
+    │   ├── __init__.py                        # Auto-imports all variables
+    │   ├── sample_measures_in_mkts.py         # Sample measures for market testing (~1,065 lines)
+    │   ├── sample_measures_in_env_costs.py    # Sample measures for envelope costs (~345 lines)
+    │   ├── sample_measures_in_sect_shapes.py  # Sample measures for sector shapes (~1,081 lines)
+    │   ├── breaks_ok_out_test1.py             # Expected output breaks data (~149 lines)
+    │   ├── contrib_ok_out_test1.py            # Expected contributing measures data (~200 lines)
+    │   └── markets_ok_out_test1.py            # Expected markets output data (~143 lines)
     │
     ├── partition_microsegment_test_data/      # Partition microsegment test data (8 variables)
     │   ├── __init__.py                        # Auto-imports all variables
@@ -120,6 +133,26 @@ tests/ecm_prep_test/
         └── base_out_2010.py                   # 8,760 hourly baseline values for 2010
 ```
 
+## Latest Updates (2024)
+
+### Recent Test Data Refactoring
+
+Three additional test files have been refactored to extract large inline test data:
+
+| Test File | Original | Refactored | Reduction | Data Files Created |
+|-----------|----------|------------|-----------|-------------------|
+| **merge_measuresand_apply_benefits_test.py** | 3,506 lines | 524 lines | **85.0%** | 6 files (~2,983 lines) |
+| **partition_microsegment_test.py** | 3,883 lines | 910 lines | **76.6%** | 8 files (~2,973 lines) |
+| **market_updates_test.py** | 2,072 lines | 1,553 lines | **25.0%** | 4 new files (~520 lines) |
+
+**Total impact:** ~6,500 lines of test data extracted into 18 new well-organized files!
+
+### New Test Data Modules
+
+- **`merge_measuresand_apply_benefits_test_data/`** - Sample measures and expected outputs for measure packaging tests
+- **`partition_microsegment_test_data/`** - Partition and retrofit rate test data (fraction & Bass diffusion models)
+- **`market_updates_test_data/`** - Enhanced with fugitive emissions and energy cost data files
+
 ## Achievements
 
 ### Successful Migration & Refactoring
@@ -137,8 +170,9 @@ tests/ecm_prep_test/
 |------|----------------|----------------|-----------|
 | time_sensitive_valuation_test.py | 44,698 | 225 | **99.5%** |
 | update_measures_test.py | 55,717 | 832 | **98.5%** |
-| market_updates_test.py | 19,425 | 2,071 | **89.3%** |
-| partition_microsegment_test.py | ~5,000 | 3,906 | **~22%** |
+| merge_measuresand_apply_benefits_test.py | 3,506 | 524 | **85.0%** |
+| partition_microsegment_test.py | 3,883 | 910 | **76.6%** |
+| market_updates_test.py | 2,072 | 1,553 | **25.0%** |
 
 ### Test Data Refactoring (2024)
 
@@ -148,16 +182,17 @@ tests/ecm_prep_test/
 - Large files difficult to load in editors
 
 **After:**
-- **49 individual variable files** organized in 4 folders
+- **60 individual variable files** organized in 5 folders
 - Easy navigation and maintenance
 - Clear separation of concerns
 - Backward compatible imports (no test changes needed!)
 
 **Refactored files:**
-- `time_sensitive_valuation_test_data/` - 79,568 lines → 8 files + helpers
-- `update_measures_test_data/` - 19,844 lines → 8 files + helpers (includes 17,528 lines of hourly baseline data)
-- `market_updates_test_data/` - 16,264 lines → 27 files + helpers  
-- `partition_microsegment_test_data/` - 3,006 lines → 8 files
+- `time_sensitive_valuation_test_data/` - ~79,568 lines → 8 files + helpers
+- `update_measures_test_data/` - ~19,844 lines → 8 files + helpers (includes 17,528 lines of hourly baseline data)
+- `market_updates_test_data/` - ~519 lines → 31 files + helpers (includes large emissions and cost data)
+- `merge_measuresand_apply_benefits_test_data/` - ~2,983 lines → 6 files
+- `partition_microsegment_test_data/` - ~2,973 lines → 8 files
 
 ### Code Quality Improvements
 
@@ -393,10 +428,16 @@ For each large data file:
 
 ### Impact
 
-- **36 variable files** created from 4 massive files
+- **60 variable files** created from 5 test files
+- **~106,000 lines** of test data extracted and organized
 - **Zero test changes** required (100% backward compatible)
 - **Significantly improved** developer experience
 - **All 45 tests** still passing
+
+**Recent Additions (2024):**
+- `market_updates_test_data/` - Added 4 new data files for fugitive emissions and energy costs
+- `merge_measuresand_apply_benefits_test_data/` - New folder with 6 large measure datasets (2,983 lines)
+- `partition_microsegment_test_data/` - Completed extraction of 8 partition test variables (2,973 lines)
 
 See `test_data/REFACTORING_SUMMARY.md` for detailed documentation.
 
