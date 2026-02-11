@@ -559,6 +559,3 @@ def test_fill(test_data):
                 m.technology['primary']]] == \
             [sorted(x, key=lambda x: (x is None, x)) if isinstance(x, list)
              else x for x in test_data["ok_primary_mkts_out"][ind]]
-
-
-

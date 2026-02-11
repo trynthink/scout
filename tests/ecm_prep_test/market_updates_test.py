@@ -2,7 +2,7 @@
 
 """ Tests for Market Updates (fill_mkts function) """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper
+from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
 from scout.config import FilePaths as fp
 import pytest

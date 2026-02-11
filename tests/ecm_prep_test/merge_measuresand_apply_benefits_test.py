@@ -2,13 +2,9 @@
 
 """ Tests for MergeMeasuresandApplyBenefitsTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure, MeasurePackage
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
-import numpy
 import os
 import copy
 from tests.ecm_prep_test.common import NullOpts, dict_check
@@ -519,6 +515,3 @@ def test_merge_measure_sect_shapes(test_data):
     dict_check(
         test_data["sample_package_in_sect_shapes_bens"].sector_shapes[
             "Technical potential"], test_data["sect_shapes_ok_out_bens"])
-
-
-

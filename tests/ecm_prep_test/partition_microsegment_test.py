@@ -2,15 +2,11 @@
 
 """ Tests for PartitionMicrosegmentTest """
 
-from scout.ecm_prep import Measure, MeasurePackage, ECMPrepHelper, ECMPrep
+from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
-from scout.ecm_prep_args import ecm_args
-from pathlib import Path
 import pytest
 import numpy
 import os
-import copy
 from tests.ecm_prep_test.common import NullOpts, dict_check
 from tests.ecm_prep_test.test_data.partition_microsegment_test_data import (
     ok_out_fraction,
@@ -905,6 +901,3 @@ def test_overrides(test_data):
 
     for elem2 in range(0, len(warnings_wrong_name_measure)):
         assert warnings_wrong_name_measure[elem2] == warnings_check
-
-
-
