@@ -6,7 +6,7 @@ from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
 import pytest
 import os
-from tests.ecm_prep_test.common import NullOpts, dict_check
+from tests.ecm_prep_test.common import NullOpts
 
 
 @pytest.fixture(scope="module")

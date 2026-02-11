@@ -40,7 +40,7 @@ def dict_check(dict1, dict2):
         # For tuple keys, Python's native equality handles numpy strings correctly
         try:
             return k1 == k2
-        except:
+        except Exception:
             # Fallback to string comparison if direct comparison fails
             if isinstance(k1, tuple) and isinstance(k2, tuple):
                 return all(str(a) == str(b) for a, b in zip(k1, k2))

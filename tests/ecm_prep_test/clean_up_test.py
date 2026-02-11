@@ -176,7 +176,7 @@ def test_cleanup(test_data):
     for ind in range(0, len(test_data["sample_measlist_in"])):
         # Check measure competition data
         dict_check(test_data["sample_measlist_out_comp_data"][ind],
-                        measures_comp_data[ind])
+                   measures_comp_data[ind])
         # Check measure sector shape data
         assert test_data["sample_measlist_out_shape_data"][ind] == measures_shape_data[ind]
         # Check measure efficient fuel split data
