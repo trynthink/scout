@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def configure_ecm_prep_logger(opts):
+    print("Configuring ecm_prep logger...")
     # Set file name for prep error logs using current date and time
     err_f_name = fp.GENERATED / ("log_ecm_prep_" + time.strftime("%Y%m%d-%H%M%S") + ".txt")
     # Ensure root logger is set up
