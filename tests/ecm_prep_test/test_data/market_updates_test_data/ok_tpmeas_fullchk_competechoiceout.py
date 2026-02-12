@@ -9,119 +9,153 @@ ok_tpmeas_fullchk_competechoiceout = [{
     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'ASHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'GSHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'GSHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'ASHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'GSHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'GSHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'room AC-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'room AC-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
      "'resistance heat-resistance+hpac', 'new')"):
     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'ASHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'GSHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'GSHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'ASHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'GSHP-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'GSHP-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'room AC-resistance+hpac', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'room AC-resistance+hpac', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'heating', 'supply', "
-     "'resistance heat-resistance+hpac', 'existing')"):
-    {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'heating', 'supply', "
-     "'ASHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'heating', 'supply', "
-     "'GSHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'cooling', 'supply', "
-     "'ASHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'cooling', 'supply', "
-     "'GSHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ1', 'single family home', "
-     "'electricity', 'cooling', 'supply', "
-     "'room AC-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
-    ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
      "'resistance heat-resistance+hpac', 'existing')"):
     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ1', 'single family home', "
+     "'electricity', 'heating', 'supply', "
+     "'ASHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ1', 'single family home', "
+     "'electricity', 'heating', 'supply', "
+     "'GSHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ1', 'single family home', "
+     "'electricity', 'cooling', 'supply', "
+     "'ASHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ1', 'single family home', "
+     "'electricity', 'cooling', 'supply', "
+     "'GSHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ1', 'single family home', "
+     "'electricity', 'cooling', 'supply', "
+     "'room AC-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'ASHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'resistance heat-resistance+hpac', 'existing')"):
+    {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'supply', "
-     "'GSHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+    ("('primary', 'AIA_CZ2', 'single family home', "
+     "'electricity', 'heating', 'supply', "
+     "'GSHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'ASHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'ASHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'GSHP-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'GSHP-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'cooling', 'supply', "
-     "'room AC-resistance+hpac', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
+     "'room AC-resistance+hpac', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
     {
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'natural gas', 'water heating', "
-     "None, 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "None, 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'natural gas', 'water heating', "
-     "None, 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
+     "None, 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
     {
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'other', "
-     "'freezers', 'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'freezers', 'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'other', "
-     "'freezers', 'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'freezers', 'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'refrigeration', None, "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'refrigeration', None, "
-     "'new')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
+     "'new')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
     {
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'heating', 'demand', 'windows', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'heating', 'demand', 'windows', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'multi family home', "
      "'electricity', 'heating', 'demand', 'windows', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'multi family home', "
      "'electricity', 'heating', 'demand', 'windows', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}},
     {
     ("('primary', 'AIA_CZ1', 'single family home', "
      "'electricity', 'lighting', 'linear fluorescent (LED)', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'single family home', "
      "'electricity', 'lighting', 'linear fluorescent (LED)', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ1', 'multi family home', "
      "'electricity', 'lighting', 'linear fluorescent (LED)', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}},
     ("('primary', 'AIA_CZ2', 'multi family home', "
      "'electricity', 'lighting', 'linear fluorescent (LED)', "
-     "'existing')"): {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}}]
+     "'existing')"):
+     {"b1": {"2009": -0.01, "2010": -0.01}, "b2": {"2009": -0.12, "2010": -0.12}}}]

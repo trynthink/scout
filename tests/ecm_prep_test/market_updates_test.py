@@ -4,7 +4,6 @@
 
 from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
-from scout.config import FilePaths as fp
 import pytest
 import numpy
 import os
@@ -523,56 +522,10 @@ def market_test_data():
         Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **x) for x in ok_distmeas_in_data]
-    ok_partialmeas_in = [{
-        "name": "partial measure 1",
-        "markets": None,
-        "installed_cost": 25,
-        "cost_units": "2014$/unit",
-        "energy_efficiency": 25,
-        "product_lifetime": 1,
-        "market_scaling_fractions": None,
-        "market_scaling_fractions_source": None,
-        "measure_type": "full service",
-        "structure_type": ["new", "existing"],
-        "energy_efficiency_units": "COP",
-        "market_entry_year": None,
-        "market_exit_year": None,
-        "bldg_type": ["single family home"],
-        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-        "fuel_type": "electricity",
-        "fuel_switch_to": None,
-        "end_use": "cooling",
-        "technology": ["resistance heat", "ASHP"]},
-        {
-        "name": "partial measure 2",
-        "markets": None,
-        "installed_cost": 25,
-        "cost_units": "2014$/unit",
-        "energy_efficiency": 25,
-        "market_entry_year": None,
-        "market_exit_year": None,
-        "product_lifetime": 1,
-        "market_scaling_fractions": None,
-        "market_scaling_fractions_source": None,
-        "measure_type": "full service",
-        "structure_type": ["new", "existing"],
-        "energy_efficiency_units": "COP",
-        "bldg_type": ["single family home"],
-        "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
-        "fuel_type": "electricity",
-        "fuel_switch_to": None,
-        "end_use": ["heating", "cooling"],
-        "technology": [
-            "linear fluorescent (LED)",
-            "general service (LED)",
-            "external (LED)", "GSHP", "ASHP"]}]
     failmeas_inputs_in = [
         Measure(
             base_dir, handyvars, handyfiles, opts_dict,
             **x) for x in failmeas_in[0:-1]]
-    failmeas_missing_in = Measure(
-        base_dir, handyvars, handyfiles, opts_dict,
-        **failmeas_in[-1])
     warnmeas_in = [
         Measure(
             base_dir, handyvars, handyfiles, opts_dict,
@@ -1238,29 +1191,6 @@ def test_dual_fuel(market_test_data):
         hv.ss_conv["electricity"][y] = 1.0
         hv.ss_conv["natural gas"][y] = 1.0
 
-    # Baseline microsegment (STATE: CA, SFH, NG heating ??? furnace (NG))
-    mseg_in_dual = {
-        "CA": {
-            "single family home": {
-                "total square footage": {y: 100 for y in years},
-                "total homes": {y: 1000 for y in years},
-                "new homes": {y: 50 for y in years},
-                "natural gas": {
-                    "heating": {
-                        "supply": {
-                            "furnace (NG)": {
-                                "stock": {y: 10 for y in years},
-                                "energy": {y: 100.0 for y in years},
-                            }
-                        }
-                    }
-                },
-            }
-        }
-    }
-
-    # C/P/L for baseline NG furnace and switched-to ELECTRIC ASHP
-
 
 def test_added_cooling(market_test_data):
     """
@@ -1330,51 +1260,6 @@ def test_added_cooling(market_test_data):
         hv.ss_conv["electricity"][y] = 1.0
         hv.ss_conv["natural gas"][y] = 1.0
 
-    # Baseline microsegments (STATE: CA, SFH)
-    # - Heating on NG furnace (present)
-    # - Cooling: absent in portion of baseline measure applies to
-    mseg_in = {
-        "CA": {
-            "single family home": {
-                "total square footage": {y: 100 for y in years},
-                "total homes": {y: 1000 for y in years},
-                "new homes": {y: 50 for y in years},
-                "natural gas": {
-                    "heating": {
-                        "supply": {
-                            "furnace (NG)": {
-                                "stock": {y: 10 for y in years},
-                                "energy": {y: 100.0 for y in years},
-                            }
-                        }
-                    }
-                },
-                "electricity": {
-                    "cooling": {
-                        "supply": {
-                            "central AC": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            },
-                            "ASHP": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            }
-                        }
-                    },
-                    "heating": {
-                        "supply": {
-                            "ASHP": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            }
-                        }
-                    }
-                },
-            }
-        }
-    }
-
 
 def test_incentives(market_test_data):
     """Test 'apply_incentives' in 'fill_mkts' function given user-defined incentive inputs."""
@@ -1422,51 +1307,6 @@ def test_incentives(market_test_data):
     # Options: split fuel reporting + pick Max adoption potential
     opts = copy.deepcopy(market_test_data["opts_state"])
     opts.adopt_scn_usr = ["Max adoption potential"]
-
-    # Baseline microsegments (STATE: CA, SFH)
-    mseg_in = {
-        "CA": {
-            "single family home": {
-                "total square footage": {y: 100 for y in years},
-                "total homes": {y: 1000 for y in years},
-                "new homes": {y: 50 for y in years},
-                "natural gas": {
-                    "heating": {
-                        "supply": {
-                            "furnace (NG)": {
-                                "stock": {y: 10 for y in years},
-                                "energy": {y: 100.0 for y in years},
-                            }
-                        }
-                    }
-                },
-                "electricity": {
-                    "cooling": {
-                        "supply": {
-                            "central AC": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            },
-                            "ASHP": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            }
-                        }
-                    },
-                    "heating": {
-                        "supply": {
-                            "ASHP": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            }
-                        }
-                    }
-                },
-            }
-        }
-    }
-
-    # Function to produce year range
 
 
 def test_alt_rates(market_test_data):
@@ -1516,37 +1356,3 @@ def test_alt_rates(market_test_data):
     # Options: split fuel reporting + pick Max adoption potential
     opts = copy.deepcopy(market_test_data["opts_state"])
     opts.adopt_scn_usr = ["Max adoption potential"]
-
-    # Baseline microsegments (STATE: CA, SFH)
-    mseg_in = {
-        "CA": {
-            "single family home": {
-                "total square footage": {y: 100 for y in years},
-                "total homes": {y: 1000 for y in years},
-                "new homes": {y: 50 for y in years},
-                "natural gas": {
-                    "heating": {
-                        "supply": {
-                            "furnace (NG)": {
-                                "stock": {y: 10 for y in years},
-                                "energy": {y: 100.0 for y in years},
-                            }
-                        }
-                    }
-                },
-                "electricity": {
-                    "heating": {
-                        "supply": {
-                            "ASHP": {
-                                "stock": {y: 1 for y in years},
-                                "energy": {y: 100 for y in years},
-                            }
-                        }
-                    }
-                },
-            }
-        }
-    }
-
-    # Function to produce year range
-

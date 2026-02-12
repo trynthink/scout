@@ -601,7 +601,7 @@ def test_ok(test_data):
                 if lists_check_fraction[elem2] is not None and not isinstance(
                         lists_check_fraction[elem2], int):
                     dict_check(lists_check_fraction[elem2],
-                                    lists_fraction[elem2])
+                               lists_fraction[elem2])
                 else:
                     assert lists_check_fraction[elem2] == lists_fraction[elem2]
 
@@ -613,7 +613,7 @@ def test_ok(test_data):
                 if lists_check_bass[elem2] is not None and not isinstance(
                         lists_check_bass[elem2], int):
                     dict_check(lists_check_bass[elem2],
-                                    lists_bass[elem2])
+                    lists_bass[elem2])
                 else:
                     assert lists_check_bass[elem2] == lists_bass[elem2]
 
@@ -626,7 +626,7 @@ def test_ok(test_data):
                 if lists_check_fraction_string[elem2] is not None and not isinstance(
                         lists_check_fraction_string[elem2], int):
                     dict_check(lists_check_fraction_string[elem2],
-                                    lists_fraction_string[elem2])
+                               lists_fraction_string[elem2])
                 else:
                     assert lists_check_fraction_string[elem2] == lists_fraction_string[elem2]
 
@@ -638,7 +638,7 @@ def test_ok(test_data):
                 if lists_check_bass_string[elem2] is not None and not isinstance(
                         lists_check_bass_string[elem2], int):
                     dict_check(lists_check_bass_string[elem2],
-                                    lists_bass_string[elem2])
+                               lists_bass_string[elem2])
                 else:
                     assert lists_check_bass_string[elem2] == lists_bass_string[elem2]
 
@@ -865,7 +865,7 @@ def test_overrides(test_data):
                 if lists_check_bad_string[elem2] is not None and not isinstance(
                         lists_check_bad_string[elem2], int):
                     dict_check(lists_check_bad_string[elem2],
-                                    lists_bad_string[elem2])
+                               lists_bad_string[elem2])
                 else:
                     assert lists_check_bad_string[elem2] == lists_bad_string[elem2]
 
@@ -877,7 +877,7 @@ def test_overrides(test_data):
                 if lists_check_bad_values[elem2] is not None and not isinstance(
                         lists_check_bad_values[elem2], int):
                     dict_check(lists_check_bad_values[elem2],
-                                    lists_bad_values[elem2])
+                               lists_bad_values[elem2])
                 else:
                     assert lists_check_bad_values[elem2] == lists_bad_values[elem2]
 
@@ -889,7 +889,7 @@ def test_overrides(test_data):
                 if lists_check_wrong_name[elem2] is not None and not isinstance(
                         lists_check_wrong_name[elem2], int):
                     dict_check(lists_check_wrong_name[elem2],
-                                    lists_wrong_name[elem2])
+                               lists_wrong_name[elem2])
                 else:
                     assert lists_check_wrong_name[elem2] == lists_wrong_name[elem2]
 

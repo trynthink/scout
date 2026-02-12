@@ -423,7 +423,7 @@ def test_merge_measure_highlevel(test_data):
         # Check for correct high-level markets for packaged measure under
         # the technical potential scenario only
         dict_check(m.markets["Technical potential"]["master_mseg"],
-                        test_data["markets_ok_out_test1"][ind])
+                   test_data["markets_ok_out_test1"][ind])
 
 
 def test_merge_measure_env_costs(test_data):

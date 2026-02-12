@@ -8,10 +8,10 @@ This directory contains pytest-based tests for the Scout ECM preparation module,
 
 ### Test Files (45 total tests)
 
-- `market_updates_test.py` - **17 passed** - 1,553 lines (Market fill_mkts function) - **25% reduction**
-- `merge_measuresand_apply_benefits_test.py` - **5 passed** - 524 lines (Measure merging and packaging) - **85% reduction**
+- `market_updates_test.py` - **17 passed** - 1,359 lines (Market fill_mkts function) - **25% reduction**
+- `merge_measuresand_apply_benefits_test.py` - **5 passed** - 518 lines (Measure merging and packaging) - **85% reduction**
 - `update_measures_test.py` - **4 passed** - 832 lines (Update results function) - **98.5% reduction**
-- `partition_microsegment_test.py` - **2 passed** - 910 lines (Microsegment partitioning) - **76.6% reduction**
+- `partition_microsegment_test.py` - **2 passed** - 904 lines (Microsegment partitioning) - **76.6% reduction**
 - `time_sensitive_valuation_test.py` - **1 passed** - 225 lines (TSV calculations) - **99.5% reduction**
 - `add_key_vals_test.py` - **3 passed** (Add key values function)
 - `cost_conversion_test.py` - **3 passed** (Cost conversion)
