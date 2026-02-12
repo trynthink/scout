@@ -11,7 +11,6 @@ from ast import literal_eval
 import math
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy_financial as npf
-from datetime import datetime
 from scout.plots import run_plot
 from scout.config import Config, FilePaths as fp
 from scout.utils import PrintFormat as fmt
@@ -250,8 +249,8 @@ class UsefulVars(object):
             raise ValueError(
                 "Error reading in '" +
                 handyfiles.cpi_data + "': " + str(e)) from None
-        # Set present year for cost conversions
-        yr_before_current = str(datetime.today().year - 1)
+        # Set present year for cost conversions (based on AEO data vintage)
+        yr_before_current = str(int(self.aeo_years[0]) - 1)
         # Years of the baseline stock cost, energy cost, and carbon cost data
         # Note that energy cost data are already adjusted to the year before current in ecm_prep.
         # *** Note: stock/carbon cost units could eventually be pulled from baseline data files
