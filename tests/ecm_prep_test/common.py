@@ -29,6 +29,15 @@ def dict_check(dict1, dict2):
 
     def keys_equal(k1, k2):
         """Check if two keys are equal, handling numpy strings."""
+        # Handle case where one key is a string representation of a tuple and the other is an actual tuple
+        # This can happen when tuple keys are serialized/deserialized or converted via str()
+        if isinstance(k1, str) and isinstance(k2, tuple):
+            # Convert tuple to its string representation for comparison
+            return k1 == str(k2)
+        if isinstance(k1, tuple) and isinstance(k2, str):
+            # Convert tuple to its string representation for comparison
+            return str(k1) == k2
+        
         # For string keys (like in 'competed choice parameters'),
         # normalize numpy string representations
         if isinstance(k1, str) and isinstance(k2, str):
@@ -37,13 +46,18 @@ def dict_check(dict1, dict2):
             k2_norm = k2.replace("np.str_('", "'").replace("')'", "'")
             return k1_norm == k2_norm
 
-        # For tuple keys, Python's native equality handles numpy strings correctly
+        # For tuple keys, handle numpy strings by converting all elements to strings
+        if isinstance(k1, tuple) and isinstance(k2, tuple):
+            if len(k1) != len(k2):
+                return False
+            # Convert each element to string for comparison to handle numpy strings
+            return all(str(a) == str(b) for a, b in zip(k1, k2))
+        
+        # For other types, try direct comparison first
         try:
             return k1 == k2
         except Exception:
             # Fallback to string comparison if direct comparison fails
-            if isinstance(k1, tuple) and isinstance(k2, tuple):
-                return all(str(a) == str(b) for a, b in zip(k1, k2))
             return str(k1) == str(k2)
 
     # Sort using normalized keys for consistent ordering
@@ -54,7 +68,7 @@ def dict_check(dict1, dict2):
         sorted(dict1.items(), key=sort_key), sorted(dict2.items(), key=sort_key), fillvalue=fill_val
     ):
         # Check keys are equal (handling numpy strings in both tuple and string keys)
-        assert keys_equal(k, k2), f"Keys don't match: {k} != {k2}"
+        assert keys_equal(k, k2), f"Keys don't match: {k} (type: {type(k)}) != {k2} (type: {type(k2)})"
 
         if isinstance(i, dict):
             assert sorted(i.keys()) == sorted(i2.keys()), "Dict keys don't match"
