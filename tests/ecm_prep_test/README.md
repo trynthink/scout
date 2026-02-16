@@ -174,40 +174,6 @@ pytest tests/ecm_prep_test/ --cov=scout.ecm_prep --cov-report=html
 pytest tests/ecm_prep_test/ -v --tb=no -q
 ```
 
-## Resolved Issues
-
-### Numpy String Handling
-
-Previously, some tests were marked as expected failures (`@pytest.mark.xfail`) due to numpy string handling issues. These have all been resolved:
-
-#### 1. test_mseg_ok_full_tp (market_updates_test.py) - ✅ Fixed
-
-**Issue**: Type mismatch when comparing `numpy.str_` with native Python `str` in dictionary keys/tuple elements
-
-**Solution**: Modified `scout/ecm_prep.py` to convert numpy strings to Python strings when creating contributing microsegment key strings. The fix ensures that tuples containing numpy strings are properly converted before being stringified for dictionary keys.
-
-**Code Change**: In the `fill_mkts` function, added conversion logic:
-```python
-contrib_mseg_key_clean = tuple(
-    str(k) if hasattr(k, 'item') else k for k in contrib_mseg_key)
-contrib_mseg_key_str = str(contrib_mseg_key_clean)
-```
-
-#### 2. test_fillmeas_ok (update_measures_test.py) - ✅ Fixed
-
-**Issue**: Numpy string keys in TSV (time-sensitive valuation) data structures causing `KeyError` when used as dictionary keys
-
-**Solution**: Multi-part fix:
-1. Modified `scout/ecm_prep.py` to convert `eu` (end-use) variable to Python string before using as dictionary key
-2. Extracted the correct comprehensive TSV data structure (including residential heating data) from the original test file
-3. Applied recursive numpy string to Python string conversion to all test data
-4. Fixed `assertEqual` reference that was incompatible with pytest
-
-**Code Changes**: 
-- In `gen_tsv_facts` function at lines 5676 and 5732, added type conversion for dictionary key lookups
-- Added `_convert_numpy_strings_to_python` utility function to test data files
-- Updated test to use correct `sample_tsv_data_update_measures` dataset
-
 ## Migration from unittest to pytest
 
 ### Key Changes
