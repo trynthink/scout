@@ -85,7 +85,7 @@ def test_data():
         base_dir, handyfiles_sect_shapes, opts_sect_shapes)
     # Hard code aeo_years to fit test years
     handyvars.aeo_years, handyvars_sect_shapes.aeo_years = (
-            ["2009", "2010"] for n in range(2))
+        ["2009", "2010"] for n in range(2))
     # Set focus year for sector-level shape testing to be 2010
     handyvars_sect_shapes.aeo_years_summary = ["2010"]
     # Restrict tests to tech. potential adoption scenario
@@ -279,7 +279,7 @@ def test_data():
         "lifetime": {
             "baseline": {"2009": 10, "2010": 10},
             "measure": 10}
-        }
+    }
     sect_shapes_ok_out = {
         "TRE": {
             "2010": {

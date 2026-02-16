@@ -609,7 +609,7 @@ sample_measures_in_mkts = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -632,7 +632,7 @@ sample_measures_in_mkts = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -664,7 +664,7 @@ sample_measures_in_mkts = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -696,7 +696,7 @@ sample_measures_in_mkts = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -977,7 +977,7 @@ sample_measures_in_mkts = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -996,7 +996,7 @@ sample_measures_in_mkts = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -1022,7 +1022,7 @@ sample_measures_in_mkts = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -1048,7 +1048,7 @@ sample_measures_in_mkts = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'AIA CZ1': {
                             'Residential (New)': {
@@ -1068,4 +1068,4 @@ sample_measures_in_mkts = [{
             }
         }
     }}
-    ]
+]

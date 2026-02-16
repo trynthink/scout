@@ -152,6 +152,7 @@ class CommonMethods(object):
 
 class UserOptions(object):
     """Generate sample user-specified execution options."""
+
     def __init__(self, site_energy, capt_energy, regions, tsv_metrics,
                  sect_shapes, rp_persist, health_costs, split_fuel,
                  no_scnd_lgt, floor_start, pkg_env_costs, exog_hp_rates,

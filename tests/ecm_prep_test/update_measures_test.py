@@ -117,14 +117,14 @@ def update_test_data():
         x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
     # Winter days of year
     wint_days = (list(
-                range(1, 59)) + list(range(334, 365)))
+        range(1, 59)) + list(range(334, 365)))
     wint_days_wkdy = [
         x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
     wint_days_wknd = [
         x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
     # Intermediate days of year
     inter_days = (list(
-                range(59, 151)) + list(range(273, 334)))
+        range(59, 151)) + list(range(273, 334)))
     inter_days_wkdy = [
         x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
     inter_days_wknd = [
@@ -208,16 +208,16 @@ def update_test_data():
             "other fuel": {"2009": 49.5454521, "2010": 52.59751597}}}
         for n in range(2))
     handyvars_aia.ecosts = {
-            "residential": {
-                "electricity": {"2009": 10.14, "2010": 9.67},
-                "natural gas": {"2009": 11.28, "2010": 10.78},
-                "distillate": {"2009": 21.23, "2010": 20.59},
-                "other fuel": {"2009": 21.23, "2010": 20.59}},
-            "commercial": {
-                "electricity": {"2009": 9.08, "2010": 8.55},
-                "natural gas": {"2009": 8.96, "2010": 8.59},
-                "distillate": {"2009": 14.81, "2010": 14.87},
-                "other fuel": {"2009": 14.81, "2010": 14.87}}}
+        "residential": {
+            "electricity": {"2009": 10.14, "2010": 9.67},
+            "natural gas": {"2009": 11.28, "2010": 10.78},
+            "distillate": {"2009": 21.23, "2010": 20.59},
+            "other fuel": {"2009": 21.23, "2010": 20.59}},
+        "commercial": {
+            "electricity": {"2009": 9.08, "2010": 8.55},
+            "natural gas": {"2009": 8.96, "2010": 8.59},
+            "distillate": {"2009": 14.81, "2010": 14.87},
+            "other fuel": {"2009": 14.81, "2010": 14.87}}}
     handyvars_health.ecosts, handyvars_emm.ecosts = ({
         "residential": {
             "electricity": {
@@ -246,58 +246,58 @@ def update_test_data():
         ('Southeast', 'FRCC', 'EE at Peak', 3, 4, 5, 6),
         ('Southeast', 'SRVC', 'Uniform EE', 7, 8, 9, 10),
         ('Southeast', 'SRVC', 'EE at Peak', 11, 12, 13, 14)
-        ], dtype=[('AVERT_Region', '<U25'),
-                  ('EMM_Region', '<U25'),
-                  ('Category', '<U25'),
-                  ('2017cents_kWh_3pct_high', '<f8'),
-                  ('2017cents_kWh_3pct_low', '<f8'),
-                  ('2017cents_kWh_7pct_low', '<f8'),
-                  ('2017cents_kWh_7pct_high', '<f8')])
+    ], dtype=[('AVERT_Region', '<U25'),
+              ('EMM_Region', '<U25'),
+              ('Category', '<U25'),
+              ('2017cents_kWh_3pct_high', '<f8'),
+              ('2017cents_kWh_3pct_low', '<f8'),
+              ('2017cents_kWh_7pct_low', '<f8'),
+              ('2017cents_kWh_7pct_high', '<f8')])
     convert_data = {
-      "building type conversions": {
-        "original type": "EnergyPlus reference buildings",
-        "revised type": "Annual Energy Outlook (AEO) buildings",
-        "conversion data": {
-          "description": "EPlus->AEO type mapping and weighting factors",
-          "value": {
-            "residential": {
-              "single family home": {
-                "Single-Family": 1},
-              "mobile home": {
-                "Single-Family": 1},
-              "multi family home": {
-                "Multifamily": 1}},
-            "commercial": {
-              "assembly": {
-                "Hospital": 1},
-              "education": {
-                "PrimarySchool": 0.26,
-                "SecondarySchool": 0.74},
-              "food sales": {
-                "Supermarket": 1},
-              "food service": {
-                "QuickServiceRestaurant": 0.31,
-                "FullServiceRestaurant": 0.69},
-              "health care": None,
-              "lodging": {
-                "SmallHotel": 0.26,
-                "LargeHotel": 0.74},
-              "large office": {
-                "LargeOffice": 0.9,
-                "MediumOfficeDetailed": 0.1},
-              "small office": {
-                "SmallOffice": 0.12,
-                "OutpatientHealthcare": 0.88},
-              "mercantile/service": {
-                "RetailStandalone": 0.53,
-                "RetailStripmall": 0.47},
-              "warehouse": {
-                "Warehouse": 1},
-              "other": None
+        "building type conversions": {
+            "original type": "EnergyPlus reference buildings",
+            "revised type": "Annual Energy Outlook (AEO) buildings",
+            "conversion data": {
+                "description": "EPlus->AEO type mapping and weighting factors",
+                "value": {
+                    "residential": {
+                        "single family home": {
+                            "Single-Family": 1},
+                        "mobile home": {
+                            "Single-Family": 1},
+                        "multi family home": {
+                            "Multifamily": 1}},
+                    "commercial": {
+                        "assembly": {
+                            "Hospital": 1},
+                        "education": {
+                            "PrimarySchool": 0.26,
+                            "SecondarySchool": 0.74},
+                        "food sales": {
+                            "Supermarket": 1},
+                        "food service": {
+                            "QuickServiceRestaurant": 0.31,
+                            "FullServiceRestaurant": 0.69},
+                        "health care": None,
+                        "lodging": {
+                            "SmallHotel": 0.26,
+                            "LargeHotel": 0.74},
+                        "large office": {
+                            "LargeOffice": 0.9,
+                            "MediumOfficeDetailed": 0.1},
+                        "small office": {
+                            "SmallOffice": 0.12,
+                            "OutpatientHealthcare": 0.88},
+                        "mercantile/service": {
+                            "RetailStandalone": 0.53,
+                            "RetailStripmall": 0.47},
+                        "warehouse": {
+                            "Warehouse": 1},
+                        "other": None
+                    }
+                }
             }
-          }
         }
-      }
     }
     aia_measures = [{
         "name": "sample measure to prepare",
@@ -342,9 +342,9 @@ def update_test_data():
         "end_use": "heating",
         "technology": ["wall", "roof"],
         "tsv_features": {
-          "shed": {
-            "relative energy change fraction": 0.2,
-            "start_hour": 6, "stop_hour": 10}}},
+            "shed": {
+                "relative energy change fraction": 0.2,
+                "start_hour": 6, "stop_hour": 10}}},
         {
         "name": "sample time sens. measure 2 to prepare",
         "markets": None,
@@ -366,9 +366,9 @@ def update_test_data():
         "end_use": "heating",
         "technology": ["wall", "roof"],
         "tsv_features": {
-          "shed": {
-            "relative energy change fraction": 1,
-            "start_hour": 6, "stop_hour": 10}}},
+            "shed": {
+                "relative energy change fraction": 1,
+                "start_hour": 6, "stop_hour": 10}}},
         {
         "name": "sample time sens. measure 3 to prepare",
         "markets": None,
@@ -390,9 +390,9 @@ def update_test_data():
         "end_use": "heating",
         "technology": ["wall", "roof"],
         "tsv_features": {
-          "shed": {
-            "relative energy change fraction": 1,
-            "start_hour": 6, "stop_hour": 10}}},
+            "shed": {
+                "relative energy change fraction": 1,
+                "start_hour": 6, "stop_hour": 10}}},
         {
         "name": "sample time sens. measure 3 - res.",
         "markets": None,
@@ -414,9 +414,9 @@ def update_test_data():
         "end_use": "heating",
         "technology": ["wall", "roof"],
         "tsv_features": {
-          "shed": {
-            "relative energy change fraction": 1,
-            "start_hour": 6, "stop_hour": 10}}}]
+            "shed": {
+                "relative energy change fraction": 1,
+                "start_hour": 6, "stop_hour": 10}}}]
     emm_measures_metrics = [{
         "name": "sample time sens. metrics measure",
         "markets": None,
@@ -481,9 +481,9 @@ def update_test_data():
         "end_use": "heating",
         "technology": ["wall", "roof"],
         "tsv_features": {
-          "shed": {
-            "relative energy change fraction": 1,
-            "start_hour": 6, "stop_hour": 10}}}
+            "shed": {
+                "relative energy change fraction": 1,
+                "start_hour": 6, "stop_hour": 10}}}
     ]
     ok_out_aia = [{
         "stock": {

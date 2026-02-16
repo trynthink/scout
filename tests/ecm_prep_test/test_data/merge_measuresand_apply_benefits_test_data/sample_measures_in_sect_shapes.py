@@ -619,7 +619,7 @@ sample_measures_in_sect_shapes = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -642,7 +642,7 @@ sample_measures_in_sect_shapes = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -674,7 +674,7 @@ sample_measures_in_sect_shapes = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -706,7 +706,7 @@ sample_measures_in_sect_shapes = [{
                                     "2009": 10,
                                     "2010": 10},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -993,7 +993,7 @@ sample_measures_in_sect_shapes = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -1012,7 +1012,7 @@ sample_measures_in_sect_shapes = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -1038,7 +1038,7 @@ sample_measures_in_sect_shapes = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {
@@ -1064,7 +1064,7 @@ sample_measures_in_sect_shapes = [{
                                     "2010": 10},
                                 'Cooling (Equip.)': {},
                                 'Heating (Env.)': {}}
-                                }},
+                        }},
                     "efficient": {
                         'TRE': {
                             'Residential (New)': {

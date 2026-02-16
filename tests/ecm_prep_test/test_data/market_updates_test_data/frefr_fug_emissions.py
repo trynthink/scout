@@ -3,8 +3,8 @@
 """Test data: frefr_fug_emissions."""
 
 frefr_fug_emissions = {
-   "methane": {},
-   "refrigerants": {
+    "methane": {},
+    "refrigerants": {
         "refrigerant_data_by_tech_type": {
             "commercial": {
                 "rooftop_ASHP-cool": {
@@ -100,31 +100,31 @@ frefr_fug_emissions = {
             },
             "residential": {
                 "ASHP": {
-                   "typ_refrigerant": {
+                    "typ_refrigerant": {
                         "2009": "R-410A", "2010": "R-32"},
-                   "low_gwp_refrigerant": "R-32",
-                   "typ_charge": 3.59,
-                   "typ_ann_leak_pct": 0.058,
-                   "EOL_leak_pct": 0.15,
-                   "References": ""
+                    "low_gwp_refrigerant": "R-32",
+                    "typ_charge": 3.59,
+                    "typ_ann_leak_pct": 0.058,
+                    "EOL_leak_pct": 0.15,
+                    "References": ""
                 },
                 "central AC": {
-                   "typ_refrigerant": {
+                    "typ_refrigerant": {
                         "2009": "R-410A", "2010": "R-32"},
-                   "low_gwp_refrigerant": "R-32",
-                   "typ_charge": 2.95,
-                   "typ_ann_leak_pct": 0.058,
-                   "EOL_leak_pct": 0.15,
-                   "References": ""
+                    "low_gwp_refrigerant": "R-32",
+                    "typ_charge": 2.95,
+                    "typ_ann_leak_pct": 0.058,
+                    "EOL_leak_pct": 0.15,
+                    "References": ""
                 },
                 "HPWH": {
-                   "typ_refrigerant": {
+                    "typ_refrigerant": {
                         "2009": "R-134a", "2010": "R-1234yf"},
-                   "low_gwp_refrigerant": "R-1234yf",
-                   "typ_charge": 4.7,
-                   "typ_ann_leak_pct": 0.02,
-                   "EOL_leak_pct": 0.15,
-                   "References": ""
+                    "low_gwp_refrigerant": "R-1234yf",
+                    "typ_charge": 4.7,
+                    "typ_ann_leak_pct": 0.02,
+                    "EOL_leak_pct": 0.15,
+                    "References": ""
                 },
             }
         },
@@ -137,5 +137,5 @@ frefr_fug_emissions = {
             "R-1234yf": 1.0,
             "R-134a": 1430.0
         },
-   }
+    }
 }

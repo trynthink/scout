@@ -113,7 +113,7 @@ def market_test_data():
             "SRCA", "SRSE", "FRCC"],
         "west": [
             "NWPP", "BASN", "RMRG", "SRSG", "CASO", "CANO"]
-        }
+    }
     handyvars_hp_rates.hp_rates = {
         "data (by scenario)": {
             "gh-aggressive": {
@@ -493,10 +493,10 @@ def market_test_data():
          "installed_cost": 25,
          "cost_units": "2014$/unit",
          "energy_efficiency": {
-            "AIA_CZ1": {"heating": 30,
-                        "cooling": 25},
-            "AIA_CZ2": {"heating": 30,
-                        "cooling": 15}},
+             "AIA_CZ1": {"heating": 30,
+                         "cooling": 25},
+             "AIA_CZ2": {"heating": 30,
+                         "cooling": 15}},
          "energy_efficiency_units": "COP",
          "market_entry_year": None,
          "market_exit_year": None,
@@ -511,7 +511,7 @@ def market_test_data():
          "fuel_switch_to": None,
          "end_use": ["heating", "cooling"],
          "technology": ["resistance heat", "ASHP", "GSHP", "room AC"]}
-        ]
+    ]
     ok_tpmeas_sitechk_in = [Measure(
         base_dir, handyvars, handyfiles, opts_site_energy_dict,
         **x) for x in ok_measures_site_energy]
@@ -1096,7 +1096,7 @@ def test_mseg_ok_fmeth_co2_tp(market_test_data):
             ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Technical potential']['master_mseg'][
-                            'fugitive emissions']['methane'],
+                'fugitive emissions']['methane'],
             market_test_data["ok_tp_fmeth_mkts_out"][idx])
 
 
@@ -1120,7 +1120,7 @@ def test_mseg_ok_frefr_co2_map(market_test_data):
             ctrb_ms_pkg_prep=[], tsv_data_nonfs=None)
         dict_check(
             measure.markets['Max adoption potential']['master_mseg'][
-                            'fugitive emissions']['refrigerants'],
+                'fugitive emissions']['refrigerants'],
             market_test_data["ok_map_frefr_mkts_out"][idx])
 
 
@@ -1278,7 +1278,7 @@ def test_incentives(market_test_data):
         "CA", "single family home", "existing", "heating", "ASHP",
         "electricity", "natural gas", "no", "replace", "non-federal", False,
         0, 2.6, "COP", 50, float('nan'), "$/unit", 2010, 2050, 1]
-        ]
+    ]
     years = [str(y) for y in hv.aeo_years]
 
     # Seed BY-YEAR carbon price

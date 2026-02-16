@@ -3,55 +3,55 @@
 """Extracted test data for Market Updates tests."""
 
 ok_hpmeas_rates_breakouts = [{
-            'stock': {
-                'baseline': {
-                    'TRE': {'Residential (Existing)': {
-                        'Heating (Equip.)': {
-                            'Electric': {'2009': 0, '2010': 0},
-                            'Non-Electric': {'2009': 1.35, '2010': 2.766667}},
-                        'Cooling (Equip.)': {
-                            'Electric': {'2009': 0, '2010': 0},
-                            'Non-Electric': {}}}}},
-                'efficient': {
-                    'TRE': {
-                        'Residential (Existing)': {
-                            'Heating (Equip.)': {
-                                'Electric': {'2009': 1.35, '2010': 2.766667},
-                                'Non-Electric': {'2009': 0, '2010': 0}},
-                            'Cooling (Equip.)': {
-                                'Electric': {'2009': 0, '2010': 0},
-                                'Non-Electric': {}}}}}
-            },
-            'energy': {
-                'baseline': {
-                    'TRE': {'Residential (Existing)': {
-                        'Heating (Equip.)': {
-                            'Electric': {'2009': 0, '2010': 0},
-                            'Non-Electric': {'2009': 1.35, '2010': 2.766667}},
-                        'Cooling (Equip.)': {
-                            'Electric': {'2009': 0.675, '2010': 1.383333},
-                            'Non-Electric': {}}}}},
-                'efficient': {
-                    'TRE': {
-                        'Residential (Existing)': {
-                            'Heating (Equip.)': {
-                                'Electric': {'2009': 0.45, '2010': 0.9222222},
-                                'Non-Electric': {'2009': 0, '2010': 0}},
-                            'Cooling (Equip.)': {
-                                'Electric': {'2009': 0.225, '2010': 0.4611111},
-                                'Non-Electric': {}}}}},
-                'savings': {
-                    'TRE': {
-                        'Residential (Existing)': {
-                            'Heating (Equip.)': {
-                                'Electric': {'2009': -0.45,
-                                             '2010': -0.9222222},
-                                'Non-Electric': {'2009': 1.35,
-                                                 '2010': 2.766667}},
-                            'Cooling (Equip.)': {
-                                'Electric': {'2009': 0.45, '2010': 0.9222222},
-                                'Non-Electric': {}}}}}},
-            'carbon': {
+    'stock': {
+        'baseline': {
+            'TRE': {'Residential (Existing)': {
+                'Heating (Equip.)': {
+                    'Electric': {'2009': 0, '2010': 0},
+                    'Non-Electric': {'2009': 1.35, '2010': 2.766667}},
+                'Cooling (Equip.)': {
+                    'Electric': {'2009': 0, '2010': 0},
+                    'Non-Electric': {}}}}},
+        'efficient': {
+            'TRE': {
+                'Residential (Existing)': {
+                    'Heating (Equip.)': {
+                        'Electric': {'2009': 1.35, '2010': 2.766667},
+                        'Non-Electric': {'2009': 0, '2010': 0}},
+                    'Cooling (Equip.)': {
+                        'Electric': {'2009': 0, '2010': 0},
+                        'Non-Electric': {}}}}}
+    },
+    'energy': {
+        'baseline': {
+            'TRE': {'Residential (Existing)': {
+                'Heating (Equip.)': {
+                    'Electric': {'2009': 0, '2010': 0},
+                    'Non-Electric': {'2009': 1.35, '2010': 2.766667}},
+                'Cooling (Equip.)': {
+                    'Electric': {'2009': 0.675, '2010': 1.383333},
+                    'Non-Electric': {}}}}},
+        'efficient': {
+            'TRE': {
+                'Residential (Existing)': {
+                    'Heating (Equip.)': {
+                        'Electric': {'2009': 0.45, '2010': 0.9222222},
+                        'Non-Electric': {'2009': 0, '2010': 0}},
+                    'Cooling (Equip.)': {
+                        'Electric': {'2009': 0.225, '2010': 0.4611111},
+                        'Non-Electric': {}}}}},
+        'savings': {
+            'TRE': {
+                'Residential (Existing)': {
+                    'Heating (Equip.)': {
+                        'Electric': {'2009': -0.45,
+                                     '2010': -0.9222222},
+                        'Non-Electric': {'2009': 1.35,
+                                         '2010': 2.766667}},
+                    'Cooling (Equip.)': {
+                        'Electric': {'2009': 0.45, '2010': 0.9222222},
+                        'Non-Electric': {}}}}}},
+    'carbon': {
                 'baseline': {
                     'TRE': {
                         'Residential (Existing)': {
@@ -86,7 +86,7 @@ ok_hpmeas_rates_breakouts = [{
                                 'Electric': {'2009': 5.877e-08,
                                              '2010': 1.105744e-07},
                                 'Non-Electric': {}}}}}},
-            'cost': {
+    'cost': {
                 'baseline': {
                     'TRE': {
                         'Residential (Existing)': {

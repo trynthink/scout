@@ -15,9 +15,9 @@ breaks_ok_out_test1 = {
                         "2009": 15, "2010": 15
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "efficient": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -28,9 +28,9 @@ breaks_ok_out_test1 = {
                         "2009": 5, "2010": 5
                     },
                     'Heating (Env.)': {}
-                    },
                 },
-            }
+            },
+        }
     },
     "energy": {
         "baseline": {
@@ -43,9 +43,9 @@ breaks_ok_out_test1 = {
                         "2009": 15, "2010": 15
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "efficient": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -56,9 +56,9 @@ breaks_ok_out_test1 = {
                         "2009": 4.27, "2010": 4.27
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "savings": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -69,9 +69,9 @@ breaks_ok_out_test1 = {
                         "2009": 10.73, "2010": 10.73
                     },
                     'Heating (Env.)': {}
-                    },
                 },
-            }},
+            },
+        }},
     "carbon": {
         "baseline": {
             'AIA CZ1': {
@@ -83,9 +83,9 @@ breaks_ok_out_test1 = {
                         "2009": 15, "2010": 15
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "efficient": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -96,9 +96,9 @@ breaks_ok_out_test1 = {
                         "2009": 4.27, "2010": 4.27
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "savings": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -109,9 +109,9 @@ breaks_ok_out_test1 = {
                         "2009": 10.73, "2010": 10.73
                     },
                     'Heating (Env.)': {}
-                    },
                 },
-            }},
+            },
+        }},
     "cost": {
         "baseline": {
             'AIA CZ1': {
@@ -123,9 +123,9 @@ breaks_ok_out_test1 = {
                         "2009": 15, "2010": 15
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "efficient": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -136,9 +136,9 @@ breaks_ok_out_test1 = {
                         "2009": 4.27, "2010": 4.27
                     },
                     'Heating (Env.)': {}
-                    },
                 },
             },
+        },
         "savings": {
             'AIA CZ1': {
                 'Residential (New)': {
@@ -149,6 +149,6 @@ breaks_ok_out_test1 = {
                         "2009": 10.73, "2010": 10.73
                     },
                     'Heating (Env.)': {}
-                    },
                 },
-            }}}
+            },
+        }}}

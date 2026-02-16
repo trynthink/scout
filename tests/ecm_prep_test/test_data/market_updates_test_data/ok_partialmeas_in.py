@@ -3,7 +3,7 @@
 """Extracted test data for Market Updates tests."""
 
 ok_partialmeas_in = [{
-            "name": "partial measure 1",
+    "name": "partial measure 1",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",
@@ -22,8 +22,8 @@ ok_partialmeas_in = [{
             "fuel_switch_to": None,
             "end_use": "cooling",
             "technology": ["resistance heat", "ASHP"]},
-            {
-            "name": "partial measure 2",
+    {
+    "name": "partial measure 2",
             "markets": None,
             "installed_cost": 25,
             "cost_units": "2014$/unit",

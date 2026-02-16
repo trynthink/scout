@@ -54,7 +54,7 @@ fmeth_fug_emissions = {
                 "WV": 0.012,
                 "WI": 0.031,
                 "WY": 0.015
-             },
+            },
             "Low": {
                 "AL": 0.006999999999999999,
                 "AZ": 0.021,
@@ -104,7 +104,7 @@ fmeth_fug_emissions = {
                 "WV": 0.006,
                 "WI": 0.019,
                 "WY": 0.006
-             },
+            },
             "Mid": {
                 "AL": 0.011,
                 "AZ": 0.034,
@@ -154,7 +154,7 @@ fmeth_fug_emissions = {
                 "WV": 0.009,
                 "WI": 0.022,
                 "WY": 0.011
-             }},
+            }},
         "other_segment_leakage_rates": {
             "Gathering": 0.004601769911504425,
             "Processing": 0.0012743362831858407,
@@ -211,7 +211,7 @@ fmeth_fug_emissions = {
                 "WV": 0.022,
                 "WI": 0.041,
                 "WY": 0.025
-             },
+            },
             "Low": {
                 "AL": 0.017,
                 "AZ": 0.031,
@@ -261,7 +261,7 @@ fmeth_fug_emissions = {
                 "WV": 0.016,
                 "WI": 0.029,
                 "WY": 0.016
-             },
+            },
             "Mid": {
                 "AL": 0.021,
                 "AZ": 0.044,
@@ -311,7 +311,7 @@ fmeth_fug_emissions = {
                 "WV": 0.019,
                 "WI": 0.032,
                 "WY": 0.021
-             }}
-        },
+            }}
+    },
     "refrigerants": {}
 }

@@ -76,14 +76,14 @@ def tsv_test_data():
         x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
     # Winter days of year
     wint_days = (list(
-                range(1, 59)) + list(range(334, 365)))
+        range(1, 59)) + list(range(334, 365)))
     wint_days_wkdy = [
         x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
     wint_days_wknd = [
         x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
     # Intermediate days of year
     inter_days = (list(
-                range(59, 151)) + list(range(273, 334)))
+        range(59, 151)) + list(range(273, 334)))
     inter_days_wkdy = [
         x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
     inter_days_wknd = [
@@ -114,13 +114,13 @@ def tsv_test_data():
         yr: 1 for yr in handyvars.aeo_years}
     sample_ash_czone_wts = handyvars.ash_emm_map
     sample_mskeys_features = (
-      "primary", "FRCC", "large office", "electricity",
-      "heating", "supply", "ASHP", "new")
+        "primary", "FRCC", "large office", "electricity",
+        "heating", "supply", "ASHP", "new")
     sample_mskeys_metrics = numpy.append(numpy.tile((
-      "primary", "FRCC", "large office", "electricity",
-      "heating", "supply", "ASHP", "new"), (8, 1)), numpy.tile((
-        "primary", "ISNE", "large office", "electricity",
-        "heating", "supply", "ASHP", "new"), (8, 1)), axis=0)
+        "primary", "FRCC", "large office", "electricity",
+        "heating", "supply", "ASHP", "new"), (8, 1)), numpy.tile((
+            "primary", "ISNE", "large office", "electricity",
+            "heating", "supply", "ASHP", "new"), (8, 1)), axis=0)
     sample_bldg_sect = "commercial"
     # Use imported sample_cost_convert and sample_tsv_measures_in_features
     # from test_data/tsv_test_data.py
@@ -132,8 +132,8 @@ def tsv_test_data():
     opts_dict_tsv_features["alt_regions"] = "EMM"
 
     ok_tsv_measures_in_features = [Measure(
-      base_dir, handyvars, handyfiles, opts_dict_tsv_features, **x) for
-      x in sample_tsv_measures_in_features]
+        base_dir, handyvars, handyfiles, opts_dict_tsv_features, **x) for
+        x in sample_tsv_measures_in_features]
     # Use imported sample_tsv_measure_in_metrics and sample_tsv_metric_settings
     # from test_data/tsv_test_data.py
     # Reset user options to reflect settings for TSV metrics tests
@@ -160,9 +160,9 @@ def tsv_test_data():
             sample_tsv_metric_settings[ind]
     # Initialize TSV metric test measures using appropriate input settings
     ok_tsv_measures_in_metrics = [Measure(
-      base_dir, handyvars, handyfiles, opts_dict_tsv_metrics[ind],
-      **x) for x in sample_tsv_measure_in_metrics for
-      ind in range(len(sample_tsv_metric_settings))]
+        base_dir, handyvars, handyfiles, opts_dict_tsv_metrics[ind],
+        **x) for x in sample_tsv_measure_in_metrics for
+        ind in range(len(sample_tsv_metric_settings))]
     # Make two copies of user options object for TSV metrics test to match
     # 2 measures that are tested with these options (see
     # sample_tsv_measure_in_metrics)
@@ -177,8 +177,8 @@ def tsv_test_data():
         for var in ["cost", "carbon"]:
             for scn in ["baseline", "efficient"]:
                 meas_out_features[var][scn] = {
-                  yr: meas_out_features[var][scn] for
-                  yr in handyvars.aeo_years
+                    yr: meas_out_features[var][scn] for
+                    yr in handyvars.aeo_years
                 }
     # Use imported ok_tsv_facts_out_metrics_raw from test_data/tsv_test_data.py
     # and extend it for multiple years
@@ -189,8 +189,8 @@ def tsv_test_data():
         for var in ["cost", "carbon"]:
             for scn in ["baseline", "efficient"]:
                 meas_out_metrics[var][scn] = {
-                  yr: meas_out_metrics[var][scn] for
-                  yr in handyvars.aeo_years
+                    yr: meas_out_metrics[var][scn] for
+                    yr in handyvars.aeo_years
                 }
 
     # Use extracted sample_tsv_data from external file

@@ -202,4 +202,4 @@ contrib_ok_out_test1 = {
             "baseline": {"2009": 10, "2010": 10},
             "measure": 10},
         "sub-market scaling": 1}
-    }
+}

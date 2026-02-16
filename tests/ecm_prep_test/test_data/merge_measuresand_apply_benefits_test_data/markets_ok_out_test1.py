@@ -50,7 +50,7 @@ markets_ok_out_test1 = [{
     "lifetime": {
         "baseline": {"2009": 10, "2010": 10},
         "measure": 10}
-    }, {
+}, {
     "stock": {
         "total": {
             "all": {"2009": 25, "2010": 25},
@@ -97,7 +97,7 @@ markets_ok_out_test1 = [{
     "lifetime": {
         "baseline": {"2009": 10, "2010": 10},
         "measure": 10}
-    },
+},
     {
     "stock": {
         "total": {
@@ -145,4 +145,4 @@ markets_ok_out_test1 = [{
     "lifetime": {
         "baseline": {"2009": 10, "2010": 10},
         "measure": 10}
-    }]
+}]

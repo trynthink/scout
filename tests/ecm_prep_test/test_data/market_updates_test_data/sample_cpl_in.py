@@ -3,506 +3,506 @@
 """Extracted test data for Market Updates tests."""
 
 sample_cpl_in = {
-            "AIA_CZ1": {
-                "assembly": {
-                    "electricity": {
-                        "heating": {
-                            "demand": {
-                                "windows conduction": {
-                                    "performance": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "R Value",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 10, "2010": 10},
-                                        "range": {"2009": 1, "2010": 1},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+    "AIA_CZ1": {
+        "assembly": {
+            "electricity": {
+                "heating": {
+                    "demand": {
+                        "windows conduction": {
+                            "performance": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "R Value",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 10, "2010": 10},
+                                "range": {"2009": 1, "2010": 1},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "windows solar": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "SHGC",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "windows solar": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "SHGC",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "lighting gain": 0}},
-                        "cooling": {
-                            "demand": {
-                                "windows conduction": {
-                                    "performance": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "R Value",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 10, "2010": 10},
-                                        "range": {"2009": 1, "2010": 1},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "lighting gain": 0}},
+                "cooling": {
+                    "demand": {
+                        "windows conduction": {
+                            "performance": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "R Value",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 10, "2010": 10},
+                                "range": {"2009": 1, "2010": 1},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "windows solar": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "SHGC",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "windows solar": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "SHGC",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "lighting gain": 0}},
-                        "lighting": {
-                            "T5 F28": {
-                                "performance": {
-                                    "typical": {"2009": 14, "2010": 14},
-                                    "best": {"2009": 14, "2010": 14},
-                                    "units": "lm/W",
-                                    "source":
-                                    "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 14, "2010": 14},
-                                    "best": {"2009": 14, "2010": 14},
-                                    "units": "2014$/ft^2 floor",
-                                    "source": "EIA AEO"},
-                                "lifetime": {
-                                    "average": {"2009": 140, "2010": 140},
-                                    "range": {"2009": 14, "2010": 14},
-                                    "units": "years",
-                                    "source": "EIA AEO"},
-                                "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
-                                                       "2010": "NA"},
-                                                "b2": {"2009": "NA",
-                                                       "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}},
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "lighting gain": 0}},
+                "lighting": {
+                    "T5 F28": {
+                        "performance": {
+                            "typical": {"2009": 14, "2010": 14},
+                            "best": {"2009": 14, "2010": 14},
+                            "units": "lm/W",
+                            "source":
+                            "EIA AEO"},
+                        "installed cost": {
+                            "typical": {"2009": 14, "2010": 14},
+                            "best": {"2009": 14, "2010": 14},
+                            "units": "2014$/ft^2 floor",
+                            "source": "EIA AEO"},
+                        "lifetime": {
+                            "average": {"2009": 140, "2010": 140},
+                            "range": {"2009": 14, "2010": 14},
+                            "units": "years",
+                            "source": "EIA AEO"},
+                        "consumer choice": {
+                            "competed market share": {
+                                "source": "EIA AEO",
+                                "model type":
+                                "logistic regression",
+                                "parameters": {
+                                    "b1": {"2009": "NA",
+                                           "2010": "NA"},
+                                    "b2": {"2009": "NA",
+                                           "2010": "NA"}}},
+                            "competed market": {
+                                "source": "COBAM",
+                                "model type": "bass diffusion",
+                                "parameters": {
+                                    "p": "NA",
+                                    "q": "NA"}}}}},
                         "PCs": 0,
                         "MELs": {
                             "distribution transformers": 0
-                        }}},
-                "single family home": {
-                    "electricity": {
-                        "heating": {
-                            "demand": {
-                                "windows conduction": {
-                                    "performance": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "R Value",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 1, "2010": 1},
-                                        "best": {"2009": 1, "2010": 1},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 10, "2010": 10},
-                                        "range": {"2009": 1, "2010": 1},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                }}},
+        "single family home": {
+            "electricity": {
+                "heating": {
+                    "demand": {
+                        "windows conduction": {
+                            "performance": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "R Value",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 1, "2010": 1},
+                                "best": {"2009": 1, "2010": 1},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 10, "2010": 10},
+                                "range": {"2009": 1, "2010": 1},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "windows solar": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "SHGC",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "windows solar": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "SHGC",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "infiltration": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 3},
-                                        "best": {"2009": 2, "2010": 3},
-                                        "units": "ACH50",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "infiltration": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 3},
+                                "best": {"2009": 2, "2010": 3},
+                                "units": "ACH50",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}},
-                            "supply": {
-                                "resistance heat": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "COP",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/unit",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}}},
+                    "supply": {
+                        "resistance heat": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "COP",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/unit",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "ASHP": {
-                                    "performance": {
-                                        "typical": {"2009": 3, "2010": 3},
-                                        "best": {"2009": 3, "2010": 3},
-                                        "units": "COP",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {
-                                            "new": {"2009": 6,
-                                                    "2010": 6},
-                                            "existing": {"2009": 3,
-                                                         "2010": 3}},
-                                        "best": {
-                                            "new": {"2009": 6,
-                                                    "2010": 6},
-                                            "existing": {"2009": 3,
-                                                         "2010": 3}},
-                                        "units": "2014$/unit",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 30, "2010": 30},
-                                        "range": {"2009": 3, "2010": 3},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "ASHP": {
+                            "performance": {
+                                "typical": {"2009": 3, "2010": 3},
+                                "best": {"2009": 3, "2010": 3},
+                                "units": "COP",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {
+                                    "new": {"2009": 6,
+                                            "2010": 6},
+                                    "existing": {"2009": 3,
+                                                 "2010": 3}},
+                                "best": {
+                                    "new": {"2009": 6,
+                                            "2010": 6},
+                                    "existing": {"2009": 3,
+                                                 "2010": 3}},
+                                "units": "2014$/unit",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 30, "2010": 30},
+                                "range": {"2009": 3, "2010": 3},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "GSHP": {
-                                    "performance": {
-                                        "typical": {"2009": 4 / 0.2930712,
-                                                    "2010": 4 / 0.2930712},
-                                        "best": {"2009": 4, "2010": 4},
-                                        "units": "EER",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {
-                                            "new": {"2009": 8,
-                                                    "2010": 8},
-                                            "existing": {"2009": 4,
-                                                         "2010": 4}},
-                                        "best": {
-                                            "new": {"2009": 8,
-                                                    "2010": 8},
-                                            "existing": {"2009": 4,
-                                                         "2010": 4}},
-                                        "units": "2014$/unit",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 40, "2010": 40},
-                                        "range": {"2009": 4, "2010": 4},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "GSHP": {
+                            "performance": {
+                                "typical": {"2009": 4 / 0.2930712,
+                                            "2010": 4 / 0.2930712},
+                                "best": {"2009": 4, "2010": 4},
+                                "units": "EER",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {
+                                    "new": {"2009": 8,
+                                            "2010": 8},
+                                    "existing": {"2009": 4,
+                                                 "2010": 4}},
+                                "best": {
+                                    "new": {"2009": 8,
+                                            "2010": 8},
+                                    "existing": {"2009": 4,
+                                                 "2010": 4}},
+                                "units": "2014$/unit",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 40, "2010": 40},
+                                "range": {"2009": 4, "2010": 4},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}}},
-                        "secondary heating": {
-                            "demand": {
-                                "windows conduction": {
-                                    "performance": {
-                                        "typical": {"2009": 5, "2010": 5},
-                                        "best": {"2009": 5, "2010": 5},
-                                        "units": "R Value",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 5, "2010": 5},
-                                        "best": {"2009": 5, "2010": 5},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 50, "2010": 50},
-                                        "range": {"2009": 5, "2010": 5},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}}}},
+                "secondary heating": {
+                    "demand": {
+                        "windows conduction": {
+                            "performance": {
+                                "typical": {"2009": 5, "2010": 5},
+                                "best": {"2009": 5, "2010": 5},
+                                "units": "R Value",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 5, "2010": 5},
+                                "best": {"2009": 5, "2010": 5},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 50, "2010": 50},
+                                "range": {"2009": 5, "2010": 5},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "windows solar": {
-                                    "performance": {
-                                        "typical": {"2009": 6, "2010": 6},
-                                        "best": {"2009": 6, "2010": 6},
-                                        "units": "SHGC",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 6, "2010": 6},
-                                        "best": {"2009": 6, "2010": 6},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 60, "2010": 60},
-                                        "range": {"2009": 6, "2010": 6},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "windows solar": {
+                            "performance": {
+                                "typical": {"2009": 6, "2010": 6},
+                                "best": {"2009": 6, "2010": 6},
+                                "units": "SHGC",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 6, "2010": 6},
+                                "best": {"2009": 6, "2010": 6},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 60, "2010": 60},
+                                "range": {"2009": 6, "2010": 6},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}},
-                                "infiltration": {
-                                    "performance": {
-                                        "typical": {"2009": 2, "2010": 3},
-                                        "best": {"2009": 2, "2010": 3},
-                                        "units": "ACH50",
-                                        "source":
-                                        "EIA AEO"},
-                                    "installed cost": {
-                                        "typical": {"2009": 2, "2010": 2},
-                                        "best": {"2009": 2, "2010": 2},
-                                        "units": "2014$/ft^2 floor",
-                                        "source": "EIA AEO"},
-                                    "lifetime": {
-                                        "average": {"2009": 20, "2010": 20},
-                                        "range": {"2009": 2, "2010": 2},
-                                        "units": "years",
-                                        "source": "EIA AEO"},
-                                    "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}},
+                        "infiltration": {
+                            "performance": {
+                                "typical": {"2009": 2, "2010": 3},
+                                "best": {"2009": 2, "2010": 3},
+                                "units": "ACH50",
+                                "source":
+                                "EIA AEO"},
+                            "installed cost": {
+                                "typical": {"2009": 2, "2010": 2},
+                                "best": {"2009": 2, "2010": 2},
+                                "units": "2014$/ft^2 floor",
+                                "source": "EIA AEO"},
+                            "lifetime": {
+                                "average": {"2009": 20, "2010": 20},
+                                "range": {"2009": 2, "2010": 2},
+                                "units": "years",
+                                "source": "EIA AEO"},
+                            "consumer choice": {
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}},
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}}},
                             "supply": {
                                 "secondary heater": {
                                     "performance": {
@@ -537,7 +537,7 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}},
-                        "cooling": {
+                "cooling": {
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
@@ -545,7 +545,7 @@ sample_cpl_in = {
                                             "new": {"2009": 8, "2010": 8},
                                             "existing": {
                                                 "2009": 8, "2010": 8}
-                                            },
+                                        },
                                         "best": {"2009": 8, "2010": 8},
                                         "units": "R Value",
                                         "source":
@@ -1028,8 +1028,8 @@ sample_cpl_in = {
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
-                        "computers": {
+                },
+                "computers": {
                             "desktop PC": {
                                 "performance": {
                                     "typical": {"2009": "NA", "2010": "NA"},
@@ -1094,8 +1094,8 @@ sample_cpl_in = {
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
-                        "other": {
+                },
+                "other": {
                             "freezers": {
                                 "performance": {
                                     "typical": {"2009": 550, "2010": 550},
@@ -1161,8 +1161,8 @@ sample_cpl_in = {
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}}},
-                    "other fuel": {
-                        "heating": {
+            "other fuel": {
+                "heating": {
                             "supply": {
                                 "stove (wood)": {
                                     "performance": {
@@ -1197,8 +1197,8 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}},
-                    "natural gas": {
-                        "water heating": {
+            "natural gas": {
+                "water heating": {
                             "performance": {
                                 "typical": {"2009": 18, "2010": 18},
                                 "best": {"2009": 18, "2010": 18},
@@ -1229,7 +1229,7 @@ sample_cpl_in = {
                                     "parameters": {
                                         "p": "NA",
                                         "q": "NA"}}}},
-                        "heating": {
+                "heating": {
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
@@ -1360,7 +1360,7 @@ sample_cpl_in = {
                                                 "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
                                         "competed market": {}}}}},
-                        "secondary heating": {
+                "secondary heating": {
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
@@ -1461,7 +1461,7 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}},
-                        "cooling": {
+                "cooling": {
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
@@ -1562,9 +1562,9 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}}},
-                "multi family home": {
-                    "electricity": {
-                        "heating": {
+        "multi family home": {
+            "electricity": {
+                "heating": {
                             "demand": {
                                 "windows conduction": {
                                     "performance": {
@@ -1748,7 +1748,7 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}},
-                        "lighting": {
+                "lighting": {
                             "linear fluorescent (LED)": {
                                     "performance": {
                                         "typical": {"2009": 24, "2010": 24},
@@ -1889,7 +1889,7 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}}},
-            "AIA_CZ2": {
+    "AIA_CZ2": {
                 "single family home": {
                     "electricity": {
                         "heating": {
@@ -2700,7 +2700,7 @@ sample_cpl_in = {
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            },
+                        },
                         "computers": {
                             "desktop PC": {
                                 "performance": {
@@ -2766,19 +2766,19 @@ sample_cpl_in = {
                                         "parameters": {
                                             "p": "NA",
                                             "q": "NA"}}}}
-                            }},
+                        }},
                     "natural gas": {
                         "water heating": {
-                                "performance": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "EF",
-                                    "source":
+                            "performance": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "EF",
+                                "source":
                                     "EIA AEO"},
-                                "installed cost": {
-                                    "typical": {"2009": 18, "2010": 18},
-                                    "best": {"2009": 18, "2010": 18},
-                                    "units": "2014$/unit",
+                            "installed cost": {
+                                "typical": {"2009": 18, "2010": 18},
+                                "best": {"2009": 18, "2010": 18},
+                                "units": "2014$/unit",
                                     "source": "EIA AEO"},
                                 "lifetime": {
                                     "average": {"2009": 180, "2010": 180},
@@ -2786,21 +2786,21 @@ sample_cpl_in = {
                                     "units": "years",
                                     "source": "EIA AEO"},
                                 "consumer choice": {
-                                        "competed market share": {
-                                            "source": "EIA AEO",
-                                            "model type":
-                                                "logistic regression",
-                                            "parameters": {
-                                                "b1": {"2009": "NA",
+                                "competed market share": {
+                                    "source": "EIA AEO",
+                                    "model type":
+                                    "logistic regression",
+                                    "parameters": {
+                                        "b1": {"2009": "NA",
                                                        "2010": "NA"},
-                                                "b2": {"2009": "NA",
+                                        "b2": {"2009": "NA",
                                                        "2010": "NA"}}},
-                                        "competed market": {
-                                            "source": "COBAM",
-                                            "model type": "bass diffusion",
-                                            "parameters": {
-                                                "p": "NA",
-                                                "q": "NA"}}}}}},
+                                "competed market": {
+                                    "source": "COBAM",
+                                    "model type": "bass diffusion",
+                                    "parameters": {
+                                        "p": "NA",
+                                        "q": "NA"}}}}}},
                 "multi family home": {
                     "electricity": {
                         "heating": {
@@ -3128,7 +3128,7 @@ sample_cpl_in = {
                                             "parameters": {
                                                 "p": "NA",
                                                 "q": "NA"}}}}}}}},
-            "AIA_CZ4": {
+    "AIA_CZ4": {
                 "multi family home": {
                     "electricity": {
                         "lighting": {

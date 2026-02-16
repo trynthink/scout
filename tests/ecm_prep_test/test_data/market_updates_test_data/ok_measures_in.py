@@ -589,7 +589,7 @@ ok_measures_in = [{
     "market_entry_year": None,
     "market_exit_year": None,
     "technology": ["TVs", "desktop PC", "laptop PC", "electric other"]
-    },
+},
     {
     "name": "sample measure 23",
     "markets": None,
@@ -709,7 +709,7 @@ ok_measures_in = [{
     "market_exit_year": None,
     "technology": "T5 F28",
     "retro_rate": 0.02
-    },
+},
     {
     "name": "sample measure 27",
     "markets": None,

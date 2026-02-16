@@ -32,75 +32,75 @@ ok_tsv_facts_out_features_raw = [{
         "efficient": 0.8770559971
     }}, {
     "energy": {
-       "baseline": 1,
-       "efficient": 1
+        "baseline": 1,
+        "efficient": 1
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 1.07900122
+        "baseline": 1.075180856,
+        "efficient": 1.07900122
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 0.97
+        "baseline": 0.9752898084,
+        "efficient": 0.97
     }}, {
     "energy": {
-       "baseline": 1,
-       "efficient": 1
+        "baseline": 1,
+        "efficient": 1
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 1.0514
+        "baseline": 1.075180856,
+        "efficient": 1.0514
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 1.0011
+        "baseline": 0.9752898084,
+        "efficient": 1.0011
     }}, {
     "energy": {
-       "baseline": 1,
-       "efficient": 1
+        "baseline": 1,
+        "efficient": 1
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 1.0738
+        "baseline": 1.075180856,
+        "efficient": 1.0738
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 0.9780
+        "baseline": 0.9752898084,
+        "efficient": 0.9780
     }}, {
     "energy": {
-       "baseline": 1,
-       "efficient": 0.9322
+        "baseline": 1,
+        "efficient": 0.9322
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 0.9869
+        "baseline": 1.075180856,
+        "efficient": 0.9869
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 0.9129
+        "baseline": 0.9752898084,
+        "efficient": 0.9129
     }}, {
     "energy": {
-       "baseline": 1,
-       "efficient": 1.0434
+        "baseline": 1,
+        "efficient": 1.0434
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 1.1217
+        "baseline": 1.075180856,
+        "efficient": 1.1217
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 1.0162
+        "baseline": 0.9752898084,
+        "efficient": 1.0162
     }},
     {
     "energy": {
-       "baseline": 1,
-       "efficient": 0.5044
+        "baseline": 1,
+        "efficient": 0.5044
     },
     "cost": {
-       "baseline": 1.075180856,
-       "efficient": 0.5432
+        "baseline": 1.075180856,
+        "efficient": 0.5432
     },
     "carbon": {
-       "baseline": 0.9752898084,
-       "efficient": 0.4920
+        "baseline": 0.9752898084,
+        "efficient": 0.4920
     }}]
