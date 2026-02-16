@@ -70,7 +70,6 @@ def dict_check(dict1, dict2):
         assert keys_equal(
             k, k2
         ), f"Keys don't match: {k} (type: {type(k)}) != {k2} (type: {type(k2)})"
-        
         if isinstance(i, dict):
             assert sorted(i.keys()) == sorted(i2.keys()), "Dict keys don't match"
             dict_check(i, i2)
