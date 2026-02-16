@@ -1,6 +1,6 @@
 # Reusable constants for repeated values
 ZERO_FLOAT = {'2009': 0.0, '2010': 0.0, '2011': 0.0}
-ZERO_INT   = {'2009': 0,   '2010': 0,   '2011': 0}
+ZERO_INT   = {'2009': 0, '2010': 0, '2011': 0}
 
 ok_out_bad_values = [
     [  # First major group

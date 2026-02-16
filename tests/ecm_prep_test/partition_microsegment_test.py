@@ -613,7 +613,7 @@ def test_ok(test_data):
                 if lists_check_bass[elem2] is not None and not isinstance(
                         lists_check_bass[elem2], int):
                     dict_check(lists_check_bass[elem2],
-                    lists_bass[elem2])
+                               lists_bass[elem2])
                 else:
                     assert lists_check_bass[elem2] == lists_bass[elem2]
 
