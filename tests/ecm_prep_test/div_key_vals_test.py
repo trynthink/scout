@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Tests for DivKeyValsTest """
+"""Tests for DivKeyValsTest"""
 
 from scout.ecm_prep import Measure
 from scout.ecm_prep_vars import UsefulVars, UsefulInputFiles
@@ -29,50 +29,60 @@ def test_data():
         "structure_type": ["new", "existing"],
         "climate_zone": ["AIA_CZ1", "AIA_CZ2"],
         "bldg_type": ["single family home"],
-        "fuel_type": {
-            "primary": ["electricity"],
-            "secondary": None},
+        "fuel_type": {"primary": ["electricity"], "secondary": None},
         "fuel_switch_to": None,
-        "end_use": {
-            "primary": ["heating", "cooling"],
-            "secondary": None},
+        "end_use": {"primary": ["heating", "cooling"], "secondary": None},
         "technology": {
             "primary": ["resistance heat", "ASHP", "GSHP", "room AC"],
-            "secondary": None}}
-    sample_measure_in = Measure(
-        base_dir, handyvars, handyfiles, opts_dict,
-        **sample_measure_in)
+            "secondary": None,
+        },
+    }
+    sample_measure_in = Measure(base_dir, handyvars, handyfiles, opts_dict, **sample_measure_in)
     ok_reduce_dict = {"2009": 100, "2010": 100}
     ok_dict_in = {
         "AIA CZ1": {
             "Residential": {
                 "Heating": {"2009": 10, "2010": 10},
-                "Cooling": {"2009": 15, "2010": 15}},
+                "Cooling": {"2009": 15, "2010": 15},
+            },
             "Commercial": {
                 "Heating": {"2009": 20, "2010": 20},
-                "Cooling": {"2009": 25, "2010": 25}}},
+                "Cooling": {"2009": 25, "2010": 25},
+            },
+        },
         "AIA CZ2": {
             "Residential": {
                 "Heating": {"2009": 30, "2010": 30},
-                "Cooling": {"2009": 35, "2010": 35}},
+                "Cooling": {"2009": 35, "2010": 35},
+            },
             "Commercial": {
                 "Heating": {"2009": 40, "2010": 40},
-                "Cooling": {"2009": 45, "2010": 45}}}}
+                "Cooling": {"2009": 45, "2010": 45},
+            },
+        },
+    }
     ok_out = {
         "AIA CZ1": {
             "Residential": {
-                "Heating": {"2009": .10, "2010": .10},
-                "Cooling": {"2009": .15, "2010": .15}},
+                "Heating": {"2009": 0.10, "2010": 0.10},
+                "Cooling": {"2009": 0.15, "2010": 0.15},
+            },
             "Commercial": {
-                "Heating": {"2009": .20, "2010": .20},
-                "Cooling": {"2009": .25, "2010": .25}}},
+                "Heating": {"2009": 0.20, "2010": 0.20},
+                "Cooling": {"2009": 0.25, "2010": 0.25},
+            },
+        },
         "AIA CZ2": {
             "Residential": {
-                "Heating": {"2009": .30, "2010": .30},
-                "Cooling": {"2009": .35, "2010": .35}},
+                "Heating": {"2009": 0.30, "2010": 0.30},
+                "Cooling": {"2009": 0.35, "2010": 0.35},
+            },
             "Commercial": {
-                "Heating": {"2009": .40, "2010": .40},
-                "Cooling": {"2009": .45, "2010": .45}}}}
+                "Heating": {"2009": 0.40, "2010": 0.40},
+                "Cooling": {"2009": 0.45, "2010": 0.45},
+            },
+        },
+    }
 
     return {
         "sample_measure_in": sample_measure_in,
@@ -90,4 +100,7 @@ def test_ok(test_data):
     """
     dict_check(
         test_data["sample_measure_in"].div_keyvals(
-            test_data["ok_dict_in"], test_data["ok_reduce_dict"]), test_data["ok_out"])
+            test_data["ok_dict_in"], test_data["ok_reduce_dict"]
+        ),
+        test_data["ok_out"],
+    )

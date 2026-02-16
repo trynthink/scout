@@ -19,7 +19,7 @@ def dict_check(dict1, dict2):
     Raises:
         AssertionError: If dictionaries are not equal.
     """
-    fill_val = ('substituted entry', 5.2)
+    fill_val = ("substituted entry", 5.2)
 
     def normalize_key(key):
         """Convert numpy strings to Python strings for comparison."""
@@ -51,9 +51,8 @@ def dict_check(dict1, dict2):
         return normalize_key(item[0])
 
     for (k, i), (k2, i2) in itertools.zip_longest(
-            sorted(dict1.items(), key=sort_key),
-            sorted(dict2.items(), key=sort_key),
-            fillvalue=fill_val):
+        sorted(dict1.items(), key=sort_key), sorted(dict2.items(), key=sort_key), fillvalue=fill_val
+    ):
         # Check keys are equal (handling numpy strings in both tuple and string keys)
         assert keys_equal(k, k2), f"Keys don't match: {k} != {k2}"
 
@@ -62,25 +61,28 @@ def dict_check(dict1, dict2):
             dict_check(i, i2)
         elif isinstance(i, numpy.ndarray) or isinstance(i, list):
             assert type(i) is type(i2) and len(i) == len(i2), (
-                f"Types or lengths don't match: {type(i)} vs {type(i2)}, "
-                f"{len(i)} vs {len(i2)}")
+                f"Types or lengths don't match: {type(i)} vs {type(i2)}, " f"{len(i)} vs {len(i2)}"
+            )
             for x in range(0, len(i)):
                 if isinstance(i[x], str):
-                    assert i[x] == i2[x], (
-                        f"String values don't match at index {x}: {i[x]} != {i2[x]}")
+                    assert (
+                        i[x] == i2[x]
+                    ), f"String values don't match at index {x}: {i[x]} != {i2[x]}"
                 elif round(i[x], 5) != 0:
-                    assert abs(i[x] - i2[x]) < 10**(-5), (
-                        f"Values don't match at index {x}: {i[x]} != {i2[x]}")
+                    assert abs(i[x] - i2[x]) < 10 ** (
+                        -5
+                    ), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
                 else:
-                    assert abs(i[x] - i2[x]) < 10**(-10), (
-                        f"Values don't match at index {x}: {i[x]} != {i2[x]}")
+                    assert abs(i[x] - i2[x]) < 10 ** (
+                        -10
+                    ), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
         elif isinstance(i, str):
             assert i == i2, f"String values don't match: {i} != {i2}"
         else:
             if round(i, 1) != 0:
-                assert abs(i - i2) < 10**(-2), f"Values don't match: {i} != {i2}"
+                assert abs(i - i2) < 10 ** (-2), f"Values don't match: {i} != {i2}"
             else:
-                assert abs(i - i2) < 10**(-10), f"Values don't match: {i} != {i2}"
+                assert abs(i - i2) < 10 ** (-10), f"Values don't match: {i} != {i2}"
 
 
 class CommonMethods(object):
@@ -104,15 +106,15 @@ class CommonMethods(object):
         # substitute in the dict that has missing content; this
         # value is given as a tuple to be of comparable structure
         # to the normal output from zip_longest()
-        fill_val = ('substituted entry', 5.2)
+        fill_val = ("substituted entry", 5.2)
 
         # In this structure, k and k2 are the keys that correspond to
         # the dicts or unitary values that are found in i and i2,
         # respectively, at the current level of the recursive
         # exploration of dict1 and dict2, respectively
-        for (k, i), (k2, i2) in itertools.zip_longest(sorted(dict1.items()),
-                                                      sorted(dict2.items()),
-                                                      fillvalue=fill_val):
+        for (k, i), (k2, i2) in itertools.zip_longest(
+            sorted(dict1.items()), sorted(dict2.items()), fillvalue=fill_val
+        ):
 
             # Confirm that at the current location in the dict structure,
             # the keys are equal; this should fail if one of the dicts
@@ -153,14 +155,40 @@ class CommonMethods(object):
 class UserOptions(object):
     """Generate sample user-specified execution options."""
 
-    def __init__(self, site_energy, capt_energy, regions, tsv_metrics,
-                 sect_shapes, rp_persist, health_costs, split_fuel,
-                 no_scnd_lgt, floor_start, pkg_env_costs, exog_hp_rates,
-                 grid_decarb, adopt_scn_restrict, retro_set, add_typ_eff,
-                 pkg_env_sep, alt_ref_carb, detail_brkout, fugitive_emissions,
-                 warnings, no_eff_capt, no_lnkd_stk, no_lnkd_op, elec_upgrade_costs,
-                 low_volume_rate, state_appl_regs, bps, codes, incentive_levels,
-                 incentive_restrictions):
+    def __init__(
+        self,
+        site_energy,
+        capt_energy,
+        regions,
+        tsv_metrics,
+        sect_shapes,
+        rp_persist,
+        health_costs,
+        split_fuel,
+        no_scnd_lgt,
+        floor_start,
+        pkg_env_costs,
+        exog_hp_rates,
+        grid_decarb,
+        adopt_scn_restrict,
+        retro_set,
+        add_typ_eff,
+        pkg_env_sep,
+        alt_ref_carb,
+        detail_brkout,
+        fugitive_emissions,
+        warnings,
+        no_eff_capt,
+        no_lnkd_stk,
+        no_lnkd_op,
+        elec_upgrade_costs,
+        low_volume_rate,
+        state_appl_regs,
+        bps,
+        codes,
+        incentive_levels,
+        incentive_restrictions,
+    ):
         # Options include site energy outputs, captured energy site-source
         # calculation method, alternate regions, time sensitive output metrics,
         # sector-level load shapes, and verbose mode that prints all warnings
@@ -212,10 +240,19 @@ class NullOpts(object):
         # breakouts, the option is set to continue using those breakouts
         # for regions only
         test_ecms = Path(__file__).parent.parent / "test_files" / "ecm_definitions"
-        self.opts = ecm_args(["--ecm_directory", str(test_ecms),
-                              "--detail_brkout", "regions",
-                              "--alt_regions", "AIA",
-                              "--no_eff_capt",
-                              "--no_lnkd_stk_costs", "in_adopt_and_report",
-                              "--elec_upgrade_costs", "ignore"])
+        self.opts = ecm_args(
+            [
+                "--ecm_directory",
+                str(test_ecms),
+                "--detail_brkout",
+                "regions",
+                "--alt_regions",
+                "AIA",
+                "--no_eff_capt",
+                "--no_lnkd_stk_costs",
+                "in_adopt_and_report",
+                "--elec_upgrade_costs",
+                "ignore",
+            ]
+        )
         self.opts_dict = vars(self.opts)

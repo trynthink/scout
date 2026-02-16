@@ -17,12 +17,12 @@ from .ok_out_wrong_name import ok_out_wrong_name
 from .ok_out import ok_out
 
 __all__ = [
-    'ok_out_fraction',
-    'ok_out_bass',
-    'ok_out_fraction_string',
-    'ok_out_bass_string',
-    'ok_out_bad_string',
-    'ok_out_bad_values',
-    'ok_out_wrong_name',
-    'ok_out',
+    "ok_out_fraction",
+    "ok_out_bass",
+    "ok_out_fraction_string",
+    "ok_out_bass_string",
+    "ok_out_bad_string",
+    "ok_out_bad_values",
+    "ok_out_wrong_name",
+    "ok_out",
 ]

@@ -14,8 +14,10 @@ def _convert_numpy_strings_to_python(obj):
     if isinstance(obj, np.str_):
         return str(obj)
     elif isinstance(obj, dict):
-        return {_convert_numpy_strings_to_python(k): _convert_numpy_strings_to_python(v)
-                for k, v in obj.items()}
+        return {
+            _convert_numpy_strings_to_python(k): _convert_numpy_strings_to_python(v)
+            for k, v in obj.items()
+        }
     elif isinstance(obj, (list, tuple)):
         return type(obj)(_convert_numpy_strings_to_python(item) for item in obj)
     else:

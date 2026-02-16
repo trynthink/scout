@@ -53,7 +53,7 @@ fmeth_fug_emissions = {
                 "WA": 0.03,
                 "WV": 0.012,
                 "WI": 0.031,
-                "WY": 0.015
+                "WY": 0.015,
             },
             "Low": {
                 "AL": 0.006999999999999999,
@@ -103,7 +103,7 @@ fmeth_fug_emissions = {
                 "WA": 0.03,
                 "WV": 0.006,
                 "WI": 0.019,
-                "WY": 0.006
+                "WY": 0.006,
             },
             "Mid": {
                 "AL": 0.011,
@@ -153,14 +153,16 @@ fmeth_fug_emissions = {
                 "WA": 0.022,
                 "WV": 0.009,
                 "WI": 0.022,
-                "WY": 0.011
-            }},
+                "WY": 0.011,
+            },
+        },
         "other_segment_leakage_rates": {
             "Gathering": 0.004601769911504425,
             "Processing": 0.0012743362831858407,
             "Transmission & Storage": 0.003185840707964602,
             "Local Distribution": 0.0007787610619469027,
-            "Oil Refining and Transportation": 6.017699115044e-05},
+            "Oil Refining and Transportation": 6.017699115044e-05,
+        },
         "total_leakage_rate": {
             "High": {
                 "AL": 0.027,
@@ -210,7 +212,7 @@ fmeth_fug_emissions = {
                 "WA": 0.04,
                 "WV": 0.022,
                 "WI": 0.041,
-                "WY": 0.025
+                "WY": 0.025,
             },
             "Low": {
                 "AL": 0.017,
@@ -260,7 +262,7 @@ fmeth_fug_emissions = {
                 "WA": 0.04,
                 "WV": 0.016,
                 "WI": 0.029,
-                "WY": 0.016
+                "WY": 0.016,
             },
             "Mid": {
                 "AL": 0.021,
@@ -310,8 +312,9 @@ fmeth_fug_emissions = {
                 "WA": 0.032,
                 "WV": 0.019,
                 "WI": 0.032,
-                "WY": 0.021
-            }}
+                "WY": 0.021,
+            },
+        },
     },
-    "refrigerants": {}
+    "refrigerants": {},
 }
