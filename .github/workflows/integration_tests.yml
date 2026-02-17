@@ -153,6 +153,8 @@ jobs:
     name: Post PR Comment
     needs: [run-test, stop-runner]
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Post comment with results summary

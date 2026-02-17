@@ -12,6 +12,9 @@ jobs:
     name: Integration Testing (GitHub Runner)
     runs-on: ubuntu-latest
     timeout-minutes: 600
+    permissions:
+      contents: write
+      statuses: write
     outputs:
       has_diff: ${{ steps.compare.outputs.has_diff }}
     steps:
@@ -100,6 +103,8 @@ jobs:
     name: Post PR Comment
     needs: [run-test]
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Post comment with results summary
