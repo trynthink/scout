@@ -125,6 +125,10 @@ jobs:
       (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') ||
       (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master' && github.event.pull_request.draft == false) ||
       github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+      statuses: write
+      pull-requests: write
     uses: ./.github/workflows/integration_tests_github.yml
     with:
       enable_profiler: ${{ needs.check-PR.outputs.enable_profiler == 'true' }}
