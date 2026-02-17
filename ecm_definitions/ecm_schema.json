@@ -1,0 +1,1053 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scout.energy.gov/schemas/ecm/v1.0.0",
+  "version": "1.0.0",
+  "title": "Building Energy Efficiency Measure",
+  "description": "Schema for validating ECM (Energy Conservation Measure) definition files used in the Scout building energy analysis tool.\n\nThis schema defines the structure and constraints for energy efficiency measures across residential and commercial building sectors.",
+  "type": "object",
+   "required": [
+    "name",
+    "_description",
+    "measure_type",
+    "climate_zone",
+    "bldg_type",
+    "structure_type",
+    "end_use",
+    "fuel_type",
+    "technology",
+    "energy_efficiency",
+    "energy_efficiency_units",
+    "installed_cost",
+    "cost_units",
+    "product_lifetime",
+    "product_lifetime_units"
+  ],
+  "definitions": {
+    "climateZoneEnum": {
+      "type": "string",
+      "description": "Climate zone identifiers including EMM regions, AIA climate zones, and US state abbreviations",
+      "enum": [
+        "all", "warm climates", "cold climates", 
+        "TRE", "FRCC", "MISW", "MISC", "MISE", "MISS", "ISNE", "NYCW", "NYUP", "PJME", "PJMW", "PJMC", "PJMD",
+        "SRCA", "SRSE", "SRCE", "SPPS", "SPPC", "SPPN", "SRSG", "CANO", "CASO", "NWPP", "RMRG", "BASN",
+        "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5",
+        "AL", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "ID", "IL", "IN", "IA", "KS", "KY", "LA", 
+        "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", 
+        "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+      ]
+    },
+    "IECCclimateZoneEnum": {
+      "type": "string",
+      "description": "International Energy Conservation Code (IECC) climate zone classifications",
+      "enum": [
+        "all", "warm climates", "cold climates", 
+        "IECC_CZ1", "IECC_CZ2", "IECC_CZ3", "IECC_CZ4", "IECC_CZ5", "IECC_CZ6", "IECC_CZ7", "IECC_CZ8"
+      ]
+    },
+    "BAclimateZoneEnum": {
+      "type": "string",
+      "description": "Building America (BA) climate zone classifications",
+      "enum": [
+        "BA_Hot-Humid", "BA_Mixed-Humid", "BA_Very Cold", "BA_Subarctic",
+        "BA_Cold", "BA_Hot-Dry", "BA_Mixed-Dry", "BA_Marine"
+      ]
+    },
+    "bldgTypeEnum": {
+      "type": "string",
+      "description": "Building types covering residential (single family, multi family, mobile home) and commercial (office, retail, etc.) sectors",
+      "enum": [
+        "all",
+        "all residential", "single family home", "multi family home", "mobile home",
+        "all commercial", "assembly", "education", "food sales", "food service", "health care", 
+        "lodging", "large office", "small office", "mercantile/service", "warehouse", 
+        "other", "unspecified"
+      ]
+    },
+    "endUseEnum": {
+      "type": "string",
+      "description": "Building end-use categories for energy consumption (heating, cooling, lighting, appliances, etc.)",
+      "enum": [
+        "all", "heating", "secondary heating", "cooling", "water heating", "cooking", 
+        "drying", "lighting", "refrigeration", "ceiling fan", "fans and pumps", "computers", 
+        "TVs", "ventilation", "PCs", "non-PC office equipment", "MELs", "unspecified", "other"
+      ]
+    },
+    "structureTypeEnum": {
+      "type": "string",
+      "description": "Structure age classification (new construction, existing/retrofit, or all)",
+      "enum": [ "new", "existing", "all" ]
+    },
+    "fuelTypeEnum": {
+      "type": "string",
+      "description": "Fuel types for building energy systems",
+      "enum": ["electricity", "natural gas", "distillate", "other fuel", "all"]
+    },
+    "techResHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "ASHP", "GSHP", "resistance heat", 
+        "NGHP", "boiler (NG)", "furnace (NG)",
+        "boiler (distillate)", "furnace (distillate)", 
+        "furnace (LPG)", "furnace (kerosene)", "stove (wood)"
+      ]
+    },
+    "techResSecondaryHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "secondary heater", "secondary heater (wood)", 
+        "secondary heater (coal)", "secondary heater (kerosene)", 
+        "secondary heater (LPG)"
+      ]
+    },
+    "techResCoolingEnum": {
+      "type": "string",
+      "enum": [
+        "room AC", "central AC", "ASHP", "GSHP", "NGHP"
+      ]
+    },
+    "techResWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+        "electric WH", "solar WH"
+      ]
+    },
+    "techResLightingEnum": {
+      "type": "string",
+      "enum": [
+        "general service (incandescent)", "reflector (incandescent)", "reflector (halogen)", "external (incandescent)",
+        "external (high pressure sodium)", "general service (CFL)", "reflector (CFL)", "linear fluorescent (T-8)",
+        "linear fluorescent (T-12)", "external (CFL)", "general service (LED)", "reflector (LED)", 
+        "linear fluorescent (LED)", "external (LED)"
+      ]
+    },
+    "techResComputersEnum": {
+      "type": "string",
+      "enum": [
+        "desktop PC", "laptop PC", "network equipment", "monitors"
+      ]
+    },
+    "techResTVsEnum": {
+      "type": "string",
+      "enum": [
+        "home theater and audio", "set top box", "video game consoles", "OTT streaming devices", "TV"
+      ]
+    },
+    "techResOtherEnum": {
+      "type": "string",
+      "enum": [
+        "dishwasher", "clothes washing", "freezers", "rechargeables", "coffee maker", "dehumidifier", "electric other", 
+        "small kitchen appliances", "microwave", "smartphones", "pool heaters", "pool pumps", "security system", 
+        "portable electric spas", "smart speakers", "tablets", "wine coolers", "other appliances"
+      ]
+    },
+    "techResdemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "infiltration", "ground", "windows solar", "windows conduction", "equipment gain", "people gain"
+      ]
+    },
+    "techComHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_res-heat", "elec_res-heater", "comm_GSHP-heat", "rooftop_ASHP-heat", "elec_boiler", "pkg_terminal_HP-heat",
+        "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat", "gas_boiler", "gas_furnace", "oil_boiler", "oil_furnace"
+      ]
+    },
+    "techComCoolingEnum": {
+      "type": "string",
+      "enum": [
+       "rooftop_AC", "scroll_chiller", "res_type_central_AC", "reciprocating_chiller", "comm_GSHP-cool", 
+        "centrifugal_chiller", "rooftop_ASHP-cool", "wall-window_room_AC", "screw_chiller", "pkg_terminal_AC-cool", 
+        "pkg_terminal_HP-cool", "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool"
+      ]
+    },
+    "techComVentilationEnum": {
+      "type": "string",
+      "enum": [
+       "CAV_Vent", "VAV_Vent", "all ventilation"
+      ]
+    },
+    "techComWaterHeatingEnum": {
+      "type": "string",
+      "enum": [
+       "solar water heater", "solar_water_heater_north", "HP water heater", "elec_water_heater",
+        "gas_water_heater", "gas_instantaneous_water_heater", "oil_water_heater"
+      ]
+    },
+    "techComLightingEnum": {
+      "type": "string",
+      "enum": [
+       "100W A19 Incandescent", "100W Equivalent A19 Halogen", "100W Equivalent CFL Bare Spiral", "100W Equivalent LED A Lamp", 
+        "Halogen Infrared Reflector (HIR) PAR38", "Halogen PAR38", "LED PAR38", "T5 F28", "T8 F28", "T8 F32", "T8 F59", 
+        "T8 F96", "T5 4xF54 HO High Bay", "Mercury Vapor", "Metal Halide", "Sodium Vapor", "LED Integrated Luminaire"
+      ]
+    },
+    "techComRefrigerationEnum": {
+      "type": "string",
+      "enum": [
+       "Commercial Beverage Merchandisers", "Commercial Ice Machines", "Commercial Reach-In Freezers", 
+        "Commercial Reach-In Refrigerators", "Commercial Refrigerated Vending Machines", "Commercial Supermarket Display Cases", 
+        "Commercial Walk-In Freezers", "Commercial Walk-In Refrigerators"
+      ]
+    },
+    "techComCookingEnum": {
+      "type": "string",
+      "enum": [
+       "electric_range-combined", "gas_range-combined"
+      ]
+    },
+    "techComMELsEnum": {
+      "type": "string",
+      "enum": [
+       "distribution transformers", "kitchen ventilation", "security systems", "lab fridges and freezers", "medical imaging", 
+        "large video boards", "coffee brewers", "non-road electric vehicles", "fume hoods", "laundry", "elevators", 
+        "escalators", "IT equipment", "office UPS", "data center UPS", "shredders", "private branch exchanges", 
+        "voice-over-IP telecom", "point-of-sale systems", "warehouse robots", "televisions", "water services",
+        "telecom systems", "other"
+      ]
+    },
+    "techComDemandEnum": {
+      "type": "string",
+      "enum": [
+       "roof", "wall", "ground", "floor", "infiltration", "ventilation", "windows conduction", "windows solar", 
+       "lighting gain", "equipment gain", "people gain", "other heat gain"
+      ]
+    },
+    "techAllEnum": {
+      "type": "string",
+      "enum": [
+       "all"
+      ]
+    },
+    "technologyEnum": {
+      "anyOf": [
+        { "$ref": "#/definitions/techResHeatingEnum" },
+        { "$ref": "#/definitions/techResSecondaryHeatingEnum" },
+        { "$ref": "#/definitions/techResCoolingEnum" },
+        { "$ref": "#/definitions/techResWaterHeatingEnum" },
+        { "$ref": "#/definitions/techResLightingEnum" },
+        { "$ref": "#/definitions/techResComputersEnum" },
+        { "$ref": "#/definitions/techResTVsEnum" },
+        { "$ref": "#/definitions/techResOtherEnum" },
+        { "$ref": "#/definitions/techResdemandEnum" },
+        { "$ref": "#/definitions/techComHeatingEnum" },
+        { "$ref": "#/definitions/techComCoolingEnum" },
+        { "$ref": "#/definitions/techComVentilationEnum" },
+        { "$ref": "#/definitions/techComWaterHeatingEnum" },
+        { "$ref": "#/definitions/techComRefrigerationEnum" },
+        { "$ref": "#/definitions/techComCookingEnum" },
+        { "$ref": "#/definitions/techComMELsEnum" },
+        { "$ref": "#/definitions/techComDemandEnum" },
+        { "$ref": "#/definitions/techAllEnum" }
+      ]
+    },
+     "dayEnum": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365
+    },
+    "energyEffFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/IECCclimateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/endUseEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/structureTypeEnum" }
+      ]
+    },
+    "energyEffFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/energyEffFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { 
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "Energy efficiency value must be non-negative and less than 1000"
+          },
+          { "$ref": "#/definitions/energyEffFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "energyEffFlexibleLevelString": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/energyEffFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "AFUE", "HHV", "COP", "EER", "SEF", "UEF", "kWh/yr", "TEff",
+              "CEF", "lm/W", "kWh/cycle", "cycle/kWh", "BTU out/BTU in", "cfm-hr/BTU in",
+              "relative savings (constant)", "relative savings (dynamic)",
+              "R value", "SHGC", "ACH", "CFM/ft^2 @ 0.3 in. w.c."
+            ]
+          },
+          { "$ref": "#/definitions/energyEffFlexibleLevelString" }
+        ]
+      }
+    },
+    "marketScalingFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/BAclimateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/endUseEnum" }
+      ]
+    },
+    "marketScalingFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/marketScalingFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { 
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Market scaling fraction must be between 0 and 1"
+          },
+          { "$ref": "#/definitions/marketScalingFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "costFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" },
+        { "$ref": "#/definitions/structureTypeEnum" }
+      ]
+    },
+    "costFlexibleLevelNumber": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/costFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { 
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000,
+            "description": "Cost value must be non-negative and less than 1,000,000"
+          },
+          { "$ref": "#/definitions/costFlexibleLevelNumber" }
+        ]
+      }
+    },
+    "costUnitsString": {
+      "type": "string",
+      "description": "Cost unit with 4-digit year prefix (e.g., 2023$/unit, 2024$/ft^2 floor).\nYear = cost basis year.\n\nUnits by category:\n- Residential Equipment: $/unit\n- Commercial Equipment: $/1000 CFM (ventilation), $/1000 lm (lighting), $/kBtu/h heating|cooling|water heating|cooking|refrigeration, $/ft^2 floor (other)\n- Sensors/Controls: $/ft^2 floor\n- Envelope: $/ft^2 glazing|wall|roof|footprint",
+      "pattern": "^\\d{4}\\$/(unit|1000 CFM|1000 lm|kBtu/h heating|kBtu/h cooling|kBtu/h water heating|kBtu/h cooking|kBtu/h refrigeration|ft\\^2 floor|ft\\^2 glazing|ft\\^2 wall|ft\\^2 roof|ft\\^2 footprint)$"
+    },
+    "costFlexibleLevelString": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/costFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { "$ref": "#/definitions/costUnitsString" },
+          { "$ref": "#/definitions/costFlexibleLevelString" }
+        ]
+      }
+    },
+    "lifetimeFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" }
+      ]
+    },
+    "lifetimeFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/lifetimeFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { 
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Lifetime must be between 0 and 100 years"
+          },
+          { "$ref": "#/definitions/lifetimeFlexibleLevel" }
+        ]
+      }
+    },
+    "tsvFlexibleKey": {
+      "anyOf": [
+        { "$ref": "#/definitions/climateZoneEnum" },
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        { "$ref": "#/definitions/technologyEnum" }
+      ]
+    },
+    "tsvFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/tsvFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+                    "shed": { 
+                      "type": "object",
+                      "properties":{
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["relative energy change fraction", "start_hour", "stop_hour", "stop_day"],
+                      "additionalProperties": false
+                    },
+                    "shift": { 
+                      "type": "object",
+                      "properties":{
+                        "offset_hrs_earlier": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        },
+                        "relative energy change fraction": {
+                          "type": "number", 
+                          "minimum": 0,
+                          "maximum": 1
+                        }, 
+                        "start_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "stop_hour": {
+                          "type": "integer", 
+                          "minimum": 1,
+                          "maximum": 24
+                        }, 
+                        "start_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["offset_hrs_earlier", "relative energy change fraction", "start_hour", "stop_hour", "stop_day"],
+                      "additionalProperties": false
+                    },
+                    "shape": { 
+                      "type": "object",
+                      "properties":{
+                        "start_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        }, 
+                        "stop_day": {
+                          "anyOf": [
+                            { "$ref": "#/definitions/dayEnum" },
+                            {
+                              "type": "array",
+                              "items": { "$ref": "#/definitions/dayEnum" },
+                              "uniqueItems": true
+                            }
+                          ]
+                        },
+                        "custom_daily_savings":{
+                          "type": "array",
+                          "items": { 
+                            "type": "number"
+                          },
+                          "minItems": 24,
+                          "maxItems": 24
+                        },
+                        "custom_annual_savings":{
+                          "type": "string"
+                        }
+                      },
+                      "required": ["stop_day"],
+                      "additionalProperties": false
+                    }
+            }
+          },
+          { "$ref": "#/definitions/tsvFlexibleLevel" }
+        ]
+      }
+    },
+    "tsvSourceFlexibleLevel": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/tsvFlexibleKey" },
+      "additionalProperties": {
+        "anyOf": [
+          { "$ref": "#/definitions/sourceSchema" },
+          { "$ref": "#/definitions/tsvSourceFlexibleLevel" }
+        ]
+      }
+    },
+    "sourceDataObject": {
+      "type": "object",
+      "description": "Structured source reference with publication details",
+      "properties": {
+        "title": { 
+          "type": "string",
+          "minLength": 1
+        },
+        "author": { 
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "organization": { 
+          "type": "string",
+          "minLength": 1
+        },
+        "year": { 
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        "pages": {
+          "type": ["integer", "string", "array", "null"],
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "URL": { 
+          "type": ["string", "null"],
+          "format": "uri"
+        },
+        "url": { 
+          "type": ["string", "null"],
+          "format": "uri"
+        }
+      },
+      "required": ["title", "year"],
+      "additionalProperties": false
+    },
+    "sourceSchema": {
+      "type": ["object", "null"],
+      "properties": {
+        "notes":  { 
+          "type": ["string", "array", "null"],
+          "items": { 
+            "type": "string",
+            "minLength": 1
+          },
+          "minLength": 1
+        },
+        "source_data": {
+          "anyOf": [
+            { 
+              "type": "string",
+              "minLength": 1
+            },
+            { "type": "null" },
+            { "$ref": "#/definitions/sourceDataObject" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/sourceDataObject" },
+              "minItems": 1
+            }
+          ]
+        }
+      },
+      "required": ["source_data"],
+      "additionalProperties": false
+    },
+    "marketSourceDataObject": {
+      "anyOf": [
+        { "type": "null" },
+        { 
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": { 
+              "type": "string",
+              "minLength": 1
+            },
+            "author": { 
+              "type": ["string", "null"],
+              "minLength": 1
+            },
+            "organization": { 
+              "type": "string",
+              "minLength": 1
+            },
+            "year": { 
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100
+            },
+            "pages": {
+              "type": ["integer", "string", "array", "null"],
+              "items": { "type": "integer", "minimum": 1 }
+            },
+            "URL": { 
+              "type": ["string", "null"],
+              "format": "uri"
+            },
+            "url": { 
+              "type": ["string", "null"],
+              "format": "uri"
+            },
+            "fraction_derivation": { 
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["title", "year"],
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/sourceDataObject" },
+          "minItems": 1
+        }
+      ]
+    }
+  },
+  "properties": {
+    "name": { 
+      "type": "string", 
+      "maxLength": 60,
+      "title": "Measure Name",
+      "description": "Short descriptive name for the ECM (maximum 60 characters)"
+    },
+    "_description": { 
+      "type": ["string", "array"],
+      "items": { "type": "string" },
+      "title": "Measure Description",
+      "description": "Detailed description of the energy efficiency measure"
+    },
+    "_notes": { 
+      "type": "string",
+      "title": "Additional Notes",
+      "description": "Optional notes or comments about the measure"
+    },
+    "measure_type": { 
+      "type": "string", 
+      "enum": ["full service", "add-on"],
+      "title": "Measure Type",
+      "description": "Type of measure: 'full service' replaces entire system, 'add-on' enhances existing system",
+      "examples": ["full service", "add-on"]
+    },
+    "ref_analogue": { "type": "boolean" },
+    "market_entry_year": { 
+      "anyOf": [
+        { "type": "null" },
+        { 
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        }
+      ],
+      "title": "Market Entry Year",
+      "description": "Year when the measure enters the market (null if always available, range: 1900-2100)"
+    },
+    "market_entry_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "market_exit_year": { 
+      "anyOf": [
+        { "type": "null" },
+        { 
+          "type": "integer",
+          "minimum": 1900,
+          "maximum": 2100
+        }
+      ],
+      "title": "Market Exit Year",
+      "description": "Year when the measure exits the market (null if no planned exit, range: 1900-2100)"
+    },
+    "market_exit_year_source": { "$ref": "#/definitions/sourceSchema" },
+    "min_eff_elec_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null],
+      "title": "Minimum Efficiency Electric Flag",
+      "description": "Flag indicating if this is a minimum efficiency electric measure"
+    },
+    "ref_case_flag": { 
+      "type": ["boolean", "string", "null"], 
+      "enum": [true, false, "yes", "no", null],
+      "title": "Reference Case Flag",
+      "description": "Flag indicating if this is a reference case measure"
+    },
+    "climate_zone": {
+      "title": "Climate Zone",
+      "description": "Climate zone(s) where the measure applies (single value or array)",
+      "anyOf": [
+        { "$ref": "#/definitions/climateZoneEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/climateZoneEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ],
+      "examples": ["all", "AIA_CZ1", ["MISW", "MISC", "MISE"]]
+    },
+    "bldg_type": {
+      "title": "Building Type",
+      "description": "Building type(s) where the measure applies (single value or array)",
+      "anyOf": [
+        { "$ref": "#/definitions/bldgTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bldgTypeEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ],
+      "examples": ["all residential", "single family home", ["large office", "small office"]]
+    }, 
+    "structure_type": {
+      "title": "Structure Type",
+      "description": "Structure age classification(s) where the measure applies (new, existing, or all)",
+      "anyOf": [
+        { "$ref": "#/definitions/structureTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/structureTypeEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ]
+    },
+    "end_use": {
+      "title": "End Use",
+      "description": "End-use category(ies) for energy consumption (single value or array)",
+      "anyOf": [
+        { "$ref": "#/definitions/endUseEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/endUseEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ]
+    },
+    "fuel_type": {
+      "title": "Fuel Type",
+      "description": "Primary fuel type(s) for the baseline technology (single value or array)",
+      "anyOf": [
+        { "$ref": "#/definitions/fuelTypeEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/fuelTypeEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ]
+    },
+    "fuel_switch_to": { 
+      "title": "Fuel Switch To",
+      "description": "Target fuel type if the measure involves fuel switching (null if no fuel switch)",
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/fuelTypeEnum" }
+      ]
+    },
+    "backup_fuel_fraction": { 
+      "type": [ "null", "string" ],
+      "title": "Backup Fuel Fraction",
+      "description": "Fraction of energy provided by backup fuel source (null if not applicable)"
+    },
+    "technology": { 
+      "title": "Technology",
+      "description": "Technology type(s) for the baseline or efficient case (single value or array)",
+      "anyOf": [
+        { "$ref": "#/definitions/technologyEnum" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/technologyEnum" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ]
+    }, 
+    "htcl_tech_link": {
+      "type": ["string", "null"],
+      "title": "HVAC Technology Link",
+      "description": "Link between heating and cooling technologies using format: 'heating_technology+cooling_technology' (null if not applicable).\n\nExample: 'ng furnace+cac&rac' or 'ng boiler+rtac or chiller'",
+      "pattern": "^[a-z0-9 ]+\\+[a-z0-9 &or]+$",
+      "examples": [
+        "ng furnace+cac&rac",
+        "ng boiler+rtac or chiller",
+        "resistance heat+cac&rac",
+        "other fossil furnace+cac&rac"
+      ]
+    },
+    "tech_switch_to": { 
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "enum": [
+            "ASHP", "GSHP", "HPWH","resistance heat", "Electric cooking", "induction", "Electric drying", 
+            "HP dryer", "elec_water_heater", "elec_range-combined", "elec_boiler",
+            "LED", "electric WH", "electric range", "electric dryer", "electric other", "same"
+            ]
+          }
+      ]
+    },
+    "energy_efficiency": {
+      "title": "Energy Efficiency",
+      "description": "Energy efficiency value(s) - can be single number or nested by climate zone/building type/technology.\n\nMust be non-negative and less than 1000 (catches typos while allowing high R-values).",
+      "anyOf": [
+        { 
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        { "$ref": "#/definitions/energyEffFlexibleLevelNumber" }
+      ]
+    },
+    "energy_efficiency_units": {
+      "title": "Energy Efficiency Units",
+      "description": "Units for energy efficiency by category.\n\nResidential Equipment: AFUE (boilers/furnaces), HHV (wood stoves), COP (heat pumps/secondary electric heat), EER (geothermal), SEF (solar water heaters), UEF (water heaters), kWh/yr (refrigeration/fans/TVs/computers), TEff (gas/LPG cooking), CEF (drying), lm/W (lighting), kWh/cycle (clothes washer/dishwasher), relative savings (constant) (other add-ons).\n\nCommercial Equipment: BTU out/BTU in (heating/cooling/water heating/cooking/refrigeration), cfm-hr/BTU in (ventilation), lm/W (lighting), kWh/yr (PCs), relative savings (constant) (other add-ons).\n\nSensors/Controls: relative savings (constant), relative savings (dynamic).\n\nEnvelope: R value (walls/roof/ground/windows conduction), SHGC (windows solar), ACH (residential infiltration), CFM/ft^2 @ 0.3 in. w.c. (commercial infiltration).\n\nCan be single string or nested structure.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "AFUE", "HHV", "COP", "EER", "SEF", "UEF", "kWh/yr", "TEff", 
+            "CEF", "lm/W", "kWh/cycle", "cycle/kWh", "BTU out/BTU in", "cfm-hr/BTU in",
+            "relative savings (constant)", "relative savings (dynamic)",
+            "R value", "SHGC", "ACH", "CFM/ft^2 @ 0.3 in. w.c."
+          ]
+        },
+        { "$ref": "#/definitions/energyEffFlexibleLevelString" }
+      ],
+      "examples": [
+        "COP", "EER", "AFUE", "UEF", "lm/W", "kWh/yr", "R value", 
+        "SHGC", "relative savings (constant)"
+      ]
+    },
+    "energy_efficiency_source": { "$ref": "#/definitions/sourceSchema" },
+    "installed_cost": {
+      "title": "Installed Cost",
+      "description": "Installed cost value(s) - can be single number or nested by building type/technology/structure type.\n\nMust be non-negative and less than 1,000,000 (catches typos in large costs).",
+      "anyOf": [
+        { 
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        { "$ref": "#/definitions/costFlexibleLevelNumber" }
+      ]
+    },
+    "cost_units": {
+      "title": "Cost Units",
+      "description": "Cost units with 4-digit year prefix (YYYY$/unit). Year = cost basis year.\n\nUnits by category:\n- Residential Equip: $/unit\n- Commercial Equip: $/1000 CFM (vent), $/1000 lm (lighting), $/kBtu/h heating|cooling|water heating|cooking|refrigeration, $/ft^2 floor (other)\n- Sensors/Controls: $/ft^2 floor\n- Envelope: $/ft^2 glazing|wall|roof|footprint\n\nCan be string or nested structure.",
+      "anyOf": [
+        { "$ref": "#/definitions/costUnitsString" },
+        { "$ref": "#/definitions/costFlexibleLevelString" }
+      ],
+      "examples": [
+        "2020$/unit",
+        "2021$/1000 CFM",
+        "2022$/1000 lm",
+        "2023$/kBtu/h heating",
+        "2023$/kBtu/h cooling",
+        "2024$/kBtu/h water heating",
+        "2024$/kBtu/h cooking",
+        "2023$/kBtu/h refrigeration",
+        "2023$/ft^2 floor",
+        "2022$/ft^2 glazing",
+        "2021$/ft^2 wall",
+        "2020$/ft^2 roof",
+        "2024$/ft^2 footprint"
+      ]
+    },
+    "installed_cost_source": { "$ref": "#/definitions/sourceSchema" },
+    "add_elec_infr_cost": {
+      "title": "Additional Electric Infrastructure Cost",
+      "description": "Additional costs for electric infrastructure upgrades (panel and/or 240V circuit, null if not needed)",
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "panel": { 
+              "type": "boolean",
+              "description": "Whether panel upgrade is required"
+            },
+            "240V circuit": { 
+              "type": "boolean",
+              "description": "Whether 240V circuit upgrade is required"
+            }
+          },
+          "required": ["panel", "240V circuit"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "product_lifetime": {
+      "title": "Product Lifetime",
+      "description": "Expected lifetime of the measure (years) - can be single number or nested by building type/technology.\n\nMust be between 0 and 100 years.",
+      "anyOf": [
+        { 
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        { "$ref": "#/definitions/lifetimeFlexibleLevel" }
+      ]
+    },
+    "product_lifetime_units": { 
+      "type": "string", 
+      "enum": ["years"],
+      "title": "Product Lifetime Units",
+      "description": "Units for product lifetime (always 'years')"
+    },
+    "product_lifetime_source": { "$ref": "#/definitions/sourceSchema" },
+    "tsv_features": {
+      "title": "Time-Sensitive Valuation Features",
+      "description": "Time-sensitive valuation features (e.g., hourly or sub-annual) defining when the measure provides energy savings.\n\nSet to null if not time-sensitive.",
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/tsvFlexibleLevel" }
+      ]
+    },
+    "tsv_source": {
+      "title": "Time-Sensitive Valuation Source",
+      "description": "Source data for time-sensitive valuation assumptions (null if not applicable)",
+      "anyOf": [
+        { "type": "null" },
+        {"$ref": "#/definitions/tsvSourceFlexibleLevel" }
+      ]
+    },
+    "market_scaling_fractions": {
+      "title": "Market Scaling Fractions",
+      "description": "Fractions representing market applicability by climate zone/building type/technology (null if fully applicable).\n\nValues must be between 0 and 1.",
+      "anyOf": [
+        { "type": "null" },
+        { 
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        { "$ref": "#/definitions/marketScalingFlexibleLevelNumber" }
+      ]
+    },
+    "market_scaling_fractions_source":{
+      "type": ["object", "null"],
+      "properties": {
+        "notes": { 
+          "type": ["string", "array", "null"],
+          "items": { "type": "string" }
+        },
+        "source_data": {
+          "type": ["string", "object", "array", "null"],
+          "items": { "$ref": "#/definitions/marketSourceDataObject" },
+          "$ref": "#/definitions/marketSourceDataObject"
+        }
+      },
+      "required": ["source_data"]
+    },
+    "retro_rate": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "title": "Retrofit Rate",
+      "description": "Annual rate at which the measure is retrofitted into existing buildings.\n\nRange: 0.0-1.0, null if not applicable"
+    },
+    "retro_rate_source": { "$ref": "#/definitions/sourceSchema" },
+    "_added_by": {
+      "type": "object",
+      "title": "Added By",
+      "description": "Metadata about who originally added this measure definition",
+      "properties": {
+        "name": { 
+          "type": "string",
+          "title": "Name"
+        },
+        "organization": { 
+          "type": "string",
+          "title": "Organization"
+        },
+        "email": { 
+          "type": "string", 
+          "format": "email",
+          "title": "Email"
+        },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+          "title": "Timestamp",
+          "description": "Date and time when measure was added (format: YYYY-MM-DD HH:MM:SS with valid ranges)"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"],
+      "additionalProperties": false
+    },
+    "_updated_by": {
+      "type": ["object", "null"],
+      "title": "Updated By",
+      "description": "Metadata about who last updated this measure definition (null if never updated)",
+      "properties": {
+        "name": { 
+          "type": "string",
+          "title": "Name"
+        },
+        "organization": { 
+          "type": "string",
+          "title": "Organization"
+        },
+        "email": { 
+          "type": "string", 
+          "format": "email",
+          "title": "Email"
+        },
+        "timestamp": { 
+          "type": "string", 
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+          "title": "Timestamp",
+          "description": "Date and time when measure was last updated (format: YYYY-MM-DD HH:MM:SS with valid ranges)"
+        }
+      },
+      "required": ["name", "organization", "email", "timestamp"],
+      "additionalProperties": false
+    }
+  }
+}
