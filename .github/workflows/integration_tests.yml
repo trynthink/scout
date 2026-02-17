@@ -165,7 +165,7 @@ jobs:
             const profilerEnabled = '${{ inputs.enable_profiler }}';
             const statusIcon = testResult === 'success' ? '✅' : '❌';
 
-            let body = `## ${statusIcon} Integration Test Results\n\n`;
+            let body = `## ${statusIcon} Integration Test Results (EC2 Runner)\n\n`;
             body += `| Item | Detail |\n|---|---|\n`;
             body += `| **Status** | ${testResult} |\n`;
             body += `| **Results changed vs master** | ${hasDiff === 'true' ? 'Yes — review comparison artifacts' : 'No'} |\n`;
@@ -178,7 +178,7 @@ jobs:
               issue_number: context.issue.number,
             });
             const botComment = comments.find(c =>
-              c.user.type === 'Bot' && c.body.includes('Integration Test Results')
+              c.user.type === 'Bot' && c.body.includes('Integration Test Results (EC2 Runner)')
             );
             if (botComment) {
               await github.rest.issues.updateComment({
