@@ -17,6 +17,8 @@ jobs:
       statuses: write
     outputs:
       has_diff: ${{ steps.compare.outputs.has_diff }}
+      has_plot_diff: ${{ steps.compare.outputs.has_plot_diff }}
+      changed_plots: ${{ steps.compare.outputs.changed_plots }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,6 +54,8 @@ jobs:
         run: |
           git fetch origin master
           has_diff="false"
+          has_plot_diff="false"
+          changed_plots=""
           if [[ $(git diff --exit-code origin/master ./tests/integration_testing/results/agg_results.json ./tests/integration_testing/results/ecm_results.json) ]]; then
             has_diff="true"
             mkdir tests/integration_testing/base_results
@@ -62,17 +66,50 @@ jobs:
 
             python tests/integration_testing/compare_results.py --base-dir tests/integration_testing/base_results --new-dir tests/integration_testing/results
           fi
+
+          # Check for diffs in plot PDF files
+          plot_diffs=$(git diff --name-only origin/master -- 'tests/integration_testing/results/plots/' | grep '\.pdf$' || true)
+          if [[ -n "$plot_diffs" ]]; then
+            has_plot_diff="true"
+            has_diff="true"
+            changed_plots="$plot_diffs"
+          fi
+
           echo "has_diff=$has_diff" >> $GITHUB_OUTPUT
+          echo "has_plot_diff=$has_plot_diff" >> $GITHUB_OUTPUT
+          # Use delimiter for multiline output
+          echo "changed_plots<<EOF" >> $GITHUB_OUTPUT
+          echo "$changed_plots" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Convert changed plot PDFs to PNGs
+        if: steps.compare.outputs.has_plot_diff == 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y poppler-utils
+          mkdir -p tests/integration_testing/results/plot_images
+          while IFS= read -r pdf_file; do
+            [[ -z "$pdf_file" ]] && continue
+            basename=$(basename "$pdf_file" .pdf)
+            dirname=$(dirname "$pdf_file")
+            # Create a subfolder structure matching the original
+            rel_path=${dirname#tests/integration_testing/results/plots/}
+            mkdir -p "tests/integration_testing/results/plot_images/$rel_path"
+            pdftoppm -png -r 150 -singlefile "$pdf_file" "tests/integration_testing/results/plot_images/$rel_path/$basename"
+          done <<< "${{ steps.compare.outputs.changed_plots }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: results-github-runner
           path: ./tests/integration_testing/results/
       - name: Commit test results
+        id: commit_results
         run: |
           git add ./tests/integration_testing/results/*.json
           if [[ $(git diff --cached --exit-code) ]]; then
             git add ./tests/integration_testing/results/plots/**/*.pdf
+            # Also add PNG images if they exist (for plot diff visualization)
+            if [[ -d ./tests/integration_testing/results/plot_images ]]; then
+              git add ./tests/integration_testing/results/plot_images/
+            fi
             git config --global user.email "github-action@users.noreply.github.com"
             git config --global user.name "GitHub Action"
             git commit -m "Upload results files from CI build (GitHub runner)"
@@ -95,9 +132,16 @@ jobs:
                   "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                 }'
             done
+            echo "committed=true" >> $GITHUB_OUTPUT
           else
             echo "No changes to commit."
+            echo "committed=false" >> $GITHUB_OUTPUT
           fi
+      - name: Fail if results differ from master
+        if: steps.compare.outputs.has_diff == 'true'
+        run: |
+          echo "::error::Integration test results differ from master. Review the comparison artifacts."
+          exit 1
 
   post-pr-comment:
     name: Post PR Comment
@@ -107,15 +151,28 @@ jobs:
       pull-requests: write
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
+      - name: Download artifacts
+        if: needs.run-test.outputs.has_plot_diff == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: results-github-runner
+          path: ./results
       - name: Post comment with results summary
         uses: actions/github-script@v7
+        env:
+          HAS_PLOT_DIFF: ${{ needs.run-test.outputs.has_plot_diff }}
+          HEAD_REF: ${{ github.head_ref }}
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
             const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const testResult = '${{ needs.run-test.result }}';
             const hasDiff = '${{ needs.run-test.outputs.has_diff }}';
+            const hasPlotDiff = process.env.HAS_PLOT_DIFF;
+            const headRef = process.env.HEAD_REF;
             const profilerEnabled = '${{ inputs.enable_profiler }}';
-            const statusIcon = testResult === 'success' ? '✅' : '❌';
+            const statusIcon = (testResult === 'success' || testResult === 'failure') ? (hasDiff === 'true' ? '⚠️' : '✅') : '❌';
 
             let body = `## ${statusIcon} Integration Test Results (GitHub Runner)\n\n`;
             body += `| Item | Detail |\n|---|---|\n`;
@@ -123,6 +180,36 @@ jobs:
             body += `| **Results changed vs master** | ${hasDiff === 'true' ? 'Yes — review comparison artifacts' : 'No'} |\n`;
             body += `| **Profiler** | ${profilerEnabled === 'true' ? 'Enabled' : 'Disabled'} |\n`;
             body += `| **Artifacts & Logs** | [View workflow run](${runUrl}) |\n`;
+
+            // Embed plot images if there are plot diffs
+            if (hasPlotDiff === 'true') {
+              body += `\n### 📊 Changed Plots\n\n`;
+              const plotImagesDir = './results/plot_images';
+              if (fs.existsSync(plotImagesDir)) {
+                const walkDir = (dir) => {
+                  let files = [];
+                  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                    const fullPath = path.join(dir, entry.name);
+                    if (entry.isDirectory()) {
+                      files = files.concat(walkDir(fullPath));
+                    } else if (entry.name.endsWith('.png')) {
+                      files.push(fullPath);
+                    }
+                  }
+                  return files;
+                };
+                const pngFiles = walkDir(plotImagesDir).sort();
+                for (const pngFile of pngFiles) {
+                  const relPath = path.relative(plotImagesDir, pngFile);
+                  const plotName = path.basename(pngFile, '.png');
+                  const repoPath = `tests/integration_testing/results/plot_images/${relPath}`;
+                  const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${headRef}/${repoPath}`;
+                  body += `<details><summary><b>${relPath.replace('.png', '')}</b></summary>\n\n`;
+                  body += `![${plotName}](${imageUrl})\n\n`;
+                  body += `</details>\n\n`;
+                }
+              }
+            }
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
