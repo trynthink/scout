@@ -253,7 +253,8 @@ jobs:
                   const relPath = path.relative(plotImagesDir, pngFile);
                   const plotName = path.basename(pngFile, '.png');
                   const repoPath = `tests/integration_testing/results/plot_images/${relPath}`;
-                  const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${headRef}/${repoPath}`;
+                  const encodedPath = repoPath.split('/').map(s => encodeURIComponent(s)).join('/');
+                  const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${headRef}/${encodedPath}`;
                   const displayName = relPath.endsWith('.png') ? relPath.slice(0, -4) : relPath;
                   body += `<details><summary><b>${displayName}</b></summary>\n\n`;
                   body += `![${plotName}](${imageUrl})\n\n`;
