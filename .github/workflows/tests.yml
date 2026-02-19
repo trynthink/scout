@@ -26,8 +26,8 @@ jobs:
           python-version: '3.x'
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip==24.3.1
-          pip install "flake8>=7.0"
+          python -m pip install --upgrade pip
+          pip install flake8
       - name: Check Python code quality
         run: flake8 --exclude docs/conf.py --max-line-length=100
 
@@ -48,7 +48,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install scout package
         run: |
-          python -m pip install --upgrade pip==24.3.1
+          python -m pip install --upgrade pip
           pip install ".[dev]"
       - name: Run tests
         run: python -m unittest discover -p '*_test.py' tests/
@@ -68,7 +68,7 @@ jobs:
           python-version: '3.x'
       - name: Install scout package
         run: |
-          python -m pip install --upgrade pip==24.3.1
+          python -m pip install --upgrade pip
           pip install ".[dev]"
       - name: Generate readable configuration file
         run: python docs/generate_readable_cfg.py -o config_readable_ci.yml

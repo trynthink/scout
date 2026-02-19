@@ -30,8 +30,8 @@ jobs:
           python-version: '3.10'
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip==24.3.1
-          pip install ".[dev]" psrecord==1.4
+          python -m pip install --upgrade pip
+          pip install ".[dev]" psrecord
       - name: Run and profile workflow
         env:
           ENABLE_PROFILER: ${{ inputs.enable_profiler || (github.ref == 'refs/heads/master') }}
