@@ -114,6 +114,7 @@ class TestConfig(unittest.TestCase, Utils):
             "state_appl_regs": None,
             "bps": None,
             "codes": None,
+            "report_stk": None,
             "comstock_gap": False
         },
         "run": {
@@ -122,7 +123,6 @@ class TestConfig(unittest.TestCase, Utils):
             "mkt_fracs": False,
             "trim_vars": False,
             "report_custom_yrs": [],
-            "report_stk": False,
             "report_cfs": False,
             "no_comp": False,
             "high_res_comp": False,
@@ -274,11 +274,10 @@ class TestConfig(unittest.TestCase, Utils):
         self._assert_arg_vals(args, expected_args)
 
         # run.py
-        cli_args = ["--yaml", self.valid_yml_pth, "--report_stk", "--report_cfs"]
+        cli_args = ["--yaml", self.valid_yml_pth, "--report_cfs"]
         args = self._get_cfg_args("run", cli_args=cli_args)
         expected_args = copy.deepcopy(self.valid_config["run"])
         update_dict = {
-            "report_stk": True,
             "report_cfs": True,
         }
         expected_args.update(update_dict)

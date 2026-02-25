@@ -298,6 +298,19 @@ properties:
         default: false
         description: If true, specifically partition out applicable energy use for each Measure that is not covered by ComStock tool and include this percentage in Measure outputs.        
 
+      report_stk:
+        type: object
+        properties:
+          num_units:
+            type: boolean
+            default: false
+            description: Report number of baseline and measure units, including summaries across segments and full breakouts.
+          cap_invest:
+            type: boolean
+            default: false
+            description: Report baseline and measure unit capital costs, including summaries across segments and full breakouts.
+
+
   run:
     type: object
     required: []
@@ -324,10 +337,6 @@ properties:
         type: boolean
         default: false
         description: If true, a reduced set of only essential variables is reported.
-      report_stk:
-        type: boolean
-        default: false
-        description: If true, report baseline/measure stock data.
       report_cfs:
         type: boolean
         default: false
