@@ -431,7 +431,17 @@ def main():
     year_range_result = {'min year': int(max(min_yrs)),
                          'max year': int(min(max_yrs))}
 
-    # Output a tiny JSON file with two integer values
+    # Preserve aeo_base_year from existing metadata if present
+    try:
+        with open(fp.METADATA_PATH, 'r') as existing:
+            existing_meta = json.load(existing)
+            if 'aeo_base_year' in existing_meta:
+                year_range_result['aeo_base_year'] = existing_meta[
+                    'aeo_base_year']
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+
+    # Output a tiny JSON file with year range and base year values
     with open(fp.METADATA_PATH, 'w') as jso:
         json.dump(year_range_result, jso, indent=2)
         jso.write('\n')

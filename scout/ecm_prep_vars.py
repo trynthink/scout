@@ -4,7 +4,6 @@ import copy
 import itertools
 import numpy
 import pandas as pd
-from datetime import datetime
 from collections import OrderedDict
 from scout.utils import JsonIO
 from scout.config import FilePaths as fp
@@ -168,11 +167,11 @@ class UsefulVars(object):
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
-        # Shorthand for current year
-        self.current_yr = datetime.today().year
         # Load metadata including AEO year range
         aeo_yrs = JsonIO.load_json(handyfiles.metadata)
-        # Set minimum modeling year to current year
+        # Shorthand for current year (based on AEO data vintage)
+        self.current_yr = aeo_yrs["aeo_base_year"]
+        # Set minimum modeling year to AEO base year
         aeo_min = self.current_yr
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
