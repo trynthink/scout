@@ -31,7 +31,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ".[dev]" psrecord
+          pip install -c .github/constraints.txt ".[dev]" psrecord
       - name: Run and profile workflow
         env:
           ENABLE_PROFILER: ${{ inputs.enable_profiler || (github.ref == 'refs/heads/master') }}
