@@ -57,23 +57,60 @@ jobs:
           has_diff="false"
           has_plot_diff="false"
           changed_plots=""
-          if [[ $(git diff --exit-code origin/master ./tests/integration_testing/results/agg_results.json ./tests/integration_testing/results/ecm_results.json) ]]; then
-            has_diff="true"
-            mkdir tests/integration_testing/base_results
-            git show origin/master:tests/integration_testing/results/agg_results.json > tests/integration_testing/base_results/agg_results.json
-            git show origin/master:tests/integration_testing/results/ecm_results.json > tests/integration_testing/base_results/ecm_results.json
-            git show origin/master:tests/integration_testing/results/plots/tech_potential/Summary_Data-TP.xlsx > tests/integration_testing/base_results/Summary_Data-TP.xlsx
-            git show origin/master:tests/integration_testing/results/plots/max_adopt_potential/Summary_Data-MAP.xlsx > tests/integration_testing/base_results/Summary_Data-MAP.xlsx
 
-            python tests/integration_testing/compare_results.py --base-dir tests/integration_testing/base_results --new-dir tests/integration_testing/results
-          fi
+          # --- JSON comparison: approximate (threshold-based) ---
+          # Extract baseline JSONs from master
+          mkdir -p tests/integration_testing/base_results
+          git show origin/master:tests/integration_testing/results/agg_results.json > tests/integration_testing/base_results/agg_results.json
+          git show origin/master:tests/integration_testing/results/ecm_results.json > tests/integration_testing/base_results/ecm_results.json
+          git show origin/master:tests/integration_testing/results/plots/tech_potential/Summary_Data-TP.xlsx > tests/integration_testing/base_results/Summary_Data-TP.xlsx
+          git show origin/master:tests/integration_testing/results/plots/max_adopt_potential/Summary_Data-MAP.xlsx > tests/integration_testing/base_results/Summary_Data-MAP.xlsx
 
-          # Check for diffs in plot PDF files
-          plot_diffs=$(git diff --name-only origin/master -- 'tests/integration_testing/results/plots/' | grep '\.pdf$' || true)
-          if [[ -n "$plot_diffs" ]]; then
+          # Run compare_results.py with a tight threshold (0.0001%) to catch real changes
+          # but ignore floating-point platform noise
+          python tests/integration_testing/compare_results.py \
+            --base-dir tests/integration_testing/base_results \
+            --new-dir tests/integration_testing/results \
+            --threshold 0.0001
+
+          # Check if any meaningful diffs were reported (csv files with actual content)
+          for csv_file in tests/integration_testing/results/*_diffs.csv tests/integration_testing/results/*_key_diffs.csv; do
+            if [[ -f "$csv_file" ]]; then
+              # File exists = meaningful differences found
+              has_diff="true"
+              break
+            fi
+          done
+
+          # --- PDF comparison: pixel-level via rendered PNGs ---
+          # Install poppler for PDF→PNG conversion
+          sudo apt-get update && sudo apt-get install -y poppler-utils imagemagick
+
+          plot_diffs_list=""
+          while IFS= read -r pdf_file; do
+            [[ -z "$pdf_file" ]] && continue
+            # Render current PDF to a temp PNG
+            new_png=$(mktemp --suffix=.png)
+            pdftoppm -png -r 150 -singlefile "$pdf_file" "${new_png%.png}"
+            # Render master PDF to a temp PNG
+            master_pdf=$(mktemp --suffix=.pdf)
+            git show origin/master:"$pdf_file" > "$master_pdf" 2>/dev/null || { rm -f "$new_png" "$master_pdf"; continue; }
+            base_png=$(mktemp --suffix=.png)
+            pdftoppm -png -r 150 -singlefile "$master_pdf" "${base_png%.png}"
+            rm -f "$master_pdf"
+            # Compare PNGs pixel-by-pixel using ImageMagick
+            ae_count=$(compare -metric AE "$base_png" "$new_png" /dev/null 2>&1 || true)
+            if [[ "$ae_count" != "0" ]]; then
+              # Pixel differences found — this is a real visual change
+              plot_diffs_list="${plot_diffs_list}${pdf_file}"$'\n'
+            fi
+            rm -f "$new_png" "$base_png"
+          done < <(git diff --name-only origin/master -- 'tests/integration_testing/results/plots/' | grep '\.pdf$' || true)
+
+          if [[ -n "$plot_diffs_list" ]]; then
             has_plot_diff="true"
             has_diff="true"
-            changed_plots="$plot_diffs"
+            changed_plots="$plot_diffs_list"
           fi
 
           echo "has_diff=$has_diff" >> $GITHUB_OUTPUT
@@ -85,7 +122,7 @@ jobs:
       - name: Convert changed plot PDFs to PNGs
         if: steps.compare.outputs.has_plot_diff == 'true'
         run: |
-          sudo apt-get update && sudo apt-get install -y poppler-utils
+          # poppler-utils already installed in compare step
           # Convert new (current) PDFs to PNGs
           mkdir -p tests/integration_testing/results/plot_images
           while IFS= read -r pdf_file; do
