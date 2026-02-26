@@ -35,6 +35,7 @@ jobs:
       - name: Run and profile workflow
         env:
           ENABLE_PROFILER: ${{ inputs.enable_profiler || (github.ref == 'refs/heads/master') }}
+          SOURCE_DATE_EPOCH: '0'
         run: |
           if [[ "$ENABLE_PROFILER" == 'true' ]]; then
             steps=("ecm_prep" "run")
@@ -85,15 +86,29 @@ jobs:
         if: steps.compare.outputs.has_plot_diff == 'true'
         run: |
           sudo apt-get update && sudo apt-get install -y poppler-utils
+          # Convert new (current) PDFs to PNGs
           mkdir -p tests/integration_testing/results/plot_images
           while IFS= read -r pdf_file; do
             [[ -z "$pdf_file" ]] && continue
             basename=$(basename "$pdf_file" .pdf)
             dirname=$(dirname "$pdf_file")
-            # Create a subfolder structure matching the original
             rel_path=${dirname#tests/integration_testing/results/plots/}
             mkdir -p "tests/integration_testing/results/plot_images/$rel_path"
             pdftoppm -png -r 150 -singlefile "$pdf_file" "tests/integration_testing/results/plot_images/$rel_path/$basename"
+          done <<< "${{ steps.compare.outputs.changed_plots }}"
+          # Convert baseline (master) PDFs to PNGs for before/after comparison
+          mkdir -p tests/integration_testing/results/base_plot_images
+          while IFS= read -r pdf_file; do
+            [[ -z "$pdf_file" ]] && continue
+            basename=$(basename "$pdf_file" .pdf)
+            dirname=$(dirname "$pdf_file")
+            rel_path=${dirname#tests/integration_testing/results/plots/}
+            mkdir -p "tests/integration_testing/results/base_plot_images/$rel_path"
+            # Extract the master version of this PDF into a temp file
+            master_pdf=$(mktemp --suffix=.pdf)
+            git show origin/master:"$pdf_file" > "$master_pdf" 2>/dev/null || continue
+            pdftoppm -png -r 150 -singlefile "$master_pdf" "tests/integration_testing/results/base_plot_images/$rel_path/$basename"
+            rm -f "$master_pdf"
           done <<< "${{ steps.compare.outputs.changed_plots }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -111,6 +126,9 @@ jobs:
             # Also add PNG images if they exist (for plot diff visualization)
             if [[ -d ./tests/integration_testing/results/plot_images ]]; then
               git add ./tests/integration_testing/results/plot_images/
+            fi
+            if [[ -d ./tests/integration_testing/results/base_plot_images ]]; then
+              git add ./tests/integration_testing/results/base_plot_images/
             fi
             git config --global user.email "github-action@users.noreply.github.com"
             git config --global user.name "GitHub Action"
@@ -209,11 +227,16 @@ jobs:
             body += `| **Profiler** | ${profilerEnabled === 'true' ? 'Enabled' : 'Disabled'} |\n`;
             body += `| **Artifacts & Logs** | [View workflow run](${runUrl}) |\n`;
 
-            // Embed plot images if there are plot diffs
+            // Embed before/after plot images if there are plot diffs
             if (hasPlotDiff === 'true') {
-              body += `\n### 📊 Changed Plots\n\n`;
-              const plotImagesDir = './results/plot_images';
-              if (fs.existsSync(plotImagesDir)) {
+              body += `\n### 📊 Changed Plots (Before → After)\n\n`;
+              const newImagesDir = './results/plot_images';
+              const baseImagesDir = './results/base_plot_images';
+              const makeUrl = (repoSubPath) => {
+                const encodedPath = repoSubPath.split('/').map(s => encodeURIComponent(s)).join('/');
+                return `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${headRef}/${encodedPath}`;
+              };
+              if (fs.existsSync(newImagesDir)) {
                 const walkDir = (dir) => {
                   let files = [];
                   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -226,17 +249,24 @@ jobs:
                   }
                   return files;
                 };
-                const pngFiles = walkDir(plotImagesDir).sort();
+                const pngFiles = walkDir(newImagesDir).sort();
                 for (const pngFile of pngFiles) {
-                  const relPath = path.relative(plotImagesDir, pngFile);
+                  const relPath = path.relative(newImagesDir, pngFile);
                   const plotName = path.basename(pngFile, '.png');
-                  const repoPath = `tests/integration_testing/results/plot_images/${relPath}`;
-                  const encodedPath = repoPath.split('/').map(s => encodeURIComponent(s)).join('/');
-                  const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${headRef}/${encodedPath}`;
+                  const newRepoPath = `tests/integration_testing/results/plot_images/${relPath}`;
+                  const baseRepoPath = `tests/integration_testing/results/base_plot_images/${relPath}`;
+                  const newUrl = makeUrl(newRepoPath);
+                  const baseUrl = makeUrl(baseRepoPath);
                   const displayName = relPath.endsWith('.png') ? relPath.slice(0, -4) : relPath;
+                  const hasBase = fs.existsSync(path.join(baseImagesDir, relPath));
                   body += `<details><summary><b>${displayName}</b></summary>\n\n`;
-                  body += `![${plotName}](${imageUrl})\n\n`;
-                  body += `</details>\n\n`;
+                  body += `| Master (before) | PR (after) |\n|---|---|\n`;
+                  if (hasBase) {
+                    body += `| ![before](${baseUrl}) | ![after](${newUrl}) |\n`;
+                  } else {
+                    body += `| _(new plot)_ | ![after](${newUrl}) |\n`;
+                  }
+                  body += `\n</details>\n\n`;
                 }
               }
             }
