@@ -154,66 +154,55 @@ jobs:
           name: results
           path: ./tests/integration_testing/results/
       - name: Commit test results
+        # Only commit when approximate comparison found meaningful diffs.
+        # Byte-level differences (floating-point noise, PDF timestamps) are
+        # not committed — the compare step's has_diff output is the source of truth.
+        if: steps.compare.outputs.has_diff == 'true'
         id: commit_results
-        env:
-          HAS_DIFF: ${{ steps.compare.outputs.has_diff }}
         run: |
           git add ./tests/integration_testing/results/*.json
-          if [[ $(git diff --cached --exit-code) ]]; then
-            git add ./tests/integration_testing/results/plots/**/*.pdf
-            # Also add PNG images if they exist (for plot diff visualization)
-            if [[ -d ./tests/integration_testing/results/plot_images ]]; then
-              git add ./tests/integration_testing/results/plot_images/
-            fi
-            if [[ -d ./tests/integration_testing/results/base_plot_images ]]; then
-              git add ./tests/integration_testing/results/base_plot_images/
-            fi
-            git config --global user.email "github-action@users.noreply.github.com"
-            git config --global user.name "GitHub Action"
-            git commit -m "Upload results files from CI build"
-            echo "Pushing to branch"
-            git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          git add ./tests/integration_testing/results/plots/**/*.pdf
+          # Also add PNG images if they exist (for plot diff visualization)
+          if [[ -d ./tests/integration_testing/results/plot_images ]]; then
+            git add ./tests/integration_testing/results/plot_images/
+          fi
+          if [[ -d ./tests/integration_testing/results/base_plot_images ]]; then
+            git add ./tests/integration_testing/results/base_plot_images/
+          fi
+          git config --global user.email "github-action@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+          git commit -m "Upload results files from CI build (results differ from master)"
+          echo "Pushing to branch"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
 
-            # Determine status for the integration test check based on diff result
-            if [[ "$HAS_DIFF" == "true" ]]; then
-              integration_state="failure"
-            else
-              integration_state="success"
-            fi
-
-            # Set status checks on the new commit
-            checks=("code-quality-checks" "python-tests (3.10)" "python-tests (3.11)" "python-tests (3.12)")
-            commit_sha=$(git rev-parse HEAD)
-            status_url="https://api.github.com/repos/${{ github.repository }}/statuses/$commit_sha"
-            for check in "${checks[@]}"; do
-              curl -L \
-                -X POST \
-                $status_url \
-                -H "Accept: application/vnd.github+json" \
-                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                -d '{
-                  "state": "success",
-                  "context": "'"${check}"'",
-                  "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                }'
-            done
-            # Set integration test status separately (failure if diffs detected)
+          # Set status checks on the new commit so it inherits parent job statuses
+          checks=("code-quality-checks" "python-tests (3.10)" "python-tests (3.11)" "python-tests (3.12)")
+          commit_sha=$(git rev-parse HEAD)
+          status_url="https://api.github.com/repos/${{ github.repository }}/statuses/$commit_sha"
+          for check in "${checks[@]}"; do
             curl -L \
               -X POST \
               $status_url \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -d '{
-                "state": "'"${integration_state}"'",
-                "context": "integration-tests / Integration Testing",
-                "description": "'"$([ "$integration_state" = "failure" ] && echo "Results differ from master" || echo "Results match master")"'",
+                "state": "success",
+                "context": "'"${check}"'",
                 "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               }'
-            echo "committed=true" >> $GITHUB_OUTPUT
-          else
-            echo "No changes to commit."
-            echo "committed=false" >> $GITHUB_OUTPUT
-          fi
+          done
+          # Mark integration test as failure since results differ from master
+          curl -L \
+            -X POST \
+            $status_url \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{
+              "state": "failure",
+              "context": "integration-tests / Integration Testing",
+              "description": "Results differ from master",
+              "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }'
       - name: Fail if results differ from master
         if: steps.compare.outputs.has_diff == 'true'
         env:
