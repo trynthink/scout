@@ -108,7 +108,7 @@ jobs:
             echo "enable_profiler=false" >> $GITHUB_OUTPUT
           fi
 
-  integration-tests-github-runner:
+  integration-tests:
     needs: [check-PR]
     if: |
       (needs.check-PR.outputs.PR_status == 'true' && fromJSON(needs.check-PR.outputs.PR).base.ref == 'master') ||
@@ -118,7 +118,7 @@ jobs:
       contents: write
       statuses: write
       pull-requests: write
-    uses: ./.github/workflows/integration_tests_github.yml
+    uses: ./.github/workflows/integration_tests.yml
     with:
       enable_profiler: ${{ needs.check-PR.outputs.enable_profiler == 'true' }}
     secrets: inherit

@@ -8,41 +8,13 @@ on:
         type: boolean
         default: false
 jobs:
-  start-runner:
-    name: Start self-hosted EC2 runner
-    runs-on: ubuntu-latest
-    outputs:
-      label: ${{ steps.start-ec2-runner.outputs.label }}
-      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Start EC2 runner
-        id: start-ec2-runner
-        uses: machulav/ec2-github-runner@v2
-        with:
-          mode: start
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          ec2-image-id: ami-0f57c48465f6361a6
-          ec2-instance-type: r5a.4xlarge
-          subnet-id: subnet-a4b769c3
-          security-group-id: sg-06a2ae324a6e68d4d
-          aws-resource-tags: >
-            [
-              {"Key": "Name", "Value": "scout-github-runner"},
-              {"Key": "billingId", "Value": "210109"},
-              {"Key": "org", "Value": "scout"}
-            ]
-
   run-test:
     name: Integration Testing
-    needs: start-runner
-    runs-on: ${{ needs.start-runner.outputs.label }}
+    runs-on: ubuntu-latest
     timeout-minutes: 600
+    permissions:
+      contents: write
+      statuses: write
     outputs:
       has_diff: ${{ steps.compare.outputs.has_diff }}
       has_plot_diff: ${{ steps.compare.outputs.has_plot_diff }}
@@ -51,7 +23,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
+          # Shallow clone; master is fetched separately in the compare step
+          fetch-depth: 1
       - name: Set up Python 3.10.17
         uses: actions/setup-python@v5
         with:
@@ -81,7 +54,7 @@ jobs:
       - name: Compare integration test results
         id: compare
         run: |
-          git fetch origin master
+          git fetch --depth=1 origin master
           has_diff="false"
           has_plot_diff="false"
           changed_plots=""
@@ -169,6 +142,7 @@ jobs:
             dirname=$(dirname "$pdf_file")
             rel_path=${dirname#tests/integration_testing/results/plots/}
             mkdir -p "tests/integration_testing/results/base_plot_images/$rel_path"
+            # Extract the master version of this PDF into a temp file
             master_pdf=$(mktemp --suffix=.pdf)
             git show origin/master:"$pdf_file" > "$master_pdf" 2>/dev/null || continue
             pdftoppm -png -r 150 -singlefile "$master_pdf" "tests/integration_testing/results/base_plot_images/$rel_path/$basename"
@@ -253,31 +227,9 @@ jobs:
             exit 1
           fi
 
-  stop-runner:
-    name: Stop self-hosted EC2 runner
-    needs:
-      - start-runner # required to get output from the start-runner job
-      - run-test # required to wait when the main job is done
-    runs-on: ubuntu-latest
-    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Stop EC2 runner
-        uses: machulav/ec2-github-runner@v2
-        with:
-          mode: stop
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          label: ${{ needs.start-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
-
   post-pr-comment:
     name: Post PR Comment
-    needs: [run-test, stop-runner]
+    needs: [run-test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -306,7 +258,7 @@ jobs:
             const profilerEnabled = '${{ inputs.enable_profiler }}';
             const statusIcon = testResult === 'success' ? '✅' : (hasDiff === 'true' ? '⚠️' : '❌');
 
-            let body = `## ${statusIcon} Integration Test Results (EC2 Runner)\n\n`;
+            let body = `## ${statusIcon} Integration Test Results\n\n`;
             body += `| Item | Detail |\n|---|---|\n`;
             body += `| **Status** | ${testResult} |\n`;
             body += `| **Results changed vs master** | ${hasDiff === 'true' ? 'Yes — review comparison artifacts' : 'No'} |\n`;

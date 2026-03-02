@@ -1,67 +1,62 @@
 # CI/CD Pipeline
 
-## Workflow Overview
+## Workflow Sequence
 
 ```mermaid
-flowchart TD
-    trigger["🔄 Push to master / PR to master"]
+sequenceDiagram
+    actor Dev as Developer
+    participant GH as GitHub
+    participant QG as Quality Gates
+    participant IT as Integration Testing
+    participant Cmp as Compare Results
+    participant PR as PR Comment
 
-    subgraph quality["Quality Gates"]
-        lint["Code Quality Checks<br/>(flake8, JSON validation)"]
-        unit["Python Unit Tests<br/>(3.10, 3.11, 3.12)"]
-        docs["Documentation Check<br/>(config_readable.yml)"]
+    Dev->>GH: Push to master / Open PR to master
+    GH->>QG: Trigger workflow
+
+    par Quality Gates
+        QG->>QG: flake8 + JSON validation
+        QG->>QG: Unit tests (Python 3.10, 3.11, 3.12)
+        QG->>QG: Documentation check
     end
 
-    subgraph gate["PR Gate"]
-        pr_check["Check PR Status<br/>& Profiler Label"]
+    QG->>GH: Check PR status & profiler label
+    GH->>IT: Start integration testing (ubuntu-latest)
+    IT->>IT: Setup Python 3.10.17 + pinned deps
+    IT->>IT: Run Scout workflow (ecm_prep → run)
+
+    opt run-profiler label or push to master
+        IT->>IT: psrecord (memory + CPU tracking)
     end
 
-    subgraph integration["Integration Testing (GitHub Runner)"]
-        setup["Setup Python 3.10.17<br/>+ pinned dependencies"]
-        run_test["Run Scout Workflow<br/>(ecm_prep → run)"]
-        compare["Compare Results vs Master<br/>(approx JSON, pixel-diff PDFs)"]
-        convert["Convert Changed PDFs → PNGs<br/>(new + baseline)"]
-        upload["Upload Artifacts"]
-        commit_results["Commit Results to Branch"]
-        fail_check{"Results<br/>differ?"}
-        baseline_label{"update-baseline<br/>label?"}
-        fail["❌ Fail"]
-        warn["⚠️ Warn (accept)"]
-        pass["✅ Pass"]
+    IT->>Cmp: Compare results vs master
+
+    Note over Cmp: JSON: approx comparison<br/>(0.0001% threshold)
+    Note over Cmp: PDFs: pixel-level comparison<br/>(rendered PNGs via pdftoppm + ImageMagick)
+
+    Cmp->>IT: Upload artifacts
+    IT->>GH: Commit results to branch
+
+    alt Results match master
+        IT-->>PR: ✅ Pass
+    else Results differ
+        alt update-baseline label present
+            IT-->>PR: ⚠️ Warn (accept as new baseline)
+        else No label
+            IT-->>PR: ❌ Fail
+        end
     end
 
-    subgraph comment["PR Comment"]
-        post_comment["Post/Update PR Comment<br/>with status + before/after plots"]
+    PR->>GH: Post PR comment with status
+    Note over PR: Always posted, even on failure.<br/>Includes before/after plot table<br/>and failure details if applicable.
+
+    opt Accepting expected changes
+        Dev->>GH: Add update-baseline label
+        GH->>IT: CI re-runs automatically
+        IT-->>PR: ⚠️ Results accepted
+        Dev->>GH: Merge PR
+        Note over GH: Committed results become<br/>the new master baseline
     end
-
-    trigger --> lint & unit & docs
-    lint & unit & docs --> pr_check
-    pr_check --> setup
-    setup --> run_test
-    run_test --> compare
-    compare --> convert
-    convert --> upload
-    upload --> commit_results
-    commit_results --> fail_check
-    fail_check -- "No" --> pass
-    fail_check -- "Yes" --> baseline_label
-    baseline_label -- "Yes" --> warn
-    baseline_label -- "No" --> fail
-    fail_check --> post_comment
-    pass --> post_comment
-    warn --> post_comment
-    fail --> post_comment
-
-    subgraph profiler["Optional: Profiler"]
-        psrecord["psrecord<br/>(memory + CPU tracking)"]
-    end
-
-    run_test -. "run-profiler label<br/>or push to master" .-> psrecord
-
-    style fail fill:#ff6b6b,color:#fff
-    style warn fill:#ffd93d,color:#333
-    style pass fill:#6bcb77,color:#fff
-    style trigger fill:#4d96ff,color:#fff
 ```
 
 ## How It Works
