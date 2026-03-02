@@ -80,6 +80,12 @@ flowchart TD
 2. Before/after plot images are embedded in the PR comment
 3. The integration test step fails with ❌
 
+### PR Comment
+- A PR comment is **always posted** after every CI run, regardless of pass/fail status
+- On failure, the comment includes a "Failure Details" section explaining the cause
+- On diff failures, the comment includes instructions to use the `update-baseline` label
+- Changed plots are shown in a before/after table inside collapsible sections
+
 ### Accepting Expected Changes
 1. Add the `update-baseline` label to the PR
 2. CI re-runs automatically (via `labeled` trigger)

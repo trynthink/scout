@@ -313,6 +313,20 @@ jobs:
             body += `| **Profiler** | ${profilerEnabled === 'true' ? 'Enabled' : 'Disabled'} |\n`;
             body += `| **Artifacts & Logs** | [View workflow run](${runUrl}) |\n`;
 
+            // Add failure details section
+            if (testResult === 'failure') {
+              body += `\n### ❌ Failure Details\n\n`;
+              if (hasDiff === 'true') {
+                body += `Integration test results differ from master. `;
+                body += `Review the comparison artifacts in the [workflow run](${runUrl}).\n\n`;
+                body += `> **To accept these changes:** Add the \`update-baseline\` label to this PR and re-run CI.\n\n`;
+              } else {
+                body += `The integration test encountered an error. Check the [workflow logs](${runUrl}) for details.\n\n`;
+              }
+            } else if (testResult === 'cancelled') {
+              body += `\n### ⚠️ Cancelled\n\nThe workflow was cancelled before completion. [View run](${runUrl}).\n\n`;
+            }
+
             // Embed before/after plot images if there are plot diffs
             if (hasPlotDiff === 'true') {
               body += `\n### 📊 Changed Plots (Before → After)\n\n`;
