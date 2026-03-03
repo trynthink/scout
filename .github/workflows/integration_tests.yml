@@ -220,6 +220,7 @@ jobs:
     name: Save PR Comment Artifact
     needs: [run-test, cross-platform-test]
     runs-on: ubuntu-latest
+    permissions: {}
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Save PR number
