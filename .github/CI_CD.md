@@ -7,7 +7,8 @@ sequenceDiagram
     actor Dev as Developer
     participant GH as GitHub
     participant QG as Quality Gates
-    participant IT as Integration Testing
+    participant IT as Integration Testing<br/>(Ubuntu)
+    participant XP as Cross-Platform Testing<br/>(Windows + macOS)
     participant Cmp as Compare Results
     participant PR as PR Comment
 
@@ -21,25 +22,46 @@ sequenceDiagram
     end
 
     QG->>GH: Check PR status & profiler label
-    GH->>IT: Start integration testing (ubuntu-latest)
-    IT->>IT: Setup Python 3.10.17 + pinned deps
-    IT->>IT: Run Scout workflow (ecm_prep → run)
 
-    opt run-profiler label or push to master
-        IT->>IT: psrecord (memory + CPU tracking)
+    par Integration + Cross-Platform
+        GH->>IT: Start Ubuntu integration test
+        IT->>IT: Setup Python 3.10.17 + pinned deps
+        IT->>IT: Run Scout workflow (ecm_prep → run)
+
+        opt run-profiler label or push to master
+            IT->>IT: psrecord (memory + CPU tracking)
+        end
+
+        IT->>Cmp: Compare results vs master
+        Note over Cmp: JSON: approx comparison<br/>(0.0001% threshold)
+        Note over Cmp: PDFs: pixel-level comparison<br/>(rendered PNGs via pdftoppm + ImageMagick)
+        Cmp->>IT: Upload artifacts
+
+    and
+        GH->>XP: Start Windows test
+        XP->>XP: Setup Python 3.10 + pinned deps
+        XP->>XP: Run Scout workflow
+        XP->>Cmp: Compare JSON results vs master
+        Note over XP: JSON: approx comparison<br/>(0.0001% threshold)
+        XP->>XP: Upload artifacts + status
+
+    and
+        GH->>XP: Start macOS test
+        XP->>XP: Setup Python 3.10 + pinned deps
+        XP->>XP: Run Scout workflow
+        XP->>Cmp: Compare JSON results vs master
+        XP->>XP: Upload artifacts + status
     end
 
-    IT->>Cmp: Compare results vs master
+    alt Ubuntu results match master
+        IT->>IT: No commit needed
+    else Ubuntu results differ
+        IT->>GH: Commit results + PNGs to branch
+    end
 
-    Note over Cmp: JSON: approx comparison<br/>(0.0001% threshold)
-    Note over Cmp: PDFs: pixel-level comparison<br/>(rendered PNGs via pdftoppm + ImageMagick)
-
-    Cmp->>IT: Upload artifacts
-    IT->>GH: Commit results to branch
-
-    alt Results match master
+    alt Ubuntu results match master
         IT-->>PR: ✅ Pass
-    else Results differ
+    else Ubuntu results differ
         alt update-baseline label present
             IT-->>PR: ⚠️ Warn (accept as new baseline)
         else No label
@@ -47,8 +69,9 @@ sequenceDiagram
         end
     end
 
-    PR->>GH: Post PR comment with status
-    Note over PR: Always posted, even on failure.<br/>Includes before/after plot table<br/>and failure details if applicable.
+    PR->>PR: Collect cross-platform artifacts
+    PR->>GH: Post PR comment
+    Note over PR: Always posted, even on failure.<br/>Includes:<br/>• Ubuntu status + comparison result<br/>• Cross-platform results table<br/>• Before/after plot table (if diffs)<br/>• Failure details (if applicable)
 
     opt Accepting expected changes
         Dev->>GH: Add update-baseline label
@@ -67,18 +90,20 @@ sequenceDiagram
 
 ### Comparison Strategy
 - **JSON results**: Approximate comparison — values within `0.0001%` tolerance are treated as equal (handles floating-point platform noise)
-- **PDF plots**: Rendered to PNG at 150 DPI and compared pixel-by-pixel — metadata-only differences (timestamps, version strings) are ignored
+- **PDF plots** (Ubuntu only): Rendered to PNG at 150 DPI and compared pixel-by-pixel — metadata-only differences (timestamps, version strings) are ignored
 - **Summary Excel files**: Percent difference report generated for review
+- **Cross-platform**: Windows and macOS run JSON-level comparison against master
 
 ### When Results Differ
-1. Results are committed to the PR branch and uploaded as artifacts
+1. Results are committed to the PR branch and uploaded as artifacts (Ubuntu only)
 2. Before/after plot images are embedded in the PR comment
 3. The integration test step fails with ❌
 
 ### PR Comment
 - A PR comment is **always posted** after every CI run, regardless of pass/fail status
-- On failure, the comment includes a "Failure Details" section explaining the cause
-- On diff failures, the comment includes instructions to use the `update-baseline` label
+- Includes an **Ubuntu (Baseline)** section with status, diff result, and artifact links
+- Includes a **Cross-Platform Results** table with status and JSON diff results for each platform
+- On failure, includes a "Failure Details" section explaining the cause and instructions to use the `update-baseline` label
 - Changed plots are shown in a before/after table inside collapsible sections
 
 ### Accepting Expected Changes
@@ -88,12 +113,15 @@ sequenceDiagram
 4. When merged, the committed results become the master baseline
 
 ### Pinned Environment
-- Python `3.10.17` + `.github/constraints.txt` with exact dependency versions
+- Python `3.10.17` on Ubuntu (baseline); Python `3.10` on Windows/macOS
+- `.github/constraints.txt` with exact dependency versions for all platforms
 - `SOURCE_DATE_EPOCH=0` for deterministic PDF timestamps
 
 ### Cross-Platform Testing
-- Integration tests also run on **Windows** and **macOS** to verify cross-platform compatibility
-- Comparison/commit/comment logic only runs on Ubuntu (the baseline environment)
+- Integration tests run in parallel on **Ubuntu** (baseline), **Windows**, and **macOS**
+- All platforms compare JSON results against master using `compare_results.py` with `0.0001%` threshold
+- Pixel-level PDF comparison, result commits, and PR comment logic only run on Ubuntu
+- Cross-platform results are aggregated into the PR comment as a summary table
 
 ## How to Use CI Flags
 
