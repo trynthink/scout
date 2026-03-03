@@ -221,6 +221,7 @@ jobs:
     needs: [run-test, cross-platform-test]
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       pull-requests: write
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
