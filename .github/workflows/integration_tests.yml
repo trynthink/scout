@@ -218,23 +218,30 @@ jobs:
 
   post-pr-comment:
     name: Post PR Comment
-    needs: [run-test]
+    needs: [run-test, cross-platform-test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
-      - name: Download artifacts
+      - name: Download Ubuntu artifacts
         if: needs.run-test.outputs.has_plot_diff == 'true'
         uses: actions/download-artifact@v4
         with:
           name: results
           path: ./results
+      - name: Download cross-platform artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: ./cross-platform-results
       - name: Post comment with results summary
         uses: actions/github-script@v7
         env:
           HAS_PLOT_DIFF: ${{ needs.run-test.outputs.has_plot_diff }}
           HEAD_REF: ${{ github.head_ref }}
+          CROSS_PLATFORM_RESULT: ${{ needs.cross-platform-test.result }}
         with:
           script: |
             const fs = require('fs');
@@ -245,14 +252,44 @@ jobs:
             const hasPlotDiff = process.env.HAS_PLOT_DIFF;
             const headRef = process.env.HEAD_REF;
             const profilerEnabled = '${{ inputs.enable_profiler }}';
+            const crossPlatformResult = process.env.CROSS_PLATFORM_RESULT;
             const statusIcon = testResult === 'success' ? '✅' : (hasDiff === 'true' ? '⚠️' : '❌');
 
             let body = `## ${statusIcon} Integration Test Results\n\n`;
+            body += `### Ubuntu (Baseline)\n`;
             body += `| Item | Detail |\n|---|---|\n`;
             body += `| **Status** | ${testResult} |\n`;
             body += `| **Results changed vs master** | ${hasDiff === 'true' ? 'Yes — review comparison artifacts' : 'No'} |\n`;
             body += `| **Profiler** | ${profilerEnabled === 'true' ? 'Enabled' : 'Disabled'} |\n`;
             body += `| **Artifacts & Logs** | [View workflow run](${runUrl}) |\n`;
+
+            // Cross-platform results table
+            const crossPlatformDir = './cross-platform-results';
+            const platforms = [
+              { dir: 'results-windows-latest', display: 'Windows' },
+              { dir: 'results-macos-latest', display: 'macOS' }
+            ];
+            let crossPlatformRows = '';
+            for (const { dir, display } of platforms) {
+              const statusFile = path.join(crossPlatformDir, dir, 'comparison_status.txt');
+              let platformStatus = '❌ Failed';
+              let platformDiff = 'N/A';
+              if (fs.existsSync(statusFile)) {
+                const content = fs.readFileSync(statusFile, 'utf8');
+                const hasDiffMatch = content.match(/has_diff=(\w+)/);
+                if (hasDiffMatch) {
+                  platformDiff = hasDiffMatch[1] === 'true' ? 'Yes' : 'No';
+                  platformStatus = hasDiffMatch[1] === 'true' ? '⚠️ Diffs found' : '✅ Pass';
+                }
+              } else if (crossPlatformResult === 'success') {
+                platformStatus = '✅ Pass';
+                platformDiff = 'Unknown';
+              }
+              crossPlatformRows += `| ${display} | ${platformStatus} | ${platformDiff} |\n`;
+            }
+            body += `\n### Cross-Platform Results\n`;
+            body += `| Platform | Status | JSON Diffs vs Master |\n|---|---|---|\n`;
+            body += crossPlatformRows;
 
             // Add failure details section
             if (testResult === 'failure') {
@@ -344,3 +381,44 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: '0'
         run: python tests/integration_testing/run_workflow.py --yaml tests/integration_testing/integration_test.yml
+      - name: Move results
+        shell: bash
+        run: |
+          rm -rf ./tests/integration_testing/results/*
+          mv ./results/* ./tests/integration_testing/results/
+          mv ./generated/log_*.txt ./tests/integration_testing/results/ 2>/dev/null || true
+      - name: Compare results against master
+        id: compare
+        shell: bash
+        run: |
+          git fetch --depth=1 origin master
+          has_diff="false"
+
+          # --- JSON comparison: approximate (threshold-based) ---
+          mkdir -p tests/integration_testing/base_results
+          git show origin/master:tests/integration_testing/results/agg_results.json > tests/integration_testing/base_results/agg_results.json
+          git show origin/master:tests/integration_testing/results/ecm_results.json > tests/integration_testing/base_results/ecm_results.json
+          git show origin/master:tests/integration_testing/results/plots/tech_potential/Summary_Data-TP.xlsx > tests/integration_testing/base_results/Summary_Data-TP.xlsx
+          git show origin/master:tests/integration_testing/results/plots/max_adopt_potential/Summary_Data-MAP.xlsx > tests/integration_testing/base_results/Summary_Data-MAP.xlsx
+
+          python tests/integration_testing/compare_results.py \
+            --base-dir tests/integration_testing/base_results \
+            --new-dir tests/integration_testing/results \
+            --threshold 0.0001
+
+          for csv_file in tests/integration_testing/results/*_diffs.csv tests/integration_testing/results/*_key_diffs.csv; do
+            if [[ -f "$csv_file" ]]; then
+              has_diff="true"
+              break
+            fi
+          done
+
+          # Write status file for PR comment aggregation
+          echo "has_diff=$has_diff" > tests/integration_testing/results/comparison_status.txt
+          echo "platform=${{ matrix.os }}" >> tests/integration_testing/results/comparison_status.txt
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.os }}
+          path: ./tests/integration_testing/results/

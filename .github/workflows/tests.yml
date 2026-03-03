@@ -120,5 +120,5 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/integration_tests.yml
     with:
-      enable_profiler: true
+      enable_profiler: ${{ needs.check-PR.outputs.enable_profiler == 'true' || github.ref == 'refs/heads/master' }}
     secrets: inherit
