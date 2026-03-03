@@ -117,7 +117,6 @@ jobs:
     permissions:
       contents: write
       statuses: write
-      pull-requests: write
     uses: ./.github/workflows/integration_tests.yml
     with:
       enable_profiler: ${{ needs.check-PR.outputs.enable_profiler == 'true' || github.ref == 'refs/heads/master' }}

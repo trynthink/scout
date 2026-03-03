@@ -70,8 +70,12 @@ sequenceDiagram
     end
 
     PR->>PR: Collect cross-platform artifacts
+    PR->>GH: Save comment body + PR number as artifact
+
+    Note over GH: workflow_run trigger<br/>(base repo context, write access)
+    GH->>PR: Download comment artifact
     PR->>GH: Post PR comment
-    Note over PR: Always posted, even on failure.<br/>Includes:<br/>• Ubuntu status + comparison result<br/>• Cross-platform results table<br/>• Before/after plot table (if diffs)<br/>• Failure details (if applicable)
+    Note over PR: Always posted, even on failure.<br/>Works for fork PRs (split workflow pattern).<br/>Includes:<br/>• Ubuntu status + comparison result<br/>• Cross-platform results table<br/>• Before/after plot table (if diffs)<br/>• Failure details (if applicable)
 
     opt Accepting expected changes
         Dev->>GH: Add update-baseline label
@@ -99,8 +103,11 @@ sequenceDiagram
 2. Before/after plot images are embedded in the PR comment
 3. The integration test step fails with ❌
 
-### PR Comment
-- A PR comment is **always posted** after every CI run, regardless of pass/fail status
+### PR Comment (Split Workflow Pattern)
+- The integration test workflow saves the comment body + PR number as an artifact (no write access needed)
+- A separate `post_pr_comment.yml` workflow, triggered by `workflow_run`, downloads the artifact and posts the comment in the **base repo context** with write access
+- This pattern ensures PR comments work for **fork PRs**, where `GITHUB_TOKEN` is read-only on `pull_request` events
+- The comment is **always posted** after every CI run, regardless of pass/fail status
 - Includes an **Ubuntu (Baseline)** section with status, diff result, and artifact links
 - Includes a **Cross-Platform Results** table with status and JSON diff results for each platform
 - On failure, includes a "Failure Details" section explaining the cause and instructions to use the `update-baseline` label
