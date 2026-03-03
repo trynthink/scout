@@ -9,7 +9,7 @@ on:
         default: false
 jobs:
   run-test:
-    name: Integration Testing
+    name: Integration Testing (Ubuntu)
     runs-on: ubuntu-latest
     timeout-minutes: 600
     permissions:
@@ -318,3 +318,29 @@ jobs:
               issue_number: context.issue.number,
               body,
             });
+
+  cross-platform-test:
+    name: Integration Testing (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 600
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -c .github/constraints.txt ".[dev]"
+      - name: Run integration test
+        env:
+          SOURCE_DATE_EPOCH: '0'
+        run: python tests/integration_testing/run_workflow.py --yaml tests/integration_testing/integration_test.yml
