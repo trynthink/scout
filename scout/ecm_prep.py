@@ -1009,6 +1009,7 @@ class Measure(object):
                 # Organize methane and refrigerants dict under broader key.
                 # init_meth/init_refr are flat {yr: 0} dicts or None; values
                 # are immutable ints so shallow copy is sufficient.
+
                 def _cp(d):
                     return d.copy() if d is not None else None
                 self.markets[adopt_scheme]["master_mseg"][
@@ -11087,6 +11088,7 @@ class MeasurePackage(Measure):
                 # Organize methane and refrigerants dict under broader key.
                 # init_meth/init_refr are flat {yr: 0} dicts or None; values
                 # are immutable ints so shallow copy is sufficient.
+
                 def _cp(d):
                     return d.copy() if d is not None else None
                 self.markets[adopt_scheme]["master_mseg"][
