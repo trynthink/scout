@@ -32,6 +32,11 @@ class ECMPrepHelper:
     """Shared methods used throughout ecm_prep.py"""
 
     @staticmethod
+    def _unused_ci_test_method():
+        """Temporary method to test CI pipeline with a trivial change."""
+        return True
+
+    @staticmethod
     def configure_ecm_prep_logger():
         # Set file name for prep error logs using current date and time
         err_f_name = fp.GENERATED / ("log_ecm_prep_" + time.strftime("%Y%m%d-%H%M%S") + ".txt")
@@ -7499,7 +7504,7 @@ class Measure(object):
                 # TBtu/h (heating/cooling), giga-lm (lighting) or giga-
                 # CFM (ventilation) to the baseline/measure cost unit
                 # denominators of kBtu/h, 1000 lm, and 1000 CFM
-                stk_serv_cap_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9
+                stk_serv_cap_cnv = (1 / cap_fact_mseg) * (1 / 8760) * 1e9 * 0.95
             except (KeyError):
                 raise KeyError(
                     "Microsegment '" + str(mskeys) + "' "
