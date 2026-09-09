@@ -65,7 +65,6 @@ def convert_yaml_structure(schema_data: dict, required: list = [], parent_key: s
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Convert schema file data to a more readable version for documentation."
     )

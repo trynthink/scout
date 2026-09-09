@@ -72,17 +72,17 @@ def test_mseg_ok_cool_cost(market_test_data):
     """
 
     # Use data from fixture
-    for idx, measure in enumerate(market_test_data['ok_coolcost_chk_in']):
+    for idx, measure in enumerate(market_test_data["ok_coolcost_chk_in"]):
         measure.fill_mkts(
-            market_test_data['sample_mseg_in_emm'],
-            market_test_data['sample_cpl_in_emm'],
-            market_test_data['convert_data'],
-            market_test_data['tsv_data'],
-            market_test_data['opts_coolcosts'],
+            market_test_data["sample_mseg_in_emm"],
+            market_test_data["sample_cpl_in_emm"],
+            market_test_data["convert_data"],
+            market_test_data["tsv_data"],
+            market_test_data["opts_coolcosts"],
             ctrb_ms_pkg_prep=[],
             tsv_data_nonfs=None,
         )
         dict_check(
-            measure.markets['Technical potential']['master_mseg']['cost']['stock'],
+            measure.markets["Technical potential"]["master_mseg"]["cost"]["stock"],
             market_test_data["ok_coolcost_meas_stkcost_out"],
         )

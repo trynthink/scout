@@ -145,24 +145,27 @@ def test_data():
         # Rename 'cost' key to 'energy cost' in mseg_out_break for compatibility with code
         for adopt_scheme in m.markets:
             if "cost" in m.markets[adopt_scheme]["mseg_out_break"]:
-                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = \
-                    m.markets[adopt_scheme]["mseg_out_break"].pop("cost")
+                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = m.markets[adopt_scheme][
+                    "mseg_out_break"
+                ].pop("cost")
     for ind, m in enumerate(sample_measures_in_env_costs_obj):
         m.technology_type = sample_measures_in_env_costs_data[ind]["technology_type"]
         m.markets = sample_measures_in_env_costs_data[ind]["markets"]
         # Rename 'cost' key to 'energy cost' in mseg_out_break for compatibility with code
         for adopt_scheme in m.markets:
             if "cost" in m.markets[adopt_scheme]["mseg_out_break"]:
-                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = \
-                    m.markets[adopt_scheme]["mseg_out_break"].pop("cost")
+                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = m.markets[adopt_scheme][
+                    "mseg_out_break"
+                ].pop("cost")
     for ind, m in enumerate(sample_measures_in_sect_shapes_obj):
         m.technology_type = sample_measures_in_sect_shapes_data[ind]["technology_type"]
         m.markets = sample_measures_in_sect_shapes_data[ind]["markets"]
         # Rename 'cost' key to 'energy cost' in mseg_out_break for compatibility with code
         for adopt_scheme in m.markets:
             if "cost" in m.markets[adopt_scheme]["mseg_out_break"]:
-                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = \
-                    m.markets[adopt_scheme]["mseg_out_break"].pop("cost")
+                m.markets[adopt_scheme]["mseg_out_break"]["energy cost"] = m.markets[adopt_scheme][
+                    "mseg_out_break"
+                ].pop("cost")
         m.sector_shapes = sample_measures_in_sect_shapes_data[ind]["sector_shapes"]
     # Set sample names for the packages to be tested
     sample_package_names_highlevel = ["Envelope + ASHP", "ASHP + Ctl.", "Envelope + ASHP + Ctl."]

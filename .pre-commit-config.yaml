@@ -1,0 +1,47 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+#
+# Note: Scout tracks a number of large, machine-generated data files (baseline
+# databases, converted mseg/cpl outputs, web mirror data, etc.). The hooks below
+# are scoped to avoid rewriting or blocking commits to those files; they focus on
+# source code, configuration, and documentation.
+exclude: >
+  (?x)^(
+    generated/|
+    results/|
+    web/|
+    inputs/(raw|derived)/|
+    tests/integration_testing/results/|
+    scout/supporting_data/(stock_energy_tech_data|tsv_data)/
+  )
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        types_or: [python, yaml, markdown, rst, toml, javascript, css]
+      - id: end-of-file-fixer
+        types_or: [python, yaml, markdown, rst, toml, javascript, css]
+      - id: mixed-line-ending
+        types_or: [python, yaml, markdown, rst, toml, javascript, css]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: [--maxkb=2000]
+        exclude: >
+          (?x)^(
+            .*\.gz$
+          )
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      # Lint Python code and automatically fix what can be safely fixed
+      - id: ruff-check
+        args: [--fix]
+      # Format Python code
+      - id: ruff-format

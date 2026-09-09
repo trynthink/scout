@@ -81,7 +81,8 @@ class UsefulInputFiles(object):
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
-                    "energy) are currently supported)")
+                    "energy) are currently supported)"
+                )
         elif regions == "EMM":
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             if energy_out[0] == "site":
@@ -99,7 +100,8 @@ class UsefulInputFiles(object):
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
-                    "energy) are currently supported)")
+                    "energy) are currently supported)"
+                )
         elif regions == "State":
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             if energy_out[0] == "site":
@@ -112,7 +114,8 @@ class UsefulInputFiles(object):
                 raise ValueError(
                     "Unsupported user option type (site, source "
                     "(fossil fuel equivalent), and source (captured "
-                    "energy) are currently supported)")
+                    "energy) are currently supported)"
+                )
         else:
             raise ValueError("Unsupported regional breakout (" + regions + ")")
         # Use the user-specified grid_decarb flag and energy
@@ -126,18 +129,18 @@ class UsefulInputFiles(object):
             self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions.json"
         # Use the user-specified grid_decarb flag and region selection
         # to select the correct electricity price and CO2 intensity data
-        if regions == 'EMM':
+        if regions == "EMM":
             if grid_decarb is not False:
                 self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices-100by2035.json"
             else:
                 self.elec_price_co2 = fp.CONVERT_DATA / "emm_region_emissions_prices.json"
-        elif regions == 'State':
+        elif regions == "State":
             self.elec_price_co2 = fp.CONVERT_DATA / "state_emissions_prices.json"
         else:
             if grid_decarb is not False:
                 self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-100by2035.json"
             else:
-                if energy_out[0] == 'captured':
+                if energy_out[0] == "captured":
                     self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
                 else:
                     self.elec_price_co2 = fp.CONVERT_DATA / "site_source_co2_conversions.json"
@@ -175,10 +178,11 @@ class UsefulVars(object):
             metrics (stock, energy, carbon) and common cost year.
     """
 
-    def __init__(self, handyfiles, opts, brk_vars, brkout, regions, state_appl_regs, codes, bps,
-                 exog_rates):
+    def __init__(
+        self, handyfiles, opts, brk_vars, brkout, regions, state_appl_regs, codes, bps, exog_rates
+    ):
         # Pull in global variable settings from ecm_prep
-        with open(handyfiles.glob_vars, 'r') as gv:
+        with open(handyfiles.glob_vars, "r") as gv:
             try:
                 gvars = json.load(gv)
             except ValueError:
@@ -196,15 +200,19 @@ class UsefulVars(object):
         # Pre-compute filtered subsets used in hot inner loops to avoid
         # repeated list comprehensions on every compete_adj call
         self.cost_brk_vars = [x for x in brk_vars if "cost" in x]
-        self.brk_mast_map = {"stock": "stock", "energy": "energy", "carbon": "carbon",
-                             "energy cost": ["cost", "energy"], "capital cost": ["cost", "stock"]}
+        self.brk_mast_map = {
+            "stock": "stock",
+            "energy": "energy",
+            "carbon": "carbon",
+            "energy cost": ["cost", "energy"],
+            "capital cost": ["cost", "stock"],
+        }
         self.out_break_czones = gvars["out_break_czones"]
         self.out_break_bldgtypes = gvars["out_break_bldg_types"]
         self.out_break_enduses = gvars["out_break_enduses"]
         self.out_break_fuels = gvars["out_break_fuels"]
         self.out_break_eus_w_fsplits = gvars["out_break_eus_w_fsplits"]
-        self.resist_ht_tech = [
-            "elec_boiler", "electric_res-heat", "resistance heat"]
+        self.resist_ht_tech = ["elec_boiler", "electric_res-heat", "resistance heat"]
         # is added to the commercial time preferences below to determine consumer choice
         risk_free_rate = 0.047
         # Set commercial time prefs and region in/out name pairs as unique
@@ -213,57 +221,135 @@ class UsefulVars(object):
             "rates": [x + risk_free_rate for x in [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0]],
             "distributions": {
                 "heating": {
-                    key: [0.263, 0.236, 0.198, 0.187, 0.097, 0.017, 0.002]
-                    for key in self.aeo_years},
+                    key: [0.263, 0.236, 0.198, 0.187, 0.097, 0.017, 0.002] for key in self.aeo_years
+                },
                 "cooling": {
-                    key: [0.233, 0.225, 0.174, 0.178, 0.105, 0.075, 0.01]
-                    for key in self.aeo_years},
+                    key: [0.233, 0.225, 0.174, 0.178, 0.105, 0.075, 0.01] for key in self.aeo_years
+                },
                 "ventilation": {
-                    key: [0.264, 0.236, 0.197, 0.187, 0.097, 0.017, 0.002]
-                    for key in self.aeo_years},
+                    key: [0.264, 0.236, 0.197, 0.187, 0.097, 0.017, 0.002] for key in self.aeo_years
+                },
                 "lighting": {
-                    key: [0.256, 0.24, 0.20, 0.189, 0.075, 0.019, 0.021]
-                    for key in self.aeo_years},
+                    key: [0.256, 0.24, 0.20, 0.189, 0.075, 0.019, 0.021] for key in self.aeo_years
+                },
                 "water heating": {
-                    key: [0.262, 0.262, 0.213, 0.164, 0.087, 0.01, 0.002]
-                    for key in self.aeo_years},
+                    key: [0.262, 0.262, 0.213, 0.164, 0.087, 0.01, 0.002] for key in self.aeo_years
+                },
                 "cooking": {
-                    key: [0.259, 0.263, 0.215, 0.165, 0.084, 0.011, 0.003]
-                    for key in self.aeo_years},
+                    key: [0.259, 0.263, 0.215, 0.165, 0.084, 0.011, 0.003] for key in self.aeo_years
+                },
                 "refrigeration": {
-                    key: [0.258, 0.263, 0.215, 0.164, 0.085, 0.012, 0.003]
-                    for key in self.aeo_years}}}
+                    key: [0.258, 0.263, 0.215, 0.164, 0.085, 0.012, 0.003] for key in self.aeo_years
+                },
+            },
+        }
 
         self.region_inout_namepairs = {
             "AIA": [
-                ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
-                ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
-                ('AIA CZ5', 'AIA_CZ5')],
-            "EMM": [(x, x) for x in [
-                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']],
-            "State": [(x, x) for x in [
-                'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-                'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-                'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-                'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-                'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
-                'WY']]}
+                ("AIA CZ1", "AIA_CZ1"),
+                ("AIA CZ2", "AIA_CZ2"),
+                ("AIA CZ3", "AIA_CZ3"),
+                ("AIA CZ4", "AIA_CZ4"),
+                ("AIA CZ5", "AIA_CZ5"),
+            ],
+            "EMM": [
+                (x, x)
+                for x in [
+                    "TRE",
+                    "FRCC",
+                    "MISW",
+                    "MISC",
+                    "MISE",
+                    "MISS",
+                    "ISNE",
+                    "NYCW",
+                    "NYUP",
+                    "PJME",
+                    "PJMW",
+                    "PJMC",
+                    "PJMD",
+                    "SRCA",
+                    "SRSE",
+                    "SRCE",
+                    "SPPS",
+                    "SPPC",
+                    "SPPN",
+                    "SRSG",
+                    "CANO",
+                    "CASO",
+                    "NWPP",
+                    "RMRG",
+                    "BASN",
+                ]
+            ],
+            "State": [
+                (x, x)
+                for x in [
+                    "AL",
+                    "AZ",
+                    "AR",
+                    "CA",
+                    "CO",
+                    "CT",
+                    "DE",
+                    "DC",
+                    "FL",
+                    "GA",
+                    "ID",
+                    "IL",
+                    "IN",
+                    "IA",
+                    "KS",
+                    "KY",
+                    "LA",
+                    "ME",
+                    "MD",
+                    "MA",
+                    "MI",
+                    "MN",
+                    "MS",
+                    "MO",
+                    "MT",
+                    "NE",
+                    "NV",
+                    "NH",
+                    "NJ",
+                    "NM",
+                    "NY",
+                    "NC",
+                    "ND",
+                    "OH",
+                    "OK",
+                    "OR",
+                    "PA",
+                    "RI",
+                    "SC",
+                    "SD",
+                    "TN",
+                    "TX",
+                    "UT",
+                    "VT",
+                    "VA",
+                    "WA",
+                    "WV",
+                    "WI",
+                    "WY",
+                ]
+            ],
+        }
         # Import CPI data to use in cost conversions
         try:
             cpi = numpy.genfromtxt(
                 handyfiles.cpi_data,
-                names=True, delimiter=',',
-                dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+                names=True,
+                delimiter=",",
+                dtype=[("DATE", "U10"), ("VALUE", "<f8")],
+            )
             # Ensure that consumer price date is in expected format
-            if len(cpi['DATE'][0]) != 10:
+            if len(cpi["DATE"][0]) != 10:
                 raise ValueError("CPI date format should be YYYY-MM-DD")
         except ValueError as e:
-            raise ValueError(
-                "Error reading in '" +
-                handyfiles.cpi_data + "': " + str(e)) from None
+            raise ValueError("Error reading in '" + handyfiles.cpi_data + "': " + str(e)) from None
         # Set present year for cost conversions (based on AEO data vintage)
         yr_before_current = str(int(self.aeo_years[0]) - 1)
         # Years of the baseline stock cost, energy cost, and carbon cost data
@@ -277,8 +363,7 @@ class UsefulVars(object):
         # Initialize dict of conversions to reach common cost basis
         self.cost_convert = {key: None for key in cost_yrs.keys()}
         # Find array of rows in CPI dataset associated with current year
-        cpi_row_cmn = [
-            x[1] for x in cpi if self.common_cost_yr in x['DATE']]
+        cpi_row_cmn = [x[1] for x in cpi if self.common_cost_yr in x["DATE"]]
         # If year is not found in CPI data, default to last available
         # CPI index value in the dataset; otherwise, average across all
         # values for that year
@@ -291,7 +376,7 @@ class UsefulVars(object):
         for metr in cost_yrs.keys():
             # Find array of rows in CPI dataset associated with the metric
             # cost year
-            cpi_row_metr = [x[1] for x in cpi if cost_yrs[metr] in x['DATE']]
+            cpi_row_metr = [x[1] for x in cpi if cost_yrs[metr] in x["DATE"]]
             # If year is not found in CPI data, default to last
             # available CPI index value in the dataset; otherwise, average
             # across all values for that year
@@ -305,7 +390,9 @@ class UsefulVars(object):
         # Import/finalize input data on sub-federal appliance regulations, codes, and BPS
         # if state regions are used
         state_vars, state_vars_vals = [
-            ["state_appl_regs", "codes", "bps"], [state_appl_regs, codes, bps]]
+            ["state_appl_regs", "codes", "bps"],
+            [state_appl_regs, codes, bps],
+        ]
         if regions == "State":
             self.import_state_data(handyfiles, state_vars, state_vars_vals)
         else:
@@ -320,7 +407,8 @@ class UsefulVars(object):
                 warnings.warn(
                     "WARNING: Exogenous rates of electric switching are desired by user for "
                     "a run with both Technical potential and Max adoption potential cases. Rates "
-                    "will be generated based on Max adoption potential results only.")
+                    "will be generated based on Max adoption potential results only."
+                )
             # Set list of possible regions based on output breakout information
             conversion_regions = self.out_break_czones.keys()
             # Set list of possible building types based on output breakout information
@@ -337,18 +425,30 @@ class UsefulVars(object):
             self.conversion_eus = ["heating", "water heating", "drying", "cooking", "other"]
             # Develop the base structure of the dict containing the conversion information
             conversion_struct = {
-                reg: {bldg: {fuel: {eu: {vint: {
-                    yr: {"all": 0, "converted": 0} for yr in self.aeo_years}
-                    for vint in conversion_vintages} for eu in self.conversion_eus}
-                    for fuel in conversion_fuels} for bldg in conversion_bldg_types}
-                for reg in conversion_regions}
+                reg: {
+                    bldg: {
+                        fuel: {
+                            eu: {
+                                vint: {yr: {"all": 0, "converted": 0} for yr in self.aeo_years}
+                                for vint in conversion_vintages
+                            }
+                            for eu in self.conversion_eus
+                        }
+                        for fuel in conversion_fuels
+                    }
+                    for bldg in conversion_bldg_types
+                }
+                for reg in conversion_regions
+            }
             # Separate conversion data as portion of the total and competed stock (e.g., total
             # conversion percentage vs. converted sales percentage)
             self.conversion_fracs = {
-                x: _fast_copy_nested_dict(conversion_struct) for x in ["total", "competed"]}
+                x: _fast_copy_nested_dict(conversion_struct) for x in ["total", "competed"]
+            }
         else:
             self.conversion_fracs, self.conversion_fuels, self.conversion_eus = (
-                None for n in range(3))
+                None for n in range(3)
+            )
 
         # Pre-build the all_fuel / no_fuel year dicts that compete_adj_dicts
         # reconstructs on every call (they are the same for every call once the
@@ -358,9 +458,13 @@ class UsefulVars(object):
         # Pre-build the blank results_brk_vars template used in compete_adj_dicts;
         # all values are None so no deepcopy is needed – dict.copy() is sufficient.
         self.results_brk_vars_tpl = {
-            var: ({"baseline": None, "efficient": None} if var == "stock" else
-                  {"baseline": None, "efficient": None, "savings": None})
-            for var in self.brk_vars}
+            var: (
+                {"baseline": None, "efficient": None}
+                if var == "stock"
+                else {"baseline": None, "efficient": None, "savings": None}
+            )
+            for var in self.brk_vars
+        }
 
     def import_state_data(self, handyfiles, state_vars, state_vars_vals):
         """Import and further prepare sub-federal adoption driver data.
@@ -393,14 +497,18 @@ class UsefulVars(object):
                     # Set applicable state(s), building type(s)
                     state, bldg = [
                         [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                        for x in row.values[1:3]]
+                        for x in row.values[1:3]
+                    ]
                     # Set start year and applicability fraction
                     if "appl_regs" in k:
                         start_yr, apply_frac = [[row.values[-3]], [row.values[-2]]]
                         regu_type = None
                     else:
                         start_yr, apply_frac, regu_type = [
-                            [row.values[-4]], [row.values[-3]], [row.values[-1]]]
+                            [row.values[-4]],
+                            [row.values[-3]],
+                            [row.values[-1]],
+                        ]
                         # Set local or state policy based on apply fraction if not otherwise spec'd
                         if not regu_type or not isinstance(regu_type[0], str):
                             if isinstance(apply_frac, list) and apply_frac[0] > 0.5:
@@ -424,14 +532,80 @@ class UsefulVars(object):
                     # run in Scout simulations, add in subsequently; AK also currently excluded)
                     if len(state) == 1 and state[0] == "all":
                         state = [
-                            'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-                            'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-                            'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-                            'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-                            'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
+                            "AL",
+                            "AZ",
+                            "AR",
+                            "CA",
+                            "CO",
+                            "CT",
+                            "DE",
+                            "DC",
+                            "FL",
+                            "GA",
+                            "ID",
+                            "IL",
+                            "IN",
+                            "IA",
+                            "KS",
+                            "KY",
+                            "LA",
+                            "ME",
+                            "MD",
+                            "MA",
+                            "MI",
+                            "MN",
+                            "MS",
+                            "MO",
+                            "MT",
+                            "NE",
+                            "NV",
+                            "NH",
+                            "NJ",
+                            "NM",
+                            "NY",
+                            "NC",
+                            "ND",
+                            "OH",
+                            "OK",
+                            "OR",
+                            "PA",
+                            "RI",
+                            "SC",
+                            "SD",
+                            "TN",
+                            "TX",
+                            "UT",
+                            "VT",
+                            "VA",
+                            "WA",
+                            "WV",
+                            "WI",
+                            "WY",
+                        ]
                     elif len(state) == 1 and state[0].lower() == "usca":
-                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
-                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                        state = [
+                            "AZ",
+                            "CA",
+                            "CO",
+                            "CT",
+                            "DE",
+                            "IL",
+                            "ME",
+                            "MD",
+                            "MA",
+                            "MI",
+                            "MN",
+                            "NJ",
+                            "NM",
+                            "NY",
+                            "NC",
+                            "OR",
+                            "PA",
+                            "RI",
+                            "VT",
+                            "WA",
+                            "WI",
+                        ]
                     # Remove 'unspecified' from building types if present (not supported)
                     bldg = [x for x in bldg if x != "unspecified"]
                     # Set flags for the presence of 'all' building entry to fill out
@@ -441,9 +615,19 @@ class UsefulVars(object):
                     # from that module to ensure consistency)
                     all_res = ["single family home", "multi family home", "mobile home"]
                     # Note: exclude 'unspecified' from being affected by state-level drivers
-                    all_com = ["assembly", "education", "food sales", "food service",
-                               "health care", "lodging", "large office", "small office",
-                               "mercantile/service", "warehouse", "other"]
+                    all_com = [
+                        "assembly",
+                        "education",
+                        "food sales",
+                        "food service",
+                        "health care",
+                        "lodging",
+                        "large office",
+                        "small office",
+                        "mercantile/service",
+                        "warehouse",
+                        "other",
+                    ]
                     # Initialize flags as false for whether or not all res. or com. building types
                     # need to be filled out
                     all_res_flag, all_com_flag = (False for n in range(2))
@@ -468,7 +652,8 @@ class UsefulVars(object):
                     if "appl_regs" in k:
                         vint, fuel, eu, tech = [
                             [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                            for x in row.values[3:-3]]
+                            for x in row.values[3:-3]
+                        ]
                         # Fill out 'all' entries for building vintage
                         if len(vint) == 1 and vint[0] == "all":
                             vint = ["new", "existing"]
@@ -478,8 +663,9 @@ class UsefulVars(object):
                         # Fill out 'all' entries for end use
                         if len(eu) == 1 and eu[0] in ["all fossil", "all"]:
                             eu = ["heating", "water heating", "cooking", "drying"]
-                        params = [x for x in [
-                            state, bldg, vint, fuel, eu, tech, start_yr, apply_frac]]
+                        params = [
+                            x for x in [state, bldg, vint, fuel, eu, tech, start_yr, apply_frac]
+                        ]
                     # Codes and BPS: unique onsite restrictions and energy reduction columns
                     else:
                         # Ensure that all states are present in output breakout categories
@@ -499,9 +685,13 @@ class UsefulVars(object):
                                 bldg_vint = "existing"
                             # Find the output breakout building type/vintage that maps to the input
                             # building type/vintage
-                            bldg_fin.extend([
-                                x[0] for x in self.out_break_bldgtypes.items() if
-                                b in x[1] and bldg_vint in x[1]])
+                            bldg_fin.extend(
+                                [
+                                    x[0]
+                                    for x in self.out_break_bldgtypes.items()
+                                    if b in x[1] and bldg_vint in x[1]
+                                ]
+                            )
                         # Ensure that there are no duplicate building types in result
                         bldg_fin = numpy.unique(bldg_fin)
                         # Onsite restrictions apply to both codes and BPS
@@ -516,9 +706,19 @@ class UsefulVars(object):
                             # Finalize stretch reduction if blank
                             if numpy.isnan(strtch_pct_reduce[0]):
                                 strtch_pct_reduce[0] = 0
-                            params = [x for x in [
-                                state, bldg_fin, onsite_reduce, lag_pct_reduce, strtch_pct_reduce,
-                                start_yr, apply_frac, regu_type]]
+                            params = [
+                                x
+                                for x in [
+                                    state,
+                                    bldg_fin,
+                                    onsite_reduce,
+                                    lag_pct_reduce,
+                                    strtch_pct_reduce,
+                                    start_yr,
+                                    apply_frac,
+                                    regu_type,
+                                ]
+                            ]
                         elif "bps" in k:
                             # Find EUI reduction targets and year to benchmark those targets
                             # against
@@ -528,9 +728,19 @@ class UsefulVars(object):
                                 eui_pct_reduce[0] = 0
                             if numpy.isnan(eui_bnch_yr[0]):
                                 eui_bnch_yr[0] = None
-                            params = [x for x in [
-                                state, bldg_fin, onsite_reduce, eui_pct_reduce, eui_bnch_yr,
-                                start_yr, apply_frac, regu_type]]
+                            params = [
+                                x
+                                for x in [
+                                    state,
+                                    bldg_fin,
+                                    onsite_reduce,
+                                    eui_pct_reduce,
+                                    eui_bnch_yr,
+                                    start_yr,
+                                    apply_frac,
+                                    regu_type,
+                                ]
+                            ]
                     # Iterate all expanded parameter info. into a list of lists with every
                     # possible combination of each parameter
                     iterable = list(map(list, itertools.product(*params)))
@@ -550,8 +760,11 @@ class UsefulVars(object):
                             # in pulling potential energy gain data (potential energy gains are
                             # broken out in the data by state and residential vs. commercial)
                             state_row, bldg_row = row[0:2]
-                            if bldg_row in ["single family home", "mobile home",
-                                            "multi family home"]:
+                            if bldg_row in [
+                                "single family home",
+                                "mobile home",
+                                "multi family home",
+                            ]:
                                 bldg_row = "residential"
                             else:
                                 bldg_row = "commercial"
@@ -560,15 +773,18 @@ class UsefulVars(object):
                             # 'adopt current'), where latter two flag an update. Handle case where
                             # cell was left blank
                             flag_code_update = any(
-                                [isinstance(row[lag_col], str) and
-                                 x in row[lag_col] for x in ["current", "stretch"]])
+                                [
+                                    isinstance(row[lag_col], str) and x in row[lag_col]
+                                    for x in ["current", "stretch"]
+                                ]
+                            )
                             # If there is a code update flag, find the potential energy gain
                             # value from updating the code, for the current state and building type
                             if flag_code_update:
                                 flag_code_update = lag_potentials[
-                                    (lag_potentials["State"] == state_row) &
-                                    (lag_potentials["Bldg Type"] == bldg_row)][
-                                    "Lag Potential"].iloc[0]
+                                    (lag_potentials["State"] == state_row)
+                                    & (lag_potentials["Bldg Type"] == bldg_row)
+                                ]["Lag Potential"].iloc[0]
                             # Otherwise, set value to zero
                             else:
                                 flag_code_update = 0
@@ -606,42 +822,43 @@ class Codes_BPS_Measure(object):
         self.markets, self.savings = ({} for n in range(2))
         # Loop through adoption schemes and initialize measure markets and savings
         for adopt_scheme in handyvars.adopt_schemes:
-            self.markets[adopt_scheme] = OrderedDict([(
-                "master_mseg", OrderedDict([(
-                    "stock", {
-                        "total": {
-                            "all": {}, "measure": {}}}),
+            self.markets[adopt_scheme] = OrderedDict(
+                [
                     (
-                    "energy", {
-                        "total": {
-                            "baseline": {}, "efficient": {}}}),
-                    (
-                    "carbon", {
-                        "total": {
-                            "baseline": {}, "efficient": {}}}),
-                    (
-                    "cost", {
-                        "stock": {
-                            "total": {
-                                "baseline": {}, "efficient": {}}},
-                        "energy": {
-                            "total": {
-                                "baseline": {}, "efficient": {}}},
-                        "carbon": {
-                            "total": {
-                                "baseline": {}, "efficient": {}}}})]))])
+                        "master_mseg",
+                        OrderedDict(
+                            [
+                                ("stock", {"total": {"all": {}, "measure": {}}}),
+                                ("energy", {"total": {"baseline": {}, "efficient": {}}}),
+                                ("carbon", {"total": {"baseline": {}, "efficient": {}}}),
+                                (
+                                    "cost",
+                                    {
+                                        "stock": {"total": {"baseline": {}, "efficient": {}}},
+                                        "energy": {"total": {"baseline": {}, "efficient": {}}},
+                                        "carbon": {"total": {"baseline": {}, "efficient": {}}},
+                                    },
+                                ),
+                            ]
+                        ),
+                    )
+                ]
+            )
             self.savings[adopt_scheme] = {
                 "stock": {"cost savings": {}},
                 "energy": {"savings": {}, "cost savings": {}},
-                "carbon": {"savings": {}}}
+                "carbon": {"savings": {}},
+            }
 
         # Establish a dictionary nested by output breakout categories (region, building type/
         # vintage, end use) with blank values at terminal leaf nodes; this dict will
         # eventually store broken out results data for the codes/BPS measure
         # Determine all possible outcome category combinations
         out_levels = [
-            handyvars.out_break_czones.keys(), handyvars.out_break_bldgtypes.keys(),
-            handyvars.out_break_enduses.keys()]
+            handyvars.out_break_czones.keys(),
+            handyvars.out_break_bldgtypes.keys(),
+            handyvars.out_break_enduses.keys(),
+        ]
         out_levels_keys = list(itertools.product(*out_levels))
         # Create dictionary using outcome category combinations as key chains
         out_break_in = OrderedDict()
@@ -650,12 +867,14 @@ class Codes_BPS_Measure(object):
             for ind, elem in enumerate(kc):
                 # If fuel splits are desired and applicable for the current
                 # end use breakout, add the fuel splits to the dict vals
-                if len(handyvars.out_break_fuels.keys()) != 0 and (
-                        elem in handyvars.out_break_eus_w_fsplits) and \
-                        elem not in current_level:
+                if (
+                    len(handyvars.out_break_fuels.keys()) != 0
+                    and (elem in handyvars.out_break_eus_w_fsplits)
+                    and elem not in current_level
+                ):
                     current_level[elem] = OrderedDict(
-                        [(x, OrderedDict()) for x in
-                         handyvars.out_break_fuels.keys()])
+                        [(x, OrderedDict()) for x in handyvars.out_break_fuels.keys()]
+                    )
                 # Otherwise, set dict vals to another empty dict
                 elif elem not in current_level:
                     current_level[elem] = OrderedDict()
@@ -666,11 +885,14 @@ class Codes_BPS_Measure(object):
             # Add energy, carbon, energy cost and possibly stock/stock cost breakouts
             # Use _fast_copy_nested_dict: out_break_in has only empty-dict leaf nodes
             # so no numpy arrays are present and this is safe and fast.
-            self.markets[adopt_scheme]["mseg_out_break"] = {key: {
-                "baseline": _fast_copy_nested_dict(out_break_in),
-                "efficient": _fast_copy_nested_dict(out_break_in),
-                "savings": _fast_copy_nested_dict(out_break_in)}
-                for key in handyvars.brk_vars}
+            self.markets[adopt_scheme]["mseg_out_break"] = {
+                key: {
+                    "baseline": _fast_copy_nested_dict(out_break_in),
+                    "efficient": _fast_copy_nested_dict(out_break_in),
+                    "savings": _fast_copy_nested_dict(out_break_in),
+                }
+                for key in handyvars.brk_vars
+            }
 
 
 class Measure(object):
@@ -707,21 +929,23 @@ class Measure(object):
         # attribute is not present
         try:
             if self.usr_opts["fugitive_emissions"] is not False and isinstance(
-                    self.usr_opts["fugitive_emissions"], list):
+                self.usr_opts["fugitive_emissions"], list
+            ):
                 # Methane only
-                if self.usr_opts["fugitive_emissions"][0] == '1':
+                if self.usr_opts["fugitive_emissions"][0] == "1":
                     self.fug_e = ["methane"]
                 # Refrigerants only
-                elif self.usr_opts["fugitive_emissions"][0] == '2':
+                elif self.usr_opts["fugitive_emissions"][0] == "2":
                     self.fug_e = ["refrigerants"]
                 # Methane and refrigerants
-                elif self.usr_opts["fugitive_emissions"][0] == '3':
+                elif self.usr_opts["fugitive_emissions"][0] == "3":
                     self.fug_e = ["methane", "refrigerants"]
                 # Raise error for unexpected setting
                 else:
                     raise ValueError(
                         "Unexpected settings for 'fugitive_emissions' under 'usr_opts' "
-                        "attribute for measure '" + self.name + "'")
+                        "attribute for measure '" + self.name + "'"
+                    )
             else:
                 self.fug_e = ""
         except (AttributeError, KeyError):
@@ -734,8 +958,7 @@ class Measure(object):
         # pulled in here even if a user has declined to simulate this scheme;
         # TP data are used to set unit-level metrics in the competition
         if "Technical potential" not in handyvars.adopt_schemes:
-            adopt_schemes_highlvl_mkts = handyvars.adopt_schemes + \
-                ["Technical potential"]
+            adopt_schemes_highlvl_mkts = handyvars.adopt_schemes + ["Technical potential"]
         else:
             adopt_schemes_highlvl_mkts = handyvars.adopt_schemes
         for adopt_scheme in adopt_schemes_highlvl_mkts:
@@ -748,51 +971,35 @@ class Measure(object):
             _orig = self.markets[adopt_scheme]
             self.markets[adopt_scheme] = {
                 "uncompeted": _fast_copy_markets(_orig),
-                "competed": _fast_copy_markets(_orig)}
-            self.update_results["savings"][
-                adopt_scheme] = {"uncompeted": True, "competed": True}
+                "competed": _fast_copy_markets(_orig),
+            }
+            self.update_results["savings"][adopt_scheme] = {"uncompeted": True, "competed": True}
             self.savings[adopt_scheme] = {
                 "uncompeted": {
-                    "stock": {
-                        "cost savings": None},
-                    "energy": {
-                        "savings": None,
-                        "cost savings": None},
-                    "carbon": {
-                        "savings": None,
-                        "cost savings": None}
+                    "stock": {"cost savings": None},
+                    "energy": {"savings": None, "cost savings": None},
+                    "carbon": {"savings": None, "cost savings": None},
                 },
                 "competed": {
-                    "stock": {
-                        "cost savings": None},
-                    "energy": {
-                        "savings": None,
-                        "cost savings": None},
-                    "carbon": {
-                        "savings": None,
-                        "cost savings": None}
-                }}
+                    "stock": {"cost savings": None},
+                    "energy": {"savings": None, "cost savings": None},
+                    "carbon": {"savings": None, "cost savings": None},
+                },
+            }
             # Append a key to the savings dict for fugitive emissions data in
             # the case where those data are being assessed for the measure
             if self.fug_e:
                 for met in ["uncompeted", "competed"]:
                     self.savings[adopt_scheme][met]["fugitive emissions"] = {
                         "methane": {"savings": None},
-                        "refrigerants": {"savings": None}}
+                        "refrigerants": {"savings": None},
+                    }
             self.financial_metrics = {
                 "unit cost": {
-                    "stock cost": {
-                        "residential": None,
-                        "commercial": None
-                    },
-                    "energy cost": {
-                        "residential": None,
-                        "commercial": None
-                    },
-                    "carbon cost": {
-                        "residential": None,
-                        "commercial": None
-                    }},
+                    "stock cost": {"residential": None, "commercial": None},
+                    "energy cost": {"residential": None, "commercial": None},
+                    "carbon cost": {"residential": None, "commercial": None},
+                },
                 "irr (w/ energy costs)": None,
                 "irr (w/ energy and carbon costs)": None,
                 "payback (w/ energy costs)": None,
@@ -800,7 +1007,7 @@ class Measure(object):
                 "cce": None,
                 "cce (w/ carbon cost benefits)": None,
                 "ccc": None,
-                "ccc (w/ energy cost benefits)": None
+                "ccc (w/ energy cost benefits)": None,
             }
 
     def convert_to_numpy(self, markets):
@@ -896,8 +1103,9 @@ class Engine(object):
         # out_fuel_gain) computed in compete_adj_dicts; the same key is parsed
         # once per microsegment but referenced for each competing measure.
         self._mseg_key_meta_cache = {}
-        self.output_all["All ECMs"] = OrderedDict([
-            ("Markets and Savings (Overall)", OrderedDict())])
+        self.output_all["All ECMs"] = OrderedDict(
+            [("Markets and Savings (Overall)", OrderedDict())]
+        )
         self.output_all["Energy Output Type"] = energy_out
         self.output_all["Output Resolution"] = brkout
         # Initialize competition adjustment fraction dict, if required by user
@@ -906,8 +1114,9 @@ class Engine(object):
         else:
             self.output_ecms_cfs = None
         for adopt_scheme in self.handyvars.adopt_schemes:
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme] = OrderedDict()
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme] = (
+                OrderedDict()
+            )
         for m in self.measures:
             # Fill dict with competition adjustment data if needed
             if self.output_ecms_cfs is not None:
@@ -916,11 +1125,12 @@ class Engine(object):
                 # costs will be further resolved by result type (baseline,
                 # efficient, and savings) as well as region.
                 self.output_ecms_cfs[m.name] = {
-                    key: {mt: {
-                        reg: 0 for reg in self.handyvars.out_break_czones}
-                        for mt in [
-                        "baseline", "efficient", "savings"]} for key in [
-                        x for x in self.handyvars.mast_vars if x != "stock"]}
+                    key: {
+                        mt: {reg: 0 for reg in self.handyvars.out_break_czones}
+                        for mt in ["baseline", "efficient", "savings"]
+                    }
+                    for key in [x for x in self.handyvars.mast_vars if x != "stock"]
+                }
                 self.output_ecms_cfs[m.name]["stock"] = {"measure": None}
             # Set measure climate zone, building sector, and end use
             # output category names for use in filtering and/or breaking
@@ -928,63 +1138,88 @@ class Engine(object):
             czones, bldgtypes, end_uses = ([] for n in range(3))
             # Find measure climate zone output categories
             for cz in self.handyvars.out_break_czones.items():
-                if any([x in cz[1] for x in m.climate_zone]) and \
-                        cz[0] not in czones:
+                if any([x in cz[1] for x in m.climate_zone]) and cz[0] not in czones:
                     czones.append(cz[0])
             # Find measure building sector/vintage output categories
             for bldg in self.handyvars.out_break_bldgtypes.items():
-                if (any([x in bldg[1] for x in m.structure_type]) and
-                    any([x in bldg[1] for x in m.bldg_type])) and \
-                        bldg[0] not in bldgtypes:
+                if (
+                    any([x in bldg[1] for x in m.structure_type])
+                    and any([x in bldg[1] for x in m.bldg_type])
+                ) and bldg[0] not in bldgtypes:
                     bldgtypes.append(bldg[0])
             # Find measure end use output categories
             for euse in self.handyvars.out_break_enduses.items():
                 # Find primary end use categories
-                if any([x in euse[1] for x in m.end_use["primary"]]) and \
-                        euse[0] not in end_uses:
+                if any([x in euse[1] for x in m.end_use["primary"]]) and euse[0] not in end_uses:
                     # * Note: classify special freezers ECM case as
                     # 'Refrigeration'; classify 'supply' side heating/cooling
                     # ECMs as 'Heating (Equip.)'/'Cooling (Equip.)' and
                     # 'demand' side heating/cooling ECMs as 'Envelope'
-                    if (euse[0] == "Refrigeration" and
-                        ("refrigeration" in m.end_use["primary"] or
-                         "freezers" in m.technology)) or (
-                        euse[0] != "Refrigeration" and ((
-                            euse[0] in ["Heating (Equip.)",
-                                        "Cooling (Equip.)"] and
-                            "supply" in m.technology_type["primary"]) or (
-                            euse[0] in ["Heating (Env.)", "Cooling (Env.)"] and
-                            "demand" in m.technology_type["primary"]) or (
-                            euse[0] not in [
-                                "Heating (Equip.)", "Cooling (Equip.)",
-                                "Heating (Env.)", "Cooling (Env.)"]))):
+                    if (
+                        euse[0] == "Refrigeration"
+                        and ("refrigeration" in m.end_use["primary"] or "freezers" in m.technology)
+                    ) or (
+                        euse[0] != "Refrigeration"
+                        and (
+                            (
+                                euse[0] in ["Heating (Equip.)", "Cooling (Equip.)"]
+                                and "supply" in m.technology_type["primary"]
+                            )
+                            or (
+                                euse[0] in ["Heating (Env.)", "Cooling (Env.)"]
+                                and "demand" in m.technology_type["primary"]
+                            )
+                            or (
+                                euse[0]
+                                not in [
+                                    "Heating (Equip.)",
+                                    "Cooling (Equip.)",
+                                    "Heating (Env.)",
+                                    "Cooling (Env.)",
+                                ]
+                            )
+                        )
+                    ):
                         end_uses.append(euse[0])
                 # Assign secondary heating/cooling microsegments that
                 # represent waste heat from lights to the 'Lighting' end use
                 # category
-                if m.end_use["secondary"] is not None and any([
-                    x in m.end_use["secondary"] for x in [
-                        "heating", "cooling"]]) and "Lighting" not in end_uses:
+                if (
+                    m.end_use["secondary"] is not None
+                    and any([x in m.end_use["secondary"] for x in ["heating", "cooling"]])
+                    and "Lighting" not in end_uses
+                ):
                     end_uses.append("Lighting")
 
             # Set measure climate zone(s), building sector(s), and end use(s)
             # as filter variables
-            self.output_ecms[m.name] = OrderedDict([
-                ("Filter Variables", OrderedDict([
-                    ("Applicable Regions", czones),
-                    ("Applicable Building Classes", bldgtypes),
-                    ("Applicable End Uses", end_uses)])),
-                ("Markets and Savings (Overall)", OrderedDict()),
-                ("Markets and Savings (by Category)", OrderedDict()),
-                ("Financial Metrics", OrderedDict())])
+            self.output_ecms[m.name] = OrderedDict(
+                [
+                    (
+                        "Filter Variables",
+                        OrderedDict(
+                            [
+                                ("Applicable Regions", czones),
+                                ("Applicable Building Classes", bldgtypes),
+                                ("Applicable End Uses", end_uses),
+                            ]
+                        ),
+                    ),
+                    ("Markets and Savings (Overall)", OrderedDict()),
+                    ("Markets and Savings (by Category)", OrderedDict()),
+                    ("Financial Metrics", OrderedDict()),
+                ]
+            )
             for adopt_scheme in self.handyvars.adopt_schemes:
                 # Initialize measure overall markets and savings
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme] = OrderedDict()
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme] = (
+                    OrderedDict()
+                )
                 # Initialize measure markets and savings broken out by climate
                 # zone, building sector, and end use categories
-                self.output_ecms[m.name]["Markets and Savings (by Category)"][
-                    adopt_scheme] = OrderedDict()
+                self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme] = (
+                    OrderedDict()
+                )
                 # Initialize measure financial metrics
                 self.output_ecms[m.name]["Financial Metrics"] = OrderedDict()
 
@@ -998,7 +1233,7 @@ class Engine(object):
         Returns:
             Results reported by the reduced year set.
         """
-        for (k, i) in sorted(orig_dict.items()):
+        for k, i in sorted(orig_dict.items()):
             # Years will be terminal nodes (e.g., have floats in the values)
             if isinstance(i, dict):
                 self.trim_code_bps_yrs(i, focus_yrs)
@@ -1008,7 +1243,7 @@ class Engine(object):
         return orig_dict
 
     def finalize_conv_fracs(self, conv_fracs):
-        for (k, i) in conv_fracs.items():
+        for k, i in conv_fracs.items():
             # Check that terminal nodes (broken out by year) have been reached, if not go further
             if isinstance(i, dict) and k not in self.handyvars.aeo_years:
                 self.finalize_conv_fracs(i)
@@ -1036,29 +1271,29 @@ class Engine(object):
             opts (object): Stores user-specified execution options.
         """
         # Find all active measures that require savings updates
-        measures_update = [m for m in self.measures if m.update_results[
-            "savings"][adopt_scheme][comp_scheme] is True]
+        measures_update = [
+            m
+            for m in self.measures
+            if m.update_results["savings"][adopt_scheme][comp_scheme] is True
+        ]
 
         # Update measure savings and associated financial metrics
         for m in measures_update:
             # Initialize energy/energy cost savings, carbon/
             # carbon cost savings dicts
-            scostsave_tot, esave_tot, ecostsave_tot, csave_tot, \
-                ccostsave_tot = ({
-                    yr: None for yr in self.handyvars.aeo_years} for
-                    n in range(5))
+            scostsave_tot, esave_tot, ecostsave_tot, csave_tot, ccostsave_tot = (
+                {yr: None for yr in self.handyvars.aeo_years} for n in range(5)
+            )
             # Initialize methane savings dict if fugitive emissions from
             # methane leaks are being assessed for the measure
             if m.fug_e and "methane" in m.fug_e:
-                meth_save_tot = {
-                    yr: None for yr in self.handyvars.aeo_years}
+                meth_save_tot = {yr: None for yr in self.handyvars.aeo_years}
             else:
                 meth_save_tot = ""
             # Initialize refrigerants savings dict if fugitive emissions from
             # refrigerant leaks are being assessed for the measure
             if m.fug_e and "refrigerants" in m.fug_e:
-                refr_save_tot = {
-                    yr: None for yr in self.handyvars.aeo_years}
+                refr_save_tot = {yr: None for yr in self.handyvars.aeo_years}
             else:
                 refr_save_tot = ""
             # Shorthand for data used to determine uncompeted and competed
@@ -1072,41 +1307,43 @@ class Engine(object):
                 # carbon cost savings for the measure vs. baseline. Total
                 # savings reflect the impact of all measure adoptions
                 # simulated up until and including the current year
-                esave_tot[yr] = \
-                    markets_save["energy"]["total"]["baseline"][yr] - \
-                    markets_save["energy"]["total"]["efficient"][yr]
-                csave_tot[yr] = \
-                    markets_save["carbon"]["total"]["baseline"][yr] - \
-                    markets_save["carbon"]["total"]["efficient"][yr]
+                esave_tot[yr] = (
+                    markets_save["energy"]["total"]["baseline"][yr]
+                    - markets_save["energy"]["total"]["efficient"][yr]
+                )
+                csave_tot[yr] = (
+                    markets_save["carbon"]["total"]["baseline"][yr]
+                    - markets_save["carbon"]["total"]["efficient"][yr]
+                )
                 # Note: convert stock, energy, and carbon costs to common
                 # year dollars
                 scostsave_tot[yr] = (
-                    markets_save["cost"]["stock"]["total"]["baseline"][yr] -
-                    markets_save["cost"]["stock"]["total"]["efficient"][yr]
+                    markets_save["cost"]["stock"]["total"]["baseline"][yr]
+                    - markets_save["cost"]["stock"]["total"]["efficient"][yr]
                 ) * self.handyvars.cost_convert["stock"]
                 ecostsave_tot[yr] = (
-                    markets_save["cost"]["energy"]["total"]["baseline"][yr] -
-                    markets_save["cost"]["energy"]["total"]["efficient"][yr]
+                    markets_save["cost"]["energy"]["total"]["baseline"][yr]
+                    - markets_save["cost"]["energy"]["total"]["efficient"][yr]
                 ) * self.handyvars.cost_convert["energy"]
                 ccostsave_tot[yr] = (
-                    markets_save["cost"]["carbon"]["total"]["baseline"][yr] -
-                    markets_save["cost"]["carbon"]["total"]["efficient"][yr]
+                    markets_save["cost"]["carbon"]["total"]["baseline"][yr]
+                    - markets_save["cost"]["carbon"]["total"]["efficient"][yr]
                 ) * self.handyvars.cost_convert["carbon"]
                 # Calculate fugitive methane emissions savings if applicable
                 if meth_save_tot:
-                    meth_save_tot[yr] = \
-                        markets_save["fugitive emissions"]["methane"][
-                            "total"]["baseline"][yr] - \
-                        markets_save["fugitive emissions"]["methane"][
-                            "total"]["efficient"][yr]
+                    meth_save_tot[yr] = (
+                        markets_save["fugitive emissions"]["methane"]["total"]["baseline"][yr]
+                        - markets_save["fugitive emissions"]["methane"]["total"]["efficient"][yr]
+                    )
                 # Calculate fugitive refrigerant emissions savings if
                 # applicable
                 if refr_save_tot:
-                    refr_save_tot[yr] = \
-                        markets_save["fugitive emissions"][
-                            "refrigerants"]["total"]["baseline"][yr] - \
-                        markets_save["fugitive emissions"][
-                            "refrigerants"]["total"]["efficient"][yr]
+                    refr_save_tot[yr] = (
+                        markets_save["fugitive emissions"]["refrigerants"]["total"]["baseline"][yr]
+                        - markets_save["fugitive emissions"]["refrigerants"]["total"]["efficient"][
+                            yr
+                        ]
+                    )
 
             # Record final measure savings figures (across all years)
 
@@ -1122,12 +1359,10 @@ class Engine(object):
             save["carbon"]["cost savings"] = ccostsave_tot
             # Update fugitive methane emissions savings if applicable
             if meth_save_tot:
-                save["fugitive emissions"][
-                    "methane"]["savings"] = meth_save_tot
+                save["fugitive emissions"]["methane"]["savings"] = meth_save_tot
             # Update fugitive refrigerant emissions savings if applicable
             if refr_save_tot:
-                save["fugitive emissions"][
-                    "refrigerants"]["savings"] = refr_save_tot
+                save["fugitive emissions"]["refrigerants"]["savings"] = refr_save_tot
 
             # Set measure savings for the current adoption and competition
             # schemes to finalized status
@@ -1141,128 +1376,132 @@ class Engine(object):
                 # unit-level (since metrics at this level do not vary based on
                 # competition or adoption dynamics, use only uncompeted
                 # technical potential data for the calculations)
-                markets_uc = m.markets["Technical potential"]["uncompeted"][
-                    "master_mseg"]
+                markets_uc = m.markets["Technical potential"]["uncompeted"]["master_mseg"]
 
                 # Initialize per unit measure stock, energy, and carbon costs;
                 # per unit energy and carbon cost savings; per unit energy and
                 # carbon savings; unit stock, energy, and carbon costs to use
                 # in residential and commercial competition calculations; and
                 # financial metrics (irr, payback, cce, ccc)
-                scostbase_unit, scostmeas_delt_unit, scostmeas_unit, \
-                    ecost_meas_unit, ccost_meas_unit, \
-                    ecostsave_unit, ccostsave_unit, esave_unit, \
-                    csave_unit, stock_unit_cost_res, stock_unit_cost_com, \
-                    energy_unit_cost_res, energy_unit_cost_com, \
-                    carb_unit_cost_res, carb_unit_cost_com, irr_e, irr_ec, \
-                    payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens = ({
-                        yr: None for yr in self.handyvars.aeo_years} for
-                        n in range(23))
+                (
+                    scostbase_unit,
+                    scostmeas_delt_unit,
+                    scostmeas_unit,
+                    ecost_meas_unit,
+                    ccost_meas_unit,
+                    ecostsave_unit,
+                    ccostsave_unit,
+                    esave_unit,
+                    csave_unit,
+                    stock_unit_cost_res,
+                    stock_unit_cost_com,
+                    energy_unit_cost_res,
+                    energy_unit_cost_com,
+                    carb_unit_cost_res,
+                    carb_unit_cost_com,
+                    irr_e,
+                    irr_ec,
+                    payback_e,
+                    payback_ec,
+                    cce,
+                    cce_bens,
+                    ccc,
+                    ccc_bens,
+                ) = ({yr: None for yr in self.handyvars.aeo_years} for n in range(23))
 
                 # Calculate per unit stock costs, energy and carbon savings,
                 # and energy and carbon cost savings for each projection year;
                 # base calculations on competed stock in each year
                 for yr in self.handyvars.aeo_years:
-
                     # Baseline capital cost
-                    stock_base_cost_cmp = \
-                        markets_uc["cost"]["stock"]["competed"]["baseline"][yr]
+                    stock_base_cost_cmp = markets_uc["cost"]["stock"]["competed"]["baseline"][yr]
                     # Measure capital cost
-                    stock_meas_cost_cmp = markets_uc["cost"]["stock"][
-                        "competed"]["efficient"][yr]
+                    stock_meas_cost_cmp = markets_uc["cost"]["stock"]["competed"]["efficient"][yr]
                     # Energy savings
-                    esave_cmp = \
-                        markets_uc["energy"]["competed"]["baseline"][yr] - \
-                        markets_uc["energy"]["competed"]["efficient"][yr]
+                    esave_cmp = (
+                        markets_uc["energy"]["competed"]["baseline"][yr]
+                        - markets_uc["energy"]["competed"]["efficient"][yr]
+                    )
                     # Carbon savings
-                    csave_cmp = \
-                        markets_uc["carbon"]["competed"]["baseline"][yr] - \
-                        markets_uc["carbon"]["competed"]["efficient"][yr]
+                    csave_cmp = (
+                        markets_uc["carbon"]["competed"]["baseline"][yr]
+                        - markets_uc["carbon"]["competed"]["efficient"][yr]
+                    )
                     # Baseline energy costs
-                    ecost_base_cmp = markets_uc["cost"]["energy"]["competed"][
-                        "baseline"][yr]
+                    ecost_base_cmp = markets_uc["cost"]["energy"]["competed"]["baseline"][yr]
                     # Measure energy cost
-                    ecost_meas_cmp = markets_uc["cost"]["energy"][
-                        "competed"]["efficient"][yr]
+                    ecost_meas_cmp = markets_uc["cost"]["energy"]["competed"]["efficient"][yr]
                     # Baseline carbon costs
-                    ccost_base_cmp = markets_uc["cost"]["carbon"]["competed"][
-                        "baseline"][yr]
+                    ccost_base_cmp = markets_uc["cost"]["carbon"]["competed"]["baseline"][yr]
                     # Measure carbon cost
-                    ccost_meas_cmp = markets_uc["cost"]["carbon"][
-                        "competed"]["efficient"][yr]
+                    ccost_meas_cmp = markets_uc["cost"]["carbon"]["competed"]["efficient"][yr]
                     # Energy cost savings
                     ecostsave_cmp = ecost_base_cmp - ecost_meas_cmp
                     # Carbon cost savings
                     ccostsave_cmp = ccost_base_cmp - ccost_meas_cmp
                     # Number of applicable baseline stock units
-                    nunits_cmp = \
-                        markets_uc["stock"]["competed"]["all"][yr]
+                    nunits_cmp = markets_uc["stock"]["competed"]["all"][yr]
                     # Number of applicable stock units capt. by measure
-                    nunits_meas_cmp = \
-                        markets_uc["stock"]["competed"]["measure"][yr]
+                    nunits_meas_cmp = markets_uc["stock"]["competed"]["measure"][yr]
 
                     # Calculate per unit baseline capital cost and incremental
                     # measure capital cost (used in financial metrics
                     # calculations below); set these values to zero for
                     # years in which total number of base/meas units is zero
                     if nunits_cmp != 0 and (
-                        not isinstance(nunits_meas_cmp, numpy.ndarray) and
-                        nunits_meas_cmp != 0 or
-                            isinstance(nunits_meas_cmp, numpy.ndarray) and all(
-                                nunits_meas_cmp) != 0):
+                        not isinstance(nunits_meas_cmp, numpy.ndarray)
+                        and nunits_meas_cmp != 0
+                        or isinstance(nunits_meas_cmp, numpy.ndarray)
+                        and all(nunits_meas_cmp) != 0
+                    ):
                         # Per unit baseline capital cost; note that these costs
                         # are aggregated as a baseline counterfactual for all
                         # units captured by the measure and therefore must be
                         # normalized by the number of measure-captured units
                         scostbase_unit[yr] = (
-                            stock_base_cost_cmp / nunits_cmp) * \
-                            self.handyvars.cost_convert["stock"]
+                            stock_base_cost_cmp / nunits_cmp
+                        ) * self.handyvars.cost_convert["stock"]
                         # Per unit measure total capital cost
                         scostmeas_unit[yr] = (
-                            stock_meas_cost_cmp / nunits_meas_cmp) * \
-                            self.handyvars.cost_convert["stock"]
+                            stock_meas_cost_cmp / nunits_meas_cmp
+                        ) * self.handyvars.cost_convert["stock"]
                         # Per unit measure incremental capital cost
-                        scostmeas_delt_unit[yr] = (
-                            scostbase_unit[yr] - scostmeas_unit[yr])
+                        scostmeas_delt_unit[yr] = scostbase_unit[yr] - scostmeas_unit[yr]
                         # Per unit measure energy savings
                         esave_unit[yr] = esave_cmp / nunits_meas_cmp
                         # Per unit measure carbon savings
                         csave_unit[yr] = csave_cmp / nunits_meas_cmp
                         # Per unit measure energy costs
                         ecost_meas_unit[yr] = (
-                            ecost_meas_cmp / nunits_meas_cmp) * \
-                            self.handyvars.cost_convert["energy"]
+                            ecost_meas_cmp / nunits_meas_cmp
+                        ) * self.handyvars.cost_convert["energy"]
                         # Per unit measure carbon costs
                         ccost_meas_unit[yr] = (
-                            ccost_meas_cmp / nunits_meas_cmp) * \
-                            self.handyvars.cost_convert["carbon"]
+                            ccost_meas_cmp / nunits_meas_cmp
+                        ) * self.handyvars.cost_convert["carbon"]
                         # Per unit measure energy cost savings
                         ecostsave_unit[yr] = (
-                            ecostsave_cmp / nunits_meas_cmp) * \
-                            self.handyvars.cost_convert["energy"]
+                            ecostsave_cmp / nunits_meas_cmp
+                        ) * self.handyvars.cost_convert["energy"]
                         # Per unit measure carbon cost savings
                         ccostsave_unit[yr] = (
-                            ccostsave_cmp / nunits_meas_cmp) * \
-                            self.handyvars.cost_convert["carbon"]
+                            ccostsave_cmp / nunits_meas_cmp
+                        ) * self.handyvars.cost_convert["carbon"]
 
                     # Set the lifetime of the baseline technology for
                     # comparison with measure lifetime
                     life_base = markets_uc["lifetime"]["baseline"][yr]
                     # Ensure that baseline lifetime is at least 1 year
-                    if isinstance(life_base, numpy.ndarray) and \
-                            any(life_base) < 1:
+                    if isinstance(life_base, numpy.ndarray) and any(life_base) < 1:
                         life_base[numpy.where(life_base) < 1] = 1
-                    elif not isinstance(life_base, numpy.ndarray) and \
-                            life_base < 1:
+                    elif not isinstance(life_base, numpy.ndarray) and life_base < 1:
                         life_base = 1
                     # Set lifetime of the measure
                     life_meas = markets_uc["lifetime"]["measure"]
                     # Ensure that measure lifetime is at least 1 year
-                    if isinstance(life_meas, numpy.ndarray) and \
-                            any(life_meas) < 1:
+                    if isinstance(life_meas, numpy.ndarray) and any(life_meas) < 1:
                         life_meas[numpy.where(life_meas) < 1] = 1
-                    elif not isinstance(life_meas, numpy.ndarray) and \
-                            life_meas < 1:
+                    elif not isinstance(life_meas, numpy.ndarray) and life_meas < 1:
                         life_meas = 1
 
                     # Calculate measure financial metrics
@@ -1271,107 +1510,146 @@ class Engine(object):
                     # have been captured for a given year, set finance metrics
                     # to 999
                     if nunits_cmp == 0 or (
-                        not isinstance(nunits_meas_cmp, numpy.ndarray) and
-                        nunits_meas_cmp == 0 or
-                            isinstance(nunits_meas_cmp, numpy.ndarray) and all(
-                                nunits_meas_cmp) == 0):
+                        not isinstance(nunits_meas_cmp, numpy.ndarray)
+                        and nunits_meas_cmp == 0
+                        or isinstance(nunits_meas_cmp, numpy.ndarray)
+                        and all(nunits_meas_cmp) == 0
+                    ):
                         if yr == self.handyvars.aeo_years[0]:
-                            stock_unit_cost_res[yr], \
-                                energy_unit_cost_res[yr], \
-                                carb_unit_cost_res[yr], \
-                                stock_unit_cost_com[yr], \
-                                energy_unit_cost_com[yr], \
-                                carb_unit_cost_com[yr], \
-                                irr_e[yr], irr_ec[yr], payback_e[yr], \
-                                payback_ec[yr], cce[yr], cce_bens[yr], \
-                                ccc[yr], ccc_bens[yr] = [
-                                    None for n in range(6)] + [
-                                    999 for n in range(8)]
+                            (
+                                stock_unit_cost_res[yr],
+                                energy_unit_cost_res[yr],
+                                carb_unit_cost_res[yr],
+                                stock_unit_cost_com[yr],
+                                energy_unit_cost_com[yr],
+                                carb_unit_cost_com[yr],
+                                irr_e[yr],
+                                irr_ec[yr],
+                                payback_e[yr],
+                                payback_ec[yr],
+                                cce[yr],
+                                cce_bens[yr],
+                                ccc[yr],
+                                ccc_bens[yr],
+                            ) = [None for n in range(6)] + [999 for n in range(8)]
                         else:
                             yr_prev = str(int(yr) - 1)
-                            stock_unit_cost_res[yr], \
-                                energy_unit_cost_res[yr], \
-                                carb_unit_cost_res[yr], \
-                                stock_unit_cost_com[yr], \
-                                energy_unit_cost_com[yr], \
-                                carb_unit_cost_com[yr], \
-                                irr_e[yr], irr_ec[yr], \
-                                payback_e[yr], payback_ec[yr], \
-                                cce[yr], cce_bens[yr], \
-                                ccc[yr], ccc_bens[yr] = [x[yr_prev] for x in [
-                                    stock_unit_cost_res, energy_unit_cost_res,
-                                    carb_unit_cost_res, stock_unit_cost_com,
-                                    energy_unit_cost_com, carb_unit_cost_com,
-                                    irr_e, irr_ec, payback_e, payback_ec, cce,
-                                    cce_bens, ccc, ccc_bens]]
+                            (
+                                stock_unit_cost_res[yr],
+                                energy_unit_cost_res[yr],
+                                carb_unit_cost_res[yr],
+                                stock_unit_cost_com[yr],
+                                energy_unit_cost_com[yr],
+                                carb_unit_cost_com[yr],
+                                irr_e[yr],
+                                irr_ec[yr],
+                                payback_e[yr],
+                                payback_ec[yr],
+                                cce[yr],
+                                cce_bens[yr],
+                                ccc[yr],
+                                ccc_bens[yr],
+                            ) = [
+                                x[yr_prev]
+                                for x in [
+                                    stock_unit_cost_res,
+                                    energy_unit_cost_res,
+                                    carb_unit_cost_res,
+                                    stock_unit_cost_com,
+                                    energy_unit_cost_com,
+                                    carb_unit_cost_com,
+                                    irr_e,
+                                    irr_ec,
+                                    payback_e,
+                                    payback_ec,
+                                    cce,
+                                    cce_bens,
+                                    ccc,
+                                    ccc_bens,
+                                ]
+                            ]
                     # Otherwise, check whether any financial metric calculation
                     # inputs that can be arrays are in fact arrays
-                    elif any(isinstance(x, numpy.ndarray) for x in [
-                            scostmeas_delt_unit[yr], esave_unit[yr],
-                            life_meas]):
+                    elif any(
+                        isinstance(x, numpy.ndarray)
+                        for x in [scostmeas_delt_unit[yr], esave_unit[yr], life_meas]
+                    ):
                         # Make copies of the above stock, energy/carbon/cost
                         # variables for possible further manipulation below
                         # before using as inputs to "metric update" function
-                        scostmeas_delt_unit_tmp, esave_tmp_unit, \
-                            ecostsave_tmp_unit, csave_tmp_unit, \
-                            ccostsave_tmp_unit, life_meas_tmp, \
-                            scost_meas_tmp, ecost_meas_tmp, ccost_meas_tmp = [
-                                scostmeas_delt_unit[yr], esave_unit[yr],
-                                ecostsave_unit[yr], csave_unit[yr],
-                                ccostsave_unit[yr], life_meas,
-                                scostmeas_unit[yr],
-                                ecost_meas_unit[yr],
-                                ccost_meas_unit[yr]]
+                        (
+                            scostmeas_delt_unit_tmp,
+                            esave_tmp_unit,
+                            ecostsave_tmp_unit,
+                            csave_tmp_unit,
+                            ccostsave_tmp_unit,
+                            life_meas_tmp,
+                            scost_meas_tmp,
+                            ecost_meas_tmp,
+                            ccost_meas_tmp,
+                        ) = [
+                            scostmeas_delt_unit[yr],
+                            esave_unit[yr],
+                            ecostsave_unit[yr],
+                            csave_unit[yr],
+                            ccostsave_unit[yr],
+                            life_meas,
+                            scostmeas_unit[yr],
+                            ecost_meas_unit[yr],
+                            ccost_meas_unit[yr],
+                        ]
 
                         # Ensure consistency in length of all "metric_update"
                         # inputs that can be arrays
 
                         # Determine the length that any array inputs to
                         # "metric_update" should consistently have
-                        len_arr = next((len(item) for item in [
-                            scostmeas_delt_unit[yr], esave_unit[yr],
-                            life_meas] if isinstance(
-                                item, numpy.ndarray)), None)
+                        len_arr = next(
+                            (
+                                len(item)
+                                for item in [scostmeas_delt_unit[yr], esave_unit[yr], life_meas]
+                                if isinstance(item, numpy.ndarray)
+                            ),
+                            None,
+                        )
 
                         # Ensure all array inputs to "metric_update" are of the
                         # above length
 
                         # Check capital cost inputs
-                        if not isinstance(
-                                scostmeas_delt_unit_tmp, numpy.ndarray):
-                            scostmeas_delt_unit_tmp = numpy.repeat(
-                                scostmeas_delt_unit_tmp, len_arr)
-                            scost_meas_tmp = numpy.repeat(
-                                scost_meas_tmp, len_arr)
+                        if not isinstance(scostmeas_delt_unit_tmp, numpy.ndarray):
+                            scostmeas_delt_unit_tmp = numpy.repeat(scostmeas_delt_unit_tmp, len_arr)
+                            scost_meas_tmp = numpy.repeat(scost_meas_tmp, len_arr)
                         # Check energy/energy cost and carbon/cost savings
                         # inputs
-                        if not isinstance(
-                                esave_tmp_unit, numpy.ndarray):
-                            esave_tmp_unit = numpy.repeat(
-                                esave_tmp_unit, len_arr)
-                            ecostsave_tmp_unit = \
-                                numpy.repeat(ecostsave_tmp_unit, len_arr)
-                            csave_tmp_unit = numpy.repeat(
-                                csave_tmp_unit, len_arr)
-                            ccostsave_tmp_unit = \
-                                numpy.repeat(ccostsave_tmp_unit, len_arr)
-                            ecost_meas_tmp = numpy.repeat(
-                                ecost_meas_tmp, len_arr)
-                            ccost_meas_tmp = numpy.repeat(
-                                ccost_meas_tmp, len_arr)
+                        if not isinstance(esave_tmp_unit, numpy.ndarray):
+                            esave_tmp_unit = numpy.repeat(esave_tmp_unit, len_arr)
+                            ecostsave_tmp_unit = numpy.repeat(ecostsave_tmp_unit, len_arr)
+                            csave_tmp_unit = numpy.repeat(csave_tmp_unit, len_arr)
+                            ccostsave_tmp_unit = numpy.repeat(ccostsave_tmp_unit, len_arr)
+                            ecost_meas_tmp = numpy.repeat(ecost_meas_tmp, len_arr)
+                            ccost_meas_tmp = numpy.repeat(ccost_meas_tmp, len_arr)
                         # Check measure lifetime input
                         if not isinstance(life_meas_tmp, numpy.ndarray):
-                            life_meas_tmp = numpy.repeat(
-                                life_meas_tmp, len_arr)
+                            life_meas_tmp = numpy.repeat(life_meas_tmp, len_arr)
 
                         # Initialize numpy arrays for financial metrics outputs
-                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                            irr_e[yr], irr_ec[yr], payback_e[yr], \
-                            payback_ec[yr], cce[yr], cce_bens[yr], ccc[yr], \
-                            ccc_bens[yr] = (numpy.repeat(None, len(
-                                scostmeas_delt_unit_tmp)) for v in range(14))
+                        (
+                            stock_unit_cost_res[yr],
+                            energy_unit_cost_res[yr],
+                            carb_unit_cost_res[yr],
+                            stock_unit_cost_com[yr],
+                            energy_unit_cost_com[yr],
+                            carb_unit_cost_com[yr],
+                            irr_e[yr],
+                            irr_ec[yr],
+                            payback_e[yr],
+                            payback_ec[yr],
+                            cce[yr],
+                            cce_bens[yr],
+                            ccc[yr],
+                            ccc_bens[yr],
+                        ) = (numpy.repeat(None, len(scostmeas_delt_unit_tmp)) for v in range(14))
 
                         # Run measure energy/carbon/cost savings and lifetime
                         # inputs through "metric_update" function to yield
@@ -1383,24 +1661,36 @@ class Engine(object):
                         # energy, carbon, and energy/carbon cost savings values
                         # are normalized by total applicable stock units
                         for x in range(0, len(scostmeas_delt_unit_tmp)):
-                            stock_unit_cost_res[yr][x], \
-                                energy_unit_cost_res[yr][x], \
-                                carb_unit_cost_res[yr][x], \
-                                stock_unit_cost_com[yr][x], \
-                                energy_unit_cost_com[yr][x], \
-                                carb_unit_cost_com[yr][x], \
-                                irr_e[yr][x], irr_ec[yr][x], \
-                                payback_e[yr][x], payback_ec[yr][x], \
-                                cce[yr][x], cce_bens[yr][x], ccc[yr][x], \
-                                ccc_bens[yr][x] = self.metric_update(
-                                    m, int(round(life_base)),
-                                    int(round(life_meas_tmp[x])),
-                                    scostbase_unit[yr],
-                                    scostmeas_delt_unit_tmp[x],
-                                    esave_tmp_unit[x], ecostsave_tmp_unit[x],
-                                    csave_tmp_unit[x], ccostsave_tmp_unit[x],
-                                    scost_meas_tmp[x], ecost_meas_tmp[x],
-                                    ccost_meas_tmp[x], opts)
+                            (
+                                stock_unit_cost_res[yr][x],
+                                energy_unit_cost_res[yr][x],
+                                carb_unit_cost_res[yr][x],
+                                stock_unit_cost_com[yr][x],
+                                energy_unit_cost_com[yr][x],
+                                carb_unit_cost_com[yr][x],
+                                irr_e[yr][x],
+                                irr_ec[yr][x],
+                                payback_e[yr][x],
+                                payback_ec[yr][x],
+                                cce[yr][x],
+                                cce_bens[yr][x],
+                                ccc[yr][x],
+                                ccc_bens[yr][x],
+                            ) = self.metric_update(
+                                m,
+                                int(round(life_base)),
+                                int(round(life_meas_tmp[x])),
+                                scostbase_unit[yr],
+                                scostmeas_delt_unit_tmp[x],
+                                esave_tmp_unit[x],
+                                ecostsave_tmp_unit[x],
+                                csave_tmp_unit[x],
+                                ccostsave_tmp_unit[x],
+                                scost_meas_tmp[x],
+                                ecost_meas_tmp[x],
+                                ccost_meas_tmp[x],
+                                opts,
+                            )
                     else:
                         # Run measure energy/carbon/cost savings and lifetime
                         # inputs through "metric_update" function to yield
@@ -1408,42 +1698,58 @@ class Engine(object):
                         # values are translated to integers, and all
                         # energy, carbon, and energy/carbon cost savings values
                         # are normalized by total applicable stock units
-                        stock_unit_cost_res[yr], energy_unit_cost_res[yr], \
-                            carb_unit_cost_res[yr], stock_unit_cost_com[yr], \
-                            energy_unit_cost_com[yr], carb_unit_cost_com[yr], \
-                            irr_e[yr], irr_ec[yr], payback_e[yr], \
-                            payback_ec[yr], cce[yr], cce_bens[yr], ccc[yr], \
-                            ccc_bens[yr] = \
-                            self.metric_update(
-                                m, int(round(life_base)),
-                                int(round(life_meas)), scostbase_unit[yr],
-                                scostmeas_delt_unit[yr], esave_unit[yr],
-                                ecostsave_unit[yr], csave_unit[yr],
-                                ccostsave_unit[yr],
-                                scostmeas_unit[yr],
-                                ecost_meas_unit[yr],
-                                ccost_meas_unit[yr], opts)
+                        (
+                            stock_unit_cost_res[yr],
+                            energy_unit_cost_res[yr],
+                            carb_unit_cost_res[yr],
+                            stock_unit_cost_com[yr],
+                            energy_unit_cost_com[yr],
+                            carb_unit_cost_com[yr],
+                            irr_e[yr],
+                            irr_ec[yr],
+                            payback_e[yr],
+                            payback_ec[yr],
+                            cce[yr],
+                            cce_bens[yr],
+                            ccc[yr],
+                            ccc_bens[yr],
+                        ) = self.metric_update(
+                            m,
+                            int(round(life_base)),
+                            int(round(life_meas)),
+                            scostbase_unit[yr],
+                            scostmeas_delt_unit[yr],
+                            esave_unit[yr],
+                            ecostsave_unit[yr],
+                            csave_unit[yr],
+                            ccostsave_unit[yr],
+                            scostmeas_unit[yr],
+                            ecost_meas_unit[yr],
+                            ccost_meas_unit[yr],
+                            opts,
+                        )
 
                 # Set measure financial metrics dict to update (across years)
                 metrics_finance = m.financial_metrics
                 # Update unit capital and operating costs
-                metrics_finance["unit cost"]["stock cost"]["residential"], \
-                    metrics_finance["unit cost"]["stock cost"][
-                    "commercial"] = [stock_unit_cost_res, stock_unit_cost_com]
-                metrics_finance["unit cost"]["energy cost"]["residential"], \
-                    metrics_finance["unit cost"]["energy cost"][
-                    "commercial"] = [energy_unit_cost_res,
-                                     energy_unit_cost_com]
-                metrics_finance["unit cost"]["carbon cost"]["residential"], \
-                    metrics_finance["unit cost"]["carbon cost"][
-                    "commercial"] = [carb_unit_cost_res, carb_unit_cost_com]
+                (
+                    metrics_finance["unit cost"]["stock cost"]["residential"],
+                    metrics_finance["unit cost"]["stock cost"]["commercial"],
+                ) = [stock_unit_cost_res, stock_unit_cost_com]
+                (
+                    metrics_finance["unit cost"]["energy cost"]["residential"],
+                    metrics_finance["unit cost"]["energy cost"]["commercial"],
+                ) = [energy_unit_cost_res, energy_unit_cost_com]
+                (
+                    metrics_finance["unit cost"]["carbon cost"]["residential"],
+                    metrics_finance["unit cost"]["carbon cost"]["commercial"],
+                ) = [carb_unit_cost_res, carb_unit_cost_com]
                 # Update internal rate of return
                 metrics_finance["irr (w/ energy costs)"] = irr_e
                 metrics_finance["irr (w/ energy and carbon costs)"] = irr_ec
                 # Update payback period
                 metrics_finance["payback (w/ energy costs)"] = payback_e
-                metrics_finance["payback (w/ energy and carbon costs)"] = \
-                    payback_ec
+                metrics_finance["payback (w/ energy and carbon costs)"] = payback_ec
                 # Update cost of conserved energy
                 metrics_finance["cce"] = cce
                 metrics_finance["cce (w/ carbon cost benefits)"] = cce_bens
@@ -1454,9 +1760,22 @@ class Engine(object):
                 # Set measure consumer-level metrics to finalized status
                 m.update_results["financial metrics"] = False
 
-    def metric_update(self, m, life_base, life_meas, scost_base,
-                      scost_meas_delt, esave, ecostsave, csave, ccostsave,
-                      scost_meas, ecost_meas, ccost_meas, opts):
+    def metric_update(
+        self,
+        m,
+        life_base,
+        life_meas,
+        scost_base,
+        scost_meas_delt,
+        esave,
+        ecostsave,
+        csave,
+        ccostsave,
+        scost_meas,
+        ecost_meas,
+        ccost_meas,
+        opts,
+    ):
         """Calculate measure financial metrics for a given year.
 
         Notes:
@@ -1508,9 +1827,12 @@ class Engine(object):
         # bulb would have occurred by the time the LED bulb has reached the
         # end of its life.
         added_stockcost_gain_yrs = []
-        if (life_meas > life_base) and ("lighting" in m.end_use[
-            "primary"]) and (m.measure_type == "full service") and (
-                m.technology_type["primary"] == "supply"):
+        if (
+            (life_meas > life_base)
+            and ("lighting" in m.end_use["primary"])
+            and (m.measure_type == "full service")
+            and (m.technology_type["primary"] == "supply")
+        ):
             for i in range(1, life_meas):
                 if i % life_base == 0:
                     added_stockcost_gain_yrs.append(i - 1)
@@ -1545,14 +1867,17 @@ class Engine(object):
         # flows across measure lifetime. First term (reserved for initial
         # investment) is zero
         cashflows_e_delt, cashflows_c_delt = [
-            numpy.append(0, [x] * life_meas) for x in [ecostsave, ccostsave]]
+            numpy.append(0, [x] * life_meas) for x in [ecostsave, ccostsave]
+        ]
         cashflows_e_tot, cashflows_c_tot = [
-            numpy.append(0, [x] * life_meas) for x in [ecost_meas, ccost_meas]]
+            numpy.append(0, [x] * life_meas) for x in [ecost_meas, ccost_meas]
+        ]
 
         # Calculate net present values (NPVs) using the above cashflows
         npv_s_delt, npv_e_delt, npv_c_delt = [
-            npf.npv(self.handyvars.discount_rate, x) for x in [
-                cashflows_s_delt, cashflows_e_delt, cashflows_c_delt]]
+            npf.npv(self.handyvars.discount_rate, x)
+            for x in [cashflows_s_delt, cashflows_e_delt, cashflows_c_delt]
+        ]
 
         # Develop arrays of energy and carbon savings across measure
         # lifetime (for use in cost of conserved energy and carbon calcs).
@@ -1571,17 +1896,16 @@ class Engine(object):
         # Calculate cost of conserved energy w/ and w/o carbon cost savings
         # benefits. Restrict denominator values less than or equal to zero
         if npv_esave > 0:
-            cce = (-npv_s_delt / npv_esave)
-            cce_bens = (-(npv_s_delt + npv_c_delt) / npv_esave)
+            cce = -npv_s_delt / npv_esave
+            cce_bens = -(npv_s_delt + npv_c_delt) / npv_esave
         else:
             cce, cce_bens = [999 for n in range(2)]
 
         # Calculate cost of conserved carbon w/ and w/o energy cost savings
         # benefits. Restrict denominator values less than or equal to zero
         if npv_csave > 0:
-            ccc = (-npv_s_delt / (npv_csave * 1000000))
-            ccc_bens = (-(npv_s_delt + npv_e_delt) /
-                        (npv_csave * 1000000))
+            ccc = -npv_s_delt / (npv_csave * 1000000)
+            ccc_bens = -(npv_s_delt + npv_e_delt) / (npv_csave * 1000000)
         else:
             ccc, ccc_bens = [999 for n in range(2)]
 
@@ -1602,16 +1926,13 @@ class Engine(object):
             payback_e = 999
         # IRR and payback given capital + energy + carbon cash flows
         try:
-            irr_ec = npf.irr(
-                cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
+            irr_ec = npf.irr(cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
             if not math.isfinite(irr_ec):
                 raise (ValueError)
         except (ValueError, LinAlgError):
             irr_ec = 999
         try:
-            payback_ec = \
-                self.payback(
-                    cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
+            payback_ec = self.payback(cashflows_s_delt + cashflows_e_delt + cashflows_c_delt)
         except (ValueError, LinAlgError):
             payback_ec = 999
 
@@ -1627,41 +1948,49 @@ class Engine(object):
 
         # Populate unit costs for residential sector
         # Check whether measure applies to residential sector
-        if any([x in ["single family home", "multi family home",
-                      "mobile home"] for x in m.bldg_type]):
-            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = [
-                scost_meas, ecost_meas, ccost_meas]
+        if any(
+            [x in ["single family home", "multi family home", "mobile home"] for x in m.bldg_type]
+        ):
+            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = [scost_meas, ecost_meas, ccost_meas]
         # If measure does not apply to residential sector, set residential
         # unit costs to 'None'
         else:
-            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = (
-                None for n in range(3))
+            unit_cost_s_res, unit_cost_e_res, unit_cost_c_res = (None for n in range(3))
 
         # Populate unit costs for commercial sector
         # Check whether measure applies to commercial sector
-        if any([x not in ["single family home", "multi family home",
-                          "mobile home"] for x in m.bldg_type]):
+        if any(
+            [
+                x not in ["single family home", "multi family home", "mobile home"]
+                for x in m.bldg_type
+            ]
+        ):
             if opts.high_res_comp is False:
-                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                    {} for n in range(3))
+                unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = ({} for n in range(3))
                 # Set unit cost values under 7 discount rate categories
                 try:
-                    for ind, tps in enumerate(
-                            self.handyvars.com_timeprefs["rates"]):
-                        unit_cost_s_com["rate " + str(ind + 1)], \
-                            unit_cost_e_com["rate " + str(ind + 1)], \
-                            unit_cost_c_com["rate " + str(ind + 1)] = \
-                            [npf.npv(tps, x) for x in [
-                             cashflows_s_tot, cashflows_e_tot,
-                             cashflows_c_tot]]
-                        if any([not math.isfinite(x) for x in [
-                                unit_cost_s_com["rate " + str(ind + 1)],
-                                unit_cost_e_com["rate " + str(ind + 1)],
-                                unit_cost_c_com["rate " + str(ind + 1)]]]):
+                    for ind, tps in enumerate(self.handyvars.com_timeprefs["rates"]):
+                        (
+                            unit_cost_s_com["rate " + str(ind + 1)],
+                            unit_cost_e_com["rate " + str(ind + 1)],
+                            unit_cost_c_com["rate " + str(ind + 1)],
+                        ) = [
+                            npf.npv(tps, x)
+                            for x in [cashflows_s_tot, cashflows_e_tot, cashflows_c_tot]
+                        ]
+                        if any(
+                            [
+                                not math.isfinite(x)
+                                for x in [
+                                    unit_cost_s_com["rate " + str(ind + 1)],
+                                    unit_cost_e_com["rate " + str(ind + 1)],
+                                    unit_cost_c_com["rate " + str(ind + 1)],
+                                ]
+                            ]
+                        ):
                             raise (ValueError)
                 except ValueError:
-                    unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                        None for n in range(3))
+                    unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (None for n in range(3))
             else:
                 # Finalize annual energy and carbon costs
                 unit_cost_e_com, unit_cost_c_com = [ecost_meas, ccost_meas]
@@ -1670,8 +1999,9 @@ class Engine(object):
                 unit_cost_s_com = {}
                 for ind, tps in enumerate(self.handyvars.com_timeprefs["rates"]):
                     try:
-                        unit_cost_s_com["rate " + str(ind + 1)] = \
-                            scost_meas * (tps / (1 - ((1 + tps) ** -life_meas)))
+                        unit_cost_s_com["rate " + str(ind + 1)] = scost_meas * (
+                            tps / (1 - ((1 + tps) ** -life_meas))
+                        )
                     # If hurdle rate is zero, annualize stock costs by dividing by lifetime
                     except ZeroDivisionError:
                         unit_cost_s_com = scost_meas / life_meas
@@ -1679,13 +2009,25 @@ class Engine(object):
         # If measure does not apply to commercial sector, set commercial
         # unit costs to 'None'
         else:
-            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (
-                None for n in range(3))
+            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com = (None for n in range(3))
 
         # Return all updated economic metrics
-        return unit_cost_s_res, unit_cost_e_res, unit_cost_c_res, \
-            unit_cost_s_com, unit_cost_e_com, unit_cost_c_com, irr_e, \
-            irr_ec, payback_e, payback_ec, cce, cce_bens, ccc, ccc_bens
+        return (
+            unit_cost_s_res,
+            unit_cost_e_res,
+            unit_cost_c_res,
+            unit_cost_s_com,
+            unit_cost_e_com,
+            unit_cost_c_com,
+            irr_e,
+            irr_ec,
+            payback_e,
+            payback_ec,
+            cce,
+            cce_bens,
+            ccc,
+            ccc_bens,
+        )
 
     def payback(self, cashflows):
         """Calculate simple payback period.
@@ -1703,8 +2045,10 @@ class Engine(object):
         # Separate initial investment and subsequent cash flows
         # from "cashflows" input; extend cashflows up until 100 years
         # out to ensure calculation of all paybacks under 100 years
-        investment, cashflows = cashflows[0], list(
-            cashflows[1:]) + [cashflows[-1]] * (100 - len(cashflows[1:]))
+        investment, cashflows = (
+            cashflows[0],
+            list(cashflows[1:]) + [cashflows[-1]] * (100 - len(cashflows[1:])),
+        )
         # If initial investment is positive, payback = 0
         if investment >= 0:
             payback_val = 0
@@ -1761,8 +2105,11 @@ class Engine(object):
         # total stock/energy/carbon/cost microsegments, across active measures
         mseg_keys, mkts_adj = ([] for n in range(2))
         for x in self.measures:
-            mseg_keys.extend(x.markets[adopt_scheme]["competed"][
-                "mseg_adjust"]["contributing mseg keys and values"].keys())
+            mseg_keys.extend(
+                x.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "contributing mseg keys and values"
+                ].keys()
+            )
             mkts_adj.append(x.markets[adopt_scheme]["competed"]["mseg_adjust"])
 
         # Establish list of unique key chains in mseg_keys list above,
@@ -1777,8 +2124,7 @@ class Engine(object):
         # heating/cooling ECMs (e.g., envelope). If the current set of ECMs
         # does not affect both supply-side and demand-side heating/cooling
         # markets, this dict is set to None
-        if any(["supply" in x for x in msegs]) and \
-           any(["demand" in x for x in msegs]):
+        if any(["supply" in x for x in msegs]) and any(["demand" in x for x in msegs]):
             htcl_adj_data = {"supply": {}, "demand": {}}
         else:
             htcl_adj_data = None
@@ -1788,18 +2134,22 @@ class Engine(object):
         # associated with each should be adjusted to reflect the effects of
         # measure competition
         for msu in msegs:
-
             # Determine the subset of measures that pertain to the current
             # contributing microsegment
-            measures_adj = [self.measures[x] for x in range(
-                0, len(self.measures)) if msu in mkts_adj[x][
-                "contributing mseg keys and values"].keys()]
+            measures_adj = [
+                self.measures[x]
+                for x in range(0, len(self.measures))
+                if msu in mkts_adj[x]["contributing mseg keys and values"].keys()
+            ]
 
             # Create short name for all ECM competition data pertaining to
             # current contributing microsegment
-            msu_mkts = [m.markets[adopt_scheme]["competed"][
-                "mseg_adjust"]["contributing mseg keys and values"][msu] for
-                m in measures_adj]
+            msu_mkts = [
+                m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "contributing mseg keys and values"
+                ][msu]
+                for m in measures_adj
+            ]
 
             # If the current contributing microsegment is of the 'primary'
             # type, directly compete the microsegment across applicable
@@ -1810,13 +2160,13 @@ class Engine(object):
                 # measure and adjust primary stock/energy/carbon/cost
                 # totals for each measure accordingly, using separate market
                 # share modeling routines for residential/commercial sectors.
-                if len(measures_adj) > 1 and any(x in msu for x in (
-                        'single family home', 'multi family home',
-                        'mobile home')):
+                if len(measures_adj) > 1 and any(
+                    x in msu for x in ("single family home", "multi family home", "mobile home")
+                ):
                     self.compete_res_primary(measures_adj, msu, adopt_scheme, opts)
-                elif len(measures_adj) > 1 and all(x not in msu for x in (
-                        'single family home', 'multi family home',
-                        'mobile home')):
+                elif len(measures_adj) > 1 and all(
+                    x not in msu for x in ("single family home", "multi family home", "mobile home")
+                ):
                     self.compete_com_primary(measures_adj, msu, adopt_scheme, opts)
             # If the current contributing microsegment is of the 'secondary'
             # type, adjust the microsegment across applicable measures as
@@ -1827,26 +2177,30 @@ class Engine(object):
                 # needed to link the secondary microsegment and associated3
                 # primary microsegment(s)
                 mseg_separate = literal_eval(msu)
-                secnd_mseg_adjkey = str((
-                    mseg_separate[1], mseg_separate[2], mseg_separate[-1]))
+                secnd_mseg_adjkey = str((mseg_separate[1], mseg_separate[2], mseg_separate[-1]))
                 # Determine the subset of measures pertaining to the given
                 # secondary microsegment that require total energy/carbon/cost
                 # adjustments due to changes in associated primary
                 # microsegment(s) (note that secondary microsegments do not
                 # affect stock totals, only energy/carbon and associated costs)
-                measures_adj_scnd = [self.measures[x] for x in range(
-                    0, len(self.measures)) if self.measures[x] in
-                    measures_adj and any(
-                    [(y[1] > 0) for y in mkts_adj[x][
-                        "secondary mseg adjustments"]["market share"][
-                        "original energy (total captured)"][
-                        secnd_mseg_adjkey].items()])]
+                measures_adj_scnd = [
+                    self.measures[x]
+                    for x in range(0, len(self.measures))
+                    if self.measures[x] in measures_adj
+                    and any(
+                        [
+                            (y[1] > 0)
+                            for y in mkts_adj[x]["secondary mseg adjustments"]["market share"][
+                                "original energy (total captured)"
+                            ][secnd_mseg_adjkey].items()
+                        ]
+                    )
+                ]
                 # If at least one applicable measure requires adjustments to
                 # total secondary energy/carbon/cost, proceed with the
                 # adjustment calculation
                 if len(measures_adj_scnd) > 0:
-                    self.secondary_adj(measures_adj_scnd, msu,
-                                       secnd_mseg_adjkey, adopt_scheme)
+                    self.secondary_adj(measures_adj_scnd, msu, secnd_mseg_adjkey, adopt_scheme)
 
             # For any contributing microsegment that pertains to heating or
             # cooling, record data needed for additional adjustments to remove
@@ -1859,11 +2213,10 @@ class Engine(object):
             # Ensure the current contributing microsegment pertains to
             # heating or cooling (marked by 'supply' or 'demand' keys) and
             # that both supply and demand-side ECMs are present in the analysis
-            if ('primary' in msu and
-                ('supply' in msu or 'demand' in msu)) and \
-                    htcl_adj_data is not None:
-                htcl_adj_data = self.htcl_adj_rec(
-                    htcl_adj_data, msu, msu_mkts, htcl_totals)
+            if (
+                "primary" in msu and ("supply" in msu or "demand" in msu)
+            ) and htcl_adj_data is not None:
+                htcl_adj_data = self.htcl_adj_rec(htcl_adj_data, msu, msu_mkts, htcl_totals)
 
         # Once all direct competition is finished, remove all recorded
         # overlapping energy use and associated carbon/costs between
@@ -1871,9 +2224,17 @@ class Engine(object):
         # are present in the analysis
         if htcl_adj_data is not None:
             # Find the subset of ECMs that applies to heating and cooling
-            measures_htcl_adj = [m for m in self.measures if any([
-                z[0] in ["heating", "cooling", "secondary heating"] for
-                z in m.end_use.values() if z is not None])]
+            measures_htcl_adj = [
+                m
+                for m in self.measures
+                if any(
+                    [
+                        z[0] in ["heating", "cooling", "secondary heating"]
+                        for z in m.end_use.values()
+                        if z is not None
+                    ]
+                )
+            ]
 
             # Remove energy, carbon, and cost overlaps between supply-side and
             # demand-side heating/cooling ECMs
@@ -1916,11 +2277,13 @@ class Engine(object):
             # capital and operating cost values, accessed further below
 
             # Unit upfront capital cost dictionary (calculated across all measure segments)
-            unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
-                "residential"] for m in measures_adj]
+            unit_cost_s_in = [
+                m.financial_metrics["unit cost"]["stock cost"]["residential"] for m in measures_adj
+            ]
             # Unit annual operating cost dictionary (calculated across all measure segments)
-            unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
-                "residential"] for m in measures_adj]
+            unit_cost_e_in = [
+                m.financial_metrics["unit cost"]["energy cost"]["residential"] for m in measures_adj
+            ]
             # Shorthand for mseg information to use in pulling consumer choice weights later
             choice_mseg = [mseg_key] * len(measures_adj)
         else:
@@ -1928,67 +2291,100 @@ class Engine(object):
             try:
                 markets_uc_stk = [
                     m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                        "contributing mseg keys and values"][
-                        stk_cost_dat_keys[m_ind][0]] for m_ind, m in enumerate(measures_adj)]
+                        "contributing mseg keys and values"
+                    ][stk_cost_dat_keys[m_ind][0]]
+                    for m_ind, m in enumerate(measures_adj)
+                ]
                 # Shorthand for mseg information to use in pulling consumer choice weights later
                 choice_mseg = [stk_cost_dat_keys[m_ind][0] for m_ind, m in enumerate(measures_adj)]
             except KeyError:
                 try:
                     markets_uc_stk = [
                         m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                            "contributing mseg keys and values"][
-                            stk_cost_dat_keys[m_ind][1]] for m_ind, m in enumerate(measures_adj)]
+                            "contributing mseg keys and values"
+                        ][stk_cost_dat_keys[m_ind][1]]
+                        for m_ind, m in enumerate(measures_adj)
+                    ]
                     # Shorthand for mseg information to use in pulling consumer choice weights later
-                    choice_mseg = [stk_cost_dat_keys[m_ind][1] for
-                                   m_ind, m in enumerate(measures_adj)]
+                    choice_mseg = [
+                        stk_cost_dat_keys[m_ind][1] for m_ind, m in enumerate(measures_adj)
+                    ]
                 except KeyError:
                     # Handle case where expected microsegment stock data to be linked to the stock
                     # data for the current microsegment is not available; key in stock data with
                     # current microsegment info.
-                    markets_uc_stk = [m.markets["Technical potential"]["uncompeted"][
-                        "mseg_adjust"]["contributing mseg keys and values"][
-                            mseg_key] for m_ind, m in enumerate(measures_adj)]
+                    markets_uc_stk = [
+                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
+                            "contributing mseg keys and values"
+                        ][mseg_key]
+                        for m_ind, m in enumerate(measures_adj)
+                    ]
                     # Shorthand for mseg information to use in pulling consumer choice weights later
                     choice_mseg = [mseg_key] * len(measures_adj)
             # Shorthand for linked stock and energy costs, to be added to unit costs below
-            lnk_costs_in = [m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                            "linked mseg values"] for m in measures_adj]
+            lnk_costs_in = [
+                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"]["linked mseg values"]
+                for m in measures_adj
+            ]
             # Initialize linked stock and energy costs as zero
             lnk_costs_fin = [
                 {v: {yr: 0 for yr in self.handyvars.aeo_years} for v in ["stock", "energy"]}
-                for m in measures_adj]
+                for m in measures_adj
+            ]
             # Loop through linked stock and energy costs dicts for each measure and pull any
             # linked data into dictionary, to be added to anchor mseg stock and energy costs
-            for m_ind, l in enumerate(lnk_costs_in):
+            for m_ind, lnk in enumerate(lnk_costs_in):
                 # If linked costs are available, dict will have keys; each key is anchor mseg
-                if len(l) != 0:
+                if len(lnk) != 0:
                     # If current mseg information is not found in linked costs dict, continue
                     try:
                         lnk_costs_fin[m_ind] = {
-                            v: l[choice_mseg[m_ind]][v] for v in ["stock", "energy"]}
+                            v: lnk[choice_mseg[m_ind]][v] for v in ["stock", "energy"]
+                        }
                     except KeyError:
                         continue
             # Shorthand for number of units captured by measure
-            n_units = [markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
-                       for m_ind, m in enumerate(measures_adj)]
+            n_units = [
+                markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
+                for m_ind, m in enumerate(measures_adj)
+            ]
             # Unit upfront capital cost dictionary (calculated for current mseg only); account for
             # any linked costs as well
-            unit_cost_s_in = [{
-                yr: ((markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr] +
-                      lnk_costs_fin[m_ind]["stock"][yr]) /
-                     n_units[m_ind][yr]) * self.handyvars.cost_convert["stock"]
-                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
-                for m_ind, m in enumerate(measures_adj)]
+            unit_cost_s_in = [
+                {
+                    yr: (
+                        (
+                            markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr]
+                            + lnk_costs_fin[m_ind]["stock"][yr]
+                        )
+                        / n_units[m_ind][yr]
+                    )
+                    * self.handyvars.cost_convert["stock"]
+                    if n_units[m_ind][yr] != 0
+                    else 0
+                    for yr in self.handyvars.aeo_years
+                }
+                for m_ind, m in enumerate(measures_adj)
+            ]
 
             # Unit annual operating cost dictionary (calculated for current mseg only); account for
             # any linked costs as well
-            unit_cost_e_in = [{
-                yr: ((markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr] +
-                      lnk_costs_fin[m_ind]["energy"][yr]) /
-                     n_units[m_ind][yr]) *
-                self.handyvars.cost_convert["energy"]
-                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
-                for m_ind, m in enumerate(measures_adj)]
+            unit_cost_e_in = [
+                {
+                    yr: (
+                        (
+                            markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr]
+                            + lnk_costs_fin[m_ind]["energy"][yr]
+                        )
+                        / n_units[m_ind][yr]
+                    )
+                    * self.handyvars.cost_convert["energy"]
+                    if n_units[m_ind][yr] != 0
+                    else 0
+                    for yr in self.handyvars.aeo_years
+                }
+                for m_ind, m in enumerate(measures_adj)
+            ]
 
         # Find the year range in which at least one measure that applies
         # to the competed primary microsegment is on the market
@@ -1997,15 +2393,15 @@ class Engine(object):
         years_on_mkt_all = numpy.unique(years_on_mkt_all)
 
         # Set market entry years for all competing measures
-        mkt_entry_yrs = [
-            m.market_entry_year for m in measures_adj]
+        mkt_entry_yrs = [m.market_entry_year for m in measures_adj]
 
         # Determine whether any sub-federal appliance use restrictions (e.g., emissions standards
         # on fossil appliances) affect the current competed microsegment/measures in the competed
         # set. Reflect these effects on years measure is allowed on the market, and in cases where
         # the restriction is only partial, the fraction of market affected by it.
         yrs_on_mkt, noapply_sbmkt_fracs_regs = self.state_app_reg_screen(
-            measures_adj, stk_cost_dat_keys)
+            measures_adj, stk_cost_dat_keys
+        )
 
         # Loop through competing measures and calculate market shares for
         # each based on their annualized capital and operating costs
@@ -2015,8 +2411,9 @@ class Engine(object):
             # Pre-compute the choice-parameter sub-dict for this measure once
             # (avoids re-traversing the full dict on every year iteration).
             try:
-                _choice_params = m.markets[adopt_scheme]["competed"][
-                    "mseg_adjust"]["competed choice parameters"][str(choice_mseg[ind])]
+                _choice_params = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "competed choice parameters"
+                ][str(choice_mseg[ind])]
             except KeyError:
                 _choice_params = None
 
@@ -2051,17 +2448,15 @@ class Engine(object):
                     try:
                         # Calculate weighted sum of incremental capital and
                         # operating costs
-                        sum_wt = cap_cost * \
-                            _choice_params["b1"][yr] + op_cost * \
-                            _choice_params["b2"][yr]
+                        sum_wt = (
+                            cap_cost * _choice_params["b1"][yr] + op_cost * _choice_params["b2"][yr]
+                        )
 
                         # Guard against cases with very low weighted sums of
                         # incremental capital and operating costs
-                        if not isinstance(sum_wt, numpy.ndarray) and \
-                                sum_wt < -500:
+                        if not isinstance(sum_wt, numpy.ndarray) and sum_wt < -500:
                             sum_wt = -500
-                        elif isinstance(sum_wt, numpy.ndarray) and any([
-                                x < -500 for x in sum_wt]):
+                        elif isinstance(sum_wt, numpy.ndarray) and any([x < -500 for x in sum_wt]):
                             sum_wt = [-500 if x < -500 else x for x in sum_wt]
 
                         # Calculate market fraction
@@ -2070,8 +2465,7 @@ class Engine(object):
                         mkt_fracs[ind][yr] = 0
 
                     # Add calculated market fraction to mkt fraction sum
-                    mkt_fracs_tot[yr] = \
-                        mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
+                    mkt_fracs_tot[yr] = mkt_fracs_tot[yr] + mkt_fracs[ind][yr]
 
         # Loop through competing measures to normalize their calculated
         # market shares to the total market share sum; use normalized
@@ -2086,12 +2480,12 @@ class Engine(object):
                 # competing measures if none of those measures is on
                 # the market either, or else has a market share of zero
                 if yr in yrs_on_mkt[ind]:
-                    if ((not isinstance(mkt_fracs_tot[yr], numpy.ndarray) and
-                         mkt_fracs_tot[yr] != 0) or (
-                        isinstance(mkt_fracs_tot[yr], numpy.ndarray) and all(
-                            mkt_fracs_tot[yr] != 0))):
-                        mkt_fracs[ind][yr] = \
-                            mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
+                    if (
+                        not isinstance(mkt_fracs_tot[yr], numpy.ndarray) and mkt_fracs_tot[yr] != 0
+                    ) or (
+                        isinstance(mkt_fracs_tot[yr], numpy.ndarray) and all(mkt_fracs_tot[yr] != 0)
+                    ):
+                        mkt_fracs[ind][yr] = mkt_fracs[ind][yr] / mkt_fracs_tot[yr]
                     else:
                         mkt_fracs[ind][yr] = 1 / len(measures_adj)
                 elif yr not in years_on_mkt_all:
@@ -2103,8 +2497,13 @@ class Engine(object):
         # in the measure definition and/or sub-federal appliance restrictions that affect
         # the current competed market
         added_sbmkt_fracs, mkt_fracs = self.final_mktshare_adj(
-            measures_adj, mseg_key, adopt_scheme, years_on_mkt_all, mkt_fracs,
-            noapply_sbmkt_fracs_regs)
+            measures_adj,
+            mseg_key,
+            adopt_scheme,
+            years_on_mkt_all,
+            mkt_fracs,
+            noapply_sbmkt_fracs_regs,
+        )
 
         # Precompute min market entry year and per-year weighting_yrs prefix
         # lists once for each measure (avoids re-sorting inside compete_adj
@@ -2120,9 +2519,16 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
+            (
+                mast,
+                adj_out_break,
+                adj,
+                mast_list_base,
+                mast_list_eff,
+                adj_list_eff,
+                adj_list_base,
+                adj_stk_trk,
+            ) = self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
             # Build a mapping yr -> weighting_yrs prefix once per measure so
             # compete_adj doesn't need to recompute it for every year call.
             weighting_yrs_map = {}
@@ -2139,17 +2545,31 @@ class Engine(object):
             # (bare generator expression is always truthy); simplified here since
             # it has not caused issues in practice.
             vs_list_init = [
-                v if _energy_brk[v] is not None else ""
-                for v in ["baseline", "efficient"]]
+                v if _energy_brk[v] is not None else "" for v in ["baseline", "efficient"]
+            ]
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
                 # market share and stock turnover rates
                 self.compete_adj(
-                        mkt_fracs[m_ind], added_sbmkt_fracs[m_ind], mast,
-                        adj_out_break, adj, mast_list_base, mast_list_eff,
-                        adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
-                        min_mkt_entry_yr, adj_stk_trk, weighting_yrs_map, vs_list_init)
+                    mkt_fracs[m_ind],
+                    added_sbmkt_fracs[m_ind],
+                    mast,
+                    adj_out_break,
+                    adj,
+                    mast_list_base,
+                    mast_list_eff,
+                    adj_list_eff,
+                    adj_list_base,
+                    yr,
+                    mseg_key,
+                    m,
+                    adopt_scheme,
+                    min_mkt_entry_yr,
+                    adj_stk_trk,
+                    weighting_yrs_map,
+                    vs_list_init,
+                )
 
     def compete_com_primary(self, measures_adj, mseg_key, adopt_scheme, opts):
         """Apportion stock/energy/carbon/cost across commercial measures.
@@ -2189,11 +2609,13 @@ class Engine(object):
             # capital and operating cost values, accessed further below
 
             # Unit stock cost dictionary
-            unit_cost_s_in = [m.financial_metrics["unit cost"]["stock cost"][
-                "commercial"] for m in measures_adj]
+            unit_cost_s_in = [
+                m.financial_metrics["unit cost"]["stock cost"]["commercial"] for m in measures_adj
+            ]
             # Unit operating cost dictionary
-            unit_cost_e_in = [m.financial_metrics["unit cost"]["energy cost"][
-                "commercial"] for m in measures_adj]
+            unit_cost_e_in = [
+                m.financial_metrics["unit cost"]["energy cost"]["commercial"] for m in measures_adj
+            ]
             # Legacy commercial competition calculations (used when user does not specify
             # high-resolution competition option) summarize energy costs across all discount
             # rate bins; flag for handling below
@@ -2203,73 +2625,106 @@ class Engine(object):
         else:
             # Shorthand for mseg-specific stock/stock cost data; use mseg info. pulled above
             try:
-                markets_uc_stk, markets_uc_capfact = [[
-                    m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
-                        stk_cost_dat_keys[m_ind][0]] for m_ind, m in enumerate(measures_adj)]
-                    for x in ["contributing mseg keys and values", "capacity factor"]]
+                markets_uc_stk, markets_uc_capfact = [
+                    [
+                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
+                            stk_cost_dat_keys[m_ind][0]
+                        ]
+                        for m_ind, m in enumerate(measures_adj)
+                    ]
+                    for x in ["contributing mseg keys and values", "capacity factor"]
+                ]
                 # Shorthand for mseg information to use in pulling consumer choice weights later
-                choice_mseg = [stk_cost_dat_keys[m_ind][0] for
-                               m_ind, m in enumerate(measures_adj)]
+                choice_mseg = [stk_cost_dat_keys[m_ind][0] for m_ind, m in enumerate(measures_adj)]
             except KeyError:
                 try:
-                    markets_uc_stk, markets_uc_capfact = [[
-                        m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
-                            stk_cost_dat_keys[m_ind][1]] for m_ind, m in enumerate(measures_adj)]
-                        for x in ["contributing mseg keys and values", "capacity factor"]]
+                    markets_uc_stk, markets_uc_capfact = [
+                        [
+                            m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
+                                stk_cost_dat_keys[m_ind][1]
+                            ]
+                            for m_ind, m in enumerate(measures_adj)
+                        ]
+                        for x in ["contributing mseg keys and values", "capacity factor"]
+                    ]
                     # Shorthand for mseg information to use in pulling consumer choice weights later
-                    choice_mseg = [stk_cost_dat_keys[m_ind][1] for
-                                   m_ind, m in enumerate(measures_adj)]
+                    choice_mseg = [
+                        stk_cost_dat_keys[m_ind][1] for m_ind, m in enumerate(measures_adj)
+                    ]
                 except KeyError:
                     # Handle case where expected microsegment stock data to be linked to the stock
                     # data for the current microsegment is not available; key in stock data with
                     # current microsegment stock info.
-                    markets_uc_stk, markets_uc_capfact = [[m.markets[
-                        "Technical potential"]["uncompeted"]["mseg_adjust"][x][
-                            mseg_key] for m_ind, m in enumerate(measures_adj)] for x in [
-                        "contributing mseg keys and values", "capacity factor"]]
+                    markets_uc_stk, markets_uc_capfact = [
+                        [
+                            m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][x][
+                                mseg_key
+                            ]
+                            for m_ind, m in enumerate(measures_adj)
+                        ]
+                        for x in ["contributing mseg keys and values", "capacity factor"]
+                    ]
                     # Shorthand for mseg information to use in pulling consumer choice weights later
                     choice_mseg = [mseg_key] * len(measures_adj)
 
             # Shorthand for number of units captured by measure
-            n_units = [markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
-                       for m_ind, m in enumerate(measures_adj)]
+            n_units = [
+                markets_uc_stk[m_ind]["stock"]["competed"]["measure"]
+                for m_ind, m in enumerate(measures_adj)
+            ]
             # Commercial stock denotes units of service demand, but unit stock costs are in terms
             # of units of service capacity; use reported capacity factor to convert between
             stk_cap_fact = [markets_uc_capfact[m_ind] for m_ind, m in enumerate(measures_adj)]
             # Measure lifetime (mseg-specific). If the measure lifetime is less than 1 year, set it
             # to 1 year (a minimum for measure lifetime to work in below calculations)
-            life_meas = [markets_uc_stk[m_ind]["lifetime"]["measure"] if
-                         markets_uc_stk[m_ind]["lifetime"]["measure"] >= 1 else 1 for
-                         m_ind, m in enumerate(measures_adj)]
+            life_meas = [
+                markets_uc_stk[m_ind]["lifetime"]["measure"]
+                if markets_uc_stk[m_ind]["lifetime"]["measure"] >= 1
+                else 1
+                for m_ind, m in enumerate(measures_adj)
+            ]
 
             # Shorthand for linked stock and energy costs, to be added to unit costs below
-            lnk_costs_in = [m.markets["Technical potential"]["uncompeted"]["mseg_adjust"][
-                            "linked mseg values"] for m in measures_adj]
+            lnk_costs_in = [
+                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"]["linked mseg values"]
+                for m in measures_adj
+            ]
             # Initialize linked stock and energy costs as zero
             lnk_costs_fin = [
                 {v: {yr: 0 for yr in self.handyvars.aeo_years} for v in ["stock", "energy"]}
-                for m in measures_adj]
+                for m in measures_adj
+            ]
             # Loop through linked stock and energy costs dicts for each measure and pull any
             # linked data into a dictionary, to be added to anchor mseg stock and energy costs
-            for m_ind, l in enumerate(lnk_costs_in):
+            for m_ind, lnk in enumerate(lnk_costs_in):
                 # If linked costs are available, dict will have keys; each key is anchor mseg
-                if len(l) != 0:
+                if len(lnk) != 0:
                     # If current mseg information is not found in linked costs dict, continue
                     try:
                         lnk_costs_fin[m_ind] = {
-                            v: l[choice_mseg[m_ind]][v] for v in ["stock", "energy"]}
+                            v: lnk[choice_mseg[m_ind]][v] for v in ["stock", "energy"]
+                        }
                     except KeyError:
                         continue
 
             # Unit upfront capital cost dictionary (calculated for current mseg only, not annual);
             # account for any linked costs as well
-            unit_cost_s_in_unadj = [{
-                yr: ((markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr] +
-                      lnk_costs_fin[m_ind]["stock"][yr]) /
-                     (n_units[m_ind][yr] * stk_cap_fact[m_ind])) *
-                self.handyvars.cost_convert["stock"]
-                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
-                for m_ind, m in enumerate(measures_adj)]
+            unit_cost_s_in_unadj = [
+                {
+                    yr: (
+                        (
+                            markets_uc_stk[m_ind]["cost"]["stock"]["competed"]["efficient"][yr]
+                            + lnk_costs_fin[m_ind]["stock"][yr]
+                        )
+                        / (n_units[m_ind][yr] * stk_cap_fact[m_ind])
+                    )
+                    * self.handyvars.cost_convert["stock"]
+                    if n_units[m_ind][yr] != 0
+                    else 0
+                    for yr in self.handyvars.aeo_years
+                }
+                for m_ind, m in enumerate(measures_adj)
+            ]
             # Annualize unit upfront costs
             unit_cost_s_in = [{yr: {} for yr in self.handyvars.aeo_years} for m in measures_adj]
             # Set unit cost values under 7 hurdle rates, where hurdle rate is 7 distinct time
@@ -2278,22 +2733,33 @@ class Engine(object):
                 for yr in self.handyvars.aeo_years:
                     for ind, tps in enumerate(self.handyvars.com_timeprefs["rates"]):
                         try:
-                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = \
-                                unit_cost_s_in_unadj[m_ind][yr] * (
-                                    tps / (1 - ((1 + tps) ** -life_meas[m_ind])))
+                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = (
+                                unit_cost_s_in_unadj[m_ind][yr]
+                                * (tps / (1 - ((1 + tps) ** -life_meas[m_ind])))
+                            )
                         # If hurdle rate is zero, annualize stock costs by dividing by lifetime
                         except ZeroDivisionError:
-                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = \
-                                (unit_cost_s_in_unadj[m_ind][yr] / life_meas[m_ind])
+                            unit_cost_s_in[m_ind][yr]["rate " + str(ind + 1)] = (
+                                unit_cost_s_in_unadj[m_ind][yr] / life_meas[m_ind]
+                            )
             # Unit annual operating cost dictionary (calculated for current mseg only); account for
             # any linked costs as well
-            unit_cost_e_in = [{
-                yr: ((markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr] +
-                      lnk_costs_fin[m_ind]["energy"][yr]) /
-                     (n_units[m_ind][yr] * stk_cap_fact[m_ind])) *
-                self.handyvars.cost_convert["energy"]
-                if n_units[m_ind][yr] != 0 else 0 for yr in self.handyvars.aeo_years}
-                for m_ind, m in enumerate(measures_adj)]
+            unit_cost_e_in = [
+                {
+                    yr: (
+                        (
+                            markets_uc_stk[m_ind]["cost"]["energy"]["competed"]["efficient"][yr]
+                            + lnk_costs_fin[m_ind]["energy"][yr]
+                        )
+                        / (n_units[m_ind][yr] * stk_cap_fact[m_ind])
+                    )
+                    * self.handyvars.cost_convert["energy"]
+                    if n_units[m_ind][yr] != 0
+                    else 0
+                    for yr in self.handyvars.aeo_years
+                }
+                for m_ind, m in enumerate(measures_adj)
+            ]
             # Updated commercial competition calculations (used when user specifies
             # high-resolution competition option) summarize energy costs across all discount
             # rate bins; flag for handling below
@@ -2306,15 +2772,15 @@ class Engine(object):
         years_on_mkt_all = numpy.unique(years_on_mkt_all)
 
         # Set market entry years for all competing measures
-        mkt_entry_yrs = [
-            m.market_entry_year for m in measures_adj]
+        mkt_entry_yrs = [m.market_entry_year for m in measures_adj]
 
         # Determine whether any sub-federal appliance use restrictions (e.g., emissions standards
         # on fossil appliances) affect the current competed microsegment/measures in the competed
         # set. Reflect these effects on years measure is allowed on the market, and in cases where
         # the restriction is only partial, the fraction of market affected by it.
         yrs_on_mkt, noapply_sbmkt_fracs_regs = self.state_app_reg_screen(
-            measures_adj, stk_cost_dat_keys)
+            measures_adj, stk_cost_dat_keys
+        )
 
         # Initialize a flag that indicates whether any competing measures
         # have arrays of annualized capital and/or operating costs rather
@@ -2329,15 +2795,23 @@ class Engine(object):
             # the given year; if so, find the array length. * Note: all
             # array lengths should be equal to the 'nsamples' variable
             # defined in 'ecm_prep.py'
-            if any([isinstance(x[yr], numpy.ndarray) or
-                    isinstance(y[yr], numpy.ndarray) for
-                    x, y in zip(unit_cost_s_in, unit_cost_e_in)]) is True:
+            if (
+                any(
+                    [
+                        isinstance(x[yr], numpy.ndarray) or isinstance(y[yr], numpy.ndarray)
+                        for x, y in zip(unit_cost_s_in, unit_cost_e_in)
+                    ]
+                )
+                is True
+            ):
                 length_array[ind_l] = next(
-                    (len(x[yr]) or len(y[yr]) for x, y in
-                     zip(unit_cost_s_in, unit_cost_e_in) if isinstance(
-                        x[yr], numpy.ndarray) or isinstance(
-                            y[yr], numpy.ndarray)),
-                    length_array[ind_l])
+                    (
+                        len(x[yr]) or len(y[yr])
+                        for x, y in zip(unit_cost_s_in, unit_cost_e_in)
+                        if isinstance(x[yr], numpy.ndarray) or isinstance(y[yr], numpy.ndarray)
+                    ),
+                    length_array[ind_l],
+                )
 
         # Loop through competing measures and calculate market shares for
         # each based on their annualized capital and operating costs
@@ -2357,36 +2831,35 @@ class Engine(object):
                     # for all measures must be formatted consistently as arrays
                     # of the same length
                     if length_array[ind_l] > 0:
-                        cap_cost, op_cost = ([
-                            {} for n in range(length_array[ind_l])] for
-                            n in range(2))
+                        cap_cost, op_cost = (
+                            [{} for n in range(length_array[ind_l])] for n in range(2)
+                        )
                         for i in range(length_array[ind_l]):
                             # Set capital cost input array
-                            if isinstance(
-                                    unit_cost_s_in[ind][yr], numpy.ndarray):
+                            if isinstance(unit_cost_s_in[ind][yr], numpy.ndarray):
                                 cap_cost[i] = unit_cost_s_in[ind][yr][i]
                             else:
                                 cap_cost[i] = unit_cost_s_in[ind][yr]
                             # Set operating cost input array
-                            if isinstance(
-                                    unit_cost_e_in[ind][yr], numpy.ndarray):
+                            if isinstance(unit_cost_e_in[ind][yr], numpy.ndarray):
                                 op_cost[i] = unit_cost_e_in[ind][yr][i]
                             else:
                                 op_cost[i] = unit_cost_e_in[ind][yr]
                         # Sum capital and operating cost arrays and add to the
                         # total cost dict entry for the given measure
-                        tot_cost[ind][yr] = [
-                            [] for n in range(length_array[ind_l])]
+                        tot_cost[ind][yr] = [[] for n in range(length_array[ind_l])]
                         # Handle case where cost is None
                         try:
                             for c_l in range(0, len(tot_cost[ind][yr])):
                                 for dr in sorted(cap_cost[c_l].keys()):
                                     if op_cost_rate_bins:
                                         tot_cost[ind][yr][c_l].append(
-                                            cap_cost[c_l][dr] + op_cost[c_l][dr])
+                                            cap_cost[c_l][dr] + op_cost[c_l][dr]
+                                        )
                                     else:
                                         tot_cost[ind][yr][c_l].append(
-                                            cap_cost[c_l][dr] + op_cost[c_l])
+                                            cap_cost[c_l][dr] + op_cost[c_l]
+                                        )
                         except AttributeError:
                             pass
                     # Handle cases where capital and/or operating cost inputs
@@ -2404,8 +2877,7 @@ class Engine(object):
                         try:
                             for dr in sorted(cap_cost.keys()):
                                 if op_cost_rate_bins:
-                                    tot_cost[ind][yr].append(
-                                        cap_cost[dr] + op_cost[dr])
+                                    tot_cost[ind][yr].append(cap_cost[dr] + op_cost[dr])
                                 else:
                                     tot_cost[ind][yr].append(cap_cost[dr] + op_cost)
                         except AttributeError:
@@ -2416,17 +2888,31 @@ class Engine(object):
         # check inside the inner-most discount-rate loops (hot-spot lines ~2311/2319).
         n_measures = len(measures_adj)
         valid_inds_array = {  # yr -> list of valid measure indices (array case)
-            yr: [x for x in range(n_measures) if (
-                yr in tot_cost[x] and isinstance(tot_cost[x][yr], list) and
-                len(tot_cost[x][yr]) != 0 and
-                isinstance(tot_cost[x][yr][0], list) and
-                len(tot_cost[x][yr][0]) != 0)]
-            for yr in self.handyvars.aeo_years}
+            yr: [
+                x
+                for x in range(n_measures)
+                if (
+                    yr in tot_cost[x]
+                    and isinstance(tot_cost[x][yr], list)
+                    and len(tot_cost[x][yr]) != 0
+                    and isinstance(tot_cost[x][yr][0], list)
+                    and len(tot_cost[x][yr][0]) != 0
+                )
+            ]
+            for yr in self.handyvars.aeo_years
+        }
         valid_inds_point = {  # yr -> list of valid measure indices (point case)
-            yr: [x for x in range(n_measures) if (
-                yr in tot_cost[x] and isinstance(tot_cost[x][yr], list) and
-                len(tot_cost[x][yr]) != 0)]
-            for yr in self.handyvars.aeo_years}
+            yr: [
+                x
+                for x in range(n_measures)
+                if (
+                    yr in tot_cost[x]
+                    and isinstance(tot_cost[x][yr], list)
+                    and len(tot_cost[x][yr]) != 0
+                )
+            ]
+            for yr in self.handyvars.aeo_years
+        }
 
         # ---------------------------------------------------------------------------
         # Precompute per-(yr, discount-bin) the minimum cost and the number of
@@ -2477,9 +2963,7 @@ class Engine(object):
                             counts_arr[c_l][ind2] = 1
                         elif v == result[c_l][ind2]:
                             counts_arr[c_l][ind2] += 1
-            precomp_arr[yr] = [
-                list(zip(result[c_l], counts_arr[c_l]))
-                for c_l in range(n_samples)]
+            precomp_arr[yr] = [list(zip(result[c_l], counts_arr[c_l])) for c_l in range(n_samples)]
 
         # Loop through competing measures and use total annualized capital
         # + operating costs to determine the overall share of the market
@@ -2492,9 +2976,9 @@ class Engine(object):
             # Pre-compute the rate-distribution dict for this measure once
             # (avoids repeated deep dict traversal on every year iteration).
             try:
-                _rate_dist_all = m.markets[adopt_scheme]["competed"][
-                    "mseg_adjust"]["competed choice parameters"][
-                        str(choice_mseg[ind])]["rate distribution"]
+                _rate_dist_all = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "competed choice parameters"
+                ][str(choice_mseg[ind])]["rate distribution"]
             except KeyError:
                 _rate_dist_all = None
 
@@ -2518,11 +3002,10 @@ class Engine(object):
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as lists for at least one of the competing
                     # measures.
-                    if length_array[ind_l] > 0 and len(
-                            tot_cost[ind][yr][0]) != 0:
+                    if length_array[ind_l] > 0 and len(tot_cost[ind][yr][0]) != 0:
                         n_samples = length_array[ind_l]
                         mkt_fracs[ind][yr] = [0.0] * n_samples
-                        _pc_arr = precomp_arr[yr]   # list[c_l] of list[(min_val, n_min)]
+                        _pc_arr = precomp_arr[yr]  # list[c_l] of list[(min_val, n_min)]
                         _tc_ind = tot_cost[ind][yr]
                         for c_l in range(n_samples):
                             _row = _tc_ind[c_l]
@@ -2535,13 +3018,12 @@ class Engine(object):
                             mkt_fracs[ind][yr][c_l] = frac_sum
                         # Convert market fractions list to numpy array for
                         # use in compete_adj function below
-                        mkt_fracs[ind][yr] = numpy.array(
-                            mkt_fracs[ind][yr])
+                        mkt_fracs[ind][yr] = numpy.array(mkt_fracs[ind][yr])
                     # Handle cases where capital and/or operating cost inputs
                     # are specified as point values for all competing measures
                     elif length_array[ind_l] == 0:
                         if len(tot_cost[ind][yr]) != 0:
-                            _pc_pt = precomp_pt[yr]   # list[(min_val, n_min)]
+                            _pc_pt = precomp_pt[yr]  # list[(min_val, n_min)]
                             _tc_ind_yr = tot_cost[ind][yr]
                             frac_sum = 0.0
                             for ind2 in range(len(_tc_ind_yr)):
@@ -2565,8 +3047,13 @@ class Engine(object):
         # in the measure definition and/or sub-federal appliance restrictions that affect
         # the current competed market
         added_sbmkt_fracs, mkt_fracs = self.final_mktshare_adj(
-            measures_adj, mseg_key, adopt_scheme, years_on_mkt_all, mkt_fracs,
-            noapply_sbmkt_fracs_regs)
+            measures_adj,
+            mseg_key,
+            adopt_scheme,
+            years_on_mkt_all,
+            mkt_fracs,
+            noapply_sbmkt_fracs_regs,
+        )
 
         # Precompute min market entry year and per-year weighting_yrs prefix
         # lists once for each measure (mirrors the same optimisation in
@@ -2582,9 +3069,16 @@ class Engine(object):
             # Establish starting energy/carbon/cost totals, energy/carbon/cost
             # results breakout information, and current contributing primary
             # energy/carbon/cost information for measure
-            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
+            (
+                mast,
+                adj_out_break,
+                adj,
+                mast_list_base,
+                mast_list_eff,
+                adj_list_eff,
+                adj_list_base,
+                adj_stk_trk,
+            ) = self.compete_adj_dicts(m, mseg_key, adopt_scheme, stk_cost_dat_keys[m_ind])
             # Build a mapping yr -> weighting_yrs prefix once per measure so
             # compete_adj doesn't need to recompute it for every year call.
             weighting_yrs_map = {}
@@ -2597,22 +3091,47 @@ class Engine(object):
             # years but is constant across year iterations).
             _energy_brk = adj_out_break["base fuel"]["energy"]
             vs_list_init = [
-                v if (_energy_brk[v] is not None and (
-                    (not isinstance(_energy_brk[v][_yr], numpy.ndarray) and
-                     any([_energy_brk[v][_yr] != 0])) or (
-                        isinstance(_energy_brk[v][_yr], numpy.ndarray) and
-                        any([any([_energy_brk[v][_yr] != 0])]))
-                    for _yr in _energy_brk[v].keys()))
-                else "" for v in ["baseline", "efficient"]]
+                v
+                if (
+                    _energy_brk[v] is not None
+                    and (
+                        (
+                            not isinstance(_energy_brk[v][_yr], numpy.ndarray)
+                            and any([_energy_brk[v][_yr] != 0])
+                        )
+                        or (
+                            isinstance(_energy_brk[v][_yr], numpy.ndarray)
+                            and any([any([_energy_brk[v][_yr] != 0])])
+                        )
+                        for _yr in _energy_brk[v].keys()
+                    )
+                )
+                else ""
+                for v in ["baseline", "efficient"]
+            ]
             for yr in self.handyvars.aeo_years:
                 # Make the adjustment to the measure's stock/energy/carbon/
                 # cost totals and breakouts based on its updated competed
                 # market share and stock turnover rates
                 self.compete_adj(
-                    mkt_fracs[m_ind], added_sbmkt_fracs[m_ind], mast,
-                    adj_out_break, adj, mast_list_base, mast_list_eff,
-                    adj_list_eff, adj_list_base, yr, mseg_key, m, adopt_scheme,
-                    min_mkt_entry_yr, adj_stk_trk, weighting_yrs_map, vs_list_init)
+                    mkt_fracs[m_ind],
+                    added_sbmkt_fracs[m_ind],
+                    mast,
+                    adj_out_break,
+                    adj,
+                    mast_list_base,
+                    mast_list_eff,
+                    adj_list_eff,
+                    adj_list_base,
+                    yr,
+                    mseg_key,
+                    m,
+                    adopt_scheme,
+                    min_mkt_entry_yr,
+                    adj_stk_trk,
+                    weighting_yrs_map,
+                    vs_list_init,
+                )
 
     def state_app_reg_screen(self, measures_adj, stk_cost_dat_keys):
         """Determine whether appliance restrictions apply to competed measure mseg.
@@ -2630,18 +3149,25 @@ class Engine(object):
 
         # Look for any state (or local)-level appliance restrictions on the current microsegment
         state_appl_regs = (
-            self.handyvars.state_appl_regs is not None and len(self.handyvars.state_appl_regs) != 0)
+            self.handyvars.state_appl_regs is not None and len(self.handyvars.state_appl_regs) != 0
+        )
         if state_appl_regs:
             # Separate out components of the mseg information; use mseg information that accounts
             # for any links/dependencies between mseg and other msegs the measure applies to (
             # assume that first measure in the competing set is representative of links for all)
             mseg_separate = literal_eval(stk_cost_dat_keys[0][0])
             # Shorthand for current mseg region, bldg. type, bldg. vintage, fuel, end use, tech.
-            ctb_mseg_params_notech = [mseg_separate[1], mseg_separate[2], mseg_separate[-1],
-                                      mseg_separate[3], mseg_separate[4]]
+            ctb_mseg_params_notech = [
+                mseg_separate[1],
+                mseg_separate[2],
+                mseg_separate[-1],
+                mseg_separate[3],
+                mseg_separate[4],
+            ]
             # Determine which (if any) rows in restrictions data apply to current mseg information
             restrict_rows_no_tech = [
-                x for x in self.handyvars.state_appl_regs if x[:-3] == ctb_mseg_params_notech]
+                x for x in self.handyvars.state_appl_regs if x[:-3] == ctb_mseg_params_notech
+            ]
             # If tech column does not cover "all" technologies, further check for tech restrictions
             if not any([x[-3] == "all" for x in restrict_rows_no_tech]):
                 # Assume that tech names in input file map to standard Scout/EIA technology names;
@@ -2649,7 +3175,8 @@ class Engine(object):
                 # names during preparation to further distinguish msegs with exogenous fuel
                 # switching rates and/or specific heating and cooling tech pairings
                 restrict_rows = [
-                    x for x in restrict_rows_no_tech if mseg_separate[-2].split("-")[0] in x[-3]]
+                    x for x in restrict_rows_no_tech if mseg_separate[-2].split("-")[0] in x[-3]
+                ]
             else:
                 restrict_rows = restrict_rows_no_tech
         else:
@@ -2688,34 +3215,49 @@ class Engine(object):
             # to a new fuel while retaining existing fuel as backup (assume restrictions do not
             # preclude such cases)
             meas_switch_avoids_reg = [
-                (m.fuel_switch_to is not None and m.backup_fuel_fraction is None) or
-                (m.fuel_switch_to is not None and "existing" in
-                 mseg_separate) for m in measures_adj]
+                (m.fuel_switch_to is not None and m.backup_fuel_fraction is None)
+                or (m.fuel_switch_to is not None and "existing" in mseg_separate)
+                for m in measures_adj
+            ]
             # When there is a restriction, keep measure on market only in years where: a) measure
             # fuel switches away from restricted segment, b) the restriction is not active, or c)
             # the restriction does not apply to 100% of the segment (handled subsequently)
-            yrs_on_mkt = [[
-                yr for yr in m.yrs_on_mkt if meas_switch_avoids_reg[m_ind] or
-                effect_frac[yr] < 1] for m_ind, m in enumerate(measures_adj)]
+            yrs_on_mkt = [
+                [yr for yr in m.yrs_on_mkt if meas_switch_avoids_reg[m_ind] or effect_frac[yr] < 1]
+                for m_ind, m in enumerate(measures_adj)
+            ]
             # Set fractions that restrict part of a measure's applicable market in cases where
             # restrictions only apply to a certain % of the segment and: a) measure does not
             # fuel switch, b) the restriction is active, and c) the restriction does not apply
             # to 100% of the segment; otherwise, set this fraction to 0
-            noapply_sbmkt_fracs_regs = [{
-                yr: effect_frac[yr] if not meas_switch_avoids_reg[m_ind] and (
-                    effect_frac[yr] not in [0, 1]) else 0
-                for yr in self.handyvars.aeo_years} for m_ind, m in enumerate(measures_adj)]
+            noapply_sbmkt_fracs_regs = [
+                {
+                    yr: effect_frac[yr]
+                    if not meas_switch_avoids_reg[m_ind] and (effect_frac[yr] not in [0, 1])
+                    else 0
+                    for yr in self.handyvars.aeo_years
+                }
+                for m_ind, m in enumerate(measures_adj)
+            ]
         # If no restrictions are found, do not adjust the previously calculated years a measure
         # is on the market and set further restrictions on market size to zero
         else:
             yrs_on_mkt = [m.yrs_on_mkt for m in measures_adj]
             noapply_sbmkt_fracs_regs = [
-                {yr: 0 for yr in self.handyvars.aeo_years} for m in measures_adj]
+                {yr: 0 for yr in self.handyvars.aeo_years} for m in measures_adj
+            ]
 
         return yrs_on_mkt, noapply_sbmkt_fracs_regs
 
-    def final_mktshare_adj(self, measures_adj, mseg_key, adopt_scheme,
-                           years_on_mkt_all, mkt_fracs, noapply_sbmkt_fracs_regs):
+    def final_mktshare_adj(
+        self,
+        measures_adj,
+        mseg_key,
+        adopt_scheme,
+        years_on_mkt_all,
+        mkt_fracs,
+        noapply_sbmkt_fracs_regs,
+    ):
         """Calclulate final mkt. share adjustments to reflect mkt. scaling and appliance regs.
 
         Args:
@@ -2741,7 +3283,8 @@ class Engine(object):
         noapply_sbmkt_fracs_scale = []
         for m in measures_adj:
             sbmkt = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                "contributing mseg keys and values"][mseg_key]["sub-market scaling"]
+                "contributing mseg keys and values"
+            ][mseg_key]["sub-market scaling"]
             if isinstance(sbmkt, dict):
                 noapply_sbmkt_fracs_scale.append({yr: 1 - sbmkt[yr] for yr in aeo_years})
             else:
@@ -2753,8 +3296,10 @@ class Engine(object):
         # Apportion the remaining fraction of this market across the other competing ECMs
         added_sbmkt_fracs_scale, added_sbmkt_fracs_regs = [
             self.find_added_sbmkt_fracs(
-                mkt_fracs, measures_adj, mseg_key, adopt_scheme, years_on_mkt_all, x)
-            for x in [noapply_sbmkt_fracs_scale, noapply_sbmkt_fracs_regs]]
+                mkt_fracs, measures_adj, mseg_key, adopt_scheme, years_on_mkt_all, x
+            )
+            for x in [noapply_sbmkt_fracs_scale, noapply_sbmkt_fracs_regs]
+        ]
         # Sum both types of market addition fractions (mutate scale in-place
         # to avoid allocating extra dicts on every call)
         added_sbmkt_fracs = added_sbmkt_fracs_scale
@@ -2778,8 +3323,8 @@ class Engine(object):
         return added_sbmkt_fracs, mkt_fracs
 
     def find_added_sbmkt_fracs(
-            self, mkt_fracs, measures_adj, mseg_key, adopt_scheme,
-            years_on_mkt_all, noapply_sbmkt_fracs):
+        self, mkt_fracs, measures_adj, mseg_key, adopt_scheme, years_on_mkt_all, noapply_sbmkt_fracs
+    ):
         """Add to competed ECM market shares to account for sub-market scaling.
 
         Notes:
@@ -2817,21 +3362,26 @@ class Engine(object):
         # If all of the competing ECMs apply to the full competed segment,
         # added market shares due to sub-market scaling are set to zero
         if all([x == 0 for x in noapply_sbmkt_fracs]):
-            added_sbmkt_fracs = [{yr: 0 for yr in self.handyvars.aeo_years} for
-                                 n in range(len_compete)]
+            added_sbmkt_fracs = [
+                {yr: 0 for yr in self.handyvars.aeo_years} for n in range(len_compete)
+            ]
         else:
             # For each competed ECM, set the total unaffected market segment
             # across all years in the analysis
-            noapply_sbsbmkt_distrib_fracs_yr = [{
-                yr: noapply_sbmkt_fracs[ind][yr] * mkt_fracs[ind][yr] for
-                yr in self.handyvars.aeo_years} for
-                ind in range(len(measures_adj))]
+            noapply_sbsbmkt_distrib_fracs_yr = [
+                {
+                    yr: noapply_sbmkt_fracs[ind][yr] * mkt_fracs[ind][yr]
+                    for yr in self.handyvars.aeo_years
+                }
+                for ind in range(len(measures_adj))
+            ]
 
             # Initialize a list of dicts where each dict represents the
             # additional market fraction an ECM should receive to reflect the
             # presence of sub-market scaling in the competing ECM set
-            added_sbmkt_fracs = [{yr: 0 for yr in self.handyvars.aeo_years} for
-                                 n in range(len_compete)]
+            added_sbmkt_fracs = [
+                {yr: 0 for yr in self.handyvars.aeo_years} for n in range(len_compete)
+            ]
             # Loop through all competing ECMs, determining how to distribute
             # the portion of the competed segment that the ECM does not apply
             # to (if any) across other competing ECMs in the analysis
@@ -2839,8 +3389,10 @@ class Engine(object):
                 # Skip measures that don't withhold any segment in any year
                 if all(
                     (v == 0 if not isinstance(v, numpy.ndarray) else numpy.all(v == 0))
-                    for v in (noapply_sbsbmkt_distrib_fracs_yr[m][yr]
-                              for yr in self.handyvars.aeo_years)):
+                    for v in (
+                        noapply_sbsbmkt_distrib_fracs_yr[m][yr] for yr in self.handyvars.aeo_years
+                    )
+                ):
                     continue
                 # Loop through all years in the analysis
                 for yr in self.handyvars.aeo_years:
@@ -2861,24 +3413,39 @@ class Engine(object):
                     # Simplified: `yr not in years_on_mkt_all or yr in yrs_on_mkt[mc]`
                     # is logically equivalent to the original nested condition.
                     distrib_inds = [
-                        1 if (noapply_sbmkt_fracs[mc][yr] == 0 and
-                              (yr not in years_on_mkt_all_set or
-                               yr in yrs_on_mkt[mc]))
-                        else 0 for mc in range(len_compete)]
+                        1
+                        if (
+                            noapply_sbmkt_fracs[mc][yr] == 0
+                            and (yr not in years_on_mkt_all_set or yr in yrs_on_mkt[mc])
+                        )
+                        else 0
+                        for mc in range(len_compete)
+                    ]
 
                     # Case where one or more competing ECMs applies to the full
                     # competed segment, but the market shares for these ECMs
                     # are all zero
-                    if (not isinstance(
-                            mkt_fracs[0][yr], numpy.ndarray) and all(
-                        [(mkt_fracs[x][yr] == 0) for
-                            x in range(0, len(distrib_inds)) if
-                            distrib_inds[x] == 1])) or \
-                       (isinstance(mkt_fracs[0][yr], numpy.ndarray) and all(
-                        [all([mkt_fracs[x][yr][y] == 0 for
-                             y in range(len(mkt_fracs[x][yr]))]) for
-                            x in range(0, len(distrib_inds)) if
-                            distrib_inds[x] == 1])):
+                    if (
+                        not isinstance(mkt_fracs[0][yr], numpy.ndarray)
+                        and all(
+                            [
+                                (mkt_fracs[x][yr] == 0)
+                                for x in range(0, len(distrib_inds))
+                                if distrib_inds[x] == 1
+                            ]
+                        )
+                    ) or (
+                        isinstance(mkt_fracs[0][yr], numpy.ndarray)
+                        and all(
+                            [
+                                all(
+                                    [mkt_fracs[x][yr][y] == 0 for y in range(len(mkt_fracs[x][yr]))]
+                                )
+                                for x in range(0, len(distrib_inds))
+                                if distrib_inds[x] == 1
+                            ]
+                        )
+                    ):
                         # Set weights to use in distributing the current ECM's
                         # inapplicable segment portion across all other
                         # competing ECMs that apply to the full competed
@@ -2886,13 +3453,13 @@ class Engine(object):
                         # these other ECMs are all zero, set weights such that
                         # the re-distribution is even across these other ECMs
                         if sum(distrib_inds) == 0:
-                            sbmkt_distrib_fracs_yr = [
-                                0 for n in range(len_compete)]
+                            sbmkt_distrib_fracs_yr = [0 for n in range(len_compete)]
                         else:
                             even_frac = 1 / sum(distrib_inds)
                             sbmkt_distrib_fracs_yr = [
-                                even_frac if distrib_inds[mc] == 1
-                                else 0 for mc in range(0, len_compete)]
+                                even_frac if distrib_inds[mc] == 1 else 0
+                                for mc in range(0, len_compete)
+                            ]
                     # All other cases
                     else:
                         # Set weights to use in distributing the current ECM's
@@ -2900,23 +3467,28 @@ class Engine(object):
                         # competing ECMs that apply to the full competed
                         # segment, based on each ECM's competed market share
                         sbmkt_distrib_fracs_yr = [
-                            mkt_fracs[mc][yr] if distrib_inds[mc] == 1
-                            else 0 for mc in range(0, len_compete)]
+                            mkt_fracs[mc][yr] if distrib_inds[mc] == 1 else 0
+                            for mc in range(0, len_compete)
+                        ]
                         # Re-normalize the weighting factors to ensure that
                         # they sum to 1
-                        if (not isinstance(
-                                sbmkt_distrib_fracs_yr[0], numpy.ndarray)
-                            and sum(sbmkt_distrib_fracs_yr) != 0) or \
-                           (isinstance(
-                                sbmkt_distrib_fracs_yr[0], numpy.ndarray)
-                            and all([sum(sbmkt_distrib_fracs_yr[x]) != 0 for
-                                    x in range(len(sbmkt_distrib_fracs_yr))])):
+                        if (
+                            not isinstance(sbmkt_distrib_fracs_yr[0], numpy.ndarray)
+                            and sum(sbmkt_distrib_fracs_yr) != 0
+                        ) or (
+                            isinstance(sbmkt_distrib_fracs_yr[0], numpy.ndarray)
+                            and all(
+                                [
+                                    sum(sbmkt_distrib_fracs_yr[x]) != 0
+                                    for x in range(len(sbmkt_distrib_fracs_yr))
+                                ]
+                            )
+                        ):
                             sbmkt_distrib_fracs_yr = [
-                                x / sum(sbmkt_distrib_fracs_yr) for
-                                x in sbmkt_distrib_fracs_yr]
+                                x / sum(sbmkt_distrib_fracs_yr) for x in sbmkt_distrib_fracs_yr
+                            ]
                         else:
-                            sbmkt_distrib_fracs_yr = [
-                                0 for n in range(len(sbmkt_distrib_fracs_yr))]
+                            sbmkt_distrib_fracs_yr = [0 for n in range(len(sbmkt_distrib_fracs_yr))]
 
                     # Loop through all competing ECMs and set the portion of
                     # the current ECM's inapplicable segment that goes to each
@@ -2925,15 +3497,13 @@ class Engine(object):
                         # inapplicable segment fraction by the ECM's
                         # re-distribution weights calculated above
                         try:
-                            added_sbmkt_fracs[mn][yr] += (
-                                seg_redist * (sbmkt_distrib_fracs_yr[mn]))
+                            added_sbmkt_fracs[mn][yr] += seg_redist * (sbmkt_distrib_fracs_yr[mn])
                         except FloatingPointError:  # Handle small numbers
                             pass
 
         return added_sbmkt_fracs
 
-    def secondary_adj(
-            self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
+    def secondary_adj(self, measures_adj, mseg_key, secnd_mseg_adjkey, adopt_scheme):
         """Adjust secondary microsegments to account for primary competition.
 
         Notes:
@@ -2953,13 +3523,20 @@ class Engine(object):
         for ind, m in enumerate(measures_adj):
             # Establish starting energy/carbon/cost totals and current
             # contributing secondary energy/carbon/cost information for measure
-            mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                adj_list_eff, adj_list_base, adj_stk_trk = \
-                self.compete_adj_dicts(
-                    m, mseg_key, adopt_scheme, stk_cost_dat_keys=[mseg_key, None])
+            (
+                mast,
+                adj_out_break,
+                adj,
+                mast_list_base,
+                mast_list_eff,
+                adj_list_eff,
+                adj_list_base,
+                adj_stk_trk,
+            ) = self.compete_adj_dicts(
+                m, mseg_key, adopt_scheme, stk_cost_dat_keys=[mseg_key, None]
+            )
             # Determine whether efficient-captured energy is being reported
-            eff_capt = (
-                "efficient-captured" in adj["energy"]["total"].keys())
+            eff_capt = "efficient-captured" in adj["energy"]["total"].keys()
 
             # Adjust secondary energy/carbon/cost totals based on the measure's
             # competed market share for an associated primary contributing
@@ -2972,9 +3549,9 @@ class Engine(object):
                 # for the given secondary climate zone, building type, and
                 # structure type in the measure's 'mseg_adjust' attribute
                 # and scale down the energy/carbon/cost totals accordingly
-                secnd_adj_mktshr = m.markets[adopt_scheme]["competed"][
-                    "mseg_adjust"]["secondary mseg adjustments"][
-                    "market share"]
+                secnd_adj_mktshr = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "secondary mseg adjustments"
+                ]["market share"]
                 # Calculate the competed and total market share adjustment
                 # factors to apply to the measure secondary energy/carbon/cost
                 # totals, where the 'competed' share considers the effects
@@ -2984,14 +3561,20 @@ class Engine(object):
                 # previous years the measure was on the market
 
                 # Set competed market share adjustment
-                if secnd_adj_mktshr[
-                        "original energy (competed and captured)"][
-                        secnd_mseg_adjkey][yr] != 0:
-                    adj_frac_comp = secnd_adj_mktshr[
-                        "adjusted energy (competed and captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original energy (competed and captured)"][
-                        secnd_mseg_adjkey][yr]
+                if (
+                    secnd_adj_mktshr["original energy (competed and captured)"][secnd_mseg_adjkey][
+                        yr
+                    ]
+                    != 0
+                ):
+                    adj_frac_comp = (
+                        secnd_adj_mktshr["adjusted energy (competed and captured)"][
+                            secnd_mseg_adjkey
+                        ][yr]
+                        / secnd_adj_mktshr["original energy (competed and captured)"][
+                            secnd_mseg_adjkey
+                        ][yr]
+                    )
                 # Set competed market share adjustment to zero if total
                 # originally captured baseline stock is zero for
                 # current year
@@ -2999,13 +3582,13 @@ class Engine(object):
                     adj_frac_comp = 0
 
                 # Set total market share adjustment
-                if secnd_adj_mktshr["original energy (total captured)"][
-                        secnd_mseg_adjkey][yr] != 0:
-                    adj_frac_t = secnd_adj_mktshr[
-                        "adjusted energy (total captured)"][
-                        secnd_mseg_adjkey][yr] / secnd_adj_mktshr[
-                        "original energy (total captured)"][
-                        secnd_mseg_adjkey][yr]
+                if secnd_adj_mktshr["original energy (total captured)"][secnd_mseg_adjkey][yr] != 0:
+                    adj_frac_t = (
+                        secnd_adj_mktshr["adjusted energy (total captured)"][secnd_mseg_adjkey][yr]
+                        / secnd_adj_mktshr["original energy (total captured)"][secnd_mseg_adjkey][
+                            yr
+                        ]
+                    )
                 # Set total market share adjustment to zero if total
                 # originally captured baseline stock is zero for
                 # current year
@@ -3016,14 +3599,29 @@ class Engine(object):
                 # the basis of the "energy" variable data (results are None or all zeros)
                 vs_list_init = [
                     # Not None
-                    v if (adj_out_break["base fuel"]["energy"][v] is not None and (
-                        # Not all zeros (handle numpy arrays)
-                        (not isinstance(adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray)
-                            and any([adj_out_break["base fuel"]["energy"][v][yr] != 0])) or (
-                            isinstance(adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray)
-                            and any([any([adj_out_break["base fuel"]["energy"][v][yr] != 0])]))
-                        for yr in adj_out_break["base fuel"]["energy"][v].keys()))
-                    else "" for v in ["baseline", "efficient"]]
+                    v
+                    if (
+                        adj_out_break["base fuel"]["energy"][v] is not None
+                        and (
+                            # Not all zeros (handle numpy arrays)
+                            (
+                                not isinstance(
+                                    adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray
+                                )
+                                and any([adj_out_break["base fuel"]["energy"][v][yr] != 0])
+                            )
+                            or (
+                                isinstance(
+                                    adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray
+                                )
+                                and any([any([adj_out_break["base fuel"]["energy"][v][yr] != 0])])
+                            )
+                            for yr in adj_out_break["base fuel"]["energy"][v].keys()
+                        )
+                    )
+                    else ""
+                    for v in ["baseline", "efficient"]
+                ]
 
                 # Adjust baseline energy/cost/carbon, efficient energy/
                 # cost/carbon, and energy/cost/carbon savings totals
@@ -3054,24 +3652,29 @@ class Engine(object):
                         if var == "cost":
                             # Loop through all potential cost keys in the breakout data
                             for cost_brk_key in self.handyvars.cost_brk_vars:
-                                cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                    "stock" if "capital" in cost_brk_key else None))
-                                adj_out_break["base fuel"][cost_brk_key][var_sub][yr] = \
-                                    adj_out_break["base fuel"][cost_brk_key][var_sub][yr] - (
-                                    adj[var][cost_mast_key]["total"][var_sub][yr]) * (
-                                    1 - adj_frac_t) * fs_splt[cost_brk_key][yr]
+                                cost_mast_key = (
+                                    "energy"
+                                    if "energy" in cost_brk_key
+                                    else ("stock" if "capital" in cost_brk_key else None)
+                                )
+                                adj_out_break["base fuel"][cost_brk_key][var_sub][yr] = (
+                                    adj_out_break["base fuel"][cost_brk_key][var_sub][yr]
+                                    - (adj[var][cost_mast_key]["total"][var_sub][yr])
+                                    * (1 - adj_frac_t)
+                                    * fs_splt[cost_brk_key][yr]
+                                )
                         else:
                             # Handle efficient captured energy case for fuel
                             # switching, where unless dual fuel characteristics
                             # are present, no base fuel data will be
                             # reported (go to next variable in loop)
                             try:
-                                adj_out_break[
-                                    "base fuel"][var][var_sub][yr] = \
-                                    adj_out_break[
-                                        "base fuel"][var][var_sub][yr] - (
-                                    adj[var]["total"][var_sub][yr]) * (
-                                    1 - adj_frac_t) * fs_splt[var][yr]
+                                adj_out_break["base fuel"][var][var_sub][yr] = (
+                                    adj_out_break["base fuel"][var][var_sub][yr]
+                                    - (adj[var]["total"][var_sub][yr])
+                                    * (1 - adj_frac_t)
+                                    * fs_splt[var][yr]
+                                )
                             except KeyError:
                                 continue
 
@@ -3082,27 +3685,42 @@ class Engine(object):
                     # Ensure that savings data are present/non-zero/non-None before adjusting;
                     # anchor on energy var
                     non_zero_savings = (
-                        adj_out_break["base fuel"]["energy"]["savings"] is not None and
-                        len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0)
+                        adj_out_break["base fuel"]["energy"]["savings"] is not None
+                        and len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0
+                    )
                     if non_zero_savings:
                         if var == "cost":
                             # Loop through all potential cost keys in the breakout data
                             for cost_brk_key in self.handyvars.cost_brk_vars:
-                                cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                    "stock" if "capital" in cost_brk_key else None))
-                                adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = \
-                                    adj_out_break["base fuel"][cost_brk_key]["savings"][yr] - ((
-                                        adj[var][cost_mast_key]["total"]["baseline"][yr] -
-                                        adj[var][cost_mast_key]["total"]["efficient"][yr]
-                                    ) * (1 - adj_frac_t) * adj_out_break[
-                                        "fuel splits"]["efficient"][cost_brk_key][yr])
+                                cost_mast_key = (
+                                    "energy"
+                                    if "energy" in cost_brk_key
+                                    else ("stock" if "capital" in cost_brk_key else None)
+                                )
+                                adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = (
+                                    adj_out_break["base fuel"][cost_brk_key]["savings"][yr]
+                                    - (
+                                        (
+                                            adj[var][cost_mast_key]["total"]["baseline"][yr]
+                                            - adj[var][cost_mast_key]["total"]["efficient"][yr]
+                                        )
+                                        * (1 - adj_frac_t)
+                                        * adj_out_break["fuel splits"]["efficient"][cost_brk_key][
+                                            yr
+                                        ]
+                                    )
+                                )
                         else:
-                            adj_out_break["base fuel"][var]["savings"][yr] = \
-                                adj_out_break["base fuel"][var]["savings"][yr] - ((
-                                    adj[var]["total"]["baseline"][yr] -
-                                    adj[var]["total"]["efficient"][yr]) * (
-                                    1 - adj_frac_t) * adj_out_break[
-                                        "fuel splits"]["efficient"][var][yr])
+                            adj_out_break["base fuel"][var]["savings"][yr] = adj_out_break[
+                                "base fuel"
+                            ][var]["savings"][yr] - (
+                                (
+                                    adj[var]["total"]["baseline"][yr]
+                                    - adj[var]["total"]["efficient"][yr]
+                                )
+                                * (1 - adj_frac_t)
+                                * adj_out_break["fuel splits"]["efficient"][var][yr]
+                            )
 
                     # If the measure involves fuel switching and the user has broken out results
                     # by fuel type, make adjustments to the efficient, and savings results for the
@@ -3110,31 +3728,47 @@ class Engine(object):
 
                     # Ensure non-zero switched fuel results; anchor on energy var
                     non_zero_switch = (
-                        adj_out_break["switched fuel"]["energy"]["efficient"] is not None)
+                        adj_out_break["switched fuel"]["energy"]["efficient"] is not None
+                    )
                     if non_zero_switch:
                         # Handle extra key on the adjusted microsegment
                         # data for the cost variables ("energy")
                         if var == "cost":
                             # Loop through all potential cost keys in the breakout data
                             for cost_brk_key in self.handyvars.cost_brk_vars:
-                                cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                    "stock" if "capital" in cost_brk_key else None))
+                                cost_mast_key = (
+                                    "energy"
+                                    if "energy" in cost_brk_key
+                                    else ("stock" if "capital" in cost_brk_key else None)
+                                )
                                 # Update efficient result
-                                adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr] = \
-                                    adj_out_break["switched fuel"][cost_brk_key]["efficient"][
-                                    yr] - (adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                                        1 - adj_frac_t) * (1 - adj_out_break["fuel splits"][
-                                            "efficient"][cost_brk_key][yr])
+                                adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr] = (
+                                    adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr]
+                                    - (adj[var][cost_mast_key]["total"]["efficient"][yr])
+                                    * (1 - adj_frac_t)
+                                    * (
+                                        1
+                                        - adj_out_break["fuel splits"]["efficient"][cost_brk_key][
+                                            yr
+                                        ]
+                                    )
+                                )
                                 # Update savings result; note that savings
                                 # for a switched to fuel will be negative and
                                 # thus the adjustment to microsegment data
                                 # post-competition should be added to the
                                 # original savings breakout results
-                                adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = \
-                                    adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] + (
-                                    adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                                    1 - adj_frac_t) * (1 - adj_out_break["fuel splits"][
-                                        "efficient"][cost_brk_key][yr])
+                                adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = (
+                                    adj_out_break["switched fuel"][cost_brk_key]["savings"][yr]
+                                    + (adj[var][cost_mast_key]["total"]["efficient"][yr])
+                                    * (1 - adj_frac_t)
+                                    * (
+                                        1
+                                        - adj_out_break["fuel splits"]["efficient"][cost_brk_key][
+                                            yr
+                                        ]
+                                    )
+                                )
                         else:
                             # Update efficient result
                             # Energy data may include efficient-captured
@@ -3152,15 +3786,17 @@ class Engine(object):
                                     fs_splt = adj_out_break["fuel splits"]
                                 elif var_sub == "efficient-captured":
                                     fs_splt = adj_out_break["captured fuel splits"]
-                                adj_out_break["switched fuel"][var][var_sub][yr] = \
-                                    adj_out_break["switched fuel"][var][var_sub][yr] - (
-                                    adj[var]["total"][var_sub][yr]) * (1 - adj_frac_t) * (
-                                        1 - fs_splt["efficient"][var][yr])
+                                adj_out_break["switched fuel"][var][var_sub][yr] = adj_out_break[
+                                    "switched fuel"
+                                ][var][var_sub][yr] - (adj[var]["total"][var_sub][yr]) * (
+                                    1 - adj_frac_t
+                                ) * (1 - fs_splt["efficient"][var][yr])
                             # Update savings result
-                            adj_out_break["switched fuel"][var]["savings"][yr] = \
-                                adj_out_break["switched fuel"][var]["savings"][yr] + (
-                                adj[var]["total"]["efficient"][yr]) * (1 - adj_frac_t) * (
-                                1 - adj_out_break["fuel splits"]["efficient"][var][yr])
+                            adj_out_break["switched fuel"][var]["savings"][yr] = adj_out_break[
+                                "switched fuel"
+                            ][var]["savings"][yr] + (adj[var]["total"]["efficient"][yr]) * (
+                                1 - adj_frac_t
+                            ) * (1 - adj_out_break["fuel splits"]["efficient"][var][yr])
 
                 # Adjust total and competed baseline and efficient
                 # data by the appropriate secondary adjustment factor
@@ -3175,43 +3811,52 @@ class Engine(object):
                     # associated cost savings by the secondary adjustment
                     # factor, both overall and for the current
                     # contributing microsegment
-                    mast["cost"]["energy"]["total"][x][yr], \
-                        mast["cost"]["carbon"]["total"][x][yr], \
-                        mast["energy"]["total"][x][yr], \
-                        mast["carbon"]["total"][x][yr] = [
-                            x[yr] - (y[yr] * (1 - adj_frac_t)) for x, y in
-                            zip(mastlist[1:5], adjlist[1:5])]
-                    mast["cost"]["energy"]["competed"][x][yr], \
-                        mast["cost"]["carbon"]["competed"][x][yr], \
-                        mast["energy"]["competed"][x][yr], \
-                        mast["carbon"]["competed"][x][yr] = [
-                            x[yr] - (y[yr] * (1 - adj_frac_comp)) for x, y in
-                            zip(mastlist[6:10], adjlist[6:10])]
-                    adj["cost"]["energy"]["total"][x][yr], \
-                        adj["cost"]["carbon"]["total"][x][yr], \
-                        adj["energy"]["total"][x][yr], \
-                        adj["carbon"]["total"][x][yr] = [
-                            (x[yr] * adj_frac_t) for x in adjlist[1:5]]
-                    adj["cost"]["energy"]["competed"][x][yr], \
-                        adj["cost"]["carbon"]["competed"][x][yr], \
-                        adj["energy"]["competed"][x][yr], \
-                        adj["carbon"]["competed"][x][yr] = [
-                            (x[yr] * adj_frac_comp) for x in adjlist[6:10]]
+                    (
+                        mast["cost"]["energy"]["total"][x][yr],
+                        mast["cost"]["carbon"]["total"][x][yr],
+                        mast["energy"]["total"][x][yr],
+                        mast["carbon"]["total"][x][yr],
+                    ) = [
+                        x[yr] - (y[yr] * (1 - adj_frac_t))
+                        for x, y in zip(mastlist[1:5], adjlist[1:5])
+                    ]
+                    (
+                        mast["cost"]["energy"]["competed"][x][yr],
+                        mast["cost"]["carbon"]["competed"][x][yr],
+                        mast["energy"]["competed"][x][yr],
+                        mast["carbon"]["competed"][x][yr],
+                    ) = [
+                        x[yr] - (y[yr] * (1 - adj_frac_comp))
+                        for x, y in zip(mastlist[6:10], adjlist[6:10])
+                    ]
+                    (
+                        adj["cost"]["energy"]["total"][x][yr],
+                        adj["cost"]["carbon"]["total"][x][yr],
+                        adj["energy"]["total"][x][yr],
+                        adj["carbon"]["total"][x][yr],
+                    ) = [(x[yr] * adj_frac_t) for x in adjlist[1:5]]
+                    (
+                        adj["cost"]["energy"]["competed"][x][yr],
+                        adj["cost"]["carbon"]["competed"][x][yr],
+                        adj["energy"]["competed"][x][yr],
+                        adj["carbon"]["competed"][x][yr],
+                    ) = [(x[yr] * adj_frac_comp) for x in adjlist[6:10]]
                     # Adjust fugitive methane emissions if applicable
                     if m.fug_e and "methane" in m.fug_e:
                         # Total
-                        mast["fugitive emissions"]["methane"][
-                            "total"][x][yr] = mastlist[10][yr] - (
-                                adjlist[10][yr] * (1 - adj_frac_t))
-                        adj["fugitive emissions"]["methane"][
-                            "total"][x][yr] = adjlist[10][yr] * adj_frac_t
+                        mast["fugitive emissions"]["methane"]["total"][x][yr] = mastlist[10][yr] - (
+                            adjlist[10][yr] * (1 - adj_frac_t)
+                        )
+                        adj["fugitive emissions"]["methane"]["total"][x][yr] = (
+                            adjlist[10][yr] * adj_frac_t
+                        )
                         # Competed
-                        mast["fugitive emissions"]["methane"][
-                            "competed"][x][yr] = mastlist[11][yr] - (
-                                adjlist[11][yr] * (1 - adj_frac_comp))
-                        adj["fugitive emissions"]["methane"][
-                            "competed"][x][yr] = \
+                        mast["fugitive emissions"]["methane"]["competed"][x][yr] = mastlist[11][
+                            yr
+                        ] - (adjlist[11][yr] * (1 - adj_frac_comp))
+                        adj["fugitive emissions"]["methane"]["competed"][x][yr] = (
                             adjlist[11][yr] * adj_frac_comp
+                        )
 
     def htcl_adj_rec(self, htcl_adj_data, msu, msu_mkts, htcl_totals):
         """Record overlaps in heating/cooling supply and demand-side energy.
@@ -3241,8 +3886,7 @@ class Engine(object):
         keys = literal_eval(msu)
         # Pull out climate zone, building type, structure type, fuel type,
         # and end use
-        msu_split = [str(x) for x in [keys[1], keys[2], keys[-1],
-                                      keys[3], keys[4]]]
+        msu_split = [str(x) for x in [keys[1], keys[2], keys[-1], keys[3], keys[4]]]
         # Convert climate zone, building type, structure type, fuel type,
         # and end use data into a string, to be used as a dict key below
         msu_split_key = str(msu_split)
@@ -3262,35 +3906,48 @@ class Engine(object):
                 # and demand-side heating/cooling energy use for
                 # the given climate zone, building type,
                 # structure type, fuel type, and end use combination
-                "total": htcl_totals[msu_split[0]][msu_split[1]][
-                    msu_split[2]][msu_split[3]][msu_split[4]],
+                "total": htcl_totals[msu_split[0]][msu_split[1]][msu_split[2]][msu_split[3]][
+                    msu_split[4]
+                ],
                 # Record the overlapping energy use that is actually
                 # affected by the current contributing microsegment,
                 # across all ECMs that apply to this microsegment
-                "total affected": {yr: sum([(
-                    m["energy"]["total"]["baseline"][yr]) for
-                    m in msu_mkts]) for
-                    yr in self.handyvars.aeo_years},
+                "total affected": {
+                    yr: sum([(m["energy"]["total"]["baseline"][yr]) for m in msu_mkts])
+                    for yr in self.handyvars.aeo_years
+                },
                 # Record the savings in the overlapping energy use
                 # affected by the current contributing microsegment,
                 # across all ECMs that apply to this microsegment
-                "affected savings": {yr: sum([(
-                    m["energy"]["total"]["baseline"][yr] -
-                    m["energy"]["total"]["efficient"][yr]) for
-                    m in msu_mkts]) for yr in self.handyvars.aeo_years}}
+                "affected savings": {
+                    yr: sum(
+                        [
+                            (
+                                m["energy"]["total"]["baseline"][yr]
+                                - m["energy"]["total"]["efficient"][yr]
+                            )
+                            for m in msu_mkts
+                        ]
+                    )
+                    for yr in self.handyvars.aeo_years
+                },
+            }
         else:
             for yr in self.handyvars.aeo_years:
                 # Add to affected overlapping energy use
-                htcl_adj_data[tech_typ][msu_split_key][
-                    "total affected"][yr] += sum([(
-                        m["energy"]["total"]["baseline"][yr]) for
-                        m in msu_mkts])
+                htcl_adj_data[tech_typ][msu_split_key]["total affected"][yr] += sum(
+                    [(m["energy"]["total"]["baseline"][yr]) for m in msu_mkts]
+                )
                 # Add to affected overlapping energy use savings
-                htcl_adj_data[tech_typ][msu_split_key][
-                    "affected savings"][yr] += sum([(
-                        m["energy"]["total"]["baseline"][yr] -
-                        m["energy"]["total"]["efficient"][yr]) for
-                        m in msu_mkts])
+                htcl_adj_data[tech_typ][msu_split_key]["affected savings"][yr] += sum(
+                    [
+                        (
+                            m["energy"]["total"]["baseline"][yr]
+                            - m["energy"]["total"]["efficient"][yr]
+                        )
+                        for m in msu_mkts
+                    ]
+                )
 
         return htcl_adj_data
 
@@ -3316,9 +3973,13 @@ class Engine(object):
             # apply to supply-side or demand-side heating/cooling. NOTE:
             # EXCLUDE SECONDARY HEATING/COOLING MICROSEGMENTS FOR NOW UNTIL
             # REASONABLE APPROACH FOR ADJUSTING THESE IS IMPLEMENTED
-            htcl_keys = [k for k in m.markets[adopt_scheme]["competed"][
-                "mseg_adjust"]["contributing mseg keys and values"].keys() if
-                "primary" in k and ("supply" in k or "demand" in k)]
+            htcl_keys = [
+                k
+                for k in m.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "contributing mseg keys and values"
+                ].keys()
+                if "primary" in k and ("supply" in k or "demand" in k)
+            ]
             # Loop through the ECM's supply-side or demand-side heating/cooling
             # contributing microsegments and scale down energy, carbon, and
             # cost data for that microsegment to remove previously recorded
@@ -3328,8 +3989,7 @@ class Engine(object):
                 keys = literal_eval(mseg)
                 # Pull out climate zone, building type, structure type,
                 # fuel type, and end use
-                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1],
-                                              keys[3], keys[4]]]
+                msu_split = [str(x) for x in [keys[1], keys[2], keys[-1], keys[3], keys[4]]]
                 # Convert climate zone, building type, structure type, fuel
                 # type, and end use data into a string, to be used as a dict
                 # key below
@@ -3339,7 +3999,7 @@ class Engine(object):
                 # if the current microsegment is on the supply-side of
                 # heating/cooling, overlapping microsegments are on the demand
                 # side, and vice versa)
-                if 'supply' in mseg:
+                if "supply" in mseg:
                     tech_typ, tech_typ_overlp = ["supply", "demand"]
                 else:
                     tech_typ, tech_typ_overlp = ["demand", "supply"]
@@ -3365,13 +4025,18 @@ class Engine(object):
                 # Establish set of dicts used to adjust the contributing
                 # microsegment energy, carbon, and cost data and master energy,
                 # carbon, and cost data to remove the overlaps
-                mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-                    adj_list_eff, adj_list_base, adj_stk_trk = \
-                    self.compete_adj_dicts(
-                        m, mseg, adopt_scheme, stk_cost_dat_keys=[mseg, None])
+                (
+                    mast,
+                    adj_out_break,
+                    adj,
+                    mast_list_base,
+                    mast_list_eff,
+                    adj_list_eff,
+                    adj_list_base,
+                    adj_stk_trk,
+                ) = self.compete_adj_dicts(m, mseg, adopt_scheme, stk_cost_dat_keys=[mseg, None])
                 # Determine whether efficient-captured energy is being reported
-                eff_capt = (
-                    "efficient-captured" in adj["energy"]["total"].keys())
+                eff_capt = "efficient-captured" in adj["energy"]["total"].keys()
                 # Adjust contributing and master energy/carbon/cost
                 # data to remove recorded supply-demand overlaps
                 for yr in self.handyvars.aeo_years:
@@ -3383,39 +4048,38 @@ class Engine(object):
                     # this is the portion of total energy affected by demand-
                     # side microsegments in the analysis, and vice versa)
                     if overlp_data["total"][yr] != 0:
-                        affected_frac = (overlp_data["total affected"][yr] /
-                                         overlp_data["total"][yr])
+                        affected_frac = overlp_data["total affected"][yr] / overlp_data["total"][yr]
                     else:
                         affected_frac = 0
                     # Find overall relative performance for the technology
                     # type of the current contributing microsegment in the
                     # given climate zone, building type, and structure type
                     # combination
-                    if (not isinstance(
-                            tech_data["total affected"][yr], numpy.ndarray) and
-                        tech_data["total affected"][yr] != 0) or (
-                        isinstance(tech_data[
-                            "total affected"][yr], numpy.ndarray) and
-                        all([x != 0 for x in
-                             tech_data["total affected"][yr]])):
-                        rel_perf_tech = (1 - (
-                            tech_data["affected savings"][yr] /
-                            tech_data["total affected"][yr]))
+                    if (
+                        not isinstance(tech_data["total affected"][yr], numpy.ndarray)
+                        and tech_data["total affected"][yr] != 0
+                    ) or (
+                        isinstance(tech_data["total affected"][yr], numpy.ndarray)
+                        and all([x != 0 for x in tech_data["total affected"][yr]])
+                    ):
+                        rel_perf_tech = 1 - (
+                            tech_data["affected savings"][yr] / tech_data["total affected"][yr]
+                        )
                     else:
                         rel_perf_tech = 1
                     # Find overall relative performance for the overlapping
                     # technology type in the given climate zone, building
                     # type, and structure type combination
-                    if (not isinstance(overlp_data["total affected"][yr],
-                                       numpy.ndarray) and
-                        overlp_data["total affected"][yr] != 0) or (
-                        isinstance(overlp_data[
-                            "total affected"][yr], numpy.ndarray) and
-                        all([x != 0 for x in
-                             overlp_data["total affected"][yr]])):
-                        rel_perf_tech_overlp = (1 - (
-                            overlp_data["affected savings"][yr] /
-                            overlp_data["total affected"][yr]))
+                    if (
+                        not isinstance(overlp_data["total affected"][yr], numpy.ndarray)
+                        and overlp_data["total affected"][yr] != 0
+                    ) or (
+                        isinstance(overlp_data["total affected"][yr], numpy.ndarray)
+                        and all([x != 0 for x in overlp_data["total affected"][yr]])
+                    ):
+                        rel_perf_tech_overlp = 1 - (
+                            overlp_data["affected savings"][yr] / overlp_data["total affected"][yr]
+                        )
                     else:
                         rel_perf_tech_overlp = 1
                     # Calculate the ratio of relative performances between the
@@ -3423,17 +4087,31 @@ class Engine(object):
                     # technology types in the given climate zone, building
                     # type, and structure type combination; ensure that
                     # neither performance value is negative for the comparison
-                    if (all([not isinstance(x, numpy.ndarray) for x in [
-                        rel_perf_tech, rel_perf_tech_overlp]]) and
-                        (abs(1 - rel_perf_tech) +
-                         abs(1 - rel_perf_tech_overlp) != 0)) or (
-                        any([isinstance(x, numpy.ndarray) for x in [
-                            rel_perf_tech, rel_perf_tech_overlp]]) and
-                        all([x != 0 for x in (
-                            abs(1 - rel_perf_tech) +
-                            abs(1 - rel_perf_tech_overlp))])):
-                        save_ratio = abs(1 - rel_perf_tech) / (abs(
-                            1 - rel_perf_tech) + abs(1 - rel_perf_tech_overlp))
+                    if (
+                        all(
+                            [
+                                not isinstance(x, numpy.ndarray)
+                                for x in [rel_perf_tech, rel_perf_tech_overlp]
+                            ]
+                        )
+                        and (abs(1 - rel_perf_tech) + abs(1 - rel_perf_tech_overlp) != 0)
+                    ) or (
+                        any(
+                            [
+                                isinstance(x, numpy.ndarray)
+                                for x in [rel_perf_tech, rel_perf_tech_overlp]
+                            ]
+                        )
+                        and all(
+                            [
+                                x != 0
+                                for x in (abs(1 - rel_perf_tech) + abs(1 - rel_perf_tech_overlp))
+                            ]
+                        )
+                    ):
+                        save_ratio = abs(1 - rel_perf_tech) / (
+                            abs(1 - rel_perf_tech) + abs(1 - rel_perf_tech_overlp)
+                        )
                     else:
                         save_ratio = 0.5
 
@@ -3443,14 +4121,14 @@ class Engine(object):
                     # use affected by the overlapping microsegments, plus the
                     # portion of affected energy use saved by the overlapping
                     # microsegments
-                    adj_frac_base = (1 - affected_frac) + \
-                        affected_frac * save_ratio
+                    adj_frac_base = (1 - affected_frac) + affected_frac * save_ratio
 
                     # Adjust efficient data in the same way as baseline data,
                     # but with additional consideration for the energy savings
                     # benefits of the overlapping microsegments
-                    adj_frac_eff = (1 - affected_frac) + \
-                        affected_frac * save_ratio * rel_perf_tech_overlp
+                    adj_frac_eff = (
+                        1 - affected_frac
+                    ) + affected_frac * save_ratio * rel_perf_tech_overlp
 
                     # Use the baseline/efficient adjustment fractions above to
                     # adjust the ECM's current contributing and master energy,
@@ -3469,43 +4147,64 @@ class Engine(object):
                         # Adjust the total and competed energy, carbon, and
                         # associated cost data for both the ECM's current
                         # contributing microsegment and master microsegment
-                        mast["cost"]["energy"]["total"][x][yr], \
-                            mast["cost"]["carbon"]["total"][x][yr], \
-                            mast["energy"]["total"][x][yr], \
-                            mast["carbon"]["total"][x][yr] = [
-                                x[yr] - (y[yr] * (1 - adj_frac))
-                                for x, y in zip(mastlist[1:5], adjlist[1:5])]
-                        mast["cost"]["energy"]["competed"][x][yr], \
-                            mast["cost"]["carbon"]["competed"][x][yr], \
-                            mast["energy"]["competed"][x][yr], \
-                            mast["carbon"]["competed"][x][yr] = [
-                                x[yr] - (y[yr] * (1 - adj_frac))
-                                for x, y in zip(mastlist[6:10], adjlist[6:10])]
+                        (
+                            mast["cost"]["energy"]["total"][x][yr],
+                            mast["cost"]["carbon"]["total"][x][yr],
+                            mast["energy"]["total"][x][yr],
+                            mast["carbon"]["total"][x][yr],
+                        ) = [
+                            x[yr] - (y[yr] * (1 - adj_frac))
+                            for x, y in zip(mastlist[1:5], adjlist[1:5])
+                        ]
+                        (
+                            mast["cost"]["energy"]["competed"][x][yr],
+                            mast["cost"]["carbon"]["competed"][x][yr],
+                            mast["energy"]["competed"][x][yr],
+                            mast["carbon"]["competed"][x][yr],
+                        ) = [
+                            x[yr] - (y[yr] * (1 - adj_frac))
+                            for x, y in zip(mastlist[6:10], adjlist[6:10])
+                        ]
                         # Adjust fugitive methane emissions if applicable
                         if m.fug_e and "methane" in m.fug_e:
                             # Total
-                            mast["fugitive emissions"]["methane"][
-                                "total"][x][yr] = mastlist[10][yr] - (
-                                    adjlist[10][yr] * (1 - adj_frac))
+                            mast["fugitive emissions"]["methane"]["total"][x][yr] = mastlist[10][
+                                yr
+                            ] - (adjlist[10][yr] * (1 - adj_frac))
                             # Competed
-                            mast["fugitive emissions"]["methane"][
-                                "competed"][x][yr] = mastlist[11][yr] - (
-                                    adjlist[11][yr] * (1 - adj_frac))
+                            mast["fugitive emissions"]["methane"]["competed"][x][yr] = mastlist[11][
+                                yr
+                            ] - (adjlist[11][yr] * (1 - adj_frac))
 
                     # Flag empty baseline and/or efficient results in the breakout dict for all vars
                     # on the basis of the "energy" variable data (results are None or all zeros)
                     vs_list_init = [
                         # Not None
-                        v if (adj_out_break["base fuel"]["energy"][v] is not None and (
-                            # Not all zeros (handle numpy arrays)
-                            (not isinstance(
-                                adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray) and any(
-                                [adj_out_break["base fuel"]["energy"][v][yr] != 0])) or (
-                                isinstance(
-                                    adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray) and
-                                any([any([adj_out_break["base fuel"]["energy"][v][yr] != 0])]))
-                            for yr in adj_out_break["base fuel"]["energy"][v].keys()))
-                        else "" for v in ["baseline", "efficient"]]
+                        v
+                        if (
+                            adj_out_break["base fuel"]["energy"][v] is not None
+                            and (
+                                # Not all zeros (handle numpy arrays)
+                                (
+                                    not isinstance(
+                                        adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray
+                                    )
+                                    and any([adj_out_break["base fuel"]["energy"][v][yr] != 0])
+                                )
+                                or (
+                                    isinstance(
+                                        adj_out_break["base fuel"]["energy"][v][yr], numpy.ndarray
+                                    )
+                                    and any(
+                                        [any([adj_out_break["base fuel"]["energy"][v][yr] != 0])]
+                                    )
+                                )
+                                for yr in adj_out_break["base fuel"]["energy"][v].keys()
+                            )
+                        )
+                        else ""
+                        for v in ["baseline", "efficient"]
+                    ]
 
                     # Adjust baseline energy/cost/carbon, efficient energy/
                     # cost/carbon, and energy/cost/carbon savings totals
@@ -3519,8 +4218,7 @@ class Engine(object):
                         vs_list = vs_list_init.copy()
                         # Energy data may include unique efficient captured
                         # tracking if efficient breakout data are present
-                        if "efficient" in vs_list and var == "energy" and \
-                                eff_capt:
+                        if "efficient" in vs_list and var == "energy" and eff_capt:
                             vs_list.append("efficient-captured")
                         for var_sub in [x for x in vs_list if x]:
                             # Set appropriate post-competition adjustment frac.
@@ -3545,32 +4243,44 @@ class Engine(object):
                             if var == "cost":
                                 # Loop through all potential cost keys in the breakout data
                                 for cost_brk_key in [
-                                        x for x in self.handyvars.brk_vars if "cost" in x]:
-                                    cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                        "stock" if "capital" in cost_brk_key else None))
-                                    adj_out_break[
-                                        "base fuel"][cost_brk_key][var_sub][yr] = adj_out_break[
-                                            "base fuel"][cost_brk_key][var_sub][yr] - (
-                                        adj[var][cost_mast_key]["total"][var_sub][yr]) * (
-                                            1 - adj_frac_t) * fs_splt[cost_brk_key][yr]
+                                    x for x in self.handyvars.brk_vars if "cost" in x
+                                ]:
+                                    cost_mast_key = (
+                                        "energy"
+                                        if "energy" in cost_brk_key
+                                        else ("stock" if "capital" in cost_brk_key else None)
+                                    )
+                                    adj_out_break["base fuel"][cost_brk_key][var_sub][yr] = (
+                                        adj_out_break["base fuel"][cost_brk_key][var_sub][yr]
+                                        - (adj[var][cost_mast_key]["total"][var_sub][yr])
+                                        * (1 - adj_frac_t)
+                                        * fs_splt[cost_brk_key][yr]
+                                    )
                             else:
                                 # Handle case where no base fuel data is reported, which is
                                 # conceivable for fuel switching (go to next variable in loop)
                                 try:
                                     # Ensure baseline result is not already zero before
                                     # adjusting; if zero, no further adjustment required
-                                    if (not isinstance(
-                                        adj_out_break["base fuel"][var][var_sub][yr], numpy.ndarray)
-                                        and adj_out_break["base fuel"][var][var_sub][yr] != 0) or (
+                                    if (
+                                        not isinstance(
+                                            adj_out_break["base fuel"][var][var_sub][yr],
+                                            numpy.ndarray,
+                                        )
+                                        and adj_out_break["base fuel"][var][var_sub][yr] != 0
+                                    ) or (
                                         isinstance(
                                             adj_out_break["base fuel"][var][var_sub][yr],
-                                            numpy.ndarray) and all(adj_out_break[
-                                                "base fuel"][var][var_sub][yr]) != 0):
-                                        adj_out_break[
-                                            "base fuel"][var][var_sub][yr] = \
-                                            adj_out_break["base fuel"][var][var_sub][yr] - (
-                                            adj[var]["total"][var_sub][yr]) * (
-                                            1 - adj_frac_t) * fs_splt[var][yr]
+                                            numpy.ndarray,
+                                        )
+                                        and all(adj_out_break["base fuel"][var][var_sub][yr]) != 0
+                                    ):
+                                        adj_out_break["base fuel"][var][var_sub][yr] = (
+                                            adj_out_break["base fuel"][var][var_sub][yr]
+                                            - (adj[var]["total"][var_sub][yr])
+                                            * (1 - adj_frac_t)
+                                            * fs_splt[var][yr]
+                                        )
                                     else:
                                         continue
                                 except KeyError:
@@ -3579,8 +4289,9 @@ class Engine(object):
                         # Ensure that savings data are present/non-zero/non-None before adjusting;
                         # anchor on energy var
                         non_zero_savings = (
-                            adj_out_break["base fuel"]["energy"]["savings"] is not None and
-                            len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0)
+                            adj_out_break["base fuel"]["energy"]["savings"] is not None
+                            and len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0
+                        )
                         if non_zero_savings:
                             # Update savings results
                             # Handle extra key on the adjusted microsegment data
@@ -3588,24 +4299,36 @@ class Engine(object):
                             if var == "cost":
                                 # Loop through all potential cost keys in the breakout data
                                 for cost_brk_key in [
-                                        x for x in self.handyvars.brk_vars if "cost" in x]:
-                                    cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                        "stock" if "capital" in cost_brk_key else None))
-                                    adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = \
-                                        adj_out_break["base fuel"][cost_brk_key]["savings"][yr] - (
-                                            ((adj[var][cost_mast_key]["total"]["baseline"][yr] * (
-                                                1 - adj_frac_base)) -
-                                             (adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                                                1 - adj_frac_eff) * adj_out_break[
-                                                    "fuel splits"]["efficient"][cost_brk_key][yr]))
+                                    x for x in self.handyvars.brk_vars if "cost" in x
+                                ]:
+                                    cost_mast_key = (
+                                        "energy"
+                                        if "energy" in cost_brk_key
+                                        else ("stock" if "capital" in cost_brk_key else None)
+                                    )
+                                    adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = (
+                                        adj_out_break["base fuel"][cost_brk_key]["savings"][yr]
+                                        - (
+                                            (
+                                                adj[var][cost_mast_key]["total"]["baseline"][yr]
+                                                * (1 - adj_frac_base)
+                                            )
+                                            - (adj[var][cost_mast_key]["total"]["efficient"][yr])
+                                            * (1 - adj_frac_eff)
+                                            * adj_out_break["fuel splits"]["efficient"][
+                                                cost_brk_key
+                                            ][yr]
+                                        )
+                                    )
                             else:
-                                adj_out_break["base fuel"][var]["savings"][yr] = \
-                                    adj_out_break["base fuel"][var][
-                                        "savings"][yr] - (
-                                        ((adj[var]["total"]["baseline"][yr] * (1 - adj_frac_base)) -
-                                         (adj[var]["total"]["efficient"][yr]) * (
-                                            1 - adj_frac_eff) * adj_out_break[
-                                                "fuel splits"]["efficient"][var][yr]))
+                                adj_out_break["base fuel"][var]["savings"][yr] = adj_out_break[
+                                    "base fuel"
+                                ][var]["savings"][yr] - (
+                                    (adj[var]["total"]["baseline"][yr] * (1 - adj_frac_base))
+                                    - (adj[var]["total"]["efficient"][yr])
+                                    * (1 - adj_frac_eff)
+                                    * adj_out_break["fuel splits"]["efficient"][var][yr]
+                                )
 
                         # If the measure involves fuel switching and the user has broken out results
                         # by fuel type, make adjustments to the efficient, and savings results for
@@ -3613,34 +4336,50 @@ class Engine(object):
 
                         # Ensure non-zero switched fuel results; anchor on energy var
                         non_zero_switch = (
-                            adj_out_break["switched fuel"]["energy"]["efficient"] is not None)
+                            adj_out_break["switched fuel"]["energy"]["efficient"] is not None
+                        )
                         if non_zero_switch:
                             # Handle extra key on the adjusted microsegment
                             # data for the cost variables ("energy")
                             if var == "cost":
                                 # Loop through all potential cost keys in the breakout data
                                 for cost_brk_key in [
-                                        x for x in self.handyvars.brk_vars if "cost" in x]:
-                                    cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                                        "stock" if "capital" in cost_brk_key else None))
+                                    x for x in self.handyvars.brk_vars if "cost" in x
+                                ]:
+                                    cost_mast_key = (
+                                        "energy"
+                                        if "energy" in cost_brk_key
+                                        else ("stock" if "capital" in cost_brk_key else None)
+                                    )
                                     # Update efficient result
-                                    adj_out_break["switched fuel"][cost_brk_key][
-                                        "efficient"][yr] = adj_out_break["switched fuel"][
-                                            cost_brk_key]["efficient"][yr] - (
-                                        adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                                        1 - adj_frac_eff) * (1 - adj_out_break[
-                                            "fuel splits"]["efficient"][cost_brk_key][yr])
+                                    adj_out_break["switched fuel"][cost_brk_key]["efficient"][
+                                        yr
+                                    ] = adj_out_break["switched fuel"][cost_brk_key]["efficient"][
+                                        yr
+                                    ] - (adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
+                                        1 - adj_frac_eff
+                                    ) * (
+                                        1
+                                        - adj_out_break["fuel splits"]["efficient"][cost_brk_key][
+                                            yr
+                                        ]
+                                    )
                                     # Update savings result; note that savings
                                     # for a switched to fuel will be negative and
                                     # thus the adjustment to microsegment data
                                     # post-competition should be added to the
                                     # original savings breakout results
-                                    adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = \
-                                        adj_out_break["switched fuel"][cost_brk_key][
-                                            "savings"][yr] + (
-                                        adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                                        1 - adj_frac_eff) * (1 - adj_out_break[
-                                            "fuel splits"]["efficient"][cost_brk_key][yr])
+                                    adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = (
+                                        adj_out_break["switched fuel"][cost_brk_key]["savings"][yr]
+                                        + (adj[var][cost_mast_key]["total"]["efficient"][yr])
+                                        * (1 - adj_frac_eff)
+                                        * (
+                                            1
+                                            - adj_out_break["fuel splits"]["efficient"][
+                                                cost_brk_key
+                                            ][yr]
+                                        )
+                                    )
                             else:
                                 # Update efficient result
                                 # Energy data may include efficient-captured
@@ -3658,18 +4397,18 @@ class Engine(object):
                                         fs_splt = adj_out_break["fuel splits"]
                                     elif var_sub == "efficient-captured":
                                         fs_splt = adj_out_break["captured fuel splits"]
-                                    adj_out_break["switched fuel"][var][var_sub][yr] = \
-                                        adj_out_break["switched fuel"][var][var_sub][yr] - (
-                                        adj[var]["total"][var_sub][yr]) * (1 - adj_frac_eff) * (
-                                            1 - fs_splt["efficient"][var][yr])
+                                    adj_out_break["switched fuel"][var][var_sub][yr] = (
+                                        adj_out_break["switched fuel"][var][var_sub][yr]
+                                        - (adj[var]["total"][var_sub][yr])
+                                        * (1 - adj_frac_eff)
+                                        * (1 - fs_splt["efficient"][var][yr])
+                                    )
                                 # Update savings result
-                                adj_out_break["switched fuel"][var][
-                                    "savings"][yr] = \
-                                    adj_out_break["switched fuel"][var][
-                                        "savings"][yr] + (
-                                    adj[var]["total"]["efficient"][yr]) * (
-                                    1 - adj_frac_eff) * (1 - adj_out_break[
-                                        "fuel splits"]["efficient"][var][yr])
+                                adj_out_break["switched fuel"][var]["savings"][yr] = adj_out_break[
+                                    "switched fuel"
+                                ][var]["savings"][yr] + (adj[var]["total"]["efficient"][yr]) * (
+                                    1 - adj_frac_eff
+                                ) * (1 - adj_out_break["fuel splits"]["efficient"][var][yr])
 
     def find_join_keys(self, m, mseg_key):
         """Finalize keys for pulling stock/stock cost data for competition calculations.
@@ -3696,11 +4435,17 @@ class Engine(object):
         # (or cooling if not available). Such measures might include, for
         # example, HP measures, HVAC + envelope packages, or controls measures
         # spanning heating/cooling and other end uses
-        if len(m.end_use) > 1 and "demand" not in mseg_key and ((
-            "heating" in m.end_use["primary"] and "heating" not in mseg_key)
-            or ("heating" not in m.end_use["primary"] and (
-                "cooling" in m.end_use["primary"] and
-                "cooling" not in mseg_key))):
+        if (
+            len(m.end_use) > 1
+            and "demand" not in mseg_key
+            and (
+                ("heating" in m.end_use["primary"] and "heating" not in mseg_key)
+                or (
+                    "heating" not in m.end_use["primary"]
+                    and ("cooling" in m.end_use["primary"] and "cooling" not in mseg_key)
+                )
+            )
+        ):
             # Decompose contributing microsegment key information into a list,
             # to be modified per comment above
             key_list = list(literal_eval(mseg_key))
@@ -3712,23 +4457,22 @@ class Engine(object):
                     # Check for panel upgrade info. on the tech. name
                     panel_info = [x for x in ["-manage", "-no panel"] if x in key_list[-2]][0]
                     # Add panel info. to other appended tech. info. (after the dash)
-                    tch_apnd = (panel_info + "-" + key_list[-2].split("-")[-1])
+                    tch_apnd = panel_info + "-" + key_list[-2].split("-")[-1]
                 except IndexError:
                     # Find appended tech. info. (after the dash)
-                    tch_apnd = ("-" + key_list[-2].split("-")[-1])
+                    tch_apnd = "-" + key_list[-2].split("-")[-1]
             else:
                 tch_apnd = ""
             # Determine the building type of the contributing microsegment
-            if any([x in mseg_key for x in [
-                    "single family home", "mobile home",
-                    "multi family home"]]):
+            if any(
+                [x in mseg_key for x in ["single family home", "mobile home", "multi family home"]]
+            ):
                 mseg_bldg_sect = "residential"
             else:
                 mseg_bldg_sect = "commercial"
             # Case 1: heating is in the measure end uses, while heating is not
             # in the current contributing microsegment
-            if "heating" in m.end_use["primary"] and (
-                    "heating" not in mseg_key):
+            if "heating" in m.end_use["primary"] and ("heating" not in mseg_key):
                 # Reset end use
                 key_list[4] = "heating"
                 # Ensure the contributing microsegment information is
@@ -3741,9 +4485,10 @@ class Engine(object):
                 if mseg_bldg_sect == "residential":
                     # Non-cooling tech. or cooling tech. is non-HP; find
                     # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "central AC", "room AC"]]) or \
-                            "cooling" not in mseg_key:
+                    if (
+                        any([x in mseg_key for x in ["central AC", "room AC"]])
+                        or "cooling" not in mseg_key
+                    ):
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
@@ -3756,12 +4501,19 @@ class Engine(object):
                             # Initialize list of heating technologies that would be expected for a
                             # non-HP cooling tech. Note: should match order of res heating techs in
                             # "htcl_anchor_tech_opts" var from ecm_prep_vars module.
-                            tech_search = [x for x in [
-                                "furnace (NG)", "boiler (NG)",
-                                "furnace (distillate)", "boiler (distillate)",
-                                "furnace (LPG)", "furnace (kerosene)",
-                                "stove (wood)"] if x
-                                in m.technology["primary"]]
+                            tech_search = [
+                                x
+                                for x in [
+                                    "furnace (NG)",
+                                    "boiler (NG)",
+                                    "furnace (distillate)",
+                                    "boiler (distillate)",
+                                    "furnace (LPG)",
+                                    "furnace (kerosene)",
+                                    "stove (wood)",
+                                ]
+                                if x in m.technology["primary"]
+                            ]
                             # If the microsegment is non-cooling (e.g.,
                             # secondary heating), expand to all commercial
                             # heating tech.
@@ -3769,11 +4521,14 @@ class Engine(object):
                                 tech_search.extend(["ASHP", "GSHP", "NGHP"])
                             if len(tech_search) == 0:
                                 raise ValueError(
-                                    "Contributing microsegment " + mseg_key +
-                                    " for measure " + m.name +
-                                    " has unexpected heating technology "
+                                    "Contributing microsegment "
+                                    + mseg_key
+                                    + " for measure "
+                                    + m.name
+                                    + " has unexpected heating technology "
                                     "information for stock turnover "
-                                    "calculations")
+                                    "calculations"
+                                )
                             else:
                                 # Reset tech.
                                 key_list[-2] = tech_search[0]
@@ -3782,32 +4537,51 @@ class Engine(object):
                                     key_list[3] = "natural gas"
                                 elif "distillate" in tech_search[0]:
                                     key_list[3] = "distillate"
-                                elif any([x in tech_search[0] for x in [
-                                        "LPG", "kerosene", "wood"]]):
+                                elif any(
+                                    [x in tech_search[0] for x in ["LPG", "kerosene", "wood"]]
+                                ):
                                     key_list[3] = "other fuel"
                                 else:
                                     key_list[3] = "electricity"
                     # Cooling tech. is HP; heating tech. is identical and no
                     # further action is needed
-                    elif any([x in mseg_key for x in [
-                            "ASHP", "GSHP", "NGHP"]]):
+                    elif any([x in mseg_key for x in ["ASHP", "GSHP", "NGHP"]]):
                         pass
                     # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
+                            "Contributing microsegment "
+                            + mseg_key
+                            + " for measure "
+                            + m.name
+                            + " has "
                             "unexpected technology information for stock "
-                            "turnover calculations")
+                            "turnover calculations"
+                        )
                 # Commercial case
                 else:
                     # Non-cooling tech. or cooling tech. is non-HP; find
                     # appropriate heating tech. to switch to
-                    if any([x in mseg_key for x in [
-                            "rooftop_AC", "pkg_terminal_AC-cool", "reciprocating_chiller",
-                            "scroll_chiller", "centrifugal_chiller", "screw_chiller",
-                            "res_type_central_AC", "gas_eng-driven_RTAC", "gas_chiller",
-                            "wall-window_room_AC"]]) or "cooling" not in mseg_key:
+                    if (
+                        any(
+                            [
+                                x in mseg_key
+                                for x in [
+                                    "rooftop_AC",
+                                    "pkg_terminal_AC-cool",
+                                    "reciprocating_chiller",
+                                    "scroll_chiller",
+                                    "centrifugal_chiller",
+                                    "screw_chiller",
+                                    "res_type_central_AC",
+                                    "gas_eng-driven_RTAC",
+                                    "gas_chiller",
+                                    "wall-window_room_AC",
+                                ]
+                            ]
+                        )
+                        or "cooling" not in mseg_key
+                    ):
                         # Set tech. to first in list of heating
                         # technologies that the measure applies to, and set
                         # the fuel as appropriate to the selected tech.
@@ -3815,30 +4589,48 @@ class Engine(object):
                         # Initialize list of heating technologies that would
                         # be expected for a non-HP cooling tech. Note: should match order of com
                         # heating techs in "htcl_anchor_tech_opts" var from ecm_prep_vars module.
-                        tech_search = [x for x in [
-                            "elec_boiler", "electric_res-heat", "elec_res-heater", "gas_boiler",
-                            "gas_furnace", "oil_boiler", "oil_furnace"] if x in
-                            m.technology["primary"]]
+                        tech_search = [
+                            x
+                            for x in [
+                                "elec_boiler",
+                                "electric_res-heat",
+                                "elec_res-heater",
+                                "gas_boiler",
+                                "gas_furnace",
+                                "oil_boiler",
+                                "oil_furnace",
+                            ]
+                            if x in m.technology["primary"]
+                        ]
                         # If the microsegment is non-cooling (e.g.,
                         # ventilation), expand to all commercial heating tech.
                         if "cooling" not in mseg_key:
-                            tech_search.extend([
-                                "rooftop_ASHP-heat", "pkg_terminal_HP-heat", "comm_GSHP-heat",
-                                "gas_eng-driven_RTHP-heat",
-                                "res_type_gasHP-heat"])
+                            tech_search.extend(
+                                [
+                                    "rooftop_ASHP-heat",
+                                    "pkg_terminal_HP-heat",
+                                    "comm_GSHP-heat",
+                                    "gas_eng-driven_RTHP-heat",
+                                    "res_type_gasHP-heat",
+                                ]
+                            )
                         if len(tech_search) == 0:
                             raise ValueError(
-                                "Contributing microsegment " + mseg_key +
-                                " for measure " + m.name + " has unexpected "
+                                "Contributing microsegment "
+                                + mseg_key
+                                + " for measure "
+                                + m.name
+                                + " has unexpected "
                                 "heating technology information for stock "
-                                "turnover calculations")
+                                "turnover calculations"
+                            )
                         else:
                             # Reset tech.
                             key_list[-2] = tech_search[0]
                             # Reset fuel
-                            if "elec" in tech_search[0] or any([
-                                    x in tech_search[0] for
-                                    x in ["ASHP", "GSHP"]]):
+                            if "elec" in tech_search[0] or any(
+                                [x in tech_search[0] for x in ["ASHP", "GSHP"]]
+                            ):
                                 key_list[3] = "electricity"
                             elif "gas" in tech_search[0]:
                                 key_list[3] = "natural gas"
@@ -3859,16 +4651,20 @@ class Engine(object):
                     # If unexpected tech. is present, throw error
                     else:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name + " has "
+                            "Contributing microsegment "
+                            + mseg_key
+                            + " for measure "
+                            + m.name
+                            + " has "
                             "unexpected technology information for stock "
-                            "turnover calculations")
+                            "turnover calculations"
+                        )
             # Case 2: heating is not in the measure end uses, cooling is in the
             # measure end uses, and cooling is not in the current contributing
             # microsegment
             elif "heating" not in m.end_use["primary"] and (
-                    "cooling" in m.end_use["primary"] and "cooling" not in
-                    mseg_key):
+                "cooling" in m.end_use["primary"] and "cooling" not in mseg_key
+            ):
                 # Reset end use
                 key_list[4] = "cooling"
                 # Ensure the contributing microsegment information is
@@ -3883,15 +4679,20 @@ class Engine(object):
                     # technologies that the measure applies to, and set
                     # the fuel as appropriate to the selected tech. Note: should match order of
                     # res cooling techs in "htcl_anchor_tech_opts" var from ecm_prep_vars module.
-                    tech_search = [x for x in [
-                        "central AC", "ASHP", "GSHP", "NGHP", "room AC"] if
-                        x in m.technology["primary"]]
+                    tech_search = [
+                        x
+                        for x in ["central AC", "ASHP", "GSHP", "NGHP", "room AC"]
+                        if x in m.technology["primary"]
+                    ]
                     if len(tech_search) == 0:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
+                            "Contributing microsegment "
+                            + mseg_key
+                            + " for measure "
+                            + m.name
+                            + " has unexpected cooling technology "
+                            "information for stock turnover calculations"
+                        )
                     else:
                         # Reset tech.
                         key_list[-2] = tech_search[0]
@@ -3906,21 +4707,35 @@ class Engine(object):
                     # technologies that the measure applies to, and set
                     # the fuel as appropriate to the selected tech. Note: should match order of
                     # com cooling techs in "htcl_anchor_tech_opts" var from ecm_prep_vars module.
-                    tech_search = [x for x in [
-                        "rooftop_AC", "rooftop_ASHP-cool", "pkg_terminal_AC-cool",
-                        "reciprocating_chiller", "scroll_chiller",
-                        "centrifugal_chiller", "screw_chiller",
-                        "res_type_central_AC", "comm_GSHP-cool",
-                        "gas_eng-driven_RTAC", "gas_chiller",
-                        "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
-                        "wall-window_room_AC"] if x in
-                        m.technology["primary"]]
+                    tech_search = [
+                        x
+                        for x in [
+                            "rooftop_AC",
+                            "rooftop_ASHP-cool",
+                            "pkg_terminal_AC-cool",
+                            "reciprocating_chiller",
+                            "scroll_chiller",
+                            "centrifugal_chiller",
+                            "screw_chiller",
+                            "res_type_central_AC",
+                            "comm_GSHP-cool",
+                            "gas_eng-driven_RTAC",
+                            "gas_chiller",
+                            "res_type_gasHP-cool",
+                            "gas_eng-driven_RTHP-cool",
+                            "wall-window_room_AC",
+                        ]
+                        if x in m.technology["primary"]
+                    ]
                     if len(tech_search) == 0:
                         raise ValueError(
-                            "Contributing microsegment " + mseg_key +
-                            " for measure " + m.name +
-                            " has unexpected cooling technology "
-                            "information for stock turnover calculations")
+                            "Contributing microsegment "
+                            + mseg_key
+                            + " for measure "
+                            + m.name
+                            + " has unexpected cooling technology "
+                            "information for stock turnover calculations"
+                        )
                     else:
                         # Reset tech.
                         key_list[-2] = tech_search[0]
@@ -3931,10 +4746,13 @@ class Engine(object):
                             key_list[3] = "electricity"
             else:
                 raise ValueError(
-                    "Contributing microsegment " + mseg_key +
-                    " for measure " + m.name +
-                    " has unexpected information for stock turnover "
-                    "calculations")
+                    "Contributing microsegment "
+                    + mseg_key
+                    + " for measure "
+                    + m.name
+                    + " has unexpected information for stock turnover "
+                    "calculations"
+                )
             # After making the adjustments above, convert the modified
             # contributing microsegment information back into a string
             # to use in keying in needed stock data
@@ -3947,7 +4765,7 @@ class Engine(object):
             # keys to switch to to handle this case
             if tch_apnd:
                 key_list_alt1 = key_list[:]  # shallow copy is sufficient (list of primitives)
-                key_list_alt1[-2] = (key_list_alt1[-2] + tch_apnd)
+                key_list_alt1[-2] = key_list_alt1[-2] + tch_apnd
                 stk_cost_dat_key_alt = str(tuple(key_list_alt1))
             else:
                 stk_cost_dat_key_alt = None
@@ -3997,8 +4815,7 @@ class Engine(object):
                     _out_cz = cz[0]
             # Establish applicable building type breakout
             for bldg in self.handyvars.out_break_bldgtypes.items():
-                if all([x in bldg[1] for x in [
-                        key_list[2], key_list[-1]]]):
+                if all([x in bldg[1] for x in [key_list[2], key_list[-1]]]):
                     _out_bldg = bldg[0]
             # Establish applicable end use breakout
             for eu in self.handyvars.out_break_enduses.items():
@@ -4020,24 +4837,35 @@ class Engine(object):
                     else:
                         _out_eu = "Other"
                 elif key_list[4] in eu[1]:
-                    if (eu[0] in ["Heating (Equip.)",
-                                  "Cooling (Equip.)"] and
-                        key_list[5] == "supply") or (
-                        eu[0] in ["Heating (Env.)",
-                                  "Cooling (Env.)"] and
-                        key_list[5] == "demand" and
-                        key_list[0] == "primary") or (
-                        eu[0] not in ["Heating (Equip.)",
-                                      "Cooling (Equip.)",
-                                      "Heating (Env.)",
-                                      "Cooling (Env.)"]):
+                    if (
+                        (
+                            eu[0] in ["Heating (Equip.)", "Cooling (Equip.)"]
+                            and key_list[5] == "supply"
+                        )
+                        or (
+                            eu[0] in ["Heating (Env.)", "Cooling (Env.)"]
+                            and key_list[5] == "demand"
+                            and key_list[0] == "primary"
+                        )
+                        or (
+                            eu[0]
+                            not in [
+                                "Heating (Equip.)",
+                                "Cooling (Equip.)",
+                                "Heating (Env.)",
+                                "Cooling (Env.)",
+                            ]
+                        )
+                    ):
                         _out_eu = eu[0]
                 elif "lighting gain" in key_list:
                     _out_eu = "Lighting"
 
             # If applicable, establish fuel type breakout
-            if len(self.handyvars.out_break_fuels.keys()) != 0 and _out_eu in \
-                    self.handyvars.out_break_eus_w_fsplits:
+            if (
+                len(self.handyvars.out_break_fuels.keys()) != 0
+                and _out_eu in self.handyvars.out_break_eus_w_fsplits
+            ):
                 # Flag for detailed fuel type breakout
                 _detail = len(self.handyvars.out_break_fuels.keys()) > 2
                 # Establish breakout of fuel type that is being reduced
@@ -4045,16 +4873,15 @@ class Engine(object):
                     if key_list[3] in f[1]:
                         if _detail and key_list[3] == "other fuel":
                             if f[0] == "Distillate/Other" and (
-                                key_list[-2] is not None and any([
-                                    x in key_list[-2] for x in [
-                                    "coal", "kerosene"]])):
+                                key_list[-2] is not None
+                                and any([x in key_list[-2] for x in ["coal", "kerosene"]])
+                            ):
                                 _out_fuel_save = f[0]
-                            elif f[0] == "Distillate/Other" and (
-                                    key_list[2] == "unspecified"):
+                            elif f[0] == "Distillate/Other" and (key_list[2] == "unspecified"):
                                 _out_fuel_save = f[0]
                             elif f[0] == "Biomass" and (
-                                key_list[-2] is not None and "wood" in
-                                    key_list[-2]):
+                                key_list[-2] is not None and "wood" in key_list[-2]
+                            ):
                                 _out_fuel_save = f[0]
                             elif f[0] == "Propane":
                                 _out_fuel_save = f[0]
@@ -4064,8 +4891,7 @@ class Engine(object):
                 _out_fuel_save = ""
                 _detail = False
             # Store key-level (measure-independent) metadata in cache
-            _cache[mseg_key] = (key_list, _out_cz, _out_bldg, _out_eu,
-                                _out_fuel_save, _detail)
+            _cache[mseg_key] = (key_list, _out_cz, _out_bldg, _out_eu, _out_fuel_save, _detail)
 
         key_list, out_cz, out_bldg, out_eu, out_fuel_save, detail = _cache[mseg_key]
 
@@ -4073,8 +4899,7 @@ class Engine(object):
         if out_fuel_save and out_fuel_save != "":
             if m.fuel_switch_to == "electricity" and out_fuel_save != "Electric":
                 out_fuel_gain = "Electric"
-            elif m.fuel_switch_to not in [None, "electricity"] and \
-                    out_fuel_save == "Electric":
+            elif m.fuel_switch_to not in [None, "electricity"] and out_fuel_save == "Electric":
                 # Check for detailed fuel types
                 if detail:
                     out_fuel_gain = ""
@@ -4082,23 +4907,21 @@ class Engine(object):
                         # Special handling for other fuel tech.,
                         # under detailed fuel type breakouts; this
                         # tech. may fit into multiple fuel cats.
-                        if self.fuel_switch_to in f[1] and \
-                                key_list[3] == "other fuel":
+                        if self.fuel_switch_to in f[1] and key_list[3] == "other fuel":
                             # Assign coal/kerosene tech.
                             if f[0] == "Distillate/Other" and (
-                                key_list[-2] is not None and any([
-                                    x in key_list[-2] for x in [
-                                    "coal", "kerosene"]])):
+                                key_list[-2] is not None
+                                and any([x in key_list[-2] for x in ["coal", "kerosene"]])
+                            ):
                                 out_fuel_gain = f[0]
                             # Assign commercial unspecified other fuel to
                             # Distillate/Other
-                            elif f[0] == "Distillate/Other" and (
-                                    key_list[2] == "unspecified"):
+                            elif f[0] == "Distillate/Other" and (key_list[2] == "unspecified"):
                                 out_fuel_gain = f[0]
                             # Assign wood tech.
                             elif f[0] == "Biomass" and (
-                                key_list[-2] is not None and "wood" in
-                                    key_list[-2]):
+                                key_list[-2] is not None and "wood" in key_list[-2]
+                            ):
                                 out_fuel_gain = f[0]
                             # All other tech. goes to propane
                             elif f[0] == "Propane":
@@ -4127,7 +4950,8 @@ class Engine(object):
             mast["cost"]["energy"]["competed"]["baseline"],
             mast["cost"]["carbon"]["competed"]["baseline"],
             mast["energy"]["competed"]["baseline"],
-            mast["carbon"]["competed"]["baseline"]]
+            mast["carbon"]["competed"]["baseline"],
+        ]
         # Set total-efficient and competed-efficient overall
         # stock/energy/carbon/cost totals to be updated in the
         # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
@@ -4141,7 +4965,8 @@ class Engine(object):
             mast["cost"]["energy"]["competed"]["efficient"],
             mast["cost"]["carbon"]["competed"]["efficient"],
             mast["energy"]["competed"]["efficient"],
-            mast["carbon"]["competed"]["efficient"]]
+            mast["carbon"]["competed"]["efficient"],
+        ]
         # Efficient energy data may include tracking of the portion captured
         # by the measure; if present, update the master data with this variable
         # and flag this for subsequent operations
@@ -4156,28 +4981,32 @@ class Engine(object):
 
         # Add fugitive emissions from methane if applicable
         if m.fug_e and "methane" in m.fug_e:
-            mast_list_base.extend([
-                mast["fugitive emissions"]["methane"][
-                    "total"]["baseline"],
-                mast["fugitive emissions"]["methane"][
-                    "competed"]["baseline"]])
-            mast_list_eff.extend([
-                mast["fugitive emissions"]["methane"][
-                    "total"]["efficient"],
-                mast["fugitive emissions"]["methane"][
-                    "competed"]["efficient"]])
+            mast_list_base.extend(
+                [
+                    mast["fugitive emissions"]["methane"]["total"]["baseline"],
+                    mast["fugitive emissions"]["methane"]["competed"]["baseline"],
+                ]
+            )
+            mast_list_eff.extend(
+                [
+                    mast["fugitive emissions"]["methane"]["total"]["efficient"],
+                    mast["fugitive emissions"]["methane"]["competed"]["efficient"],
+                ]
+            )
         # Add fugitive emissions from refrigerants if applicable
         if m.fug_e and "refrigerants" in m.fug_e:
-            mast_list_base.extend([
-                mast["fugitive emissions"]["refrigerants"][
-                    "total"]["baseline"],
-                mast["fugitive emissions"]["refrigerants"][
-                    "competed"]["baseline"]])
-            mast_list_eff.extend([
-                mast["fugitive emissions"]["refrigerants"][
-                    "total"]["efficient"],
-                mast["fugitive emissions"]["refrigerants"][
-                    "competed"]["efficient"]])
+            mast_list_base.extend(
+                [
+                    mast["fugitive emissions"]["refrigerants"]["total"]["baseline"],
+                    mast["fugitive emissions"]["refrigerants"]["competed"]["baseline"],
+                ]
+            )
+            mast_list_eff.extend(
+                [
+                    mast["fugitive emissions"]["refrigerants"]["total"]["efficient"],
+                    mast["fugitive emissions"]["refrigerants"]["competed"]["efficient"],
+                ]
+            )
 
         # Initialize shorthand dict for baseline energy/cost/carbon, efficient
         # energy/cost/carbon, and energy/cost/carbon savings breakout
@@ -4203,11 +5032,14 @@ class Engine(object):
             # This is the fuel splits for all stock
             "fuel splits": {
                 "baseline": {var: _all_fuel_tpl.copy() for var in _brk_vars},
-                "efficient": {var: _all_fuel_tpl.copy() for var in _brk_vars}},
+                "efficient": {var: _all_fuel_tpl.copy() for var in _brk_vars},
+            },
             # This is the fuel splits for only captured stock, and is only tracked for energy use
             "captured fuel splits": {
                 "baseline": {"energy": _all_fuel_tpl.copy()},
-                "efficient": {"energy": _all_fuel_tpl.copy()}}}
+                "efficient": {"energy": _all_fuel_tpl.copy()},
+            },
+        }
         # Keep no_fuel available for later assignments
         no_fuel = _no_fuel_tpl
 
@@ -4216,9 +5048,10 @@ class Engine(object):
         if eff_capt:
             # Efficient-captured base and switched to fuel breakouts,
             # pre-competition
-            adj_out_break["base fuel"]["energy"]["efficient-captured"], \
-                adj_out_break["switched fuel"]["energy"]["efficient-captured"] = (
-                    None for n in range(2))
+            (
+                adj_out_break["base fuel"]["energy"]["efficient-captured"],
+                adj_out_break["switched fuel"]["energy"]["efficient-captured"],
+            ) = (None for n in range(2))
 
         # Add data from the current microsegment as appropriate to the
         # categories in the output breakout dict initialized above
@@ -4243,10 +5076,9 @@ class Engine(object):
                     # Handle case where potential efficient-captured energy
                     # data are not present
                     try:
-                        adj_out_break["base fuel"][var][var_sub] = \
-                            m.markets[adopt_scheme]["competed"][
-                                "mseg_out_break"][var][var_sub][out_cz][out_bldg][out_eu][
-                                out_fuel_save]
+                        adj_out_break["base fuel"][var][var_sub] = m.markets[adopt_scheme][
+                            "competed"
+                        ]["mseg_out_break"][var][var_sub][out_cz][out_bldg][out_eu][out_fuel_save]
                     except KeyError as ke:
                         if var_sub == "efficient-captured":
                             continue
@@ -4256,10 +5088,9 @@ class Engine(object):
                 if out_fuel_gain:
                     # Adjust stock/energy/carbon/cost data
                     for var_sub in var_list:
-                        adj_out_break["switched fuel"][var][var_sub] = \
-                            m.markets[adopt_scheme]["competed"][
-                                "mseg_out_break"][var][var_sub][out_cz][
-                                out_bldg][out_eu][out_fuel_gain]
+                        adj_out_break["switched fuel"][var][var_sub] = m.markets[adopt_scheme][
+                            "competed"
+                        ]["mseg_out_break"][var][var_sub][out_cz][out_bldg][out_eu][out_fuel_gain]
                     if var not in ["stock", "capital cost"]:
                         # Set previously stored fuel splits for efficient case
                         # results (e.g., the efficient case may reflect some
@@ -4271,20 +5102,28 @@ class Engine(object):
                         # carbon that remains w/ the original fuel in each year
                         # for the contributing measure/mseg
                         adj_out_break["fuel splits"]["efficient"][var] = {
-                            yr: ((fs_eff_splt[var][0][yr] + fs_eff_splt[var][1][yr]) /
-                                 fs_eff_splt[var][2][yr]) if fs_eff_splt[var][2][yr] != 0 else 1
-                            for yr in self.handyvars.aeo_years}
+                            yr: (
+                                (fs_eff_splt[var][0][yr] + fs_eff_splt[var][1][yr])
+                                / fs_eff_splt[var][2][yr]
+                            )
+                            if fs_eff_splt[var][2][yr] != 0
+                            else 1
+                            for yr in self.handyvars.aeo_years
+                        }
                         if var == "energy":
                             adj_out_break["captured fuel splits"]["efficient"][var] = {
-                                yr: (fs_eff_splt[var][1][yr] / fs_eff_splt[var][3][yr]) if
-                                fs_eff_splt[var][3][yr] != 0 else 1
-                                for yr in self.handyvars.aeo_years}
+                                yr: (fs_eff_splt[var][1][yr] / fs_eff_splt[var][3][yr])
+                                if fs_eff_splt[var][3][yr] != 0
+                                else 1
+                                for yr in self.handyvars.aeo_years
+                            }
                     else:
                         # None of the measure-captured stock or stock cost reported in the
                         # efficient case remains w/ original fuel by definition
-                        adj_out_break["fuel splits"]["efficient"][var], adj_out_break[
-                            "captured fuel splits"]["efficient"][var] = (
-                                no_fuel.copy() for n in range(2))
+                        (
+                            adj_out_break["fuel splits"]["efficient"][var],
+                            adj_out_break["captured fuel splits"]["efficient"][var],
+                        ) = (no_fuel.copy() for n in range(2))
 
         # Case where output breakouts are not split by fuel
         else:
@@ -4296,15 +5135,14 @@ class Engine(object):
                 elif var != "energy":
                     var_list = ["baseline", "efficient", "savings"]
                 else:  # efficient captured data for energy
-                    var_list = ["baseline", "efficient",
-                                "efficient-captured", "savings"]
+                    var_list = ["baseline", "efficient", "efficient-captured", "savings"]
                 for var_sub in var_list:
                     # Handle case where potential efficient-captured energy
                     # data are not present
                     try:
-                        adj_out_break["base fuel"][var][var_sub] = \
-                            m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                                var][var_sub][out_cz][out_bldg][out_eu]
+                        adj_out_break["base fuel"][var][var_sub] = m.markets[adopt_scheme][
+                            "competed"
+                        ]["mseg_out_break"][var][var_sub][out_cz][out_bldg][out_eu]
                     except KeyError as ke:
                         if var_sub == "efficient-captured":
                             continue
@@ -4315,7 +5153,8 @@ class Engine(object):
         # and cost totals associated with the contributing microsegment that
         # must be adjusted to reflect measure competition/interaction
         adj = m.markets[adopt_scheme]["competed"]["mseg_adjust"][
-            "contributing mseg keys and values"][mseg_key]
+            "contributing mseg keys and values"
+        ][mseg_key]
 
         # Set up separate set of stock data needed to determine stock turnover
         # adjustments as part of the measure competition calculations
@@ -4331,19 +5170,21 @@ class Engine(object):
         # specifics heating/cooling pairs (use alternate data key from above)
         try:
             adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-                "contributing mseg keys and values"][stk_cost_dat_keys[0]]["stock"]
+                "contributing mseg keys and values"
+            ][stk_cost_dat_keys[0]]["stock"]
         except KeyError:
             try:
-                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"][
-                    "mseg_adjust"]["contributing mseg keys and values"][
-                    stk_cost_dat_keys[1]]["stock"]
+                adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
+                    "contributing mseg keys and values"
+                ][stk_cost_dat_keys[1]]["stock"]
             except KeyError:
                 # Handle case where expected microsegment stock data to be
                 # linked to the stock turnover calculations for the current
                 # microsegment is not available; key in stock data with the
                 # current microsegment stock info.
                 adj_stk_trk = m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"][
-                    "contributing mseg keys and values"][mseg_key]["stock"]
+                    "contributing mseg keys and values"
+                ][mseg_key]["stock"]
 
         # Set total-baseline and competed-baseline contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
@@ -4358,7 +5199,8 @@ class Engine(object):
             adj["cost"]["energy"]["competed"]["baseline"],
             adj["cost"]["carbon"]["competed"]["baseline"],
             adj["energy"]["competed"]["baseline"],
-            adj["carbon"]["competed"]["baseline"]]
+            adj["carbon"]["competed"]["baseline"],
+        ]
         # Set total-efficient and competed-efficient contributing microsegment
         # stock/energy/carbon/cost totals to be updated in the
         # 'compete_adj', 'secondary_adj', and 'htcl_adj' functions
@@ -4372,7 +5214,8 @@ class Engine(object):
             adj["cost"]["energy"]["competed"]["efficient"],
             adj["cost"]["carbon"]["competed"]["efficient"],
             adj["energy"]["competed"]["efficient"],
-            adj["carbon"]["competed"]["efficient"]]
+            adj["carbon"]["competed"]["efficient"],
+        ]
         # Set efficient-captured energy data if needed/present
         if eff_capt:
             adj_list_eff.append(adj["energy"]["total"]["efficient-captured"])
@@ -4382,37 +5225,64 @@ class Engine(object):
 
         # Add fugitive emissions from methane if applicable
         if m.fug_e and "methane" in m.fug_e:
-            adj_list_base.extend([
-                adj["fugitive emissions"]["methane"][
-                    "total"]["baseline"],
-                adj["fugitive emissions"]["methane"][
-                    "competed"]["baseline"]])
-            adj_list_eff.extend([
-                adj["fugitive emissions"]["methane"][
-                    "total"]["efficient"],
-                adj["fugitive emissions"]["methane"][
-                    "competed"]["efficient"]])
+            adj_list_base.extend(
+                [
+                    adj["fugitive emissions"]["methane"]["total"]["baseline"],
+                    adj["fugitive emissions"]["methane"]["competed"]["baseline"],
+                ]
+            )
+            adj_list_eff.extend(
+                [
+                    adj["fugitive emissions"]["methane"]["total"]["efficient"],
+                    adj["fugitive emissions"]["methane"]["competed"]["efficient"],
+                ]
+            )
         # Add fugitive emissions from refrigerants if applicable
         if m.fug_e and "refrigerants" in m.fug_e:
-            adj_list_base.extend([
-                adj["fugitive emissions"]["refrigerants"][
-                    "total"]["baseline"],
-                adj["fugitive emissions"]["refrigerants"][
-                    "competed"]["baseline"]])
-            adj_list_eff.extend([
-                adj["fugitive emissions"]["refrigerants"][
-                    "total"]["efficient"],
-                adj["fugitive emissions"]["refrigerants"][
-                    "competed"]["efficient"]])
+            adj_list_base.extend(
+                [
+                    adj["fugitive emissions"]["refrigerants"]["total"]["baseline"],
+                    adj["fugitive emissions"]["refrigerants"]["competed"]["baseline"],
+                ]
+            )
+            adj_list_eff.extend(
+                [
+                    adj["fugitive emissions"]["refrigerants"]["total"]["efficient"],
+                    adj["fugitive emissions"]["refrigerants"]["competed"]["efficient"],
+                ]
+            )
 
-        return mast, adj_out_break, adj, mast_list_base, mast_list_eff, \
-            adj_list_eff, adj_list_base, adj_stk_trk
+        return (
+            mast,
+            adj_out_break,
+            adj,
+            mast_list_base,
+            mast_list_eff,
+            adj_list_eff,
+            adj_list_base,
+            adj_stk_trk,
+        )
 
     def compete_adj(
-            self, adj_fracs, added_sbmkt_fracs, mast,
-            adj_out_break, adj, mast_list_base, mast_list_eff, adj_list_eff,
-            adj_list_base, yr, mseg_key, measure, adopt_scheme, min_mkt_entry_yr,
-            adj_stk_trk, weighting_yrs_map=None, vs_list_init=None):
+        self,
+        adj_fracs,
+        added_sbmkt_fracs,
+        mast,
+        adj_out_break,
+        adj,
+        mast_list_base,
+        mast_list_eff,
+        adj_list_eff,
+        adj_list_base,
+        yr,
+        mseg_key,
+        measure,
+        adopt_scheme,
+        min_mkt_entry_yr,
+        adj_stk_trk,
+        weighting_yrs_map=None,
+        vs_list_init=None,
+    ):
         """Scale down measure totals to reflect competition.
 
         Notes:
@@ -4477,14 +5347,17 @@ class Engine(object):
         # efficient performance data require further adjustment to ensure that the relative
         # performance of the captured stock after applying market shares is consistent with that
         # of the captured stock before the market share scaling was applied
-        if adopt_scheme != "Technical potential" and int(
-                measure.market_entry_year) > min_mkt_entry_yr:
+        if (
+            adopt_scheme != "Technical potential"
+            and int(measure.market_entry_year) > min_mkt_entry_yr
+        ):
             # Add flag
             delay_entry_adj = True
             # Initialize dicts used to make the required adjustment to the
             # measure's efficient energy, carbon, and energy cost data
-            rp_adj, save_c, tot_c = ({v: 0 for v in self.handyvars.delay_adj_vars}
-                                     for n in range(3))
+            rp_adj, save_c, tot_c = (
+                {v: 0 for v in self.handyvars.delay_adj_vars} for n in range(3)
+            )
             # Initialize tracker of cumulative competed stock (including
             # in years before measure entered market) for use in subsequent
             # measure-captured stock adjustment for measures that enter the
@@ -4520,8 +5393,9 @@ class Engine(object):
                     # Stock turnover rate is ratio of competed to total stock
                     # in given weighting year; handle zero total stock
                     if adj_stk_trk["total"]["all"][wyr] != 0:
-                        wt_comp_wyr = (adj_stk_trk["competed"]["all"][wyr] /
-                                       adj_stk_trk["total"]["all"][wyr])
+                        wt_comp_wyr = (
+                            adj_stk_trk["competed"]["all"][wyr] / adj_stk_trk["total"]["all"][wyr]
+                        )
                     else:
                         wt_comp_wyr = 0
                     # For measures with delayed market entry, add current year
@@ -4543,8 +5417,7 @@ class Engine(object):
                     # with delayed market entry; adjustment represents the
                     # relative performance of all stock the measure competes
                     # for and captures in the time it is on the market
-                    if delay_entry_adj and \
-                            adj_stk_trk["total"]["measure"][wyr] > 0:
+                    if delay_entry_adj and adj_stk_trk["total"]["measure"][wyr] > 0:
                         # Calculate the relative performance for each output
                         # metric of interest
                         for v in save_c.keys():
@@ -4553,23 +5426,23 @@ class Engine(object):
                                 # Update numerator in relative performance
                                 # calculation (competed-captured savings)
                                 save_c[v] += (
-                                    adj["cost"]["energy"]["competed"]["baseline"][wyr] -
-                                    adj["cost"]["energy"]["competed"]["efficient"][wyr])
+                                    adj["cost"]["energy"]["competed"]["baseline"][wyr]
+                                    - adj["cost"]["energy"]["competed"]["efficient"][wyr]
+                                )
                                 # Update denominator in relative performance
                                 # calculation (baseline competed-captured)
-                                tot_c[v] += (
-                                    adj["cost"]["energy"]["competed"]["baseline"][wyr])
+                                tot_c[v] += adj["cost"]["energy"]["competed"]["baseline"][wyr]
                             # Energy/carbon metrics
                             else:
                                 # Update numerator in relative performance
                                 # calculation (competed-captured savings)
                                 save_c[v] += (
-                                    adj[v]["competed"]["baseline"][wyr] -
-                                    adj[v]["competed"]["efficient"][wyr])
+                                    adj[v]["competed"]["baseline"][wyr]
+                                    - adj[v]["competed"]["efficient"][wyr]
+                                )
                                 # Update denominator in relative performance
                                 # calculation (baseline competed-captured)
-                                tot_c[v] += (
-                                    adj[v]["competed"]["baseline"][wyr])
+                                tot_c[v] += adj[v]["competed"]["baseline"][wyr]
 
                 else:
                     wt_comp_wyr = 1
@@ -4592,8 +5465,7 @@ class Engine(object):
                     # for the current year weighted by the fraction of the
                     # total market that is competed, plus any market share
                     # captured in previous years
-                    adj_frac_t = (1 - wt_comp_wyr) * adj_frac_t + \
-                        wt_comp_wyr * mms_lr
+                    adj_frac_t = (1 - wt_comp_wyr) * adj_frac_t + wt_comp_wyr * mms_lr
                     # Ensure that total weighted market share is never above 1.
                     if isinstance(adj_frac_t, numpy.ndarray):
                         adj_frac_t[numpy.where(adj_frac_t > 1)] = 1
@@ -4630,7 +5502,8 @@ class Engine(object):
                     # and the baseline case should be subject to measure-captured stock adjustment
                     else:
                         adj_t_b[var], adj_t_e[var] = (
-                            x * b_e_ratio for x in [adj_t_b[var], adj_t_e[var]])
+                            x * b_e_ratio for x in [adj_t_b[var], adj_t_e[var]]
+                        )
                 # Cumulative competed relative performance equals cumulatively competed-captured
                 # savings for the metric divided by cumulatively competed-captured baseline; handle
                 # zero denominator
@@ -4648,24 +5521,28 @@ class Engine(object):
                     # Handle energy cost data structure separately
                     if var == "energy cost":
                         try:
-                            b_e_ratio = \
-                                adj["cost"]["energy"]["total"]["baseline"][yr] / \
-                                adj["cost"]["energy"]["total"]["efficient"][yr]
+                            b_e_ratio = (
+                                adj["cost"]["energy"]["total"]["baseline"][yr]
+                                / adj["cost"]["energy"]["total"]["efficient"][yr]
+                            )
                         except (ZeroDivisionError, FloatingPointError):
                             b_e_ratio = 1
                     # Energy/carbon data
                     else:
                         try:
-                            b_e_ratio = adj[var]["total"]["baseline"][yr] / \
-                                adj[var]["total"]["efficient"][yr]
+                            b_e_ratio = (
+                                adj[var]["total"]["baseline"][yr]
+                                / adj[var]["total"]["efficient"][yr]
+                            )
                         except (ZeroDivisionError, FloatingPointError):
                             b_e_ratio = 1
 
                     # Ensure that calculated ratio is a finite number
-                    if (isinstance(b_e_ratio, numpy.ndarray) and not all(
-                        numpy.isfinite(b_e_ratio))) or (
-                        not isinstance(b_e_ratio, numpy.ndarray) and not
-                            numpy.isfinite(b_e_ratio)):
+                    if (
+                        isinstance(b_e_ratio, numpy.ndarray) and not all(numpy.isfinite(b_e_ratio))
+                    ) or (
+                        not isinstance(b_e_ratio, numpy.ndarray) and not numpy.isfinite(b_e_ratio)
+                    ):
                         b_e_ratio = 1
 
                     # Further scale efficient market share adjustment fraction
@@ -4675,43 +5552,48 @@ class Engine(object):
         # For a primary microsegment with secondary effects, record market
         # share information that will subsequently be used to adjust associated
         # secondary microsegments and associated energy/carbon/cost totals
-        if len(measure.markets[adopt_scheme]["competed"]["mseg_adjust"][
-                "secondary mseg adjustments"]["market share"][
-                "original energy (total captured)"].keys()) > 0:
+        if (
+            len(
+                measure.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "secondary mseg adjustments"
+                ]["market share"]["original energy (total captured)"].keys()
+            )
+            > 0
+        ):
             # Determine the climate zone, building type, and structure
             # type for the current contributing primary microsegment from the
             # microsegment key chain information and use as the key for linking
             # the primary and its associated secondary microsegment
             cz_bldg_struct = literal_eval(mseg_key)
-            secnd_mseg_adjkey = str((
-                cz_bldg_struct[1], cz_bldg_struct[2], cz_bldg_struct[-1]))
+            secnd_mseg_adjkey = str((cz_bldg_struct[1], cz_bldg_struct[2], cz_bldg_struct[-1]))
 
-            if secnd_mseg_adjkey in measure.markets[adopt_scheme][
-                "competed"]["mseg_adjust"][
-                "secondary mseg adjustments"]["market share"][
-                    "original energy (total captured)"].keys():
+            if (
+                secnd_mseg_adjkey
+                in measure.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "secondary mseg adjustments"
+                ]["market share"]["original energy (total captured)"].keys()
+            ):
                 # Record original and adjusted primary stock numbers as part of
                 # the measure's 'mseg_adjust' attribute
-                secnd_adj_mktshr = measure.markets[adopt_scheme][
-                    "competed"]["mseg_adjust"]["secondary mseg adjustments"][
-                    "market share"]
+                secnd_adj_mktshr = measure.markets[adopt_scheme]["competed"]["mseg_adjust"][
+                    "secondary mseg adjustments"
+                ]["market share"]
                 # Total captured energy
-                secnd_adj_mktshr["original energy (total captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    adj["energy"]["total"]["efficient"][yr]
+                secnd_adj_mktshr["original energy (total captured)"][secnd_mseg_adjkey][yr] += adj[
+                    "energy"
+                ]["total"]["efficient"][yr]
                 # Competed and captured energy
-                secnd_adj_mktshr["original energy (competed and captured)"][
-                    secnd_mseg_adjkey][yr] += \
-                    adj["energy"]["competed"]["efficient"][yr]
+                secnd_adj_mktshr["original energy (competed and captured)"][secnd_mseg_adjkey][
+                    yr
+                ] += adj["energy"]["competed"]["efficient"][yr]
                 # Adjusted total captured energy
-                secnd_adj_mktshr["adjusted energy (total captured)"][
-                    secnd_mseg_adjkey][yr] += (
-                        adj["energy"]["total"]["efficient"][yr] *
-                        adj_t_e["stock"])
+                secnd_adj_mktshr["adjusted energy (total captured)"][secnd_mseg_adjkey][yr] += (
+                    adj["energy"]["total"]["efficient"][yr] * adj_t_e["stock"]
+                )
                 # Adjusted competed and captured energy
-                secnd_adj_mktshr["adjusted energy (competed and captured)"][
-                    secnd_mseg_adjkey][yr] += (
-                        adj["energy"]["competed"]["efficient"][yr] * adj_c)
+                secnd_adj_mktshr["adjusted energy (competed and captured)"][secnd_mseg_adjkey][
+                    yr
+                ] += adj["energy"]["competed"]["efficient"][yr] * adj_c
 
         # Pre-compute filtered vs_list once per compete_adj call (avoids
         # repeated .copy() + list-comprehension filter on every mast_vars
@@ -4720,8 +5602,9 @@ class Engine(object):
         _has_efficient = "efficient" in vs_list_init
         _energy_brk_keys = adj_out_break["base fuel"]["energy"].keys()
         _has_eff_captured = _has_efficient and "efficient-captured" in _energy_brk_keys
-        _vs_filtered_energy = (_vs_filtered + ["efficient-captured"]) if _has_eff_captured \
-            else _vs_filtered
+        _vs_filtered_energy = (
+            (_vs_filtered + ["efficient-captured"]) if _has_eff_captured else _vs_filtered
+        )
 
         # Adjust baseline stock/energy/cost/carbon, efficient
         # stock/energy/cost/carbon, and energy/cost/carbon savings totals
@@ -4746,13 +5629,17 @@ class Engine(object):
                 if var == "cost":
                     # Loop through all potential cost keys in the breakout data
                     for cost_brk_key in self.handyvars.cost_brk_vars:
-                        cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                            "stock" if "capital" in cost_brk_key else None))
-                        adj_out_break["base fuel"][cost_brk_key][var_sub][yr] = \
-                            adj_out_break["base fuel"][cost_brk_key][var_sub][yr] - (
-                            adj[var][cost_mast_key]["total"][var_sub][yr]) * (
-                            1 - adj_t[cost_brk_key]) * adj_out_break["fuel splits"][var_sub][
-                                cost_brk_key][yr]
+                        cost_mast_key = (
+                            "energy"
+                            if "energy" in cost_brk_key
+                            else ("stock" if "capital" in cost_brk_key else None)
+                        )
+                        adj_out_break["base fuel"][cost_brk_key][var_sub][yr] = (
+                            adj_out_break["base fuel"][cost_brk_key][var_sub][yr]
+                            - (adj[var][cost_mast_key]["total"][var_sub][yr])
+                            * (1 - adj_t[cost_brk_key])
+                            * adj_out_break["fuel splits"][var_sub][cost_brk_key][yr]
+                        )
 
                 else:
                     # Keys for pulling baseline and efficient-case data
@@ -4781,85 +5668,104 @@ class Engine(object):
                                 continue
                         elif _cur_val == 0:
                             continue
-                        adj_out_break["base fuel"][var][var_sub][yr] = \
-                            _cur_val - (
-                            adj[var]["total"][adj_key][yr]) * (
-                                1 - adj_t[var]) * fs_splt[var][yr]
+                        adj_out_break["base fuel"][var][var_sub][yr] = (
+                            _cur_val
+                            - (adj[var]["total"][adj_key][yr]) * (1 - adj_t[var]) * fs_splt[var][yr]
+                        )
                     except KeyError:
                         continue
 
             # Ensure that savings data are present/non-zero/non-None before adjusting; anchor on
             # energy var
-            non_zero_savings = (adj_out_break["base fuel"]["energy"]["savings"] is not None and
-                                len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0)
+            non_zero_savings = (
+                adj_out_break["base fuel"]["energy"]["savings"] is not None
+                and len(adj_out_break["base fuel"]["energy"]["savings"].keys()) != 0
+            )
             if var != "stock" and non_zero_savings:
                 # Update savings results for energy/cost/carbon
                 # Handle extra key on the adjusted mseg data for cost vars ("energy" or "stock")
                 if "cost" in var:
                     # Loop through all potential cost keys in the breakout data
                     for cost_brk_key in self.handyvars.cost_brk_vars:
-                        cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                            "stock" if "capital" in cost_brk_key else None))
-                        adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = \
-                            adj_out_break["base fuel"][cost_brk_key]["savings"][yr] - ((
-                                adj[var][cost_mast_key]["total"]["baseline"][yr] * (
-                                    1 - adj_t_b[cost_brk_key]) -
-                                adj[var][cost_mast_key]["total"]["efficient"][yr] * (
-                                    1 - adj_t_e[cost_brk_key]) * adj_out_break[
-                                    "fuel splits"]["efficient"][cost_brk_key][yr]))
+                        cost_mast_key = (
+                            "energy"
+                            if "energy" in cost_brk_key
+                            else ("stock" if "capital" in cost_brk_key else None)
+                        )
+                        adj_out_break["base fuel"][cost_brk_key]["savings"][yr] = adj_out_break[
+                            "base fuel"
+                        ][cost_brk_key]["savings"][yr] - (
+                            adj[var][cost_mast_key]["total"]["baseline"][yr]
+                            * (1 - adj_t_b[cost_brk_key])
+                            - adj[var][cost_mast_key]["total"]["efficient"][yr]
+                            * (1 - adj_t_e[cost_brk_key])
+                            * adj_out_break["fuel splits"]["efficient"][cost_brk_key][yr]
+                        )
                 else:
-                    adj_out_break["base fuel"][var]["savings"][yr] = \
-                        adj_out_break["base fuel"][var]["savings"][yr] - ((
-                            adj[var]["total"]["baseline"][yr] * (
-                                1 - adj_t_b[var]) -
-                            adj[var]["total"]["efficient"][yr] * (
-                                1 - adj_t_e[var]) * adj_out_break[
-                                "fuel splits"]["efficient"][var][yr]))
+                    adj_out_break["base fuel"][var]["savings"][yr] = adj_out_break["base fuel"][
+                        var
+                    ]["savings"][yr] - (
+                        adj[var]["total"]["baseline"][yr] * (1 - adj_t_b[var])
+                        - adj[var]["total"]["efficient"][yr]
+                        * (1 - adj_t_e[var])
+                        * adj_out_break["fuel splits"]["efficient"][var][yr]
+                    )
 
             # If the measure involves fuel switching and the user has broken
             # out results by fuel type, make adjustments to the efficient, and
             # savings results for the switched to fuel
 
             # Ensure non-zero switched fuel results; anchor on energy var
-            non_zero_switch = (adj_out_break["switched fuel"]["energy"]["efficient"] is not None)
+            non_zero_switch = adj_out_break["switched fuel"]["energy"]["efficient"] is not None
             if non_zero_switch:
                 # Handle extra key on the adjusted microsegment data for
                 # the cost variables ("energy" or "stock")
                 if var == "cost":
                     # Loop through all potential cost keys in the breakout data
                     for cost_brk_key in self.handyvars.cost_brk_vars:
-                        cost_mast_key = ("energy" if "energy" in cost_brk_key else (
-                            "stock" if "capital" in cost_brk_key else None))
+                        cost_mast_key = (
+                            "energy"
+                            if "energy" in cost_brk_key
+                            else ("stock" if "capital" in cost_brk_key else None)
+                        )
                         # Update efficient result
-                        adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr] = \
-                            adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr] - (
-                            adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                            1 - adj_t_e[cost_brk_key]) * (1 - adj_out_break[
-                                "fuel splits"]["efficient"][cost_brk_key][yr])
+                        adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr] = (
+                            adj_out_break["switched fuel"][cost_brk_key]["efficient"][yr]
+                            - (adj[var][cost_mast_key]["total"]["efficient"][yr])
+                            * (1 - adj_t_e[cost_brk_key])
+                            * (1 - adj_out_break["fuel splits"]["efficient"][cost_brk_key][yr])
+                        )
                         # Update savings result; note that savings
                         # for a switched to fuel will be negative and
                         # thus the adjustment to microsegment data
                         # post-competition should be added to the
                         # original savings breakout results
-                        adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = \
-                            adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] + (
-                            adj[var][cost_mast_key]["total"]["efficient"][yr]) * (
-                            1 - adj_t_e[cost_brk_key]) * (1 - adj_out_break[
-                                "fuel splits"]["efficient"][cost_brk_key][yr])
+                        adj_out_break["switched fuel"][cost_brk_key]["savings"][yr] = adj_out_break[
+                            "switched fuel"
+                        ][cost_brk_key]["savings"][yr] + (
+                            adj[var][cost_mast_key]["total"]["efficient"][yr]
+                        ) * (1 - adj_t_e[cost_brk_key]) * (
+                            1 - adj_out_break["fuel splits"]["efficient"][cost_brk_key][yr]
+                        )
                 else:
                     # Keys for pulling efficient-case data are different for
                     # the stock variable; no measure-captured stock remains
                     # with base fuel under fuel switching
                     if var == "stock":
                         # Update efficient result
-                        adj_out_break["switched fuel"][var]["efficient"][yr] = \
-                            adj_out_break["switched fuel"][var]["efficient"][yr] - (
-                            adj[var]["total"]["measure"][yr]) * (1 - adj_t_e[var])
+                        adj_out_break["switched fuel"][var]["efficient"][yr] = adj_out_break[
+                            "switched fuel"
+                        ][var]["efficient"][yr] - (adj[var]["total"]["measure"][yr]) * (
+                            1 - adj_t_e[var]
+                        )
                     else:
                         # Update efficient result
                         # Energy data may include efficient-captured tracking
-                        if var == "energy" and "efficient-captured" in \
-                                adj_out_break["switched fuel"]["energy"].keys():
+                        if (
+                            var == "energy"
+                            and "efficient-captured"
+                            in adj_out_break["switched fuel"]["energy"].keys()
+                        ):
                             vs_list = ["efficient", "efficient-captured"]
                         else:
                             vs_list = ["efficient"]
@@ -4877,31 +5783,32 @@ class Engine(object):
                                 # fuel splits
                                 fs_splt = adj_out_break["captured fuel splits"]
                             adj_out_break["switched fuel"][var][var_sub][yr] = adj_out_break[
-                                "switched fuel"][var][var_sub][yr] - (adj[var]["total"][var_sub][
-                                    yr]) * (1 - adj_t) * (1 - fs_splt["efficient"][var][yr])
+                                "switched fuel"
+                            ][var][var_sub][yr] - (adj[var]["total"][var_sub][yr]) * (1 - adj_t) * (
+                                1 - fs_splt["efficient"][var][yr]
+                            )
                         # Update savings result
-                        adj_out_break["switched fuel"][var]["savings"][yr] = \
-                            adj_out_break["switched fuel"][var]["savings"][yr] + (
-                            adj[var]["total"]["efficient"][yr]) * (
-                            1 - adj_t) * (1 - fs_splt["efficient"][var][yr])
+                        adj_out_break["switched fuel"][var]["savings"][yr] = adj_out_break[
+                            "switched fuel"
+                        ][var]["savings"][yr] + (adj[var]["total"]["efficient"][yr]) * (
+                            1 - adj_t
+                        ) * (1 - fs_splt["efficient"][var][yr])
 
         # Adjust the total and competed baseline stock captured, both overall
         # and for the current contributing microsegment
 
         # Overall total baseline stock
-        mast["stock"]["total"]["all"][yr] = \
-            mast["stock"]["total"]["all"][yr] - \
-            (adj["stock"]["total"]["all"][yr] * (1 - adj_t_b["stock"]))
+        mast["stock"]["total"]["all"][yr] = mast["stock"]["total"]["all"][yr] - (
+            adj["stock"]["total"]["all"][yr] * (1 - adj_t_b["stock"])
+        )
         # Competed total baseline stock
-        mast["stock"]["competed"]["all"][yr] = \
-            mast["stock"]["competed"]["all"][yr] - \
-            (adj["stock"]["competed"]["all"][yr] * (1 - adj_c))
+        mast["stock"]["competed"]["all"][yr] = mast["stock"]["competed"]["all"][yr] - (
+            adj["stock"]["competed"]["all"][yr] * (1 - adj_c)
+        )
         # Current contributing mseg total baseline stock
-        adj["stock"]["total"]["all"][yr] = \
-            adj["stock"]["total"]["all"][yr] * adj_t_b["stock"]
+        adj["stock"]["total"]["all"][yr] = adj["stock"]["total"]["all"][yr] * adj_t_b["stock"]
         # Current contributing mseg competed baseline stock
-        adj["stock"]["competed"]["all"][yr] = \
-            adj["stock"]["competed"]["all"][yr] * adj_c
+        adj["stock"]["competed"]["all"][yr] = adj["stock"]["competed"]["all"][yr] * adj_c
 
         # Adjust the total and competed stock captured by the measure and
         # associated measure and base-case cost totals for that captured
@@ -4909,52 +5816,51 @@ class Engine(object):
         # for the current contributing microsegment.
 
         # Overall total measure stock
-        mast["stock"]["total"]["measure"][yr] = \
-            mast["stock"]["total"]["measure"][yr] - \
-            adj["stock"]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
+        mast["stock"]["total"]["measure"][yr] = mast["stock"]["total"]["measure"][yr] - adj[
+            "stock"
+        ]["total"]["measure"][yr] * (1 - adj_t_e["stock"])
         # Overall total baseline stock cost
-        mast["cost"]["stock"]["total"]["baseline"][yr] = \
-            mast["cost"]["stock"]["total"]["baseline"][yr] - \
-            adj["cost"]["stock"]["total"]["baseline"][yr] * (
-                1 - adj_t_b["capital cost"])
+        mast["cost"]["stock"]["total"]["baseline"][yr] = mast["cost"]["stock"]["total"]["baseline"][
+            yr
+        ] - adj["cost"]["stock"]["total"]["baseline"][yr] * (1 - adj_t_b["capital cost"])
         # Overall total measure stock cost
-        mast["cost"]["stock"]["total"]["efficient"][yr] = \
-            mast["cost"]["stock"]["total"]["efficient"][yr] - \
-            adj["cost"]["stock"]["total"]["efficient"][yr] * (
-                1 - adj_t_e["capital cost"])
+        mast["cost"]["stock"]["total"]["efficient"][yr] = mast["cost"]["stock"]["total"][
+            "efficient"
+        ][yr] - adj["cost"]["stock"]["total"]["efficient"][yr] * (1 - adj_t_e["capital cost"])
         # Overall competed measure stock
-        mast["stock"]["competed"]["measure"][yr] = \
-            mast["stock"]["competed"]["measure"][yr] - \
-            adj["stock"]["competed"]["measure"][yr] * (1 - adj_c)
+        mast["stock"]["competed"]["measure"][yr] = mast["stock"]["competed"]["measure"][yr] - adj[
+            "stock"
+        ]["competed"]["measure"][yr] * (1 - adj_c)
         # Overall competed baseline stock cost
-        mast["cost"]["stock"]["competed"]["baseline"][yr] = \
-            mast["cost"]["stock"]["competed"]["baseline"][yr] - \
-            adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
+        mast["cost"]["stock"]["competed"]["baseline"][yr] = mast["cost"]["stock"]["competed"][
+            "baseline"
+        ][yr] - adj["cost"]["stock"]["competed"]["baseline"][yr] * (1 - adj_c)
         # Overall competed measure stock cost
-        mast["cost"]["stock"]["competed"]["efficient"][yr] = \
-            mast["cost"]["stock"]["competed"]["efficient"][yr] - \
-            adj["cost"]["stock"]["competed"]["efficient"][yr] * (
-                1 - adj_c)
+        mast["cost"]["stock"]["competed"]["efficient"][yr] = mast["cost"]["stock"]["competed"][
+            "efficient"
+        ][yr] - adj["cost"]["stock"]["competed"]["efficient"][yr] * (1 - adj_c)
         # Current contributing mseg total measure stock
-        adj["stock"]["total"]["measure"][yr] = \
+        adj["stock"]["total"]["measure"][yr] = (
             adj["stock"]["total"]["measure"][yr] * adj_t_e["stock"]
+        )
         # Current contributing mseg total baseline stock cost
-        adj["cost"]["stock"]["total"]["baseline"][yr] = \
-            adj["cost"]["stock"]["total"]["baseline"][yr] * \
-            adj_t_b["capital cost"]
+        adj["cost"]["stock"]["total"]["baseline"][yr] = (
+            adj["cost"]["stock"]["total"]["baseline"][yr] * adj_t_b["capital cost"]
+        )
         # Current contributing mseg total measure stock cost
-        adj["cost"]["stock"]["total"]["efficient"][yr] = \
-            adj["cost"]["stock"]["total"]["efficient"][yr] * \
-            adj_t_e["capital cost"]
+        adj["cost"]["stock"]["total"]["efficient"][yr] = (
+            adj["cost"]["stock"]["total"]["efficient"][yr] * adj_t_e["capital cost"]
+        )
         # Current contributing mseg competed measure stock
-        adj["stock"]["competed"]["measure"][yr] = \
-            adj["stock"]["competed"]["measure"][yr] * adj_c
+        adj["stock"]["competed"]["measure"][yr] = adj["stock"]["competed"]["measure"][yr] * adj_c
         # Current contributing mseg competed baseline stock cost
-        adj["cost"]["stock"]["competed"]["baseline"][yr] = \
+        adj["cost"]["stock"]["competed"]["baseline"][yr] = (
             adj["cost"]["stock"]["competed"]["baseline"][yr] * adj_c
+        )
         # Current contributing mseg competed measure stock cost
-        adj["cost"]["stock"]["competed"]["efficient"][yr] = \
+        adj["cost"]["stock"]["competed"]["efficient"][yr] = (
             adj["cost"]["stock"]["competed"]["efficient"][yr] * adj_c
+        )
 
         # Adjust total and competed baseline and efficient energy, carbon,
         # and cost data by measure market share.
@@ -4968,44 +5874,60 @@ class Engine(object):
         _c_adj_b = adj_t_b["carbon"]
         _ac1 = 1 - adj_c
         mast["cost"]["energy"]["total"]["baseline"][yr] = (
-            mast_list_base[1][yr] - adj_list_base[1][yr] * _ec_1m_b)
+            mast_list_base[1][yr] - adj_list_base[1][yr] * _ec_1m_b
+        )
         mast["cost"]["carbon"]["total"]["baseline"][yr] = (
-            mast_list_base[2][yr] - adj_list_base[2][yr] * _ec_1m_b)
+            mast_list_base[2][yr] - adj_list_base[2][yr] * _ec_1m_b
+        )
         adj["cost"]["energy"]["total"]["baseline"][yr] = adj_list_base[1][yr] * _ec_adj_b
         adj["cost"]["carbon"]["total"]["baseline"][yr] = adj_list_base[2][yr] * _ec_adj_b
-        mast["energy"]["total"]["baseline"][yr] = (
-            mast_list_base[3][yr] - adj_list_base[3][yr] * (1 - _e_adj_b))
-        mast["carbon"]["total"]["baseline"][yr] = (
-            mast_list_base[4][yr] - adj_list_base[4][yr] * (1 - _c_adj_b))
+        mast["energy"]["total"]["baseline"][yr] = mast_list_base[3][yr] - adj_list_base[3][yr] * (
+            1 - _e_adj_b
+        )
+        mast["carbon"]["total"]["baseline"][yr] = mast_list_base[4][yr] - adj_list_base[4][yr] * (
+            1 - _c_adj_b
+        )
         adj["energy"]["total"]["baseline"][yr] = adj_list_base[3][yr] * _e_adj_b
         adj["carbon"]["total"]["baseline"][yr] = adj_list_base[4][yr] * _c_adj_b
         if measure.fug_e:
             if "methane" in measure.fug_e:
-                mast["fugitive emissions"]["methane"]["total"]["baseline"][yr] = \
-                    mast_list_base[-4][yr] - (adj_list_base[-4][yr] * (1 - _e_adj_b))
-                adj["fugitive emissions"]["methane"]["total"]["baseline"][yr] = \
+                mast["fugitive emissions"]["methane"]["total"]["baseline"][yr] = mast_list_base[-4][
+                    yr
+                ] - (adj_list_base[-4][yr] * (1 - _e_adj_b))
+                adj["fugitive emissions"]["methane"]["total"]["baseline"][yr] = (
                     adj_list_base[-4][yr] * _e_adj_b
-                mast["fugitive emissions"]["methane"]["competed"]["baseline"][yr] = \
-                    mast_list_base[-3][yr] - (adj_list_base[-3][yr] * _ac1)
-                adj["fugitive emissions"]["methane"]["competed"]["baseline"][yr] = \
+                )
+                mast["fugitive emissions"]["methane"]["competed"]["baseline"][yr] = mast_list_base[
+                    -3
+                ][yr] - (adj_list_base[-3][yr] * _ac1)
+                adj["fugitive emissions"]["methane"]["competed"]["baseline"][yr] = (
                     adj_list_base[-3][yr] * adj_c
+                )
             if "refrigerants" in measure.fug_e:
-                mast["fugitive emissions"]["refrigerants"]["total"]["baseline"][yr] = \
+                mast["fugitive emissions"]["refrigerants"]["total"]["baseline"][yr] = (
                     mast_list_base[-2][yr] - (adj_list_base[-2][yr] * (1 - adj_t_b["stock"]))
-                adj["fugitive emissions"]["refrigerants"]["total"]["baseline"][yr] = \
+                )
+                adj["fugitive emissions"]["refrigerants"]["total"]["baseline"][yr] = (
                     adj_list_base[-2][yr] * adj_t_b["stock"]
-                mast["fugitive emissions"]["refrigerants"]["competed"]["baseline"][yr] = \
+                )
+                mast["fugitive emissions"]["refrigerants"]["competed"]["baseline"][yr] = (
                     mast_list_base[-1][yr] - (adj_list_base[-1][yr] * _ac1)
-                adj["fugitive emissions"]["refrigerants"]["competed"]["baseline"][yr] = \
+                )
+                adj["fugitive emissions"]["refrigerants"]["competed"]["baseline"][yr] = (
                     adj_list_base[-1][yr] * adj_c
+                )
         mast["cost"]["energy"]["competed"]["baseline"][yr] = (
-            mast_list_base[6][yr] - adj_list_base[6][yr] * _ac1)
+            mast_list_base[6][yr] - adj_list_base[6][yr] * _ac1
+        )
         mast["cost"]["carbon"]["competed"]["baseline"][yr] = (
-            mast_list_base[7][yr] - adj_list_base[7][yr] * _ac1)
+            mast_list_base[7][yr] - adj_list_base[7][yr] * _ac1
+        )
         mast["energy"]["competed"]["baseline"][yr] = (
-            mast_list_base[8][yr] - adj_list_base[8][yr] * _ac1)
+            mast_list_base[8][yr] - adj_list_base[8][yr] * _ac1
+        )
         mast["carbon"]["competed"]["baseline"][yr] = (
-            mast_list_base[9][yr] - adj_list_base[9][yr] * _ac1)
+            mast_list_base[9][yr] - adj_list_base[9][yr] * _ac1
+        )
         adj["cost"]["energy"]["competed"]["baseline"][yr] = adj_list_base[6][yr] * adj_c
         adj["cost"]["carbon"]["competed"]["baseline"][yr] = adj_list_base[7][yr] * adj_c
         adj["energy"]["competed"]["baseline"][yr] = adj_list_base[8][yr] * adj_c
@@ -5017,64 +5939,84 @@ class Engine(object):
         _e_adj_e = adj_t_e["energy"]
         _c_adj_e = adj_t_e["carbon"]
         mast["cost"]["energy"]["total"]["efficient"][yr] = (
-            mast_list_eff[1][yr] - adj_list_eff[1][yr] * _ec_1m_e)
+            mast_list_eff[1][yr] - adj_list_eff[1][yr] * _ec_1m_e
+        )
         mast["cost"]["carbon"]["total"]["efficient"][yr] = (
-            mast_list_eff[2][yr] - adj_list_eff[2][yr] * _ec_1m_e)
+            mast_list_eff[2][yr] - adj_list_eff[2][yr] * _ec_1m_e
+        )
         adj["cost"]["energy"]["total"]["efficient"][yr] = adj_list_eff[1][yr] * _ec_adj_e
         adj["cost"]["carbon"]["total"]["efficient"][yr] = adj_list_eff[2][yr] * _ec_adj_e
-        mast["energy"]["total"]["efficient"][yr] = (
-            mast_list_eff[3][yr] - adj_list_eff[3][yr] * (1 - _e_adj_e))
-        mast["carbon"]["total"]["efficient"][yr] = (
-            mast_list_eff[4][yr] - adj_list_eff[4][yr] * (1 - _c_adj_e))
+        mast["energy"]["total"]["efficient"][yr] = mast_list_eff[3][yr] - adj_list_eff[3][yr] * (
+            1 - _e_adj_e
+        )
+        mast["carbon"]["total"]["efficient"][yr] = mast_list_eff[4][yr] - adj_list_eff[4][yr] * (
+            1 - _c_adj_e
+        )
         adj["energy"]["total"]["efficient"][yr] = adj_list_eff[3][yr] * _e_adj_e
         adj["carbon"]["total"]["efficient"][yr] = adj_list_eff[4][yr] * _c_adj_e
         # Adjust efficient-captured energy if these data are present
         try:
-            mast["energy"]["total"]["efficient-captured"][yr] = \
-                mast_list_eff[10][yr] - (adj_list_eff[10][yr] * (1 - _e_adj_e))
-            adj["energy"]["total"]["efficient-captured"][yr] = \
-                adj_list_eff[10][yr] * _e_adj_e
+            mast["energy"]["total"]["efficient-captured"][yr] = mast_list_eff[10][yr] - (
+                adj_list_eff[10][yr] * (1 - _e_adj_e)
+            )
+            adj["energy"]["total"]["efficient-captured"][yr] = adj_list_eff[10][yr] * _e_adj_e
         except (KeyError, IndexError):
             pass
         if measure.fug_e:
             if "methane" in measure.fug_e:
-                mast["fugitive emissions"]["methane"]["total"]["efficient"][yr] = \
-                    mast_list_eff[-4][yr] - (adj_list_eff[-4][yr] * (1 - _e_adj_e))
-                adj["fugitive emissions"]["methane"]["total"]["efficient"][yr] = \
+                mast["fugitive emissions"]["methane"]["total"]["efficient"][yr] = mast_list_eff[-4][
+                    yr
+                ] - (adj_list_eff[-4][yr] * (1 - _e_adj_e))
+                adj["fugitive emissions"]["methane"]["total"]["efficient"][yr] = (
                     adj_list_eff[-4][yr] * _e_adj_e
-                mast["fugitive emissions"]["methane"]["competed"]["efficient"][yr] = \
-                    mast_list_eff[-3][yr] - (adj_list_eff[-3][yr] * _ac1)
-                adj["fugitive emissions"]["methane"]["competed"]["efficient"][yr] = \
+                )
+                mast["fugitive emissions"]["methane"]["competed"]["efficient"][yr] = mast_list_eff[
+                    -3
+                ][yr] - (adj_list_eff[-3][yr] * _ac1)
+                adj["fugitive emissions"]["methane"]["competed"]["efficient"][yr] = (
                     adj_list_eff[-3][yr] * adj_c
+                )
             if "refrigerants" in measure.fug_e:
-                mast["fugitive emissions"]["refrigerants"]["total"]["efficient"][yr] = \
+                mast["fugitive emissions"]["refrigerants"]["total"]["efficient"][yr] = (
                     mast_list_eff[-2][yr] - (adj_list_eff[-2][yr] * (1 - adj_t_b["stock"]))
-                adj["fugitive emissions"]["refrigerants"]["total"]["efficient"][yr] = \
+                )
+                adj["fugitive emissions"]["refrigerants"]["total"]["efficient"][yr] = (
                     adj_list_eff[-2][yr] * adj_t_b["stock"]
-                mast["fugitive emissions"]["refrigerants"]["competed"]["efficient"][yr] = \
+                )
+                mast["fugitive emissions"]["refrigerants"]["competed"]["efficient"][yr] = (
                     mast_list_eff[-1][yr] - (adj_list_eff[-1][yr] * _ac1)
-                adj["fugitive emissions"]["refrigerants"]["competed"]["efficient"][yr] = \
+                )
+                adj["fugitive emissions"]["refrigerants"]["competed"]["efficient"][yr] = (
                     adj_list_eff[-1][yr] * adj_c
+                )
         mast["cost"]["energy"]["competed"]["efficient"][yr] = (
-            mast_list_eff[6][yr] - adj_list_eff[6][yr] * _ac1)
+            mast_list_eff[6][yr] - adj_list_eff[6][yr] * _ac1
+        )
         mast["cost"]["carbon"]["competed"]["efficient"][yr] = (
-            mast_list_eff[7][yr] - adj_list_eff[7][yr] * _ac1)
+            mast_list_eff[7][yr] - adj_list_eff[7][yr] * _ac1
+        )
         mast["energy"]["competed"]["efficient"][yr] = (
-            mast_list_eff[8][yr] - adj_list_eff[8][yr] * _ac1)
+            mast_list_eff[8][yr] - adj_list_eff[8][yr] * _ac1
+        )
         mast["carbon"]["competed"]["efficient"][yr] = (
-            mast_list_eff[9][yr] - adj_list_eff[9][yr] * _ac1)
+            mast_list_eff[9][yr] - adj_list_eff[9][yr] * _ac1
+        )
         adj["cost"]["energy"]["competed"]["efficient"][yr] = adj_list_eff[6][yr] * adj_c
         adj["cost"]["carbon"]["competed"]["efficient"][yr] = adj_list_eff[7][yr] * adj_c
         adj["energy"]["competed"]["efficient"][yr] = adj_list_eff[8][yr] * adj_c
         adj["carbon"]["competed"]["efficient"][yr] = adj_list_eff[9][yr] * adj_c
 
         # If applicable, update fuel/tech conversions shares after competition
-        if self.opts.write_elec_conv_fracs and adopt_scheme == "Max adoption potential" and any([
-                x in mseg_key for x in self.handyvars.conversion_eus]):
+        if (
+            self.opts.write_elec_conv_fracs
+            and adopt_scheme == "Max adoption potential"
+            and any([x in mseg_key for x in self.handyvars.conversion_eus])
+        ):
             # Determine whether current measure converts baseline equipment fuel to electricity
             # and/or otherwise changes tech type (e.g., electric resistance to HPs)
-            conversion = (measure.fuel_switch_to == "electricity" or (
-                measure.tech_switch_to not in [None, "NA", "same"]))
+            conversion = measure.fuel_switch_to == "electricity" or (
+                measure.tech_switch_to not in [None, "NA", "same"]
+            )
             # Find and set region, fuel, end use, and vintage for current mseg
             key_list = list(literal_eval(mseg_key))
             reg, base_fuel, eu, vint = [key_list[1], key_list[3], key_list[4], key_list[-1]]
@@ -5083,11 +6025,16 @@ class Engine(object):
             if eu in self.handyvars.conversion_eus:
                 # Convert base fuel to fuel types used in output breakouts, which also serve as the
                 # fuel type breakouts for the conversion fractions
-                base_fuel_out = [x[0] for x in self.handyvars.out_break_fuels.items()
-                                 if base_fuel in x[1]][0].lower()
+                base_fuel_out = [
+                    x[0] for x in self.handyvars.out_break_fuels.items() if base_fuel in x[1]
+                ][0].lower()
                 # Find higher-level residential vs. commercial building type for current mseg
-                if any([x in mseg_key for x in [
-                        "single family home", "mobile home", "multi family home"]]):
+                if any(
+                    [
+                        x in mseg_key
+                        for x in ["single family home", "mobile home", "multi family home"]
+                    ]
+                ):
                     bldg_type = "residential"
                 else:
                     bldg_type = "commercial"
@@ -5095,14 +6042,17 @@ class Engine(object):
                 for c_typ in ["total", "competed"]:
                     # Add to the total conversion-eligible equipment numbers
                     self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel_out][eu][vint][
-                        yr]["all"] += adj["stock"][c_typ]["all"][yr]
+                        yr
+                    ]["all"] += adj["stock"][c_typ]["all"][yr]
                     # If applicable, add to the total converted equipment numbers
                     if conversion:
                         self.handyvars.conversion_fracs[c_typ][reg][bldg_type][base_fuel_out][eu][
-                            vint][yr]["converted"] += adj["stock"][c_typ]["measure"][yr]
+                            vint
+                        ][yr]["converted"] += adj["stock"][c_typ]["measure"][yr]
 
     def finalize_outputs(
-            self, adopt_scheme, trim_out, trim_yrs, report_stk_units, report_stk_costs):
+        self, adopt_scheme, trim_out, trim_yrs, report_stk_units, report_stk_costs
+    ):
         """Prepare selected measure outputs to write to a summary JSON file.
 
         Args:
@@ -5124,8 +6074,7 @@ class Engine(object):
         # Set total # of market variables that could be reported across ECMs
         n_vars_all = 18
         # Initialize summary variable values at zero
-        summary_vals_all_ecms = [{
-            yr: 0 for yr in focus_yrs} for n in range(n_vars_all)]
+        summary_vals_all_ecms = [{yr: 0 for yr in focus_yrs} for n in range(n_vars_all)]
         # Initialize fugitive markets and savings totals across all ECMs
         # as None (re-initialized below in case where fugitive emissions are
         # assessed)
@@ -5143,22 +6092,28 @@ class Engine(object):
                 # adjusted efficient captured data, if applicable
                 try:
                     # Check if efficient-captured-envelope data are in keys
-                    eff_capt_env = mkts["energy"]["total"][
-                        "efficient-captured-envelope"]
+                    eff_capt_env = mkts["energy"]["total"]["efficient-captured-envelope"]
                     # Reset these data based on the original (pre-competition)
                     # ratio between efficient-captured-envelope and
                     # efficient-captured, applied to adjusted (post-comp.)
                     # efficient-captured data; only applies when envelope data
                     # are present (non-None)
                     if eff_capt_env is not None:
-                        pre_comp_mkts = m.markets[adopt_scheme][
-                            "uncompeted"]["master_mseg"]["energy"]["total"]
+                        pre_comp_mkts = m.markets[adopt_scheme]["uncompeted"]["master_mseg"][
+                            "energy"
+                        ]["total"]
                         eff_capt_env = {
-                            yr: (eff_capt[yr] * (
-                                 pre_comp_mkts["efficient-captured-envelope"][yr] /
-                                 pre_comp_mkts["efficient-captured"][yr])) if
-                            pre_comp_mkts["efficient-captured"][yr] != 0
-                            else 0 for yr in self.handyvars.aeo_years}
+                            yr: (
+                                eff_capt[yr]
+                                * (
+                                    pre_comp_mkts["efficient-captured-envelope"][yr]
+                                    / pre_comp_mkts["efficient-captured"][yr]
+                                )
+                            )
+                            if pre_comp_mkts["efficient-captured"][yr] != 0
+                            else 0
+                            for yr in self.handyvars.aeo_years
+                        }
                 except KeyError:
                     eff_capt_env = None
             except KeyError:
@@ -5171,7 +6126,8 @@ class Engine(object):
             if report_stk_costs:
                 stk_cost_base, stk_cost_eff = [
                     mkts["cost"]["stock"]["total"]["baseline"],
-                    mkts["cost"]["stock"]["total"]["efficient"]]
+                    mkts["cost"]["stock"]["total"]["efficient"],
+                ]
             else:
                 stk_cost_base, stk_cost_eff = (None for n in range(2))
 
@@ -5186,7 +6142,8 @@ class Engine(object):
                 mkts["cost"]["carbon"]["total"]["baseline"],
                 mkts["stock"]["total"]["measure"],
                 mkts["energy"]["total"]["efficient"],
-                eff_capt, eff_capt_env,
+                eff_capt,
+                eff_capt_env,
                 mkts["carbon"]["total"]["efficient"],
                 stk_cost_eff,
                 mkts["cost"]["energy"]["total"]["efficient"],
@@ -5202,18 +6159,21 @@ class Engine(object):
                 metrics_finance["irr (w/ energy costs)"],
                 metrics_finance["irr (w/ energy and carbon costs)"],
                 metrics_finance["payback (w/ energy costs)"],
-                metrics_finance["payback (w/ energy and carbon costs)"]]
+                metrics_finance["payback (w/ energy and carbon costs)"],
+            ]
             # Order the year entries in the above markets, savings,
             # and portfolio metrics outputs
-            summary_vals_init = [OrderedDict(
-                sorted(x.items())) if isinstance(x, dict) else x
-                for x in summary_vals]
+            summary_vals_init = [
+                OrderedDict(sorted(x.items())) if isinstance(x, dict) else x for x in summary_vals
+            ]
             # Apply focus year range, if applicable
-            summary_vals = [{
-                yr: summary_vals_init[v][yr] if
-                isinstance(summary_vals_init[v], dict) else 0
-                for yr in focus_yrs}
-                for v in range(len(summary_vals))]
+            summary_vals = [
+                {
+                    yr: summary_vals_init[v][yr] if isinstance(summary_vals_init[v], dict) else 0
+                    for yr in focus_yrs
+                }
+                for v in range(len(summary_vals))
+            ]
             # Add ECM markets and savings totals to totals across all ECMs
             # (mutate in-place to avoid allocating new dicts on each iteration)
             for v in range(n_vars_all):
@@ -5227,18 +6187,20 @@ class Engine(object):
             if m.fug_e:
                 # Set baseline and efficient fugitive emissions results
                 summary_vals_f_e = [
-                    mkts["fugitive emissions"][x]["total"][y] for x in
-                        ["methane", "refrigerants"] for y in
-                        ["baseline", "efficient"]]
+                    mkts["fugitive emissions"][x]["total"][y]
+                    for x in ["methane", "refrigerants"]
+                    for y in ["baseline", "efficient"]
+                ]
                 # Set fugitive emissions savings results
-                summary_vals_f_e.extend([
-                    save["fugitive emissions"][x]["savings"] for x in
-                    ["methane", "refrigerants"]])
+                summary_vals_f_e.extend(
+                    [save["fugitive emissions"][x]["savings"] for x in ["methane", "refrigerants"]]
+                )
                 # Order the year entries in the above markets, savings,
                 # and portfolio metrics outputs
-                summary_vals_init_f_e = [OrderedDict(
-                    sorted(x.items())) if x is not None else None
-                    for x in summary_vals_f_e]
+                summary_vals_init_f_e = [
+                    OrderedDict(sorted(x.items())) if x is not None else None
+                    for x in summary_vals_f_e
+                ]
                 # Apply focus year range, if applicable
                 for ind, v in enumerate(summary_vals_f_e):
                     # Exclude None values from operation (e.g.,
@@ -5246,8 +6208,8 @@ class Engine(object):
                     # refrigerant values will be None and vice versa)
                     if v is not None:
                         summary_vals_f_e[ind] = {
-                            yr: summary_vals_init_f_e[ind][yr]
-                            for yr in focus_yrs}
+                            yr: summary_vals_init_f_e[ind][yr] for yr in focus_yrs
+                        }
                 # If summary list of fugitive emissions results across all
                 # ECMs has not already been re-initialized, do so while adding
                 # the fugitive emissions data for the current measure
@@ -5256,9 +6218,9 @@ class Engine(object):
                     for ind, v in enumerate(summary_vals_f_e):
                         # Exclude None values from operation
                         if v is not None:
-                            summary_vals_all_ecms_f_e.append({
-                                yr: summary_vals_f_e[ind][yr] for
-                                yr in focus_yrs})
+                            summary_vals_all_ecms_f_e.append(
+                                {yr: summary_vals_f_e[ind][yr] for yr in focus_yrs}
+                            )
                         else:
                             summary_vals_all_ecms_f_e.append(v)
                 # Otherwise, add fugitive emissions data for the current
@@ -5269,9 +6231,9 @@ class Engine(object):
                         # Exclude None values from operation
                         if v is not None:
                             summary_vals_all_ecms_f_e[ind] = {
-                                yr: (summary_vals_all_ecms_f_e[ind][yr] +
-                                     summary_vals_f_e[ind][yr]) for
-                                yr in focus_yrs}
+                                yr: (summary_vals_all_ecms_f_e[ind][yr] + summary_vals_f_e[ind][yr])
+                                for yr in focus_yrs
+                            }
             # Find mean and 5th/95th percentile values of each output
             # (note: if output is point value, all three of these values
             # will be the same). Compute all three stats in a single pass
@@ -5294,32 +6256,90 @@ class Engine(object):
                 return avg, low, high
 
             _stats_results = [_stats(z) for z in summary_vals]
-            stk_base_avg, energy_base_avg, carb_base_avg, stk_base_cost_avg, \
-                energy_cost_base_avg, carb_cost_base_avg, stk_eff_avg, \
-                energy_eff_avg, energy_eff_capt_avg, energy_eff_capt_avg_env, \
-                carb_eff_avg, stk_eff_cost_avg, energy_cost_eff_avg, carb_cost_eff_avg, \
-                energy_save_avg, energy_costsave_avg, carb_save_avg, \
-                carb_costsave_avg, cce_avg, cce_c_avg, ccc_avg, ccc_e_avg, \
-                irr_e_avg, irr_ec_avg, payback_e_avg, payback_ec_avg = [
-                    s[0] for s in _stats_results]
-            stk_base_low, energy_base_low, carb_base_low, stk_base_cost_low, \
-                energy_cost_base_low, carb_cost_base_low, stk_eff_low, \
-                energy_eff_low, energy_eff_capt_low, energy_eff_capt_low_env, \
-                carb_eff_low, stk_eff_cost_low, energy_cost_eff_low, carb_cost_eff_low, \
-                energy_save_low, energy_costsave_low, carb_save_low, \
-                carb_costsave_low, cce_low, cce_c_low, ccc_low, ccc_e_low, \
-                irr_e_low, irr_ec_low, payback_e_low, payback_ec_low = [
-                    s[1] for s in _stats_results]
-            stk_base_high, energy_base_high, carb_base_high, stk_base_cost_high, \
-                energy_cost_base_high, carb_cost_base_high, stk_eff_high, \
-                energy_eff_high, energy_eff_capt_high, \
-                energy_eff_capt_high_env, carb_eff_high, stk_eff_cost_high, \
-                energy_cost_eff_high, carb_cost_eff_high, energy_save_high, \
-                energy_costsave_high, carb_save_high, \
-                carb_costsave_high, cce_high, cce_c_high, \
-                ccc_high, ccc_e_high, irr_e_high, irr_ec_high, \
-                payback_e_high, payback_ec_high = [
-                    s[2] for s in _stats_results]
+            (
+                stk_base_avg,
+                energy_base_avg,
+                carb_base_avg,
+                stk_base_cost_avg,
+                energy_cost_base_avg,
+                carb_cost_base_avg,
+                stk_eff_avg,
+                energy_eff_avg,
+                energy_eff_capt_avg,
+                energy_eff_capt_avg_env,
+                carb_eff_avg,
+                stk_eff_cost_avg,
+                energy_cost_eff_avg,
+                carb_cost_eff_avg,
+                energy_save_avg,
+                energy_costsave_avg,
+                carb_save_avg,
+                carb_costsave_avg,
+                cce_avg,
+                cce_c_avg,
+                ccc_avg,
+                ccc_e_avg,
+                irr_e_avg,
+                irr_ec_avg,
+                payback_e_avg,
+                payback_ec_avg,
+            ) = [s[0] for s in _stats_results]
+            (
+                stk_base_low,
+                energy_base_low,
+                carb_base_low,
+                stk_base_cost_low,
+                energy_cost_base_low,
+                carb_cost_base_low,
+                stk_eff_low,
+                energy_eff_low,
+                energy_eff_capt_low,
+                energy_eff_capt_low_env,
+                carb_eff_low,
+                stk_eff_cost_low,
+                energy_cost_eff_low,
+                carb_cost_eff_low,
+                energy_save_low,
+                energy_costsave_low,
+                carb_save_low,
+                carb_costsave_low,
+                cce_low,
+                cce_c_low,
+                ccc_low,
+                ccc_e_low,
+                irr_e_low,
+                irr_ec_low,
+                payback_e_low,
+                payback_ec_low,
+            ) = [s[1] for s in _stats_results]
+            (
+                stk_base_high,
+                energy_base_high,
+                carb_base_high,
+                stk_base_cost_high,
+                energy_cost_base_high,
+                carb_cost_base_high,
+                stk_eff_high,
+                energy_eff_high,
+                energy_eff_capt_high,
+                energy_eff_capt_high_env,
+                carb_eff_high,
+                stk_eff_cost_high,
+                energy_cost_eff_high,
+                carb_cost_eff_high,
+                energy_save_high,
+                energy_costsave_high,
+                carb_save_high,
+                carb_costsave_high,
+                cce_high,
+                cce_c_high,
+                ccc_high,
+                ccc_e_high,
+                irr_e_high,
+                irr_ec_high,
+                payback_e_high,
+                payback_ec_high,
+            ) = [s[2] for s in _stats_results]
 
             # Record updated markets and savings in Engine 'output'
             # attribute; initialize markets/savings breakouts by category as
@@ -5327,55 +6347,50 @@ class Engine(object):
             # initial values will be adjusted by breakout fractions below.
             # If user desires pared down outputs, only report savings values.
             if trim_out is False:
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][
-                        adopt_scheme] = (OrderedDict([
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme],
+                ) = (
+                    OrderedDict(
+                        [
                             ("Baseline Energy Use (MMBtu)", energy_base_avg),
                             ("Efficient Energy Use (MMBtu)", energy_eff_avg),
-                            ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                                carb_base_avg),
-                            ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                                carb_eff_avg),
-                            ("Baseline Energy Cost (USD)",
-                             energy_cost_base_avg),
-                            ("Efficient Energy Cost (USD)",
-                             energy_cost_eff_avg),
-                            ("Baseline CO2 Cost (USD)".translate(sub),
-                                carb_cost_base_avg),
-                            ("Efficient CO2 Cost (USD)".translate(sub),
-                                carb_cost_eff_avg),
+                            ("Baseline CO2 Emissions (MMTons)".translate(sub), carb_base_avg),
+                            ("Efficient CO2 Emissions (MMTons)".translate(sub), carb_eff_avg),
+                            ("Baseline Energy Cost (USD)", energy_cost_base_avg),
+                            ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
+                            ("Baseline CO2 Cost (USD)".translate(sub), carb_cost_base_avg),
+                            ("Efficient CO2 Cost (USD)".translate(sub), carb_cost_eff_avg),
                             ("Energy Savings (MMBtu)", energy_save_avg),
                             ("Energy Cost Savings (USD)", energy_costsave_avg),
-                            ("Avoided CO2 Emissions (MMTons)".
-                                translate(sub), carb_save_avg),
-                            ("CO2 Cost Savings (USD)".
-                                translate(sub), carb_costsave_avg)]) for
-                            n in range(2))
+                            ("Avoided CO2 Emissions (MMTons)".translate(sub), carb_save_avg),
+                            ("CO2 Cost Savings (USD)".translate(sub), carb_costsave_avg),
+                        ]
+                    )
+                    for n in range(2)
+                )
 
                 # Add efficient-captured data to reporting if present
                 if eff_capt:
-                    self.output_ecms[m.name][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Energy Use, Measure (MMBtu)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (by Category)"][
-                            adopt_scheme][
-                            "Efficient Energy Use, Measure (MMBtu)"] = (
-                                energy_eff_capt_avg for n in range(2))
+                    (
+                        self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure (MMBtu)"
+                        ],
+                        self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                            "Efficient Energy Use, Measure (MMBtu)"
+                        ],
+                    ) = (energy_eff_capt_avg for n in range(2))
                     # Add efficient-captured-envelope data to reporting if
                     # present
                     if eff_capt_env:
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                            "Efficient Energy Use, Measure-"
-                            "Envelope (MMBtu)"], \
-                            self.output_ecms[m.name][
-                                "Markets and Savings (by Category)"][
-                                adopt_scheme][
-                                "Efficient Energy Use, Measure-"
-                                "Envelope (MMBtu)"] = (
-                                    energy_eff_capt_avg_env for n in range(2))
+                        (
+                            self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                                "Efficient Energy Use, Measure-Envelope (MMBtu)"
+                            ],
+                            self.output_ecms[m.name]["Markets and Savings (by Category)"][
+                                adopt_scheme
+                            ]["Efficient Energy Use, Measure-Envelope (MMBtu)"],
+                        ) = (energy_eff_capt_avg_env for n in range(2))
 
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
@@ -5383,79 +6398,80 @@ class Engine(object):
                     "Baseline Energy Use (MMBtu)",
                     "Baseline CO2 Emissions (MMTons)".translate(sub),
                     "Baseline Energy Cost (USD)",
-                    "Baseline CO2 Cost (USD)".translate(sub)]
+                    "Baseline CO2 Cost (USD)".translate(sub),
+                ]
                 # Record list of efficient variable names for use in finalizing
                 # output breakouts below
                 mkt_eff_keys = [
                     "Efficient Energy Use (MMBtu)",
                     "Efficient CO2 Emissions (MMTons)".translate(sub),
                     "Efficient Energy Cost (USD)",
-                    "Efficient CO2 Cost (USD)".translate(sub)]
+                    "Efficient CO2 Cost (USD)".translate(sub),
+                ]
                 # Add efficient-captured to efficient breakout names if present
                 if eff_capt:
-                    mkt_eff_keys.append(
-                        "Efficient Energy Use, Measure (MMBtu)")
+                    mkt_eff_keys.append("Efficient Energy Use, Measure (MMBtu)")
                     # Add efficient-captured-envelope to efficient breakout
                     # names if present
                     if eff_capt_env:
-                        mkt_eff_keys.append(
-                            "Efficient Energy Use, Measure-Envelope (MMBtu)")
+                        mkt_eff_keys.append("Efficient Energy Use, Measure-Envelope (MMBtu)")
                 # Record list of savings variable names for use in finalizing
                 # output breakouts below
                 save_keys = [
                     "Energy Savings (MMBtu)",
                     "Avoided CO2 Emissions (MMTons)".translate(sub),
                     "Energy Cost Savings (USD)",
-                    "CO2 Cost Savings (USD)".translate(sub)]
+                    "CO2 Cost Savings (USD)".translate(sub),
+                ]
             else:
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][
-                        adopt_scheme] = (OrderedDict([
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme],
+                ) = (
+                    OrderedDict(
+                        [
                             ("Baseline Energy Use (MMBtu)", energy_base_avg),
                             ("Efficient Energy Use (MMBtu)", energy_eff_avg),
                             ("Baseline Energy Cost (USD)", energy_cost_base_avg),
-                            ("Efficient Energy Cost (USD)", energy_cost_eff_avg)])
-                        for n in range(2))
+                            ("Efficient Energy Cost (USD)", energy_cost_eff_avg),
+                        ]
+                    )
+                    for n in range(2)
+                )
                 if eff_capt:
-                    self.output_ecms[m.name][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Energy Use, Measure (MMBtu)"], \
-                        self.output_ecms[m.name][
-                            "Markets and Savings (by Category)"][
-                            adopt_scheme][
-                            "Efficient Energy Use, Measure (MMBtu)"] = (
-                                energy_eff_capt_avg for n in range(2))
+                    (
+                        self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure (MMBtu)"
+                        ],
+                        self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                            "Efficient Energy Use, Measure (MMBtu)"
+                        ],
+                    ) = (energy_eff_capt_avg for n in range(2))
                     if eff_capt_env:
-                        self.output_ecms[m.name][
-                            "Markets and Savings (Overall)"][adopt_scheme][
-                            "Efficient Energy Use, Measure-"
-                            "Envelope (MMBtu)"], \
-                            self.output_ecms[m.name][
-                                "Markets and Savings (by Category)"][
-                                adopt_scheme][
-                                "Efficient Energy Use, Measure-"
-                                "Envelope (MMBtu)"] = (
-                                    energy_eff_capt_avg_env for n in range(2))
+                        (
+                            self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                                "Efficient Energy Use, Measure-Envelope (MMBtu)"
+                            ],
+                            self.output_ecms[m.name]["Markets and Savings (by Category)"][
+                                adopt_scheme
+                            ]["Efficient Energy Use, Measure-Envelope (MMBtu)"],
+                        ) = (energy_eff_capt_avg_env for n in range(2))
                 # Record list of baseline variable names for use in finalizing
                 # output breakouts below
-                mkt_base_keys = [
-                    "Baseline Energy Use (MMBtu)",
-                    "Baseline Energy Cost (USD)"]
+                mkt_base_keys = ["Baseline Energy Use (MMBtu)", "Baseline Energy Cost (USD)"]
                 # Record list of efficient variable names for use in finalizing
                 # output breakouts below
                 mkt_eff_keys = [
                     "Efficient Energy Use (MMBtu)",
-                    "Efficient Energy Cost (USD)".translate(sub)]
+                    "Efficient Energy Cost (USD)".translate(sub),
+                ]
                 # Add efficient-captured to efficient breakout names if present
                 if eff_capt:
-                    mkt_eff_keys.append(
-                        "Efficient Energy Use, Measure (MMBtu)")
+                    mkt_eff_keys.append("Efficient Energy Use, Measure (MMBtu)")
                     # Add efficient-captured-envelope to efficient breakout
                     # names if present
                     if eff_capt_env:
-                        mkt_eff_keys.append(
-                            "Efficient Energy Use, Measure-Envelope (MMBtu)")
+                        mkt_eff_keys.append("Efficient Energy Use, Measure-Envelope (MMBtu)")
                 # Do not report savings variables when reduced set of outputs is desired
                 save_keys = []
 
@@ -5463,31 +6479,31 @@ class Engine(object):
             # for individual ECM if applicable
             if m.fug_e:
                 # Record updated baseline/efficient methane results
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                    "Baseline Fugitive Methane (MMTons CO2e)"], \
-                    self.output_ecms[m.name][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                    "Efficient Fugitive Methane (MMTons CO2e)"] = \
-                    summary_vals_f_e[0:2]
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Baseline Fugitive Methane (MMTons CO2e)"
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Methane (MMTons CO2e)"
+                    ],
+                ) = summary_vals_f_e[0:2]
                 # Record updated methane savings results
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                    "Fugitive Methane Savings (MMTons CO2e)"] = \
-                    summary_vals_f_e[4]
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Fugitive Methane Savings (MMTons CO2e)"
+                ] = summary_vals_f_e[4]
                 # Record updated baseline/efficient refrigerant results
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                    "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
-                    self.output_ecms[m.name][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                    "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
-                    summary_vals_f_e[2:4]
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Baseline Fugitive Refrigerants (MMTons CO2e)"
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Fugitive Refrigerants (MMTons CO2e)"
+                    ],
+                ) = summary_vals_f_e[2:4]
                 # Record updated refrigerant savings results
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                    "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
-                    summary_vals_f_e[5]
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Fugitive Refrigerants Savings (MMTons CO2e)"
+                ] = summary_vals_f_e[5]
 
             # Determine stock units, if necessary (for the Scout stock
             # reporting option)
@@ -5495,16 +6511,22 @@ class Engine(object):
                 # Determine correct units to use for stock reporting
                 # Envelope tech.; use units of ft^2 floor
                 if "demand" in m.technology_type["primary"]:
-                    if any([x in m.bldg_type for x in [
-                        "single family home", "multi family home",
-                            "mobile home"]]):
+                    if any(
+                        [
+                            x in m.bldg_type
+                            for x in ["single family home", "multi family home", "mobile home"]
+                        ]
+                    ):
                         stk_units = "(# homes served)"
                     else:
                         stk_units = "(ft^2 floor served)"
                 # Non-envelope residential tech.; use equipment units
-                elif any([x in m.bldg_type for x in [
-                    "single family home", "multi family home",
-                        "mobile home"]]):
+                elif any(
+                    [
+                        x in m.bldg_type
+                        for x in ["single family home", "multi family home", "mobile home"]
+                    ]
+                ):
                     stk_units = "(units equipment)"
                 # Non-envelope commercial tech.; units vary by end use
                 else:
@@ -5520,29 +6542,44 @@ class Engine(object):
                         stk_units = "(giga-lm-years served)"
                     elif "ventilation" in m.end_use["primary"]:
                         stk_units = "(giga-CFM-years served)"
-                    elif any([x in m.end_use["primary"] for x in [
-                            "water heating", "refrigeration", "cooking"]]):
+                    elif any(
+                        [
+                            x in m.end_use["primary"]
+                            for x in ["water heating", "refrigeration", "cooking"]
+                        ]
+                    ):
                         # Find end use name
-                        eu = [x for x in [
-                            "water heating", "refrigeration", "cooking"]
-                            if x in m.end_use["primary"]][0]
+                        eu = [
+                            x
+                            for x in ["water heating", "refrigeration", "cooking"]
+                            if x in m.end_use["primary"]
+                        ][0]
                         stk_units = "(TBtu " + eu + " served)"
                     # Computers and other equipment in units of ft^2 floor
                     else:
                         stk_units = "(ft^2 floor served)"
                 # Finalize baseline and measure stock keys/units
-                base_stk_key, meas_stk_key = [(x + stk_units) for x in [
-                    "Baseline Stock ", "Measure Stock "]]
+                base_stk_key, meas_stk_key = [
+                    (x + stk_units) for x in ["Baseline Stock ", "Measure Stock "]
+                ]
                 # Add baseline and measure stock data to markets and
                 # savings dicts initialized above
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][base_stk_key], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][adopt_scheme][
-                        base_stk_key] = (stk_base_avg for n in range(2))
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][meas_stk_key], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][adopt_scheme][
-                        meas_stk_key] = (stk_eff_avg for n in range(2))
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        base_stk_key
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                        base_stk_key
+                    ],
+                ) = (stk_base_avg for n in range(2))
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        meas_stk_key
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                        meas_stk_key
+                    ],
+                ) = (stk_eff_avg for n in range(2))
                 # Add baseline/efficient keys for stock reporting
                 mkt_base_keys.append(base_stk_key)
                 mkt_eff_keys.append(meas_stk_key)
@@ -5554,17 +6591,26 @@ class Engine(object):
                 # Finalize baseline and measure stock keys/units
                 base_stk_cost_key, meas_stk_cost_key = [
                     "Capital Investment, Baseline Unit Cost (USD)",
-                    "Capital Investment, Measure Unit Cost (USD)"]
+                    "Capital Investment, Measure Unit Cost (USD)",
+                ]
                 # Add baseline and measure stock data to markets and
                 # savings dicts initialized above
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][base_stk_cost_key], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][adopt_scheme][
-                        base_stk_cost_key] = (stk_base_cost_avg for n in range(2))
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme][meas_stk_cost_key], self.output_ecms[m.name][
-                        "Markets and Savings (by Category)"][adopt_scheme][
-                        meas_stk_cost_key] = (stk_eff_cost_avg for n in range(2))
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        base_stk_cost_key
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                        base_stk_cost_key
+                    ],
+                ) = (stk_base_cost_avg for n in range(2))
+                (
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        meas_stk_cost_key
+                    ],
+                    self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                        meas_stk_cost_key
+                    ],
+                ) = (stk_eff_cost_avg for n in range(2))
                 mkt_base_keys.append(base_stk_cost_key)
                 mkt_eff_keys.append(meas_stk_cost_key)
 
@@ -5575,16 +6621,15 @@ class Engine(object):
                 for k in [x for x in self.handyvars.mast_vars if x != "stock"]:
                     for mt in ["baseline", "efficient", "savings"]:
                         dat_c, dat_uc = [
-                            m.markets[adopt_scheme][scn][
-                                "mseg_out_break"][k][mt] for scn in [
-                                "competed", "uncompeted"]]
+                            m.markets[adopt_scheme][scn]["mseg_out_break"][k][mt]
+                            for scn in ["competed", "uncompeted"]
+                        ]
                         # Loop through all regions, building types, and
                         # end uses in the output breakout data to calculate
                         # the competition factors
                         for reg in self.handyvars.out_break_czones:
                             # Initialize competed/uncompeted data dicts
-                            tot_uc, tot_c = ({yr: 0 for yr in focus_yrs} for
-                                             n in range(2))
+                            tot_uc, tot_c = ({yr: 0 for yr in focus_yrs} for n in range(2))
                             for b in self.handyvars.out_break_bldgtypes:
                                 for eu in self.handyvars.out_break_enduses:
                                     # Ensure that data exist for the
@@ -5593,7 +6638,8 @@ class Engine(object):
                                     try:
                                         dat_c_ms, dat_uc_ms = [
                                             dat_c[reg][b][eu],
-                                            dat_uc[reg][b][eu]]
+                                            dat_uc[reg][b][eu],
+                                        ]
                                     except KeyError:
                                         continue
                                     # Loop through focus years and pull
@@ -5602,72 +6648,79 @@ class Engine(object):
                                     # split by fuel type
                                     try:
                                         # Competed totals
-                                        tot_c = {
-                                            yr: tot_c[yr] + dat_c_ms[yr]
-                                            for yr in focus_yrs}
+                                        tot_c = {yr: tot_c[yr] + dat_c_ms[yr] for yr in focus_yrs}
                                         # Uncompeted totals
                                         tot_uc = {
-                                            yr: tot_uc[yr] + dat_uc_ms[yr]
-                                            for yr in focus_yrs}
+                                            yr: tot_uc[yr] + dat_uc_ms[yr] for yr in focus_yrs
+                                        }
                                     except KeyError:
                                         try:
-                                            dat_c_ms_add, dat_uc_ms_add = [{
-                                                yr: sum([
-                                                    d[x][yr] if yr in
-                                                    d[x].keys() else 0 for
-                                                    x in self.handyvars.
-                                                    out_break_fuels.keys()])
-                                                for yr in focus_yrs} for d in [
-                                                    dat_c_ms, dat_uc_ms]]
+                                            dat_c_ms_add, dat_uc_ms_add = [
+                                                {
+                                                    yr: sum(
+                                                        [
+                                                            d[x][yr] if yr in d[x].keys() else 0
+                                                            for x in self.handyvars.out_break_fuels.keys()
+                                                        ]
+                                                    )
+                                                    for yr in focus_yrs
+                                                }
+                                                for d in [dat_c_ms, dat_uc_ms]
+                                            ]
                                             # Competed totals
                                             tot_c = {
-                                                yr: tot_c[yr] +
-                                                dat_c_ms_add[yr]
-                                                for yr in focus_yrs}
+                                                yr: tot_c[yr] + dat_c_ms_add[yr] for yr in focus_yrs
+                                            }
                                             # Uncompeted totals
-                                            tot_uc = {yr: tot_uc[yr] +
-                                                      dat_uc_ms_add[yr]
-                                                      for yr in focus_yrs}
+                                            tot_uc = {
+                                                yr: tot_uc[yr] + dat_uc_ms_add[yr]
+                                                for yr in focus_yrs
+                                            }
                                         except KeyError:
                                             continue
                             # Finalize energy/carbon/cost scaling fraction
                             # for meas/metric/case/region
                             self.output_ecms_cfs[m.name][k][mt][reg] = {
-                                yr: (tot_c[yr] / tot_uc[yr]) if
-                                tot_uc[yr] != 0 else 0 for yr in focus_yrs}
+                                yr: (tot_c[yr] / tot_uc[yr]) if tot_uc[yr] != 0 else 0
+                                for yr in focus_yrs
+                            }
                             # Check for and if possible handle energy/carbon/
                             # cost competition fractions that are not between
                             # 0 and 1
                             yrs_v_adj = [
-                                yr for yr in self.output_ecms_cfs[
-                                    m.name][k][mt][reg].keys()
-                                if (self.output_ecms_cfs[
-                                    m.name][k][mt][reg][yr] > 1 or
-                                    self.output_ecms_cfs[
-                                        m.name][k][mt][reg][yr] < 0)]
+                                yr
+                                for yr in self.output_ecms_cfs[m.name][k][mt][reg].keys()
+                                if (
+                                    self.output_ecms_cfs[m.name][k][mt][reg][yr] > 1
+                                    or self.output_ecms_cfs[m.name][k][mt][reg][yr] < 0
+                                )
+                            ]
                             for yva in yrs_v_adj:
                                 # Screen for small savings
-                                if (tot_c[yva] > -1 and tot_c[yva] < 1):
-                                    self.output_ecms_cfs[
-                                        m.name][k][mt][reg][yva] = 0
+                                if tot_c[yva] > -1 and tot_c[yva] < 1:
+                                    self.output_ecms_cfs[m.name][k][mt][reg][yva] = 0
 
                 # Finalize stock scaling fraction for measure
                 stk_c, stk_uc = [
-                    m.markets[adopt_scheme][scn]["master_mseg"]["stock"][
-                        "total"]["measure"] for scn in [
-                        "competed", "uncompeted"]]
+                    m.markets[adopt_scheme][scn]["master_mseg"]["stock"]["total"]["measure"]
+                    for scn in ["competed", "uncompeted"]
+                ]
                 self.output_ecms_cfs[m.name]["stock"] = {
-                    yr: (stk_c[yr] / stk_uc[yr]) if stk_uc[yr] != 0 else 1
-                    for yr in focus_yrs}
+                    yr: (stk_c[yr] / stk_uc[yr]) if stk_uc[yr] != 0 else 1 for yr in focus_yrs
+                }
                 # Check for and if possible handle stock competition fractions
                 # that are not between 0 and 1
                 yrs_v_adj = [
-                    yr for yr in self.output_ecms_cfs[m.name]["stock"].keys()
-                    if (self.output_ecms_cfs[m.name]["stock"][yr] > 1 or
-                        self.output_ecms_cfs[m.name]["stock"][yr] < 0)]
+                    yr
+                    for yr in self.output_ecms_cfs[m.name]["stock"].keys()
+                    if (
+                        self.output_ecms_cfs[m.name]["stock"][yr] > 1
+                        or self.output_ecms_cfs[m.name]["stock"][yr] < 0
+                    )
+                ]
                 for yva in yrs_v_adj:
                     # Screen for small numbers/artifacts
-                    if (stk_c[yva] > -1 and stk_c[yva] < 1):
+                    if stk_c[yva] > -1 and stk_c[yva] < 1:
                         self.output_ecms_cfs[m.name]["stock"][yva] = 0
 
             # Normalize the baseline energy/carbon/cost and efficient energy/
@@ -5680,93 +6733,129 @@ class Engine(object):
             # Energy
             # Calculate baseline energy fractions by output breakout category
             frac_base_energy = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy"]["baseline"], energy_base_avg, focus_yrs,
-                divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"]["baseline"],
+                energy_base_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Calculate efficient energy fractions by output breakout category
             frac_eff_energy = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy"]["efficient"], energy_eff_avg, focus_yrs,
-                divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"]["efficient"],
+                energy_eff_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Calculate efficient-captured energy fractions by output breakout
             # category if efficient-captured energy data are present
             if eff_capt:
                 frac_eff_energy_capt = self.out_break_walk(
-                    m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                        "energy"]["efficient-captured"], energy_eff_capt_avg,
-                    focus_yrs, divide=True)
+                    m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy"][
+                        "efficient-captured"
+                    ],
+                    energy_eff_capt_avg,
+                    focus_yrs,
+                    divide=True,
+                )
             # Cost
             # Calculate baseline energy cost fractions by output breakout
             # category
             frac_base_cost = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy cost"]["baseline"], energy_cost_base_avg,
-                focus_yrs, divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy cost"]["baseline"],
+                energy_cost_base_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Calculate efficient energy cost fractions by output breakout
             # category
             frac_eff_cost = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "energy cost"]["efficient"], energy_cost_eff_avg,
-                focus_yrs, divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["energy cost"]["efficient"],
+                energy_cost_eff_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Carbon
             # Calculate baseline carbon fractions by output breakout category
             frac_base_carb = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "carbon"]["baseline"], carb_base_avg, focus_yrs,
-                divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"]["baseline"],
+                carb_base_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Calculate efficient carbon fractions by output breakout category
             frac_eff_carb = self.out_break_walk(
-                m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                    "carbon"]["efficient"], carb_eff_avg, focus_yrs,
-                divide=True)
+                m.markets[adopt_scheme]["competed"]["mseg_out_break"]["carbon"]["efficient"],
+                carb_eff_avg,
+                focus_yrs,
+                divide=True,
+            )
             # Add stock breakouts if desired
             if any([x for x in [self.opts.mkt_fracs, report_stk_units]]):
                 if report_stk_units:
                     # Calculate baseline stock fractions by breakout category
                     frac_base_stk = self.out_break_walk(
-                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                            "stock"]["baseline"], stk_base_avg, focus_yrs,
-                        divide=True)
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"]["stock"]["baseline"],
+                        stk_base_avg,
+                        focus_yrs,
+                        divide=True,
+                    )
                 # Case with market penetration fractions/breakouts; copy
                 # measure stock totals to avoid manipulation via "frac_eff_stk"
                 # calculation
                 if all([x for x in [self.opts.mkt_fracs, report_stk_units]]):
-                    eff_stk = _fast_copy_nested_dict(m.markets[adopt_scheme][
-                        "competed"]["mseg_out_break"]["stock"]["efficient"])
+                    eff_stk = _fast_copy_nested_dict(
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"]["stock"]["efficient"]
+                    )
                 else:
-                    eff_stk = m.markets[adopt_scheme][
-                        "competed"]["mseg_out_break"]["stock"]["efficient"]
+                    eff_stk = m.markets[adopt_scheme]["competed"]["mseg_out_break"]["stock"][
+                        "efficient"
+                    ]
                 if report_stk_units:
                     # Calculate efficient stock fractions by breakout category
                     frac_eff_stk = self.out_break_walk(
-                        m.markets[adopt_scheme]["competed"][
-                            "mseg_out_break"]["stock"]["efficient"],
-                        stk_eff_avg, focus_yrs, divide=True)
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"]["stock"]["efficient"],
+                        stk_eff_avg,
+                        focus_yrs,
+                        divide=True,
+                    )
                 if self.opts.mkt_fracs is True:
                     # Calculate market penetration percentages for the current
                     # measure and scenario by output breakout category; divide
                     # post-competition measure stock by the total stock that
                     # the measure could possibly affect (before competition)
                     frac_mkt_stk = self.out_break_walk(
-                        eff_stk, m.markets[adopt_scheme]["uncompeted"][
-                            "master_mseg"]["stock"]["total"]["all"],
-                        focus_yrs, divide=True, mkt_frac=True)
+                        eff_stk,
+                        m.markets[adopt_scheme]["uncompeted"]["master_mseg"]["stock"]["total"][
+                            "all"
+                        ],
+                        focus_yrs,
+                        divide=True,
+                        mkt_frac=True,
+                    )
             # Add stock cost breakouts if desired
             if report_stk_costs:
                 # Calculate baseline stock cost fractions by breakout category
                 frac_base_stk_cost = self.out_break_walk(
-                    m.markets[adopt_scheme]["competed"]["mseg_out_break"][
-                        "capital cost"]["baseline"], stk_base_cost_avg, focus_yrs,
-                    divide=True)
+                    m.markets[adopt_scheme]["competed"]["mseg_out_break"]["capital cost"][
+                        "baseline"
+                    ],
+                    stk_base_cost_avg,
+                    focus_yrs,
+                    divide=True,
+                )
                 # Calculate efficient stock cost fractions by breakout category
                 frac_eff_stk_cost = self.out_break_walk(
-                    m.markets[adopt_scheme]["competed"][
-                        "mseg_out_break"]["capital cost"]["efficient"],
-                    stk_eff_cost_avg, focus_yrs, divide=True)
+                    m.markets[adopt_scheme]["competed"]["mseg_out_break"]["capital cost"][
+                        "efficient"
+                    ],
+                    stk_eff_cost_avg,
+                    focus_yrs,
+                    divide=True,
+                )
 
             # Create shorthand variable for results by breakout category
-            mkt_save_brk = self.output_ecms[m.name][
-                "Markets and Savings (by Category)"][adopt_scheme]
+            mkt_save_brk = self.output_ecms[m.name]["Markets and Savings (by Category)"][
+                adopt_scheme
+            ]
             # Create combined list of baseline and efficient variables to
             # loop through below in finalizing baseline/efficient breakouts
             mkt_keys = mkt_base_keys + mkt_eff_keys
@@ -5810,176 +6899,156 @@ class Engine(object):
                     # Stock results
                     if "Stock" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Capital cost results
                     elif "Capital" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Energy results
                     elif "Energy Use" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Energy cost results
                     elif "Energy Cost" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Carbon results
                     else:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                 # Apply efficient partitioning fractions to efficient values
                 elif any([x in k for x in ["Efficient", "Measure"]]):
                     # Stock results
                     if "Stock" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Capital cost results
                     elif "Capital" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Energy results excluding efficient captured
                     elif "Energy Use" in k and "Measure" not in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Efficient captured energy results
                     elif eff_capt and "Energy Use" in k and "Measure" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k],
-                            mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Energy cost results
                     elif "Energy Cost" in k:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
                     # Carbon results
                     else:
                         mkt_save_brk[k] = self.out_break_walk(
-                            _frac_copies[k], mkt_save_brk[k],
-                            focus_yrs, divide=False)
+                            _frac_copies[k], mkt_save_brk[k], focus_yrs, divide=False
+                        )
             # Assess final output breakouts of savings as the difference
             # between finalized baseline and efficient breakouts from above
             for ind_k, k in enumerate(save_keys):
                 # Copy baseline breakouts dict to use in establishing the
                 # structure of the final savings output breakouts dict
-                orig_dict_struct = _fast_copy_nested_dict(
-                    mkt_save_brk[mkt_base_keys[ind_k]])
+                orig_dict_struct = _fast_copy_nested_dict(mkt_save_brk[mkt_base_keys[ind_k]])
                 # Loop through all nested levels of the dict above; when
                 # reaching terminal nodes, finalize savings values as
                 # difference between finalized baseline and efficient results
                 mkt_save_brk[k] = self.out_break_walk_subtr(
-                    orig_dict_struct, mkt_save_brk[mkt_base_keys[ind_k]],
-                    mkt_save_brk[mkt_eff_keys[ind_k]], focus_yrs)
+                    orig_dict_struct,
+                    mkt_save_brk[mkt_base_keys[ind_k]],
+                    mkt_save_brk[mkt_eff_keys[ind_k]],
+                    focus_yrs,
+                )
 
             # Record low and high estimates on markets, if available and
             # user has not specified trimmed output
             if trim_out is False:
                 # Set shorter name for markets and savings output dict
-                mkt_sv = self.output_ecms[m.name][
-                    "Markets and Savings (Overall)"][adopt_scheme]
+                mkt_sv = self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme]
                 # Record low and high baseline market values
                 if energy_base_avg != energy_base_low:
                     # for x in [output_dict_overall, output_dict_bycat]:
-                    mkt_sv["Baseline Energy Use (low) (MMBtu)"] = \
-                        energy_base_low
-                    mkt_sv["Baseline Energy Use (high) (MMBtu)"] = \
-                        energy_base_high
-                    mkt_sv["Baseline CO2 Emissions (low) (MMTons)".
-                           translate(sub)] = carb_base_low
-                    mkt_sv["Baseline CO2 Emissions (high) (MMTons)".
-                           translate(sub)] = carb_base_high
-                    mkt_sv["Baseline Energy Cost (low) (USD)"] = \
-                        energy_cost_base_low
-                    mkt_sv["Baseline Energy Cost (high) (USD)"] = \
-                        energy_cost_base_high
-                    mkt_sv["Baseline CO2 Cost (low) (USD)".translate(sub)] = \
-                        carb_cost_base_low
-                    mkt_sv["Baseline CO2 Cost (high) (USD)".translate(sub)] = \
-                        carb_cost_base_high
+                    mkt_sv["Baseline Energy Use (low) (MMBtu)"] = energy_base_low
+                    mkt_sv["Baseline Energy Use (high) (MMBtu)"] = energy_base_high
+                    mkt_sv["Baseline CO2 Emissions (low) (MMTons)".translate(sub)] = carb_base_low
+                    mkt_sv["Baseline CO2 Emissions (high) (MMTons)".translate(sub)] = carb_base_high
+                    mkt_sv["Baseline Energy Cost (low) (USD)"] = energy_cost_base_low
+                    mkt_sv["Baseline Energy Cost (high) (USD)"] = energy_cost_base_high
+                    mkt_sv["Baseline CO2 Cost (low) (USD)".translate(sub)] = carb_cost_base_low
+                    mkt_sv["Baseline CO2 Cost (high) (USD)".translate(sub)] = carb_cost_base_high
                 # Record low and high efficient market values
                 if energy_eff_avg != energy_eff_low:
                     # for x in [output_dict_overall, output_dict_bycat]:
-                    mkt_sv["Efficient Energy Use (low) (MMBtu)"] = \
-                        energy_eff_low
-                    mkt_sv["Efficient Energy Use (high) (MMBtu)"] = \
-                        energy_eff_high
-                    mkt_sv["Efficient CO2 Emissions (low) (MMTons)".
-                           translate(sub)] = carb_eff_low
-                    mkt_sv["Efficient CO2 Emissions (high) (MMTons)".
-                           translate(sub)] = carb_eff_high
-                    mkt_sv["Efficient Energy Cost (low) (USD)"] = \
-                        energy_cost_eff_low
-                    mkt_sv["Efficient Energy Cost (high) (USD)"] = \
-                        energy_cost_eff_high
-                    mkt_sv["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
-                        carb_cost_eff_low
-                    mkt_sv[
-                        "Efficient CO2 Cost (high) (USD)".translate(sub)] = \
-                        carb_cost_eff_high
+                    mkt_sv["Efficient Energy Use (low) (MMBtu)"] = energy_eff_low
+                    mkt_sv["Efficient Energy Use (high) (MMBtu)"] = energy_eff_high
+                    mkt_sv["Efficient CO2 Emissions (low) (MMTons)".translate(sub)] = carb_eff_low
+                    mkt_sv["Efficient CO2 Emissions (high) (MMTons)".translate(sub)] = carb_eff_high
+                    mkt_sv["Efficient Energy Cost (low) (USD)"] = energy_cost_eff_low
+                    mkt_sv["Efficient Energy Cost (high) (USD)"] = energy_cost_eff_high
+                    mkt_sv["Efficient CO2 Cost (low) (USD)".translate(sub)] = carb_cost_eff_low
+                    mkt_sv["Efficient CO2 Cost (high) (USD)".translate(sub)] = carb_cost_eff_high
                     # Record efficient-captured data if present
                     if eff_capt:
-                        mkt_sv[
-                            "Efficient Energy Use, Measure (low) (MMBtu)"] = \
-                            energy_eff_capt_low
-                        mkt_sv[
-                            "Efficient Energy Use, Measure (high) (MMBtu)"] = \
+                        mkt_sv["Efficient Energy Use, Measure (low) (MMBtu)"] = energy_eff_capt_low
+                        mkt_sv["Efficient Energy Use, Measure (high) (MMBtu)"] = (
                             energy_eff_capt_high
+                        )
                         # Record efficient-captured-envelope data if present
                         if eff_capt_env:
-                            mkt_sv[
-                                "Efficient Energy Use, Measure-Envelope"
-                                " (low) (MMBtu)"] = \
+                            mkt_sv["Efficient Energy Use, Measure-Envelope (low) (MMBtu)"] = (
                                 energy_eff_capt_low_env
-                            mkt_sv[
-                                "Efficient Energy Use, Measure-Envelope"
-                                " (high) (MMBtu)"] = \
+                            )
+                            mkt_sv["Efficient Energy Use, Measure-Envelope (high) (MMBtu)"] = (
                                 energy_eff_capt_high_env
+                            )
 
             # Record updated financial metrics in Engine 'output' attribute;
             # yield low and high estimates on the metrics if available
             if trim_out is False and cce_avg != cce_low:
-                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
-                    ("Cost of Conserved Energy ($/MMBtu saved)",
-                     cce_avg),
-                    ("Cost of Conserved Energy (low) ($/MMBtu saved)",
-                     cce_low),
-                    ("Cost of Conserved Energy (high) ($/MMBtu saved)",
-                     cce_high),
-                    (("Cost of Conserved CO2 "
-                      "($/MTon CO2 avoided)").
-                     translate(sub), ccc_avg),
-                    (("Cost of Conserved CO2 (low) "
-                      "($/MTon CO2 avoided)").
-                     translate(sub), ccc_low),
-                    (("Cost of Conserved CO2 (high) "
-                      "($/MTon CO2 avoided)").
-                     translate(sub), ccc_high),
-                    ("IRR (%)", irr_e_avg),
-                    ("IRR (low) (%)", irr_e_low),
-                    ("IRR (high) (%)", irr_e_high),
-                    ("Payback (years)", payback_e_avg),
-                    ("Payback (low) (years)", payback_e_low),
-                    ("Payback (high) (years)", payback_e_high)])
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict(
+                    [
+                        ("Cost of Conserved Energy ($/MMBtu saved)", cce_avg),
+                        ("Cost of Conserved Energy (low) ($/MMBtu saved)", cce_low),
+                        ("Cost of Conserved Energy (high) ($/MMBtu saved)", cce_high),
+                        (("Cost of Conserved CO2 ($/MTon CO2 avoided)").translate(sub), ccc_avg),
+                        (
+                            ("Cost of Conserved CO2 (low) ($/MTon CO2 avoided)").translate(sub),
+                            ccc_low,
+                        ),
+                        (
+                            ("Cost of Conserved CO2 (high) ($/MTon CO2 avoided)").translate(sub),
+                            ccc_high,
+                        ),
+                        ("IRR (%)", irr_e_avg),
+                        ("IRR (low) (%)", irr_e_low),
+                        ("IRR (high) (%)", irr_e_high),
+                        ("Payback (years)", payback_e_avg),
+                        ("Payback (low) (years)", payback_e_low),
+                        ("Payback (high) (years)", payback_e_high),
+                    ]
+                )
             elif trim_out is False:
-                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
-                    ("Cost of Conserved Energy ($/MMBtu saved)",
-                     cce_avg),
-                    (("Cost of Conserved CO2 "
-                      "($/MTon CO2 avoided)").
-                     translate(sub), ccc_avg),
-                    ("IRR (%)", irr_e_avg),
-                    ("Payback (years)", payback_e_avg)])
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict(
+                    [
+                        ("Cost of Conserved Energy ($/MMBtu saved)", cce_avg),
+                        (("Cost of Conserved CO2 ($/MTon CO2 avoided)").translate(sub), ccc_avg),
+                        ("IRR (%)", irr_e_avg),
+                        ("Payback (years)", payback_e_avg),
+                    ]
+                )
             else:
-                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict([
-                    ("Payback (years)", payback_e_avg)])
+                self.output_ecms[m.name]["Financial Metrics"] = OrderedDict(
+                    [("Payback (years)", payback_e_avg)]
+                )
 
             # If a user desires measure market penetration percentages as an
             # output, calculate and report these fractions
@@ -5987,151 +7056,205 @@ class Engine(object):
                 # Calculate market penetration percentages for the current
                 # measure and scenario; divide post-competition measure stock
                 # by the total stock that the measure could possibly affect
-                mkt_fracs = {yr: round(
-                    ((mkts["stock"]["total"]["measure"][yr] / m.markets[
-                      adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
-                      "total"]["all"][yr]) * 100), 1) if m.markets[
-                    adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
-                    "total"]["all"][yr] != 0 else 0 for
-                    yr in focus_yrs}
+                mkt_fracs = {
+                    yr: round(
+                        (
+                            (
+                                mkts["stock"]["total"]["measure"][yr]
+                                / m.markets[adopt_scheme]["uncompeted"]["master_mseg"]["stock"][
+                                    "total"
+                                ]["all"][yr]
+                            )
+                            * 100
+                        ),
+                        1,
+                    )
+                    if m.markets[adopt_scheme]["uncompeted"]["master_mseg"]["stock"]["total"][
+                        "all"
+                    ][yr]
+                    != 0
+                    else 0
+                    for yr in focus_yrs
+                }
                 # Calculate average and low/high penetration fractions
-                mkt_fracs_avg = {
-                    k: numpy.mean(v) for k, v in mkt_fracs.items()}
-                mkt_fracs_low = {
-                    k: numpy.percentile(v, 5) for k, v in mkt_fracs.items()}
-                mkt_fracs_high = {
-                    k: numpy.percentile(v, 95) for k, v in mkt_fracs.items()}
+                mkt_fracs_avg = {k: numpy.mean(v) for k, v in mkt_fracs.items()}
+                mkt_fracs_low = {k: numpy.percentile(v, 5) for k, v in mkt_fracs.items()}
+                mkt_fracs_high = {k: numpy.percentile(v, 95) for k, v in mkt_fracs.items()}
                 # Set the average market penetration fraction output
-                self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                    adopt_scheme]["Stock Penetration (%)"] = mkt_fracs_avg
+                self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Stock Penetration (%)"
+                ] = mkt_fracs_avg
                 # Set low/high market penetration fractions (as applicable)
                 if mkt_fracs_avg != mkt_fracs_low:
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme]["Stock Penetration (low) (%)"] = \
-                        mkt_fracs_low
-                    self.output_ecms[m.name]["Markets and Savings (Overall)"][
-                        adopt_scheme]["Stock Penetration (high) (%)"] = \
-                        mkt_fracs_high
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Stock Penetration (low) (%)"
+                    ] = mkt_fracs_low
+                    self.output_ecms[m.name]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Stock Penetration (high) (%)"
+                    ] = mkt_fracs_high
                 # Report market penetration percentages for detailed breakouts;
                 # the dict with these is calculated above
-                self.output_ecms[m.name]["Markets and Savings (by Category)"][
-                    adopt_scheme]["Stock Penetration (%)"] = frac_mkt_stk
+                self.output_ecms[m.name]["Markets and Savings (by Category)"][adopt_scheme][
+                    "Stock Penetration (%)"
+                ] = frac_mkt_stk
 
         # Find mean and 5th/95th percentile values of each market/savings
         # total across all ECMs (note: if total is point value, all three of
         # these values will be the same)
 
         # Mean of outputs across all ECMs
-        stock_base_all_avg, energy_base_all_avg, carb_base_all_avg, stock_cost_base_all_avg, \
-            energy_cost_base_all_avg, carb_cost_base_all_avg, \
-            stock_eff_all_avg, energy_eff_all_avg, energy_eff_all_capt_avg, \
-            energy_eff_all_capt_avg_env, carb_eff_all_avg, stock_cost_eff_all_avg, \
-            energy_cost_eff_all_avg, carb_cost_eff_all_avg, \
-            energy_save_all_avg, energy_costsave_all_avg, carb_save_all_avg, \
-            carb_costsave_all_avg = [{
-                k: numpy.mean(v) if v is not None else v
-                for k, v in z.items()} for z in summary_vals_all_ecms]
+        (
+            stock_base_all_avg,
+            energy_base_all_avg,
+            carb_base_all_avg,
+            stock_cost_base_all_avg,
+            energy_cost_base_all_avg,
+            carb_cost_base_all_avg,
+            stock_eff_all_avg,
+            energy_eff_all_avg,
+            energy_eff_all_capt_avg,
+            energy_eff_all_capt_avg_env,
+            carb_eff_all_avg,
+            stock_cost_eff_all_avg,
+            energy_cost_eff_all_avg,
+            carb_cost_eff_all_avg,
+            energy_save_all_avg,
+            energy_costsave_all_avg,
+            carb_save_all_avg,
+            carb_costsave_all_avg,
+        ) = [
+            {k: numpy.mean(v) if v is not None else v for k, v in z.items()}
+            for z in summary_vals_all_ecms
+        ]
         # 5th percentile of outputs across all ECMs
-        stock_base_all_low, energy_base_all_low, carb_base_all_low, stock_cost_base_all_low, \
-            energy_cost_base_all_low, carb_cost_base_all_low, \
-            stock_eff_all_low, energy_eff_all_low, energy_eff_all_capt_low, \
-            energy_eff_all_capt_low_env, carb_eff_all_low, stock_cost_eff_all_low, \
-            energy_cost_eff_all_low, carb_cost_eff_all_low, \
-            energy_save_all_low, energy_costsave_all_low, carb_save_all_low, \
-            carb_costsave_all_low = [{
-                k: numpy.percentile(v, 5) if v is not None else v
-                for k, v in z.items()} for z in summary_vals_all_ecms]
+        (
+            stock_base_all_low,
+            energy_base_all_low,
+            carb_base_all_low,
+            stock_cost_base_all_low,
+            energy_cost_base_all_low,
+            carb_cost_base_all_low,
+            stock_eff_all_low,
+            energy_eff_all_low,
+            energy_eff_all_capt_low,
+            energy_eff_all_capt_low_env,
+            carb_eff_all_low,
+            stock_cost_eff_all_low,
+            energy_cost_eff_all_low,
+            carb_cost_eff_all_low,
+            energy_save_all_low,
+            energy_costsave_all_low,
+            carb_save_all_low,
+            carb_costsave_all_low,
+        ) = [
+            {k: numpy.percentile(v, 5) if v is not None else v for k, v in z.items()}
+            for z in summary_vals_all_ecms
+        ]
         # 95th percentile of outputs across all ECMs
-        stock_base_all_high, energy_base_all_high, carb_base_all_high, stock_cost_base_all_high, \
-            energy_cost_base_all_high, carb_cost_base_all_high, \
-            stock_eff_all_high, energy_eff_all_high, \
-            energy_eff_all_capt_high, energy_eff_all_capt_high_env, \
-            carb_eff_all_high, stock_cost_eff_all_high, energy_cost_eff_all_high, \
-            carb_cost_eff_all_high, energy_save_all_high, \
-            energy_costsave_all_high, carb_save_all_high, \
-            carb_costsave_all_high = [{
-                k: numpy.percentile(v, 95) if v is not None else v
-                for k, v in z.items()} for z in summary_vals_all_ecms]
+        (
+            stock_base_all_high,
+            energy_base_all_high,
+            carb_base_all_high,
+            stock_cost_base_all_high,
+            energy_cost_base_all_high,
+            carb_cost_base_all_high,
+            stock_eff_all_high,
+            energy_eff_all_high,
+            energy_eff_all_capt_high,
+            energy_eff_all_capt_high_env,
+            carb_eff_all_high,
+            stock_cost_eff_all_high,
+            energy_cost_eff_all_high,
+            carb_cost_eff_all_high,
+            energy_save_all_high,
+            energy_costsave_all_high,
+            carb_save_all_high,
+            carb_costsave_all_high,
+        ) = [
+            {k: numpy.percentile(v, 95) if v is not None else v for k, v in z.items()}
+            for z in summary_vals_all_ecms
+        ]
 
         # Record mean markets and savings across all ECMs
-        self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-            adopt_scheme] = OrderedDict([
+        self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme] = OrderedDict(
+            [
                 ("Baseline Energy Use (MMBtu)", energy_base_all_avg),
-                ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                 carb_base_all_avg),
+                ("Baseline CO2 Emissions (MMTons)".translate(sub), carb_base_all_avg),
                 ("Baseline Energy Cost (USD)", energy_cost_base_all_avg),
-                ("Baseline CO2 Cost (USD)".translate(sub),
-                 carb_cost_base_all_avg),
+                ("Baseline CO2 Cost (USD)".translate(sub), carb_cost_base_all_avg),
                 ("Energy Savings (MMBtu)", energy_save_all_avg),
                 ("Energy Cost Savings (USD)", energy_costsave_all_avg),
-                ("Avoided CO2 Emissions (MMTons)".translate(sub),
-                 carb_save_all_avg),
-                ("CO2 Cost Savings (USD)".translate(sub),
-                 carb_costsave_all_avg),
+                ("Avoided CO2 Emissions (MMTons)".translate(sub), carb_save_all_avg),
+                ("CO2 Cost Savings (USD)".translate(sub), carb_costsave_all_avg),
                 ("Efficient Energy Use (MMBtu)", energy_eff_all_avg),
                 ("Efficient Energy Use, Measure (MMBtu)", energy_eff_all_capt_avg),
-                ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                 carb_eff_all_avg),
+                ("Efficient CO2 Emissions (MMTons)".translate(sub), carb_eff_all_avg),
                 ("Efficient Energy Cost (USD)", energy_cost_eff_all_avg),
-                ("Efficient CO2 Cost (USD)".translate(sub),
-                 carb_cost_eff_all_avg)])
+                ("Efficient CO2 Cost (USD)".translate(sub), carb_cost_eff_all_avg),
+            ]
+        )
 
         # Record efficient-captured data across all ECMs if present
         if eff_capt and energy_eff_all_capt_avg is not None:
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]["Efficient Energy Use, Measure (MMBtu)"] = \
-                energy_eff_all_capt_avg
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                "Efficient Energy Use, Measure (MMBtu)"
+            ] = energy_eff_all_capt_avg
             # Record efficient-captured-envelope data across all ECMs if
             # present
             if eff_capt_env and energy_eff_all_capt_avg_env is not None:
-                self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                        "Efficient Energy Use, Measure-Envelope (MMBtu)"] = \
-                    energy_eff_all_capt_avg_env
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Efficient Energy Use, Measure-Envelope (MMBtu)"
+                ] = energy_eff_all_capt_avg_env
 
         # Record updated (post-competed) fugitive emissions results across all
         # ECMs if applicable
         if summary_vals_all_ecms_f_e is not None:
             # Record updated baseline/efficient methane results
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]["Baseline Fugitive Methane (MMTons CO2e)"], \
-                self.output_all["All ECMs"][
-                    "Markets and Savings (Overall)"][adopt_scheme][
-                "Efficient Fugitive Methane (MMTons CO2e)"] = \
-                summary_vals_all_ecms_f_e[0:2]
+            (
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Baseline Fugitive Methane (MMTons CO2e)"
+                ],
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Efficient Fugitive Methane (MMTons CO2e)"
+                ],
+            ) = summary_vals_all_ecms_f_e[0:2]
             # Record updated methane savings results
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]["Fugitive Methane Savings (MMTons CO2e)"] = \
-                summary_vals_all_ecms_f_e[4]
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                "Fugitive Methane Savings (MMTons CO2e)"
+            ] = summary_vals_all_ecms_f_e[4]
             # Record updated baseline/efficient refrigerant results
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme][
-                    "Baseline Fugitive Refrigerants (MMTons CO2e)"], \
-                self.output_all["All ECMs"][
-                    "Markets and Savings (Overall)"][adopt_scheme][
-                "Efficient Fugitive Refrigerants (MMTons CO2e)"] = \
-                summary_vals_all_ecms_f_e[2:4]
+            (
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Baseline Fugitive Refrigerants (MMTons CO2e)"
+                ],
+                self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                    "Efficient Fugitive Refrigerants (MMTons CO2e)"
+                ],
+            ) = summary_vals_all_ecms_f_e[2:4]
             # Record updated refrigerant savings results
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme][
-                    "Fugitive Refrigerants Savings (MMTons CO2e)"] = \
-                summary_vals_all_ecms_f_e[5]
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                "Fugitive Refrigerants Savings (MMTons CO2e)"
+            ] = summary_vals_all_ecms_f_e[5]
 
         # If necessary, record stock costs across all ECMs
         if report_stk_costs:
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme][base_stk_cost_key] = stock_cost_base_all_avg
-            self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme][meas_stk_cost_key] = stock_cost_eff_all_avg
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                base_stk_cost_key
+            ] = stock_cost_base_all_avg
+            self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                meas_stk_cost_key
+            ] = stock_cost_eff_all_avg
 
         # Add in data from codes and BPS measures, if applicable
         for m in [x for x in self.output_ecms if any([y in x for y in ["Codes", "Standards"]])]:
             # Pull codes/BPS measure results data
-            results_dat_codes_bps = self.output_ecms[m][
-                "Markets and Savings (Overall)"][adopt_scheme]
+            results_dat_codes_bps = self.output_ecms[m]["Markets and Savings (Overall)"][
+                adopt_scheme
+            ]
             # Pull all aggregated measure data (pre-codes/BPS integration)
             results_dat_all_ecms = self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                adopt_scheme]
+                adopt_scheme
+            ]
             # Loop through all codes/BPS output metrics and add to aggregated data. Note that stock
             # totals are not summed across ECMs due to potentially differing units. Also note that
             # for operational costs, codes/BPS outputs will not include CO2 cost savings, since only
@@ -6146,57 +7269,49 @@ class Engine(object):
         # Record low/high estimates on efficient markets across all ECMs, if
         # available and user has not specified trimmed output
         if trim_out is False and energy_eff_all_avg != energy_eff_all_low:
-
             # Set shorter name for markets and savings output dict across all
             # ECMs
-            mkt_sv_all = self.output_all["All ECMs"][
-                "Markets and Savings (Overall)"][adopt_scheme]
+            mkt_sv_all = self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme]
 
-            mkt_sv_all["Efficient Energy Use (low) (MMBtu)"] = \
-                energy_eff_all_low
-            mkt_sv_all["Efficient Energy Use (high) (MMBtu)"] = \
-                energy_eff_all_high
-            mkt_sv_all["Efficient CO2 Emissions (low) (MMTons)".
-                       translate(sub)] = carb_eff_all_low
-            mkt_sv_all["Efficient CO2 Emissions (high) (MMTons)".
-                       translate(sub)] = carb_eff_all_high
-            mkt_sv_all["Efficient Energy Cost (low) (USD)"] = \
-                energy_cost_eff_all_low
-            mkt_sv_all["Efficient Energy Cost (high) (USD)"] = \
-                energy_cost_eff_all_high
-            mkt_sv_all["Efficient CO2 Cost (low) (USD)".translate(sub)] = \
-                carb_cost_eff_all_low
-            mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = \
-                carb_cost_eff_all_high
+            mkt_sv_all["Efficient Energy Use (low) (MMBtu)"] = energy_eff_all_low
+            mkt_sv_all["Efficient Energy Use (high) (MMBtu)"] = energy_eff_all_high
+            mkt_sv_all["Efficient CO2 Emissions (low) (MMTons)".translate(sub)] = carb_eff_all_low
+            mkt_sv_all["Efficient CO2 Emissions (high) (MMTons)".translate(sub)] = carb_eff_all_high
+            mkt_sv_all["Efficient Energy Cost (low) (USD)"] = energy_cost_eff_all_low
+            mkt_sv_all["Efficient Energy Cost (high) (USD)"] = energy_cost_eff_all_high
+            mkt_sv_all["Efficient CO2 Cost (low) (USD)".translate(sub)] = carb_cost_eff_all_low
+            mkt_sv_all["Efficient CO2 Cost (high) (USD)".translate(sub)] = carb_cost_eff_all_high
             # Record low/high efficient-captured data across all ECMs if
             # present
-            if eff_capt and all([x is not None for x in [
-                    energy_eff_all_capt_low, energy_eff_all_capt_high]]):
-                self.output_all["All ECMs"]["Markets and Savings (Overall)"][
-                    adopt_scheme][
-                    "Efficient Energy Use, Measure (low) (MMBtu)"], \
-                    self.output_all["All ECMs"][
-                    "Markets and Savings (Overall)"][adopt_scheme][
-                    "Efficient Energy Use, Measure (high) (MMBtu)"] = \
-                    [energy_eff_all_capt_low, energy_eff_all_capt_high]
+            if eff_capt and all(
+                [x is not None for x in [energy_eff_all_capt_low, energy_eff_all_capt_high]]
+            ):
+                (
+                    self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Energy Use, Measure (low) (MMBtu)"
+                    ],
+                    self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                        "Efficient Energy Use, Measure (high) (MMBtu)"
+                    ],
+                ) = [energy_eff_all_capt_low, energy_eff_all_capt_high]
                 # Record low/high efficient-captured-envelope data across all
                 # ECMs if present
-                if eff_capt_env and all([x is not None for x in [
-                        energy_eff_all_capt_low_env,
-                        energy_eff_all_capt_high_env]]):
-                    self.output_all["All ECMs"][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Energy Use, Measure-Envelope"
-                        " (low) (MMBtu)"], \
-                        self.output_all["All ECMs"][
-                        "Markets and Savings (Overall)"][adopt_scheme][
-                        "Efficient Energy Use, Measure-Envelope"
-                        "(high) (MMBtu)"] = [
-                        energy_eff_all_capt_low_env,
-                        energy_eff_all_capt_high_env]
+                if eff_capt_env and all(
+                    [
+                        x is not None
+                        for x in [energy_eff_all_capt_low_env, energy_eff_all_capt_high_env]
+                    ]
+                ):
+                    (
+                        self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure-Envelope (low) (MMBtu)"
+                        ],
+                        self.output_all["All ECMs"]["Markets and Savings (Overall)"][adopt_scheme][
+                            "Efficient Energy Use, Measure-Envelope(high) (MMBtu)"
+                        ],
+                    ) = [energy_eff_all_capt_low_env, energy_eff_all_capt_high_env]
 
-    def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide,
-                       mkt_frac=False):
+    def out_break_walk(self, adjust_dict, adjust_vals, focus_yrs, divide, mkt_frac=False):
         """Partition measure results by climate, building sector, and end use.
 
         Args:
@@ -6215,10 +7330,9 @@ class Engine(object):
             Measure baseline or efficient results partitioned by climate,
             building sector, end use, and possibly fuel type.
         """
-        for (k, i) in sorted(adjust_dict.items()):
+        for k, i in sorted(adjust_dict.items()):
             if isinstance(i, dict) and len(i.keys()) > 0:
-                self.out_break_walk(i, adjust_vals, focus_yrs, divide,
-                                    mkt_frac)
+                self.out_break_walk(i, adjust_vals, focus_yrs, divide, mkt_frac)
             elif isinstance(i, dict):
                 del adjust_dict[k]
             elif k in focus_yrs:
@@ -6251,10 +7365,9 @@ class Engine(object):
             Measure savings results partitioned by climate, building sector,
             end use, and possibly fuel type.
         """
-        for (k, i) in sorted(orig_dict.items()):
+        for k, i in sorted(orig_dict.items()):
             if isinstance(i, dict) and len(i.keys()) > 0:
-                self.out_break_walk_subtr(
-                    i, base_val[k], eff_val[k], focus_yrs)
+                self.out_break_walk_subtr(i, base_val[k], eff_val[k], focus_yrs)
             elif isinstance(i, dict):
                 del orig_dict[k]
             elif k in focus_yrs:
@@ -6264,9 +7377,20 @@ class Engine(object):
                 del orig_dict[k]
         return orig_dict
 
-    def process_codes_bps(self, opts, adopt_scheme, msegs, handyvars, trim_yrs,
-                          code_comply_res, code_comply_com, bps_comply_res, bps_comply_com,
-                          report_stk_units, report_stk_costs):
+    def process_codes_bps(
+        self,
+        opts,
+        adopt_scheme,
+        msegs,
+        handyvars,
+        trim_yrs,
+        code_comply_res,
+        code_comply_com,
+        bps_comply_res,
+        bps_comply_com,
+        report_stk_units,
+        report_stk_costs,
+    ):
         """Read in and apply the effects of codes/BPS to measure stock/energy/carbon/energy costs.
 
         Args:
@@ -6284,9 +7408,13 @@ class Engine(object):
         # Set time horizon for assessing code/BPS impacts
         focus_yrs = self.handyvars.aeo_years
         # Set tracker for applicability stacking within a given region/building type
-        onsite_frac_already_in_place, add_energy_frac_already_in_place = ({
-            "code": {"duplicates": {}, "cum_fracs": {}},
-            "bps": {"duplicates": {}, "cum_fracs": {}}} for n in range(2))
+        onsite_frac_already_in_place, add_energy_frac_already_in_place = (
+            {
+                "code": {"duplicates": {}, "cum_fracs": {}},
+                "bps": {"duplicates": {}, "cum_fracs": {}},
+            }
+            for n in range(2)
+        )
         onsite_times_apply_fracs, add_energy_times_apply_fracs = (None for n in range(2))
         # Compile all codes/BPS policies into a master list; handle possible assessment of codes
         # without BPS, and vice versa
@@ -6302,9 +7430,14 @@ class Engine(object):
         # Initialize separate code/BPS measure instances; data from existing measures in the
         # analysis will be pulled into these code/BPS measures to reflect code/BPS impacts
         codes_res_measure, bps_res_measure, codes_com_measure, bps_com_measure = [
-            Codes_BPS_Measure(handyvars, name, report_stk_units, report_stk_costs) for name in [
-                "(R) Building Codes", "(R) Building Performance Standards",
-                "(C) Building Codes", "(C) Building Performance Standards"]]
+            Codes_BPS_Measure(handyvars, name, report_stk_units, report_stk_costs)
+            for name in [
+                "(R) Building Codes",
+                "(R) Building Performance Standards",
+                "(C) Building Codes",
+                "(C) Building Performance Standards",
+            ]
+        ]
         # Ensure that codes/BPS are ordered by start year such that their impacts are reflected
         # with the proper staging in cases where there are multiple start years per affected segment
         codes_plus_bps_list = sorted(codes_plus_bps_list, key=itemgetter(-3))
@@ -6323,8 +7456,11 @@ class Engine(object):
             regu_type = code_std[-2]
             # Flag for whether current policy applies to residential buildings (or not)
             res_focus = any(
-                [x in self.handyvars.out_break_bldgtypes[bldg] for x in [
-                    "single family home", "multi family home", "mobile home"]])
+                [
+                    x in self.handyvars.out_break_bldgtypes[bldg]
+                    for x in ["single family home", "multi family home", "mobile home"]
+                ]
+            )
             # Initialize a variable used to track additional code/BPS-driven relative energy
             # improvements over what is already achieved in the efficient case
             added_energy_reduce_frac = None
@@ -6371,12 +7507,14 @@ class Engine(object):
                 if stretch != 0 and lag_reduce != 0:
                     impact_thres_tyr = lag_reduce + (stretch / 100)
                 elif stretch != 0:
-                    impact_thres_tyr = (stretch / 100)
+                    impact_thres_tyr = stretch / 100
                 else:
                     impact_thres_tyr = lag_reduce
                 # Breakout energy index impact by year, for further application below
-                impact_thres = {yr: impact_thres_tyr if yr in apply_yrs else 0
-                                for yr in self.handyvars.aeo_years}
+                impact_thres = {
+                    yr: impact_thres_tyr if yr in apply_yrs else 0
+                    for yr in self.handyvars.aeo_years
+                }
             else:
                 # Set codes/BPS measure to update to BPS measure – res or com based on the
                 # current policy's applicable building type
@@ -6432,8 +7570,12 @@ class Engine(object):
                 # Breakout onsite reduction requirements by year
                 onsite_reduce_frac = {}
                 for yr in self.handyvars.aeo_years:
-                    if code_std_flag == "bps" and not (bench_yr is None) and \
-                            int(yr) >= bench_yr and int(yr) < start_yr:
+                    if (
+                        code_std_flag == "bps"
+                        and bench_yr is not None
+                        and int(yr) >= bench_yr
+                        and int(yr) < start_yr
+                    ):
                         # For BPS, assume compliance/progress towards reduction begins in
                         # the benchmark year and proceeds linearly towards the target reduction
                         frac_yr = (int(yr) - bench_yr) / (start_yr - bench_yr)
@@ -6443,10 +7585,13 @@ class Engine(object):
                     else:
                         onsite_reduce_frac[yr] = 0
                 # Set default assumed conversion efficiency (1:1) to be updated below
-                rel_elec_eff = {var: {
-                    eu: {yr: 1 for yr in self.handyvars.aeo_years}
-                    for eu in self.handyvars.out_break_enduses.keys()}
-                    for var in self.handyvars.brk_vars}
+                rel_elec_eff = {
+                    var: {
+                        eu: {yr: 1 for yr in self.handyvars.aeo_years}
+                        for eu in self.handyvars.out_break_enduses.keys()
+                    }
+                    for var in self.handyvars.brk_vars
+                }
                 # Pull electric measure stock/energy/carbon/energy cost data from all min.
                 # efficiency measures in the current set to use in determining the relative
                 # efficiency of switching from fossil-based to electric equipment to reduce onsite
@@ -6456,37 +7601,78 @@ class Engine(object):
                 # and vintage; allow code to continue while delivering a warning in such cases.
                 try:
                     rel_elec_eff_init = self.sum_unit_elec_data(
-                        reg, bldg, vint, adopt_scheme, apply_yrs)
+                        reg, bldg, vint, adopt_scheme, apply_yrs
+                    )
                     # Finalize unit relative electric efficiency data; divide electric energy/carb/
                     # cost by stock, do the same for fossil energy/carb/cost, and then compare the
                     # unit-level elec. to the unit-level fossil performance. Handle zeros.
-                    rel_elec_eff = {var: {eu: {
-                        yr: ((rel_elec_eff_init["electric"][var][eu][yr] /
-                              rel_elec_eff_init["electric"]["stock"][eu][yr]) /
-                             (rel_elec_eff_init["fossil"][var][eu][yr] /
-                              rel_elec_eff_init["fossil"]["stock"][eu][yr]))
-                        if all([x != 0 for x in [
-                            rel_elec_eff_init["electric"]["stock"][eu][yr],
-                            rel_elec_eff_init["fossil"][var][eu][yr],
-                            rel_elec_eff_init["fossil"]["stock"][eu][yr]]]) else 1
-                        for yr in apply_yrs} for eu in rel_elec_eff_init[
-                            "electric"][var].keys()} for var in self.handyvars.brk_vars}
+                    rel_elec_eff = {
+                        var: {
+                            eu: {
+                                yr: (
+                                    (
+                                        rel_elec_eff_init["electric"][var][eu][yr]
+                                        / rel_elec_eff_init["electric"]["stock"][eu][yr]
+                                    )
+                                    / (
+                                        rel_elec_eff_init["fossil"][var][eu][yr]
+                                        / rel_elec_eff_init["fossil"]["stock"][eu][yr]
+                                    )
+                                )
+                                if all(
+                                    [
+                                        x != 0
+                                        for x in [
+                                            rel_elec_eff_init["electric"]["stock"][eu][yr],
+                                            rel_elec_eff_init["fossil"][var][eu][yr],
+                                            rel_elec_eff_init["fossil"]["stock"][eu][yr],
+                                        ]
+                                    ]
+                                )
+                                else 1
+                                for yr in apply_yrs
+                            }
+                            for eu in rel_elec_eff_init["electric"][var].keys()
+                        }
+                        for var in self.handyvars.brk_vars
+                    }
                 except ValueError:
-                    fmt.verboseprint(opts.verbose,
-                                     ("No measures flagged as basis for setting relative "
-                                      "efficiency of electric equipment for current region and "
-                                      "building type. Setting relative efficiency of conversion "
-                                      "to 1 across end uses and proceeding."),
-                                     "warning")
+                    fmt.verboseprint(
+                        opts.verbose,
+                        (
+                            "No measures flagged as basis for setting relative "
+                            "efficiency of electric equipment for current region and "
+                            "building type. Setting relative efficiency of conversion "
+                            "to 1 across end uses and proceeding."
+                        ),
+                        "warning",
+                    )
                 # Adjust onsite reduction frac. times apply frac. to account for overlaps
                 onsite_frac_already_in_place, onsite_times_apply_fracs = self.stack_impacts(
-                    code_std_flag, reg, bldg, regu_type, onsite_frac_already_in_place,
-                    onsite_reduce_frac, apply_frac, apply_yrs)
+                    code_std_flag,
+                    reg,
+                    bldg,
+                    regu_type,
+                    onsite_frac_already_in_place,
+                    onsite_reduce_frac,
+                    apply_frac,
+                    apply_yrs,
+                )
                 # Apply the effects of the onsite reduction
                 self.apply_code_bps_impacts(
-                    reg, bldg, vint, adopt_scheme, apply_yrs, onsite_times_apply_fracs,
-                    add_energy_times_apply_fracs, rel_elec_eff, prior_yr_rmv, m_cdbps, focus_yrs,
-                    res_focus)
+                    reg,
+                    bldg,
+                    vint,
+                    adopt_scheme,
+                    apply_yrs,
+                    onsite_times_apply_fracs,
+                    add_energy_times_apply_fracs,
+                    rel_elec_eff,
+                    prior_yr_rmv,
+                    m_cdbps,
+                    focus_yrs,
+                    res_focus,
+                )
                 # Reset onsite reduction levels to null after processing above to ensure they
                 # aren't applied twice when energy reductions are subsequently processed by the
                 # same function below
@@ -6502,19 +7688,24 @@ class Engine(object):
                 # measures for postprocessing) that should be reflected in energy sums to determine
                 # whether measure set collectively meets energy target
                 if code_std_flag == "code":
-                    code_bps_meas_to_sum = [m for m in [
-                        codes_res_measure, codes_com_measure] if len(
-                        m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk]
+                    code_bps_meas_to_sum = [
+                        m
+                        for m in [codes_res_measure, codes_com_measure]
+                        if len(m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk
+                    ]
                 else:
-                    code_bps_meas_to_sum = [m for m in [
-                        bps_res_measure, bps_com_measure] if len(
-                        m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk]
+                    code_bps_meas_to_sum = [
+                        m
+                        for m in [bps_res_measure, bps_com_measure]
+                        if len(m.reg_brk) != 0 and reg in m.reg_brk and bldg in m.bldg_vnt_brk
+                    ]
                 # Sum efficient and base-case energy use for current region/building type/vintage
                 # and across all measures; these sums will be compared to determine the relative
                 # overall energy improvement in the efficient case vs. the baseline, which in turn
                 # is compared against the improvement required by the code/BPS
                 energy_sums = self.sum_energy_data(
-                    reg, bldg, vint, adopt_scheme, prior_yr_rmv, code_bps_meas_to_sum)
+                    reg, bldg, vint, adopt_scheme, prior_yr_rmv, code_bps_meas_to_sum
+                )
 
                 # Finalize determination of relative energy reduction in the efficient case. For
                 # BPS, this is normalized by sf and compared to a benchmark baseline year. For
@@ -6526,15 +7717,22 @@ class Engine(object):
 
                     energy_sums_sf = self.sf_norm(energy_sums, msegs, reg, bldg, vint)
                     energy_reduce_frac = {
-                        yr: 1 - (energy_sums_sf["efficient"][str(start_yr)] /
-                                 energy_sums_sf["baseline"][bench_yr_fin]) if
-                        (yr in apply_yrs and energy_sums_sf["baseline"][bench_yr_fin] != 0) else 0
-                        for yr in self.handyvars.aeo_years}
+                        yr: 1
+                        - (
+                            energy_sums_sf["efficient"][str(start_yr)]
+                            / energy_sums_sf["baseline"][bench_yr_fin]
+                        )
+                        if (yr in apply_yrs and energy_sums_sf["baseline"][bench_yr_fin] != 0)
+                        else 0
+                        for yr in self.handyvars.aeo_years
+                    }
                 else:
                     energy_reduce_frac = {
                         yr: 1 - (energy_sums["efficient"][yr] / energy_sums["baseline"][yr])
-                        if (yr in apply_yrs and energy_sums["baseline"][yr] != 0) else 0
-                        for yr in self.handyvars.aeo_years}
+                        if (yr in apply_yrs and energy_sums["baseline"][yr] != 0)
+                        else 0
+                        for yr in self.handyvars.aeo_years
+                    }
 
                 # Determine additional fractional energy (and carbon/cost) reduction vs. baseline
                 # that must be applied to meet codes/BPS requirements in each year, if any; if
@@ -6542,38 +7740,69 @@ class Engine(object):
                 # requirement, set to zero
                 if energy_reduce_frac:
                     added_energy_reduce_frac = {
-                        yr: impact_thres[yr] - energy_reduce_frac[yr] if
-                        impact_thres[yr] > energy_reduce_frac[yr] else 0 for
-                        yr in self.handyvars.aeo_years}
+                        yr: impact_thres[yr] - energy_reduce_frac[yr]
+                        if impact_thres[yr] > energy_reduce_frac[yr]
+                        else 0
+                        for yr in self.handyvars.aeo_years
+                    }
                     # Ensure that the added energy reduction fraction never goes above 1
                     added_energy_reduce_frac = {
                         yr: added_energy_reduce_frac[yr] if added_energy_reduce_frac[yr] <= 1 else 1
                         for yr in self.handyvars.aeo_years
                     }
                     # Adjust energy reduction frac. times apply frac. to account for overlaps
-                    add_energy_frac_already_in_place, add_energy_times_apply_fracs = \
-                        self.stack_impacts(code_std_flag, reg, bldg, regu_type,
-                                           add_energy_frac_already_in_place,
-                                           added_energy_reduce_frac, apply_frac, apply_yrs)
+                    add_energy_frac_already_in_place, add_energy_times_apply_fracs = (
+                        self.stack_impacts(
+                            code_std_flag,
+                            reg,
+                            bldg,
+                            regu_type,
+                            add_energy_frac_already_in_place,
+                            added_energy_reduce_frac,
+                            apply_frac,
+                            apply_yrs,
+                        )
+                    )
                     add_energy_times_apply_fracs = {
                         yr: added_energy_reduce_frac[yr] * apply_frac for yr in apply_yrs
                     }
                     # Apply additional energy reduction requirements to the efficient case data for
                     # a given region/bldg/vintage
                     self.apply_code_bps_impacts(
-                        reg, bldg, vint, adopt_scheme, apply_yrs, onsite_times_apply_fracs,
-                        add_energy_times_apply_fracs, rel_elec_eff, prior_yr_rmv, m_cdbps,
-                        focus_yrs, res_focus)
+                        reg,
+                        bldg,
+                        vint,
+                        adopt_scheme,
+                        apply_yrs,
+                        onsite_times_apply_fracs,
+                        add_energy_times_apply_fracs,
+                        rel_elec_eff,
+                        prior_yr_rmv,
+                        m_cdbps,
+                        focus_yrs,
+                        res_focus,
+                    )
 
         # Ensure that no blank codes or BPS measures are returned and written out
-        fin_code_bps_meas = [m for m in [
-            codes_res_measure, codes_com_measure, bps_res_measure, bps_com_measure] if
-            len(m.reg_brk) != 0]
+        fin_code_bps_meas = [
+            m
+            for m in [codes_res_measure, codes_com_measure, bps_res_measure, bps_com_measure]
+            if len(m.reg_brk) != 0
+        ]
 
         return fin_code_bps_meas
 
-    def stack_impacts(self, code_std_flag, reg, bldg, regu_type, frac_already_in_place, impact_frac,
-                      apply_frac, apply_yrs):
+    def stack_impacts(
+        self,
+        code_std_flag,
+        reg,
+        bldg,
+        regu_type,
+        frac_already_in_place,
+        impact_frac,
+        apply_frac,
+        apply_yrs,
+    ):
         """Account for any overlaps in impact across code/BPS policies that apply to the same mseg.
 
         Args:
@@ -6598,50 +7827,70 @@ class Engine(object):
             if bldg in frac_already_in_place[code_std_flag]["cum_fracs"][reg].keys():
                 # Check if policy already exists for jurisdiction (judged by identical scaling
                 # fraction)
-                dup_policy = (apply_frac in frac_already_in_place[
-                    code_std_flag]["duplicates"][reg][bldg])
+                dup_policy = (
+                    apply_frac in frac_already_in_place[code_std_flag]["duplicates"][reg][bldg]
+                )
                 for yr in apply_yrs:
                     if yr in frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg].keys():
                         # Reduce applicability fraction by what is already in place, but ensure
                         # that applicability fraction is never below zero
                         if (dup_policy or regu_type != "local") and (
-                            impact_times_apply_frac[yr] - frac_already_in_place[code_std_flag][
-                                "cum_fracs"][reg][bldg][yr]) >= 0:
-                            impact_times_apply_frac[yr] = \
-                                impact_times_apply_frac[yr] - frac_already_in_place[code_std_flag][
-                                "cum_fracs"][reg][bldg][yr]
-                        elif (not dup_policy and regu_type == "local") and (
-                            frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr] +
-                                impact_times_apply_frac[yr]) > 1:
-                            impact_times_apply_frac[yr] = 1 - frac_already_in_place[code_std_flag][
-                                "cum_fracs"][reg][bldg][yr]
-                        elif (dup_policy or regu_type != "local"):
-                            impact_times_apply_frac[yr] = 0
-                        frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr] += \
                             impact_times_apply_frac[yr]
+                            - frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr]
+                        ) >= 0:
+                            impact_times_apply_frac[yr] = (
+                                impact_times_apply_frac[yr]
+                                - frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr]
+                            )
+                        elif (not dup_policy and regu_type == "local") and (
+                            frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr]
+                            + impact_times_apply_frac[yr]
+                        ) > 1:
+                            impact_times_apply_frac[yr] = (
+                                1 - frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr]
+                            )
+                        elif dup_policy or regu_type != "local":
+                            impact_times_apply_frac[yr] = 0
+                        frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr] += (
+                            impact_times_apply_frac[yr]
+                        )
                     else:
                         # Set applicability fraction for given region and bldg type
-                        frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr] = \
+                        frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg][yr] = (
                             impact_times_apply_frac[yr]
+                        )
                     # Record the applicable fraction of the policy that was represented
                     frac_already_in_place[code_std_flag]["duplicates"][reg][bldg].append(apply_frac)
             else:
                 frac_already_in_place[code_std_flag]["cum_fracs"][reg][bldg] = {
-                    yr: impact_times_apply_frac[yr] for yr in apply_yrs}
+                    yr: impact_times_apply_frac[yr] for yr in apply_yrs
+                }
                 # Record the applicable fraction of the policy that was represented
                 frac_already_in_place[code_std_flag]["duplicates"][reg][bldg] = [apply_frac]
         else:
             frac_already_in_place[code_std_flag]["cum_fracs"][reg] = {
-                bldg: {yr: impact_times_apply_frac[yr] for yr in apply_yrs}}
+                bldg: {yr: impact_times_apply_frac[yr] for yr in apply_yrs}
+            }
             # Record the applicable fraction of the policy that was represented
             frac_already_in_place[code_std_flag]["duplicates"][reg] = {bldg: [apply_frac]}
 
         return frac_already_in_place, impact_times_apply_frac
 
     def apply_code_bps_impacts(
-            self, reg, bldg, vint, adopt_scheme, apply_yrs, onsite_times_apply_fracs,
-            add_energy_times_apply_fracs, rel_elec_eff, prior_yr_rmv, m_cdbps,
-            focus_yrs, res_focus):
+        self,
+        reg,
+        bldg,
+        vint,
+        adopt_scheme,
+        apply_yrs,
+        onsite_times_apply_fracs,
+        add_energy_times_apply_fracs,
+        rel_elec_eff,
+        prior_yr_rmv,
+        m_cdbps,
+        focus_yrs,
+        res_focus,
+    ):
         """Apply both onsite emissions and energy reduction impacts of code/BPS.
 
         Args:
@@ -6666,16 +7915,23 @@ class Engine(object):
         # Set shorthands for applicable code/BPS measure region, building type/vintage, and end use
         # breakout categories; these will be updated as the measure is adjusted below
         cdbps_regs, cdbps_bldgs, cdbps_eus = [
-            m_cdbps.reg_brk, m_cdbps.bldg_vnt_brk, m_cdbps.end_use_brk]
+            m_cdbps.reg_brk,
+            m_cdbps.bldg_vnt_brk,
+            m_cdbps.end_use_brk,
+        ]
 
         # Loop through all existing non-code/BPS measures that pertain to the current combination
         # of region, building type and vintage and adjust their data and the code/BPS measure data
         # to reflect the impacts of code/BPS policy
-        for m in [m_s for m_s in self.measures if (
-                any([x in self.handyvars.out_break_czones[reg] for x in m_s.climate_zone]) and
-                any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m_s.bldg_type]) and
-                vint in m_s.structure_type)]:
-
+        for m in [
+            m_s
+            for m_s in self.measures
+            if (
+                any([x in self.handyvars.out_break_czones[reg] for x in m_s.climate_zone])
+                and any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m_s.bldg_type])
+                and vint in m_s.structure_type
+            )
+        ]:
             # Set measure fuel type attribute for later use in tracking fuel switching
             meas_fuel, meas_eus = [m.fuel_type["primary"], m.end_use["primary"]]
             # Loop through metrics that are broken out in measure data. (Note that costs
@@ -6689,22 +7945,23 @@ class Engine(object):
                 # Shorthands for breakout baseline/efficient data for existing measures (all
                 # post-competition)
                 brk_dat_base, brk_dat_eff = [
-                    m.markets[adopt_scheme]["competed"]["mseg_out_break"][brk_var][x] for
-                    x in ["baseline", "efficient"]]
+                    m.markets[adopt_scheme]["competed"]["mseg_out_break"][brk_var][x]
+                    for x in ["baseline", "efficient"]
+                ]
                 # Shorthands for breakout efficient-captured data for existing measures (all
                 # post-competition), if applicable
                 if brk_var == "energy":
                     try:
-                        brk_dat_eff_capt = \
-                            m.markets[adopt_scheme][
-                                "competed"]["mseg_out_break"]["energy"]["efficient-captured"]
+                        brk_dat_eff_capt = m.markets[adopt_scheme]["competed"]["mseg_out_break"][
+                            "energy"
+                        ]["efficient-captured"]
                         # Recalculate efficient-captured-envelope data based on
                         # adjusted efficient captured data, if applicable
                         try:
                             # Check if efficient-captured-envelope data are in keys
-                            brk_dat_eff_capt_env = m.markets[adopt_scheme][
-                                "competed"]["mseg_out_break"]["energy"]["total"][
-                                "efficient-captured-envelope"]
+                            brk_dat_eff_capt_env = m.markets[adopt_scheme]["competed"][
+                                "mseg_out_break"
+                            ]["energy"]["total"]["efficient-captured-envelope"]
                         except KeyError:
                             brk_dat_eff_capt_env = None
                     except KeyError:
@@ -6714,8 +7971,9 @@ class Engine(object):
 
                 # Shorthands for breakout base/eff data for code/BPS measure
                 brk_dat_cdbps_base, brk_dat_cdbps_eff = [
-                    m_cdbps.markets[adopt_scheme]["mseg_out_break"][brk_var][x] for x in [
-                        "baseline", "efficient"]]
+                    m_cdbps.markets[adopt_scheme]["mseg_out_break"][brk_var][x]
+                    for x in ["baseline", "efficient"]
+                ]
                 # Pull shorthands for savings breakouts and high-level master markets/savings data
                 # conditionally based on metric
                 if brk_var == "stock":
@@ -6723,80 +7981,165 @@ class Engine(object):
                     brk_dat_save, brk_dat_cdbps_save = (None for n in range(2))
                     # Shorthands for existing and code/BPS measure master base/eff markets data
                     mast_dat_base, mast_dat_cdbps_base = [
-                        m.markets[adopt_scheme][
-                            "competed"]["master_mseg"][mast_var]["total"]["all"],
-                        m_cdbps.markets[adopt_scheme][
-                            "master_mseg"][mast_var]["total"]["all"]]
+                        m.markets[adopt_scheme]["competed"]["master_mseg"][mast_var]["total"][
+                            "all"
+                        ],
+                        m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var]["total"]["all"],
+                    ]
                     mast_dat_eff, mast_dat_cdbps_eff = [
-                        m.markets[adopt_scheme][
-                            "competed"]["master_mseg"][mast_var]["total"]["measure"],
-                        m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var]["total"]["measure"]]
+                        m.markets[adopt_scheme]["competed"]["master_mseg"][mast_var]["total"][
+                            "measure"
+                        ],
+                        m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var]["total"]["measure"],
+                    ]
                     # Savings data are N/A for stock
                     mast_dat_save, mast_dat_cdbps_save = (None for n in range(2))
                 else:
                     # Shorthand breakouts for existing and code/BPS measure energy/carb/ecost save
                     brk_dat_save, brk_dat_cdbps_save = [
-                        m.markets[
-                            adopt_scheme]["competed"]["mseg_out_break"][brk_var]["savings"],
-                        m_cdbps.markets[adopt_scheme]["mseg_out_break"][brk_var]["savings"]]
+                        m.markets[adopt_scheme]["competed"]["mseg_out_break"][brk_var]["savings"],
+                        m_cdbps.markets[adopt_scheme]["mseg_out_break"][brk_var]["savings"],
+                    ]
                     # Shorthands for existing and code/BPS measure master markets/savings
 
                     # Non-cost high-level variables (stock/energy/carbon) do not have sub-variables
                     if not mast_sub_var:
                         mast_shrt, mast_shrt_cdbps = [
                             m.markets[adopt_scheme]["competed"]["master_mseg"][mast_var]["total"],
-                            m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var]["total"]]
+                            m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var]["total"],
+                        ]
                         save_shrt, save_shrt_cdbps = [
                             m.savings[adopt_scheme]["competed"][mast_var]["savings"],
-                            m_cdbps.savings[adopt_scheme][mast_var]["savings"]]
+                            m_cdbps.savings[adopt_scheme][mast_var]["savings"],
+                        ]
                     # Cost variable has sub-variables (energy and possibly stock)
                     else:
                         mast_shrt, mast_shrt_cdbps = [
-                            m.markets[adopt_scheme][
-                                "competed"]["master_mseg"][mast_var][mast_sub_var]["total"],
-                            m_cdbps.markets[adopt_scheme][
-                                "master_mseg"][mast_var][mast_sub_var]["total"]]
+                            m.markets[adopt_scheme]["competed"]["master_mseg"][mast_var][
+                                mast_sub_var
+                            ]["total"],
+                            m_cdbps.markets[adopt_scheme]["master_mseg"][mast_var][mast_sub_var][
+                                "total"
+                            ],
+                        ]
                         save_shrt, save_shrt_cdbps = [
                             m.savings[adopt_scheme]["competed"][mast_sub_var]["cost savings"],
-                            m_cdbps.savings[adopt_scheme][mast_sub_var]["cost savings"]]
+                            m_cdbps.savings[adopt_scheme][mast_sub_var]["cost savings"],
+                        ]
                     mast_dat_base, mast_dat_cdbps_base = [
-                        mast_shrt["baseline"], mast_shrt_cdbps["baseline"]]
+                        mast_shrt["baseline"],
+                        mast_shrt_cdbps["baseline"],
+                    ]
                     mast_dat_eff, mast_dat_cdbps_eff = [
-                        mast_shrt["efficient"], mast_shrt_cdbps["efficient"]]
+                        mast_shrt["efficient"],
+                        mast_shrt_cdbps["efficient"],
+                    ]
                     mast_dat_save, mast_dat_cdbps_save = [save_shrt, save_shrt_cdbps]
                 # Apply any onsite energy reduction (e.g., electrification) requirements,
                 # leveraging data shorthands above
                 if onsite_times_apply_fracs:
                     self.apply_onsite_reduce(
-                        brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base,
-                        brk_dat_save, mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff,
-                        brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
-                        mast_dat_cdbps_base, mast_dat_cdbps_save, reg, bldg, apply_yrs,
-                        onsite_times_apply_fracs, rel_elec_eff[brk_var], prior_yr_rmv, brk_var,
-                        cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, reg, bldg, vint, meas_fuel,
-                        meas_eus, res_focus, adopt_scheme)
+                        brk_dat_eff,
+                        brk_dat_eff_capt,
+                        brk_dat_eff_capt_env,
+                        brk_dat_base,
+                        brk_dat_save,
+                        mast_dat_eff,
+                        mast_dat_base,
+                        mast_dat_save,
+                        brk_dat_cdbps_eff,
+                        brk_dat_cdbps_base,
+                        brk_dat_cdbps_save,
+                        mast_dat_cdbps_eff,
+                        mast_dat_cdbps_base,
+                        mast_dat_cdbps_save,
+                        reg,
+                        bldg,
+                        apply_yrs,
+                        onsite_times_apply_fracs,
+                        rel_elec_eff[brk_var],
+                        prior_yr_rmv,
+                        brk_var,
+                        cdbps_regs,
+                        cdbps_bldgs,
+                        cdbps_eus,
+                        focus_yrs,
+                        reg,
+                        bldg,
+                        vint,
+                        meas_fuel,
+                        meas_eus,
+                        res_focus,
+                        adopt_scheme,
+                    )
                 # Apply any additional energy reduction requirements, leveraging data shorthands
                 # above. Note that stock and stock cost totals are currently unadjusted for energy
                 # code reductions, such that per unit energy/carb/energy cost will be reduced and
                 # per unit capital costs will remain the same
                 elif brk_var not in ["stock", "capital cost"]:
                     self.apply_energy_reduce(
-                        brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base,
-                        brk_dat_save, mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff,
-                        brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff,
-                        mast_dat_cdbps_base, mast_dat_cdbps_save, reg, bldg, apply_yrs,
-                        add_energy_times_apply_fracs, prior_yr_rmv, cdbps_regs, cdbps_bldgs,
-                        cdbps_eus, focus_yrs)
+                        brk_dat_eff,
+                        brk_dat_eff_capt,
+                        brk_dat_eff_capt_env,
+                        brk_dat_base,
+                        brk_dat_save,
+                        mast_dat_eff,
+                        mast_dat_base,
+                        mast_dat_save,
+                        brk_dat_cdbps_eff,
+                        brk_dat_cdbps_base,
+                        brk_dat_cdbps_save,
+                        mast_dat_cdbps_eff,
+                        mast_dat_cdbps_base,
+                        mast_dat_cdbps_save,
+                        reg,
+                        bldg,
+                        apply_yrs,
+                        add_energy_times_apply_fracs,
+                        prior_yr_rmv,
+                        cdbps_regs,
+                        cdbps_bldgs,
+                        cdbps_eus,
+                        focus_yrs,
+                    )
 
         return
 
     def apply_onsite_reduce(
-            self,  brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base, brk_dat_save,
-            mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
-            brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
-            reg, bldg, apply_yrs, onsite_times_apply_fracs, rel_elec_eff,
-            prior_yr_rmv, var, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs, reg_in, bldg_in,
-            vint_in, meas_fuel, meas_eus, res_focus, adopt_scheme):
+        self,
+        brk_dat_eff,
+        brk_dat_eff_capt,
+        brk_dat_eff_capt_env,
+        brk_dat_base,
+        brk_dat_save,
+        mast_dat_eff,
+        mast_dat_base,
+        mast_dat_save,
+        brk_dat_cdbps_eff,
+        brk_dat_cdbps_base,
+        brk_dat_cdbps_save,
+        mast_dat_cdbps_eff,
+        mast_dat_cdbps_base,
+        mast_dat_cdbps_save,
+        reg,
+        bldg,
+        apply_yrs,
+        onsite_times_apply_fracs,
+        rel_elec_eff,
+        prior_yr_rmv,
+        var,
+        cdbps_regs,
+        cdbps_bldgs,
+        cdbps_eus,
+        focus_yrs,
+        reg_in,
+        bldg_in,
+        vint_in,
+        meas_fuel,
+        meas_eus,
+        res_focus,
+        adopt_scheme,
+    ):
         """Apply onsite emissions reductions required via code/BPS.
 
         Args:
@@ -6851,14 +8194,15 @@ class Engine(object):
             else:
                 # Set electric and non-electric keys
                 elec_key = "Electric"
-                nelec_keys = [
-                    x for x in brk_dat_base[reg][bldg][eu].keys() if x != elec_key]
+                nelec_keys = [x for x in brk_dat_base[reg][bldg][eu].keys() if x != elec_key]
                 # Reflect onsite reductions/conversions in breakout and master data for both
                 # the existing measure and the codes/BPS measure
                 for fossil_fuel in nelec_keys:
                     # Ensure that terminal node w/ year keys is reached under fuel type
-                    if self.handyvars.aeo_years[0] in brk_dat_base[reg][bldg][eu][
-                            fossil_fuel].keys():
+                    if (
+                        self.handyvars.aeo_years[0]
+                        in brk_dat_base[reg][bldg][eu][fossil_fuel].keys()
+                    ):
                         # For new building codes, onsite reductions apply only to the stock/energy/
                         # carbon/cost from new buildings constructed after the starting year and
                         # not to buildings that were constructed after the starting year in the
@@ -6870,9 +8214,11 @@ class Engine(object):
                             na_eff = 0
                         # Set portion of segment that the policy applies to
                         elig_convert = {
-                            yr: (brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] - na_eff) if (
-                                na_eff < brk_dat_eff[reg][bldg][eu][fossil_fuel][yr])
-                            else 0 for yr in apply_yrs}
+                            yr: (brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] - na_eff)
+                            if (na_eff < brk_dat_eff[reg][bldg][eu][fossil_fuel][yr])
+                            else 0
+                            for yr in apply_yrs
+                        }
                         # Pull number of converted fossil units (units that would have otherwise
                         # remained with the fossil fuel in the efficient case) and converted energy/
                         # carbon/cost totals for all applicable years of code/BPS. Note that
@@ -6885,7 +8231,8 @@ class Engine(object):
                         # inapplicable portion of stock/energy/carbon/cost from result (see
                         # 'prior_yr_rmv').
                         convert_fossil = {
-                            yr: elig_convert[yr] * onsite_times_apply_fracs[yr] for yr in apply_yrs}
+                            yr: elig_convert[yr] * onsite_times_apply_fracs[yr] for yr in apply_yrs
+                        }
                         # Ensure that converted fossil fuel energy never exceeds fossil fuel
                         # available to be converted in the baseline case in each year
                         for yr in convert_fossil.keys():
@@ -6893,10 +8240,17 @@ class Engine(object):
                                 convert_fossil[yr] = brk_dat_base[reg][bldg][eu][fossil_fuel][yr]
                         # If applicable, reflect effect of codes/BPS conversions on electric
                         # equipment conversion shares after competition
-                        if var == "stock" and self.handyvars.conversion_fracs and \
-                            adopt_scheme == "Max adoption potential" and any([
-                                x in self.handyvars.out_break_enduses[eu]
-                                for x in self.handyvars.conversion_eus]):
+                        if (
+                            var == "stock"
+                            and self.handyvars.conversion_fracs
+                            and adopt_scheme == "Max adoption potential"
+                            and any(
+                                [
+                                    x in self.handyvars.out_break_enduses[eu]
+                                    for x in self.handyvars.conversion_eus
+                                ]
+                            )
+                        ):
                             for yr in [a_y for a_y in apply_yrs if a_y in focus_yrs]:
                                 # Set end use and fuel type
                                 eu_in = self.handyvars.out_break_enduses[eu]
@@ -6908,9 +8262,10 @@ class Engine(object):
                                     elif any([x in eu_in for x in ["other", "unspecified"]]):
                                         eu_in = [x for x in eu_in if x in meas_eus][0]
                                     else:
-                                        raise ValueError("Unable to determine end use to assign "
-                                                         "conversions, given multiple candidates: "
-                                                         + eu_in)
+                                        raise ValueError(
+                                            "Unable to determine end use to assign "
+                                            "conversions, given multiple candidates: " + eu_in
+                                        )
                                 else:
                                     eu_in = eu_in[0]
                                 # Fuel types in conversion factors are consistent with those
@@ -6926,25 +8281,31 @@ class Engine(object):
                                 for c_typ in ["total", "competed"]:
                                     # Add to the numerator (converted equip. numbers)
                                     self.handyvars.conversion_fracs[c_typ][reg_in][bldg_type][
-                                        ft_out][eu_in][vint_in][yr]["converted"] += \
-                                        convert_fossil[yr]
+                                        ft_out
+                                    ][eu_in][vint_in][yr]["converted"] += convert_fossil[yr]
                                     # If totals are zero (indicating the segment has not yet
                                     # already been assessed), add to denominator as appropriate
-                                    if self.handyvars.conversion_fracs[c_typ][reg_in][
-                                            bldg_type][ft_out][eu_in][vint_in][yr]["all"] == 0:
+                                    if (
+                                        self.handyvars.conversion_fracs[c_typ][reg_in][bldg_type][
+                                            ft_out
+                                        ][eu_in][vint_in][yr]["all"]
+                                        == 0
+                                    ):
                                         # When calculating portion of total stock that converted,
                                         # use the total stock in the baseline as denominator
                                         if c_typ == "total":
                                             self.handyvars.conversion_fracs[c_typ][reg_in][
-                                                bldg_type][ft_out][eu_in][vint_in][yr]["all"] += \
-                                                brk_dat_base[reg][bldg][eu][fossil_fuel][yr]
+                                                bldg_type
+                                            ][ft_out][eu_in][vint_in][yr]["all"] += brk_dat_base[
+                                                reg
+                                            ][bldg][eu][fossil_fuel][yr]
                                         # When calculating portion of competed stock that converted,
                                         # use the stock that was eligible for conversion in a given
                                         # year as denominator
                                         else:
                                             self.handyvars.conversion_fracs[c_typ][reg_in][
-                                                bldg_type][ft_out][eu_in][vint_in][yr]["all"] += \
-                                                elig_convert[yr]
+                                                bldg_type
+                                            ][ft_out][eu_in][vint_in][yr]["all"] += elig_convert[yr]
                         # Record conversions across measure variables. Only record stock conversions
                         # for the heating end use, which is considered a default "anchor" use to
                         # avoid issues interpreting stock totals for these measures when they apply
@@ -6954,16 +8315,26 @@ class Engine(object):
                             # performance of electric vs. fossil-based equipment is always less than
                             # 1; if not, throw error.
                             for yr in apply_yrs:
-                                if var == "energy" and not isinstance(
-                                    rel_elec_eff[eu][yr], numpy.ndarray) and \
-                                    rel_elec_eff[eu][yr] > 1 or isinstance(
-                                        rel_elec_eff[eu][yr], numpy.ndarray) and any(
-                                        rel_elec_eff[eu][yr]) > 1:
+                                if (
+                                    var == "energy"
+                                    and not isinstance(rel_elec_eff[eu][yr], numpy.ndarray)
+                                    and rel_elec_eff[eu][yr] > 1
+                                    or isinstance(rel_elec_eff[eu][yr], numpy.ndarray)
+                                    and any(rel_elec_eff[eu][yr]) > 1
+                                ):
                                     raise ValueError(
                                         "Conversion to electric tech. at relative efficiency of >1 "
-                                        "(" + str(rel_elec_eff[eu][yr]) + ") for year " + yr +
-                                        " in region " + reg + ", building type " +
-                                        bldg + " and end use " + eu)
+                                        "("
+                                        + str(rel_elec_eff[eu][yr])
+                                        + ") for year "
+                                        + yr
+                                        + " in region "
+                                        + reg
+                                        + ", building type "
+                                        + bldg
+                                        + " and end use "
+                                        + eu
+                                    )
                             # Determine the added electric energy from converted fossil units. For
                             # accounting purposes, set the baseline for converted units to the same
                             # efficiency as the fossil units. Converted units are assessed an
@@ -6972,15 +8343,18 @@ class Engine(object):
                             # market in a given year (calculated previously).
                             added_elec_base = {yr: convert_fossil[yr] * 1 for yr in apply_yrs}
                             added_elec_eff = {
-                                yr: convert_fossil[yr] * rel_elec_eff[eu][yr] for yr in apply_yrs}
+                                yr: convert_fossil[yr] * rel_elec_eff[eu][yr] for yr in apply_yrs
+                            }
                             # Shorthand for code/BPS savings breakout data to update (if applicable,
                             # note that the stock metric won't have this), distinguished
                             # by the same fuels as for the base/eff data above
                             if brk_dat_cdbps_save is not None:
-                                brk_dat_cdbps_save_bfuel = \
-                                    brk_dat_cdbps_save[reg][bldg][eu][fossil_fuel]
-                                brk_dat_cdbps_save_efuel = \
-                                    brk_dat_cdbps_save[reg][bldg][eu][elec_key]
+                                brk_dat_cdbps_save_bfuel = brk_dat_cdbps_save[reg][bldg][eu][
+                                    fossil_fuel
+                                ]
+                                brk_dat_cdbps_save_efuel = brk_dat_cdbps_save[reg][bldg][eu][
+                                    elec_key
+                                ]
                             # Check if code/BPS measure breakout data have not already been updated/
                             # added to for current region/bldg/vint/end use/fuel; if not, initialize
                             # these data as zero
@@ -7006,7 +8380,8 @@ class Engine(object):
                             if len(mast_dat_cdbps_base.keys()) == 0:
                                 for yr in focus_yrs:
                                     mast_dat_cdbps_base[yr], mast_dat_cdbps_eff[yr] = (
-                                        0 for n in range(2))
+                                        0 for n in range(2)
+                                    )
                                     # Initialize savings data if applicable
                                     if mast_dat_cdbps_save is not None:
                                         mast_dat_cdbps_save[yr] = 0
@@ -7015,34 +8390,35 @@ class Engine(object):
                             for yr in [a_y for a_y in apply_yrs if a_y in focus_yrs]:
                                 # Remove stock/energy/carbon/cost from the fossil breakout and
                                 # master data of the existing measure
-                                brk_dat_base[reg][bldg][eu][fossil_fuel][yr] -= \
-                                    convert_fossil[yr]
-                                brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] -= \
-                                    convert_fossil[yr]
+                                brk_dat_base[reg][bldg][eu][fossil_fuel][yr] -= convert_fossil[yr]
+                                brk_dat_eff[reg][bldg][eu][fossil_fuel][yr] -= convert_fossil[yr]
                                 # Update efficient-captured energy breakout (if available) to ensure
                                 # that its level never surpasses that of the adjusted-down efficient
                                 # energy use result
-                                if brk_dat_eff_capt and (brk_dat_eff_capt[reg][bldg][
-                                        eu][fossil_fuel][yr] > brk_dat_eff[reg][bldg][
-                                        eu][fossil_fuel][yr]):
+                                if brk_dat_eff_capt and (
+                                    brk_dat_eff_capt[reg][bldg][eu][fossil_fuel][yr]
+                                    > brk_dat_eff[reg][bldg][eu][fossil_fuel][yr]
+                                ):
                                     # Record original ratio of efficient-captured-envelope to total
                                     # efficient-captured energy such that it is preserved with any
                                     # adjustments below; set to None if not applicable
                                     if brk_dat_eff_capt_env:
                                         capt_env_eqp_ratio = (
-                                            brk_dat_eff_capt_env[reg][bldg][eu][fossil_fuel][yr] /
-                                            brk_dat_eff_capt[reg][bldg][eu][
-                                                fossil_fuel][yr])
+                                            brk_dat_eff_capt_env[reg][bldg][eu][fossil_fuel][yr]
+                                            / brk_dat_eff_capt[reg][bldg][eu][fossil_fuel][yr]
+                                        )
                                     else:
                                         capt_env_eqp_ratio = None
                                     # Adjust efficient-captured
-                                    brk_dat_eff_capt[reg][bldg][eu][fossil_fuel][yr] = \
-                                        brk_dat_eff[reg][bldg][eu][fossil_fuel][yr]
+                                    brk_dat_eff_capt[reg][bldg][eu][fossil_fuel][yr] = brk_dat_eff[
+                                        reg
+                                    ][bldg][eu][fossil_fuel][yr]
                                     # Adjust efficient-captured-envelope if necessary
                                     if capt_env_eqp_ratio:
-                                        brk_dat_eff_capt_env[reg][bldg][eu][fossil_fuel][yr] = \
-                                            brk_dat_eff_capt[reg][bldg][eu][
-                                                fossil_fuel][yr] * capt_env_eqp_ratio
+                                        brk_dat_eff_capt_env[reg][bldg][eu][fossil_fuel][yr] = (
+                                            brk_dat_eff_capt[reg][bldg][eu][fossil_fuel][yr]
+                                            * capt_env_eqp_ratio
+                                        )
                                 mast_dat_base[yr] -= convert_fossil[yr]
                                 mast_dat_eff[yr] -= convert_fossil[yr]
                                 # Note: no change to original measure savings (additional savings
@@ -7050,10 +8426,12 @@ class Engine(object):
 
                                 # Add stock/energy/carbon/cost to the fossil/electric breakout and
                                 # master data for the codes/BPS measure
-                                brk_dat_cdbps_base[reg][bldg][eu][fossil_fuel][yr] += \
-                                    added_elec_base[yr]  # This will be fossil
-                                brk_dat_cdbps_eff[reg][bldg][eu][elec_key][yr] += \
-                                    added_elec_eff[yr]  # This will be electric
+                                brk_dat_cdbps_base[reg][bldg][eu][fossil_fuel][yr] += (
+                                    added_elec_base[yr]
+                                )  # This will be fossil
+                                brk_dat_cdbps_eff[reg][bldg][eu][elec_key][yr] += added_elec_eff[
+                                    yr
+                                ]  # This will be electric
                                 # Only update savings breakout data if applicable
                                 if brk_dat_cdbps_save is not None:
                                     brk_dat_cdbps_save_bfuel[yr] += added_elec_base[yr]
@@ -7063,22 +8441,43 @@ class Engine(object):
                                 # Only update master savings data if applicable
                                 if mast_dat_cdbps_save is not None:
                                     mast_dat_cdbps_save[yr] += (
-                                        added_elec_base[yr] - added_elec_eff[yr])
+                                        added_elec_base[yr] - added_elec_eff[yr]
+                                    )
 
                             # If calculations have proceeded to this point, append to measure
                             # category data
                             for cdbps_orig, cdbps_update in zip(
-                                    [cdbps_regs, cdbps_bldgs, cdbps_eus],
-                                    [reg, bldg, eu]):
+                                [cdbps_regs, cdbps_bldgs, cdbps_eus], [reg, bldg, eu]
+                            ):
                                 if cdbps_update not in cdbps_orig:
                                     cdbps_orig.append(cdbps_update)
 
     def apply_energy_reduce(
-            self, brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base, brk_dat_save,
-            mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff, brk_dat_cdbps_base,
-            brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
-            reg, bldg, apply_yrs, add_energy_times_apply_fracs, prior_yr_rmv,
-            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs):
+        self,
+        brk_dat_eff,
+        brk_dat_eff_capt,
+        brk_dat_eff_capt_env,
+        brk_dat_base,
+        brk_dat_save,
+        mast_dat_eff,
+        mast_dat_base,
+        mast_dat_save,
+        brk_dat_cdbps_eff,
+        brk_dat_cdbps_base,
+        brk_dat_cdbps_save,
+        mast_dat_cdbps_eff,
+        mast_dat_cdbps_base,
+        mast_dat_cdbps_save,
+        reg,
+        bldg,
+        apply_yrs,
+        add_energy_times_apply_fracs,
+        prior_yr_rmv,
+        cdbps_regs,
+        cdbps_bldgs,
+        cdbps_eus,
+        focus_yrs,
+    ):
         """Apply additional energy reduction impacts needed to meet code/BPS.
 
         Args:
@@ -7125,62 +8524,110 @@ class Engine(object):
                 brk_dat_eff_capt_eu, brk_dat_eff_capt_env_eu = (None for n in range(2))
             # Handle fuel breakouts vs. no fuel breakouts; ensure that terminal node w/
             # projection year keys is reached in either case
-            if self.handyvars.aeo_years[0] in \
-                    brk_dat_base[reg][bldg][eu].keys():
+            if self.handyvars.aeo_years[0] in brk_dat_base[reg][bldg][eu].keys():
                 # Update energy data to reflect policy
                 self.adjust_data(
                     brk_dat_eff[reg][bldg][eu],
-                    brk_dat_eff_capt_eu, brk_dat_eff_capt_env_eu,
+                    brk_dat_eff_capt_eu,
+                    brk_dat_eff_capt_env_eu,
                     brk_dat_base[reg][bldg][eu],
                     brk_dat_save[reg][bldg][eu],
-                    mast_dat_eff, mast_dat_base, mast_dat_save,
+                    mast_dat_eff,
+                    mast_dat_base,
+                    mast_dat_save,
                     brk_dat_cdbps_eff[reg][bldg][eu],
                     brk_dat_cdbps_base[reg][bldg][eu],
                     brk_dat_cdbps_save[reg][bldg][eu],
-                    mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
-                    reg, bldg, eu, apply_yrs, add_energy_times_apply_fracs,
-                    prior_yr_rmv, cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                    mast_dat_cdbps_eff,
+                    mast_dat_cdbps_base,
+                    mast_dat_cdbps_save,
+                    reg,
+                    bldg,
+                    eu,
+                    apply_yrs,
+                    add_energy_times_apply_fracs,
+                    prior_yr_rmv,
+                    cdbps_regs,
+                    cdbps_bldgs,
+                    cdbps_eus,
+                    focus_yrs,
+                )
             else:
                 # Loop through fuel types under end use breakout
                 for fuel in brk_dat_base[reg][bldg][eu].keys():
                     # Ensure that terminal node w/ year keys is reached under fuel type
-                    if self.handyvars.aeo_years[0] in \
-                            brk_dat_base[reg][bldg][eu][fuel].keys():
+                    if self.handyvars.aeo_years[0] in brk_dat_base[reg][bldg][eu][fuel].keys():
                         # If applicable, restrict efficient-captured data to region, vintage, end
                         # use, and fuel
                         try:
                             # Efficient-captured
-                            brk_dat_eff_capt_eu_fuel = \
-                                brk_dat_eff_capt[reg][bldg][eu][fuel]
+                            brk_dat_eff_capt_eu_fuel = brk_dat_eff_capt[reg][bldg][eu][fuel]
                             try:
                                 # Efficient-captured-envelope
-                                brk_dat_eff_capt_env_eu_fuel = \
-                                    brk_dat_eff_capt_env[reg][bldg][eu][fuel]
+                                brk_dat_eff_capt_env_eu_fuel = brk_dat_eff_capt_env[reg][bldg][eu][
+                                    fuel
+                                ]
                             except TypeError:
                                 brk_dat_eff_capt_env_eu_fuel = None
                         except TypeError:
                             brk_dat_eff_capt_eu_fuel, brk_dat_eff_capt_env_eu_fuel = (
-                                None for n in range(2))
+                                None for n in range(2)
+                            )
                         # Update energy data to reflect policy
                         self.adjust_data(
                             brk_dat_eff[reg][bldg][eu][fuel],
-                            brk_dat_eff_capt_eu_fuel, brk_dat_eff_capt_env_eu_fuel,
+                            brk_dat_eff_capt_eu_fuel,
+                            brk_dat_eff_capt_env_eu_fuel,
                             brk_dat_base[reg][bldg][eu][fuel],
                             brk_dat_save[reg][bldg][eu][fuel],
-                            mast_dat_eff, mast_dat_base, mast_dat_save,
+                            mast_dat_eff,
+                            mast_dat_base,
+                            mast_dat_save,
                             brk_dat_cdbps_eff[reg][bldg][eu][fuel],
                             brk_dat_cdbps_base[reg][bldg][eu][fuel],
                             brk_dat_cdbps_save[reg][bldg][eu][fuel],
-                            mast_dat_cdbps_eff, mast_dat_cdbps_base, mast_dat_cdbps_save,
-                            reg, bldg, eu, apply_yrs, add_energy_times_apply_fracs, prior_yr_rmv,
-                            cdbps_regs, cdbps_bldgs, cdbps_eus, focus_yrs)
+                            mast_dat_cdbps_eff,
+                            mast_dat_cdbps_base,
+                            mast_dat_cdbps_save,
+                            reg,
+                            bldg,
+                            eu,
+                            apply_yrs,
+                            add_energy_times_apply_fracs,
+                            prior_yr_rmv,
+                            cdbps_regs,
+                            cdbps_bldgs,
+                            cdbps_eus,
+                            focus_yrs,
+                        )
 
-    def adjust_data(self, brk_dat_eff, brk_dat_eff_capt, brk_dat_eff_capt_env, brk_dat_base,
-                    brk_dat_save, mast_dat_eff, mast_dat_base, mast_dat_save, brk_dat_cdbps_eff,
-                    brk_dat_cdbps_base, brk_dat_cdbps_save, mast_dat_cdbps_eff, mast_dat_cdbps_base,
-                    mast_dat_cdbps_save, reg, bldg, eu, apply_yrs,
-                    add_energy_times_apply_fracs, prior_yr_rmv, cdbps_regs,
-                    cdbps_bldgs, cdbps_eus, focus_yrs):
+    def adjust_data(
+        self,
+        brk_dat_eff,
+        brk_dat_eff_capt,
+        brk_dat_eff_capt_env,
+        brk_dat_base,
+        brk_dat_save,
+        mast_dat_eff,
+        mast_dat_base,
+        mast_dat_save,
+        brk_dat_cdbps_eff,
+        brk_dat_cdbps_base,
+        brk_dat_cdbps_save,
+        mast_dat_cdbps_eff,
+        mast_dat_cdbps_base,
+        mast_dat_cdbps_save,
+        reg,
+        bldg,
+        eu,
+        apply_yrs,
+        add_energy_times_apply_fracs,
+        prior_yr_rmv,
+        cdbps_regs,
+        cdbps_bldgs,
+        cdbps_eus,
+        focus_yrs,
+    ):
         """Make the actual adjustments to reflect additional energy reductions to meet code/BPS.
 
         brk_dat_eff (dict): Efficient stock/energy/carbon/ecost breakouts for indiv. measure.
@@ -7223,8 +8670,10 @@ class Engine(object):
         # energy reductions required in the code/BPS
         reduce_base_to_meet_thres = {
             yr: (brk_dat_base[yr] - na_base) * add_energy_times_apply_fracs[yr]
-            if (yr in apply_yrs and na_base < brk_dat_base[yr]) else 0
-            for yr in self.handyvars.aeo_years}
+            if (yr in apply_yrs and na_base < brk_dat_base[yr])
+            else 0
+            for yr in self.handyvars.aeo_years
+        }
 
         # Reflect reductions as removals from the original measure breakout and master data
         for yr in apply_yrs:
@@ -7247,8 +8696,11 @@ class Engine(object):
                 reduction_eff_yr = brk_dat_eff[yr]
             # Update baseline and efficient breakouts to remove additional savings
             brk_dat_base[yr], brk_dat_eff[yr] = [
-                (brk[yr] - reduction) for brk, reduction in zip(
-                    [brk_dat_base, brk_dat_eff], [reduction_base_yr, reduction_eff_yr])]
+                (brk[yr] - reduction)
+                for brk, reduction in zip(
+                    [brk_dat_base, brk_dat_eff], [reduction_base_yr, reduction_eff_yr]
+                )
+            ]
 
             # Update efficient-captured energy breakout (if available) to ensure that its level
             # never surpasses that of the adjusted-down efficient energy use result
@@ -7266,11 +8718,14 @@ class Engine(object):
                 if capt_env_eqp_ratio:
                     brk_dat_eff_capt_env[yr] = brk_dat_eff_capt[yr] * capt_env_eqp_ratio
 
-            brk_dat_save[yr] = (brk_dat_base[yr] - brk_dat_eff[yr])
+            brk_dat_save[yr] = brk_dat_base[yr] - brk_dat_eff[yr]
             # Update baseline and efficient master dicts to remove additional savings
             mast_dat_base[yr], mast_dat_eff[yr] = [
-                (mast_dat[yr] - reduction) for mast_dat, reduction in zip(
-                    [mast_dat_base, mast_dat_eff], [reduction_base_yr, reduction_eff_yr])]
+                (mast_dat[yr] - reduction)
+                for mast_dat, reduction in zip(
+                    [mast_dat_base, mast_dat_eff], [reduction_base_yr, reduction_eff_yr]
+                )
+            ]
             mast_dat_save[yr] = mast_dat_base[yr] - mast_dat_eff[yr]
 
         # Add reduced baseline segment to code/BPS measure breakouts and master data; note that
@@ -7320,11 +8775,10 @@ class Engine(object):
                 mast_dat_cdbps_base[yr] += reduce_base_to_meet_thres[yr]
         # Calculate master savings data
         for yr in focus_yrs:
-            mast_dat_cdbps_save[yr] = (mast_dat_cdbps_base[yr] - mast_dat_cdbps_eff[yr])
+            mast_dat_cdbps_save[yr] = mast_dat_cdbps_base[yr] - mast_dat_cdbps_eff[yr]
 
         # If calculations have proceeded to this point, append to measure category data
-        for cdbps_orig, cdbps_update in zip([
-                cdbps_regs, cdbps_bldgs, cdbps_eus], [reg, bldg, eu]):
+        for cdbps_orig, cdbps_update in zip([cdbps_regs, cdbps_bldgs, cdbps_eus], [reg, bldg, eu]):
             if cdbps_update not in cdbps_orig:
                 cdbps_orig.append(cdbps_update)
 
@@ -7350,18 +8804,27 @@ class Engine(object):
         # Initialize electric and fossil equipment performance data, broken out by metric
         rel_elec_eff_init = {
             "electric": {var: {} for var in metrics},
-            "fossil": {var: {} for var in metrics}}
+            "fossil": {var: {} for var in metrics},
+        }
         # Determine the measures in the current analysis to use as benchmarks for relative
         # performance gains from minimum efficiency electrification. Choose all measures that fuel
         # switch to an electric technology at a minimum electric efficiency level and apply to the
         # current region and building type, and that are on the market by the time the code/BPS
         # policy goes into effect.
-        unit_elec_meas_reg_bldg = [m for m in self.measures if (
-            m.fuel_switch_to == "electricity" and (m.min_eff_elec_flag is not None or any([
-                x in m.name for x in ["Min.", "min.", "Minimum", "minimum"]])) and
-            any([x in self.handyvars.out_break_czones[reg] for x in m.climate_zone]) and
-            any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m.bldg_type]) and
-            vint in m.structure_type)]
+        unit_elec_meas_reg_bldg = [
+            m
+            for m in self.measures
+            if (
+                m.fuel_switch_to == "electricity"
+                and (
+                    m.min_eff_elec_flag is not None
+                    or any([x in m.name for x in ["Min.", "min.", "Minimum", "minimum"]])
+                )
+                and any([x in self.handyvars.out_break_czones[reg] for x in m.climate_zone])
+                and any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m.bldg_type])
+                and vint in m.structure_type
+            )
+        ]
         # If no relevant measure benchmarks were discovered, throw an error to prevent
         # further processing of this function (handled in the code block the function is called
         # within)
@@ -7380,14 +8843,15 @@ class Engine(object):
                 for eu in brk_dat[met]["baseline"][reg][bldg].keys():
                     # Initialize end use-level information if not already present
                     if eu not in rel_elec_eff_init["electric"][met].keys():
-                        rel_elec_eff_init["electric"][met][eu], \
-                            rel_elec_eff_init["fossil"][met][eu] = (
-                                {yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
+                        (
+                            rel_elec_eff_init["electric"][met][eu],
+                            rel_elec_eff_init["fossil"][met][eu],
+                        ) = ({yr: 0 for yr in self.handyvars.aeo_years} for n in range(2))
                     # Further restrict shorthand data to the end use level and separate by
                     # baseline and efficient cases
                     brk_dat_eu_base, brk_dat_eu_eff = [
-                        brk_dat[met][x][reg][bldg][eu] for x in [
-                            "baseline", "efficient"]]
+                        brk_dat[met][x][reg][bldg][eu] for x in ["baseline", "efficient"]
+                    ]
                     # If there are no fuel breakouts in the data, continue to next end use
                     if self.handyvars.aeo_years[0] in brk_dat_eu_base.keys():
                         continue
@@ -7397,18 +8861,24 @@ class Engine(object):
                         nelec_keys = [x for x in brk_dat_eu_base.keys() if x != elec_key]
                         # Ensure that terminal projection year keys have been reached before
                         # adding data
-                        if "Electric" in brk_dat_eu_eff.keys() and \
-                                self.handyvars.aeo_years[0] in brk_dat_eu_eff["Electric"].keys():
+                        if (
+                            "Electric" in brk_dat_eu_eff.keys()
+                            and self.handyvars.aeo_years[0] in brk_dat_eu_eff["Electric"].keys()
+                        ):
                             # Add to electric performance data
                             rel_elec_eff_init["electric"][met][eu] = {
-                                yr: rel_elec_eff_init["electric"][met][eu][yr] +
-                                brk_dat_eu_eff["Electric"][yr] for yr in apply_yrs}
+                                yr: rel_elec_eff_init["electric"][met][eu][yr]
+                                + brk_dat_eu_eff["Electric"][yr]
+                                for yr in apply_yrs
+                            }
                             # Add to fossil performance data
                             for fuel in nelec_keys:
                                 if self.handyvars.aeo_years[0] in brk_dat_eu_base[fuel].keys():
                                     rel_elec_eff_init["fossil"][met][eu] = {
-                                        yr: rel_elec_eff_init["fossil"][met][eu][yr] +
-                                        brk_dat_eu_base[fuel][yr] for yr in apply_yrs}
+                                        yr: rel_elec_eff_init["fossil"][met][eu][yr]
+                                        + brk_dat_eu_base[fuel][yr]
+                                        for yr in apply_yrs
+                                    }
         return rel_elec_eff_init
 
     def sum_energy_data(self, reg, bldg, vint, adopt_scheme, prior_yr_rmv, code_bps_meas_to_sum):
@@ -7432,16 +8902,21 @@ class Engine(object):
         # Initialize energy sums for base and efficient cases
         energy_sums = {
             "baseline": {yr: 0 for yr in self.handyvars.aeo_years},
-            "efficient": {yr: 0 for yr in self.handyvars.aeo_years}
+            "efficient": {yr: 0 for yr in self.handyvars.aeo_years},
         }
 
         # Input measure set to sum (exclusive of any code/BPS measures that have been added on top
         # of the input measure set). Ensure measures apply to current region, building type, and
         # building vintage being processed
-        start_meas_to_sum = [m_s for m_s in self.measures if (
-            any([x in self.handyvars.out_break_czones[reg] for x in m_s.climate_zone]) and
-            any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m_s.bldg_type]) and
-            vint in m_s.structure_type)]
+        start_meas_to_sum = [
+            m_s
+            for m_s in self.measures
+            if (
+                any([x in self.handyvars.out_break_czones[reg] for x in m_s.climate_zone])
+                and any([x in self.handyvars.out_break_bldgtypes[bldg] for x in m_s.bldg_type])
+                and vint in m_s.structure_type
+            )
+        ]
 
         # Add any code/BPS measures to the original measure set to get a full picture of energy use,
         # inclusive of the energy effects of any code/BPS policies that require reductions of
@@ -7475,10 +8950,11 @@ class Engine(object):
                             energy_na = 0
                         # Add in energy use data, less inapplicable energy
                         energy_sums[out] = {
-                            yr: energy_sums[out][yr] + (
-                                brk_dat_eu[yr] - energy_na)
-                            if energy_na < brk_dat_eu[yr] else energy_sums[out][yr]
-                            for yr in self.handyvars.aeo_years}
+                            yr: energy_sums[out][yr] + (brk_dat_eu[yr] - energy_na)
+                            if energy_na < brk_dat_eu[yr]
+                            else energy_sums[out][yr]
+                            for yr in self.handyvars.aeo_years
+                        }
                     # Otherwise loop through assumed further fuel type breakouts and sum across
                     else:
                         for fuel in brk_dat_eu.keys():
@@ -7492,15 +8968,18 @@ class Engine(object):
                                     energy_na = 0
                                 add_energy = {
                                     yr: (brk_dat_eu[fuel][yr] - energy_na)
-                                    if energy_na < brk_dat_eu[fuel][yr] else 0 for
-                                    yr in self.handyvars.aeo_years}
+                                    if energy_na < brk_dat_eu[fuel][yr]
+                                    else 0
+                                    for yr in self.handyvars.aeo_years
+                                }
                             except KeyError:
                                 add_energy = {yr: 0 for yr in self.handyvars.aeo_years}
 
                             # Add in energy use data, less inapplicable energy
                             energy_sums[out] = {
                                 yr: energy_sums[out][yr] + add_energy[yr]
-                                for yr in self.handyvars.aeo_years}
+                                for yr in self.handyvars.aeo_years
+                            }
 
         return energy_sums
 
@@ -7545,24 +9024,37 @@ class Engine(object):
                     # available, but new vs. total homes data are available
                     try:
                         # Fraction of new homes
-                        new_home_frac = {yr: (msegs_reg_bldg["new homes"][yr] /
-                                              msegs_reg_bldg["total homes"][yr])
-                                         for yr in self.handyvars.aeo_years}
+                        new_home_frac = {
+                            yr: (
+                                msegs_reg_bldg["new homes"][yr] / msegs_reg_bldg["total homes"][yr]
+                            )
+                            for yr in self.handyvars.aeo_years
+                        }
                         # Assume new square footage is total times fraction of new homes
-                        mseg_sf_bldg_new = {yr: mseg_sf_bldg_tot[yr] * new_home_frac[yr]
-                                            for yr in self.handyvars.aeo_years}
+                        mseg_sf_bldg_new = {
+                            yr: mseg_sf_bldg_tot[yr] * new_home_frac[yr]
+                            for yr in self.handyvars.aeo_years
+                        }
                     except KeyError:
-                        raise ValueError("Unexpected structured in square footage data "
-                                         "for building type " + bd)
+                        raise ValueError(
+                            "Unexpected structured in square footage data for building type " + bd
+                        )
                 # Existing square footage is total minus new
-                mseg_sf_bldg_exist = {yr: mseg_sf_bldg_tot[yr] - mseg_sf_bldg_new[yr]
-                                      for yr in self.handyvars.aeo_years}
+                mseg_sf_bldg_exist = {
+                    yr: mseg_sf_bldg_tot[yr] - mseg_sf_bldg_new[yr]
+                    for yr in self.handyvars.aeo_years
+                }
                 # Add to master square footage dict
-                sf_reg_bldg = {yr: ((sf_reg_bldg[yr] + mseg_sf_bldg_new[yr]) if vint == "new" else
-                               (sf_reg_bldg[yr] + mseg_sf_bldg_exist[yr]))
-                               for yr in self.handyvars.aeo_years}
+                sf_reg_bldg = {
+                    yr: (
+                        (sf_reg_bldg[yr] + mseg_sf_bldg_new[yr])
+                        if vint == "new"
+                        else (sf_reg_bldg[yr] + mseg_sf_bldg_exist[yr])
+                    )
+                    for yr in self.handyvars.aeo_years
+                }
         # Normalize values
-        for (k, i) in energy_sums.items():
+        for k, i in energy_sums.items():
             if isinstance(i, dict):
                 self.sf_norm(i, msegs, reg, bldg, vint)
             else:
@@ -7572,8 +9064,9 @@ class Engine(object):
                     energy_sums[k] = energy_sums[k] / (sf_reg_bldg[k] * 1e6)
         return energy_sums
 
-    def finalize_codes_bps_outputs(self, cbps, adopt_scheme, handyvars, trim_out, trim_yrs,
-                                   report_stk_units, report_stk_costs):
+    def finalize_codes_bps_outputs(
+        self, cbps, adopt_scheme, handyvars, trim_out, trim_yrs, report_stk_units, report_stk_costs
+    ):
         """Format codes/BPS measure data in a dict consistent w/ individual ECM result format.
 
         Args:
@@ -7599,14 +9092,18 @@ class Engine(object):
             # Set shorthand for dict to update
             codes_bps_dict_out = self.output_ecms[cbps.name]
             # Add applicable regions, building classes, and end uses
-            codes_bps_dict_out["Filter Variables"] = OrderedDict([
-                ("Applicable Regions", cbps.reg_brk),
-                ("Applicable Building Classes", cbps.bldg_vnt_brk),
-                ("Applicable End Uses", cbps.end_use_brk)])
+            codes_bps_dict_out["Filter Variables"] = OrderedDict(
+                [
+                    ("Applicable Regions", cbps.reg_brk),
+                    ("Applicable Building Classes", cbps.bldg_vnt_brk),
+                    ("Applicable End Uses", cbps.end_use_brk),
+                ]
+            )
             # Initialize markets data
-            codes_bps_dict_out["Markets and Savings (Overall)"], \
-                codes_bps_dict_out["Markets and Savings (by Category)"] = (
-                    OrderedDict() for n in range(2))
+            (
+                codes_bps_dict_out["Markets and Savings (Overall)"],
+                codes_bps_dict_out["Markets and Savings (by Category)"],
+            ) = (OrderedDict() for n in range(2))
         # Otherwise update the existing dict for the measure
         else:
             # Set shorthand for dict to update
@@ -7616,67 +9113,95 @@ class Engine(object):
 
         # Shorthands for measure's high-level markets, savings, and breakout data
         cbps_mkt, cbps_save, cbps_brk = [
-            cbps.markets[adopt_scheme]["master_mseg"], cbps.savings[adopt_scheme],
-            cbps.markets[adopt_scheme]["mseg_out_break"]]
+            cbps.markets[adopt_scheme]["master_mseg"],
+            cbps.savings[adopt_scheme],
+            cbps.markets[adopt_scheme]["mseg_out_break"],
+        ]
         # Report reduced variable set if outputs are trimmed
         if trim_out:
             # Finalize measure overall markets and savings
-            codes_bps_dict_out["Markets and Savings (Overall)"][
-                adopt_scheme] = OrderedDict([
+            codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme] = OrderedDict(
+                [
                     ("Baseline Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["baseline"]),
                     ("Efficient Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["efficient"]),
-                    ("Efficient Energy Use, Measure (MMBtu)",
-                        cbps_mkt["energy"]["total"]["efficient"]),
-                    ("Baseline Energy Cost (USD)",
-                        cbps_mkt["cost"]["energy"]["total"]["baseline"]),
-                    ("Efficient Energy Cost (USD)",
-                        cbps_mkt["cost"]["energy"]["total"]["efficient"])])
+                    (
+                        "Efficient Energy Use, Measure (MMBtu)",
+                        cbps_mkt["energy"]["total"]["efficient"],
+                    ),
+                    ("Baseline Energy Cost (USD)", cbps_mkt["cost"]["energy"]["total"]["baseline"]),
+                    (
+                        "Efficient Energy Cost (USD)",
+                        cbps_mkt["cost"]["energy"]["total"]["efficient"],
+                    ),
+                ]
+            )
             # Finalize measure markets and savings broken out by region, bldg sector, and end
             # use categories
-            codes_bps_dict_out["Markets and Savings (by Category)"][
-                adopt_scheme] = OrderedDict([
+            codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme] = OrderedDict(
+                [
                     ("Baseline Energy Use (MMBtu)", cbps_brk["energy"]["baseline"]),
                     ("Efficient Energy Use (MMBtu)", cbps_brk["energy"]["efficient"]),
                     ("Efficient Energy Use, Measure (MMBtu)", cbps_brk["energy"]["efficient"]),
                     ("Baseline Energy Cost (USD)", cbps_brk["energy cost"]["baseline"]),
-                    ("Efficient Energy Cost (USD)", cbps_brk["energy cost"]["efficient"])])
+                    ("Efficient Energy Cost (USD)", cbps_brk["energy cost"]["efficient"]),
+                ]
+            )
         else:
             # Finalize measure overall markets and savings
-            codes_bps_dict_out["Markets and Savings (Overall)"][
-                adopt_scheme] = OrderedDict([
+            codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme] = OrderedDict(
+                [
                     ("Baseline Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["baseline"]),
                     ("Efficient Energy Use (MMBtu)", cbps_mkt["energy"]["total"]["efficient"]),
-                    ("Efficient Energy Use, Measure (MMBtu)",
-                        cbps_mkt["energy"]["total"]["efficient"]),
-                    ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                        cbps_mkt["carbon"]["total"]["baseline"]),
-                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                        cbps_mkt["carbon"]["total"]["efficient"]),
-                    ("Baseline Energy Cost (USD)",
-                     cbps_mkt["cost"]["energy"]["total"]["baseline"]),
-                    ("Efficient Energy Cost (USD)",
-                     cbps_mkt["cost"]["energy"]["total"]["efficient"]),
+                    (
+                        "Efficient Energy Use, Measure (MMBtu)",
+                        cbps_mkt["energy"]["total"]["efficient"],
+                    ),
+                    (
+                        "Baseline CO2 Emissions (MMTons)".translate(sub),
+                        cbps_mkt["carbon"]["total"]["baseline"],
+                    ),
+                    (
+                        "Efficient CO2 Emissions (MMTons)".translate(sub),
+                        cbps_mkt["carbon"]["total"]["efficient"],
+                    ),
+                    ("Baseline Energy Cost (USD)", cbps_mkt["cost"]["energy"]["total"]["baseline"]),
+                    (
+                        "Efficient Energy Cost (USD)",
+                        cbps_mkt["cost"]["energy"]["total"]["efficient"],
+                    ),
                     ("Energy Savings (MMBtu)", cbps_save["energy"]["savings"]),
                     ("Energy Cost Savings (USD)", cbps_save["energy"]["cost savings"]),
-                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
-                        cbps_save["carbon"]["savings"])])
+                    (
+                        "Avoided CO2 Emissions (MMTons)".translate(sub),
+                        cbps_save["carbon"]["savings"],
+                    ),
+                ]
+            )
             # Finalize measure markets and savings broken out by region, bldg sector, and end
             # use categories
-            codes_bps_dict_out["Markets and Savings (by Category)"][
-                adopt_scheme] = OrderedDict([
+            codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme] = OrderedDict(
+                [
                     ("Baseline Energy Use (MMBtu)", cbps_brk["energy"]["baseline"]),
                     ("Efficient Energy Use (MMBtu)", cbps_brk["energy"]["efficient"]),
                     ("Efficient Energy Use, Measure (MMBtu)", cbps_brk["energy"]["efficient"]),
-                    ("Baseline CO2 Emissions (MMTons)".translate(sub),
-                        cbps_brk["carbon"]["baseline"]),
-                    ("Efficient CO2 Emissions (MMTons)".translate(sub),
-                        cbps_brk["carbon"]["efficient"]),
+                    (
+                        "Baseline CO2 Emissions (MMTons)".translate(sub),
+                        cbps_brk["carbon"]["baseline"],
+                    ),
+                    (
+                        "Efficient CO2 Emissions (MMTons)".translate(sub),
+                        cbps_brk["carbon"]["efficient"],
+                    ),
                     ("Baseline Energy Cost (USD)", cbps_brk["energy cost"]["baseline"]),
                     ("Efficient Energy Cost (USD)", cbps_brk["energy cost"]["efficient"]),
                     ("Energy Savings (MMBtu)", cbps_brk["energy"]["savings"]),
                     ("Energy Cost Savings (USD)", cbps_brk["energy cost"]["savings"]),
-                    ("Avoided CO2 Emissions (MMTons)".translate(sub),
-                     cbps_brk["carbon"]["savings"])])
+                    (
+                        "Avoided CO2 Emissions (MMTons)".translate(sub),
+                        cbps_brk["carbon"]["savings"],
+                    ),
+                ]
+            )
         # Report stock totals, if desired by the user
         if report_stk_units:
             # By default, stock units correspond to heating equipment units (only code/BPS-
@@ -7687,44 +9212,55 @@ class Engine(object):
             elif "(C)" in cbps.name:
                 stk_units = "(TBtu heating served)"
             else:
-                ValueError("Cannot classify codes/BPS measure as residential or commercial"
-                           " for the purpose of assuming stock units; check that measure "
-                           "name includes (R) or (C) tag.")
+                ValueError(
+                    "Cannot classify codes/BPS measure as residential or commercial"
+                    " for the purpose of assuming stock units; check that measure "
+                    "name includes (R) or (C) tag."
+                )
             # Finalize baseline and measure stock keys/units
-            base_stk_key, meas_stk_key = [(x + stk_units) for x in [
-                "Baseline Stock ", "Measure Stock "]]
+            base_stk_key, meas_stk_key = [
+                (x + stk_units) for x in ["Baseline Stock ", "Measure Stock "]
+            ]
             # Add total stock and stock breakouts if given as user option
-            codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][base_stk_key], \
-                codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][
-                    meas_stk_key] = [cbps_mkt["stock"]["total"][x] for x in ["all", "measure"]]
-            codes_bps_dict_out["Markets and Savings (by Category)"][
-                adopt_scheme][base_stk_key], codes_bps_dict_out[
-                    "Markets and Savings (by Category)"][adopt_scheme][
-                    meas_stk_key] = [cbps_brk["stock"][x] for x in ["baseline", "efficient"]]
+            (
+                codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][base_stk_key],
+                codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][meas_stk_key],
+            ) = [cbps_mkt["stock"]["total"][x] for x in ["all", "measure"]]
+            (
+                codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme][base_stk_key],
+                codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme][meas_stk_key],
+            ) = [cbps_brk["stock"][x] for x in ["baseline", "efficient"]]
         if report_stk_costs:
             # Add total stock and stock breakouts if given as user option
-            codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][
-                "Capital Investment, Baseline Unit Cost (USD)"], codes_bps_dict_out[
-                "Markets and Savings (Overall)"][adopt_scheme][
-                "Capital Investment, Measure Unit Cost (USD)"] = [
-                    cbps_mkt["cost"]["stock"]["total"][x] for x in ["baseline", "efficient"]]
-            codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme][
-                "Capital Investment, Baseline Unit Cost (USD)"], codes_bps_dict_out[
-                    "Markets and Savings (by Category)"][adopt_scheme][
-                    "Capital Investment, Measure Unit Cost (USD)"] = [
-                        cbps_brk["capital cost"][x] for x in ["baseline", "efficient"]]
+            (
+                codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][
+                    "Capital Investment, Baseline Unit Cost (USD)"
+                ],
+                codes_bps_dict_out["Markets and Savings (Overall)"][adopt_scheme][
+                    "Capital Investment, Measure Unit Cost (USD)"
+                ],
+            ) = [cbps_mkt["cost"]["stock"]["total"][x] for x in ["baseline", "efficient"]]
+            (
+                codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme][
+                    "Capital Investment, Baseline Unit Cost (USD)"
+                ],
+                codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme][
+                    "Capital Investment, Measure Unit Cost (USD)"
+                ],
+            ) = [cbps_brk["capital cost"][x] for x in ["baseline", "efficient"]]
         # Report code/BPS measure results for reduced set of years if desired by user
         if trim_yrs is not False:
             # Determine the reduced year set
             focus_yrs = [str(x) for x in trim_yrs]
             # Reduce the reported results to the trimmed year set
-            for var in codes_bps_dict_out["Markets and Savings (by Category)"][
-                    adopt_scheme].keys():
-                codes_bps_dict_out["Markets and Savings (Overall)"], \
-                    codes_bps_dict_out["Markets and Savings (by Category)"] = [
-                    self.trim_code_bps_yrs(codes_bps_dict_out[x], focus_yrs) for x in [
-                        "Markets and Savings (Overall)",
-                        "Markets and Savings (by Category)"]]
+            for var in codes_bps_dict_out["Markets and Savings (by Category)"][adopt_scheme].keys():
+                (
+                    codes_bps_dict_out["Markets and Savings (Overall)"],
+                    codes_bps_dict_out["Markets and Savings (by Category)"],
+                ) = [
+                    self.trim_code_bps_yrs(codes_bps_dict_out[x], focus_yrs)
+                    for x in ["Markets and Savings (Overall)", "Markets and Savings (by Category)"]
+                ]
 
 
 def measure_opts_match(option_dicts: list[dict]) -> bool:
@@ -7738,8 +9274,15 @@ def measure_opts_match(option_dicts: list[dict]) -> bool:
         bool: if True, then all options dicts are alike, otherwise False
     """
 
-    ignore_opts = ["verbose", "yaml", "ecm_directory", "ecm_files", "ecm_files_user",
-                   "ecm_packages", "ecm_files_regex"]
+    ignore_opts = [
+        "verbose",
+        "yaml",
+        "ecm_directory",
+        "ecm_files",
+        "ecm_files_user",
+        "ecm_packages",
+        "ecm_files_regex",
+    ]
     keys_to_check = [key for key in option_dicts[0].keys() if key not in ignore_opts]
     if any(opts[x] != option_dicts[0][x] for opts in option_dicts[1:] for x in keys_to_check):
         return False
@@ -7757,7 +9300,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     """
 
     # Raise numpy errors as exceptions
-    numpy.seterr('raise')
+    numpy.seterr("raise")
     # Initialize user opts variable (elements: S-S calculation method;
     # daily hour range of focus for TSV metrics (all hours, peak, low demand
     # hours); output type for TSV metrics (energy or power); calculation type
@@ -7769,12 +9312,19 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # Instantiate useful input files object (fossil fuel equivalency method
     # used by default to calculate site-source conversions, with no TSV metrics
     # and AIA regions and a baseline grid scenario)
-    handyfiles = UsefulInputFiles(
-        energy_out=energy_out, regions="AIA", grid_decarb=False)
+    handyfiles = UsefulInputFiles(energy_out=energy_out, regions="AIA", grid_decarb=False)
     # Instantiate useful variables object
     handyvars = UsefulVars(
-        handyfiles, opts, brk_vars=["stock", "energy", "carbon", "energy cost"],
-        brkout="basic", regions="AIA", state_appl_regs=None, codes=None, bps=None, exog_rates=None)
+        handyfiles,
+        opts,
+        brk_vars=["stock", "energy", "carbon", "energy cost"],
+        brkout="basic",
+        regions="AIA",
+        state_appl_regs=None,
+        codes=None,
+        bps=None,
+        exog_rates=None,
+    )
 
     # User desires trimmed down variable reporting
     if opts.trim_vars:
@@ -7789,22 +9339,22 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         trim_yrs = False
 
     # Import measure files
-    with open(handyfiles.meas_summary_data, 'r') as mjs:
+    with open(handyfiles.meas_summary_data, "r") as mjs:
         try:
             meas_summary = json.load(mjs)
         except ValueError as e:
             raise ValueError(
-                f"Error reading in '{handyfiles.meas_summary_data}': {str(e)}") from None
+                f"Error reading in '{handyfiles.meas_summary_data}': {str(e)}"
+            ) from None
 
     # Import list of all unique active measures
-    with open(handyfiles.active_measures, 'r') as am:
+    with open(handyfiles.active_measures, "r") as am:
         try:
             run_setup = json.load(am)
             active_meas_all = numpy.unique(run_setup["active"])
         except ValueError as e:
-            raise ValueError(
-                f"Error reading in '{handyfiles.active_measures}': {str(e)}") from None
-    print('ECM attributes data load complete')
+            raise ValueError(f"Error reading in '{handyfiles.active_measures}': {str(e)}") from None
+    print("ECM attributes data load complete")
 
     active_ecms_w_jsons = 0
     # Check that all ECM names included in the active list have a
@@ -7813,9 +9363,12 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     for mn in active_meas_all:
         if mn not in [m["name"] for m in meas_summary]:
             warnings.warn(
-                "WARNING: ECM '" + mn + "' in 'run_setup.json' active " +
-                "list does not match any of the ECM names found in " +
-                f"{fp.ECM_DEF} JSONs and will not be simulated")
+                "WARNING: ECM '"
+                + mn
+                + "' in 'run_setup.json' active "
+                + "list does not match any of the ECM names found in "
+                + f"{fp.ECM_DEF} JSONs and will not be simulated"
+            )
         else:
             active_ecms_w_jsons += 1
 
@@ -7827,34 +9380,46 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             "indicates ECM preparation routine skipped over some measures. "
             "Check names of these measures under the 'skipped' key within "
             "this setup file and if needed, edit their measure definitions "
-            f"in {fp.ECM_DEF} and re-prepare via ecm_prep.")
+            f"in {fp.ECM_DEF} and re-prepare via ecm_prep."
+        )
 
     # After verifying that there are active measures to simulate with
     # corresponding JSON definitions, loop through measures data in JSON,
     # initialize objects for all measures that are active and valid
     if active_ecms_w_jsons == 0:
-        raise (ValueError("No active measures found; ensure that the " +
-                          "'active' list in run_setup.json is not empty " +
-                          "and that all active measure names match those " +
-                          "found in the 'name' field for corresponding " +
-                          "measure definitions in ./ecm_definitions"))
+        raise (
+            ValueError(
+                "No active measures found; ensure that the "
+                + "'active' list in run_setup.json is not empty "
+                + "and that all active measure names match those "
+                + "found in the 'name' field for corresponding "
+                + "measure definitions in ./ecm_definitions"
+            )
+        )
     # Further check to ensure that no active measures are tagged for removal
     meas_summary_restrict = [
-        m for m in meas_summary if m["name"] in active_meas_all and
-        m["remove"] is False]
+        m for m in meas_summary if m["name"] in active_meas_all and m["remove"] is False
+    ]
     if len(meas_summary_restrict) == 0:
-        raise ValueError(
-            "Active measures were found but all tagged for removal.")
+        raise ValueError("Active measures were found but all tagged for removal.")
 
     # Set flag for fuel splits
-    split_fuel = (meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True)
+    split_fuel = meas_summary_restrict[0]["usr_opts"]["split_fuel"] is True
 
     # Develop lookup dictionary to set the level of detail in output breakouts
     brkout_lookup = {
         "1": {"fuel splits": "detail", "no fuel splits": "detail_reg_bldg"},
-        "2": "detail_reg", "3": "detail_bldg", "4": "detail_fuel", "5": "detail_reg_bldg",
-        "6": "detail_reg_fuel", "7": "detail_bldg_fuel", "8": "detail_reg_fuel_codesbps",
-        "9": "detail_codesbps", "10": "detail_reg_codesbps", "11": "detail_codesbps_fuel"}
+        "2": "detail_reg",
+        "3": "detail_bldg",
+        "4": "detail_fuel",
+        "5": "detail_reg_bldg",
+        "6": "detail_reg_fuel",
+        "7": "detail_bldg_fuel",
+        "8": "detail_reg_fuel_codesbps",
+        "9": "detail_codesbps",
+        "10": "detail_reg_codesbps",
+        "11": "detail_codesbps_fuel",
+    }
     # Set detailed output breakouts, if any are desired by user
     try:
         brkout = brkout_lookup[meas_summary_restrict[0]["usr_opts"]["detail_brkout"]]
@@ -7881,18 +9446,33 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         regions = "AIA"
 
     # Set flag for presence of appliance regulations, codes, and/or BPS policies and compliance
-    state_appl_regs, codes, bps, code_comply_res, code_comply_com, bps_comply_res, \
-        bps_comply_com = [meas_summary_restrict[0]["usr_opts"][x] for x in [
-            "state_appl_regs", "codes", "bps", "bps_comply_res", "bps_comply_com",
-            "code_comply_res", "code_comply_com"]]
+    (
+        state_appl_regs,
+        codes,
+        bps,
+        code_comply_res,
+        code_comply_com,
+        bps_comply_res,
+        bps_comply_com,
+    ) = [
+        meas_summary_restrict[0]["usr_opts"][x]
+        for x in [
+            "state_appl_regs",
+            "codes",
+            "bps",
+            "bps_comply_res",
+            "bps_comply_com",
+            "code_comply_res",
+            "code_comply_com",
+        ]
+    ]
 
     # Set flag for use of exogenous electric conversion rates when preparing measures; when
     # present, the later option to report out conversion rates from the run module is suppressed
     exog_rates = meas_summary_restrict[0]["usr_opts"]["exog_hp_rates"]
 
     # Instantiate active measure objects
-    measures_objlist = [
-        Measure(handyvars, **m) for m in meas_summary_restrict]
+    measures_objlist = [Measure(handyvars, **m) for m in meas_summary_restrict]
 
     # Check to ensure that all active/valid measure definitions used consistent
     # user option settings
@@ -7902,12 +9482,14 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 "Attempting to compete measures with different user option settings. To address"
                 f" this issue, ensure that all active ECMs in {fp.GENERATED / 'run_setup.json'}"
                 " were prepared using the same command line options, or delete the file"
-                " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
+                " ./supporting_data/ and rerun ecm_prep.py with desired command line options."
+            )
     except AttributeError:
         raise ValueError(
             "One or more active ECMs lacks information needed to determine what energy units or"
             " conversions were used in its definition. To address this issue, delete the file"
-            " ./supporting_data/ and rerun ecm_prep.py with desired command line options.")
+            " ./supporting_data/ and rerun ecm_prep.py with desired command line options."
+        )
 
     # Set a flag for the type of user option desired (site, source-fossil
     # fuel equivalent, source-captured energy)
@@ -7935,8 +9517,10 @@ def main(opts: argparse.NameSpace):  # noqa: F821
         else:
             energy_out[2] = "Hr."
         # TSV metrics - Calc type
-        if measures_objlist[0].usr_opts["tsv_metrics"][3] == "1" and \
-                measures_objlist[0].usr_opts["tsv_metrics"][0] == "1":
+        if (
+            measures_objlist[0].usr_opts["tsv_metrics"][3] == "1"
+            and measures_objlist[0].usr_opts["tsv_metrics"][0] == "1"
+        ):
             energy_out[3] = "Sum."
         elif measures_objlist[0].usr_opts["tsv_metrics"][3] == "1":
             energy_out[3] = "Max."
@@ -7977,37 +9561,38 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     # instead of the default source energy or regional breakdown other than
     # default AIA climate zone breakdown is chosen or a high grid decarb.
     # scheme is assumed
-    if energy_out[0] != "fossil_equivalent" or regions != "AIA" or \
-            grid_decarb is True:
+    if energy_out[0] != "fossil_equivalent" or regions != "AIA" or grid_decarb is True:
         handyfiles = UsefulInputFiles(energy_out, regions, grid_decarb)
     # Re-instantiate useful variables object
     handyvars = UsefulVars(
-        handyfiles, opts, brk_vars, brkout, regions, state_appl_regs, codes, bps, exog_rates)
+        handyfiles, opts, brk_vars, brkout, regions, state_appl_regs, codes, bps, exog_rates
+    )
 
     # Load and set competition data for active measure objects (provided competition is not
     # suppressed by user); suppress new line if not in verbose mode ('Data load complete' is
     # appended to this message on the same line of the console upon data load completion)
     if opts.no_comp is not True:
         if opts.verbose:
-            print('Importing ECM competition data...')
+            print("Importing ECM competition data...")
         else:
-            print('Importing ECM competition data...', end="", flush=True)
+            print("Importing ECM competition data...", end="", flush=True)
 
         for m in measures_objlist:
             # Assemble file name for measure competition data
             meas_file_name = m.name + ".pkl.gz"
             # Assemble folder path for measure competition data
             comp_folder_name = handyfiles.meas_compete_data
-            with gzip.open(comp_folder_name / meas_file_name, 'r') as zp:
+            with gzip.open(comp_folder_name / meas_file_name, "r") as zp:
                 try:
                     meas_comp_data = pickle.load(zp)
                 except Exception as e:
                     raise Exception(
-                        f"Error reading in competition data of ECM '{m.name}': {str(e)}") from None
+                        f"Error reading in competition data of ECM '{m.name}': {str(e)}"
+                    ) from None
             # Assemble folder path for measure efficient fuel split data
             fs_splt_folder_name = handyfiles.meas_eff_fs_splt_data
             try:
-                with gzip.open(fs_splt_folder_name / meas_file_name, 'r') as zp:
+                with gzip.open(fs_splt_folder_name / meas_file_name, "r") as zp:
                     meas_eff_fs_data = pickle.load(zp)
             except FileNotFoundError:
                 meas_eff_fs_data = None
@@ -8017,94 +9602,108 @@ def main(opts: argparse.NameSpace):  # noqa: F821
                 # (the former of which will be used to establish a common set of
                 # stock turnover constraints in the competition, the latter of
                 # which will be adjusted by the competition)
-                m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = \
-                    meas_comp_data[adopt_scheme]
-                m.markets[adopt_scheme]["competed"]["mseg_adjust"] = \
-                    _fast_copy_markets(
-                        m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"])
+                m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"] = meas_comp_data[adopt_scheme]
+                m.markets[adopt_scheme]["competed"]["mseg_adjust"] = _fast_copy_markets(
+                    m.markets[adopt_scheme]["uncompeted"]["mseg_adjust"]
+                )
                 # Reset measure fuel split attribute to imported values
                 m.eff_fs_splt = meas_eff_fs_data
             # Add in technical potential data needed to support mseg-specific cost/competition
             # calculations, if these data have not already been pulled in
-            if opts.high_res_comp is True and \
-                    "Technical potential" not in handyvars.adopt_schemes:
-                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"] = \
-                    meas_comp_data["Technical potential"]
+            if opts.high_res_comp is True and "Technical potential" not in handyvars.adopt_schemes:
+                m.markets["Technical potential"]["uncompeted"]["mseg_adjust"] = meas_comp_data[
+                    "Technical potential"
+                ]
             # Print data import message for each ECM if in verbose mode
             fmt.verboseprint(opts.verbose, f"Imported ECM {m.name} competition data", "info")
 
         # Import total absolute heating and cooling energy use data, used in
         # removing overlaps between supply-side and demand-side heating/cooling
         # ECMs in the analysis
-        with open(handyfiles.htcl_totals, 'r') as msi:
+        with open(handyfiles.htcl_totals, "r") as msi:
             try:
                 htcl_totals = json.load(msi)
             except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
+                raise ValueError(f"Error reading in '{handyfiles.htcl_totals}': {str(e)}") from None
 
     # Print message to console; if in verbose mode, print to new line,
     # otherwise append to existing message on the console
     if opts.verbose:
-        print('ECM competition data load complete')
+        print("ECM competition data load complete")
     else:
-        print('Data load complete')
+        print("Data load complete")
 
     # Instantiate an Engine object using active measures list
     a_run = Engine(handyvars, opts, measures_objlist, energy_out, brkout)
     # Import baseline microsegments
-    if regions in ['EMM', 'State']:  # Extract compressed EMM/state data
+    if regions in ["EMM", "State"]:  # Extract compressed EMM/state data
         bjszip = handyfiles.msegs_in
-        with gzip.GzipFile(bjszip, 'r') as zip_ref:
-            msegs = json.loads(zip_ref.read().decode('utf-8'))
+        with gzip.GzipFile(bjszip, "r") as zip_ref:
+            msegs = json.loads(zip_ref.read().decode("utf-8"))
     else:
-        with open(handyfiles.msegs_in, 'r') as msi:
+        with open(handyfiles.msegs_in, "r") as msi:
             try:
                 msegs = json.load(msi)
             except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
+                raise ValueError(f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
 
     # Calculate uncompeted and competed measure savings and financial
     # metrics, and write key outputs to JSON file
     for adopt_scheme in handyvars.adopt_schemes:
         # Calculate each measure's uncompeted savings and metrics,
         # and print progress update to user
-        print("Calculating uncompeted '" + adopt_scheme +
-              "' savings/metrics...", end="", flush=True)
+        print(
+            "Calculating uncompeted '" + adopt_scheme + "' savings/metrics...", end="", flush=True
+        )
         a_run.calc_savings_metrics(adopt_scheme, "uncompeted", opts)
         print("Calculations complete")
         # Update each measure's competed markets to reflect the
         # removal of savings overlaps with competing measures,
         # and print progress update to user
         if opts.no_comp is not True:
-            print("Competing ECMs for '" + adopt_scheme + "' scenario...",
-                  end="", flush=True)
+            print("Competing ECMs for '" + adopt_scheme + "' scenario...", end="", flush=True)
             a_run.compete_measures(adopt_scheme, htcl_totals, opts)
             print("Competition complete")
         # Calculate each measure's competed measure savings and metrics
         # using updated competed markets, and print progress update to user
-        print("Calculating competed '" + adopt_scheme +
-              "' savings/metrics...", end="", flush=True)
+        print("Calculating competed '" + adopt_scheme + "' savings/metrics...", end="", flush=True)
         a_run.calc_savings_metrics(adopt_scheme, "competed", opts)
         print("Calculations complete")
         # Add the effects of codes and standards, if applicable
-        if any([x is not None and len(x) != 0 for x in [codes, bps]]) \
-            and (brkout == "detail" or (
-                "reg" in brkout and any([x in brkout for x in ["bldg", "codesbps"]]))) \
-                and split_fuel is True:
-            print("Post-processing impacts of state-level codes and/or performance standards...",
-                  end="", flush=True)
+        if (
+            any([x is not None and len(x) != 0 for x in [codes, bps]])
+            and (
+                brkout == "detail"
+                or ("reg" in brkout and any([x in brkout for x in ["bldg", "codesbps"]]))
+            )
+            and split_fuel is True
+        ):
+            print(
+                "Post-processing impacts of state-level codes and/or performance standards...",
+                end="",
+                flush=True,
+            )
             cbpslist = a_run.process_codes_bps(
-                opts, adopt_scheme, msegs, handyvars, trim_yrs, code_comply_res, code_comply_com,
-                bps_comply_res, bps_comply_com, report_stk_units, report_stk_costs)
+                opts,
+                adopt_scheme,
+                msegs,
+                handyvars,
+                trim_yrs,
+                code_comply_res,
+                code_comply_com,
+                bps_comply_res,
+                bps_comply_com,
+                report_stk_units,
+                report_stk_costs,
+            )
             print("Calculations complete")
         elif any([x is not None and len(x) != 0 for x in [codes, bps]]):
             warnings.warn(
                 "WARNING: Detailed building type and region breakouts (via 'detail_brkout' option "
                 "for ecm_prep) and/or fuel splits (via 'split_fuel') option are both required to "
                 "apply the effects of codes and standards, but were not both used. These effects "
-                "were not applied.")
+                "were not applied."
+            )
             cbpslist = None
         else:
             cbpslist = None
@@ -8117,78 +9716,99 @@ def main(opts: argparse.NameSpace):  # noqa: F821
             for x in [y for y in cbpslist if y is not None]:
                 # Data are formatted as a dict that matches format of other individual measures
                 # in the analysis to facilitate plotting and other post-processing work
-                a_run.finalize_codes_bps_outputs(x, adopt_scheme, handyvars, trim_out, trim_yrs,
-                                                 report_stk_units, report_stk_costs)
+                a_run.finalize_codes_bps_outputs(
+                    x,
+                    adopt_scheme,
+                    handyvars,
+                    trim_out,
+                    trim_yrs,
+                    report_stk_units,
+                    report_stk_costs,
+                )
         a_run.finalize_outputs(adopt_scheme, trim_out, trim_yrs, report_stk_units, report_stk_costs)
         # If necessary, write out electric/heat pump conversion fractions for the scenario
         if a_run.handyvars.conversion_fracs and adopt_scheme == "Max adoption potential":
-            print("\nWriting out endogenous electric/heat pump conversion fractions...",
-                  end="", flush=True)
+            print(
+                "\nWriting out endogenous electric/heat pump conversion fractions...",
+                end="",
+                flush=True,
+            )
             conv_fracs = a_run.finalize_conv_fracs(a_run.handyvars.conversion_fracs)
             # Pull scenario name used in YAML file for scenario
             # *** Prepend bss flag for now since this feature is only being used for bss; THIS
             # MAY NEED TO CHANGE IN THE FUTURE ***
-            scn_name = "bss-" + \
-                os.path.splitext(measures_objlist[0].usr_opts["yaml"])[0].split("/")[-1]
+            scn_name = (
+                "bss-" + os.path.splitext(measures_objlist[0].usr_opts["yaml"])[0].split("/")[-1]
+            )
             # Open existing electric/HP conversion rates file, read in and append to the data
-            with open(handyfiles.elec_conv_fracs, 'r') as hpr:
+            with open(handyfiles.elec_conv_fracs, "r") as hpr:
                 existing_dict = json.load(hpr)
                 existing_dict["data (by scenario)"][scn_name] = conv_fracs
             # Write out updated data
-            with open(handyfiles.elec_conv_fracs, 'w') as hpw:
+            with open(handyfiles.elec_conv_fracs, "w") as hpw:
                 json.dump(existing_dict, hpw, indent=2)
             print("Calculations complete")
         print("Results finalized")
 
     # Notify user that all analysis engine calculations are completed
-    print("All calculations complete; writing output data...", end="",
-          flush=True)
+    print("All calculations complete; writing output data...", end="", flush=True)
 
     # Import site-source conversions
-    with open(handyfiles.ss_data, 'r') as ss:
+    with open(handyfiles.ss_data, "r") as ss:
         try:
             cost_ss_carb = json.load(ss)
-            ss_conv = cost_ss_carb['electricity'][
-                'site to source conversion']['data']
+            ss_conv = cost_ss_carb["electricity"]["site to source conversion"]["data"]
         except ValueError as e:
-            raise ValueError(
-                f"Error reading in '{handyfiles.ss_data}': {str(e)}") from None
+            raise ValueError(f"Error reading in '{handyfiles.ss_data}': {str(e)}") from None
 
     # Import electricity price and CO2 emissions intensity
-    with open(handyfiles.elec_price_co2, 'r') as ece:
+    with open(handyfiles.elec_price_co2, "r") as ece:
         try:
             elec_cost_carb = json.load(ece)
         except ValueError as e:
             raise ValueError(
-                f"Error reading in '{handyfiles.elec_price_co2}': + {str(e)}") from None
+                f"Error reading in '{handyfiles.elec_price_co2}': + {str(e)}"
+            ) from None
     # Extract separate price and CO2 emissions intensity variables
     try:
-        elec_carb = elec_cost_carb['CO2 intensity of electricity']['data']
-        elec_cost = elec_cost_carb['End-use electricity price']['data']
+        elec_carb = elec_cost_carb["CO2 intensity of electricity"]["data"]
+        elec_cost = elec_cost_carb["End-use electricity price"]["data"]
         format_data = True  # Boolean for indicating data key substructure
     except KeyError:
         # Data are structured as in the site_source_co2_conversions files
-        elec_carb = elec_cost_carb['electricity']['CO2 intensity']['data']
-        elec_cost = elec_cost_carb['electricity']['price']['data']
+        elec_carb = elec_cost_carb["electricity"]["CO2 intensity"]["data"]
+        elec_cost = elec_cost_carb["electricity"]["price"]["data"]
         format_data = False
 
     # Determine regions and building types used by active measures for
     # aggregating onsite generation data
-    czgrp = set([cz for m in meas_summary
-                 if m["name"] in active_meas_all and m["remove"] is False
-                 for cz in m['climate_zone']])
+    czgrp = set(
+        [
+            cz
+            for m in meas_summary
+            if m["name"] in active_meas_all and m["remove"] is False
+            for cz in m["climate_zone"]
+        ]
+    )
     czgrp = sorted(czgrp)
-    btgrp = [bt for m in meas_summary
-             if m["name"] in active_meas_all and m["remove"] is False
-             for bt in m['bldg_type']]
+    btgrp = [
+        bt
+        for m in meas_summary
+        if m["name"] in active_meas_all and m["remove"] is False
+        for bt in m["bldg_type"]
+    ]
     # Drop multi family and mobile homes, along with commercial unspecified
     # building type; no onsite generation data provided for these bldg. types
-    btgrp = set([
-        bt for bt in btgrp if bt not in ['mobile home', 'multi family home', 'unspecified']])
+    btgrp = set(
+        [bt for bt in btgrp if bt not in ["mobile home", "multi family home", "unspecified"]]
+    )
     btgrp = sorted(btgrp)
+
     # Set up recursively extensible empty dict to populate with onsite
     # generation data
-    def variable_depth_dict(): return defaultdict(variable_depth_dict)
+    def variable_depth_dict():
+        return defaultdict(variable_depth_dict)
+
     osg_temp = variable_depth_dict()
 
     # Aggregate onsite generation data
@@ -8197,66 +9817,71 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     osgcost = {k: 0 for k in handyvars.aeo_years}
     for cz in czgrp:
         for bt in btgrp:
-            z = msegs[cz][bt]['electricity']['onsite generation']['energy']
+            z = msegs[cz][bt]["electricity"]["onsite generation"]["energy"]
             # Get onsite generation and adjust by appropriate factor
             # unless site user opts are expected
             if not measures_objlist[0].usr_opts["site_energy"]:
-                z = {k: z.get(k, 0)*ss_conv.get(k, 0)
-                     for k in handyvars.aeo_years}
+                z = {k: z.get(k, 0) * ss_conv.get(k, 0) for k in handyvars.aeo_years}
             # Get building sector from building type
-            if bt in ["single family home", "multi family home",
-                      "mobile home"]:
-                bt_bin = 'residential'
+            if bt in ["single family home", "multi family home", "mobile home"]:
+                bt_bin = "residential"
             else:
-                bt_bin = 'commercial'
+                bt_bin = "commercial"
             # Get CO2 intensity and electricity cost data and convert units
             if format_data:  # Data (and data structure) from emm_region files
                 # Convert Mt/TWh to Mt/MMBtu
-                carbtmp = {k: elec_carb[cz].get(k, 0)/3.41214e6
-                           for k in elec_carb[cz].keys()}
+                carbtmp = {k: elec_carb[cz].get(k, 0) / 3.41214e6 for k in elec_carb[cz].keys()}
                 # Convert $/kWh to $/MMBtu
-                costtmp = {k: elec_cost[bt_bin][cz].get(k, 0)/3.41214e-3
-                           for k in elec_cost[bt_bin][cz].keys()}
+                costtmp = {
+                    k: elec_cost[bt_bin][cz].get(k, 0) / 3.41214e-3
+                    for k in elec_cost[bt_bin][cz].keys()
+                }
             else:
                 if not measures_objlist[0].usr_opts["site_energy"]:
                     # Convert Mt/quads to Mt/MMBtu
-                    carbtmp = {k: elec_carb[bt_bin].get(k, 0)/1e9
-                               for k in elec_carb[bt_bin].keys()}
+                    carbtmp = {
+                        k: elec_carb[bt_bin].get(k, 0) / 1e9 for k in elec_carb[bt_bin].keys()
+                    }
                     costtmp = elec_cost[bt_bin]
                 else:
                     # Convert Mt/quads to Mt/MMBtu and account for need to
                     # add site-source conversion factor to the carbon and
                     # cost multiplications
-                    carbtmp = {k: (elec_carb[bt_bin].get(k, 0)/1e9) *
-                               ss_conv.get(k, 0) for k in
-                               elec_carb[bt_bin].keys()}
-                    costtmp = {k: elec_cost[bt_bin].get(k, 0) *
-                               ss_conv.get(k, 0) for k in
-                               elec_cost[bt_bin].keys()}
+                    carbtmp = {
+                        k: (elec_carb[bt_bin].get(k, 0) / 1e9) * ss_conv.get(k, 0)
+                        for k in elec_carb[bt_bin].keys()
+                    }
+                    costtmp = {
+                        k: elec_cost[bt_bin].get(k, 0) * ss_conv.get(k, 0)
+                        for k in elec_cost[bt_bin].keys()
+                    }
             # Report out onsite generation and corresponding emissions
             # and energy cost savings at the AEO building type level
-            osg_temp['Energy (MMBtu)']['By Category'][cz][bt] = z
-            osg_temp['CO\u2082 Emissions (MMTons)']['By Category'][cz][bt] = {
-                k: z.get(k, 0)*carbtmp.get(k, 0) for k in handyvars.aeo_years}
-            osg_temp['Energy Cost (USD)']['By Category'][cz][bt] = {
-                k: z.get(k, 0)*costtmp.get(k, 0) for k in handyvars.aeo_years}
+            osg_temp["Energy (MMBtu)"]["By Category"][cz][bt] = z
+            osg_temp["CO\u2082 Emissions (MMTons)"]["By Category"][cz][bt] = {
+                k: z.get(k, 0) * carbtmp.get(k, 0) for k in handyvars.aeo_years
+            }
+            osg_temp["Energy Cost (USD)"]["By Category"][cz][bt] = {
+                k: z.get(k, 0) * costtmp.get(k, 0) for k in handyvars.aeo_years
+            }
             # Calculate total annual onsite generation and corresponding
             # emissions and energy cost savings
-            osg = {k: osg.get(k, 0) + z.get(k, 0)
-                   for k in handyvars.aeo_years}
-            osgcarb = {k: osgcarb.get(k, 0) + z.get(k, 0)*carbtmp.get(k, 0)
-                       for k in handyvars.aeo_years}
-            osgcost = {k: osgcost.get(k, 0) + z.get(k, 0)*costtmp.get(k, 0)
-                       for k in handyvars.aeo_years}
+            osg = {k: osg.get(k, 0) + z.get(k, 0) for k in handyvars.aeo_years}
+            osgcarb = {
+                k: osgcarb.get(k, 0) + z.get(k, 0) * carbtmp.get(k, 0) for k in handyvars.aeo_years
+            }
+            osgcost = {
+                k: osgcost.get(k, 0) + z.get(k, 0) * costtmp.get(k, 0) for k in handyvars.aeo_years
+            }
     # Report out onsite generation and corresponding emissions and
     # energy cost savings in aggregate
-    osg_temp['Energy (MMBtu)']['Overall'] = osg
-    osg_temp['CO\u2082 Emissions (MMTons)']['Overall'] = osgcarb
-    osg_temp['Energy Cost (USD)']['Overall'] = osgcost
+    osg_temp["Energy (MMBtu)"]["Overall"] = osg
+    osg_temp["CO\u2082 Emissions (MMTons)"]["Overall"] = osgcarb
+    osg_temp["Energy Cost (USD)"]["Overall"] = osgcost
 
     # Add onsite generation data as additional measure-level data
     # written with ECM results output
-    a_run.output_ecms['On-site Generation'] = osg_temp
+    a_run.output_ecms["On-site Generation"] = osg_temp
 
     # Recursively navigate dictionary and round values
     def round_values(data, precision):
@@ -8290,8 +9915,7 @@ def main(opts: argparse.NameSpace):  # noqa: F821
     if all([x is False for x in [trim_out, trim_yrs]]):
         # Notify user that the output data are being plotted
         print("Plotting output data...", end="", flush=True)
-        run_plot(meas_summary, a_run, handyvars, measures_objlist,
-                 regions, cbpslist, trim_out)
+        run_plot(meas_summary, a_run, handyvars, measures_objlist, regions, cbpslist, trim_out)
         print("Plotting complete")
 
 
@@ -8314,13 +9938,16 @@ def parse_args(args: list = None) -> argparse.NameSpace:  # noqa: F821
     return opts
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import time
+
     start_time = time.time()
     opts = parse_args()
     main(opts)
 
     hours, rem = divmod(time.time() - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("--- Runtime: %s (HH:MM:SS.mm) ---" %
-          "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+    print(
+        "--- Runtime: %s (HH:MM:SS.mm) ---"
+        % "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+    )

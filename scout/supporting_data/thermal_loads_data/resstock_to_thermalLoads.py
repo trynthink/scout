@@ -1,4 +1,4 @@
-'''
+"""
 ResStock to Scout Thermal Loads Converter
 
 This script processes ResStock Building Energy Simulation Outputs
@@ -18,7 +18,7 @@ Tab seperated text file with columns:
 - BLDG: Building type code (1: single family, 2: multi family, 3: mobile home)
 - NBLDGS: Number of buildings represented
 - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND, EQUIP
-'''
+"""
 
 import pandas as pd
 
@@ -103,9 +103,7 @@ def map_to_resstock(df):
     df["BLDG"] = df["BLDG"].map(BLDG_CODE)
     unique_cdivs = df["build_existing_model.census_division"].unique()
     print("Unique census divisions:", unique_cdivs)
-    df["CDIV"] = (
-        df["build_existing_model.census_division"].str.lower().map(CDIV_MAPPING)
-    )
+    df["CDIV"] = df["build_existing_model.census_division"].str.lower().map(CDIV_MAPPING)
 
     print("Length before dropping NAs:", len(df))
     return df
@@ -276,5 +274,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

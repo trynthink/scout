@@ -62,7 +62,7 @@ The residential and commercial building thermal load component values are derive
         * Quick Service Restaurant -> Food Service
         * Large Hotel -> Lodging
         * Secondary chool -> Education
-        * PrimarySchool -> Education  
+        * PrimarySchool -> Education
         * Grocery -> Food Sales
         * LargeOffice, SmallOffice, Warehouse -> Same in AEO
 
@@ -74,7 +74,7 @@ The residential and commercial building thermal load component values are derive
     #. Find subset of CSV rows associated with each unique combination of census division (residential), AEO building type, and heating or cooling end use.
     #. For each subset of rows, calculate a weighted average of the thermal load components across all rows using the number of buildings (residential) associated with each row to establish weighting factors.
     #. Combine the thermal load components calculated for each unique combination of census, AEO building type, and end use into a master table.
-    #. Write the final thermal load components table to a text file.    
+    #. Write the final thermal load components table to a text file.
 
 *Python pseudocode (Commercial)*
 

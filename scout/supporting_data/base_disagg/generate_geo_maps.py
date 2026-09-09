@@ -1,4 +1,3 @@
-
 import gc
 import pandas as pd
 import os
@@ -24,35 +23,29 @@ END_USE_MAP = {
         "electricity": {
             "heating": [
                 "out.electricity.heating.energy_consumption",
-                "out.electricity.heat_recovery.energy_consumption"
+                "out.electricity.heat_recovery.energy_consumption",
             ],
             "cooling": [
                 "out.electricity.heat_rejection.energy_consumption",
                 "out.electricity.cooling.energy_consumption",
-                "out.district_cooling.cooling.energy_consumption"
+                "out.district_cooling.cooling.energy_consumption",
             ],
-            "water heating": [
-                "out.electricity.water_systems.energy_consumption"
-            ],
+            "water heating": ["out.electricity.water_systems.energy_consumption"],
             "fans and pumps": [
                 "out.electricity.fans.energy_consumption",
-                "out.electricity.pumps.energy_consumption"
+                "out.electricity.pumps.energy_consumption",
             ],
             "lighting": [
                 "out.electricity.interior_lighting.energy_consumption",
-                "out.electricity.exterior_lighting.energy_consumption"
+                "out.electricity.exterior_lighting.energy_consumption",
             ],
-            "refrigeration": [
-                "out.electricity.refrigeration.energy_consumption"
-            ],
-            "misc": [
-                "out.electricity.interior_equipment.energy_consumption"
-            ]
+            "refrigeration": ["out.electricity.refrigeration.energy_consumption"],
+            "misc": ["out.electricity.interior_equipment.energy_consumption"],
         },
         "natural gas": {
             "heating": [
                 "out.natural_gas.heating.energy_consumption",
-                "out.district_heating.heating.energy_consumption"
+                "out.district_heating.heating.energy_consumption",
             ],
             # No natural_gas cooling column exists (gas cooling in ComStock is
             # near-zero); district_cooling is used as a proxy for direct-fired
@@ -60,11 +53,9 @@ END_USE_MAP = {
             "cooling": ["out.district_cooling.cooling.energy_consumption"],
             "water heating": [
                 "out.natural_gas.water_systems.energy_consumption",
-                "out.district_heating.water_systems.energy_consumption"
+                "out.district_heating.water_systems.energy_consumption",
             ],
-            "misc": [
-                "out.natural_gas.interior_equipment.energy_consumption"
-            ]
+            "misc": ["out.natural_gas.interior_equipment.energy_consumption"],
         },
         # NOTE: ComStock 2024 lumped fuel oil and propane together into a
         # single "other_fuel" bucket. Starting with ComStock 2025, that
@@ -84,152 +75,106 @@ END_USE_MAP = {
         "distillate": {
             "heating": ["out.fuel_oil.heating.energy_consumption"],
             "cooling": ["out.fuel_oil.cooling.energy_consumption"],
-            "water heating": [
-                "out.fuel_oil.water_systems.energy_consumption"
-            ],
+            "water heating": ["out.fuel_oil.water_systems.energy_consumption"],
             # FIXME: distillate "misc" points at a natural_gas column. Likely
             # should be out.fuel_oil.interior_equipment.energy_consumption,
             # but that column doesn't exist as raw consumption (only as
             # _savings/_intensity variants) in ComStock 2025, and doesn't
             # exist at all in ComStock 2024.
-            "misc": [
-                "out.natural_gas.interior_equipment.energy_consumption"
-            ]
+            "misc": ["out.natural_gas.interior_equipment.energy_consumption"],
         },
         "other fuel": {
             "heating": ["out.propane.heating.energy_consumption"],
             "cooling": ["out.propane.cooling.energy_consumption"],
-            "water heating": [
-                "out.propane.water_systems.energy_consumption"
-            ],
+            "water heating": ["out.propane.water_systems.energy_consumption"],
             # FIXME: "other fuel" misc points at the same natural_gas column as
             # distillate misc, so gas interior equipment is double-counted.
             # Confirm intended source column.
-            "misc": [
-                "out.natural_gas.interior_equipment.energy_consumption"
-            ]
-        }
+            "misc": ["out.natural_gas.interior_equipment.energy_consumption"],
+        },
     },
     "residential": {
         "electricity": {
             "heating": [
                 "out.electricity.heating.energy_consumption",
-                "out.electricity.heating_hp_bkup.energy_consumption"
+                "out.electricity.heating_hp_bkup.energy_consumption",
             ],
-            "cooling": [
-                "out.electricity.cooling.energy_consumption"
-            ],
-            "water heating": [
-                "out.electricity.hot_water.energy_consumption"
-            ],
-            "cooking": [
-                "out.electricity.range_oven.energy_consumption"
-            ],
-            "drying": [
-                "out.electricity.clothes_dryer.energy_consumption"
-            ],
-            "clothes washing": [
-                "out.electricity.clothes_washer.energy_consumption"
-            ],
-            "dishwasher": [
-                "out.electricity.dishwasher.energy_consumption"
-            ],
+            "cooling": ["out.electricity.cooling.energy_consumption"],
+            "water heating": ["out.electricity.hot_water.energy_consumption"],
+            "cooking": ["out.electricity.range_oven.energy_consumption"],
+            "drying": ["out.electricity.clothes_dryer.energy_consumption"],
+            "clothes washing": ["out.electricity.clothes_washer.energy_consumption"],
+            "dishwasher": ["out.electricity.dishwasher.energy_consumption"],
             "lighting": [
                 "out.electricity.lighting_exterior.energy_consumption",
                 "out.electricity.lighting_interior.energy_consumption",
-                "out.electricity.lighting_garage.energy_consumption"
+                "out.electricity.lighting_garage.energy_consumption",
             ],
             "refrigeration": [
                 "out.electricity.freezer.energy_consumption",
-                "out.electricity.refrigerator.energy_consumption"
+                "out.electricity.refrigerator.energy_consumption",
             ],
-            "ceiling fan": [
-                "out.electricity.ceiling_fan.energy_consumption"
-            ],
-            "misc": [
-                "out.electricity.plug_loads.energy_consumption"
-            ],
-            "pool heaters": [
-                "out.electricity.pool_heater.energy_consumption"
-            ],
-            "pool pumps": [
-                "out.electricity.pool_pump.energy_consumption"
-            ],
+            "ceiling fan": ["out.electricity.ceiling_fan.energy_consumption"],
+            "misc": ["out.electricity.plug_loads.energy_consumption"],
+            "pool heaters": ["out.electricity.pool_heater.energy_consumption"],
+            "pool pumps": ["out.electricity.pool_pump.energy_consumption"],
             "portable electric spas": [
                 "out.electricity.permanent_spa_heat.energy_consumption",
-                "out.electricity.permanent_spa_pump.energy_consumption"
+                "out.electricity.permanent_spa_pump.energy_consumption",
             ],
             "fans and pumps": [
                 "out.electricity.mech_vent.energy_consumption",
                 "out.electricity.cooling_fans_pumps.energy_consumption",
                 "out.electricity.heating_fans_pumps.energy_consumption",
                 "out.electricity.heating_hp_bkup_fa.energy_consumption",
-                "out.electricity.well_pump.energy_consumption"
+                "out.electricity.well_pump.energy_consumption",
             ],
         },
         "distillate": {
             "heating": [
                 "out.fuel_oil.heating.energy_consumption",
-                "out.fuel_oil.heating_hp_bkup.energy_consumption"
+                "out.fuel_oil.heating_hp_bkup.energy_consumption",
             ],
-            "water heating": [
-                "out.fuel_oil.hot_water.energy_consumption"
-            ],
+            "water heating": ["out.fuel_oil.hot_water.energy_consumption"],
             # No fuel_oil misc/pool_heater column exists in ResStock; reuse
             # fuel_oil hot_water as the geographic proxy instead of another
             # fuel's column, since what matters here is where fuel oil
             # itself is delivered, not the end use it's attributed to.
-            "misc": [
-                "out.fuel_oil.hot_water.energy_consumption"
-            ]
+            "misc": ["out.fuel_oil.hot_water.energy_consumption"],
         },
         "other fuel": {
             "heating": [
                 "out.propane.heating.energy_consumption",
-                "out.propane.heating_hp_bkup.energy_consumption"
+                "out.propane.heating_hp_bkup.energy_consumption",
             ],
-            "water heating": [
-                "out.propane.hot_water.energy_consumption"
-            ],
-            "cooking": [
-                "out.propane.range_oven.energy_consumption"
-            ],
+            "water heating": ["out.propane.hot_water.energy_consumption"],
+            "cooking": ["out.propane.range_oven.energy_consumption"],
             # No propane misc/pool_heater column exists in ResStock; reuse
             # propane hot_water as the geographic proxy instead of another
             # fuel's column, since what matters here is where propane
             # itself is delivered, not the end use it's attributed to.
-            "misc": [
-                "out.propane.hot_water.energy_consumption"
-            ],
-            "drying": [
-                "out.propane.clothes_dryer.energy_consumption"
-            ]
+            "misc": ["out.propane.hot_water.energy_consumption"],
+            "drying": ["out.propane.clothes_dryer.energy_consumption"],
         },
         "natural gas": {
             "heating": [
                 "out.natural_gas.heating.energy_consumption",
-                "out.natural_gas.heating_hp_bkup.energy_consumption"
+                "out.natural_gas.heating_hp_bkup.energy_consumption",
             ],
             # FIXME: gas cooling maps to gas heating columns.
             "cooling": [
                 "out.natural_gas.heating.energy_consumption",
-                "out.natural_gas.heating_hp_bkup.energy_consumption"
+                "out.natural_gas.heating_hp_bkup.energy_consumption",
             ],
-            "water heating": [
-                "out.natural_gas.hot_water.energy_consumption"
-            ],
+            "water heating": ["out.natural_gas.hot_water.energy_consumption"],
             "cooking": [
                 "out.natural_gas.grill.energy_consumption",
-                "out.natural_gas.range_oven.energy_consumption"
+                "out.natural_gas.range_oven.energy_consumption",
             ],
-            "drying": [
-                "out.natural_gas.clothes_dryer.energy_consumption"
-            ],
-            "misc": [
-                "out.natural_gas.pool_heater.energy_consumption"
-            ]
-        }
-    }
+            "drying": ["out.natural_gas.clothes_dryer.energy_consumption"],
+            "misc": ["out.natural_gas.pool_heater.energy_consumption"],
+        },
+    },
 }
 
 FUEL_ENDUSE_MAP = {
@@ -237,35 +182,83 @@ FUEL_ENDUSE_MAP = {
         "electricity": {
             "cooling": [
                 "out.electricity.cooling.energy_consumption",
-                "out.electricity.heat_rejection.energy_consumption"
+                "out.electricity.heat_rejection.energy_consumption",
             ],
             "heating": [
                 "out.electricity.heating.energy_consumption",
-                "out.electricity.heat_recovery.energy_consumption"
+                "out.electricity.heat_recovery.energy_consumption",
             ],
         },
     },
     "residential": {
         "electricity": {
-            "cooling": [
-                "out.electricity.cooling.energy_consumption"
-            ],
+            "cooling": ["out.electricity.cooling.energy_consumption"],
             "heating": [
                 "out.electricity.heating.energy_consumption",
-                "out.electricity.heating_hp_bkup.energy_consumption"
+                "out.electricity.heating_hp_bkup.energy_consumption",
             ],
         }
-    }
+    },
 }
 
-DF_ORDER = pd.DataFrame({
-    'no': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-           20, 21, 22, 23, 24, 25],
-    'emm_intersect': ["TRE", "FRCC", "MISW", "MISC", "MISE", "MISS", "ISNE",
-                      "NYCW", "NYUP", "PJME", "PJMW", "PJMC", "PJMD", "SRCA",
-                      "SRSE", "SRCE", "SPPS", "SPPC", "SPPN", "SRSG", "CANO",
-                      "CASO", "NWPP", "RMRG", "BASN"]
-})
+DF_ORDER = pd.DataFrame(
+    {
+        "no": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+        ],
+        "emm_intersect": [
+            "TRE",
+            "FRCC",
+            "MISW",
+            "MISC",
+            "MISE",
+            "MISS",
+            "ISNE",
+            "NYCW",
+            "NYUP",
+            "PJME",
+            "PJMW",
+            "PJMC",
+            "PJMD",
+            "SRCA",
+            "SRSE",
+            "SRCE",
+            "SPPS",
+            "SPPC",
+            "SPPN",
+            "SRSG",
+            "CANO",
+            "CASO",
+            "NWPP",
+            "RMRG",
+            "BASN",
+        ],
+    }
+)
 
 # Canonical geo membership lists, keyed the same way geo_pivot_settings'
 # geo_label/filename_geo values are -- used to reindex pivoted output back
@@ -277,11 +270,15 @@ DF_ORDER = pd.DataFrame({
 # final_mseg_converter.py, which expects every CDIV/State/EMM to be
 # present even when the true value for that geo is zero.
 CDIV_LIST = [str(i) for i in range(1, 10)]
-EMM_LIST = DF_ORDER['emm_intersect'].tolist()
-STATE_LIST = sorted(pd.read_csv(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 'scout_geography.csv'), dtype=str)['state'].unique().tolist())
-GEO_LISTS = {'CDIV': CDIV_LIST, 'State': STATE_LIST, 'EMM': EMM_LIST}
+EMM_LIST = DF_ORDER["emm_intersect"].tolist()
+STATE_LIST = sorted(
+    pd.read_csv(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "scout_geography.csv"), dtype=str
+    )["state"]
+    .unique()
+    .tolist()
+)
+GEO_LISTS = {"CDIV": CDIV_LIST, "State": STATE_LIST, "EMM": EMM_LIST}
 
 
 def ensure_geo_coverage(df, row_geo, col_geo, context):
@@ -294,15 +291,19 @@ def ensure_geo_coverage(df, row_geo, col_geo, context):
     row_list = GEO_LISTS[row_geo]
     missing_rows = [r for r in row_list if r not in df.index]
     if missing_rows:
-        print(f"    Note: {context} has no samples in {row_geo}(s) "
-              f"{missing_rows}; zero-filling those rows.")
+        print(
+            f"    Note: {context} has no samples in {row_geo}(s) "
+            f"{missing_rows}; zero-filling those rows."
+        )
         df = df.reindex(row_list, fill_value=0)
 
     col_list = GEO_LISTS[col_geo]
     missing_cols = [c for c in col_list if c not in df.columns]
     if missing_cols:
-        print(f"    Note: {context} has no samples in {col_geo}(s) "
-              f"{missing_cols}; zero-filling those columns.")
+        print(
+            f"    Note: {context} has no samples in {col_geo}(s) "
+            f"{missing_cols}; zero-filling those columns."
+        )
         extra_cols = [c for c in df.columns if c not in col_list]
         df = df.reindex(columns=col_list + extra_cols, fill_value=0)
     return df
@@ -312,13 +313,12 @@ def ensure_geo_coverage(df, row_geo, col_geo, context):
 
 
 def get_scout_geo(base_dir):
-    file = os.path.join(base_dir, 'scout_geography.csv')
+    file = os.path.join(base_dir, "scout_geography.csv")
     df = pd.read_csv(file, dtype=str)
-    df['fips_code'] = df['fips_code'].str.zfill(5)
-    df['gisjoin'] = df['fips_code'].apply(
-        lambda x: 'G' + str(x)[:2] + '0' + str(x)[2:] + '0')
-    df.loc[df['state'] == 'AK', 'emm2020_county'] = 'AK_HI'
-    df.loc[df['state'] == 'HI', 'emm2020_county'] = 'AK_HI'
+    df["fips_code"] = df["fips_code"].str.zfill(5)
+    df["gisjoin"] = df["fips_code"].apply(lambda x: "G" + str(x)[:2] + "0" + str(x)[2:] + "0")
+    df.loc[df["state"] == "AK", "emm2020_county"] = "AK_HI"
+    df.loc[df["state"] == "HI", "emm2020_county"] = "AK_HI"
     return df
 
 
@@ -350,15 +350,32 @@ def normalize_columns(df):
     segment (e.g. 'energy_consumption' itself is never a unit token).
     """
     unit_tokens = (
-        "kwh", "kbtu", "therm", "therms", "gal", "j", "c", "f",
-        "ft2", "tbtu", "kwh_per_ft2", "co2e_kg", "percent", "tons",
-        "cop", "eer", "ieer", "seer", "w", "hr"
+        "kwh",
+        "kbtu",
+        "therm",
+        "therms",
+        "gal",
+        "j",
+        "c",
+        "f",
+        "ft2",
+        "tbtu",
+        "kwh_per_ft2",
+        "co2e_kg",
+        "percent",
+        "tons",
+        "cop",
+        "eer",
+        "ieer",
+        "seer",
+        "w",
+        "hr",
     )
-    single_dot = re.compile(r'\.(' + '|'.join(unit_tokens) + r')$')
+    single_dot = re.compile(r"\.(" + "|".join(unit_tokens) + r")$")
 
     def strip(c):
-        c = re.sub(r'\.\.[a-z0-9_]+$', '', c)   # ComStock: ..<unit>
-        c = single_dot.sub('', c)               # ResStock: .<unit>
+        c = re.sub(r"\.\.[a-z0-9_]+$", "", c)  # ComStock: ..<unit>
+        c = single_dot.sub("", c)  # ResStock: .<unit>
         return c
 
     df.columns = [strip(c) for c in df.columns]
@@ -397,50 +414,49 @@ def normalize_county_ids(df, dfdict):
     GISJOIN lookup from the geography crosswalk and rewrite any
     name-formatted county values to GISJOIN before the join runs.
     """
-    is_named = df['county'].str.match(r'^[A-Z]{2}, ')
+    is_named = df["county"].str.match(r"^[A-Z]{2}, ")
     if not is_named.any():
         return df
-    name_key = dfdict['state'] + ', ' + dfdict['county_name']
-    name_to_gisjoin = dict(zip(name_key, dfdict['gisjoin']))
-    df.loc[is_named, 'county'] = df.loc[is_named, 'county'].map(name_to_gisjoin)
+    name_key = dfdict["state"] + ", " + dfdict["county_name"]
+    name_to_gisjoin = dict(zip(name_key, dfdict["gisjoin"]))
+    df.loc[is_named, "county"] = df.loc[is_named, "county"].map(name_to_gisjoin)
     return df
 
 
 def apply_geographies(df, dfdict, geos):
-    df['county'] = df['county'].astype(str)
+    df["county"] = df["county"].astype(str)
     df = normalize_county_ids(df, dfdict)
     for geo in geos:
-        if geo == 'emm':
-            geocol = 'emm2020_county'
-        elif geo == 'cdiv':
-            geocol = 'cdiv'
+        if geo == "emm":
+            geocol = "emm2020_county"
+        elif geo == "cdiv":
+            geocol = "cdiv"
         else:
             geocol = geo
-        d = dfdict.set_index('gisjoin').T.to_dict('index')[geocol]
-        df[geo] = df['county'].map(d)
-        if geo == 'emm':
+        d = dfdict.set_index("gisjoin").T.to_dict("index")[geocol]
+        df[geo] = df["county"].map(d)
+        if geo == "emm":
             # AK/HI have no real NEMS EMM region (see the 'AK_HI'
             # placeholder set in get_scout_geo); exclude them from
             # EMM-based disaggregation while still letting cdiv/state
             # resolve to their real values above.
-            df.loc[df[geo] == 'AK_HI', geo] = pd.NA
-    df = df.drop('county', axis=1)
+            df.loc[df[geo] == "AK_HI", geo] = pd.NA
+    df = df.drop("county", axis=1)
     return df
 
 
 def output_emm(df):
-    merged_matrix = df.merge(DF_ORDER, left_on='emm',
-                             right_on='emm_intersect', how='left')
-    sorted_matrix = merged_matrix.sort_values(by='no')
+    merged_matrix = df.merge(DF_ORDER, left_on="emm", right_on="emm_intersect", how="left")
+    sorted_matrix = merged_matrix.sort_values(by="no")
     sorted_matrix = sorted_matrix.drop(sorted_matrix.columns[-2:], axis=1)
-    sorted_matrix.loc['total'] = sorted_matrix.sum()
+    sorted_matrix.loc["total"] = sorted_matrix.sum()
     sorted_matrix = transpose(sorted_matrix)
     return sorted_matrix
 
 
 def output_state(df):
     sorted_matrix = df
-    sorted_matrix.loc['total'] = sorted_matrix.sum()
+    sorted_matrix.loc["total"] = sorted_matrix.sum()
     sorted_matrix = transpose(sorted_matrix)
     return sorted_matrix
 
@@ -464,19 +480,22 @@ def normalize_by_column_sum(conversion_matrix, context):
     zero_cols = col_sums[col_sums == 0].index.tolist()
     if zero_cols:
         if len(zero_cols) == len(col_sums):
-            print(f"    WARNING: {context} sums to ZERO across every geo "
-                  f"({len(zero_cols)} column(s)) -- check for a broken or "
-                  f"renamed source column rather than assuming genuine zero "
-                  f"data. Columns: {zero_cols}")
+            print(
+                f"    WARNING: {context} sums to ZERO across every geo "
+                f"({len(zero_cols)} column(s)) -- check for a broken or "
+                f"renamed source column rather than assuming genuine zero "
+                f"data. Columns: {zero_cols}"
+            )
         else:
-            print(f"    Note: {context} sums to zero for "
-                  f"{len(zero_cols)} geo column(s) (share reported as 0): "
-                  f"{zero_cols}")
+            print(
+                f"    Note: {context} sums to zero for "
+                f"{len(zero_cols)} geo column(s) (share reported as 0): "
+                f"{zero_cols}"
+            )
     return conversion_matrix.div(col_sums, axis=1)
 
 
-def finalize_eu_matrix(conversion_matrix, output_func, geo_label, col_geo, eu,
-                       drop_total=False):
+def finalize_eu_matrix(conversion_matrix, output_func, geo_label, col_geo, eu, drop_total=False):
     """Normalize a raw (geo x geo) conversion matrix for one end use and
     format it into the 'End use'/geo_label-indexed row block used by all of
     the output CSVs.
@@ -491,20 +510,19 @@ def finalize_eu_matrix(conversion_matrix, output_func, geo_label, col_geo, eu,
     than left as a missing row/column, which final_mseg_converter.py
     would otherwise fail to look up.
     """
-    normalized_matrix = normalize_by_column_sum(
-        conversion_matrix, f"end use '{eu}'").reset_index()
+    normalized_matrix = normalize_by_column_sum(conversion_matrix, f"end use '{eu}'").reset_index()
     normalized_matrix = output_func(normalized_matrix)
     normalized_matrix = normalized_matrix.fillna(0)
     normalized_matrix.columns = normalized_matrix.iloc[0]
-    normalized_matrix.rename(
-        columns={normalized_matrix.columns[-1]: 'Total'}, inplace=True)
+    normalized_matrix.rename(columns={normalized_matrix.columns[-1]: "Total"}, inplace=True)
     normalized_matrix = normalized_matrix.iloc[1:]
     normalized_matrix = ensure_geo_coverage(
-        normalized_matrix, geo_label, col_geo, f"end use '{eu}'")
+        normalized_matrix, geo_label, col_geo, f"end use '{eu}'"
+    )
     normalized_matrix.insert(0, geo_label, normalized_matrix.index)
-    normalized_matrix.insert(0, 'End use', eu)
+    normalized_matrix.insert(0, "End use", eu)
     if drop_total:
-        normalized_matrix.drop(columns=['Total'], inplace=True)
+        normalized_matrix.drop(columns=["Total"], inplace=True)
     return normalized_matrix
 
 
@@ -514,26 +532,35 @@ def geo_pivot_settings(geos):
     the branching already duplicated across process_end_use_energy and
     process_end_use_stock.
     """
-    if 'emm' in geos and 'state' in geos:
-        return (['emm', 'state'], 'emm', 'state', output_emm, 'State', 'EMM')
-    elif 'cdiv' in geos and 'state' in geos:
-        return (['cdiv', 'state'], 'state', 'cdiv', output_state, 'CDIV', 'State')
-    elif 'cdiv' in geos and 'emm' in geos:
-        return (['cdiv', 'emm'], 'emm', 'cdiv', output_emm, 'CDIV', 'EMM')
+    if "emm" in geos and "state" in geos:
+        return (["emm", "state"], "emm", "state", output_emm, "State", "EMM")
+    elif "cdiv" in geos and "state" in geos:
+        return (["cdiv", "state"], "state", "cdiv", output_state, "CDIV", "State")
+    elif "cdiv" in geos and "emm" in geos:
+        return (["cdiv", "emm"], "emm", "cdiv", output_emm, "CDIV", "EMM")
     else:
         raise ValueError(f"Unsupported geography combination: {geos}")
 
 
 def replace_col_vals(df, tech):
     df = df.copy()
-    df.drop(columns=['Technology'], inplace=True)
-    df.insert(0, 'Technology', tech)
+    df.drop(columns=["Technology"], inplace=True)
+    df.insert(0, "Technology", tech)
     return df
 
 
-def process_end_use_energy(sector, filedir, filename, weathers, mymap,
-                           scoutgeo_df, geos, outdir, fueltype='electricity',
-                           preloaded_dfs=None):
+def process_end_use_energy(
+    sector,
+    filedir,
+    filename,
+    weathers,
+    mymap,
+    scoutgeo_df,
+    geos,
+    outdir,
+    fueltype="electricity",
+    preloaded_dfs=None,
+):
     """Process end-use energy data to create geographic disaggregation maps."""
     if sector == "commercial":
         county_col = "in.nhgis_county_gisjoin"
@@ -543,9 +570,9 @@ def process_end_use_energy(sector, filedir, filename, weathers, mymap,
         sec = "Res"
 
     mykeys = list(mymap)
-    needed_cols = list(dict.fromkeys(
-        [county_col, 'in.state'] + [c for cols in mymap.values() for c in cols]
-    ))
+    needed_cols = list(
+        dict.fromkeys([county_col, "in.state"] + [c for cols in mymap.values() for c in cols])
+    )
     for weath in weathers:
         print(f"  Processing {sector} end-use energy ({fueltype}) for {weath}...")
         if preloaded_dfs is not None and weath in preloaded_dfs:
@@ -553,12 +580,11 @@ def process_end_use_energy(sector, filedir, filename, weathers, mymap,
             available = [c for c in needed_cols if c in src.columns]
             df = src[available].copy()
         else:
-            df = pd.read_parquet(f"{filedir}{weath}/{filename}",
-                                 engine='pyarrow')
+            df = pd.read_parquet(f"{filedir}{weath}/{filename}", engine="pyarrow")
             df = normalize_columns(df)
         df = ensure_columns(df, mymap)
 
-        df.rename(columns={county_col: 'county', 'in.state': 'state'}, inplace=True)
+        df.rename(columns={county_col: "county", "in.state": "state"}, inplace=True)
 
         for eu in mykeys:
             df[eu] = df[mymap[eu]].sum(axis=1)
@@ -569,32 +595,43 @@ def process_end_use_energy(sector, filedir, filename, weathers, mymap,
         df = df[geos + mykeys]
 
         # Determine groupby columns based on geos
-        group_cols, pivot_index, pivot_col, output_func, geo_label, \
-            filename_geo = geo_pivot_settings(geos)
+        group_cols, pivot_index, pivot_col, output_func, geo_label, filename_geo = (
+            geo_pivot_settings(geos)
+        )
 
         df = df.groupby(group_cols).sum().reset_index()
 
         norm_pd = pd.DataFrame()
         for eu in mykeys:
-            conversion_matrix = df.pivot(index=pivot_index, columns=pivot_col,
-                                         values=eu)
+            conversion_matrix = df.pivot(index=pivot_index, columns=pivot_col, values=eu)
             normalized_matrix = finalize_eu_matrix(
-                conversion_matrix, output_func, geo_label, filename_geo, eu,
-                drop_total=True)
-            norm_pd = (normalized_matrix if norm_pd.empty
-                       else pd.concat([norm_pd, normalized_matrix],
-                                      ignore_index=False))
+                conversion_matrix, output_func, geo_label, filename_geo, eu, drop_total=True
+            )
+            norm_pd = (
+                normalized_matrix
+                if norm_pd.empty
+                else pd.concat([norm_pd, normalized_matrix], ignore_index=False)
+            )
 
         fuel_suffix = f"_{remove_space(fueltype)}" if fueltype else ""
-        norm_pd.to_csv(f"{outdir}/{sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}.csv",
-                       index=False)
+        norm_pd.to_csv(f"{outdir}/{sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}.csv", index=False)
         print(f"    Saved {sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}.csv")
 
 
-def process_end_use_stock(sector, filedir, filename, weathers, mymap,
-                          scoutgeo_df, geos, outdir, fueltype='electricity',
-                          preloaded_dfs=None):
+def process_end_use_stock(
+    sector,
+    filedir,
+    filename,
+    weathers,
+    mymap,
+    scoutgeo_df,
+    geos,
+    outdir,
+    fueltype="electricity",
+    preloaded_dfs=None,
+):
     """Process end-use stock data to create geographic disaggregation maps."""
+
     def eu_rows(df, category, columns_dict, threshold=1):
         columns = columns_dict.get(category, [])
         mask = (df[columns] != 0).sum(axis=1) >= threshold
@@ -611,10 +648,11 @@ def process_end_use_stock(sector, filedir, filename, weathers, mymap,
         area_col = "weight"
         sec = "Res"
 
-    needed_cols = list(dict.fromkeys(
-        [county_col, "in.state", area_col] +
-        [c for cols in mymap.values() for c in cols]
-    ))
+    needed_cols = list(
+        dict.fromkeys(
+            [county_col, "in.state", area_col] + [c for cols in mymap.values() for c in cols]
+        )
+    )
     for weath in weathers:
         print(f"  Processing {sector} end-use stock ({fueltype}) for {weath}...")
         if preloaded_dfs is not None and weath in preloaded_dfs:
@@ -627,26 +665,26 @@ def process_end_use_stock(sector, filedir, filename, weathers, mymap,
             if missing:
                 print(f"    Zero-filled {len(missing)} absent column(s): {missing}")
         else:
-            alldf = pd.read_parquet(f"{filedir}{weath}/{filename}",
-                                    engine='pyarrow')
+            alldf = pd.read_parquet(f"{filedir}{weath}/{filename}", engine="pyarrow")
             alldf = normalize_columns(alldf)
             alldf = ensure_columns(alldf, mymap)
 
-        alldf.rename(columns={county_col: "county", "in.state": "state",
-                              area_col: "warea"}, inplace=True)
+        alldf.rename(
+            columns={county_col: "county", "in.state": "state", area_col: "warea"}, inplace=True
+        )
 
         if "warea" not in alldf.columns:
             raise KeyError(
                 f"Area column '{area_col}' not found after normalization. "
                 f"Check its exact spelling in the {sector} parquet "
-                f"(normalize_columns may have altered it).")
+                f"(normalize_columns may have altered it)."
+            )
 
         mykeys = list(mymap)
         norm_pd = pd.DataFrame()
 
         # Determine groupby columns based on geos
-        _, pivot_index, pivot_col, output_func, geo_label, filename_geo = \
-            geo_pivot_settings(geos)
+        _, pivot_index, pivot_col, output_func, geo_label, filename_geo = geo_pivot_settings(geos)
 
         for eu in mykeys:
             df = eu_rows(alldf, eu, conditions_dict)
@@ -654,21 +692,24 @@ def process_end_use_stock(sector, filedir, filename, weathers, mymap,
             df = df[["warea"] + geos]
 
             conversion_matrix = df.pivot_table(
-                index=pivot_index, columns=pivot_col, values="warea",
-                aggfunc='sum')
+                index=pivot_index, columns=pivot_col, values="warea", aggfunc="sum"
+            )
             del df
             gc.collect()
             normalized_matrix = finalize_eu_matrix(
-                conversion_matrix, output_func, geo_label, filename_geo, eu,
-                drop_total=False)
+                conversion_matrix, output_func, geo_label, filename_geo, eu, drop_total=False
+            )
             del conversion_matrix
-            norm_pd = (normalized_matrix if norm_pd.empty
-                       else pd.concat([norm_pd, normalized_matrix],
-                                      ignore_index=False))
+            norm_pd = (
+                normalized_matrix
+                if norm_pd.empty
+                else pd.concat([norm_pd, normalized_matrix], ignore_index=False)
+            )
 
         fuel_suffix = f"_{remove_space(fueltype)}" if fueltype else ""
-        norm_pd.to_csv(f"{outdir}/{sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}_Stock.csv",
-                       index=False)
+        norm_pd.to_csv(
+            f"{outdir}/{sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}_Stock.csv", index=False
+        )
         print(f"    Saved {sec}_Cdiv_{filename_geo}_{weath}{fuel_suffix}_Stock.csv")
 
 
@@ -692,24 +733,25 @@ def process_gap_end_use(gap_csv_path, scoutgeo_df, geos, target_paths):
     handling.
     """
     if not os.path.exists(gap_csv_path):
-        print(f"    WARNING: gap model data not found at {gap_csv_path}; "
-              "skipping 'gap' row (run download_buildstock.py to fetch it).")
+        print(
+            f"    WARNING: gap model data not found at {gap_csv_path}; "
+            "skipping 'gap' row (run download_buildstock.py to fetch it)."
+        )
         return
 
     df = pd.read_csv(gap_csv_path)
     df = apply_geographies(df, scoutgeo_df, geos)
     df = df.dropna(subset=geos)
 
-    _, pivot_index, pivot_col, output_func, geo_label, filename_geo = \
-        geo_pivot_settings(geos)
+    _, pivot_index, pivot_col, output_func, geo_label, filename_geo = geo_pivot_settings(geos)
 
-    grouped = df.groupby([pivot_index, pivot_col])[
-        'annual_electricity_kwh'].sum().reset_index()
+    grouped = df.groupby([pivot_index, pivot_col])["annual_electricity_kwh"].sum().reset_index()
     conversion_matrix = grouped.pivot(
-        index=pivot_index, columns=pivot_col, values='annual_electricity_kwh')
+        index=pivot_index, columns=pivot_col, values="annual_electricity_kwh"
+    )
     gap_row = finalize_eu_matrix(
-        conversion_matrix, output_func, geo_label, filename_geo, 'gap',
-        drop_total=False)
+        conversion_matrix, output_func, geo_label, filename_geo, "gap", drop_total=False
+    )
 
     for path in target_paths:
         if not os.path.exists(path):
@@ -720,7 +762,7 @@ def process_gap_end_use(gap_csv_path, scoutgeo_df, geos, target_paths):
         # re-running this step (e.g. a --data-type technology-only rerun
         # against end-use files left over from an earlier run) doesn't pile
         # up duplicates.
-        existing = existing[existing['End use'] != 'gap']
+        existing = existing[existing["End use"] != "gap"]
         row = gap_row.reindex(columns=existing.columns, fill_value=0.0)
         combined = pd.concat([existing, row], ignore_index=True)
         combined.to_csv(path, index=False)
@@ -729,13 +771,13 @@ def process_gap_end_use(gap_csv_path, scoutgeo_df, geos, target_paths):
 
 def _apply_tech_map(df, map_df):
     """Assign scout_tech to each row by merging on all non-scout_tech columns."""
-    merge_cols = [c for c in map_df.columns if c != 'scout_tech' and c in df.columns]
+    merge_cols = [c for c in map_df.columns if c != "scout_tech" and c in df.columns]
     df = df.copy()
-    df['_orig_idx'] = range(len(df))
-    merged = df.merge(map_df[merge_cols + ['scout_tech']], on=merge_cols, how='left')
+    df["_orig_idx"] = range(len(df))
+    merged = df.merge(map_df[merge_cols + ["scout_tech"]], on=merge_cols, how="left")
     # If map rows have overlapping conditions, keep last match (preserves original priority)
-    merged = merged.drop_duplicates(subset=['_orig_idx'], keep='last')
-    return merged.drop(columns=['_orig_idx'])
+    merged = merged.drop_duplicates(subset=["_orig_idx"], keep="last")
+    return merged.drop(columns=["_orig_idx"])
 
 
 def _tech_output_block(normalized_matrix, output_func, col_geo, eu, tech, all_tech):
@@ -754,29 +796,40 @@ def _tech_output_block(normalized_matrix, output_func, col_geo, eu, tech, all_te
     normalized_matrix = output_func(normalized_matrix)
     normalized_matrix = normalized_matrix.fillna(0)
     normalized_matrix.columns = normalized_matrix.iloc[0]
-    normalized_matrix.rename(
-        columns={normalized_matrix.columns[-1]: 'Total'}, inplace=True)
+    normalized_matrix.rename(columns={normalized_matrix.columns[-1]: "Total"}, inplace=True)
     normalized_matrix = normalized_matrix.iloc[1:]
 
     normalized_matrix = ensure_geo_coverage(
-        normalized_matrix, 'CDIV', col_geo, f"tech '{tech}' / end use '{eu}'")
+        normalized_matrix, "CDIV", col_geo, f"tech '{tech}' / end use '{eu}'"
+    )
 
-    normalized_matrix.insert(0, 'CDIV', normalized_matrix.index)
-    normalized_matrix.insert(0, 'End use', eu.split('_')[1])
-    normalized_matrix.insert(0, 'Technology', tech)
-    normalized_matrix = normalized_matrix.drop(columns=['Total'])
-    all_tech = (normalized_matrix if all_tech.empty
-                else pd.concat([all_tech, normalized_matrix],
-                               ignore_index=False))
+    normalized_matrix.insert(0, "CDIV", normalized_matrix.index)
+    normalized_matrix.insert(0, "End use", eu.split("_")[1])
+    normalized_matrix.insert(0, "Technology", tech)
+    normalized_matrix = normalized_matrix.drop(columns=["Total"])
+    all_tech = (
+        normalized_matrix
+        if all_tech.empty
+        else pd.concat([all_tech, normalized_matrix], ignore_index=False)
+    )
     if tech == "res_type_central_AC":
         norm2 = replace_col_vals(normalized_matrix, "wall-window_room_AC")
         all_tech = pd.concat([all_tech, norm2], ignore_index=False)
     return all_tech
 
 
-def process_tech_energy(sector, filedir, filename, weathers, mymap,
-                        scoutgeo_df, geos, outdir, mapping_dir,
-                        preloaded_dfs=None):
+def process_tech_energy(
+    sector,
+    filedir,
+    filename,
+    weathers,
+    mymap,
+    scoutgeo_df,
+    geos,
+    outdir,
+    mapping_dir,
+    preloaded_dfs=None,
+):
     """Process technology-level energy data for electricity heating/cooling."""
     if sector == "commercial":
         county_col = "in.nhgis_county_gisjoin"
@@ -788,16 +841,16 @@ def process_tech_energy(sector, filedir, filename, weathers, mymap,
     combined_map = combine_keys(mymap[sector])
     mykeys = list(combined_map)
 
-    if 'emm' in geos and 'cdiv' in geos:
-        pivot_index, pivot_col = 'emm', 'cdiv'
-        group_cols = ['emm', 'cdiv', 'scout_tech']
+    if "emm" in geos and "cdiv" in geos:
+        pivot_index, pivot_col = "emm", "cdiv"
+        group_cols = ["emm", "cdiv", "scout_tech"]
         output_func = output_emm
-        filename_geo = 'EMM'
-    elif 'state' in geos and 'cdiv' in geos:
-        pivot_index, pivot_col = 'state', 'cdiv'
-        group_cols = ['state', 'cdiv', 'scout_tech']
+        filename_geo = "EMM"
+    elif "state" in geos and "cdiv" in geos:
+        pivot_index, pivot_col = "state", "cdiv"
+        group_cols = ["state", "cdiv", "scout_tech"]
         output_func = output_state
-        filename_geo = 'State'
+        filename_geo = "State"
     else:
         raise ValueError(f"Unsupported geography combination for tech: {geos}")
 
@@ -813,11 +866,11 @@ def process_tech_energy(sector, filedir, filename, weathers, mymap,
         if preloaded_dfs is not None and weath in preloaded_dfs:
             df_all = preloaded_dfs[weath].copy()
         else:
-            df_all = pd.read_parquet(f"{filedir}{weath}/{filename}", engine='pyarrow')
+            df_all = pd.read_parquet(f"{filedir}{weath}/{filename}", engine="pyarrow")
             df_all = normalize_columns(df_all)
         df_all = ensure_columns(df_all, combined_map)
-        df_all.rename(columns={county_col: 'county'}, inplace=True)
-        df_all.rename(columns={'in.state': 'state'}, inplace=True)
+        df_all.rename(columns={county_col: "county"}, inplace=True)
+        df_all.rename(columns={"in.state": "state"}, inplace=True)
         df_all.reset_index(inplace=True)
         df_all = apply_geographies(df_all, scoutgeo_df, geos)
         df_all = df_all.dropna(subset=geos)
@@ -831,8 +884,9 @@ def process_tech_energy(sector, filedir, filename, weathers, mymap,
             # Copy only the columns needed for this eu to reduce memory pressure.
             # Include map join columns so _apply_tech_map has attributes to match on.
             eu_source_cols = combined_map[eu]
-            map_join_cols = [c for c in map_dfs[eu].columns
-                             if c != 'scout_tech' and c in df_all.columns]
+            map_join_cols = [
+                c for c in map_dfs[eu].columns if c != "scout_tech" and c in df_all.columns
+            ]
             needed_cols = list(dict.fromkeys(geos + eu_source_cols + map_join_cols))
             df = df_all[[c for c in needed_cols if c in df_all.columns]].copy()
             df[eu] = df[eu_source_cols].sum(axis=1)
@@ -840,32 +894,42 @@ def process_tech_energy(sector, filedir, filename, weathers, mymap,
 
             df = _apply_tech_map(df, map_dfs[eu])
 
-            df = df[geos + ['scout_tech', eu]]
-            tech_list = df['scout_tech'].dropna().unique().tolist()
+            df = df[geos + ["scout_tech", eu]]
+            tech_list = df["scout_tech"].dropna().unique().tolist()
             df = df.groupby(group_cols).sum().reset_index()
 
             all_tech = pd.DataFrame()
             for tech in tech_list:
-                tdf = df[df['scout_tech'] == tech].drop(columns=['scout_tech'])
-                conversion_matrix = tdf.pivot(
-                    index=pivot_index, columns=pivot_col, values=eu)
+                tdf = df[df["scout_tech"] == tech].drop(columns=["scout_tech"])
+                conversion_matrix = tdf.pivot(index=pivot_index, columns=pivot_col, values=eu)
                 normalized_matrix = normalize_by_column_sum(
                     conversion_matrix, f"end use '{eu}' / tech '{tech}'"
                 ).reset_index()
                 all_tech = _tech_output_block(
-                    normalized_matrix, output_func, filename_geo, eu, tech,
-                    all_tech)
+                    normalized_matrix, output_func, filename_geo, eu, tech, all_tech
+                )
             if not all_tech.empty:
-                all_eu = (all_tech if all_eu.empty
-                          else pd.concat([all_eu, all_tech], ignore_index=False))
+                all_eu = (
+                    all_tech if all_eu.empty else pd.concat([all_eu, all_tech], ignore_index=False)
+                )
 
-        out_file = (f"{sec}_Cdiv_{filename_geo}_{weath}_electricity_Tech.csv")
+        out_file = f"{sec}_Cdiv_{filename_geo}_{weath}_electricity_Tech.csv"
         all_eu.to_csv(f"{outdir}/{out_file}", index=False)
         print(f"    Saved {out_file}")
 
 
-def process_tech_stock(sector, filedir, filename, weathers, mymap, scoutgeo_df,
-                       geos, outdir, mapping_dir, preloaded_dfs=None):
+def process_tech_stock(
+    sector,
+    filedir,
+    filename,
+    weathers,
+    mymap,
+    scoutgeo_df,
+    geos,
+    outdir,
+    mapping_dir,
+    preloaded_dfs=None,
+):
     """Process technology-level stock data for electricity heating/cooling."""
     if sector == "commercial":
         county_col = "in.nhgis_county_gisjoin"
@@ -879,14 +943,14 @@ def process_tech_stock(sector, filedir, filename, weathers, mymap, scoutgeo_df,
     combined_map = combine_keys(mymap[sector])
     mykeys = list(combined_map)
 
-    if 'emm' in geos and 'cdiv' in geos:
-        pivot_index, pivot_col = 'emm', 'cdiv'
+    if "emm" in geos and "cdiv" in geos:
+        pivot_index, pivot_col = "emm", "cdiv"
         output_func = output_emm
-        filename_geo = 'EMM'
-    elif 'state' in geos and 'cdiv' in geos:
-        pivot_index, pivot_col = 'state', 'cdiv'
+        filename_geo = "EMM"
+    elif "state" in geos and "cdiv" in geos:
+        pivot_index, pivot_col = "state", "cdiv"
         output_func = output_state
-        filename_geo = 'State'
+        filename_geo = "State"
     else:
         raise ValueError(f"Unsupported geography combination for tech: {geos}")
 
@@ -902,12 +966,12 @@ def process_tech_stock(sector, filedir, filename, weathers, mymap, scoutgeo_df,
         if preloaded_dfs is not None and weath in preloaded_dfs:
             df_all = preloaded_dfs[weath].copy()
         else:
-            df_all = pd.read_parquet(f"{filedir}{weath}/{filename}", engine='pyarrow')
+            df_all = pd.read_parquet(f"{filedir}{weath}/{filename}", engine="pyarrow")
             df_all = normalize_columns(df_all)
         df_all = ensure_columns(df_all, combined_map)
-        df_all.rename(columns={county_col: 'county'}, inplace=True)
-        df_all.rename(columns={'in.state': 'state'}, inplace=True)
-        df_all.rename(columns={area_col: 'warea'}, inplace=True)
+        df_all.rename(columns={county_col: "county"}, inplace=True)
+        df_all.rename(columns={"in.state": "state"}, inplace=True)
+        df_all.rename(columns={area_col: "warea"}, inplace=True)
         df_all.reset_index(inplace=True)
         df_all = apply_geographies(df_all, scoutgeo_df, geos)
         df_all = df_all.dropna(subset=geos)
@@ -921,43 +985,40 @@ def process_tech_stock(sector, filedir, filename, weathers, mymap, scoutgeo_df,
             # Copy only the columns needed for this eu to reduce memory pressure.
             # Include map join columns so _apply_tech_map has attributes to match on.
             eu_source_cols = combined_map[eu]
-            map_join_cols = [c for c in map_dfs[eu].columns
-                             if c != 'scout_tech' and c in df_all.columns]
-            needed_cols = list(dict.fromkeys(
-                geos + ['warea'] + eu_source_cols + map_join_cols))
+            map_join_cols = [
+                c for c in map_dfs[eu].columns if c != "scout_tech" and c in df_all.columns
+            ]
+            needed_cols = list(dict.fromkeys(geos + ["warea"] + eu_source_cols + map_join_cols))
             df = df_all[[c for c in needed_cols if c in df_all.columns]].copy()
             df[eu] = df[eu_source_cols].sum(axis=1)
             df = df[df[eu] > 0]
 
             df = _apply_tech_map(df, map_dfs[eu])
-            df = df[geos + ['scout_tech', 'warea']]
-            tech_list = df['scout_tech'].dropna().unique().tolist()
+            df = df[geos + ["scout_tech", "warea"]]
+            tech_list = df["scout_tech"].dropna().unique().tolist()
 
             # Single groupby across all techs — avoids per-tech pivot_table aggregation
             df_grouped = (
-                df.groupby([pivot_index, pivot_col, 'scout_tech'])['warea']
-                .sum()
-                .reset_index()
+                df.groupby([pivot_index, pivot_col, "scout_tech"])["warea"].sum().reset_index()
             )
 
             all_tech = pd.DataFrame()
             for tech in tech_list:
-                tdf = (df_grouped[df_grouped['scout_tech'] == tech]
-                       .drop(columns=['scout_tech']))
+                tdf = df_grouped[df_grouped["scout_tech"] == tech].drop(columns=["scout_tech"])
                 # Use pivot (not pivot_table) since data is already aggregated
-                conversion_matrix = tdf.pivot(
-                    index=pivot_index, columns=pivot_col, values='warea')
+                conversion_matrix = tdf.pivot(index=pivot_index, columns=pivot_col, values="warea")
                 normalized_matrix = normalize_by_column_sum(
                     conversion_matrix, f"end use '{eu}' / tech '{tech}'"
                 ).reset_index()
                 all_tech = _tech_output_block(
-                    normalized_matrix, output_func, filename_geo, eu, tech,
-                    all_tech)
+                    normalized_matrix, output_func, filename_geo, eu, tech, all_tech
+                )
             if not all_tech.empty:
-                all_eu = (all_tech if all_eu.empty
-                          else pd.concat([all_eu, all_tech], ignore_index=False))
+                all_eu = (
+                    all_tech if all_eu.empty else pd.concat([all_eu, all_tech], ignore_index=False)
+                )
 
-        out_file = (f"{sec}_Cdiv_{filename_geo}_{weath}_electricity_Stock_Tech.csv")
+        out_file = f"{sec}_Cdiv_{filename_geo}_{weath}_electricity_Stock_Tech.csv"
         all_eu.to_csv(f"{outdir}/{out_file}", index=False)
         print(f"    Saved {out_file}")
 
@@ -977,7 +1038,7 @@ def combine_hvac_and_other(output_dir, year="2025", weather_year="amy2018"):
     # Check if any tech files exist
     tech_files_exist = False
     if os.path.exists(tech_dir):
-        tech_files = [f for f in os.listdir(tech_dir) if f.endswith('_Tech.csv')]
+        tech_files = [f for f in os.listdir(tech_dir) if f.endswith("_Tech.csv")]
         tech_files_exist = len(tech_files) > 0
 
     if not tech_files_exist:
@@ -997,14 +1058,13 @@ def combine_hvac_and_other(output_dir, year="2025", weather_year="amy2018"):
         f"Com_Cdiv_EMM_{weather_year}_Stock",
         f"Com_Cdiv_State_{weather_year}_Stock",
         f"Res_Cdiv_EMM_{weather_year}_Stock",
-        f"Res_Cdiv_State_{weather_year}_Stock"
+        f"Res_Cdiv_State_{weather_year}_Stock",
     ]
 
     combined_count = 0
     for filename in filenames:
         if "Stock" in filename:
-            filename_eu = (f"{filename.replace('Stock', '')}"
-                           f"electricity_Stock.csv")
+            filename_eu = f"{filename.replace('Stock', '')}electricity_Stock.csv"
             filename_tech = f"{filename.replace('_Stock', '')}_electricity_Stock_Tech.csv"
         else:
             filename_eu = f"{filename}_electricity.csv"
@@ -1023,7 +1083,7 @@ def combine_hvac_and_other(output_dir, year="2025", weather_year="amy2018"):
             # exactly these rows, so label them explicitly rather than leaving
             # them NaN -- fill_na_with_zeros() would otherwise turn a blank
             # Technology into the string "0".
-            df_eu.insert(0, 'Technology', 'all')
+            df_eu.insert(0, "Technology", "all")
             # Written to tech_path (not eu_path): final_mseg_converter.py's
             # technology-level disaggregation reads the "_Tech" file expecting
             # it to cover every end use -- Technology-specific rows for
@@ -1053,8 +1113,7 @@ def fill_na_with_zeros(output_dir, year="2025"):
             print(f"  Skipping {folder_name}: directory not found")
             continue
 
-        csv_files = [f for f in os.listdir(folder_path)
-                     if f.endswith('.csv')]
+        csv_files = [f for f in os.listdir(folder_path) if f.endswith(".csv")]
         for filename in csv_files:
             file_path = os.path.join(folder_path, filename)
             df = pd.read_csv(file_path)
@@ -1062,8 +1121,7 @@ def fill_na_with_zeros(output_dir, year="2025"):
             df.to_csv(file_path, index=False)
 
         if csv_files:
-            print(f"  Filled NAs in {len(csv_files)} files in "
-                  f"{folder_name}")
+            print(f"  Filled NAs in {len(csv_files)} files in {folder_name}")
         else:
             print(f"  No CSV files found in {folder_name}")
 
@@ -1087,8 +1145,7 @@ def read_sdr_version(dataset_path, weather_year):
         return json.load(f)["version"]
 
 
-def write_combined_sdr_version(output_dir, resstock_path, comstock_path,
-                               weather_year):
+def write_combined_sdr_version(output_dir, resstock_path, comstock_path, weather_year):
     """Combine the residential/commercial SDR versions into one file
     alongside the generated CSVs, so final_mseg_converter.py can report
     which SDR release the disaggregation factors it reads came from.
@@ -1110,7 +1167,7 @@ def install_files(output_dir, install_dir, year="2025"):
 
     source_dirs = [
         os.path.join(output_dir, f"{year}_end_use"),
-        os.path.join(output_dir, f"{year}_technology")
+        os.path.join(output_dir, f"{year}_technology"),
     ]
 
     for source_dir in source_dirs:
@@ -1124,8 +1181,7 @@ def install_files(output_dir, install_dir, year="2025"):
 
     sdr_version_file = os.path.join(output_dir, SDR_VERSION_FILENAME)
     if os.path.exists(sdr_version_file):
-        shutil.copy2(sdr_version_file,
-                     os.path.join(install_dir, SDR_VERSION_FILENAME))
+        shutil.copy2(sdr_version_file, os.path.join(install_dir, SDR_VERSION_FILENAME))
         print(f"  Copied {SDR_VERSION_FILENAME}")
 
     print("Installation complete.")
@@ -1133,55 +1189,81 @@ def install_files(output_dir, install_dir, year="2025"):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate geographic disaggregation maps from ResStock and "
-                    "ComStock data.",
+        description="Generate geographic disaggregation maps from ResStock and ComStock data.",
         # Without this, an unrecognized flag that happens to be an
         # unambiguous prefix of a real one (e.g. the old --install, now
         # --no-install/--install-only) is silently accepted as that flag
         # instead of erroring -- exactly the kind of mistake this script's
         # own history just demonstrated is easy to make.
-        allow_abbrev=False)
-    parser.add_argument('--year', type=str, default='2025',
-                        choices=['2024', '2025'],
-                        help='BuildStock release year (default: 2025).')
-    parser.add_argument('--weather-year', type=str, default='amy2018',
-                        help='Weather year (e.g. amy2018 or tmy3).')
-    parser.add_argument('--comstock-path', type=str, default=None,
-                        help='Path to ComStock data directory '
-                             '(default: input/<year>_comstock).')
-    parser.add_argument('--resstock-path', type=str, default=None,
-                        help='Path to ResStock data directory '
-                             '(default: input/<year>_resstock).')
-    parser.add_argument('--output-dir', type=str, default='output',
-                        help='Directory to save the output CSV '
-                             'files.')
-    parser.add_argument('--data-type', type=str, default=None,
-                        choices=['end_use', 'technology', 'both'],
-                        help='Which output type to generate: end_use, '
-                             'technology, or both. Defaults to both. '
-                             'Ignored with --install-only.')
-    parser.add_argument('--mapping-dir', type=str, default='input/mapping',
-                        help='Directory containing map_*.csv files '
-                             '(default: input/mapping).')
-    parser.add_argument('--all', action='store_true',
-                        help='Generate all output files (default behavior).')
-    parser.add_argument('--force', action='store_true',
-                        help='Overwrite existing output files.')
-    parser.add_argument('--sector', type=str, default='both',
-                        choices=['residential', 'commercial', 'both'],
-                        help='Which sector to process: residential, commercial, '
-                             'or both (default: both).')
-    parser.add_argument('--no-install', action='store_true',
-                        help='Generate into the scratch output/ directory '
-                             'without copying to convert_data/geo_map/.')
-    parser.add_argument('--install-only', action='store_true',
-                        help='Skip generation; just copy the existing '
-                             'output/ files to convert_data/geo_map/.')
+        allow_abbrev=False,
+    )
+    parser.add_argument(
+        "--year",
+        type=str,
+        default="2025",
+        choices=["2024", "2025"],
+        help="BuildStock release year (default: 2025).",
+    )
+    parser.add_argument(
+        "--weather-year", type=str, default="amy2018", help="Weather year (e.g. amy2018 or tmy3)."
+    )
+    parser.add_argument(
+        "--comstock-path",
+        type=str,
+        default=None,
+        help="Path to ComStock data directory (default: input/<year>_comstock).",
+    )
+    parser.add_argument(
+        "--resstock-path",
+        type=str,
+        default=None,
+        help="Path to ResStock data directory (default: input/<year>_resstock).",
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="output", help="Directory to save the output CSV files."
+    )
+    parser.add_argument(
+        "--data-type",
+        type=str,
+        default=None,
+        choices=["end_use", "technology", "both"],
+        help="Which output type to generate: end_use, "
+        "technology, or both. Defaults to both. "
+        "Ignored with --install-only.",
+    )
+    parser.add_argument(
+        "--mapping-dir",
+        type=str,
+        default="input/mapping",
+        help="Directory containing map_*.csv files (default: input/mapping).",
+    )
+    parser.add_argument(
+        "--all", action="store_true", help="Generate all output files (default behavior)."
+    )
+    parser.add_argument("--force", action="store_true", help="Overwrite existing output files.")
+    parser.add_argument(
+        "--sector",
+        type=str,
+        default="both",
+        choices=["residential", "commercial", "both"],
+        help="Which sector to process: residential, commercial, or both (default: both).",
+    )
+    parser.add_argument(
+        "--no-install",
+        action="store_true",
+        help="Generate into the scratch output/ directory "
+        "without copying to convert_data/geo_map/.",
+    )
+    parser.add_argument(
+        "--install-only",
+        action="store_true",
+        help="Skip generation; just copy the existing output/ files to convert_data/geo_map/.",
+    )
 
     args = parser.parse_args()
 
     if args.install_only and args.no_install:
-        parser.error('--install-only and --no-install cannot both be set.')
+        parser.error("--install-only and --no-install cannot both be set.")
 
     # Collected across every try/except below so a batch run over many
     # sector/geo/fuel combinations can still fail loudly (nonzero exit,
@@ -1192,7 +1274,7 @@ def main():
     run_generation = not args.install_only
     do_install = not args.no_install
     if args.data_type is None:
-        args.data_type = 'both'
+        args.data_type = "both"
 
     # Apply year-based defaults for paths not explicitly provided
     if args.comstock_path is None:
@@ -1204,34 +1286,31 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Define output subdirectories
-    tech_outdir = os.path.join(args.output_dir, f'{args.year}_technology')
-    end_use_outdir = os.path.join(args.output_dir, f'{args.year}_end_use')
+    tech_outdir = os.path.join(args.output_dir, f"{args.year}_technology")
+    end_use_outdir = os.path.join(args.output_dir, f"{args.year}_end_use")
 
     if not run_generation:
         # --install-only: skip all data loading and generation.
-        install_dir = os.path.abspath(
-            os.path.join(script_dir, '..', 'convert_data', 'geo_map'))
+        install_dir = os.path.abspath(os.path.join(script_dir, "..", "convert_data", "geo_map"))
         install_files(args.output_dir, install_dir, year=args.year)
         return
 
-    if args.data_type in ('technology', 'both'):
+    if args.data_type in ("technology", "both"):
         os.makedirs(tech_outdir, exist_ok=True)
-    if args.data_type in ('end_use', 'both'):
+    if args.data_type in ("end_use", "both"):
         os.makedirs(end_use_outdir, exist_ok=True)
 
     write_combined_sdr_version(
-        args.output_dir, args.resstock_path, args.comstock_path,
-        args.weather_year)
+        args.output_dir, args.resstock_path, args.comstock_path, args.weather_year
+    )
 
     scoutgeo_df = get_scout_geo(script_dir)
 
     print("Starting disaggregation process...")
 
     # Check if input data exists
-    resstock_data_path = os.path.join(args.resstock_path, args.weather_year,
-                                      'baseline.parquet')
-    comstock_data_path = os.path.join(args.comstock_path, args.weather_year,
-                                      'baseline.parquet')
+    resstock_data_path = os.path.join(args.resstock_path, args.weather_year, "baseline.parquet")
+    comstock_data_path = os.path.join(args.comstock_path, args.weather_year, "baseline.parquet")
 
     weathers = [args.weather_year]
 
@@ -1240,37 +1319,35 @@ def main():
     res_dfs = {}
     com_dfs = {}
     for weath in weathers:
-        if args.sector in ('residential', 'both') and os.path.exists(resstock_data_path):
+        if args.sector in ("residential", "both") and os.path.exists(resstock_data_path):
             print(f"Pre-loading residential data for {weath}...")
             raw = pd.read_parquet(
-                f"{args.resstock_path}/{weath}/baseline.parquet",
-                engine='pyarrow')
+                f"{args.resstock_path}/{weath}/baseline.parquet", engine="pyarrow"
+            )
             res_dfs[weath] = normalize_columns(raw)
-        if args.sector in ('commercial', 'both') and os.path.exists(comstock_data_path):
+        if args.sector in ("commercial", "both") and os.path.exists(comstock_data_path):
             print(f"Pre-loading commercial data for {weath}...")
             raw = pd.read_parquet(
-                f"{args.comstock_path}/{weath}/baseline.parquet",
-                engine='pyarrow')
+                f"{args.comstock_path}/{weath}/baseline.parquet", engine="pyarrow"
+            )
             com_dfs[weath] = normalize_columns(raw)
 
     # Define all fuel types to process
-    fuel_types = ['electricity', 'natural gas', 'distillate', 'other fuel']
+    fuel_types = ["electricity", "natural gas", "distillate", "other fuel"]
 
     # Define geography combinations to generate
     # Cdiv/EMM and Cdiv/State outputs are required
-    geo_combinations = [
-        (['emm', 'cdiv'], 'Cdiv/EMM'),
-        (['cdiv', 'state'], 'Cdiv/State')
-    ]
+    geo_combinations = [(["emm", "cdiv"], "Cdiv/EMM"), (["cdiv", "state"], "Cdiv/State")]
 
-    if args.data_type in ('end_use', 'both'):
-        if args.sector not in ('residential', 'both'):
+    if args.data_type in ("end_use", "both"):
+        if args.sector not in ("residential", "both"):
             print("Skipping residential end-use processing (--sector commercial).")
         elif not os.path.exists(resstock_data_path):
             print(f"WARNING: ResStock data not found at: {resstock_data_path}")
             print("  Skipping residential processing.")
-            print("  To generate residential disaggregation maps, provide "
-                  "BuildStock parquet files.")
+            print(
+                "  To generate residential disaggregation maps, provide BuildStock parquet files."
+            )
         else:
             print(f"Processing residential data from: {resstock_data_path}")
 
@@ -1278,24 +1355,24 @@ def main():
                 print(f"\n  Generating {geo_name} outputs...")
 
                 for fuel in fuel_types:
-                    if fuel not in END_USE_MAP['residential']:
+                    if fuel not in END_USE_MAP["residential"]:
                         print(f"    Skipping {fuel}: no mapping defined")
                         continue
 
-                    fuel_end_uses = END_USE_MAP['residential'][fuel]
+                    fuel_end_uses = END_USE_MAP["residential"][fuel]
 
                     try:
                         process_end_use_energy(
-                            sector='residential',
+                            sector="residential",
                             filedir=f"{args.resstock_path}/",
-                            filename='baseline.parquet',
+                            filename="baseline.parquet",
                             weathers=weathers,
                             mymap=fuel_end_uses,
                             scoutgeo_df=scoutgeo_df,
                             geos=geos,
                             outdir=end_use_outdir,
                             fueltype=fuel,
-                            preloaded_dfs=res_dfs
+                            preloaded_dfs=res_dfs,
                         )
                     except Exception as e:
                         msg = f"residential {fuel} energy ({geo_name}): {e}"
@@ -1305,16 +1382,16 @@ def main():
 
                     try:
                         process_end_use_stock(
-                            sector='residential',
+                            sector="residential",
                             filedir=f"{args.resstock_path}/",
-                            filename='baseline.parquet',
+                            filename="baseline.parquet",
                             weathers=weathers,
                             mymap=fuel_end_uses,
                             scoutgeo_df=scoutgeo_df,
                             geos=geos,
                             outdir=end_use_outdir,
                             fueltype=fuel,
-                            preloaded_dfs=res_dfs
+                            preloaded_dfs=res_dfs,
                         )
                     except Exception as e:
                         msg = f"residential {fuel} stock ({geo_name}): {e}"
@@ -1322,13 +1399,12 @@ def main():
                         traceback.print_exc()
                         failures.append(msg)
 
-        if args.sector not in ('commercial', 'both'):
+        if args.sector not in ("commercial", "both"):
             print("Skipping commercial end-use processing (--sector residential).")
         elif not os.path.exists(comstock_data_path):
             print(f"WARNING: ComStock data not found at: {comstock_data_path}")
             print("  Skipping commercial processing.")
-            print("  To generate commercial disaggregation maps, provide "
-                  "BuildStock parquet files.")
+            print("  To generate commercial disaggregation maps, provide BuildStock parquet files.")
         else:
             print(f"Processing commercial data from: {comstock_data_path}")
 
@@ -1336,24 +1412,24 @@ def main():
                 print(f"\n  Generating {geo_name} outputs...")
 
                 for fuel in fuel_types:
-                    if fuel not in END_USE_MAP['commercial']:
+                    if fuel not in END_USE_MAP["commercial"]:
                         print(f"    Skipping {fuel}: no mapping defined")
                         continue
 
-                    fuel_end_uses = END_USE_MAP['commercial'][fuel]
+                    fuel_end_uses = END_USE_MAP["commercial"][fuel]
 
                     try:
                         process_end_use_energy(
-                            sector='commercial',
+                            sector="commercial",
                             filedir=f"{args.comstock_path}/",
-                            filename='baseline.parquet',
+                            filename="baseline.parquet",
                             weathers=weathers,
                             mymap=fuel_end_uses,
                             scoutgeo_df=scoutgeo_df,
                             geos=geos,
                             outdir=end_use_outdir,
                             fueltype=fuel,
-                            preloaded_dfs=com_dfs
+                            preloaded_dfs=com_dfs,
                         )
                     except Exception as e:
                         msg = f"commercial {fuel} energy ({geo_name}): {e}"
@@ -1363,16 +1439,16 @@ def main():
 
                     try:
                         process_end_use_stock(
-                            sector='commercial',
+                            sector="commercial",
                             filedir=f"{args.comstock_path}/",
-                            filename='baseline.parquet',
+                            filename="baseline.parquet",
                             weathers=weathers,
                             mymap=fuel_end_uses,
                             scoutgeo_df=scoutgeo_df,
                             geos=geos,
                             outdir=end_use_outdir,
                             fueltype=fuel,
-                            preloaded_dfs=com_dfs
+                            preloaded_dfs=com_dfs,
                         )
                     except Exception as e:
                         msg = f"commercial {fuel} stock ({geo_name}): {e}"
@@ -1380,8 +1456,8 @@ def main():
                         traceback.print_exc()
                         failures.append(msg)
 
-    if args.data_type in ('technology', 'both'):
-        if args.sector not in ('residential', 'both'):
+    if args.data_type in ("technology", "both"):
+        if args.sector not in ("residential", "both"):
             print("Skipping residential technology processing (--sector commercial).")
         elif not os.path.exists(resstock_data_path):
             print(f"WARNING: ResStock data not found at: {resstock_data_path}")
@@ -1392,16 +1468,16 @@ def main():
                 print(f"\n  Generating {geo_name} tech outputs...")
                 try:
                     process_tech_energy(
-                        sector='residential',
+                        sector="residential",
                         filedir=f"{args.resstock_path}/",
-                        filename='baseline.parquet',
+                        filename="baseline.parquet",
                         weathers=weathers,
                         mymap=FUEL_ENDUSE_MAP,
                         scoutgeo_df=scoutgeo_df,
                         geos=geos,
                         outdir=tech_outdir,
                         mapping_dir=args.mapping_dir,
-                        preloaded_dfs=res_dfs
+                        preloaded_dfs=res_dfs,
                     )
                 except Exception as e:
                     msg = f"residential tech energy ({geo_name}): {e}"
@@ -1410,16 +1486,16 @@ def main():
                     failures.append(msg)
                 try:
                     process_tech_stock(
-                        sector='residential',
+                        sector="residential",
                         filedir=f"{args.resstock_path}/",
-                        filename='baseline.parquet',
+                        filename="baseline.parquet",
                         weathers=weathers,
                         mymap=FUEL_ENDUSE_MAP,
                         scoutgeo_df=scoutgeo_df,
                         geos=geos,
                         outdir=tech_outdir,
                         mapping_dir=args.mapping_dir,
-                        preloaded_dfs=res_dfs
+                        preloaded_dfs=res_dfs,
                     )
                 except Exception as e:
                     msg = f"residential tech stock ({geo_name}): {e}"
@@ -1427,7 +1503,7 @@ def main():
                     traceback.print_exc()
                     failures.append(msg)
 
-        if args.sector not in ('commercial', 'both'):
+        if args.sector not in ("commercial", "both"):
             print("Skipping commercial technology processing (--sector residential).")
         elif not os.path.exists(comstock_data_path):
             print(f"WARNING: ComStock data not found at: {comstock_data_path}")
@@ -1438,16 +1514,16 @@ def main():
                 print(f"\n  Generating {geo_name} tech outputs...")
                 try:
                     process_tech_energy(
-                        sector='commercial',
+                        sector="commercial",
                         filedir=f"{args.comstock_path}/",
-                        filename='baseline.parquet',
+                        filename="baseline.parquet",
                         weathers=weathers,
                         mymap=FUEL_ENDUSE_MAP,
                         scoutgeo_df=scoutgeo_df,
                         geos=geos,
                         outdir=tech_outdir,
                         mapping_dir=args.mapping_dir,
-                        preloaded_dfs=com_dfs
+                        preloaded_dfs=com_dfs,
                     )
                 except Exception as e:
                     msg = f"commercial tech energy ({geo_name}): {e}"
@@ -1456,16 +1532,16 @@ def main():
                     failures.append(msg)
                 try:
                     process_tech_stock(
-                        sector='commercial',
+                        sector="commercial",
                         filedir=f"{args.comstock_path}/",
-                        filename='baseline.parquet',
+                        filename="baseline.parquet",
                         weathers=weathers,
                         mymap=FUEL_ENDUSE_MAP,
                         scoutgeo_df=scoutgeo_df,
                         geos=geos,
                         outdir=tech_outdir,
                         mapping_dir=args.mapping_dir,
-                        preloaded_dfs=com_dfs
+                        preloaded_dfs=com_dfs,
                     )
                 except Exception as e:
                     msg = f"commercial tech stock ({geo_name}): {e}"
@@ -1484,25 +1560,22 @@ def main():
     # "lighting", etc. Real gap SDR data only covers electricity;
     # final_mseg_converter.py reuses this row for all fuels' gap blending,
     # so no other fuel's files get a "gap" row.
-    if args.sector in ('commercial', 'both'):
-        gap_csv_path = os.path.join(
-            args.comstock_path, 'gap', 'annual_electricity_by_county.csv')
+    if args.sector in ("commercial", "both"):
+        gap_csv_path = os.path.join(args.comstock_path, "gap", "annual_electricity_by_county.csv")
         for geos, geo_name in geo_combinations:
-            print(f"\nAdding ComStock gap row to {geo_name} "
-                  "commercial electricity outputs...")
+            print(f"\nAdding ComStock gap row to {geo_name} commercial electricity outputs...")
             _, _, _, _, _, filename_geo = geo_pivot_settings(geos)
             for weath in weathers:
                 target_paths = [
                     os.path.join(
-                        end_use_outdir,
-                        f"Com_Cdiv_{filename_geo}_{weath}_electricity.csv"),
+                        end_use_outdir, f"Com_Cdiv_{filename_geo}_{weath}_electricity.csv"
+                    ),
                     os.path.join(
-                        end_use_outdir,
-                        f"Com_Cdiv_{filename_geo}_{weath}_electricity_Stock.csv"),
+                        end_use_outdir, f"Com_Cdiv_{filename_geo}_{weath}_electricity_Stock.csv"
+                    ),
                 ]
                 try:
-                    process_gap_end_use(
-                        gap_csv_path, scoutgeo_df, geos, target_paths)
+                    process_gap_end_use(gap_csv_path, scoutgeo_df, geos, target_paths)
                 except Exception as e:
                     msg = f"commercial gap row ({geo_name}): {e}"
                     print(f"    ERROR processing {msg}")
@@ -1510,15 +1583,13 @@ def main():
                     failures.append(msg)
 
     # Post-processing steps
-    if args.data_type == 'both':
-        combine_hvac_and_other(
-            args.output_dir, year=args.year, weather_year=args.weather_year)
+    if args.data_type == "both":
+        combine_hvac_and_other(args.output_dir, year=args.year, weather_year=args.weather_year)
     fill_na_with_zeros(args.output_dir, year=args.year)
 
     # Install step
     if do_install:
-        install_dir = os.path.abspath(
-            os.path.join(script_dir, '..', 'convert_data', 'geo_map'))
+        install_dir = os.path.abspath(os.path.join(script_dir, "..", "convert_data", "geo_map"))
         install_files(args.output_dir, install_dir, year=args.year)
 
     if failures:

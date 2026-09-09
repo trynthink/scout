@@ -25,7 +25,7 @@ Contributions
 Version Control with Git and GitHub
 -----------------------------------
 
-Scout relies on git for version control. 
+Scout relies on git for version control.
 
 Before Each Commit
 ~~~~~~~~~~~~~~~~~~
@@ -33,7 +33,7 @@ Before Each Commit
 Making a commit in git should not be a source of heartburn, but there are several steps that should be taken to ensure each commit is high quality.
 
 * Check all modified files for spelling errors (especially in the comment text)
-* Check all modified files against appropriate linters (e.g., :pep:`8` and :pep:`257` for Python) or to make sure the file is syntactically valid (e.g., for JSON files)
+* Check all modified files against appropriate linters (e.g., :pep:`8` and :pep:`257` for Python) or to make sure the file is syntactically valid (e.g., for JSON files). Scout uses `pre-commit <https://pre-commit.com/>`_ hooks, powered by `ruff <https://docs.astral.sh/ruff/>`_, to automatically check for and fix many of these issues; run ``pre-commit install`` once after installing the developer dependencies (see :ref:`install-guide`) so these checks run automatically before each commit
 * Check that the commit message itself is free of typos and spelling errors.
 * Check to make sure that all tests are passing
 
@@ -50,7 +50,7 @@ Making a commit in git should not be a source of heartburn, but there are severa
 Documentation
 -------------
 
-The documentation for Scout is prepared using Sphinx, a package originally developed to document Python. Sphinx builds upon the reStructuredText markup language by adding a lot of handy features, like support for LaTeX equation markup with MathJax, automatic figure numbering, and simplified references to Python documentation. reStructuredText is a "semantic" markup language, and as a result, the documentation files have to be built to obtain their final, desired form. 
+The documentation for Scout is prepared using Sphinx, a package originally developed to document Python. Sphinx builds upon the reStructuredText markup language by adding a lot of handy features, like support for LaTeX equation markup with MathJax, automatic figure numbering, and simplified references to Python documentation. reStructuredText is a "semantic" markup language, and as a result, the documentation files have to be built to obtain their final, desired form.
 
 Before contributing to or updating the documentation, try to think of documentation that you've encountered in the past that has been particularly helpful. Consider what made that documentation so useful to you - clarity of writing, extent of examples, explanations of edge cases, or overall structure. If nothing comes to mind, visit the `Beautiful Docs`_ page for a list of examples of high-quality documentation.
 
@@ -59,7 +59,7 @@ Before contributing to or updating the documentation, try to think of documentat
 .. http://www.writethedocs.org/guide/writing/beginners-guide-to-docs/
 
 .. SUBSECTIONS AND CONTENT TO ADD
-.. useful reference documentation: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html (restructuredtext detailed spec), 
+.. useful reference documentation: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html (restructuredtext detailed spec),
 .. rst markup cheatsheet: https://github.com/ralsina/rst-cheatsheet/blob/master/rst-cheatsheet.rst
 .. version numbering (https://docs.readthedocs.io/en/latest/versions.html)
 .. handling the many 'residential' and 'commercial' links
@@ -100,4 +100,4 @@ You can also generate specific files or sets of files using the available comman
 .. documentation formatting rules and best practices
 .. reference/citation formatting style
 .. figure captions
-.. 
+..

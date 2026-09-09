@@ -98,44 +98,43 @@ class UsefulVars(object):
 
     def __init__(self, handyfiles):
         # Load metadata including AEO year range
-        with open(handyfiles.metadata, 'r') as aeo_yrs:
+        with open(handyfiles.metadata, "r") as aeo_yrs:
             try:
                 aeo_yrs = json.load(aeo_yrs)
             except ValueError as e:
                 raise ValueError(
-                    "Error reading in '" +
-                    handyfiles.metadata + "': " + str(e)) from None
+                    "Error reading in '" + handyfiles.metadata + "': " + str(e)
+                ) from None
         # Set minimum AEO modeling year to AEO base year
         aeo_min = aeo_yrs["aeo_base_year"]
         # Set maximum AEO modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
-        self.aeo_years = [
-            str(i) for i in range(aeo_min, aeo_max + 1)]
+        self.aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
 
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data
-        with open(handyfiles.ss_fp, 'r') as ss:
+        with open(handyfiles.ss_fp, "r") as ss:
             cost_ss_carb = json.load(ss)
         # Set site to source conversions
         self.ss_conv = {
-            "electricity": cost_ss_carb[
-                "electricity"]["site to source conversion"]["data"],
+            "electricity": cost_ss_carb["electricity"]["site to source conversion"]["data"],
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
-            "other fuel": {yr: 1 for yr in self.aeo_years}}
+            "other fuel": {yr: 1 for yr in self.aeo_years},
+        }
 
         # Read in JSON with site to source conversion, fuel CO2 intensity,
         # and energy/carbon costs data under high grid decarbonization case
-        with open(handyfiles.ss_fp_decarb, 'r') as ss:
+        with open(handyfiles.ss_fp_decarb, "r") as ss:
             cost_ss_carb_decarb = json.load(ss)
         # Set site to source conversions under high grid decarbonization case
         self.ss_conv_decarb = {
-            "electricity": cost_ss_carb_decarb[
-                "electricity"]["site to source conversion"]["data"],
+            "electricity": cost_ss_carb_decarb["electricity"]["site to source conversion"]["data"],
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
-            "other fuel": {yr: 1 for yr in self.aeo_years}}
+            "other fuel": {yr: 1 for yr in self.aeo_years},
+        }
 
         # Set site to source conversions to one for a site energy output
         # (no conversion is required)
@@ -143,19 +142,20 @@ class UsefulVars(object):
             "electricity": {yr: 1 for yr in self.aeo_years},
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
-            "other fuel": {yr: 1 for yr in self.aeo_years}}
+            "other fuel": {yr: 1 for yr in self.aeo_years},
+        }
 
         # Try to get site-source conversion factors for the captured
         # energy method if the file is present
         try:
-            with open(handyfiles.ss_fp_ce, 'r') as ss:
+            with open(handyfiles.ss_fp_ce, "r") as ss:
                 ss_dict = json.load(ss)
             self.ss_conv_ce = {
-                "electricity": ss_dict[
-                    "electricity"]["site to source conversion"]["data"],
+                "electricity": ss_dict["electricity"]["site to source conversion"]["data"],
                 "natural gas": {yr: 1 for yr in self.aeo_years},
                 "distillate": {yr: 1 for yr in self.aeo_years},
-                "other fuel": {yr: 1 for yr in self.aeo_years}}
+                "other fuel": {yr: 1 for yr in self.aeo_years},
+            }
         except FileNotFoundError:
             self.ss_conv_ce = False
 
@@ -174,7 +174,7 @@ def sum_htcl_branches(nested_dict, adj_frac, sum_val):
     Returns:
         Summed total values, each adjusted by the input fraction.
     """
-    for (k, i) in sorted(nested_dict.items()):
+    for k, i in sorted(nested_dict.items()):
         # Restrict summation of all values under the 'stock' key
         if k == "stock":
             continue
@@ -187,7 +187,7 @@ def sum_htcl_branches(nested_dict, adj_frac, sum_val):
 
 
 def set_new_exist_frac(msegs, aeo_years, bldg):
-    """ Determine cumulative new vs. existing structures by year.
+    """Determine cumulative new vs. existing structures by year.
 
     Attributes:
         msegs (dict): Data on new and existing homes (residential) and new and
@@ -202,24 +202,18 @@ def set_new_exist_frac(msegs, aeo_years, bldg):
     """
 
     # Initialize dict of supporting data for new/existing structure calcs.
-    new_constr = {
-        "annual new": {}, "annual total": {}}
+    new_constr = {"annual new": {}, "annual total": {}}
     # Initialize dict to store new vs. existing structure fractions
     new_exist_frac = {"new": {}, "existing": {}}
 
     # Determine annual and total new construction for each year (by new
     # homes for the residential sector, by square feet for commercial)
-    if bldg in ["single family home", "mobile home",
-                "multi family home"]:
-        new_constr["annual new"] = {yr: msegs["new homes"][yr] for
-                                    yr in aeo_years}
-        new_constr["annual total"] = {yr: msegs["total homes"][yr] for
-                                      yr in aeo_years}
+    if bldg in ["single family home", "mobile home", "multi family home"]:
+        new_constr["annual new"] = {yr: msegs["new homes"][yr] for yr in aeo_years}
+        new_constr["annual total"] = {yr: msegs["total homes"][yr] for yr in aeo_years}
     else:
-        new_constr["annual new"] = {yr: msegs["new square footage"][yr] for
-                                    yr in aeo_years}
-        new_constr["annual total"] = {yr: msegs["total square footage"][yr] for
-                                      yr in aeo_years}
+        new_constr["annual new"] = {yr: msegs["new square footage"][yr] for yr in aeo_years}
+        new_constr["annual total"] = {yr: msegs["total square footage"][yr] for yr in aeo_years}
 
     # Find the cumulative fraction of new buildings constructed in all
     # years since the beginning of the modeling time horizon
@@ -229,23 +223,25 @@ def set_new_exist_frac(msegs, aeo_years, bldg):
         if yr == aeo_years[0]:
             new_exist_frac["new"][yr] = new_constr["annual new"][yr]
         else:
-            new_exist_frac["new"][yr] = new_constr["annual new"][yr] + \
-                new_exist_frac["new"][str(int(yr) - 1)]
+            new_exist_frac["new"][yr] = (
+                new_constr["annual new"][yr] + new_exist_frac["new"][str(int(yr) - 1)]
+            )
     # Divide cumulative new home or square footage totals by total
     # new homes or square footage to arrive at cumulative new fraction
     new_exist_frac["new"] = {
-        key: val / new_constr["annual total"][key] if
-        (val / new_constr["annual total"][key]) <= 1 else 1 for key, val in
-        new_exist_frac["new"].items()}
+        key: val / new_constr["annual total"][key]
+        if (val / new_constr["annual total"][key]) <= 1
+        else 1
+        for key, val in new_exist_frac["new"].items()
+    }
     # Cumulative existing fraction equals 1 - cumulative new fraction
-    new_exist_frac["existing"] = {key: (1 - val) for key, val in
-                                  new_exist_frac["new"].items()}
+    new_exist_frac["existing"] = {key: (1 - val) for key, val in new_exist_frac["new"].items()}
 
     return new_exist_frac
 
 
 def sum_htcl_energy(msegs, aeo_years, ss_conv):
-    """ Sum heating/cooling energy by climate, building, and structure.
+    """Sum heating/cooling energy by climate, building, and structure.
 
     Attributes:
         msegs (dict): Baseline energy data to sum.
@@ -275,42 +271,52 @@ def sum_htcl_energy(msegs, aeo_years, ss_conv):
     for cz in [c for c in msegs.keys() if c != "_cdiv_disagg_info"]:
         htcl_totals[cz] = {}
         # Skip the "unspecified" building type, which is non-standard
-        for bldg in [b for b in msegs[cz].keys() if b != 'unspecified']:
+        for bldg in [b for b in msegs[cz].keys() if b != "unspecified"]:
             htcl_totals[cz][bldg] = {}
             # Find new vs. existing structure type fraction for bldg. type
-            new_exist_frac = set_new_exist_frac(
-                msegs[cz][bldg], aeo_years, bldg)
+            new_exist_frac = set_new_exist_frac(msegs[cz][bldg], aeo_years, bldg)
             for vint in new_exist_frac.keys():
                 htcl_totals[cz][bldg][vint] = {}
                 # Fuel type
-                for fuel in [x for x in msegs[cz][bldg].keys() if
-                             x not in ["total homes", "new homes",
-                                       "total square footage",
-                                       "new square footage",
-                                       "total square footage"]]:
+                for fuel in [
+                    x
+                    for x in msegs[cz][bldg].keys()
+                    if x
+                    not in [
+                        "total homes",
+                        "new homes",
+                        "total square footage",
+                        "new square footage",
+                        "total square footage",
+                    ]
+                ]:
                     htcl_totals[cz][bldg][vint][fuel] = {}
-                    for eu in [x for x in [
-                        "heating", "secondary heating", "cooling"] if
-                            x in msegs[cz][bldg][fuel].keys()]:
-                        htcl_totals[cz][bldg][vint][fuel][eu] = {
-                                yr: 0 for yr in aeo_years}
+                    for eu in [
+                        x
+                        for x in ["heating", "secondary heating", "cooling"]
+                        if x in msegs[cz][bldg][fuel].keys()
+                    ]:
+                        htcl_totals[cz][bldg][vint][fuel][eu] = {yr: 0 for yr in aeo_years}
                         # Find energy value to add to total
                         sum_val = sum_htcl_branches(
                             msegs[cz][bldg][fuel][eu]["demand"],
-                            adj_frac={yr: new_exist_frac[vint][yr] *
-                                      ss_conv[fuel][yr] for yr in aeo_years},
-                            sum_val={yr: 0 for yr in aeo_years})
+                            adj_frac={
+                                yr: new_exist_frac[vint][yr] * ss_conv[fuel][yr] for yr in aeo_years
+                            },
+                            sum_val={yr: 0 for yr in aeo_years},
+                        )
                         # Update total energy for given climate,
                         # building and structure type combination
                         htcl_totals[cz][bldg][vint][fuel][eu] = {
-                            yr: htcl_totals[cz][bldg][vint][fuel][eu][yr] +
-                            sum_val[yr] for yr in aeo_years}
+                            yr: htcl_totals[cz][bldg][vint][fuel][eu][yr] + sum_val[yr]
+                            for yr in aeo_years
+                        }
 
     return htcl_totals
 
 
 def main():
-    """ Import JSON energy data and sum by climate, building, and structure."""
+    """Import JSON energy data and sum by climate, building, and structure."""
 
     # Instantiate useful input files object
     handyfiles = UsefulInputFiles()
@@ -347,21 +353,21 @@ def main():
         # handling needed for state and EMM data, which are in zip format
         if f in ["State", "EMM"]:
             bjszip = mseg_fi
-            with gzip.GzipFile(bjszip, 'r') as zip_ref:
-                msegs = json.loads(zip_ref.read().decode('utf-8'))
+            with gzip.GzipFile(bjszip, "r") as zip_ref:
+                msegs = json.loads(zip_ref.read().decode("utf-8"))
         else:
-            with open(mseg_fi, 'r') as msi:
+            with open(mseg_fi, "r") as msi:
                 try:
                     msegs = json.load(msi)
                 except ValueError as e:
                     raise ValueError(
-                        f"Error reading in '{handyfiles.msegs_in}': {str(e)}") from None
+                        f"Error reading in '{handyfiles.msegs_in}': {str(e)}"
+                    ) from None
 
         # Find total heating and cooling *source* energy use for each region,
         # building type, and structure type combination (fossil fuel site-
         # source conversion method)
-        htcl_totals = sum_htcl_energy(
-            msegs, handyvars.aeo_years, handyvars.ss_conv)
+        htcl_totals = sum_htcl_energy(msegs, handyvars.aeo_years, handyvars.ss_conv)
 
         # Add site-source conversion type to file
         htcl_totals = OrderedDict(htcl_totals)
@@ -370,7 +376,7 @@ def main():
 
         # Write out summed heating/cooling fossil equivalent energy data
         output_file = fo
-        with open(output_file, 'w') as jso:
+        with open(output_file, "w") as jso:
             json.dump(htcl_totals, jso, indent=2)
 
         # Update high grid decarbonization case results if applicable
@@ -380,43 +386,40 @@ def main():
             # fuel site-source conversion method) under high grid
             # decarbonization case
             htcl_totals_decarb = sum_htcl_energy(
-                msegs, handyvars.aeo_years, handyvars.ss_conv_decarb)
+                msegs, handyvars.aeo_years, handyvars.ss_conv_decarb
+            )
 
             # Add site-source conversion type to file under high grid
             # decarbonization case
             htcl_totals_decarb = OrderedDict(htcl_totals_decarb)
-            htcl_totals_decarb[handyvars.ss_conv_str] = \
-                "fossil fuel equivalence"
+            htcl_totals_decarb[handyvars.ss_conv_str] = "fossil fuel equivalence"
             htcl_totals_decarb.move_to_end(handyvars.ss_conv_str, last=False)
 
             # Write out summed heating/cooling fossil equivalent energy data
             # under high grid decarbonization case
             output_file_decarb = fo_decarb
-            with open(output_file_decarb, 'w') as jso:
+            with open(output_file_decarb, "w") as jso:
                 json.dump(htcl_totals_decarb, jso, indent=2)
 
         # Find total heating and cooling *site* energy use for each region,
         # building type, and structure type combination
-        htcl_totals_site = sum_htcl_energy(
-            msegs, handyvars.aeo_years, handyvars.ss_conv_site)
+        htcl_totals_site = sum_htcl_energy(msegs, handyvars.aeo_years, handyvars.ss_conv_site)
 
         # Add site-source conversion type to file
         htcl_totals_site = OrderedDict(htcl_totals_site)
-        htcl_totals_site[handyvars.ss_conv_str] = \
-            "site energy (no site-source conversion)"
+        htcl_totals_site[handyvars.ss_conv_str] = "site energy (no site-source conversion)"
         htcl_totals_site.move_to_end(handyvars.ss_conv_str, last=False)
 
         # Write out summed heating/cooling site energy data
         output_file = fo_site
-        with open(output_file, 'w') as jso:
+        with open(output_file, "w") as jso:
             json.dump(htcl_totals_site, jso, indent=2)
 
         # If the captured energy file is found, also generate the
         # heating and cooling *source* energy totals file based on the captured
         # energy method for calculating site-source conversion factors
         if handyvars.ss_conv_ce:
-            htcl_totals_ce = sum_htcl_energy(
-                msegs, handyvars.aeo_years, handyvars.ss_conv_ce)
+            htcl_totals_ce = sum_htcl_energy(msegs, handyvars.aeo_years, handyvars.ss_conv_ce)
 
             # Add site-source conversion type to file
             htcl_totals_ce = OrderedDict(htcl_totals_ce)
@@ -425,9 +428,9 @@ def main():
 
             # Write out heating/cooling combined captured energy data
             output_file = fo_capt
-            with open(output_file, 'w') as jso:
+            with open(output_file, "w") as jso:
                 json.dump(htcl_totals_ce, jso, indent=2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

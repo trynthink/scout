@@ -14,8 +14,9 @@ EXCEL_PATH = "input/Stock-Scout mapping.xlsx"
 OUT_DIR = "input/mapping"
 
 
-def extract_section(rows, header_marker_col0, n_cols,
-                    search_after="Map using multiple relevant columns"):
+def extract_section(
+    rows, header_marker_col0, n_cols, search_after="Map using multiple relevant columns"
+):
     """
     Scan rows for header_marker_col0 only within the section that starts after
     'search_after', treat that as the header, then collect data rows until a
@@ -40,7 +41,7 @@ def extract_section(rows, header_marker_col0, n_cols,
 
     header = list(rows[header_idx][:n_cols])
     data = []
-    for row in rows[header_idx + 1:]:
+    for row in rows[header_idx + 1 :]:
         # stop at blank row
         if not row or all(v is None for v in row):
             break

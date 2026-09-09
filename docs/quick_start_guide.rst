@@ -16,7 +16,7 @@ If you're new to Scout, this is the right place to get started. Steps for runnin
 `Download the latest version of Scout`_ and follow the :ref:`install-guide` to configure the programs required for Scout to run.
 
 .. Note::
-   If you'd like to execute the full set of standard Scout measures (ECMs) that are included with the installation in the folder |html-filepath| ./ecm_definitions\ |html-fp-end|, download the file |html-filepath| Latest_BM_Shapes.zip |html-fp-end| `here`_ and unzip/add its contents to the folder |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes\ |html-fp-end|.  
+   If you'd like to execute the full set of standard Scout measures (ECMs) that are included with the installation in the folder |html-filepath| ./ecm_definitions\ |html-fp-end|, download the file |html-filepath| Latest_BM_Shapes.zip |html-fp-end| `here`_ and unzip/add its contents to the folder |html-filepath| ./ecm_definitions/energyplus_data/savings_shapes\ |html-fp-end|.
 
 .. _qsg-create-ecm-step:
 
@@ -92,7 +92,7 @@ To prepare measures for :ref:`EIA Electricity Market Module (EMM) <emm-reg>` reg
    The standard set of ECM definitions included in |html-filepath| ./ecm_definitions |html-fp-end| requires the EMM region setting to execute. Only new or edited ECM definitions are updated in this step.
 
 .. tip::
-   Preparing the full set of standard ECM definitions in |html-filepath| ./ecm_definitions |html-fp-end| will take several minutes. For a quicker test run, consider restricting the contents of this folder to just one or a handful of measures of interest while setting the contents of the file |html-filepath| ./ecm_definitions/package_ecms.json |html-fp-end| to a blank list |html-filepath| []\ |html-fp-end|.  
+   Preparing the full set of standard ECM definitions in |html-filepath| ./ecm_definitions |html-fp-end| will take several minutes. For a quicker test run, consider restricting the contents of this folder to just one or a handful of measures of interest while setting the contents of the file |html-filepath| ./ecm_definitions/package_ecms.json |html-fp-end| to a blank list |html-filepath| []\ |html-fp-end|.
 
 .. _qsg-modify-active-ecm-step:
 

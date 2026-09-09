@@ -5,6 +5,7 @@ from pathlib import Path, PurePath
 
 try:
     import orjson as _orjson
+
     _ORJSON_AVAILABLE = True
 except ImportError:
     _ORJSON_AVAILABLE = False
@@ -34,7 +35,7 @@ class JsonIO:
         Returns:
             dict: .json data as a dict
         """
-        with open(filepath, 'r') as handle:
+        with open(filepath, "r") as handle:
             try:
                 data = json.load(handle)
             except ValueError as e:

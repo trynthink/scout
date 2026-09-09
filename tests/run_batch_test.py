@@ -5,7 +5,6 @@ from scout.config import FilePaths as fp
 
 
 class TestBatchRun(unittest.TestCase):
-
     @classmethod
     def setUpClass(self):
         self.yml_dir = Path(__file__).parent / "test_files" / "batch_files"
@@ -20,18 +19,20 @@ class TestBatchRun(unittest.TestCase):
         # Test ymls are grouped by common ecm_prep args
         yml_grps = self.batch_run.group_common_configs(self.yml_dir)
         yml_grp_names = [[yml.name for yml in yml_grp] for yml_grp in yml_grps]
-        expected_grps = [['config1.yml', 'config2.yml'], ['config3.yml']]
+        expected_grps = [["config1.yml", "config2.yml"], ["config3.yml"]]
 
         self.assertEqual(yml_grp_names, expected_grps, yml_grp_names)
 
     def test_ecm_concat(self):
         # Test retrieval of ECMs from numerous ymls
         ecm_list = self.batch_run.get_unique_ecm_files(self.yml_files)
-        expected_ecms = ['Best Com. ASHP, Env., PC (EE+DF-FS)',
-                         'Best Com. ASHP, Env., PC (EE+DF-FS) CC',
-                         'Best Com. Air Sealing (Exist)',
-                         'Best Com. Air Sealing (New)',
-                         'Residential Walls, IECC c. 2021']
+        expected_ecms = [
+            "Best Com. ASHP, Env., PC (EE+DF-FS)",
+            "Best Com. ASHP, Env., PC (EE+DF-FS) CC",
+            "Best Com. Air Sealing (Exist)",
+            "Best Com. Air Sealing (New)",
+            "Residential Walls, IECC c. 2021",
+        ]
         self.assertEqual(sorted(ecm_list), expected_ecms)
 
     def test_auto_results_dir(self):
@@ -47,5 +48,5 @@ class TestBatchRun(unittest.TestCase):
         self.assertEqual(self.trim_dir_path(fp.PLOTS, 3), "results/config2/plots")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

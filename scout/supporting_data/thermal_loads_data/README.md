@@ -16,7 +16,7 @@ For example, the AEO2025 data can be found in the Scout Teams channel under Docu
 - Review notes at top of rsmlgt sheet for general changes
 - Verify columns match expected names in `r_lt_names` in mseg_techdata.py
 - Count header rows before column headings start; set `lt_skip_header` accordingly
-- Count footer rows after last data; set `lt_skip_footer` accordingly  
+- Count footer rows after last data; set `lt_skip_footer` accordingly
 - Test import by adding `print(eia_lt)` around line 1040 in mseg_techdata.py
 
 ## For ktek.csv:
@@ -51,7 +51,7 @@ Generate final aggregated files
 `python scout/final_mseg_converter.py`
 Select options 1,1 when prompted
 Ignore: UserWarning: Key 'solar_water_heater_north' not found in add_dict – skipping
-warnings.warn(f"Key '{k}' not found in add_dict – skipping"), there is an issue about this. 
+warnings.warn(f"Key '{k}' not found in add_dict – skipping"), there is an issue about this.
 Outputs mseg_res_com_cz.json
 Also run with options 1,2,2,1 and 1,3,2,1
 

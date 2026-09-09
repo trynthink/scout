@@ -81,9 +81,7 @@ def extract_enums(schema, validator, depth=0, max_depth=10):
     for key in ["anyOf", "oneOf"]:
         if key in schema:
             for sub_schema in schema[key]:
-                enums.extend(
-                    extract_enums(sub_schema, validator, depth + 1)
-                )
+                enums.extend(extract_enums(sub_schema, validator, depth + 1))
 
     # Handle $ref
     if "$ref" in schema:
@@ -133,16 +131,12 @@ def extract_descriptions(schema, validator, depth=0, max_depth=10):
         if key in schema:
             for sub_schema in schema[key]:
                 resolved = resolve_ref(sub_schema, validator, depth)
-                descs.extend(
-                    extract_descriptions(resolved, validator, depth + 1)
-                )
+                descs.extend(extract_descriptions(resolved, validator, depth + 1))
 
     if "$ref" in schema and "description" not in schema:
         resolved = resolve_ref(schema, validator, depth)
         if resolved != schema:
-            descs.extend(
-                extract_descriptions(resolved, validator, depth + 1)
-            )
+            descs.extend(extract_descriptions(resolved, validator, depth + 1))
 
     return descs
 
@@ -182,15 +176,11 @@ def extract_patterns(schema, validator, depth=0, max_depth=10):
         if key in schema:
             for sub_schema in schema[key]:
                 resolved = resolve_ref(sub_schema, validator, depth)
-                patterns.extend(
-                    extract_patterns(resolved, validator, depth + 1)
-                )
+                patterns.extend(extract_patterns(resolved, validator, depth + 1))
 
     if "$ref" in schema and "pattern" not in schema:
         resolved = resolve_ref(schema, validator, depth)
         if resolved != schema:
-            patterns.extend(
-                extract_patterns(resolved, validator, depth + 1)
-            )
+            patterns.extend(extract_patterns(resolved, validator, depth + 1))
 
     return patterns

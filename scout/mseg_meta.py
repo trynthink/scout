@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Develop useful metadata from the EIA data files. """
+"""Develop useful metadata from the EIA data files."""
 
 from scout import mseg as rm
 from scout import mseg_techdata as rmt
@@ -27,7 +27,7 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.ss_conv_file = (fp.CONVERT_DATA / "site_source_co2_conversions.json")
+        self.ss_conv_file = fp.CONVERT_DATA / "site_source_co2_conversions.json"
 
 
 def json_processor(json_file, min_years, max_years):
@@ -53,9 +53,9 @@ def json_processor(json_file, min_years, max_years):
         and maximum found in the conversions data file leaf node
         keys (values added to the lists are numpy.int64 integers).
     """
+
     def recur(db, key_list=[]):
-        """Recursively traverse dict and store leaf node keys in list
-        """
+        """Recursively traverse dict and store leaf node keys in list"""
         for key, item in db.items():
             if isinstance(item, dict):
                 recur(item, key_list)
@@ -63,13 +63,13 @@ def json_processor(json_file, min_years, max_years):
                 key_list.append(key)
         return key_list
 
-    conv = json.load(open(json_file, 'r'))
+    conv = json.load(open(json_file, "r"))
 
     # Obtain the leaf node keys
     leaf_keys = recur(conv)
 
     # Extract just those keys with the format YYYY
-    years_list = [a for a in leaf_keys if re.search('[0-9]{4}', a)]
+    years_list = [a for a in leaf_keys if re.search("[0-9]{4}", a)]
 
     # Circumvents the action of .append() modifying in place the lists
     # passed to the function
@@ -168,7 +168,7 @@ def dtype_ripper(the_dtype, min_years, max_years):
     # Loop over the list of column names, identify entries that have
     # the format specified by a regex, and add the matches to a list
     for name in colnames:
-        year = re.search('^[1|2][0-9]{3}$', name)
+        year = re.search("^[1|2][0-9]{3}$", name)
         if year:
             year_list.append(year.group())
 
@@ -213,7 +213,7 @@ def EIA_filename_identifier():
             with suppress(AttributeError):
                 # Create an EIAData class object for the module
                 # identified by 'name'
-                data_class = getattr(globals()[name], 'EIAData')
+                data_class = getattr(globals()[name], "EIAData")
                 # Extract the values in __dict__ from the EIAData class
                 # and append the resulting list to the existing
                 # filenames list
@@ -222,8 +222,16 @@ def EIA_filename_identifier():
     return filenames
 
 
-def file_processor(file_name, func_name, col_index, files_list,
-                   min_yrs, max_yrs, pivot_yr=0, skip_header_lines=None):
+def file_processor(
+    file_name,
+    func_name,
+    col_index,
+    files_list,
+    min_yrs,
+    max_yrs,
+    pivot_yr=0,
+    skip_header_lines=None,
+):
     """Import and process data to obtain the year range from a data file.
 
     To ensure that the EIA data files that are imported are also
@@ -266,8 +274,7 @@ def file_processor(file_name, func_name, col_index, files_list,
         min_yrs, max_yrs = dtype_ripper(data_object, min_yrs, max_yrs)
 
     else:
-        min_yrs, max_yrs = extract_year_range(data_object, col_index,
-                                              min_yrs, max_yrs, pivot_yr)
+        min_yrs, max_yrs = extract_year_range(data_object, col_index, min_yrs, max_yrs, pivot_yr)
 
     # Update the list of files that have yet to be examined
     files_list.remove(file_name)
@@ -276,19 +283,19 @@ def file_processor(file_name, func_name, col_index, files_list,
 
 
 def main():
-    """ Each of the AEO data files includes data reported over a range
+    """Each of the AEO data files includes data reported over a range
     of calendar years. These data should ultimately be reported over a
     common range of years. To determine the common range across all of
     the AEO data, the major files are imported here and the minimum and
     maximum years from each file are compared to determine the range
-    that is common for all of those files. """
+    that is common for all of those files."""
 
     # Set up to support user option to specify the year for the
     # AEO data being imported (default if the option is not used
     # should be current year)
     parser = argparse.ArgumentParser()
-    help_string = 'Specify year of AEO data to be imported'
-    parser.add_argument('-y', '--year', type=int, help=help_string)
+    help_string = "Specify year of AEO data to be imported"
+    parser.add_argument("-y", "--year", type=int, help=help_string)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -318,44 +325,63 @@ def main():
 
     # Remove rsclass.txt if it is present, since that file does not
     # have any data reported by year
-    files_ = [file_ for file_ in files_ if file_ != 'rsclass.txt']
+    files_ = [file_ for file_ in files_ if file_ != "rsclass.txt"]
 
     def import_residential_energy_stock_data(file_name):
         # The delimiters for RESDBOUT vary depending on the release
         # year of the data
         try:  # comma-delimited
             ns_dtypes = rm.dtype_array(file_name)
-            ns_data = rm.data_import(file_name, ns_dtypes, ',',
-                                     ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
-                                      'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+            ns_data = rm.data_import(
+                file_name,
+                ns_dtypes,
+                ",",
+                ["SF", "ST", "FP", "HSHE", "HSHN", "HSHA", "CSHA", "CSHE", "CSHN"],
+            )
         except (IndexError, ValueError):  # tab-delimited
-            ns_dtypes = rm.dtype_array(file_name, '\t')
-            ns_data = rm.data_import(file_name, ns_dtypes, '\t',
-                                     ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
-                                      'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+            ns_dtypes = rm.dtype_array(file_name, "\t")
+            ns_data = rm.data_import(
+                file_name,
+                ns_dtypes,
+                "\t",
+                ["SF", "ST", "FP", "HSHE", "HSHN", "HSHA", "CSHA", "CSHE", "CSHN"],
+            )
         return ns_data
 
     def import_residential_cpl_non_lighting_data(file_name, skip_header_lines):
-        eia_nlt_cp = np.genfromtxt(file_name, names=rmt.r_nlt_cp_names,
-                                   dtype=None, comments=None,
-                                   skip_header=skip_header_lines,
-                                   encoding="latin1")
+        eia_nlt_cp = np.genfromtxt(
+            file_name,
+            names=rmt.r_nlt_cp_names,
+            dtype=None,
+            comments=None,
+            skip_header=skip_header_lines,
+            encoding="latin1",
+        )
         return eia_nlt_cp
 
     def import_residential_cpl_lighting_data(file_name, skip_header_lines):
         try:
-            return np.genfromtxt(file_name, names=rmt.r_lt_names,
-                                 dtype=None, comments=None,
-                                 skip_header=skip_header_lines,
-                                 skip_footer=lt_skip_footer,
-                                 encoding="latin1")
+            return np.genfromtxt(
+                file_name,
+                names=rmt.r_lt_names,
+                dtype=None,
+                comments=None,
+                skip_header=skip_header_lines,
+                skip_footer=lt_skip_footer,
+                encoding="latin1",
+            )
         except ValueError:
             # AEO 2026 rsmlgt adds extra header rows and has one fewer
             # footer row than prior layouts.
-            return np.genfromtxt(file_name, names=rmt.r_lt_names,
-                                 dtype=None, comments=None,
-                                 skip_header=40, skip_footer=51,
-                                 encoding="latin1")
+            return np.genfromtxt(
+                file_name,
+                names=rmt.r_lt_names,
+                dtype=None,
+                comments=None,
+                skip_header=40,
+                skip_footer=51,
+                encoding="latin1",
+            )
 
     def import_commercial_service_demand_data(file_name):  # KSDOUT.txt
         serv_dtypes = cm.dtype_array(file_name)
@@ -368,27 +394,25 @@ def main():
 
     def import_commercial_cpl_data(file_name):  # ktek.csv
         def _import_with_skip(skip_lines):
-            tech_dtypes = cm.dtype_array(file_name, ',', skip_lines - 1)
+            tech_dtypes = cm.dtype_array(file_name, ",", skip_lines - 1)
             dtype_names = {name for name, _ in tech_dtypes}
             wanted_cols = cmt.UsefulVars().columns_to_keep
             if not set(wanted_cols).issubset(dtype_names):
                 return None
 
-            col_indices, reduced_dtypes = cmt.dtype_reducer(
-                tech_dtypes, wanted_cols)
-            return cm.data_import(file_name, reduced_dtypes, ',',
-                                  skip_lines, col_indices)
+            col_indices, reduced_dtypes = cmt.dtype_reducer(tech_dtypes, wanted_cols)
+            return cm.data_import(file_name, reduced_dtypes, ",", skip_lines, col_indices)
 
         # Try the configured skip line count first.
         tech_data = _import_with_skip(cmt.UsefulVars().cpl_data_skip_lines)
 
         # If expected year columns are missing, detect the actual header row
         # and retry import with that dynamically identified skip value.
-        if tech_data is None or not {'y1', 'y2'}.issubset(set(tech_data.dtype.names)):
+        if tech_data is None or not {"y1", "y2"}.issubset(set(tech_data.dtype.names)):
             detected_skip = None
-            with open(file_name, 'r', encoding='latin1') as f_in:
+            with open(file_name, "r", encoding="latin1") as f_in:
                 for i, line in enumerate(f_in, start=1):
-                    if line.startswith('t,v,r,s,f,shr,eff,c1,c2,c3,c4,life,y1,y2'):
+                    if line.startswith("t,v,r,s,f,shr,eff,c1,c2,c3,c4,life,y1,y2"):
                         detected_skip = i
                         break
 
@@ -398,93 +422,111 @@ def main():
         if tech_data is None:
             raise ValueError(
                 f"Unable to import commercial CPL data from {file_name}; "
-                "required columns were not found.")
+                "required columns were not found."
+            )
 
         return tech_data
 
     def import_commercial_time_preference_data(file_name):  # kprem.txt
-        tpp_data = cmt.kprem_import(file_name,
-                                    cmt.UsefulVars().tpp_dtypes,
-                                    cmt.UsefulVars().tpp_data_skip_lines)
+        tpp_data = cmt.kprem_import(
+            file_name, cmt.UsefulVars().tpp_dtypes, cmt.UsefulVars().tpp_data_skip_lines
+        )
         return tpp_data
 
-    min_yrs, max_yrs = file_processor(rm.EIAData().res_energy,
-                                      import_residential_energy_stock_data,
-                                      ['YEAR'],
-                                      files_, min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(
+        rm.EIAData().res_energy,
+        import_residential_energy_stock_data,
+        ["YEAR"],
+        files_,
+        min_yrs,
+        max_yrs,
+    )
 
-    min_yrs, max_yrs = file_processor(rmt.EIAData().r_nlt_costperf,
-                                      import_residential_cpl_non_lighting_data,
-                                      ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                      files_, min_yrs, max_yrs,
-                                      skip_header_lines=nlt_cp_skip_header)
+    min_yrs, max_yrs = file_processor(
+        rmt.EIAData().r_nlt_costperf,
+        import_residential_cpl_non_lighting_data,
+        ["START_EQUIP_YR", "END_EQUIP_YR"],
+        files_,
+        min_yrs,
+        max_yrs,
+        skip_header_lines=nlt_cp_skip_header,
+    )
 
-    min_yrs, max_yrs = file_processor(rmt.EIAData().r_lt_all,
-                                      import_residential_cpl_lighting_data,
-                                      ['START_EQUIP_YR', 'END_EQUIP_YR'],
-                                      files_, min_yrs, max_yrs,
-                                      skip_header_lines=lt_skip_header)
+    min_yrs, max_yrs = file_processor(
+        rmt.EIAData().r_lt_all,
+        import_residential_cpl_lighting_data,
+        ["START_EQUIP_YR", "END_EQUIP_YR"],
+        files_,
+        min_yrs,
+        max_yrs,
+        skip_header_lines=lt_skip_header,
+    )
 
-    min_yrs, max_yrs = file_processor(cm.EIAData().serv_dmd,
-                                      import_commercial_service_demand_data,
-                                      '',
-                                      files_, min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(
+        cm.EIAData().serv_dmd, import_commercial_service_demand_data, "", files_, min_yrs, max_yrs
+    )
 
-    min_yrs, max_yrs = file_processor(cm.EIAData().catg_dmd,
-                                      import_commercial_energy_stock_data,
-                                      ['Year'],
-                                      files_, min_yrs, max_yrs,
-                                      pivot_yr=cm.UsefulVars().pivot_year)
+    min_yrs, max_yrs = file_processor(
+        cm.EIAData().catg_dmd,
+        import_commercial_energy_stock_data,
+        ["Year"],
+        files_,
+        min_yrs,
+        max_yrs,
+        pivot_yr=cm.UsefulVars().pivot_year,
+    )
 
-    min_yrs, max_yrs = file_processor(cmt.EIAData().cpl_data,
-                                      import_commercial_cpl_data,
-                                      ['y1', 'y2'],
-                                      files_, min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(
+        cmt.EIAData().cpl_data, import_commercial_cpl_data, ["y1", "y2"], files_, min_yrs, max_yrs
+    )
 
-    min_yrs, max_yrs = file_processor(cmt.EIAData().tpp_data,
-                                      import_commercial_time_preference_data,
-                                      ['Year'],
-                                      files_, min_yrs, max_yrs)
+    min_yrs, max_yrs = file_processor(
+        cmt.EIAData().tpp_data,
+        import_commercial_time_preference_data,
+        ["Year"],
+        files_,
+        min_yrs,
+        max_yrs,
+    )
 
-    min_yrs, max_yrs = json_processor(UsefulVars().ss_conv_file,
-                                      min_yrs, max_yrs)
+    min_yrs, max_yrs = json_processor(UsefulVars().ss_conv_file, min_yrs, max_yrs)
 
     # Check that all of the expected files have been imported, and if
     # any files remain, print the filenames to the console
     if files_:
         # Generate a neatly formatted file string
-        files_str = ''
+        files_str = ""
         for file_ in files_:
             if file_ != files_[-1]:
-                files_str = f'{files_str}{file_}, '
+                files_str = f"{files_str}{file_}, "
             elif len(files_) == 1:
-                files_str = f'{files_str}{file_}'
+                files_str = f"{files_str}{file_}"
             else:
-                files_str = f'{files_str}and {file_}'
+                files_str = f"{files_str}and {file_}"
 
         # Print the unused file names to the console
-        print(f'Some EIA residential and/or commercial data files were '
-              f'not imported. These files were: {files_str}')
+        print(
+            f"Some EIA residential and/or commercial data files were "
+            f"not imported. These files were: {files_str}"
+        )
 
     # Construct a dict with the minimum and maximum years recorded as integers
-    year_range_result = {'min year': int(max(min_yrs)),
-                         'max year': int(min(max_yrs))}
+    year_range_result = {"min year": int(max(min_yrs)), "max year": int(min(max_yrs))}
 
     # Preserve aeo_base_year from existing metadata if present
     try:
-        with open(fp.METADATA_PATH, 'r') as existing:
+        with open(fp.METADATA_PATH, "r") as existing:
             existing_meta = json.load(existing)
-            if 'aeo_base_year' in existing_meta:
-                year_range_result['aeo_base_year'] = existing_meta[
-                    'aeo_base_year']
+            if "aeo_base_year" in existing_meta:
+                year_range_result["aeo_base_year"] = existing_meta["aeo_base_year"]
     except (FileNotFoundError, json.JSONDecodeError):
         pass
 
     # Output a tiny JSON file with year range and base year values
-    with open(fp.METADATA_PATH, 'w') as jso:
+    with open(fp.METADATA_PATH, "w") as jso:
         json.dump(year_range_result, jso, indent=2)
-        jso.write('\n')
+        jso.write("\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ Public bucket -> UNSIGNED, no AWS credentials required.
 
 Set YEAR = "2025" (default) or "2024" to select the release.
 """
+
 import io
 import json
 import os
@@ -53,34 +54,35 @@ CONFIGS = {
 }
 
 # Columns generate_geo_maps.py needs from ComStock (keeps memory low)
-COM_END_USE_COLS = sorted({
-    c
-    for fuel in {
-        "out.electricity.heating.energy_consumption",
-        "out.electricity.heat_recovery.energy_consumption",
-        "out.electricity.heat_rejection.energy_consumption",
-        "out.electricity.cooling.energy_consumption",
-        "out.district_cooling.cooling.energy_consumption",
-        "out.electricity.water_systems.energy_consumption",
-        "out.electricity.fans.energy_consumption",
-        "out.electricity.pumps.energy_consumption",
-        "out.electricity.interior_lighting.energy_consumption",
-        "out.electricity.exterior_lighting.energy_consumption",
-        "out.electricity.refrigeration.energy_consumption",
-        "out.electricity.interior_equipment.energy_consumption",
-        "out.natural_gas.heating.energy_consumption",
-        "out.district_heating.heating.energy_consumption",
-        "out.natural_gas.water_systems.energy_consumption",
-        "out.district_heating.water_systems.energy_consumption",
-        "out.natural_gas.interior_equipment.energy_consumption",
-        "out.other_fuel.heating.energy_consumption",
-        "out.other_fuel.cooling.energy_consumption",
-        "out.other_fuel.water_systems.energy_consumption",
+COM_END_USE_COLS = sorted(
+    {
+        c
+        for fuel in {
+            "out.electricity.heating.energy_consumption",
+            "out.electricity.heat_recovery.energy_consumption",
+            "out.electricity.heat_rejection.energy_consumption",
+            "out.electricity.cooling.energy_consumption",
+            "out.district_cooling.cooling.energy_consumption",
+            "out.electricity.water_systems.energy_consumption",
+            "out.electricity.fans.energy_consumption",
+            "out.electricity.pumps.energy_consumption",
+            "out.electricity.interior_lighting.energy_consumption",
+            "out.electricity.exterior_lighting.energy_consumption",
+            "out.electricity.refrigeration.energy_consumption",
+            "out.electricity.interior_equipment.energy_consumption",
+            "out.natural_gas.heating.energy_consumption",
+            "out.district_heating.heating.energy_consumption",
+            "out.natural_gas.water_systems.energy_consumption",
+            "out.district_heating.water_systems.energy_consumption",
+            "out.natural_gas.interior_equipment.energy_consumption",
+            "out.other_fuel.heating.energy_consumption",
+            "out.other_fuel.cooling.energy_consumption",
+            "out.other_fuel.water_systems.energy_consumption",
+        }
+        for c in (fuel,)
     }
-    for c in (fuel,)
-})
-COM_NEEDED = ["in.nhgis_county_gisjoin", "in.state",
-              "calc.weighted.sqft"] + COM_END_USE_COLS
+)
+COM_NEEDED = ["in.nhgis_county_gisjoin", "in.state", "calc.weighted.sqft"] + COM_END_USE_COLS
 
 s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
 
@@ -89,7 +91,7 @@ def download_resstock(out_path):
     cfg = CONFIGS[YEAR]["resstock"]
     key = cfg["prefix"] + cfg["path"] + cfg["filename"]
     size = s3.head_object(Bucket=BUCKET, Key=key)["ContentLength"]
-    print(f"ResStock national file: {size/1e6:.0f} MB -> {out_path}")
+    print(f"ResStock national file: {size / 1e6:.0f} MB -> {out_path}")
     s3.download_file(BUCKET, key, out_path)
 
 
@@ -110,8 +112,8 @@ def download_comstock(out_path):
 
     # ---- pass 1: build the union schema across all files ----
     print("Pass 1: scanning schemas...")
-    fields = {}          # column name -> pyarrow type
-    order = []           # preserve first-seen column order
+    fields = {}  # column name -> pyarrow type
+    order = []  # preserve first-seen column order
     for i, key in enumerate(keys, 1):
         buf = io.BytesIO()
         s3.download_fileobj(BUCKET, key, buf)
@@ -174,8 +176,9 @@ def download_comstock_gap(out_path):
         buf = io.BytesIO()
         s3.download_fileobj(BUCKET, key, buf)
         buf.seek(0)
-        df = pd.read_csv(buf, usecols=[
-            "out.electricity.total.energy_consumption..kwh", "in.county"])
+        df = pd.read_csv(
+            buf, usecols=["out.electricity.total.energy_consumption..kwh", "in.county"]
+        )
         county = df["in.county"].iloc[0]
         annual_kwh = df["out.electricity.total.energy_consumption..kwh"].sum()
         rows.append((county, annual_kwh))
@@ -183,8 +186,7 @@ def download_comstock_gap(out_path):
             print(f"  {i}/{len(keys)}")
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    pd.DataFrame(rows, columns=["county", "annual_electricity_kwh"]).to_csv(
-        out_path, index=False)
+    pd.DataFrame(rows, columns=["county", "annual_electricity_kwh"]).to_csv(out_path, index=False)
     print("ComStock gap model assembly done.")
 
 
@@ -206,8 +208,9 @@ def _promote(t1, t2):
     if pa.types.is_null(t2):
         return t1
     # int vs float -> float
-    if (pa.types.is_integer(t1) and pa.types.is_floating(t2)) or \
-       (pa.types.is_floating(t1) and pa.types.is_integer(t2)):
+    if (pa.types.is_integer(t1) and pa.types.is_floating(t2)) or (
+        pa.types.is_floating(t1) and pa.types.is_integer(t2)
+    ):
         return pa.float64()
     # fall back to string for anything genuinely incompatible
     return pa.string()
@@ -241,9 +244,7 @@ def write_sdr_version(out_dir, ds):
     release_match = re.search(r"release_(\d+)", prefix)
     release = release_match.group(1) if release_match else "unknown"
     with open(os.path.join(out_dir, "sdr_version.json"), "w") as f:
-        json.dump(
-            {"version": f"{YEAR}.{release}", "source_prefix": prefix}, f,
-            indent=2)
+        json.dump({"version": f"{YEAR}.{release}", "source_prefix": prefix}, f, indent=2)
 
 
 def main():

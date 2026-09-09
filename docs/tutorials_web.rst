@@ -23,10 +23,10 @@ The latest version of the Scout source code is accessed by clicking the "`Source
 
 
 .. tip::
-     We recommend registering an e-mail address and creating an account so that you can save your ECMs and custom analyses. To create an account, click the "Register" button on the landing page and complete the require fields. 
+     We recommend registering an e-mail address and creating an account so that you can save your ECMs and custom analyses. To create an account, click the "Register" button on the landing page and complete the require fields.
 
 .. note::
-     To change your username of password, after you are signed in, hover over your username and click "Profile". On this page you will be able to change your username and/or password. 
+     To change your username of password, after you are signed in, hover over your username and click "Profile". On this page you will be able to change your username and/or password.
 
 .. _tuts-2-web:
 
@@ -59,14 +59,14 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
   .. tip::
      Drag-and-drop an existing ECM JSON definition onto the gray box towards the bottom of the window to populate all remaining fields in the form.
 
-2. **Define the ECM's applicable baseline market.** An ECM's applicable baseline market is defined by climate zone(s), building type(s), building vintage(s), end use(s), fuel type(s), and technology (technologies). Each of these baseline market attributes has multiple categories that are selected using checkboxes or radio buttons, including an "All" option that will automatically select all categories for the given market attribute. 
+2. **Define the ECM's applicable baseline market.** An ECM's applicable baseline market is defined by climate zone(s), building type(s), building vintage(s), end use(s), fuel type(s), and technology (technologies). Each of these baseline market attributes has multiple categories that are selected using checkboxes or radio buttons, including an "All" option that will automatically select all categories for the given market attribute.
 
   Initially, only the "Climate Zone," "Building Type," and "Building Vintage" inputs are shown. Once you select a building type, the "End Use" input will appear; upon selecting most end uses [#]_, the "Fuel Type" input will appear; and upon selecting a fuel type, the "Technology" input will appear.
 
   .. tip::
      If the ECM impacts a whole end use or end uses (e.g., the ECM achieves 30% lighting end use savings), choose the appropriate "End Use" option(s) and subsequently set "Fuel Type" (if applicable) and "Technology" to "All"; this will ensure that ECM performance improvements assigned in step 4 are applied across the desired end use(s).
- 
-3. **Enter the ECM's market entry and exit year.** *Optionally*, enter the years that the ECM is expected to enter and exit the market in the "Market Entry Year" and "Market Exit Year" boxes. 
+
+3. **Enter the ECM's market entry and exit year.** *Optionally*, enter the years that the ECM is expected to enter and exit the market in the "Market Entry Year" and "Market Exit Year" boxes.
 
   .. note::
      If you choose not to enter a market entry and exit year for the ECM, the ECM's market entry year is assumed to be the first year of the modeling time horizon and no market exit year is assumed.
@@ -78,21 +78,21 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
 4. **Enter the ECM's energy performance level.** Energy performance level data may be entered using either a simple method (default) or a detailed method that accomodates different performance value types and breakdowns.
 
 
-  **Simple entry of energy performance data** 
+  **Simple entry of energy performance data**
 
   - If you wish to use *absolute units* for energy performance (e.g., COP), enter the absolute performance value in the box just below the "Energy Performance" label.
-  
+
     .. note::
         Absolute performance values must reflect the units autofilled in the gray box to the right of the value box. Performance units are auto-filled based on your selections in step 2 - see :ref:`ecm-energy-efficiency-units` for additional guidance.
 
-  - If you wish to use *relative savings* units for energy performance (e.g., % savings), use the drop down menu to choose between "constant" and "dynamic" relative savings options and enter the percent savings value in the box just below the "Energy Performance" label. When selecting "dynamic" relative savings units from the drop down menu, enter the anchor year into the box that appears to the right of the units drop down menu. 
+  - If you wish to use *relative savings* units for energy performance (e.g., % savings), use the drop down menu to choose between "constant" and "dynamic" relative savings options and enter the percent savings value in the box just below the "Energy Performance" label. When selecting "dynamic" relative savings units from the drop down menu, enter the anchor year into the box that appears to the right of the units drop down menu.
 
     .. note::
-        "Constant" relative savings units indicate that the ECM's relative savings impact does not change over time, even as the baseline technology stock becomes more efficient. Conversely, "dynamic" units recalculate the ECM's relative savings impact annually to reflect a changing baseline, using an anchor year to determine the magnitude of baseline change over time. See :ref:`ecm-features-relative-savings` for additional guidance.  
+        "Constant" relative savings units indicate that the ECM's relative savings impact does not change over time, even as the baseline technology stock becomes more efficient. Conversely, "dynamic" units recalculate the ECM's relative savings impact annually to reflect a changing baseline, using an anchor year to determine the magnitude of baseline change over time. See :ref:`ecm-features-relative-savings` for additional guidance.
 
-  
+
   **Detailed entry of energy performance data**
-  
+
   - Toggle the "Detailed Input" option shown towards the top right of the form. Click the "Add Data" button to begin specifying the detailed inputs. A second form will appear that allows you to breakdown energy performance values by energy use segment ("Breakdown by Segment"), change the type of energy performance value ("Change Value Type"), and set the energy performance value and associated units ("Set Value" and "Set Units"). Performance units are specified in either absolute terms - with units autofilled from step 2 - or as a relative savings percentage.
 
     .. note::
@@ -114,21 +114,21 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
 
 5. **Enter the ECM's installed cost.** Like energy performance data in step 4, installed cost data may be entered using the simple or detailed method.
 
-  **Simple entry of installed cost data** 
+  **Simple entry of installed cost data**
 
   - Enter the installed cost value in the box just below the "Installed Cost" label.
 
     .. note::
         Installed cost values must reflect the units autofilled in the gray box to the right of the value box. Cost units are auto-filled based on your selections in step 2 - see :ref:`ecm-installed-cost-units` for additional guidance.
 
-  **Detailed entry of installed cost data** 
-  
+  **Detailed entry of installed cost data**
+
   - Toggle the "Detailed Input" option shown towards the top right of the form. Detailed input entry for installed cost works similarly to the process described for detailed energy performance inputs in step 4.
   - Installed cost inputs may be broken out by building type and vintage, and may be specified as point values or probability distributions.
 
   Enter installed cost source information in the "Installed Cost Source" box using the same source content and formatting guidelines as in step 3.
 
-6. **Enter the ECM's lifetime.** Like energy performance data in step 4 and installed cost data in step 5, lifetime data may be entered using the simple or detailed method. 
+6. **Enter the ECM's lifetime.** Like energy performance data in step 4 and installed cost data in step 5, lifetime data may be entered using the simple or detailed method.
 
   **Simple entry of lifetime data**
 
@@ -142,12 +142,12 @@ The Add New ECM form guides you through seven steps for creating a single ECM de
   Enter lifetime source information in the "Lifetime Source" box, using the same source content and formatting guidelines as in step 3.
 
 7. **Enter other ECM information.** You may optionally specify inputs that:
- 
+
  - scale down an ECM's applicable baseline market ("Market Scaling Fraction"),
  - flag a switch between baseline technology fuel type(s) and the ECM's fuel type ("Fuel Switching"),
  - provide additional notes about the ECM definition ("Notes"), and
  - identify the ECM definition's author ("Author").
- 
+
  Toggle the "Detailed Input" option shown to the top right of the "Market Scaling Fraction" input to access a detailed entry method for this input.
 
  .. note::
@@ -167,7 +167,7 @@ ECM package creation
 
 For ECM Packages, the Add ECM form involves one step of data entry.
 
-First, choose the single ECM definitions you wish to package from the list of options under "Select ECMs to Package". 
+First, choose the single ECM definitions you wish to package from the list of options under "Select ECMs to Package".
 
 .. tip::
     The "Select ECMs" list is populated from the default set of ECMs shown on the ECM Summaries Page; if you have a custom ECM stored in your local |html-filepath| ./ecm_definitions |html-fp-end| folder that you wish to package, add the ECM to the list by typing its name into the "Write in ECM" box and clicking the "Add" button at the right end of this box.
@@ -192,10 +192,10 @@ Browsing and editing a set of ECMs
 ECM definitions are presented in a table where each row includes information for a single ECM or ECM package and the columns summarize the following ECM attributes:
 
 - name
-- energy performance, 
-- installed cost, 
+- energy performance,
+- installed cost,
 - lifetime, and
-- market entry year. 
+- market entry year.
 
 Filter and reorganize the ECM set
 *********************************
@@ -219,16 +219,16 @@ To view additional details about an ECM on the ECM Summaries Page, click the dro
 
 .. _line-plot-example:
 .. figure:: images/ui_line_plot_example.*
-    
-   Detailed data for a prospective AFDD ECM include key input attributes (at left) and primary energy use, |CO2| emissions, or energy cost results for the ECM under three ECM adoption scenarios (at right).  In the energy use plot shown for this ECM, baseline primary energy use gradually increases across the modeled time horizon from 2.5 quads in 2015 to 3.35 quads in 2050; the ECM is ultimately able to reduce this baseline energy by more than 0.75 quads. The full impact of the ECM on baseline energy use is seen upon market entry in 2020 under a Technical Potential adoption scenario and by about 2040 under a Maximum Adoption Potential scenario. 
+
+   Detailed data for a prospective AFDD ECM include key input attributes (at left) and primary energy use, |CO2| emissions, or energy cost results for the ECM under three ECM adoption scenarios (at right).  In the energy use plot shown for this ECM, baseline primary energy use gradually increases across the modeled time horizon from 2.5 quads in 2015 to 3.35 quads in 2050; the ECM is ultimately able to reduce this baseline energy by more than 0.75 quads. The full impact of the ECM on baseline energy use is seen upon market entry in 2020 under a Technical Potential adoption scenario and by about 2040 under a Maximum Adoption Potential scenario.
 
 Plots in the detailed ECM view show projected primary energy use, |CO2| emissions, or energy costs for the ECM under three ECM adoption scenarios (see :ref:`overview-adoption` for more details on ECM adoption):
 
  1. a "Baseline" technology case where no ECM adoption is assumed, corresponding to `AEO Reference Case`_ outcomes,
- 2. a "Technical Potential" case where the ECM is assumed to entirely replace comparable baseline technologies upon market entry, and 
+ 2. a "Technical Potential" case where the ECM is assumed to entirely replace comparable baseline technologies upon market entry, and
  3. a "Maximum Adoption Potential" case where the ECM's penetration into its baseline market is limited by more realistic baseline technology stock turnover.
- 
-Each plot's x axis shows the year range for the projections; the y axis can be toggled to show the energy use, |CO2|, or cost outcome of interest. 
+
+Each plot's x axis shows the year range for the projections; the y axis can be toggled to show the energy use, |CO2|, or cost outcome of interest.
 
 .. tip::
  To view y axis values associated with each point on the plot, mouse over the points of interest and the values will appear.
@@ -241,7 +241,7 @@ Download or edit ECM definitions
 
 To download an ECM definition on the ECM Summaries Page, click the "Download" icon (the down arrow) at the right end of the row for the ECM of interest --- this icon is also found at the top right of the detailed drop down window for the ECM. An ECM JSON will be downloaded to your computer; this JSON can be added to the |html-filepath| ./ecm_definitions  |html-fp-end| folder in your Scout directory and used in subsequent analyses.
 
-To edit the attributes of an ECM on the ECM Summaries Page, click the "Edit" icon (the pencil) at the right right end of the row for the ECM of interest --- this icon is also found at the top right of the detailed drop down window for the ECM. 
+To edit the attributes of an ECM on the ECM Summaries Page, click the "Edit" icon (the pencil) at the right right end of the row for the ECM of interest --- this icon is also found at the top right of the detailed drop down window for the ECM.
 
 An "Edit ECM" form will pop up with fully populated input fields (see :ref:`create-ecm` for additional guidance on these fields). For edits to single ECMs, click through the navigation bar steps on the left side of the form and make changes to the input fields shown in each step; ECM package edits only have one step. When your edits are complete, click the "Generate ECM" button at the bottom right of the screen to download an edited ECM JSON definition; again, this JSON can be added to the |html-filepath| ./ecm_definitions folder |html-fp-end| in your Scout directory and used in subsequent analyses.
 
@@ -256,7 +256,7 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. 1. Ensure that all of your ECM JSON definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
 
-.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
+.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument:
 
   **Windows** ::
 
@@ -270,10 +270,10 @@ An "Edit ECM" form will pop up with fully populated input fields (see :ref:`crea
 
 .. 4. When prompted to select a file to upload, upload the file named |html-filepath| ./generated/ecm_prep.json |html-fp-end| in your Scout project directory - this file includes all the definitions for your custom set of ECMs, which were bundled in step 2. Once uploaded, the file will appear under the "Active File" label.
 
-  note:: 
+  note::
 ..       Larger files may take several seconds to upload in step 4.
 
-.. Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.   
+.. Your custom set of ECMs will appear just as the default ECM set does on the ECM Summaries Page, and you may browse, filter, and edit the ECMs as described in :ref:`browse-default-ecms`. Switch between the default ECM set and your custom set using the toggle button towards the top right of the page.
 
 .. _tuts-3-web:
 
@@ -294,13 +294,13 @@ The `ECM Summaries Page`_ also allows you to create new, custom analyses with ex
 Create a new analysis with one or more ECMs from the ECM Summaries page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To conduct a new analysis, first select one or more of the ECM definitions on the `ECM Summaries Page`_ by clicking on the checkboxes next to the ECMs, and then enter a name for your analysis in the "Enter Analysis Name" box at the bottom of the screen. 
+To conduct a new analysis, first select one or more of the ECM definitions on the `ECM Summaries Page`_ by clicking on the checkboxes next to the ECMs, and then enter a name for your analysis in the "Enter Analysis Name" box at the bottom of the screen.
 
-Before you click "Start New Analysis," which will no longer be greyed out after you enter a name for your analysis, you will need to pick an analysis calculation method. There are three calculation methods you can choose from depending on whether you are interested in `assessing source or site energy impacts`_: 
+Before you click "Start New Analysis," which will no longer be greyed out after you enter a name for your analysis, you will need to pick an analysis calculation method. There are three calculation methods you can choose from depending on whether you are interested in `assessing source or site energy impacts`_:
 
-1. **Fossil Fuel Equivalence:** One of two approaches for non-combustible source energy accounting, this methodology uses the average heat rate of fossil generators and assigns it as the heat rate for non-combustible renewable energy generation. This value is 9,510 BTU/kWh, or about 35% efficiency, and represents the source energy value of fossil generation that is displaced by renewable energy generation. 
-2. **Captured Energy:** The other approach assumes that the source energy of renewable energy generators is exactly equal to the electricity produced with no energy losses prior to transmission and distribution. It is equal to a heat rate of 3,412 BTU/kWh, or a conversion efficiency of 100%. 
-3. **Site Energy:** This approach assess impacts in terms of site energy rather than in terms of source energy (using one of the other two approaches). 
+1. **Fossil Fuel Equivalence:** One of two approaches for non-combustible source energy accounting, this methodology uses the average heat rate of fossil generators and assigns it as the heat rate for non-combustible renewable energy generation. This value is 9,510 BTU/kWh, or about 35% efficiency, and represents the source energy value of fossil generation that is displaced by renewable energy generation.
+2. **Captured Energy:** The other approach assumes that the source energy of renewable energy generators is exactly equal to the electricity produced with no energy losses prior to transmission and distribution. It is equal to a heat rate of 3,412 BTU/kWh, or a conversion efficiency of 100%.
+3. **Site Energy:** This approach assess impacts in terms of site energy rather than in terms of source energy (using one of the other two approaches).
 
 .. note::
 
@@ -311,7 +311,7 @@ After selecting one of these calculation methods, click "Start New Analysis," an
 Using the analysis selection dropdown on the Analysis Results page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On the `Analysis Results Page`_ you can click the dropdown menu to show all completed and in-progress analyses. The pane will show the status, name, calculation method, and run date/time for each analysis. Next to each analysis, you will also see icons that allow you perform operations on the completed analyses: 
+On the `Analysis Results Page`_ you can click the dropdown menu to show all completed and in-progress analyses. The pane will show the status, name, calculation method, and run date/time for each analysis. Next to each analysis, you will also see icons that allow you perform operations on the completed analyses:
 
 - Clicking the green gear icon shows you the list of ECMs included in your analysis. If you wish to run a new analysis using all or a subset of these ECMs, you can use the checkboxes to select or deselect ECMs and then click "Next" to start a new analysis with a modified set of ECMs or with a different calculation method.
 - Clicking on the blue download icon allows you to download in `JSON format`_ raw results from your analysis.
@@ -345,8 +345,8 @@ The `radar graph`_ on the Analysis Results Page groups total energy, |CO2|, or c
 
 .. _radar-plot-example:
 .. figure:: images/ui_radar_plot_example.*
-    
-   In this radar graph, the overall primary energy use impact of an ECM portfolio that includes both prospective and commercially available ECMs is broken down by end use; results are shown for a Technical Potential adoption scenario run in the year 2030. Here, the envelope end use (pertaining to heating and cooling energy lost through building envelope components) makes the largest contribution to baseline energy use (5.3 quads) and ECM energy savings (2.6 quads). [#]_ Heating and water heating yield the second and third largest baseline energy use totals (3.8 and 3.1 quads, respectively); ECM energy savings are slightly higher for water heating than heating (1.6 quads water heating compared to 1.5 quads heating).   
+
+   In this radar graph, the overall primary energy use impact of an ECM portfolio that includes both prospective and commercially available ECMs is broken down by end use; results are shown for a Technical Potential adoption scenario run in the year 2030. Here, the envelope end use (pertaining to heating and cooling energy lost through building envelope components) makes the largest contribution to baseline energy use (5.3 quads) and ECM energy savings (2.6 quads). [#]_ Heating and water heating yield the second and third largest baseline energy use totals (3.8 and 3.1 quads, respectively); ECM energy savings are slightly higher for water heating than heating (1.6 quads water heating compared to 1.5 quads heating).
 
 Results are shown for two energy use scenarios:
 
@@ -378,15 +378,15 @@ The `bar graph`_ on the Analysis Results Page attributes total avoided energy, |
 
 .. _bar-plot-example:
 .. figure:: images/ui_bar_plot_example.*
-    
-    This bar graph attributes total avoided and remaining energy use after ECM portfolio adoption to individual ECMs in the portfolio, grouping each ECM by the end use that it applies to. In this case, representing a Technical Potential ECM adoption run for the year 2030, two heat pump water heating (HPWH) ECMs appear in the top 5 ECM contributions to total avoided energy use. This result stems from the generally high potential for energy use impacts in the water heating end use (see :numref:`radar-plot-example`) and the high performance levels of these HPWH ECMs relative to the baseline technologies they replace (here assumed to include gas-fired water heaters). Most of the ECMs on this list represent aspirational technologies with targeted cost and performance attributes.    
+
+    This bar graph attributes total avoided and remaining energy use after ECM portfolio adoption to individual ECMs in the portfolio, grouping each ECM by the end use that it applies to. In this case, representing a Technical Potential ECM adoption run for the year 2030, two heat pump water heating (HPWH) ECMs appear in the top 5 ECM contributions to total avoided energy use. This result stems from the generally high potential for energy use impacts in the water heating end use (see :numref:`radar-plot-example`) and the high performance levels of these HPWH ECMs relative to the baseline technologies they replace (here assumed to include gas-fired water heaters). Most of the ECMs on this list represent aspirational technologies with targeted cost and performance attributes.
 
 .. tip::
     Clicking on the "Avoided" and "Remaining" segment bars shows the individual ECM contributions to each of these segments.
 
 The magnitude of each ECM’s contribution to the "Avoided" and "Remaining" bar segments is indicated in three ways:
 
-1. by the ECM’s vertical position on the list of individual ECMs, with more impactful ECMs shown higher on the list, and 
+1. by the ECM’s vertical position on the list of individual ECMs, with more impactful ECMs shown higher on the list, and
 2. by the height of each ECM’s corresponding bar segment, and
 3. by the specific energy, |CO2|, or cost impact noted under the ECM’s name label.
 
@@ -403,8 +403,8 @@ The `scatterplot`_ on the Analysis Results Page indicates the cost effectiveness
 
 .. _scatter_plot-example:
 .. figure:: images/ui_scatter_plot_example.*
-    
-    This scatterplot indicates the cost effectiveness of individual ECMs under two financial metrics, grouping ECMs by the end use(s) they apply to. In this case, representing a Technical Potential ECM adoption run for the year 2030, internal rate of return (IRR) and simple payback financial metrics are used on the x and y axes, respectively. ECMs toward the bottom right of the plot (lower payback, higher IRR) are most cost effective. Most ECMs in the plot region below 5 years payback and above an IRR of 10% apply to the envelope, water heating, or "Multiple" end use categories, where the latter category reflects controls ECMs. Controls ECMs look particularly favorable here since their targeted cost and performance attributes were developed under a more aggressive payback requirement than other ECM types (~1 year). For example, the highlighted "Commercial Comfort Ctl." ECM yields a 1.1 year payback in 2030, though this ECM only saves 0.1 quads of energy because its application was restricted to large offices for this run.   
+
+    This scatterplot indicates the cost effectiveness of individual ECMs under two financial metrics, grouping ECMs by the end use(s) they apply to. In this case, representing a Technical Potential ECM adoption run for the year 2030, internal rate of return (IRR) and simple payback financial metrics are used on the x and y axes, respectively. ECMs toward the bottom right of the plot (lower payback, higher IRR) are most cost effective. Most ECMs in the plot region below 5 years payback and above an IRR of 10% apply to the envelope, water heating, or "Multiple" end use categories, where the latter category reflects controls ECMs. Controls ECMs look particularly favorable here since their targeted cost and performance attributes were developed under a more aggressive payback requirement than other ECM types (~1 year). For example, the highlighted "Commercial Comfort Ctl." ECM yields a 1.1 year payback in 2030, though this ECM only saves 0.1 quads of energy because its application was restricted to large offices for this run.
 
 .. note::
     For all of the financial metrics except for IRR, a higher number signifies lower ECM cost effectiveness.
@@ -425,7 +425,7 @@ If a probability distribution has been placed on the cost, performance, and/or l
 
 .. 1. Ensure that all of your ECM definitions have been added to the |html-filepath| ./ecm_definitions |html-fp-end| folder in your Scout project directory (see :ref:`create-ecm` for guidance on how to create new ECMs).
 
-.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument: 
+.. 2. Open a Terminal window (Mac) or command prompt (Windows), navigate to the Scout project directory, and enter the following command line argument:
 
 ..   **Windows** ::
 
@@ -435,7 +435,7 @@ If a probability distribution has been placed on the cost, performance, and/or l
 
 ..      python3 ecm_prep.py
 
-.. 3. In the Terminal window (Mac) or command prompt (Windows), enter the following command line argument: 
+.. 3. In the Terminal window (Mac) or command prompt (Windows), enter the following command line argument:
 
 ..   **Windows** ::
 
@@ -449,7 +449,7 @@ If a probability distribution has been placed on the cost, performance, and/or l
 
 .. 5. When prompted to select a file to upload, navigate to the |html-filepath| ./results |html-fp-end| folder in your Scout project directory and upload the file named |html-filepath| ecm_results.json |html-fp-end| - this file includes results data generated for your custom set of ECMs in step 3. Once uploaded, the definitions file will appear under the "Active File" label.
 
-..   .. note:: 
+..   .. note::
 ..       Larger files may take several seconds to upload in step 5.
 
 .. _tuts-4-web:
@@ -469,7 +469,7 @@ All inputs to the Baseline Energy Calculator form are required unless they are t
 
   .. note::
 
-     Scout currently uses the AIA climate zone breakdowns from `RECS 2009`_ and `CBECS 2003`_.  
+     Scout currently uses the AIA climate zone breakdowns from `RECS 2009`_ and `CBECS 2003`_.
 
 4. **Select building type(s).** Building type(s) are selected by checking the appropriate box(es). An "All Residential" or "All Commercial" selection will automatically check all residential and commercial building sub-categories, respectively.
 
@@ -497,7 +497,7 @@ Once all steps of the Baseline Energy Calculator have been completed, click the 
 .. _Add-on type ECMs: http://scout-bto.readthedocs.io/en/latest/tutorials.html#add-on-type-ecms
 .. _EnergyPlus Measure: https://energy.gov/eere/buildings/articles/there-s-measure
 .. _probability distribution: https://docs.scipy.org/doc/numpy-1.13.0/reference/routines.random.html
-.. _ENERGY STAR: https://www.energystar.gov/products?s=mega 
+.. _ENERGY STAR: https://www.energystar.gov/products?s=mega
 .. _IECC: https://www.iccsafe.org/codes-tech-support/codes/2018-i-codes/iecc/
 .. _ASHRAE 90.1: https://www.ashrae.org/resources--publications/bookstore/standard-90-1
 .. _assessing source or site energy impacts: https://www.energystar.gov/buildings/benchmark/understand_metrics/source_site_difference
@@ -514,7 +514,7 @@ Once all steps of the Baseline Energy Calculator have been completed, click the 
 
 .. rubric:: Footnotes
 
-.. [#] In the special case of a "Heating," "Secondary Heating," and/or "Cooling" end use selection, an additional "Technology Type" input will appear, as heating/cooling technologies may be categorized as equipment (e.g., an efficient air source heat pump) or as envelope components (e.g., a highly insulating window). Choosing "Equipment" as the "Technology Type" will yield subsequent "Fuel Type" and "Technology" inputs. Choosing "Envelope" as the "Technology Type" skips the "Fuel Type" input and moves you straight to the "Technology" input; this reflects that the energy use associated with envelope components is not tied to a specific fuel type. 
+.. [#] In the special case of a "Heating," "Secondary Heating," and/or "Cooling" end use selection, an additional "Technology Type" input will appear, as heating/cooling technologies may be categorized as equipment (e.g., an efficient air source heat pump) or as envelope components (e.g., a highly insulating window). Choosing "Equipment" as the "Technology Type" will yield subsequent "Fuel Type" and "Technology" inputs. Choosing "Envelope" as the "Technology Type" skips the "Fuel Type" input and moves you straight to the "Technology" input; this reflects that the energy use associated with envelope components is not tied to a specific fuel type.
 .. [#] EnergyPlus Measure performance data are always provided with units of relative savings.
 .. [#] Envelope energy use totals in :numref:`radar-plot-example` reflect simultaneous improvements in the efficiency of the heating and cooling equipment and lighting end uses (contributing 3.8, 2.0, and 1.6 quads of baseline energy use, respectively).
-.. [#] When both residential and commercial buildings are selected in step 3, subsequent end use and technology selections in step 4 will reflect both of these sectors. For example, in the end use dropdown menu, both "Secondary Heating" (residential only) and "Ventilation" (commercial only) end uses will be shown, while in the technology dropdown menu, "Wood Stove" (residential only) and "Engine-driven Heat Pump" (commercial only) will be shown. 
+.. [#] When both residential and commercial buildings are selected in step 3, subsequent end use and technology selections in step 4 will reflect both of these sectors. For example, in the end use dropdown menu, both "Secondary Heating" (residential only) and "Ventilation" (commercial only) end uses will be shown, while in the technology dropdown menu, "Wood Stove" (residential only) and "Engine-driven Heat Pump" (commercial only) will be shown.

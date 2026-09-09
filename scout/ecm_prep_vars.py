@@ -145,8 +145,7 @@ class UsefulVars(object):
         # these data are later required to derive unit-level metrics in the
         # ECM competition module
         self.adopt_schemes_prep = ["Technical potential"]
-        if opts.adopt_scn_restrict is False or \
-                "Max adoption potential" in opts.adopt_scn_restrict:
+        if opts.adopt_scn_restrict is False or "Max adoption potential" in opts.adopt_scn_restrict:
             self.adopt_schemes_prep.append("Max adoption potential")
         # Assume default adoption scenarios will be used in the competition
         # scheme if user doesn't specify otherwise
@@ -163,7 +162,8 @@ class UsefulVars(object):
         # data are needed to calculate unit-level cost metrics for competition
         self.full_dat_out = {
             a_s: (True if a_s in self.adopt_schemes_run else False)
-            for a_s in self.adopt_schemes_prep}
+            for a_s in self.adopt_schemes_prep
+        }
         self.discount_rate = 0.07
         self.nsamples = 100
         self.regions = opts.alt_regions
@@ -174,15 +174,14 @@ class UsefulVars(object):
         # AEO publication year; determines end use name mapping
         aeo_import_year = self.current_yr
         # End use names 8 and 9 changed in AEO 2026
-        _eu8 = 'data center' if aeo_import_year >= 2026 else 'PCs'
-        _eu9 = 'office equipment' if aeo_import_year >= 2026 else 'non-PC office equipment'
+        _eu8 = "data center" if aeo_import_year >= 2026 else "PCs"
+        _eu9 = "office equipment" if aeo_import_year >= 2026 else "non-PC office equipment"
         # Set minimum modeling year to AEO base year
         aeo_min = self.current_yr
         # Set maximum modeling year
         aeo_max = aeo_yrs["max year"]
         # Derive time horizon from min/max years
-        self.aeo_years = [
-            str(i) for i in range(aeo_min, aeo_max + 1)]
+        self.aeo_years = [str(i) for i in range(aeo_min, aeo_max + 1)]
         self.aeo_years_summary = ["2030", "2050"]
         # Set early retrofit rate assumptions
 
@@ -203,15 +202,23 @@ class UsefulVars(object):
             # for all other components are set to zero.
             start_vals = {
                 "commercial": {
-                    "lighting": 0.015, "HVAC": 0.009, "roof": 0.006,
-                    "windows": 0.003, "wall": 0.003,
-                    "water heating": 0.009, "other": 0
+                    "lighting": 0.015,
+                    "HVAC": 0.009,
+                    "roof": 0.006,
+                    "windows": 0.003,
+                    "wall": 0.003,
+                    "water heating": 0.009,
+                    "other": 0,
                 },
                 "residential": {
-                    "lighting": 0.015, "HVAC": 0.005, "roof": 0.0027,
-                    "windows": 0.0023, "wall": 0.0006,
-                    "water heating": 0.005, "other": 0
-                }
+                    "lighting": 0.015,
+                    "HVAC": 0.005,
+                    "roof": 0.0027,
+                    "windows": 0.0023,
+                    "wall": 0.0006,
+                    "water heating": 0.005,
+                    "other": 0,
+                },
             }
 
             # Set multipliers that progressively scale up the early retrofit
@@ -231,58 +238,90 @@ class UsefulVars(object):
                 rate_inc, yr_inc = opts.retro_set[1:3]
                 # Calculate progressively increasing multipliers to the early
                 # retrofit rate based on user settings
-                multipliers = {yr: 1 + ((rate_inc - 1) / (yr_inc - aeo_min)) *
-                               (int(yr) - aeo_min) if int(yr) < yr_inc else
-                               rate_inc for yr in self.aeo_years}
+                multipliers = {
+                    yr: 1 + ((rate_inc - 1) / (yr_inc - aeo_min)) * (int(yr) - aeo_min)
+                    if int(yr) < yr_inc
+                    else rate_inc
+                    for yr in self.aeo_years
+                }
             # For each year, multiply starting early retrofit rate values by
             # rate multipliers to obtain final early retrofit rates by year;
             # nest by building type and technology component, consistent with
             # the structure of the starting values above
-            self.retro_rate = {bldg: {cmpo: {
-                yr: start_vals[bldg][cmpo] * multipliers[yr]
-                for yr in self.aeo_years} for cmpo in start_vals[bldg].keys()}
-                for bldg in start_vals.keys()}
+            self.retro_rate = {
+                bldg: {
+                    cmpo: {yr: start_vals[bldg][cmpo] * multipliers[yr] for yr in self.aeo_years}
+                    for cmpo in start_vals[bldg].keys()
+                }
+                for bldg in start_vals.keys()
+            }
 
         self.demand_tech = [
-            'roof', 'ground', 'lighting gain', 'windows conduction',
-            'equipment gain', 'floor', 'infiltration', 'people gain',
-            'windows solar', 'ventilation', 'other heat gain', 'wall',
-            'internal gains']  # 'internal gains' is aggregated from people + equipment gains
+            "roof",
+            "ground",
+            "lighting gain",
+            "windows conduction",
+            "equipment gain",
+            "floor",
+            "infiltration",
+            "people gain",
+            "windows solar",
+            "ventilation",
+            "other heat gain",
+            "wall",
+            "internal gains",
+        ]  # 'internal gains' is aggregated from people + equipment gains
         # Map legacy internal gain component names to the aggregated node
         self.demand_tech_alias = {
-            'people gain': 'internal gains',
-            'equipment gain': 'internal gains',
+            "people gain": "internal gains",
+            "equipment gain": "internal gains",
         }
         # Note: ASHP costs are zero by convention in EIA data for new
         # construction
-        self.zero_cost_tech = ['infiltration', 'ASHP']
-        self.inverted_relperf_list = ["ACH", "CFM/ft^2 @ 0.3 in. w.c.",
-                                      "kWh/yr", "kWh/day", "SHGC", "HP/CFM",
-                                      "kWh/cycle"]
+        self.zero_cost_tech = ["infiltration", "ASHP"]
+        self.inverted_relperf_list = [
+            "ACH",
+            "CFM/ft^2 @ 0.3 in. w.c.",
+            "kWh/yr",
+            "kWh/day",
+            "SHGC",
+            "HP/CFM",
+            "kWh/cycle",
+        ]
         self.valid_submkt_urls = [
-            '.eia.gov', '.doe.gov', '.energy.gov', '.data.gov',
-            '.energystar.gov', '.epa.gov', '.census.gov', '.pnnl.gov',
-            '.lbl.gov', '.nrel.gov', 'www.sciencedirect.com', 'www.costar.com',
-            'www.navigantresearch.com']
+            ".eia.gov",
+            ".doe.gov",
+            ".energy.gov",
+            ".data.gov",
+            ".energystar.gov",
+            ".epa.gov",
+            ".census.gov",
+            ".pnnl.gov",
+            ".lbl.gov",
+            ".nrel.gov",
+            "www.sciencedirect.com",
+            "www.costar.com",
+            "www.navigantresearch.com",
+        ]
         try:
             self.consumer_price_ind = numpy.genfromtxt(
                 handyfiles.cpi_data,
-                names=True, delimiter=',',
-                dtype=[('DATE', 'U10'), ('VALUE', '<f8')])
+                names=True,
+                delimiter=",",
+                dtype=[("DATE", "U10"), ("VALUE", "<f8")],
+            )
             # Ensure that consumer price date is in expected format
-            if len(self.consumer_price_ind['DATE'][0]) != 10:
+            if len(self.consumer_price_ind["DATE"][0]) != 10:
                 raise ValueError("CPI date format should be YYYY-MM-DD")
         except ValueError as e:
-            raise ValueError(
-                f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
+            raise ValueError(f"Error reading in '{handyfiles.cpi_data}': {str(e)}") from None
         # Pre-build a year->mean CPI value dict so cpi_converter can do O(1)
         # lookups instead of scanning all rows on every call (called ~40k times)
         _cpi_by_year = {}
         for row in self.consumer_price_ind:
-            yr = row['DATE'][:4]  # extract YYYY from YYYY-MM-DD
-            _cpi_by_year.setdefault(yr, []).append(row['VALUE'])
-        self._cpi_year_means = {
-            yr: numpy.mean(vals) for yr, vals in _cpi_by_year.items()}
+            yr = row["DATE"][:4]  # extract YYYY from YYYY-MM-DD
+            _cpi_by_year.setdefault(yr, []).append(row["VALUE"])
+        self._cpi_year_means = {yr: numpy.mean(vals) for yr, vals in _cpi_by_year.items()}
         # Fallback value: last row's VALUE (matches existing behavior)
         self._cpi_latest_value = float(self.consumer_price_ind[-1][1])
         # If states are used, read in state-level cost adjustment data
@@ -295,8 +334,8 @@ class UsefulVars(object):
             for row in reg_cost_adj_array.index:
                 # Dict is organized by state and building type (res/com) levels
                 self.reg_cost_adj[reg_cost_adj_array.loc[row, "state"]] = {
-                    bldg: reg_cost_adj_array.loc[row, bldg] for
-                    bldg in ["residential", "commercial"]
+                    bldg: reg_cost_adj_array.loc[row, bldg]
+                    for bldg in ["residential", "commercial"]
                 }
         else:
             self.reg_cost_adj = None
@@ -315,23 +354,25 @@ class UsefulVars(object):
             cost_ss_carb_nonfs = None
         # Set national site to source conversion factors
         self.ss_conv = {
-            "electricity": cost_ss_carb[
-                "electricity"]["site to source conversion"]["data"],
+            "electricity": cost_ss_carb["electricity"]["site to source conversion"]["data"],
             "natural gas": {yr: 1 for yr in self.aeo_years},
             "distillate": {yr: 1 for yr in self.aeo_years},
-            "other fuel": {yr: 1 for yr in self.aeo_years}}
+            "other fuel": {yr: 1 for yr in self.aeo_years},
+        }
 
         # Shorthand for year before current year, which all costs will ultimately be converted to
         yr_before_current = str(self.current_yr - 1)
         # Set the cost year of fuel price data in the national input files
-        cost_yrs = {fuel: cost_ss_carb[
-            fuel]["price"]["units"].split("$")[0] for fuel in [
-            'electricity', 'natural gas', 'propane', 'distillate']}
+        cost_yrs = {
+            fuel: cost_ss_carb[fuel]["price"]["units"].split("$")[0]
+            for fuel in ["electricity", "natural gas", "propane", "distillate"]
+        }
         # Find cost year conversion between the year specified in the national input price data
         # for each fuel type and the year before the current one
         cost_yr_convert = {
             fuel: self.cpi_converter(cost_yrs[fuel], yr_before_current)
-            for fuel in ['electricity', 'natural gas', 'propane', 'distillate']}
+            for fuel in ["electricity", "natural gas", "propane", "distillate"]
+        }
         # Set electric emissions intensities and prices differently
         # depending on whether EMM/state regions are specified (use EMM-/state-specific
         # data) or not (use national data)
@@ -349,25 +390,43 @@ class UsefulVars(object):
             # Initialize CO2 intensities based on electricity intensities by
             # EMM region or state; convert CO2 intensities from Mt/TWh site to
             # MMTon/MMBTu site to match expected multiplication by site energy
-            self.carb_int = {bldg: {"electricity": {reg: {
-                yr: round((cost_ss_carb_altreg["CO2 intensity of electricity"][
-                    "data"][reg][yr] / 3412141.6331), 10) for
-                yr in self.aeo_years} for reg in cost_ss_carb_altreg[
-                    "CO2 intensity of electricity"]["data"].keys()}} for
-                bldg in ["residential", "commercial"]}
+            self.carb_int = {
+                bldg: {
+                    "electricity": {
+                        reg: {
+                            yr: round(
+                                (
+                                    cost_ss_carb_altreg["CO2 intensity of electricity"]["data"][
+                                        reg
+                                    ][yr]
+                                    / 3412141.6331
+                                ),
+                                10,
+                            )
+                            for yr in self.aeo_years
+                        }
+                        for reg in cost_ss_carb_altreg["CO2 intensity of electricity"][
+                            "data"
+                        ].keys()
+                    }
+                }
+                for bldg in ["residential", "commercial"]
+            }
             # Electricity price data are further resolved by both EMM region and state, while gas
             # prices are further resolved by state; find the cost units for these more resolute data
             if "End-use gas price" in cost_ss_carb_altreg.keys():
                 # Regional resolution in gas prices is only for states
                 gas_price_regions = True
                 cost_yrs["electricity"], cost_yrs["natural gas"] = (
-                    cost_ss_carb_altreg[x]["units"].split("$")[0] for x in [
-                        "End-use electricity price", "End-use gas price"])
+                    cost_ss_carb_altreg[x]["units"].split("$")[0]
+                    for x in ["End-use electricity price", "End-use gas price"]
+                )
             else:
                 # Regional resolution in gas prices is only for states
                 gas_price_regions = False
-                cost_yrs["electricity"] = \
-                    cost_ss_carb_altreg["End-use electricity price"]["units"].split("$")[0]
+                cost_yrs["electricity"] = cost_ss_carb_altreg["End-use electricity price"][
+                    "units"
+                ].split("$")[0]
             # Update year conversions when regionally-resolved price data are available to use
             for x in ["electricity", "natural gas"]:
                 cost_yr_convert[x] = self.cpi_converter(cost_yrs[x], yr_before_current)
@@ -375,95 +434,180 @@ class UsefulVars(object):
             # or state; convert prices from $/kWh site to $/MMBTu site to match
             # expected multiplication by site energy units, and convert year of
             # input electricity prices to year before current
-            self.ecosts = {bldg: {"electricity": {reg: {
-                yr: round((cost_ss_carb_altreg["End-use electricity price"][
-                    "data"][bldg][reg][yr] / 0.003412), 6) * cost_yr_convert["electricity"] for
-                yr in self.aeo_years} for reg in cost_ss_carb_altreg[
-                    "End-use electricity price"]["data"][bldg].keys()}} for
-                bldg in ["residential", "commercial"]}
+            self.ecosts = {
+                bldg: {
+                    "electricity": {
+                        reg: {
+                            yr: round(
+                                (
+                                    cost_ss_carb_altreg["End-use electricity price"]["data"][bldg][
+                                        reg
+                                    ][yr]
+                                    / 0.003412
+                                ),
+                                6,
+                            )
+                            * cost_yr_convert["electricity"]
+                            for yr in self.aeo_years
+                        }
+                        for reg in cost_ss_carb_altreg["End-use electricity price"]["data"][
+                            bldg
+                        ].keys()
+                    }
+                }
+                for bldg in ["residential", "commercial"]
+            }
             # Finalize base-case emissions/cost data to use in assessing
             # reductions for non-fuel switching microsegments under a high grid
             # decarbonization case, if desired by the user
             if cost_ss_carb_altreg_nonfs is not None:
-                self.carb_int_nonfs = {bldg: {"electricity": {reg: {
-                    yr: round((cost_ss_carb_altreg_nonfs[
-                        "CO2 intensity of electricity"][
-                        "data"][reg][yr] / 3412141.6331), 10) for
-                    yr in self.aeo_years} for reg in cost_ss_carb_altreg_nonfs[
-                        "CO2 intensity of electricity"]["data"].keys()}} for
-                    bldg in ["residential", "commercial"]}
-                self.ecosts_nonfs = {bldg: {"electricity": {reg: {
-                    yr: round((cost_ss_carb_altreg_nonfs[
-                        "End-use electricity price"][
-                        "data"][bldg][reg][yr] / 0.003412), 6) * cost_yr_convert["electricity"] for
-                    yr in self.aeo_years} for reg in cost_ss_carb_altreg_nonfs[
-                        "End-use electricity price"]["data"][bldg].keys()}} for
-                    bldg in ["residential", "commercial"]}
+                self.carb_int_nonfs = {
+                    bldg: {
+                        "electricity": {
+                            reg: {
+                                yr: round(
+                                    (
+                                        cost_ss_carb_altreg_nonfs["CO2 intensity of electricity"][
+                                            "data"
+                                        ][reg][yr]
+                                        / 3412141.6331
+                                    ),
+                                    10,
+                                )
+                                for yr in self.aeo_years
+                            }
+                            for reg in cost_ss_carb_altreg_nonfs["CO2 intensity of electricity"][
+                                "data"
+                            ].keys()
+                        }
+                    }
+                    for bldg in ["residential", "commercial"]
+                }
+                self.ecosts_nonfs = {
+                    bldg: {
+                        "electricity": {
+                            reg: {
+                                yr: round(
+                                    (
+                                        cost_ss_carb_altreg_nonfs["End-use electricity price"][
+                                            "data"
+                                        ][bldg][reg][yr]
+                                        / 0.003412
+                                    ),
+                                    6,
+                                )
+                                * cost_yr_convert["electricity"]
+                                for yr in self.aeo_years
+                            }
+                            for reg in cost_ss_carb_altreg_nonfs["End-use electricity price"][
+                                "data"
+                            ][bldg].keys()
+                        }
+                    }
+                    for bldg in ["residential", "commercial"]
+                }
             else:
-                self.carb_int_nonfs, self.ecosts_nonfs = (
-                    None for n in range(2))
+                self.carb_int_nonfs, self.ecosts_nonfs = (None for n in range(2))
         else:
             # Regional resolution in gas prices is only for states
             gas_price_regions = False
             # Initialize CO2 intensities based on national CO2 intensities
             # for electricity; convert CO2 intensities from Mt/quad source to
             # Mt/MMBTu source to match expected multiplication by source energy
-            self.carb_int = {bldg: {"electricity": {yr: cost_ss_carb[
-                "electricity"]["CO2 intensity"]["data"][bldg][yr] /
-                1000000000 for yr in self.aeo_years}} for bldg in [
-                "residential", "commercial"]}
+            self.carb_int = {
+                bldg: {
+                    "electricity": {
+                        yr: cost_ss_carb["electricity"]["CO2 intensity"]["data"][bldg][yr]
+                        / 1000000000
+                        for yr in self.aeo_years
+                    }
+                }
+                for bldg in ["residential", "commercial"]
+            }
             # Initialize energy costs based on national electricity prices; no
             # energy unit conversion needed as the prices will be multiplied by MMBtu
             # source energy units and are already in units of $/MMBtu source; convert year of
             # input electricity prices to year before current
-            self.ecosts = {bldg: {"electricity": {yr: cost_ss_carb[
-                "electricity"]["price"]["data"][bldg][yr] * cost_yr_convert["electricity"] for
-                yr in self.aeo_years}} for bldg in [
-                "residential", "commercial"]}
+            self.ecosts = {
+                bldg: {
+                    "electricity": {
+                        yr: cost_ss_carb["electricity"]["price"]["data"][bldg][yr]
+                        * cost_yr_convert["electricity"]
+                        for yr in self.aeo_years
+                    }
+                }
+                for bldg in ["residential", "commercial"]
+            }
             # Finalize base-case emissions/cost data to use in assessing
             # reductions for non-fuel switching microsegments under a high grid
             # decarbonization case, if desired by the user
             if cost_ss_carb_nonfs is not None:
                 self.carb_int_nonfs = {
-                    bldg: {"electricity": {yr: cost_ss_carb_nonfs[
-                        "electricity"]["CO2 intensity"]["data"][bldg][yr] /
-                        1000000000 for yr in self.aeo_years}} for bldg in [
-                        "residential", "commercial"]}
+                    bldg: {
+                        "electricity": {
+                            yr: cost_ss_carb_nonfs["electricity"]["CO2 intensity"]["data"][bldg][yr]
+                            / 1000000000
+                            for yr in self.aeo_years
+                        }
+                    }
+                    for bldg in ["residential", "commercial"]
+                }
                 self.ecosts_nonfs = {
-                    bldg: {"electricity": {yr: cost_ss_carb_nonfs[
-                        "electricity"]["price"]["data"][bldg][yr] * cost_yr_convert["electricity"]
-                        for yr in self.aeo_years}} for bldg in [
-                        "residential", "commercial"]}
+                    bldg: {
+                        "electricity": {
+                            yr: cost_ss_carb_nonfs["electricity"]["price"]["data"][bldg][yr]
+                            * cost_yr_convert["electricity"]
+                            for yr in self.aeo_years
+                        }
+                    }
+                    for bldg in ["residential", "commercial"]
+                }
             else:
-                self.carb_int_nonfs, self.ecosts_nonfs = (
-                    None for n in range(2))
+                self.carb_int_nonfs, self.ecosts_nonfs = (None for n in range(2))
         # Pull non-electric CO2 intensities and energy prices and update
         # the CO2 intensity and energy cost dicts initialized above
         # accordingly; convert CO2 intensities from Mt/quad source to
         # Mt/MMBTu source to match expected multiplication by source energy;
         # price data are already in units of $/MMBtu source and do not require
         # further energy unit conversion; convert year of input prices to year before current
-        carb_int_nonelec = {bldg: {fuel: {yr: (
-            cost_ss_carb[fuel_map]["CO2 intensity"]["data"][
-                bldg][yr] / 1000000000) for yr in self.aeo_years}
+        carb_int_nonelec = {
+            bldg: {
+                fuel: {
+                    yr: (cost_ss_carb[fuel_map]["CO2 intensity"]["data"][bldg][yr] / 1000000000)
+                    for yr in self.aeo_years
+                }
                 for fuel, fuel_map in zip(
-                ["natural gas", "distillate", "other fuel"],
-                ["natural gas", "distillate", "propane"])
-            } for bldg in ["residential", "commercial"]}
-        ecosts_nonelec = {bldg: {fuel: {yr: cost_ss_carb[
-            fuel_map]["price"]["data"][bldg][yr] * cost_yr_convert[fuel_map] for yr in
-            self.aeo_years} for fuel, fuel_map in zip([
-                "natural gas", "distillate", "other fuel"], [
-                "natural gas", "distillate", "propane"])} for bldg in [
-            "residential", "commercial"]}
+                    ["natural gas", "distillate", "other fuel"],
+                    ["natural gas", "distillate", "propane"],
+                )
+            }
+            for bldg in ["residential", "commercial"]
+        }
+        ecosts_nonelec = {
+            bldg: {
+                fuel: {
+                    yr: cost_ss_carb[fuel_map]["price"]["data"][bldg][yr]
+                    * cost_yr_convert[fuel_map]
+                    for yr in self.aeo_years
+                }
+                for fuel, fuel_map in zip(
+                    ["natural gas", "distillate", "other fuel"],
+                    ["natural gas", "distillate", "propane"],
+                )
+            }
+            for bldg in ["residential", "commercial"]
+        }
         # Replace national gas prices with regionally-resolved prices, if available
         if gas_price_regions:
             for bldg in ["residential", "commercial"]:
-                ecosts_nonelec[bldg]["natural gas"] = {reg: {
-                    yr: cost_ss_carb_altreg["End-use gas price"][
-                        "data"][bldg][reg][yr] * cost_yr_convert["natural gas"] for
-                    yr in self.aeo_years} for reg in cost_ss_carb_altreg[
-                        "End-use gas price"]["data"][bldg].keys()}
+                ecosts_nonelec[bldg]["natural gas"] = {
+                    reg: {
+                        yr: cost_ss_carb_altreg["End-use gas price"]["data"][bldg][reg][yr]
+                        * cost_yr_convert["natural gas"]
+                        for yr in self.aeo_years
+                    }
+                    for reg in cost_ss_carb_altreg["End-use gas price"]["data"][bldg].keys()
+                }
         for bldg in ["residential", "commercial"]:
             self.carb_int[bldg].update(carb_int_nonelec[bldg])
             self.ecosts[bldg].update(ecosts_nonelec[bldg])
@@ -479,36 +623,39 @@ class UsefulVars(object):
         ccosts_init = cost_ss_carb["CO2 price"]["data"]
         # Find conversion between year of carbon price data and year prior to current
         ccost_yr_convert = self.cpi_converter(
-            cost_ss_carb["CO2 price"]["units"].split("$")[0], yr_before_current)
+            cost_ss_carb["CO2 price"]["units"].split("$")[0], yr_before_current
+        )
         # Multiply carbon costs by 1000000 to reflect
         # conversion from import units of $/MTon to $/MMTon and convert to common cost year
         self.ccosts = {
-            yr_key: (ccosts_init[yr_key] * 1000000) * ccost_yr_convert for
-            yr_key in self.aeo_years}
+            yr_key: (ccosts_init[yr_key] * 1000000) * ccost_yr_convert for yr_key in self.aeo_years
+        }
         self.com_timeprefs = {
             "rates": [10.0, 1.0, 0.45, 0.25, 0.15, 0.065, 0.0],
             "distributions": {
                 "heating": {
-                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
-                    for key in self.aeo_years},
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003] for key in self.aeo_years
+                },
                 "cooling": {
-                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004]
-                    for key in self.aeo_years},
+                    key: [0.264, 0.225, 0.193, 0.192, 0.106, 0.016, 0.004] for key in self.aeo_years
+                },
                 "water heating": {
-                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004]
-                    for key in self.aeo_years},
+                    key: [0.263, 0.249, 0.212, 0.169, 0.097, 0.006, 0.004] for key in self.aeo_years
+                },
                 "ventilation": {
-                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003]
-                    for key in self.aeo_years},
+                    key: [0.265, 0.226, 0.196, 0.192, 0.105, 0.013, 0.003] for key in self.aeo_years
+                },
                 "cooking": {
-                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004]
-                    for key in self.aeo_years},
+                    key: [0.261, 0.248, 0.214, 0.171, 0.097, 0.005, 0.004] for key in self.aeo_years
+                },
                 "lighting": {
-                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027]
-                    for key in self.aeo_years},
+                    key: [0.264, 0.225, 0.193, 0.193, 0.085, 0.013, 0.027] for key in self.aeo_years
+                },
                 "refrigeration": {
-                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004]
-                    for key in self.aeo_years}}}
+                    key: [0.262, 0.248, 0.213, 0.170, 0.097, 0.006, 0.004] for key in self.aeo_years
+                },
+            },
+        }
         # Load external data on conversion rates for HP measures
         if opts.exog_hp_rates is not False:
             self.hp_rates = JsonIO.load_json(handyfiles.hp_convert_rates)
@@ -521,48 +668,86 @@ class UsefulVars(object):
             # Use RTU HP fuel switching rates for furnace and/or small electric
             # resistance + AC tech.
             self.com_RTU_fs_tech = [
-                "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
-                "pkg_terminal_AC-cool"]
+                "gas_furnace",
+                "oil_furnace",
+                "electric_res-heat",
+                "rooftop_AC",
+                "wall-window_room_AC",
+                "res_type_central_AC",
+                "pkg_terminal_AC-cool",
+            ]
             # Use non-RTU HP fuel switching rates for boiler/chiller tech.
             # and/or gas chillers/HPs
             self.com_nRTU_fs_tech = [
-                "elec_boiler", "gas_eng-driven_RTHP-heat",
-                "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
-                "scroll_chiller", "reciprocating_chiller",
-                "centrifugal_chiller", "screw_chiller",
-                "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool",
-                "gas_eng-driven_RTHP-cool"]
+                "elec_boiler",
+                "gas_eng-driven_RTHP-heat",
+                "res_type_gasHP-heat",
+                "gas_boiler",
+                "oil_boiler",
+                "scroll_chiller",
+                "reciprocating_chiller",
+                "centrifugal_chiller",
+                "screw_chiller",
+                "gas_eng-driven_RTAC",
+                "gas_chiller",
+                "res_type_gasHP-cool",
+                "gas_eng-driven_RTHP-cool",
+            ]
         # Fugitive refrigerant emissions calculations also require
         # understanding of which commercial heating/cooling technologies fall
         # into the RTU/small commercial category vs. large commercial category
         elif opts.fugitive_emissions is not False:
             self.hp_rates = None
             self.com_RTU_fs_tech = [
-                "gas_furnace", "oil_furnace", "electric_res-heat",
-                "rooftop_AC", "wall-window_room_AC", "res_type_central_AC",
-                "pkg_terminal_AC-cool"]
+                "gas_furnace",
+                "oil_furnace",
+                "electric_res-heat",
+                "rooftop_AC",
+                "wall-window_room_AC",
+                "res_type_central_AC",
+                "pkg_terminal_AC-cool",
+            ]
             self.com_nRTU_fs_tech = [
-                "elec_boiler", "gas_eng-driven_RTHP-heat",
-                "res_type_gasHP-heat", "gas_boiler", "oil_boiler",
-                "scroll_chiller", "reciprocating_chiller",
-                "centrifugal_chiller", "screw_chiller",
-                "gas_eng-driven_RTAC", "gas_chiller", "res_type_gasHP-cool",
-                "gas_eng-driven_RTHP-cool"]
+                "elec_boiler",
+                "gas_eng-driven_RTHP-heat",
+                "res_type_gasHP-heat",
+                "gas_boiler",
+                "oil_boiler",
+                "scroll_chiller",
+                "reciprocating_chiller",
+                "centrifugal_chiller",
+                "screw_chiller",
+                "gas_eng-driven_RTAC",
+                "gas_chiller",
+                "res_type_gasHP-cool",
+                "gas_eng-driven_RTHP-cool",
+            ]
         else:
-            self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (
-                None for n in range(3))
+            self.hp_rates, self.com_RTU_fs_tech, self.com_nRTU_fs_tech = (None for n in range(3))
         self.resist_ht_wh_tech = [
-                "elec_boiler", "electric_res-heat", "elec_res-heater", "resistance heat",
-                "electric WH", "elec_booster_water_heater",
-                "elec_water_heater", "Solar water heater", "solar WH"]
+            "elec_boiler",
+            "electric_res-heat",
+            "elec_res-heater",
+            "resistance heat",
+            "electric WH",
+            "elec_booster_water_heater",
+            "elec_water_heater",
+            "Solar water heater",
+            "solar WH",
+        ]
         # Note: conceptually this includes anything in an HVAC package that isn't the primary
         # heating or cooling equipment
         self.secondary_hvac_tech = [
-                "room AC", "wall-window_room_AC", "secondary heater",
-                "secondary heater (wood)", "secondary heater (coal)",
-                "secondary heater (kerosene)", "secondary heater (LPG)",
-                "CAV_Vent", "VAV_Vent"]
+            "room AC",
+            "wall-window_room_AC",
+            "secondary heater",
+            "secondary heater (wood)",
+            "secondary heater (coal)",
+            "secondary heater (kerosene)",
+            "secondary heater (LPG)",
+            "CAV_Vent",
+            "VAV_Vent",
+        ]
 
         # Global information for anchoring linked heating/cooling stock
         # turnover and exogenous switching rate calculations
@@ -572,27 +757,52 @@ class UsefulVars(object):
         self.htcl_anchor_tech_opts = {
             "residential": {
                 "heating": [
-                    "resistance heat", "furnace (NG)", "boiler (NG)",
-                    "furnace (distillate)", "boiler (distillate)",
-                    "furnace (LPG)", "furnace (kerosene)", "stove (wood)",
-                    "ASHP", "GSHP", "NGHP"],
-                "cooling": ["central AC", "ASHP", "GSHP", "NGHP", "room AC"]
+                    "resistance heat",
+                    "furnace (NG)",
+                    "boiler (NG)",
+                    "furnace (distillate)",
+                    "boiler (distillate)",
+                    "furnace (LPG)",
+                    "furnace (kerosene)",
+                    "stove (wood)",
+                    "ASHP",
+                    "GSHP",
+                    "NGHP",
+                ],
+                "cooling": ["central AC", "ASHP", "GSHP", "NGHP", "room AC"],
             },
             "commercial": {
                 "heating": [
-                    "elec_boiler", "electric_res-heat", "elec_res-heater", "gas_boiler",
-                    "gas_furnace", "oil_boiler", "oil_furnace",
-                    "rooftop_ASHP-heat", "pkg_terminal_HP-heat", "comm_GSHP-heat",
-                    "gas_eng-driven_RTHP-heat", "res_type_gasHP-heat"],
+                    "elec_boiler",
+                    "electric_res-heat",
+                    "elec_res-heater",
+                    "gas_boiler",
+                    "gas_furnace",
+                    "oil_boiler",
+                    "oil_furnace",
+                    "rooftop_ASHP-heat",
+                    "pkg_terminal_HP-heat",
+                    "comm_GSHP-heat",
+                    "gas_eng-driven_RTHP-heat",
+                    "res_type_gasHP-heat",
+                ],
                 "cooling": [
-                    "rooftop_AC", "rooftop_ASHP-cool", "pkg_terminal_AC-cool",
-                    "reciprocating_chiller", "scroll_chiller",
-                    "centrifugal_chiller", "screw_chiller",
-                    "res_type_central_AC", "comm_GSHP-cool",
-                    "gas_eng-driven_RTAC", "gas_chiller",
-                    "res_type_gasHP-cool", "gas_eng-driven_RTHP-cool",
-                    "wall-window_room_AC"]
-            }
+                    "rooftop_AC",
+                    "rooftop_ASHP-cool",
+                    "pkg_terminal_AC-cool",
+                    "reciprocating_chiller",
+                    "scroll_chiller",
+                    "centrifugal_chiller",
+                    "screw_chiller",
+                    "res_type_central_AC",
+                    "comm_GSHP-cool",
+                    "gas_eng-driven_RTAC",
+                    "gas_chiller",
+                    "res_type_gasHP-cool",
+                    "gas_eng-driven_RTHP-cool",
+                    "wall-window_room_AC",
+                ],
+            },
         }
         # List order assigns priority for linked end use techs that should be paired
         # with anchor end use techs for the purposes of calculating unit-level stock and
@@ -609,26 +819,38 @@ class UsefulVars(object):
                 "stove (wood)": ["central AC", "room AC"],
                 "ASHP": ["ASHP"],
                 "GSHP": ["GSHP"],
-                "NGHP": ["NGHP"]
+                "NGHP": ["NGHP"],
             },
             "commercial": {
-                "elec_boiler": ["reciprocating_chiller", "centrifugal_chiller",
-                                "screw_chiller", "scroll_chiller"],
+                "elec_boiler": [
+                    "reciprocating_chiller",
+                    "centrifugal_chiller",
+                    "screw_chiller",
+                    "scroll_chiller",
+                ],
                 "electric_res-heat": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
                 "elec_res-heater": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
-                "gas_boiler": ["reciprocating_chiller", "centrifugal_chiller",
-                               "screw_chiller", "scroll_chiller"],
+                "gas_boiler": [
+                    "reciprocating_chiller",
+                    "centrifugal_chiller",
+                    "screw_chiller",
+                    "scroll_chiller",
+                ],
                 "gas_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
-                "oil_boiler": ["reciprocating_chiller", "centrifugal_chiller",
-                               "screw_chiller", "scroll_chiller"],
+                "oil_boiler": [
+                    "reciprocating_chiller",
+                    "centrifugal_chiller",
+                    "screw_chiller",
+                    "scroll_chiller",
+                ],
                 "oil_furnace": ["rooftop_AC", "pkg_terminal_AC-cool", "res_type_central_AC"],
                 "rooftop_ASHP-heat": ["rooftop_ASHP-cool"],
                 "pkg_terminal_HP-heat": ["pkg_terminal_HP-cool"],
                 "comm_GSHP-heat": ["comm_GSHP-cool"],
                 "gas_eng-driven_RTHP-heat": ["gas_eng-driven_RTHP-cool"],
-                "res_type_gasHP-heat": ["res_type_gasHP-cool"]
-            }
-            }
+                "res_type_gasHP-heat": ["res_type_gasHP-cool"],
+            },
+        }
 
         # Load external refrigerant and supply chain methane leakage data
         # to assess fugitive emissions sources
@@ -639,53 +861,75 @@ class UsefulVars(object):
 
         # Set valid region names and regional output categories
         if opts.alt_regions == "AIA":
-            valid_regions = [
-             "AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"]
+            valid_regions = ["AIA_CZ1", "AIA_CZ2", "AIA_CZ3", "AIA_CZ4", "AIA_CZ5"]
             regions_out = [
-                ('AIA CZ1', 'AIA_CZ1'), ('AIA CZ2', 'AIA_CZ2'),
-                ('AIA CZ3', 'AIA_CZ3'), ('AIA CZ4', 'AIA_CZ4'),
-                ('AIA CZ5', 'AIA_CZ5')]
+                ("AIA CZ1", "AIA_CZ1"),
+                ("AIA CZ2", "AIA_CZ2"),
+                ("AIA CZ3", "AIA_CZ3"),
+                ("AIA CZ4", "AIA_CZ4"),
+                ("AIA CZ5", "AIA_CZ5"),
+            ]
             self.warm_cold_regs = {
                 "warm climates": ["AIA_CZ3", "AIA_CZ4", "AIA_CZ5"],
-                "cold climates": ["AIA_CZ1", "AIA_CZ2"]}
-            self.region_cpl_mapping = ''
+                "cold climates": ["AIA_CZ1", "AIA_CZ2"],
+            }
+            self.region_cpl_mapping = ""
             # Read in mapping for alternate performance/cost unit breakouts
             # IECC -> AIA mapping
             try:
                 iecc_reg_map = numpy.genfromtxt(
                     handyfiles.iecc_reg_map,
-                    names=True, delimiter='\t', dtype=(
-                        ['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                    names=True,
+                    delimiter="\t",
+                    dtype=(["<U25"] * 1 + ["<f8"] * len(valid_regions)),
+                )
             except ValueError as e:
                 raise ValueError(
-                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
+                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}"
+                ) from None
             # BA -> AIA mapping
             try:
                 ba_reg_map = numpy.genfromtxt(
-                    handyfiles.ba_reg_map, names=True, delimiter='\t',
-                    dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                    handyfiles.ba_reg_map,
+                    names=True,
+                    delimiter="\t",
+                    dtype=(["<U25"] * 1 + ["<f8"] * len(valid_regions)),
+                )
                 # List of possible BA region names
-                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
-                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
+                ba_list = [
+                    "Hot-Humid",
+                    "Mixed-Humid",
+                    "Very Cold",
+                    "Subarctic",
+                    "Cold",
+                    "Hot-Dry",
+                    "Mixed-Dry",
+                    "Marine",
+                ]
             except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
+                raise ValueError(f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
             self.alt_attr_brk_map = {
-                "IECC": iecc_reg_map, "BA": ba_reg_map, "levels": str([
-                    "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " +
-                str(["BA_" + n for n in ba_list])}
+                "IECC": iecc_reg_map,
+                "BA": ba_reg_map,
+                "levels": str(["IECC_CZ" + str(n + 1) for n in range(8)])
+                + " 0R "
+                + str(["BA_" + n for n in ba_list]),
+            }
             # Read in state -> AIA mapping data only when methane leakage is
             # assessed
-            if opts.fugitive_emissions is not False and \
-                    opts.fugitive_emissions[0] in ['1', '3']:
+            if opts.fugitive_emissions is not False and opts.fugitive_emissions[0] in ["1", "3"]:
                 try:
                     self.fugitive_emissions_map = numpy.genfromtxt(
-                        handyfiles.state_aia_map, names=True,
-                        delimiter='\t', dtype=(['<U25'] * 1 + ['<f8'] * 51))
+                        handyfiles.state_aia_map,
+                        names=True,
+                        delimiter="\t",
+                        dtype=(["<U25"] * 1 + ["<f8"] * 51),
+                    )
                 except ValueError as e:
                     raise ValueError(
-                        f"Error reading in '{handyfiles.state_aia_map}': {str(e)}") from None
+                        f"Error reading in '{handyfiles.state_aia_map}': {str(e)}"
+                    ) from None
             else:
                 self.fugitive_emissions_map = None
             # HP conversion rates unsupported for AIA regional breakouts
@@ -693,54 +937,103 @@ class UsefulVars(object):
         elif opts.alt_regions in ["EMM", "State"]:
             if opts.alt_regions == "EMM":
                 valid_regions = [
-                    'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                    'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                    'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                    'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
+                    "TRE",
+                    "FRCC",
+                    "MISW",
+                    "MISC",
+                    "MISE",
+                    "MISS",
+                    "ISNE",
+                    "NYCW",
+                    "NYUP",
+                    "PJME",
+                    "PJMW",
+                    "PJMC",
+                    "PJMD",
+                    "SRCA",
+                    "SRSE",
+                    "SRCE",
+                    "SPPS",
+                    "SPPC",
+                    "SPPN",
+                    "SRSG",
+                    "CANO",
+                    "CASO",
+                    "NWPP",
+                    "RMRG",
+                    "BASN",
+                ]
                 self.warm_cold_regs = {
                     "warm climates": [
-                        "TRE", "FRCC", "MISC", "MISS", "PJMD", "SRCA",
-                        "SRSE", "SRCE", "SPPS", "SPPC", "SRSG", "CANO",
-                        "CASO"],
+                        "TRE",
+                        "FRCC",
+                        "MISC",
+                        "MISS",
+                        "PJMD",
+                        "SRCA",
+                        "SRSE",
+                        "SRCE",
+                        "SPPS",
+                        "SPPC",
+                        "SRSG",
+                        "CANO",
+                        "CASO",
+                    ],
                     "cold climates": [
-                        "NWPP", "BASN", "RMRG", "SPPN", "MISW", "PJMC",
-                        "PJMW", "MISE", "PJME", "NYUP", "NYCW", "ISNE"]}
-                self.region_cpl_mapping = ''
+                        "NWPP",
+                        "BASN",
+                        "RMRG",
+                        "SPPN",
+                        "MISW",
+                        "PJMC",
+                        "PJMW",
+                        "MISE",
+                        "PJME",
+                        "NYUP",
+                        "NYCW",
+                        "ISNE",
+                    ],
+                }
+                self.region_cpl_mapping = ""
                 try:
                     self.ash_emm_map = numpy.genfromtxt(
-                        handyfiles.ash_emm_map, names=True, delimiter='\t',
-                        dtype=(['<U25'] * 1 + ['<f8'] * len(valid_regions)))
+                        handyfiles.ash_emm_map,
+                        names=True,
+                        delimiter="\t",
+                        dtype=(["<U25"] * 1 + ["<f8"] * len(valid_regions)),
+                    )
                 except ValueError as e:
                     raise ValueError(
-                        f"Error reading in '{handyfiles.ash_emm_map}': {str(e)}") from None
+                        f"Error reading in '{handyfiles.ash_emm_map}': {str(e)}"
+                    ) from None
                 # If applicable, pull regional mapping needed to read in
                 # HP conversion rate data for certain measures/microsegments
                 if self.hp_rates:
                     self.hp_rates_reg_map = {
-                        "midwest": [
-                            "SPPN", "MISW", "SPPC", "MISC",
-                            "PJMW", "PJMC", "MISE"],
-                        "northeast": [
-                            "PJME", "NYCW", "NYUP", "ISNE"],
-                        "south": [
-                            "SPPS", "TRE", "MISS", "SRCE", "PJMD",
-                            "SRCA", "SRSE", "FRCC"],
-                        "west": [
-                            "NWPP", "BASN", "RMRG", "SRSG", "CASO", "CANO"]
+                        "midwest": ["SPPN", "MISW", "SPPC", "MISC", "PJMW", "PJMC", "MISE"],
+                        "northeast": ["PJME", "NYCW", "NYUP", "ISNE"],
+                        "south": ["SPPS", "TRE", "MISS", "SRCE", "PJMD", "SRCA", "SRSE", "FRCC"],
+                        "west": ["NWPP", "BASN", "RMRG", "SRSG", "CASO", "CANO"],
                     }
                 else:
                     self.hp_rates_reg_map = None
                 # Read in state -> EMM mapping data only when methane leakage
                 # is assessed
-                if opts.fugitive_emissions is not False and \
-                        opts.fugitive_emissions[0] in ['1', '3']:
+                if opts.fugitive_emissions is not False and opts.fugitive_emissions[0] in [
+                    "1",
+                    "3",
+                ]:
                     try:
                         self.fugitive_emissions_map = numpy.genfromtxt(
-                            handyfiles.state_emm_map, names=True,
-                            delimiter='\t', dtype=(['<U25'] * 1 + ['<f8'] * 51))
+                            handyfiles.state_emm_map,
+                            names=True,
+                            delimiter="\t",
+                            dtype=(["<U25"] * 1 + ["<f8"] * 51),
+                        )
                     except ValueError as e:
                         raise ValueError(
-                            f"Error reading in '{handyfiles.state_emm_map}': {str(e)}") from None
+                            f"Error reading in '{handyfiles.state_emm_map}': {str(e)}"
+                        ) from None
                 else:
                     self.fugitive_emissions_map = None
             else:
@@ -748,51 +1041,175 @@ class UsefulVars(object):
                 # grid data needed to project forward their emissions and
                 # retail rates
                 valid_regions = [
-                    'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-                    'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-                    'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-                    'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-                    'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI',
-                    'WY']
+                    "AL",
+                    "AZ",
+                    "AR",
+                    "CA",
+                    "CO",
+                    "CT",
+                    "DE",
+                    "DC",
+                    "FL",
+                    "GA",
+                    "ID",
+                    "IL",
+                    "IN",
+                    "IA",
+                    "KS",
+                    "KY",
+                    "LA",
+                    "ME",
+                    "MD",
+                    "MA",
+                    "MI",
+                    "MN",
+                    "MS",
+                    "MO",
+                    "MT",
+                    "NE",
+                    "NV",
+                    "NH",
+                    "NJ",
+                    "NM",
+                    "NY",
+                    "NC",
+                    "ND",
+                    "OH",
+                    "OK",
+                    "OR",
+                    "PA",
+                    "RI",
+                    "SC",
+                    "SD",
+                    "TN",
+                    "TX",
+                    "UT",
+                    "VT",
+                    "VA",
+                    "WA",
+                    "WV",
+                    "WI",
+                    "WY",
+                ]
                 self.warm_cold_regs = {
                     "warm climates": [
-                        'AL', 'AZ', 'AR', 'CA', 'DE', 'DC', 'FL', 'GA', 'KS',
-                        'KY', 'LA', 'MD', 'MS', 'MO', 'NC', 'NJ', 'NM', 'NV',
-                        'OK', 'SC', 'TN', 'TX', 'VA'],
+                        "AL",
+                        "AZ",
+                        "AR",
+                        "CA",
+                        "DE",
+                        "DC",
+                        "FL",
+                        "GA",
+                        "KS",
+                        "KY",
+                        "LA",
+                        "MD",
+                        "MS",
+                        "MO",
+                        "NC",
+                        "NJ",
+                        "NM",
+                        "NV",
+                        "OK",
+                        "SC",
+                        "TN",
+                        "TX",
+                        "VA",
+                    ],
                     "cold climates": [
-                        'CO', 'CT', 'ID', 'IA', 'IL', 'IN', 'MA', 'ME', 'MI',
-                        'MN', 'MT', 'ND', 'NE', 'NH', 'NY', 'OH', 'OR', 'PA',
-                        'RI', 'SD', 'UT', 'VT', 'WA', 'WI', 'WV', 'WY']}
+                        "CO",
+                        "CT",
+                        "ID",
+                        "IA",
+                        "IL",
+                        "IN",
+                        "MA",
+                        "ME",
+                        "MI",
+                        "MN",
+                        "MT",
+                        "ND",
+                        "NE",
+                        "NH",
+                        "NY",
+                        "OH",
+                        "OR",
+                        "PA",
+                        "RI",
+                        "SD",
+                        "UT",
+                        "VT",
+                        "WA",
+                        "WI",
+                        "WV",
+                        "WY",
+                    ],
+                }
                 self.region_cpl_mapping = {
-                    "new england": ['CT', 'MA', 'ME', 'NH', 'RI', 'VT'],
-                    "mid atlantic": ['NJ', 'NY', 'PA'],
-                    "east north central": ['IL', 'IN', 'MI', 'OH', 'WI'],
-                    "west north central": [
-                        'IA', 'KS', 'MN', 'MO', 'ND', 'NE', 'SD'],
-                    "south atlantic": [
-                        'DC', 'DE', 'FL', 'GA', 'MD', 'NC', 'SC', 'VA', 'WV'],
-                    "east south central": ['AL', 'KY', 'MS', 'TN'],
-                    "west south central": ['AR', 'LA', 'OK', 'TX'],
-                    "mountain": [
-                        'AZ', 'CO', 'ID', 'MT', 'NM', 'NV', 'UT', 'WY'],
-                    "pacific": ['AK', 'CA', 'HI', 'OR', 'WA']}
+                    "new england": ["CT", "MA", "ME", "NH", "RI", "VT"],
+                    "mid atlantic": ["NJ", "NY", "PA"],
+                    "east north central": ["IL", "IN", "MI", "OH", "WI"],
+                    "west north central": ["IA", "KS", "MN", "MO", "ND", "NE", "SD"],
+                    "south atlantic": ["DC", "DE", "FL", "GA", "MD", "NC", "SC", "VA", "WV"],
+                    "east south central": ["AL", "KY", "MS", "TN"],
+                    "west south central": ["AR", "LA", "OK", "TX"],
+                    "mountain": ["AZ", "CO", "ID", "MT", "NM", "NV", "UT", "WY"],
+                    "pacific": ["AK", "CA", "HI", "OR", "WA"],
+                }
                 # If applicable, pull regional mapping needed to read in
                 # HP conversion rate data for certain measures/microsegments
                 if self.hp_rates:
                     self.hp_rates_reg_map = {
                         "midwest": [
-                            "ND", "SD", "NE", "KS", "MO", "IA", "MN", "WI",
-                            "IL", "IN", "MI", "OH"],
-                        "northeast": [
-                            "PA", "NY", "NJ", "CT", "RI", "MA", "VT", "NH",
-                            "ME"],
+                            "ND",
+                            "SD",
+                            "NE",
+                            "KS",
+                            "MO",
+                            "IA",
+                            "MN",
+                            "WI",
+                            "IL",
+                            "IN",
+                            "MI",
+                            "OH",
+                        ],
+                        "northeast": ["PA", "NY", "NJ", "CT", "RI", "MA", "VT", "NH", "ME"],
                         "south": [
-                            "TX", "OK", "AR", "LA", "MS", "AL", "GA", "FL",
-                            "SC", "NC", "TN", "KY", "WV", "VA", "DC", "MD",
-                            "DE"],
+                            "TX",
+                            "OK",
+                            "AR",
+                            "LA",
+                            "MS",
+                            "AL",
+                            "GA",
+                            "FL",
+                            "SC",
+                            "NC",
+                            "TN",
+                            "KY",
+                            "WV",
+                            "VA",
+                            "DC",
+                            "MD",
+                            "DE",
+                        ],
                         "west": [
-                            "WA", "OR", "ID", "MT", "WY", "CA", "NV", "UT",
-                            "AZ", "NM", "CO", "AK", "HI"]
+                            "WA",
+                            "OR",
+                            "ID",
+                            "MT",
+                            "WY",
+                            "CA",
+                            "NV",
+                            "UT",
+                            "AZ",
+                            "NM",
+                            "CO",
+                            "AK",
+                            "HI",
+                        ],
                     }
                 else:
                     self.hp_rates_reg_map = None
@@ -809,412 +1226,625 @@ class UsefulVars(object):
                     len_reg = len(valid_regions)
                 # Read in the data
                 aia_altreg_map = numpy.genfromtxt(
-                    handyfiles.aia_altreg_map, names=True, delimiter='\t',
-                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
+                    handyfiles.aia_altreg_map,
+                    names=True,
+                    delimiter="\t",
+                    dtype=(["<U25"] * 1 + ["<f8"] * len_reg),
+                )
             except ValueError:
-                raise ValueError(
-                    f"Error reading in '{str(handyfiles.aia_altreg_map)}'")
+                raise ValueError(f"Error reading in '{str(handyfiles.aia_altreg_map)}'")
             # IECC -> EMM or State mapping
             try:
                 iecc_altreg_map = numpy.genfromtxt(
-                    handyfiles.iecc_reg_map, names=True, delimiter='\t',
-                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
+                    handyfiles.iecc_reg_map,
+                    names=True,
+                    delimiter="\t",
+                    dtype=(["<U25"] * 1 + ["<f8"] * len_reg),
+                )
             except ValueError as e:
                 raise ValueError(
-                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}") from None
+                    f"Error reading in '{handyfiles.iecc_reg_map}': {str(e)}"
+                ) from None
             # BA -> EMM or State mapping
             try:
                 ba_altreg_map = numpy.genfromtxt(
-                    handyfiles.ba_reg_map, names=True, delimiter='\t',
-                    dtype=(['<U25'] * 1 + ['<f8'] * len_reg))
+                    handyfiles.ba_reg_map,
+                    names=True,
+                    delimiter="\t",
+                    dtype=(["<U25"] * 1 + ["<f8"] * len_reg),
+                )
                 # List of possible BA region names
-                ba_list = ["Hot-Humid", "Mixed-Humid", "Very Cold", "Subarctic",
-                           "Cold", "Hot-Dry", "Mixed-Dry", "Marine"]
+                ba_list = [
+                    "Hot-Humid",
+                    "Mixed-Humid",
+                    "Very Cold",
+                    "Subarctic",
+                    "Cold",
+                    "Hot-Dry",
+                    "Mixed-Dry",
+                    "Marine",
+                ]
             except ValueError as e:
-                raise ValueError(
-                    f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
+                raise ValueError(f"Error reading in '{handyfiles.ba_reg_map}': {str(e)}") from None
             # Store alternate breakout mapping in dict for later use
             self.alt_attr_brk_map = {
-                "IECC": iecc_altreg_map, "BA": ba_altreg_map,
+                "IECC": iecc_altreg_map,
+                "BA": ba_altreg_map,
                 "AIA": aia_altreg_map,
-                "levels": str([
-                    "IECC_CZ" + str(n + 1) for n in range(8)]) + " 0R " + str([
-                        "AIA_CZ" + str(n + 1) for n in range(5)]) + " 0R " +
-                str(["BA_" + n for n in ba_list])}
-        self.months = ["january", "february", "march", "april", "may", "june",
-                       "july", "august", "september", "october", "november",
-                       "december"]
+                "levels": str(["IECC_CZ" + str(n + 1) for n in range(8)])
+                + " 0R "
+                + str(["AIA_CZ" + str(n + 1) for n in range(5)])
+                + " 0R "
+                + str(["BA_" + n for n in ba_list]),
+            }
+        self.months = [
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december",
+        ]
         self.in_all_map = {
             "climate_zone": valid_regions,
             "bldg_type": {
-                "residential": [
-                    "single family home", "multi family home", "mobile home"],
+                "residential": ["single family home", "multi family home", "mobile home"],
                 "commercial": [
-                    "assembly", "education", "food sales", "food service",
-                    "health care", "lodging", "large office", "small office",
-                    "mercantile/service", "warehouse", "other",
-                    "unspecified"]},
+                    "assembly",
+                    "education",
+                    "food sales",
+                    "food service",
+                    "health care",
+                    "lodging",
+                    "large office",
+                    "small office",
+                    "mercantile/service",
+                    "warehouse",
+                    "other",
+                    "unspecified",
+                ],
+            },
             "structure_type": ["new", "existing"],
             "fuel_type": {
-                "residential": [
-                    "electricity", "natural gas", "distillate", "other fuel"],
-                "commercial": [
-                    "electricity", "natural gas", "distillate", "other fuel"]},
+                "residential": ["electricity", "natural gas", "distillate", "other fuel"],
+                "commercial": ["electricity", "natural gas", "distillate", "other fuel"],
+            },
             "end_use": {
                 "residential": {
                     "electricity": [
-                        'drying', 'other', 'water heating',
-                        'cooling', 'cooking', 'computers', 'lighting',
-                        'secondary heating', 'TVs', 'heating', 'refrigeration',
-                        'fans and pumps', 'ceiling fan'],
+                        "drying",
+                        "other",
+                        "water heating",
+                        "cooling",
+                        "cooking",
+                        "computers",
+                        "lighting",
+                        "secondary heating",
+                        "TVs",
+                        "heating",
+                        "refrigeration",
+                        "fans and pumps",
+                        "ceiling fan",
+                    ],
                     "natural gas": [
-                        'drying', 'water heating', 'cooling', 'heating',
-                        'cooking', 'secondary heating', 'other'],
-                    "distillate": [
-                        'water heating', 'heating', 'secondary heating',
-                        'other'],
+                        "drying",
+                        "water heating",
+                        "cooling",
+                        "heating",
+                        "cooking",
+                        "secondary heating",
+                        "other",
+                    ],
+                    "distillate": ["water heating", "heating", "secondary heating", "other"],
                     "other fuel": [
-                        'water heating', 'cooking', 'heating',
-                        'secondary heating', 'other']},
+                        "water heating",
+                        "cooking",
+                        "heating",
+                        "secondary heating",
+                        "other",
+                    ],
+                },
                 "commercial": {
                     "electricity": [
-                        'ventilation', 'water heating', 'cooling',
-                        'heating', 'refrigeration', 'MELs',
-                        _eu9, _eu8,
-                        'lighting',
-                        'cooking', "unspecified"],
+                        "ventilation",
+                        "water heating",
+                        "cooling",
+                        "heating",
+                        "refrigeration",
+                        "MELs",
+                        _eu9,
+                        _eu8,
+                        "lighting",
+                        "cooking",
+                        "unspecified",
+                    ],
                     "natural gas": [
-                        'cooling', 'water heating', 'cooking', 'heating',
-                        'other', 'unspecified'],
-                    "distillate": [
-                        'water heating', 'heating', 'other', 'unspecified'],
-                    "other fuel": ["unspecified"]}},
+                        "cooling",
+                        "water heating",
+                        "cooking",
+                        "heating",
+                        "other",
+                        "unspecified",
+                    ],
+                    "distillate": ["water heating", "heating", "other", "unspecified"],
+                    "other fuel": ["unspecified"],
+                },
+            },
             "technology": {
                 "residential": {
                     "supply": {
                         "electricity": {
-                            'other': [
-                                'dishwasher', 'clothes washing', 'freezers',
-                                'rechargeables', 'coffee maker',
-                                'dehumidifier', 'electric other',
-                                'small kitchen appliances', 'microwave',
-                                'smartphones', 'pool heaters', 'pool pumps',
-                                'security system', 'portable electric spas',
-                                'smart speakers', 'tablets', 'wine coolers'],
-                            'water heating': ['solar WH', 'electric WH'],
-                            'cooling': [
-                                'room AC', 'ASHP', 'GSHP', 'central AC'],
-                            'computers': [
-                                'desktop PC', 'laptop PC', 'network equipment',
-                                'monitors'],
-                            'lighting': [
-                                'linear fluorescent (T-8)',
-                                'linear fluorescent (T-12)',
-                                'reflector (LED)', 'general service (CFL)',
-                                'external (high pressure sodium)',
-                                'general service (incandescent)',
-                                'external (CFL)',
-                                'external (LED)', 'reflector (CFL)',
-                                'reflector (incandescent)',
-                                'general service (LED)',
-                                'external (incandescent)',
-                                'linear fluorescent (LED)',
-                                'reflector (halogen)'],
-                            'secondary heating': ['secondary heater'],
-                            'TVs': [
-                                'home theater and audio', 'set top box',
-                                'video game consoles', 'TV',
-                                'OTT streaming devices'],
-                            'heating': ['GSHP', 'resistance heat', 'ASHP'],
-                            'ceiling fan': [None],
-                            'fans and pumps': [None],
-                            'refrigeration': [None],
-                            'drying': [None],
-                            'cooking': [None]},
+                            "other": [
+                                "dishwasher",
+                                "clothes washing",
+                                "freezers",
+                                "rechargeables",
+                                "coffee maker",
+                                "dehumidifier",
+                                "electric other",
+                                "small kitchen appliances",
+                                "microwave",
+                                "smartphones",
+                                "pool heaters",
+                                "pool pumps",
+                                "security system",
+                                "portable electric spas",
+                                "smart speakers",
+                                "tablets",
+                                "wine coolers",
+                            ],
+                            "water heating": ["solar WH", "electric WH"],
+                            "cooling": ["room AC", "ASHP", "GSHP", "central AC"],
+                            "computers": [
+                                "desktop PC",
+                                "laptop PC",
+                                "network equipment",
+                                "monitors",
+                            ],
+                            "lighting": [
+                                "linear fluorescent (T-8)",
+                                "linear fluorescent (T-12)",
+                                "reflector (LED)",
+                                "general service (CFL)",
+                                "external (high pressure sodium)",
+                                "general service (incandescent)",
+                                "external (CFL)",
+                                "external (LED)",
+                                "reflector (CFL)",
+                                "reflector (incandescent)",
+                                "general service (LED)",
+                                "external (incandescent)",
+                                "linear fluorescent (LED)",
+                                "reflector (halogen)",
+                            ],
+                            "secondary heating": ["secondary heater"],
+                            "TVs": [
+                                "home theater and audio",
+                                "set top box",
+                                "video game consoles",
+                                "TV",
+                                "OTT streaming devices",
+                            ],
+                            "heating": ["GSHP", "resistance heat", "ASHP"],
+                            "ceiling fan": [None],
+                            "fans and pumps": [None],
+                            "refrigeration": [None],
+                            "drying": [None],
+                            "cooking": [None],
+                        },
                         "natural gas": {
-                            'cooling': ['NGHP'],
-                            'heating': ['furnace (NG)', 'NGHP', 'boiler (NG)'],
-                            'secondary heating': ['secondary heater'],
-                            'drying': [None],
-                            'water heating': [None],
-                            'cooking': [None],
-                            'other': ["other appliances"]},
+                            "cooling": ["NGHP"],
+                            "heating": ["furnace (NG)", "NGHP", "boiler (NG)"],
+                            "secondary heating": ["secondary heater"],
+                            "drying": [None],
+                            "water heating": [None],
+                            "cooking": [None],
+                            "other": ["other appliances"],
+                        },
                         "distillate": {
-                            'heating': [
-                                'boiler (distillate)', 'furnace (distillate)'],
-                            'secondary heating': ['secondary heater'],
-                            'water heating': [None],
-                            'other': ["other appliances"]},
+                            "heating": ["boiler (distillate)", "furnace (distillate)"],
+                            "secondary heating": ["secondary heater"],
+                            "water heating": [None],
+                            "other": ["other appliances"],
+                        },
                         "other fuel": {
-                            'heating': [
-                                'furnace (kerosene)',
-                                'stove (wood)', 'furnace (LPG)'],
-                            'secondary heating': [
-                                'secondary heater (wood)',
-                                'secondary heater (coal)',
-                                'secondary heater (kerosene)',
-                                'secondary heater (LPG)'],
-                            'cooking': [None],
-                            'water heating': [None],
-                            'other': ["other appliances"]}},
+                            "heating": ["furnace (kerosene)", "stove (wood)", "furnace (LPG)"],
+                            "secondary heating": [
+                                "secondary heater (wood)",
+                                "secondary heater (coal)",
+                                "secondary heater (kerosene)",
+                                "secondary heater (LPG)",
+                            ],
+                            "cooking": [None],
+                            "water heating": [None],
+                            "other": ["other appliances"],
+                        },
+                    },
                     "demand": [
-                        'roof', 'ground', 'windows solar',
-                        'windows conduction', 'equipment gain',
-                        'people gain', 'internal gains', 'wall', 'infiltration']},
+                        "roof",
+                        "ground",
+                        "windows solar",
+                        "windows conduction",
+                        "equipment gain",
+                        "people gain",
+                        "internal gains",
+                        "wall",
+                        "infiltration",
+                    ],
+                },
                 "commercial": {
                     "supply": {
                         "electricity": {
-                            'ventilation': ['VAV_Vent', 'CAV_Vent'],
-                            'water heating': [
-                                'HP water heater',
-                                'elec_water_heater',
-                                'solar water heater', 'solar_water_heater_north'],
-                            'cooling': [
-                                'rooftop_AC', 'scroll_chiller',
-                                'res_type_central_AC', 'reciprocating_chiller',
-                                'comm_GSHP-cool', 'centrifugal_chiller',
-                                'rooftop_ASHP-cool', 'wall-window_room_AC',
-                                'screw_chiller',
+                            "ventilation": ["VAV_Vent", "CAV_Vent"],
+                            "water heating": [
+                                "HP water heater",
+                                "elec_water_heater",
+                                "solar water heater",
+                                "solar_water_heater_north",
+                            ],
+                            "cooling": [
+                                "rooftop_AC",
+                                "scroll_chiller",
+                                "res_type_central_AC",
+                                "reciprocating_chiller",
+                                "comm_GSHP-cool",
+                                "centrifugal_chiller",
+                                "rooftop_ASHP-cool",
+                                "wall-window_room_AC",
+                                "screw_chiller",
                                 "pkg_terminal_AC-cool",
-                                "pkg_terminal_HP-cool"],
-                            'heating': [
-                                'electric_res-heat', 'comm_GSHP-heat',
-                                'rooftop_ASHP-heat', 'elec_boiler',
+                                "pkg_terminal_HP-cool",
+                            ],
+                            "heating": [
+                                "electric_res-heat",
+                                "comm_GSHP-heat",
+                                "rooftop_ASHP-heat",
+                                "elec_boiler",
                                 "pkg_terminal_HP-heat",
-                                "elec_res-heater"],
-                            'refrigeration': [
-                                'Commercial Beverage Merchandisers',
-                                'Commercial Compressor Rack Systems',
-                                'Commercial Condensers',
-                                'Commercial Ice Machines',
-                                'Commercial Reach-In Freezers',
-                                'Commercial Reach-In Refrigerators',
-                                'Commercial Refrigerated Vending Machines',
-                                'Commercial Supermarket Display Cases',
-                                'Commercial Walk-In Freezers',
-                                'Commercial Walk-In Refrigerators'],
-                            'MELs': [
-                                'distribution transformers',
-                                'kitchen ventilation', 'security systems',
-                                'lab fridges and freezers',
-                                'medical imaging', 'large video boards',
-                                'coffee brewers', 'non-road electric vehicles',
-                                'fume hoods', 'laundry', 'elevators',
-                                'escalators', 'IT equipment', 'office UPS',
-                                'data center UPS', 'shredders',
-                                'private branch exchanges',
-                                'voice-over-IP telecom',
-                                'point-of-sale systems', 'warehouse robots',
-                                'televisions',  'water services',
-                                'telecom systems', 'other'
+                                "elec_res-heater",
                             ],
-                            'lighting': [
-                                '100W A19 Incandescent',
-                                '100W Equivalent A19 Halogen',
-                                '100W Equivalent CFL Bare Spiral',
-                                '100W Equivalent LED A Lamp',
-                                'Halogen Infrared Reflector (HIR) PAR38',
-                                'Halogen PAR38',
-                                'LED Integrated Luminaire',
-                                'LED PAR38',
-                                'Mercury Vapor',
-                                'Metal Halide',
-                                'Sodium Vapor',
-                                'T5 4xF54 HO High Bay',
-                                'T5 F28',
-                                'T8 F28',
-                                'T8 F32',
-                                'T8 F59',
-                                'T8 F96'
+                            "refrigeration": [
+                                "Commercial Beverage Merchandisers",
+                                "Commercial Compressor Rack Systems",
+                                "Commercial Condensers",
+                                "Commercial Ice Machines",
+                                "Commercial Reach-In Freezers",
+                                "Commercial Reach-In Refrigerators",
+                                "Commercial Refrigerated Vending Machines",
+                                "Commercial Supermarket Display Cases",
+                                "Commercial Walk-In Freezers",
+                                "Commercial Walk-In Refrigerators",
                             ],
-                            'cooking': [
-                                'elec_range-combined'],
+                            "MELs": [
+                                "distribution transformers",
+                                "kitchen ventilation",
+                                "security systems",
+                                "lab fridges and freezers",
+                                "medical imaging",
+                                "large video boards",
+                                "coffee brewers",
+                                "non-road electric vehicles",
+                                "fume hoods",
+                                "laundry",
+                                "elevators",
+                                "escalators",
+                                "IT equipment",
+                                "office UPS",
+                                "data center UPS",
+                                "shredders",
+                                "private branch exchanges",
+                                "voice-over-IP telecom",
+                                "point-of-sale systems",
+                                "warehouse robots",
+                                "televisions",
+                                "water services",
+                                "telecom systems",
+                                "other",
+                            ],
+                            "lighting": [
+                                "100W A19 Incandescent",
+                                "100W Equivalent A19 Halogen",
+                                "100W Equivalent CFL Bare Spiral",
+                                "100W Equivalent LED A Lamp",
+                                "Halogen Infrared Reflector (HIR) PAR38",
+                                "Halogen PAR38",
+                                "LED Integrated Luminaire",
+                                "LED PAR38",
+                                "Mercury Vapor",
+                                "Metal Halide",
+                                "Sodium Vapor",
+                                "T5 4xF54 HO High Bay",
+                                "T5 F28",
+                                "T8 F28",
+                                "T8 F32",
+                                "T8 F59",
+                                "T8 F96",
+                            ],
+                            "cooking": ["elec_range-combined"],
                             _eu8: [None],
                             _eu9: [None],
-                            'unspecified': [None]},
+                            "unspecified": [None],
+                        },
                         "natural gas": {
-                            'cooling': [
-                                'gas_eng-driven_RTAC', 'gas_chiller',
-                                'res_type_gasHP-cool',
-                                'gas_eng-driven_RTHP-cool'],
-                            'water heating': [
-                                'gas_water_heater', 'gas_instantaneous_water_heater'],
-                            'cooking': [
-                                'gas_range-combined'],
-                            'heating': [
-                                'gas_eng-driven_RTHP-heat',
-                                'res_type_gasHP-heat', 'gas_boiler',
-                                'gas_furnace'],
-                            'other': [None],
-                            'unspecified': [None]},
+                            "cooling": [
+                                "gas_eng-driven_RTAC",
+                                "gas_chiller",
+                                "res_type_gasHP-cool",
+                                "gas_eng-driven_RTHP-cool",
+                            ],
+                            "water heating": ["gas_water_heater", "gas_instantaneous_water_heater"],
+                            "cooking": ["gas_range-combined"],
+                            "heating": [
+                                "gas_eng-driven_RTHP-heat",
+                                "res_type_gasHP-heat",
+                                "gas_boiler",
+                                "gas_furnace",
+                            ],
+                            "other": [None],
+                            "unspecified": [None],
+                        },
                         "distillate": {
-                            'water heating': ['oil_water_heater'],
-                            'heating': ['oil_boiler', 'oil_furnace'],
-                            'other': [None],
-                            'unspecified': [None]},
-                        "other fuel": {
-                            "unspecified": [None]}},
+                            "water heating": ["oil_water_heater"],
+                            "heating": ["oil_boiler", "oil_furnace"],
+                            "other": [None],
+                            "unspecified": [None],
+                        },
+                        "other fuel": {"unspecified": [None]},
+                    },
                     "demand": [
-                        'roof', 'ground', 'lighting gain',
-                        'windows conduction', 'equipment gain',
-                        'floor', 'infiltration', 'people gain',
-                        'internal gains', 'windows solar', 'ventilation',
-                        'other heat gain', 'wall']}}}
+                        "roof",
+                        "ground",
+                        "lighting gain",
+                        "windows conduction",
+                        "equipment gain",
+                        "floor",
+                        "infiltration",
+                        "people gain",
+                        "internal gains",
+                        "windows solar",
+                        "ventilation",
+                        "other heat gain",
+                        "wall",
+                    ],
+                },
+            },
+        }
         # Find the full set of valid names for describing a measure's
         # applicable baseline that do not begin with 'all'
-        mktnames_non_all = self.append_keyvals(
-            self.in_all_map, keyval_list=[]) + ['supply', 'demand'] + \
-            ['warm climates', 'cold climates']
+        mktnames_non_all = (
+            self.append_keyvals(self.in_all_map, keyval_list=[])
+            + ["supply", "demand"]
+            + ["warm climates", "cold climates"]
+        )
         # Find the full set of valid names for describing a measure's
         # applicable baseline that do begin with 'all'
-        mktnames_all_init = ["all", "all residential", "all commercial"] + \
-            self.append_keyvals(self.in_all_map["end_use"], keyval_list=[])
-        mktnames_all = ['all ' + x if 'all' not in x else x for
-                        x in mktnames_all_init]
+        mktnames_all_init = ["all", "all residential", "all commercial"] + self.append_keyvals(
+            self.in_all_map["end_use"], keyval_list=[]
+        )
+        mktnames_all = ["all " + x if "all" not in x else x for x in mktnames_all_init]
         self.valid_mktnames = mktnames_non_all + mktnames_all
-        if opts.detail_brkout in ['1', '2', '5', '6', '8', '10']:
+        if opts.detail_brkout in ["1", "2", "5", "6", "8", "10"]:
             self.out_break_czones = OrderedDict(regions_out)
         else:
             if opts.alt_regions == "EMM":
                 # Map to modified version of AVERT regions
-                self.out_break_czones = OrderedDict([
-                    ("Northwest", ["NWPP"]),
-                    ("Great Basin", ["BASN"]),
-                    ("California", ["CASO", "CANO"]),
-                    ("Rocky Mountains", ["RMRG"]),
-                    ("Upper Midwest", ["SPPN", "MISW", "MISC"]),
-                    ("Lower Midwest", ["SPPC", "SPPS"]),
-                    ("Lakes/Mid-Atl.", [
-                        "MISE", "PJMW", "PJMC", "PJME"]),
-                    ("Texas", ["TRE"]),
-                    ("Southwest", ["SRSG"]),
-                    ("Southeast", ["PJMD", "SRCA", "SRSE", "FRCC",
-                                   "MISS", "SRCE"]),
-                    ("Northeast", ["NYCW", "NYUP", "ISNE"])])
+                self.out_break_czones = OrderedDict(
+                    [
+                        ("Northwest", ["NWPP"]),
+                        ("Great Basin", ["BASN"]),
+                        ("California", ["CASO", "CANO"]),
+                        ("Rocky Mountains", ["RMRG"]),
+                        ("Upper Midwest", ["SPPN", "MISW", "MISC"]),
+                        ("Lower Midwest", ["SPPC", "SPPS"]),
+                        ("Lakes/Mid-Atl.", ["MISE", "PJMW", "PJMC", "PJME"]),
+                        ("Texas", ["TRE"]),
+                        ("Southwest", ["SRSG"]),
+                        ("Southeast", ["PJMD", "SRCA", "SRSE", "FRCC", "MISS", "SRCE"]),
+                        ("Northeast", ["NYCW", "NYUP", "ISNE"]),
+                    ]
+                )
             elif opts.alt_regions == "State":
                 # Map to Census subregions
-                self.out_break_czones = OrderedDict([
-                    ("New England", ['CT', 'MA', 'ME', 'NH', 'RI', 'VT']),
-                    ("Mid Atlantic", ['NJ', 'NY', 'PA']),
-                    ("East North Central", ['IL', 'IN', 'MI', 'OH', 'WI']),
-                    ("West North Central", [
-                        'IA', 'KS', 'MN', 'MO', 'ND', 'NE', 'SD']),
-                    ("South Atlantic", [
-                        'DC', 'DE', 'FL', 'GA', 'MD', 'NC', 'SC', 'VA', 'WV']),
-                    ("East South Central", ['AL', 'KY', 'MS', 'TN']),
-                    ("West South Central", ['AR', 'LA', 'OK', 'TX']),
-                    ("Mountain", [
-                        'AZ', 'CO', 'ID', 'MT', 'NM', 'NV', 'UT', 'WY']),
-                    ("Pacific", ['AK', 'CA', 'HI', 'OR', 'WA'])])
+                self.out_break_czones = OrderedDict(
+                    [
+                        ("New England", ["CT", "MA", "ME", "NH", "RI", "VT"]),
+                        ("Mid Atlantic", ["NJ", "NY", "PA"]),
+                        ("East North Central", ["IL", "IN", "MI", "OH", "WI"]),
+                        ("West North Central", ["IA", "KS", "MN", "MO", "ND", "NE", "SD"]),
+                        ("South Atlantic", ["DC", "DE", "FL", "GA", "MD", "NC", "SC", "VA", "WV"]),
+                        ("East South Central", ["AL", "KY", "MS", "TN"]),
+                        ("West South Central", ["AR", "LA", "OK", "TX"]),
+                        ("Mountain", ["AZ", "CO", "ID", "MT", "NM", "NV", "UT", "WY"]),
+                        ("Pacific", ["AK", "CA", "HI", "OR", "WA"]),
+                    ]
+                )
             else:
                 self.out_break_czones = OrderedDict(regions_out)
 
-        if opts.detail_brkout in ['1', '3', '5', '7']:
+        if opts.detail_brkout in ["1", "3", "5", "7"]:
             # Map to more granular building type definition
-            self.out_break_bldgtypes = OrderedDict([
-                ('Single Family Homes (New)', ['new', 'single family home']),
-                ('Multi Family Homes (New)', ['new', 'multi family home']),
-                ('Manufactured Homes (New)', ['new', 'mobile home']),
-                ('Hospitals (New)', ['new', 'health care']),
-                ('Large Offices (New)', ['new', 'large office']),
-                ('Small/Medium Offices (New)', ['new', 'small office']),
-                ('Retail (New)', ['new', 'food sales', 'mercantile/service']),
-                ('Hospitality (New)', ['new', 'lodging', 'food service']),
-                ('Education (New)', ['new', 'education']),
-                ('Assembly/Other (New)', [
-                    'new', 'assembly', 'other', 'unspecified']),
-                ('Warehouses (New)', ['new', 'warehouse']),
-                ('Single Family Homes (Existing)', [
-                    'existing', 'single family home']),
-                ('Multi Family Homes (Existing)', [
-                    'existing', 'multi family home']),
-                ('Manufactured Homes (Existing)', [
-                    'existing', 'mobile home']),
-                ('Hospitals (Existing)', ['existing', 'health care']),
-                ('Large Offices (Existing)', ['existing', 'large office']),
-                ('Small/Medium Offices (Existing)', [
-                    'existing', 'small office']),
-                ('Retail (Existing)', [
-                    'existing', 'food sales', 'mercantile/service']),
-                ('Hospitality (Existing)', [
-                    'existing', 'lodging', 'food service']),
-                ('Education (Existing)', [
-                    'existing', 'education']),
-                ('Assembly/Other (Existing)', [
-                    'existing', 'assembly', 'other', 'unspecified']),
-                ('Warehouses (Existing)', ['existing', 'warehouse'])])
-        elif opts.detail_brkout in ['8', '9', '10', '11']:
+            self.out_break_bldgtypes = OrderedDict(
+                [
+                    ("Single Family Homes (New)", ["new", "single family home"]),
+                    ("Multi Family Homes (New)", ["new", "multi family home"]),
+                    ("Manufactured Homes (New)", ["new", "mobile home"]),
+                    ("Hospitals (New)", ["new", "health care"]),
+                    ("Large Offices (New)", ["new", "large office"]),
+                    ("Small/Medium Offices (New)", ["new", "small office"]),
+                    ("Retail (New)", ["new", "food sales", "mercantile/service"]),
+                    ("Hospitality (New)", ["new", "lodging", "food service"]),
+                    ("Education (New)", ["new", "education"]),
+                    ("Assembly/Other (New)", ["new", "assembly", "other", "unspecified"]),
+                    ("Warehouses (New)", ["new", "warehouse"]),
+                    ("Single Family Homes (Existing)", ["existing", "single family home"]),
+                    ("Multi Family Homes (Existing)", ["existing", "multi family home"]),
+                    ("Manufactured Homes (Existing)", ["existing", "mobile home"]),
+                    ("Hospitals (Existing)", ["existing", "health care"]),
+                    ("Large Offices (Existing)", ["existing", "large office"]),
+                    ("Small/Medium Offices (Existing)", ["existing", "small office"]),
+                    ("Retail (Existing)", ["existing", "food sales", "mercantile/service"]),
+                    ("Hospitality (Existing)", ["existing", "lodging", "food service"]),
+                    ("Education (Existing)", ["existing", "education"]),
+                    ("Assembly/Other (Existing)", ["existing", "assembly", "other", "unspecified"]),
+                    ("Warehouses (Existing)", ["existing", "warehouse"]),
+                ]
+            )
+        elif opts.detail_brkout in ["8", "9", "10", "11"]:
             # Map to building type definition that is minimum breakout needed to support codes/BPS
             # driver assessment
-            self.out_break_bldgtypes = OrderedDict([
-                ('Single Family/Manufactured Homes (New)', [
-                    'new', 'single family home', 'mobile home']),
-                ('Single Family/Manufactured Homes (Existing)', [
-                    'existing', 'single family home', 'mobile home']),
-                ('Multi Family Homes (New)', ['new', 'multi family home']),
-                ('Multi Family Homes (Existing)', ['existing', 'multi family home']),
-                ('Commercial (New)', [
-                    'new', 'assembly', 'education', 'food sales',
-                    'food service', 'health care', 'mercantile/service',
-                    'lodging', 'large office', 'small office', 'warehouse',
-                    'other', 'unspecified']),
-                ('Commercial (Existing)', [
-                    'existing', 'assembly', 'education', 'food sales',
-                    'food service', 'health care', 'mercantile/service',
-                    'lodging', 'large office', 'small office', 'warehouse',
-                    'other', 'unspecified'])])
+            self.out_break_bldgtypes = OrderedDict(
+                [
+                    (
+                        "Single Family/Manufactured Homes (New)",
+                        ["new", "single family home", "mobile home"],
+                    ),
+                    (
+                        "Single Family/Manufactured Homes (Existing)",
+                        ["existing", "single family home", "mobile home"],
+                    ),
+                    ("Multi Family Homes (New)", ["new", "multi family home"]),
+                    ("Multi Family Homes (Existing)", ["existing", "multi family home"]),
+                    (
+                        "Commercial (New)",
+                        [
+                            "new",
+                            "assembly",
+                            "education",
+                            "food sales",
+                            "food service",
+                            "health care",
+                            "mercantile/service",
+                            "lodging",
+                            "large office",
+                            "small office",
+                            "warehouse",
+                            "other",
+                            "unspecified",
+                        ],
+                    ),
+                    (
+                        "Commercial (Existing)",
+                        [
+                            "existing",
+                            "assembly",
+                            "education",
+                            "food sales",
+                            "food service",
+                            "health care",
+                            "mercantile/service",
+                            "lodging",
+                            "large office",
+                            "small office",
+                            "warehouse",
+                            "other",
+                            "unspecified",
+                        ],
+                    ),
+                ]
+            )
         else:
-            self.out_break_bldgtypes = OrderedDict([
-                ('Residential (New)', [
-                    'new', 'single family home', 'multi family home',
-                    'mobile home']),
-                ('Residential (Existing)', [
-                    'existing', 'single family home', 'multi family home',
-                    'mobile home'],),
-                ('Commercial (New)', [
-                    'new', 'assembly', 'education', 'food sales',
-                    'food service', 'health care', 'mercantile/service',
-                    'lodging', 'large office', 'small office', 'warehouse',
-                    'other', 'unspecified']),
-                ('Commercial (Existing)', [
-                    'existing', 'assembly', 'education', 'food sales',
-                    'food service', 'health care', 'mercantile/service',
-                    'lodging', 'large office', 'small office', 'warehouse',
-                    'other', 'unspecified'])])
+            self.out_break_bldgtypes = OrderedDict(
+                [
+                    (
+                        "Residential (New)",
+                        ["new", "single family home", "multi family home", "mobile home"],
+                    ),
+                    (
+                        "Residential (Existing)",
+                        ["existing", "single family home", "multi family home", "mobile home"],
+                    ),
+                    (
+                        "Commercial (New)",
+                        [
+                            "new",
+                            "assembly",
+                            "education",
+                            "food sales",
+                            "food service",
+                            "health care",
+                            "mercantile/service",
+                            "lodging",
+                            "large office",
+                            "small office",
+                            "warehouse",
+                            "other",
+                            "unspecified",
+                        ],
+                    ),
+                    (
+                        "Commercial (Existing)",
+                        [
+                            "existing",
+                            "assembly",
+                            "education",
+                            "food sales",
+                            "food service",
+                            "health care",
+                            "mercantile/service",
+                            "lodging",
+                            "large office",
+                            "small office",
+                            "warehouse",
+                            "other",
+                            "unspecified",
+                        ],
+                    ),
+                ]
+            )
 
-        self.out_break_enduses = OrderedDict([
-            ('Heating (Equip.)', ["heating", "secondary heating"]),
-            ('Cooling (Equip.)', ["cooling"]),
-            ('Heating (Env.)', ["heating", "secondary heating"]),
-            ('Cooling (Env.)', ["cooling"]),
-            ('Ventilation', ["ventilation"]),
-            ('Lighting', ["lighting"]),
-            ('Water Heating', ["water heating"]),
-            ('Refrigeration', ["refrigeration", "other"]),
-            ('Cooking', ["cooking"]),
-            ('Computers and Electronics', [
-                _eu8, _eu9, "TVs", "computers"]),
-            ('Other', [
-                "drying", "ceiling fan", "fans and pumps",
-                "MELs", "other", "unspecified"])])
+        self.out_break_enduses = OrderedDict(
+            [
+                ("Heating (Equip.)", ["heating", "secondary heating"]),
+                ("Cooling (Equip.)", ["cooling"]),
+                ("Heating (Env.)", ["heating", "secondary heating"]),
+                ("Cooling (Env.)", ["cooling"]),
+                ("Ventilation", ["ventilation"]),
+                ("Lighting", ["lighting"]),
+                ("Water Heating", ["water heating"]),
+                ("Refrigeration", ["refrigeration", "other"]),
+                ("Cooking", ["cooking"]),
+                ("Computers and Electronics", [_eu8, _eu9, "TVs", "computers"]),
+                (
+                    "Other",
+                    ["drying", "ceiling fan", "fans and pumps", "MELs", "other", "unspecified"],
+                ),
+            ]
+        )
         self.out_break_eus_w_fsplits = [
-            "Heating (Equip.)", "Cooling (Equip.)", "Heating (Env.)",
-            "Cooling (Env.)", "Water Heating", "Cooking", "Other"]
+            "Heating (Equip.)",
+            "Cooling (Equip.)",
+            "Heating (Env.)",
+            "Cooling (Env.)",
+            "Water Heating",
+            "Cooking",
+            "Other",
+        ]
         # Configure detailed and simple fuel mapping for use in out breaks and other subsequent
         # operations
-        self.detailed_fuel_map = OrderedDict([
-            ('Electric', ["electricity"]),
-            ('Natural Gas', ["natural gas"]),
-            ('Propane', ["other fuel"]),
-            ('Distillate/Other', ['distillate', 'other fuel']),
-            ('Biomass', ["other fuel"])])
-        self.simple_fuel_map = OrderedDict([
-                ('Electric', ["electricity"]),
-                ('Non-Electric', [
-                    "natural gas", "distillate", "other fuel"])])
+        self.detailed_fuel_map = OrderedDict(
+            [
+                ("Electric", ["electricity"]),
+                ("Natural Gas", ["natural gas"]),
+                ("Propane", ["other fuel"]),
+                ("Distillate/Other", ["distillate", "other fuel"]),
+                ("Biomass", ["other fuel"]),
+            ]
+        )
+        self.simple_fuel_map = OrderedDict(
+            [
+                ("Electric", ["electricity"]),
+                ("Non-Electric", ["natural gas", "distillate", "other fuel"]),
+            ]
+        )
         # Configure output breakouts for fuel type if user has set this option
         if opts.split_fuel is True:
-            if opts.detail_brkout in ['1', '4', '6', '7', '8', '11']:
+            if opts.detail_brkout in ["1", "4", "6", "7", "8", "11"]:
                 # Map to more granular fuel type breakout
                 self.out_break_fuels = self.detailed_fuel_map
             else:
@@ -1227,8 +1857,10 @@ class UsefulVars(object):
         # partitioning fractions needed to breakout the measure results
         # Determine all possible outcome category combinations
         out_levels = [
-            self.out_break_czones.keys(), self.out_break_bldgtypes.keys(),
-            self.out_break_enduses.keys()]
+            self.out_break_czones.keys(),
+            self.out_break_bldgtypes.keys(),
+            self.out_break_enduses.keys(),
+        ]
         out_levels_keys = list(itertools.product(*out_levels))
         # Create dictionary using outcome category combinations as key chains
         self.out_break_in = OrderedDict()
@@ -1237,57 +1869,53 @@ class UsefulVars(object):
             for ind, elem in enumerate(kc):
                 # If fuel splits are desired and applicable for the current
                 # end use breakout, add the fuel splits to the dict vals
-                if len(self.out_break_fuels.keys()) != 0 and (
-                        elem in self.out_break_eus_w_fsplits) and \
-                        elem not in current_level:
+                if (
+                    len(self.out_break_fuels.keys()) != 0
+                    and (elem in self.out_break_eus_w_fsplits)
+                    and elem not in current_level
+                ):
                     current_level[elem] = OrderedDict(
-                        [(x, OrderedDict()) for x in
-                         self.out_break_fuels.keys()])
+                        [(x, OrderedDict()) for x in self.out_break_fuels.keys()]
+                    )
                 # Otherwise, set dict vals to another empty dict
                 elif elem not in current_level:
                     current_level[elem] = OrderedDict()
                 current_level = current_level[elem]
         self.cconv_bybldg_units = [
-            "$/ft^2 glazing", "$/ft^2 roof", "$/ft^2 wall",
-            "$/ft^2 footprint", "$/ft^2 floor", "$/occupant", "$/node"]
+            "$/ft^2 glazing",
+            "$/ft^2 roof",
+            "$/ft^2 wall",
+            "$/ft^2 footprint",
+            "$/ft^2 floor",
+            "$/occupant",
+            "$/node",
+        ]
         self.cconv_tech_mltstage_map = {
-            "windows": {
-                "key": ["$/ft^2 glazing"],
-                "conversion stages": ["windows", "walls"]},
-            "roof": {
-                "key": ["$/ft^2 roof"],
-                "conversion stages": ["roof", "footprint"]},
-            "walls": {
-                "key": ["$/ft^2 wall"],
-                "conversion stages": ["walls"]},
-            "footprint": {
-                "key": ["$/ft^2 footprint"],
-                "conversion stages": ["footprint"]}}
+            "windows": {"key": ["$/ft^2 glazing"], "conversion stages": ["windows", "walls"]},
+            "roof": {"key": ["$/ft^2 roof"], "conversion stages": ["roof", "footprint"]},
+            "walls": {"key": ["$/ft^2 wall"], "conversion stages": ["walls"]},
+            "footprint": {"key": ["$/ft^2 footprint"], "conversion stages": ["footprint"]},
+        }
         self.tech_units_rmv = ["HHV"]
         # Note: EF handling for ECMs written before scout v0.5 (AEO 2019)
         self.tech_units_map = {
             "COP": {"AFUE": 1, "EER": 0.2930712},
             "EER": {"COP": 3.412},
-            "AFUE": {"COP": 1}, "UEF": {"SEF": 1},
+            "AFUE": {"COP": 1},
+            "UEF": {"SEF": 1},
             "EF": {"UEF": 1, "SEF": 1, "CEF": 1},
-            "SEF": {"UEF": 1}}
+            "SEF": {"UEF": 1},
+        }
         self.sf_to_house = {}
-        self.com_eqp_eus_nostk = [
-            _eu8, _eu9, "MELs", "other", "unspecified"]
+        self.com_eqp_eus_nostk = [_eu8, _eu9, "MELs", "other", "unspecified"]
         # For lighting, take the upper bound on each bin of # of lights in the RECS HC5.1 data
         # and do a weighted sum of portion of homes reporting that bin. For heating, use the
         # AEO23 residential microtables to find number of primary heating units by building type
         # and normalize by the number of homes by building type (account for division of ASHP and
         # GSHP heating stock by 2 in the summary tables)
         self.res_units_per_home = {
-            "lighting": {
-                "single family home": 8,
-                "multi family home": 6,
-                "mobile home": 6},
-            "heating": {
-                "single family home": 1.13,
-                "multi family home": 0.99,
-                "mobile home": 1.06}
+            "lighting": {"single family home": 8, "multi family home": 6, "mobile home": 6},
+            "heating": {"single family home": 1.13, "multi family home": 0.99, "mobile home": 1.06},
         }
         # Set missing technology choice parameters for each of the Scout end uses
         # Note: Uses AEO choice coefficients for representative techs in each end use where
@@ -1314,9 +1942,9 @@ class UsefulVars(object):
                 "cooling": [-0.00019, -0.00289],  # typical gas HP
                 "water heating": [-0.00250, -0.03841],  # typical gas WH
                 "cooking": [-0.00106, -0.01629],  # typical gas stove
-                "drying": [-0.00636, -0.09780],   # typical gas dryer
-                "other": [-0.00017, -0.00263]  # typical gas furnace
-            }
+                "drying": [-0.00636, -0.09780],  # typical gas dryer
+                "other": [-0.00017, -0.00263],  # typical gas furnace
+            },
         }
 
         # Set valid types of TSV feature types
@@ -1331,19 +1959,51 @@ class UsefulVars(object):
             # required to support both savings shape calculations and
             # TSV metrics calculations
             emm_region_names = [
-                'TRE', 'FRCC', 'MISW', 'MISC', 'MISE', 'MISS',
-                'ISNE', 'NYCW', 'NYUP', 'PJME', 'PJMW', 'PJMC',
-                'PJMD', 'SRCA', 'SRSE', 'SRCE', 'SPPS', 'SPPC',
-                'SPPN', 'SRSG', 'CANO', 'CASO', 'NWPP', 'RMRG', 'BASN']
-            self.emm_name_num_map = {
-                name: (ind + 1) for ind, name in enumerate(
-                    emm_region_names)}
+                "TRE",
+                "FRCC",
+                "MISW",
+                "MISC",
+                "MISE",
+                "MISS",
+                "ISNE",
+                "NYCW",
+                "NYUP",
+                "PJME",
+                "PJMW",
+                "PJMC",
+                "PJMD",
+                "SRCA",
+                "SRSE",
+                "SRCE",
+                "SPPS",
+                "SPPC",
+                "SPPN",
+                "SRSG",
+                "CANO",
+                "CASO",
+                "NWPP",
+                "RMRG",
+                "BASN",
+            ]
+            self.emm_name_num_map = {name: (ind + 1) for ind, name in enumerate(emm_region_names)}
             if opts.alt_regions == "EMM":
                 self.tsv_climate_regions = [
-                    "2A", "2B", "3A", "3B", "3C", "4A", "4B",
-                    "4C", "5A", "5B", "5C", "6A", "6B", "7"]
-                self.tsv_nerc_regions = [
-                    "FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
+                    "2A",
+                    "2B",
+                    "3A",
+                    "3B",
+                    "3C",
+                    "4A",
+                    "4B",
+                    "4C",
+                    "5A",
+                    "5B",
+                    "5C",
+                    "6A",
+                    "6B",
+                    "7",
+                ]
+                self.tsv_nerc_regions = ["FRCC", "MRO", "NPCC", "RFC", "SERC", "SPP", "TRE", "WECC"]
                 # Set a dict that maps each ASH climate zone to an EMM region
                 # in the climate zone with the most representative set of
                 # min/max system load hour and peak/take system load hour
@@ -1361,45 +2021,27 @@ class UsefulVars(object):
                 # https://drive.google.com/drive/folders/
                 # 1JSoQb78LgooUD_uXqBOzAC7Nl7eLJZnc?usp=sharing
                 self.cz_emm_map = {
-                    "2A": {
-                        "set 1": [2, (1, 2, 17)],
-                        "set 2": [6, (6, 15)]},
-                    "2B": {
-                        "set 1": [20, (1, 20)]},
-                    "3A": {
-                        "set 1": [15, (6, 13, 14, 15, 16)],
-                        "set 2": [1, (1, 17)]},
-                    "3B": {
-                        "set 1": [22, (21, 22)],
-                        "set 2": [25, (1, 17, 20, 25)]},
-                    "3C": {
-                        "set 1": [21, (21, 22)]},
+                    "2A": {"set 1": [2, (1, 2, 17)], "set 2": [6, (6, 15)]},
+                    "2B": {"set 1": [20, (1, 20)]},
+                    "3A": {"set 1": [15, (6, 13, 14, 15, 16)], "set 2": [1, (1, 17)]},
+                    "3B": {"set 1": [22, (21, 22)], "set 2": [25, (1, 17, 20, 25)]},
+                    "3C": {"set 1": [21, (21, 22)]},
                     "4A": {
                         "set 1": [10, (4, 8, 10, 11, 17, 18)],
-                        "set 2": [16, (6, 13, 14, 15, 16)]},
-                    "4B": {
-                        "set 1": [20, (1, 17, 20, 24)],
-                        "set 2": [21, (21, 22)]},
-                    "4C": {
-                        "set 1": [23, (23,)],
-                        "set 2": [21, (21,)]},
+                        "set 2": [16, (6, 13, 14, 15, 16)],
+                    },
+                    "4B": {"set 1": [20, (1, 17, 20, 24)], "set 2": [21, (21, 22)]},
+                    "4C": {"set 1": [23, (23,)], "set 2": [21, (21,)]},
                     "5A": {
                         "set 1": [11, (3, 4, 7, 9, 10, 11, 18, 19, 24)],
-                        "set 2": [5, (5, 12, 14)]},
-                    "5B": {
-                        "set 1": [24, (20, 23, 24, 25)],
-                        "set 2": [21, (21,)]},
-                    "5C": {
-                        "set 1": [23, (23,)]},
-                    "6A": {
-                        "set 1": [3, (3, 5, 19)],
-                        "set 2": [7, (7, 9, 10, 24)]},
-                    "6B": {
-                        "set 1": [23, (3, 19, 23, 24, 25)],
-                        "set 2": [22, (21, 22)]},
-                    "7": {
-                        "set 1": [3, (3, 19)],
-                        "set 2": [24, (7, 24, 25)]}}
+                        "set 2": [5, (5, 12, 14)],
+                    },
+                    "5B": {"set 1": [24, (20, 23, 24, 25)], "set 2": [21, (21,)]},
+                    "5C": {"set 1": [23, (23,)]},
+                    "6A": {"set 1": [3, (3, 5, 19)], "set 2": [7, (7, 9, 10, 24)]},
+                    "6B": {"set 1": [23, (3, 19, 23, 24, 25)], "set 2": [22, (21, 22)]},
+                    "7": {"set 1": [3, (3, 19)], "set 2": [24, (7, 24, 25)]},
+                }
                 self.state_emm_map = None
             elif opts.alt_regions == "State":
                 # Set a dict that maps each state to the EMM region with the
@@ -1411,22 +2053,61 @@ class UsefulVars(object):
                 # edit?gid=1157237940#gid=1157237940, sheets
                 # "EMM_State_ColSums" and "State_EMM-EMF37" for basis.
                 self.state_emm_map = {
-                    "AL": "SRSE", "AK": "TRE", "AZ": "SRSG", "AR": "MISS",
-                    "CA": "CASO", "CO": "RMRG", "CT": "ISNE", "DE": "PJME",
-                    "DC": "PJMD", "FL": "FRCC", "GA": "SRSE", "HI": "TRE",
-                    "ID": "BASN", "IL": "PJMC", "IN": "MISC", "IA": "MISW",
-                    "KS": "SPPC", "KY": "SRCE", "LA": "MISS", "ME": "ISNE",
-                    "MD": "PJME", "MA": "ISNE", "MI": "MISE", "MN": "MISW",
-                    "MS": "MISS", "MO": "MISC", "MT": "NWPP", "NE": "SPPN",
-                    "NV": "BASN", "NH": "ISNE", "NJ": "PJME", "NM": "SRSG",
-                    "NY": "NYCW", "NC": "SRCA", "ND": "SPPN", "OH": "PJMW",
-                    "OK": "SPPS", "OR": "NWPP", "PA": "PJME", "RI": "ISNE",
-                    "SC": "SRCA", "SD": "SPPN", "TN": "SRCE", "TX": "TRE",
-                    "UT": "BASN", "VT": "ISNE", "VA": "PJMD", "WA": "NWPP",
-                    "WV": "PJMW", "WI": "MISW", "WY": "BASN"
+                    "AL": "SRSE",
+                    "AK": "TRE",
+                    "AZ": "SRSG",
+                    "AR": "MISS",
+                    "CA": "CASO",
+                    "CO": "RMRG",
+                    "CT": "ISNE",
+                    "DE": "PJME",
+                    "DC": "PJMD",
+                    "FL": "FRCC",
+                    "GA": "SRSE",
+                    "HI": "TRE",
+                    "ID": "BASN",
+                    "IL": "PJMC",
+                    "IN": "MISC",
+                    "IA": "MISW",
+                    "KS": "SPPC",
+                    "KY": "SRCE",
+                    "LA": "MISS",
+                    "ME": "ISNE",
+                    "MD": "PJME",
+                    "MA": "ISNE",
+                    "MI": "MISE",
+                    "MN": "MISW",
+                    "MS": "MISS",
+                    "MO": "MISC",
+                    "MT": "NWPP",
+                    "NE": "SPPN",
+                    "NV": "BASN",
+                    "NH": "ISNE",
+                    "NJ": "PJME",
+                    "NM": "SRSG",
+                    "NY": "NYCW",
+                    "NC": "SRCA",
+                    "ND": "SPPN",
+                    "OH": "PJMW",
+                    "OK": "SPPS",
+                    "OR": "NWPP",
+                    "PA": "PJME",
+                    "RI": "ISNE",
+                    "SC": "SRCA",
+                    "SD": "SPPN",
+                    "TN": "SRCE",
+                    "TX": "TRE",
+                    "UT": "BASN",
+                    "VT": "ISNE",
+                    "VA": "PJMD",
+                    "WA": "NWPP",
+                    "WV": "PJMW",
+                    "WI": "MISW",
+                    "WY": "BASN",
                 }
-                self.tsv_climate_regions, self.tsv_nerc_regions, \
-                    self.cz_emm_map = (None for n in range(3))
+                self.tsv_climate_regions, self.tsv_nerc_regions, self.cz_emm_map = (
+                    None for n in range(3)
+                )
 
             if opts.tsv_metrics is not False:
                 # Develop weekend day flags
@@ -1448,35 +2129,45 @@ class UsefulVars(object):
 
                 # Summer days of year
                 sum_days = list(range(152, 274))
-                sum_days_wkdy = [
-                    x for x in sum_days if wknd_day_flags[(x - 1)] != 1]
-                sum_days_wknd = [
-                    x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
+                sum_days_wkdy = [x for x in sum_days if wknd_day_flags[(x - 1)] != 1]
+                sum_days_wknd = [x for x in sum_days if wknd_day_flags[(x - 1)] == 1]
                 # Winter days of year
-                wint_days = (list(
-                            range(1, 91)) + list(range(335, 366)))
-                wint_days_wkdy = [
-                    x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
-                wint_days_wknd = [
-                    x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
+                wint_days = list(range(1, 91)) + list(range(335, 366))
+                wint_days_wkdy = [x for x in wint_days if wknd_day_flags[(x - 1)] != 1]
+                wint_days_wknd = [x for x in wint_days if wknd_day_flags[(x - 1)] == 1]
                 # Intermediate days of year
-                inter_days = (list(
-                            range(91, 152)) + list(range(274, 335)))
-                inter_days_wkdy = [
-                    x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
-                inter_days_wknd = [
-                    x for x in inter_days if wknd_day_flags[(x - 1)] == 1]
+                inter_days = list(range(91, 152)) + list(range(274, 335))
+                inter_days_wkdy = [x for x in inter_days if wknd_day_flags[(x - 1)] != 1]
+                inter_days_wknd = [x for x in inter_days if wknd_day_flags[(x - 1)] == 1]
 
                 # Set column names for a dataset that includes information on
                 # max/min net system load hours and peak/take net system load
                 # hour windows by season and EMM region
                 peak_take_names = (
-                    "Region", "Year", "Overall-PeakMonth", "Summer-PeakMonth", "Summer-MaxHr",
-                    "Summer-MinHr", "Summer-PeakStartHr", "Summer-PeakEndHr", "Summer-TakeStartHr",
-                    "Summer-TakeEndHr", "Winter-PeakMonth", "Winter-MaxHr", "Winter-MinHr",
-                    "Winter-PeakStartHr", "Winter-PeakEndHr", "Winter-TakeStartHr",
-                    "Winter-TakeEndHr", "Inter-MaxHr", "Inter-MinHr", "Inter-PeakStartHr",
-                    "Inter-PeakEndHr", "Inter-TakeStartHr", "Inter-TakeEndHr")
+                    "Region",
+                    "Year",
+                    "Overall-PeakMonth",
+                    "Summer-PeakMonth",
+                    "Summer-MaxHr",
+                    "Summer-MinHr",
+                    "Summer-PeakStartHr",
+                    "Summer-PeakEndHr",
+                    "Summer-TakeStartHr",
+                    "Summer-TakeEndHr",
+                    "Winter-PeakMonth",
+                    "Winter-MaxHr",
+                    "Winter-MinHr",
+                    "Winter-PeakStartHr",
+                    "Winter-PeakEndHr",
+                    "Winter-TakeStartHr",
+                    "Winter-TakeEndHr",
+                    "Inter-MaxHr",
+                    "Inter-MinHr",
+                    "Inter-PeakStartHr",
+                    "Inter-PeakEndHr",
+                    "Inter-TakeStartHr",
+                    "Inter-TakeEndHr",
+                )
 
                 # Choose the appropriate data to use in determining peak/take
                 # windows (total vs. net system load under reference vs. "Low
@@ -1492,83 +2183,80 @@ class UsefulVars(object):
 
                 # Import system max/min and peak/take hour load by EMM region
                 sysload_dat = numpy.genfromtxt(
-                    metrics_data, names=peak_take_names, delimiter=',',
-                    dtype="<i4", encoding="latin1", skip_header=1)
+                    metrics_data,
+                    names=peak_take_names,
+                    delimiter=",",
+                    dtype="<i4",
+                    encoding="latin1",
+                    skip_header=1,
+                )
                 # Find unique set of projection years in system peak/take data
                 sysload_dat_yrs = numpy.unique(sysload_dat["Year"])
                 # Initialize a set of dicts that will store representative
                 # system load data for the summer, winter, and intermediate
                 # seasons by projection year
-                sysld_sum, sysld_wint, sysld_int = ({
-                    str(yr): {reg: None for reg in valid_regions} for yr in
-                    sysload_dat_yrs} for n in range(3))
+                sysld_sum, sysld_wint, sysld_int = (
+                    {str(yr): {reg: None for reg in valid_regions} for yr in sysload_dat_yrs}
+                    for n in range(3)
+                )
                 # Fill in the dicts with seasonal system load data by year
                 # Loop through all projection years available in the system
                 # peak/take period data
                 for sys_yr in sysload_dat_yrs:
                     # Convert projection year to string for dict keys
                     sys_yr_str = str(sys_yr)
-                    sysload_dat_yr = sysload_dat[
-                        numpy.where((sysload_dat["Year"] == sys_yr))]
+                    sysload_dat_yr = sysload_dat[numpy.where((sysload_dat["Year"] == sys_yr))]
                     # Loop through all climate zones
                     for reg in emm_region_names:
-                        sysld_sum[sys_yr_str][reg], \
-                            sysld_wint[sys_yr_str][reg], \
-                            sysld_int[sys_yr_str][reg] = self.set_peak_take(
-                                sysload_dat_yr, self.emm_name_num_map[reg])
+                        (
+                            sysld_sum[sys_yr_str][reg],
+                            sysld_wint[sys_yr_str][reg],
+                            sysld_int[sys_yr_str][reg],
+                        ) = self.set_peak_take(sysload_dat_yr, self.emm_name_num_map[reg])
                 self.tsv_metrics_data = {
                     "season days": {
                         "all": {
                             "summer": sum_days,
                             "winter": wint_days,
-                            "intermediate": inter_days
+                            "intermediate": inter_days,
                         },
                         "weekdays": {
                             "summer": sum_days_wkdy,
                             "winter": wint_days_wkdy,
-                            "intermediate": inter_days_wkdy
-
+                            "intermediate": inter_days_wkdy,
                         },
                         "weekends": {
                             "summer": sum_days_wknd,
                             "winter": wint_days_wknd,
-                            "intermediate": inter_days_wknd
-
-                        }
+                            "intermediate": inter_days_wknd,
+                        },
                     },
                     "system load hours": {
                         "summer": sysld_sum,
                         "winter": sysld_wint,
-                        "intermediate": sysld_int
+                        "intermediate": sysld_int,
                     },
                     # Note: these currently correspond to the days in which the
                     # overall Scout buildings sector winter and summer
                     # baseline load peaks, given the tsv_load shape data
                     # (which are based on EULP)
-                    "peak days": {
-                        "summer": 183,
-                        "winter": 1
-                    },
-                    "hourly index": list(enumerate(
-                        itertools.product(range(365), range(24))))
+                    "peak days": {"summer": 183, "winter": 1},
+                    "hourly index": list(enumerate(itertools.product(range(365), range(24)))),
                 }
             else:
                 self.tsv_metrics_data = None
-            self.tsv_hourly_price, self.tsv_hourly_emissions = ({
-                reg: None for reg in valid_regions
-            } for n in range(2))
+            self.tsv_hourly_price, self.tsv_hourly_emissions = (
+                {reg: None for reg in valid_regions} for n in range(2)
+            )
 
             self.tsv_hourly_lafs = {
                 reg: {
                     "residential": {
-                        bldg: {} for bldg in self.in_all_map[
-                            "bldg_type"]["residential"]
+                        bldg: {} for bldg in self.in_all_map["bldg_type"]["residential"]
                     },
-                    "commercial": {
-                        bldg: {} for bldg in self.in_all_map[
-                            "bldg_type"]["commercial"]
-                    }
-                } for reg in valid_regions
+                    "commercial": {bldg: {} for bldg in self.in_all_map["bldg_type"]["commercial"]},
+                }
+                for reg in valid_regions
             }
         else:
             self.tsv_hourly_lafs = None
@@ -1582,18 +2270,30 @@ class UsefulVars(object):
             # to retrieve these benefit values (element 3)
             self.health_scn_names = [
                 ("PHC-EE (low)", "Uniform EE", "2017cents_kWh_7pct_low"),
-                ("PHC-EE (high)", "Uniform EE", "2017cents_kWh_3pct_high")]
+                ("PHC-EE (high)", "Uniform EE", "2017cents_kWh_3pct_high"),
+            ]
             # Set data file with public health benefits information
             self.health_scn_data = numpy.genfromtxt(
                 handyfiles.health_data,
-                names=("AVERT_Region", "EMM_Region", "Category",
-                       "2017cents_kWh_3pct_low", "2017cents_kWh_3pct_high",
-                       "2017cents_kWh_7pct_low",
-                       "2017cents_kWh_7pct_high"),
-                delimiter=',', dtype=(['<U25'] * 3 + ['<f8'] * 4))
+                names=(
+                    "AVERT_Region",
+                    "EMM_Region",
+                    "Category",
+                    "2017cents_kWh_3pct_low",
+                    "2017cents_kWh_3pct_high",
+                    "2017cents_kWh_7pct_low",
+                    "2017cents_kWh_7pct_high",
+                ),
+                delimiter=",",
+                dtype=(["<U25"] * 3 + ["<f8"] * 4),
+            )
         self.env_heat_ls_scrn = (
-            "windows solar", "equipment gain", "people gain",
-            "other heat gain", "internal gains")
+            "windows solar",
+            "equipment gain",
+            "people gain",
+            "other heat gain",
+            "internal gains",
+        )
         self.skipped_ecms = []
         # Import total absolute heating and cooling energy use data, used in
         # calculating overall envelope relative performance for packages
@@ -1612,20 +2312,25 @@ class UsefulVars(object):
             try:
                 panel_shares_csv = pd.read_csv(handyfiles.panel_shares)
             except ValueError:
-                raise ValueError(
-                    "Error reading in '" + handyfiles.panel_shares)
+                raise ValueError("Error reading in '" + handyfiles.panel_shares)
             # Initialize final dict of panel shares data, using df values to set keys
-            self.panel_shares = {reg: {var: {fuel: {
-                scenario: {} for scenario in panel_shares_csv["scenario"].unique()} for
-                fuel in panel_shares_csv["heating_fuel"].unique()} for
-                var in panel_shares_csv["variable"].unique()} for
-                reg in panel_shares_csv["region"].unique()}
+            self.panel_shares = {
+                reg: {
+                    var: {
+                        fuel: {scenario: {} for scenario in panel_shares_csv["scenario"].unique()}
+                        for fuel in panel_shares_csv["heating_fuel"].unique()
+                    }
+                    for var in panel_shares_csv["variable"].unique()
+                }
+                for reg in panel_shares_csv["region"].unique()
+            }
             for index, row in panel_shares_csv.iterrows():
-                self.panel_shares[row["region"]][row["variable"]][
-                    row["heating_fuel"]][row["scenario"]] = {
+                self.panel_shares[row["region"]][row["variable"]][row["heating_fuel"]][
+                    row["scenario"]
+                ] = {
                     "no panel": row["no_replacement"],
                     "panel": row["replacement"],
-                    "management": row["management"]
+                    "management": row["management"],
                 }
         else:
             self.panel_shares = None
@@ -1633,7 +2338,7 @@ class UsefulVars(object):
         self.elec_infr_costs = {
             "panel replacement": 1492,  # BTB "typical" value for Electric Panel 200-225 A
             "panel management": 475,  # BENEFIT panels cost data, averaged across regions
-            "240V circuit": 1384  # BTB "typical" dif., central ASHP w/ and w/o new circuit
+            "240V circuit": 1384,  # BTB "typical" dif., central ASHP w/ and w/o new circuit
         }
         self.alt_panel_names = ["-no panel", "-manage"]
 
@@ -1676,13 +2381,18 @@ class UsefulVars(object):
                     # Set applicable state(s), building type(s), and vintage(s)
                     state, bldg, vint = [
                         [x.strip()] if "," not in x else [y.strip() for y in x.split(",")]
-                        for x in row.values[1:4]]
+                        for x in row.values[1:4]
+                    ]
                     # Set start and end years and applicability fraction
                     start_yr, end_yr, apply_frac = [
-                        [row.values[-4]], [row.values[-3]], [row.values[-2]]]
+                        [row.values[-4]],
+                        [row.values[-3]],
+                        [row.values[-2]],
+                    ]
                     # Finalize start and end years if blank
                     start_yr[0], end_yr[0] = [
-                        x if not numpy.isnan(x) else False for x in (start_yr[0], end_yr[0])]
+                        x if not numpy.isnan(x) else False for x in (start_yr[0], end_yr[0])
+                    ]
                     # Finalize applicability fraction if it is blank in the data
                     if numpy.isnan(apply_frac):
                         apply_frac = [1]
@@ -1690,8 +2400,29 @@ class UsefulVars(object):
                     # included in the USCA but not currently run in Scout simulations, add in
                     # subsequently) or a row that applies to all states
                     if len(state) == 1 and state[0].lower() == "usca":
-                        state = ["AZ", "CA", "CO", "CT", "DE", "IL", "ME", "MD", "MA", "MI",
-                                 "MN", "NJ", "NM", "NY", "NC", "OR", "PA", "RI", "VT", "WA", "WI"]
+                        state = [
+                            "AZ",
+                            "CA",
+                            "CO",
+                            "CT",
+                            "DE",
+                            "IL",
+                            "ME",
+                            "MD",
+                            "MA",
+                            "MI",
+                            "MN",
+                            "NJ",
+                            "NM",
+                            "NY",
+                            "NC",
+                            "OR",
+                            "PA",
+                            "RI",
+                            "VT",
+                            "WA",
+                            "WI",
+                        ]
                     elif len(state) == 1 and state[0] == "all":
                         state = valid_regions
                     # Remove 'unspecified' from building types if present (not supported)
@@ -1703,9 +2434,19 @@ class UsefulVars(object):
                     # from that module to ensure consistency)
                     all_res = ["single family home", "multi family home", "mobile home"]
                     # Note: exclude 'unspecified' from being affected by state-level drivers
-                    all_com = ["assembly", "education", "food sales", "food service",
-                               "health care", "lodging", "large office", "small office",
-                               "mercantile/service", "warehouse", "other"]
+                    all_com = [
+                        "assembly",
+                        "education",
+                        "food sales",
+                        "food service",
+                        "health care",
+                        "lodging",
+                        "large office",
+                        "small office",
+                        "mercantile/service",
+                        "warehouse",
+                        "other",
+                    ]
                     # Initialize flags as false for whether or not all res. or com. building types
                     # need to be filled out
                     all_res_flag, all_com_flag = (False for n in range(2))
@@ -1728,9 +2469,11 @@ class UsefulVars(object):
                         vint = ["new", "existing"]
                     # Set applicable end use, technology, and fuel
                     eu, tech, fuel = [
-                        [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                            [y.strip() for y in x.split(",")] if isinstance(x, str)
-                            else [x]) for x in row.values[4:7]]
+                        [x.strip()]
+                        if (isinstance(x, str) and "," not in x)
+                        else ([y.strip() for y in x.split(",")] if isinstance(x, str) else [x])
+                        for x in row.values[4:7]
+                    ]
                     # Fill out 'all' entries for measure and base fuel type
                     if len(fuel) == 1 and fuel[0] == "all":
                         fuel = ["natural gas", "distillate", "other fuel", "electricity"]
@@ -1744,16 +2487,22 @@ class UsefulVars(object):
                     if k == "incentives":
                         # Set baseline fuel data (e.g., fuel switched from if applicable)
                         fuel_base = [
-                            [x.strip()] if (isinstance(x, str) and "," not in x) else (
-                                [y.strip() for y in x.split(",")] if isinstance(x, str)
-                                else [x]) for x in row.values[7:8]][0]
+                            [x.strip()]
+                            if (isinstance(x, str) and "," not in x)
+                            else ([y.strip() for y in x.split(",")] if isinstance(x, str) else [x])
+                            for x in row.values[7:8]
+                        ][0]
                         # Fill out nan or all entries for base fuel
                         if len(fuel_base) == 1:
                             if not isinstance(fuel_base[0], str):
                                 fuel_base = fuel
                             elif fuel_base[0] == "all":
                                 fuel_base = [
-                                    "natural gas", "distillate", "other fuel", "electricity"]
+                                    "natural gas",
+                                    "distillate",
+                                    "other fuel",
+                                    "electricity",
+                                ]
                             elif fuel_base[0] == "all fossil":
                                 fuel_base = ["natural gas", "distillate", "other fuel"]
                         # Set backup fuel allowance (relevant to fuel switching incentives),
@@ -1764,7 +2513,13 @@ class UsefulVars(object):
                         backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
                         # Finalize flag for backup allowance; blanks or negative tags set to no
                         if not isinstance(backup, str) or backup in [
-                                "N", "n", "no", "No", "false", "False"]:
+                            "N",
+                            "n",
+                            "no",
+                            "No",
+                            "false",
+                            "False",
+                        ]:
                             backup = ["no"]
                         else:
                             backup = ["yes"]
@@ -1772,13 +2527,20 @@ class UsefulVars(object):
                         if not isinstance(mod, str) or mod not in ["remove", "extend", "replace"]:
                             raise ValueError(
                                 "Blank cells not allowed in column 'modification' in "
-                                "file " + handyfiles.incentives + ", row " + str(index) +
-                                ". Set to one of 'remove' 'extend' or 'replace'")
+                                "file "
+                                + handyfiles.incentives
+                                + ", row "
+                                + str(index)
+                                + ". Set to one of 'remove' 'extend' or 'replace'"
+                            )
                         else:
                             mod = [mod]
                         # Finalize scope of modification; ensure scope is tagged correctly
                         if not isinstance(scope, str) or scope not in [
-                                "federal", "non-federal", "all"]:
+                            "federal",
+                            "non-federal",
+                            "all",
+                        ]:
                             scope = ["all"]
                         else:
                             scope = [scope]
@@ -1796,21 +2558,42 @@ class UsefulVars(object):
                         # and units for replacement, as well as the incentive level to use (either
                         # a % credit on installed cost or a rebate amount in $)
                         perf_lev, perf_units, credit, rebate, rebate_units = [
-                            [x] for x in row.values[-9:-4]]
+                            [x] for x in row.values[-9:-4]
+                        ]
                         # Finalize credit and rebate values if blank
                         credit[0], rebate[0] = [
-                            x if not numpy.isnan(x) else False for x in (credit[0], rebate[0])]
+                            x if not numpy.isnan(x) else False for x in (credit[0], rebate[0])
+                        ]
                         # Pull all parameters together in a master list
                         params = [
-                            state, bldg, vint, eu, tech, fuel, fuel_base, backup, mod, scope, ira,
-                            increase, perf_lev, perf_units, credit, rebate, rebate_units,
-                            start_yr, end_yr, apply_frac]
+                            state,
+                            bldg,
+                            vint,
+                            eu,
+                            tech,
+                            fuel,
+                            fuel_base,
+                            backup,
+                            mod,
+                            scope,
+                            ira,
+                            increase,
+                            perf_lev,
+                            perf_units,
+                            credit,
+                            rebate,
+                            rebate_units,
+                            start_yr,
+                            end_yr,
+                            apply_frac,
+                        ]
                         # For heat pump segments, ensure that if a user has specified incentives
                         # for one of heating or cooling end uses, the other end use is zeroed out
                         # (otherwise user-specified HP incentives might be combined with HP
                         # incentives already in the EIA/Scout baseline)
-                        if any([y in tech[0] for y in ["HP", "all"]]) and any([
-                                x in eu for x in ["heating", "cooling"]]):
+                        if any([y in tech[0] for y in ["HP", "all"]]) and any(
+                            [x in eu for x in ["heating", "cooling"]]
+                        ):
                             # Duplicate the user-specified incentives
                             dup_params = copy.deepcopy(params)
                             # For duplicate row, switch information to end use not covered in
@@ -1822,15 +2605,19 @@ class UsefulVars(object):
                                 if "-heat" in tech[0]:
                                     dup_params[4] = [tech[0].replace("-heat", "-cool")]
                                 # Switch rebate units (if units indicate heat/cool info.)
-                                if isinstance(rebate_units[0], str) and \
-                                        "heating" in rebate_units[0]:
+                                if (
+                                    isinstance(rebate_units[0], str)
+                                    and "heating" in rebate_units[0]
+                                ):
                                     dup_params[-4] = [rebate_units[0].replace("heating", "cooling")]
                             else:
                                 dup_params[3] = ["heating"]
                                 if "-cool" in tech[0]:
                                     dup_params[4] = [tech[0].replace("-cool", "-heat")]
-                                if isinstance(rebate_units[0], str) and \
-                                        "cooling" in rebate_units[0]:
+                                if (
+                                    isinstance(rebate_units[0], str)
+                                    and "cooling" in rebate_units[0]
+                                ):
                                     dup_params[-4] = [rebate_units[0].replace("cooling", "heating")]
                             # Zero out all incentives in the duplicate row
                             dup_params[-5], dup_params[-6] = ([0] for n in range(2))
@@ -1852,13 +2639,25 @@ class UsefulVars(object):
                             raise ValueError(
                                 "Pick either absolute OR relative volumetric rate reduction "
                                 " in file " + handyfiles.rates + "; both cannot be used but are "
-                                "present in row " + str(index) + ".")
+                                "present in row " + str(index) + "."
+                            )
                         if numpy.isnan(fix_add[0]):
                             fix_add[0] = [0]
                         # Pull all parameters together in a master list
                         params = [
-                            state, bldg, vint, eu, tech, fuel, vol_abs, vol_rel, fix_add,
-                            start_yr, end_yr, apply_frac]
+                            state,
+                            bldg,
+                            vint,
+                            eu,
+                            tech,
+                            fuel,
+                            vol_abs,
+                            vol_rel,
+                            fix_add,
+                            start_yr,
+                            end_yr,
+                            apply_frac,
+                        ]
                         # No need to duplicate rows for this driver (see for incentives above)
                         dup_params = []
                     else:
@@ -1885,44 +2684,52 @@ class UsefulVars(object):
     def set_peak_take(self, sysload_dat, restrict_key):
         """Fill in dicts with seasonal system load shape data.
 
-            Args:
-                sysload_dat (numpy.ndarray): System load shape data.
-                restrict_key (int): EMM region to restrict net load data to.
+        Args:
+            sysload_dat (numpy.ndarray): System load shape data.
+            restrict_key (int): EMM region to restrict net load data to.
 
-            Returns:
-                Appropriate min/max net system load hour and peak/take net
-                system load hour window data for the EMM region of interest,
-                stored in dicts that are distinguished by season.
+        Returns:
+            Appropriate min/max net system load hour and peak/take net
+            system load hour window data for the EMM region of interest,
+            stored in dicts that are distinguished by season.
         """
 
         # Restrict net system load data to the representative EMM region for
         # the current climate zone
-        peak_take_cz = sysload_dat[numpy.where(
-            (sysload_dat["Region"] == restrict_key))]
+        peak_take_cz = sysload_dat[numpy.where((sysload_dat["Region"] == restrict_key))]
         # Set summer max load hour, min load hour, and peak/take windows
         sum_peak_take = {
             "max": peak_take_cz["SummerMaxHr"][0],
             "min": peak_take_cz["SummerMinHr"][0],
-            "peak range": list(range(peak_take_cz["SummerPeakStartHr"][0],
-                                     peak_take_cz["SummerPeakEndHr"][0] + 1)),
-            "take range": list(range(peak_take_cz["SummerTakeStartHr"][0],
-                                     peak_take_cz["SummerTakeEndHr"][0] + 1))}
+            "peak range": list(
+                range(peak_take_cz["SummerPeakStartHr"][0], peak_take_cz["SummerPeakEndHr"][0] + 1)
+            ),
+            "take range": list(
+                range(peak_take_cz["SummerTakeStartHr"][0], peak_take_cz["SummerTakeEndHr"][0] + 1)
+            ),
+        }
         # Set winter max load hour, min load hour, and peak/take windows
         wint_peak_take = {
             "max": peak_take_cz["WinterMaxHr"][0],
             "min": peak_take_cz["WinterMinHr"][0],
-            "peak range": list(range(peak_take_cz["WinterPeakStartHr"][0],
-                                     peak_take_cz["WinterPeakEndHr"][0] + 1)),
-            "take range": list(range(peak_take_cz["WinterTakeStartHr"][0],
-                                     peak_take_cz["WinterTakeEndHr"][0] + 1))}
+            "peak range": list(
+                range(peak_take_cz["WinterPeakStartHr"][0], peak_take_cz["WinterPeakEndHr"][0] + 1)
+            ),
+            "take range": list(
+                range(peak_take_cz["WinterTakeStartHr"][0], peak_take_cz["WinterTakeEndHr"][0] + 1)
+            ),
+        }
         # Set intermediate max load hour, min load hour, and peak/take windows
         inter_peak_take = {
             "max": peak_take_cz["InterMaxHr"][0],
             "min": peak_take_cz["InterMinHr"][0],
-            "peak range": list(range(peak_take_cz["InterPeakStartHr"][0],
-                                     peak_take_cz["InterPeakEndHr"][0] + 1)),
-            "take range": list(range(peak_take_cz["InterTakeStartHr"][0],
-                                     peak_take_cz["InterTakeEndHr"][0] + 1))}
+            "peak range": list(
+                range(peak_take_cz["InterPeakStartHr"][0], peak_take_cz["InterPeakEndHr"][0] + 1)
+            ),
+            "take range": list(
+                range(peak_take_cz["InterTakeStartHr"][0], peak_take_cz["InterTakeEndHr"][0] + 1)
+            ),
+        }
 
         return sum_peak_take, wint_peak_take, inter_peak_take
 
@@ -1943,19 +2750,19 @@ class UsefulVars(object):
             ValueError: If terminal key values are not formatted as
                 either lists or strings.
         """
-        for (k, i) in dict1.items():
+        for k, i in dict1.items():
             if isinstance(i, dict):
                 self.append_keyvals(i, keyval_list)
             elif isinstance(i, list):
-                keyval_list.extend([
-                    x for x in i if x not in keyval_list])
+                keyval_list.extend([x for x in i if x not in keyval_list])
             elif isinstance(i, str) and i not in keyval_list:
                 keyval_list.append(i)
             else:
                 raise ValueError(
                     "Input dict terminal key values expected to be "
                     "lists or strings in the 'append_keyvals' function"
-                    "for ECM '" + self.name + "'")
+                    "for ECM '" + self.name + "'"
+                )
 
         return keyval_list
 
@@ -1964,10 +2771,9 @@ class UsefulVars(object):
         cpi = self.consumer_price_ind
         by_year = {}
         for row in cpi:
-            yr = row['DATE'][:4]
-            by_year.setdefault(yr, []).append(row['VALUE'])
-        self._cpi_year_means = {
-            yr: numpy.mean(vals) for yr, vals in by_year.items()}
+            yr = row["DATE"][:4]
+            by_year.setdefault(yr, []).append(row["VALUE"])
+        self._cpi_year_means = {yr: numpy.mean(vals) for yr, vals in by_year.items()}
         self._cpi_latest_value = float(cpi[-1][1])
         # Use both id and length to detect array replacement reliably
         self._cpi_cache_id = id(cpi)
@@ -1993,13 +2799,12 @@ class UsefulVars(object):
         # (e.g. by tests that swap in custom CPI data after __init__).
         # Check both id and length to guard against id reuse by Python's allocator.
         cpi = self.consumer_price_ind
-        if (id(cpi) != getattr(self, '_cpi_cache_id', None) or
-                len(cpi) != getattr(self, '_cpi_cache_len', None)):
+        if id(cpi) != getattr(self, "_cpi_cache_id", None) or len(cpi) != getattr(
+            self, "_cpi_cache_len", None
+        ):
             self._rebuild_cpi_cache()
-        cpi_row_in = self._cpi_year_means.get(convert_from,
-                                              self._cpi_latest_value)
-        cpi_row_out = self._cpi_year_means.get(convert_to,
-                                               self._cpi_latest_value)
+        cpi_row_in = self._cpi_year_means.get(convert_from, self._cpi_latest_value)
+        cpi_row_out = self._cpi_year_means.get(convert_to, self._cpi_latest_value)
         return cpi_row_out / cpi_row_in
 
 
@@ -2072,7 +2877,7 @@ class UsefulInputFiles(object):
     """
 
     def __init__(self, opts):
-        if opts.alt_regions == 'AIA':
+        if opts.alt_regions == "AIA":
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_cz.json"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cz.gz"
             self.iecc_reg_map = fp.CONVERT_DATA / "geo_map" / "IECC_AIA_ColSums.txt"
@@ -2094,7 +2899,7 @@ class UsefulInputFiles(object):
                     self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_decarb.json"
                 else:
                     self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals.json"
-        elif opts.alt_regions == 'EMM':
+        elif opts.alt_regions == "EMM":
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_emm.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_emm.gz"
             self.ash_emm_map = fp.CONVERT_DATA / "geo_map" / "ASH_EMM_ColSums.txt"
@@ -2118,7 +2923,7 @@ class UsefulInputFiles(object):
                     self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm_decarb.json"
                 else:
                     self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_emm.json"
-        elif opts.alt_regions == 'State':
+        elif opts.alt_regions == "State":
             self.msegs_in = fp.STOCK_ENERGY / "mseg_res_com_state.gz"
             self.msegs_cpl_in = fp.STOCK_ENERGY / "cpl_res_com_cdiv.gz"
             self.aia_altreg_map = fp.CONVERT_DATA / "geo_map" / "AIA_State_ColSums.txt"
@@ -2141,8 +2946,7 @@ class UsefulInputFiles(object):
                 else:
                     self.htcl_totals = fp.STOCK_ENERGY / "htcl_totals_state.json"
         else:
-            raise ValueError(
-                "Unsupported regional breakout (" + opts.alt_regions + ")")
+            raise ValueError("Unsupported regional breakout (" + opts.alt_regions + ")")
 
         self.set_decarb_grid_vars(opts)
         self.metadata = fp.METADATA_PATH
@@ -2160,8 +2964,7 @@ class UsefulInputFiles(object):
         self.ecm_eff_fs_splt_data = fp.EFF_FS_SPLIT
         self.run_setup = fp.GENERATED / "run_setup.json"
         self.cpi_data = fp.CONVERT_DATA / "cpi.csv"
-        self.tsv_shape_data = (
-            fp.ECM_DEF / "energyplus_data" / "savings_shapes")
+        self.tsv_shape_data = fp.ECM_DEF / "energyplus_data" / "savings_shapes"
         self.tsv_metrics_data_tot_ref = fp.TSV_DATA / "tsv_hrs_tot_base.csv"
         self.tsv_metrics_data_net_ref = fp.TSV_DATA / "tsv_hrs_net_base.csv"
         self.tsv_metrics_data_tot_hr = fp.TSV_DATA / "tsv_hrs_tot_lowogs.csv"
@@ -2173,7 +2976,7 @@ class UsefulInputFiles(object):
         self.incentives = fp.SUB_FED / "incentives.csv"
         self.low_volume_rate = fp.SUB_FED / "rates.csv"
         self.local_cost_adj = fp.CONVERT_DATA / "loc_cost_adj.csv"
-        self.panel_shares = fp.INPUTS / 'panel_shares.csv'
+        self.panel_shares = fp.INPUTS / "panel_shares.csv"
 
     def set_decarb_grid_vars(self, opts: argparse.NameSpace):  # noqa: F821
         """Assign instance variables related to grid decarbonization which are dependent on the
@@ -2186,18 +2989,19 @@ class UsefulInputFiles(object):
 
         def get_suffix(arg):
             """Return a suffix derived from a user-supplied argument string to append to filepath
-                variables; if argument is None, return an empty string.
+            variables; if argument is None, return an empty string.
             """
             if arg is None:
-                return ''
+                return ""
             else:
                 return f"-{arg}"
+
         alt_ref_carb_suffix = get_suffix(opts.alt_ref_carb)
         grid_decarb_level_suffix = get_suffix(opts.grid_decarb_level)
         price_sensitivity_suffix = get_suffix(opts.price_sensitivity)
         # Toggle EMM emissions and price data based on whether or not a grid decarbonization
         # scenario or price sensitivity scenario is used
-        if opts.alt_regions in ['EMM', "State"]:
+        if opts.alt_regions in ["EMM", "State"]:
             emission_var_map = {}  # Map UsefulInputFiles instance vars to filenames suffixes
             if opts.grid_decarb_level:
                 # Set grid decarbonization case
@@ -2213,8 +3017,9 @@ class UsefulInputFiles(object):
                 # Set emissions/cost reductions for non-fuel switching measures before grid
                 # decarbonization
                 emission_var_map["ss_data_altreg_nonfs"] = alt_ref_carb_suffix
-            elif (not opts.grid_decarb or
-                    (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
+            elif not opts.grid_decarb or (
+                opts.grid_assessment_timing and opts.grid_assessment_timing == "after"
+            ):
                 # Set emissions/cost reductions for non-fuel switching measures after grid
                 # decarbonization
                 self.ss_data_altreg_nonfs = None
@@ -2231,45 +3036,57 @@ class UsefulInputFiles(object):
             self.ss_data = fp.CONVERT_DATA / "site_source_co2_conversions-ce.json"
         # Grid decarbonization case
         elif opts.grid_decarb:
-            self.ss_data = (fp.CONVERT_DATA /
-                            f"site_source_co2_conversions{grid_decarb_level_suffix}.json")
+            self.ss_data = (
+                fp.CONVERT_DATA / f"site_source_co2_conversions{grid_decarb_level_suffix}.json"
+            )
             # Update tsv data file suffixes for DECARB levels
             if "DECARB" in grid_decarb_level_suffix:
                 grid_decarb_level_suffix = {
                     "-DECARB-mid": "-95by2050",
-                    "-DECARB-high": "-100by2035"}[grid_decarb_level_suffix]
+                    "-DECARB-high": "-100by2035",
+                }[grid_decarb_level_suffix]
             self.tsv_cost_data = (
-                fp.TSV_DATA /
-                f"tsv_cost-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json")
+                fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json"
+            )
             self.tsv_carbon_data = (
-                fp.TSV_DATA /
-                f"tsv_carbon-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json")
+                fp.TSV_DATA
+                / f"tsv_carbon-{opts.alt_regions.lower()}-{grid_decarb_level_suffix}.json"
+            )
         # Price sensitivity case
         else:
             if opts.price_sensitivity:
-                self.ss_data = (fp.CONVERT_DATA /
-                                f"site_source_co2_conversions{price_sensitivity_suffix}.json")
+                self.ss_data = (
+                    fp.CONVERT_DATA / f"site_source_co2_conversions{price_sensitivity_suffix}.json"
+                )
             else:
-                self.ss_data = (fp.CONVERT_DATA /
-                                f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
+                self.ss_data = (
+                    fp.CONVERT_DATA / f"site_source_co2_conversions{alt_ref_carb_suffix}.json"
+                )
             self.tsv_cost_data = fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json"
-            self.tsv_carbon_data = (fp.TSV_DATA /
-                                    f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
-            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
-                self.tsv_carbon_data_nonfs = (None for n in range(3))
+            self.tsv_carbon_data = (
+                fp.TSV_DATA / f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json"
+            )
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, self.tsv_carbon_data_nonfs = (
+                None for n in range(3)
+            )
 
         # Set site-source conversions and TSV files for non-fuel switching measures
         # before grid decarbonization
         if opts.grid_assessment_timing and opts.grid_assessment_timing == "before":
-            self.ss_data_nonfs = (fp.CONVERT_DATA /
-                                  f"site_source_co2_conversions{alt_ref_carb_suffix}.json")
-            self.tsv_cost_data_nonfs = (fp.TSV_DATA /
-                                        f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json")
-            self.tsv_carbon_data_nonfs = (fp.TSV_DATA /
-                                          f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json")
+            self.ss_data_nonfs = (
+                fp.CONVERT_DATA / f"site_source_co2_conversions{alt_ref_carb_suffix}.json"
+            )
+            self.tsv_cost_data_nonfs = (
+                fp.TSV_DATA / f"tsv_cost-{opts.alt_regions.lower()}-MidCase.json"
+            )
+            self.tsv_carbon_data_nonfs = (
+                fp.TSV_DATA / f"tsv_carbon-{opts.alt_regions.lower()}-MidCase.json"
+            )
         # Set site-source conversions and TSV files for non-fuel switching measures
         # after grid decarbonization
-        elif (not opts.grid_decarb or
-                (opts.grid_assessment_timing and opts.grid_assessment_timing == "after")):
-            self.ss_data_nonfs, self.tsv_cost_data_nonfs, \
-                self.tsv_carbon_data_nonfs = (None for n in range(3))
+        elif not opts.grid_decarb or (
+            opts.grid_assessment_timing and opts.grid_assessment_timing == "after"
+        ):
+            self.ss_data_nonfs, self.tsv_cost_data_nonfs, self.tsv_carbon_data_nonfs = (
+                None for n in range(3)
+            )

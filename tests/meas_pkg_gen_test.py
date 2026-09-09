@@ -17,7 +17,7 @@ from meas_pkg_gen import (  # noqa: E402
     parse_source_details,
     parse_author_details,
     clean_dataframe,
-    populate_json
+    populate_json,
 )
 
 
@@ -35,8 +35,7 @@ def test_parse_integer():
 
 
 def test_parse_newline_list():
-    assert parse_newline_list("ECM 1\nECM 2\n ECM 3 ") == [
-        "ECM 1", "ECM 2", "ECM 3"]
+    assert parse_newline_list("ECM 1\nECM 2\n ECM 3 ") == ["ECM 1", "ECM 2", "ECM 3"]
     assert parse_newline_list("Single ECM") == ["Single ECM"]
     assert parse_newline_list(["Already", "List"]) == ["Already", "List"]
 
@@ -64,18 +63,12 @@ def test_parse_source_details():
         "author": "Jane Doe",
         "year": 2023,
         "pages": (10, 15),
-        "url": "http"
+        "url": "http",
     }
 
     # Missing values handling
     res2 = parse_source_details("Doc Title; NA; null; ; none")
-    assert res2 == {
-        "title": "Doc Title",
-        "author": None,
-        "year": None,
-        "pages": None,
-        "url": None
-    }
+    assert res2 == {"title": "Doc Title", "author": None, "year": None, "pages": None, "url": None}
 
     # Multiple sources (newline separated)
     multi = parse_source_details("T1; A1; 2020; 1; u1\nT2; A2; 2021; 2; u2")
@@ -105,10 +98,9 @@ def test_parse_author_details():
 
 
 def test_clean_dataframe():
-    df = pd.DataFrame({
-        "A": [pd.NA, "NA", "null", np.nan, "", "valid_string"],
-        "B": [1, 2, 3, 4, 5, 6]
-    })
+    df = pd.DataFrame(
+        {"A": [pd.NA, "NA", "null", np.nan, "", "valid_string"], "B": [1, 2, 3, 4, 5, 6]}
+    )
     cleaned = clean_dataframe(df)
 
     # First 5 rows of column A should be converted to actual None
@@ -122,10 +114,10 @@ def test_parse_nested_value():
     assert parse_nested_value("Text Value") == "Text Value"
 
     # expect lowercase keys
-    assert parse_nested_value("Heating: 0.95; Cooling: 0.85") == {
-        "heating": 0.95, "cooling": 0.85}
+    assert parse_nested_value("Heating: 0.95; Cooling: 0.85") == {"heating": 0.95, "cooling": 0.85}
     assert parse_nested_value("Gas: Heating: 0.95; Gas: Water: 0.8") == {
-        "gas": {"heating": 0.95, "water": 0.8}}
+        "gas": {"heating": 0.95, "water": 0.8}
+    }
 
 
 def test_parse_nested_unit():
@@ -133,7 +125,9 @@ def test_parse_nested_unit():
 
     # expect lowercase keys
     assert parse_nested_unit("Heating: MMBtu; Cooling: kWh") == {
-        "heating": "MMBtu", "cooling": "kWh"}
+        "heating": "MMBtu",
+        "cooling": "kWh",
+    }
     assert parse_nested_unit("1000") == "1000"
 
 
@@ -160,9 +154,9 @@ def test_populate_json():
             "performance_data": {
                 # lowercase
                 "heating": 3.5,
-                "cooling": 4.0
+                "cooling": 4.0,
             }
-        }
+        },
     }
 
     assert populate_json(record, test_map) == expected_output
