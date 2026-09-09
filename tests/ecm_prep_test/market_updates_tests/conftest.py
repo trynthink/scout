@@ -654,8 +654,8 @@ def market_test_data():
             handyvars_state_regadj,
             handyfiles_state,
             opts_state_dict,
-            **ok_measures_in[28]
-            )
+            **ok_measures_in[28],
+        )
     ]
     ok_mapmeas_partchk_in = [
         Measure(base_dir, handyvars, handyfiles, opts_dict, **x) for x in ok_measures_in[24:26]
@@ -923,19 +923,21 @@ def market_test_data():
 
     # Create ok_coolcost_chk_in from first HP measure with coolcosts options
     ok_coolcost_chk_in = [
-        Measure(
-            base_dir, handyvars_hp_rates, handyfiles_emm,
-            opts_coolcosts_dict, **x) for x in ok_hp_measures_in[0:1]
+        Measure(base_dir, handyvars_hp_rates, handyfiles_emm, opts_coolcosts_dict, **x)
+        for x in ok_hp_measures_in[0:1]
     ]
 
     # Expected stock cost output for the cooling cost test
     ok_coolcost_meas_stkcost_out = {
         "total": {
             "baseline": {"2009": 200000, "2010": 200000},
-            "efficient": {"2009": 500000, "2010": 500000}},
+            "efficient": {"2009": 500000, "2010": 500000},
+        },
         "competed": {
             "baseline": {"2009": 200000, "2010": 200000},
-            "efficient": {"2009": 500000, "2010": 500000}}}
+            "efficient": {"2009": 500000, "2010": 500000},
+        },
+    }
 
     # Return all test data (imported + generated)
     return {

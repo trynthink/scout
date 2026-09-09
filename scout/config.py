@@ -71,14 +71,18 @@ class FilePaths:
                 file paths are values.
         """
 
-        downstream_map = {"GENERATED": ["ECM_COMP", "EFF_FS_SPLIT"],
-                          "INPUTS": ["METADATA_PATH"],
-                          "RESULTS": ["PLOTS"]}
+        downstream_map = {
+            "GENERATED": ["ECM_COMP", "EFF_FS_SPLIT"],
+            "INPUTS": ["METADATA_PATH"],
+            "RESULTS": ["PLOTS"],
+        }
 
         for var, new_path in paths_to_update.items():
             if var[0] == "_":
-                warnings.warn(f"Changing the value of `FilePaths.{var}` is not allowed. The"
-                              " variable will remain unchanged.")
+                warnings.warn(
+                    f"Changing the value of `FilePaths.{var}` is not allowed. The"
+                    " variable will remain unchanged."
+                )
                 continue
 
             original_path = getattr(cls, var)
@@ -118,8 +122,12 @@ class Config:
 
     DICT_ARGUMENTS = {"ecm_field_updates"}
 
-    def __init__(self, parser: argparse.ArgumentParser,  # noqa: F821
-                 key: str, cli_args: list = None):
+    def __init__(
+        self,
+        parser: argparse.ArgumentParser,  # noqa: F821
+        key: str,
+        cli_args: list = None,
+    ):
         self.parser = parser
         self.key = key
         if cli_args is None:
@@ -154,8 +162,7 @@ class Config:
         validate(input_data, schema_data)
 
     def _resolve_filepath_args(self):
-        """Resolves filepaths depending on whether they are set in the yml or via the CLI.
-        """
+        """Resolves filepaths depending on whether they are set in the yml or via the CLI."""
 
         fp_arg_dict = {"ecm_directory": "ECM_DEF", "results_directory": "RESULTS"}
         for dir_arg, fp_var in fp_arg_dict.items():
@@ -190,9 +197,11 @@ class Config:
             "-y",
             "--yaml",
             type=Path,
-            help=("Path to YAML configuration file, arguments passed directly to the command "
-                  "line will take priority over arguments in this file")
-            )
+            help=(
+                "Path to YAML configuration file, arguments passed directly to the command "
+                "line will take priority over arguments in this file"
+            ),
+        )
 
     def set_config_args(self, cli_args: list[str] = []):
         """If there is a config file provided, store data and validate
@@ -232,9 +241,11 @@ class Config:
 
         return self.args
 
-    def update_args(self,
-                    existing_args: argparse.NameSpace,  # noqa: F821
-                    new_args: dict) -> argparse.NameSpace:  # noqa: F821
+    def update_args(
+        self,
+        existing_args: argparse.NameSpace,  # noqa: F821
+        new_args: dict,
+    ) -> argparse.NameSpace:  # noqa: F821
         """Update argparse arguments NameSpace with args dictionary
 
         Args:
@@ -269,49 +280,63 @@ class Config:
             if bool(args.tsv_type) ^ bool(args.tsv_daily_hr_restrict):
                 raise ValueError(
                     "Both `tsv_type` and `tsv_daily_hr_restrict` must be provided if running tsv"
-                    " metrics")
+                    " metrics"
+                )
             if args.tsv_daily_hr_restrict in ["peak", "low"] and not args.tsv_sys_shape_case:
                 raise ValueError(
                     "The `tsv_sys_shape_case` argument must be provided if `tsv_daily_hr_restrict`"
-                    " is one of 'peak' or 'low'.")
+                    " is one of 'peak' or 'low'."
+                )
             if args.tsv_type == "energy" and not (args.tsv_energy_agg and args.tsv_average_days):
                 raise ValueError(
                     "`tsv_energy_agg` and `tsv_average_days` must be specified if `tsv_type` is"
-                    " 'energy'.")
+                    " 'energy'."
+                )
             if args.tsv_type == "power" and not args.tsv_power_agg:
-                raise ValueError(
-                    "`tsv_power_agg` must be specified if `tsv_type` is 'power'.")
+                raise ValueError("`tsv_power_agg` must be specified if `tsv_type` is 'power'.")
             if args.tsv_power_agg == "average" and not args.tsv_average_days:
                 raise ValueError(
-                    "`tsv_average_days` must be specified if `tsv_power_agg` is 'average'.")
+                    "`tsv_average_days` must be specified if `tsv_power_agg` is 'average'."
+                )
 
             if bool(args.grid_decarb_level) ^ bool(args.grid_assessment_timing):
                 raise ValueError(
                     "Both `grid_decarb_level` and `grid_assessment_timing` must be provided if"
-                    " assessing grid decarbonization")
+                    " assessing grid decarbonization"
+                )
 
             # detailed breakout
             if "fuel types" in args.detail_brkout and not args.split_fuel:
                 raise ValueError(
                     "Detailed breakout (`detail_brkout`) cannot include `fuel types` if"
-                    " split_fuel==False")
+                    " split_fuel==False"
+                )
 
             # retrofits
-            if args.retrofit_type == "increasing" and (not args.retrofit_multiplier or
-                                                       not args.retrofit_mult_year):
+            if args.retrofit_type == "increasing" and (
+                not args.retrofit_multiplier or not args.retrofit_mult_year
+            ):
                 raise ValueError(
                     "`retrofit_multiplier` and `retrofit_mult_year` must be specified if"
-                    " `retrofit_type` is 'increasing'.")
+                    " `retrofit_type` is 'increasing'."
+                )
 
             # fugitive emissions
-            if ("typical refrigerant" in args.fugitive_emissions and
-                    "low-gwp refrigerant" in args.fugitive_emissions):
+            if (
+                "typical refrigerant" in args.fugitive_emissions
+                and "low-gwp refrigerant" in args.fugitive_emissions
+            ):
                 raise ValueError(
                     "The `fugitive_emissions` argument can only accept one of 'typical"
-                    " refrigerant' and 'low-gwp refrigerant'")
+                    " refrigerant' and 'low-gwp refrigerant'"
+                )
 
-    def create_argparse(self, parser: argparse.ArgumentParser,  # noqa: F821
-                        schema_data: dict, group: str = None):
+    def create_argparse(
+        self,
+        parser: argparse.ArgumentParser,  # noqa: F821
+        schema_data: dict,
+        group: str = None,
+    ):
         """Extracts arguments from the config schema and writes argparse arguments. This method
             populates information for the --help flag of ecm_prep.py and run.py and enables
             passing arguments directly via the command line.

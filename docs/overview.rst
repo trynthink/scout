@@ -54,7 +54,7 @@ ECMs are adopted one of two ways
 
 There are two different scenarios that are used to represent consumer adoption of an ECM.
 
-* The technical potential scenario assumes that as soon as an ECM is introduced, the entire baseline market instantaneously and completely switches to the new ECM, and the ECM retains a complete sales monopoly in subsequent years. Results from this scenario represent the maximum impact an ECM could have, limited only by baseline market size. 
+* The technical potential scenario assumes that as soon as an ECM is introduced, the entire baseline market instantaneously and completely switches to the new ECM, and the ECM retains a complete sales monopoly in subsequent years. Results from this scenario represent the maximum impact an ECM could have, limited only by baseline market size.
 * The max adoption potential scenario assumes an ECM is only able to capture the portion of its baseline market associated with new construction and retrofit or replacement of existing equipment in a given year. Results from this scenario represent an ECM’s maximum impact considering typical building and equipment turnover and generally show a gradual accumulation of ECM savings over time.
 
 .. _overview-competition:

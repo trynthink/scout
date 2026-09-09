@@ -13,7 +13,7 @@ ecm_prep:
     retrofit_type: increasing
     retrofit_multiplier: 1.2
     retrofit_mult_year: 2030
-  exog_hp_rates: 
+  exog_hp_rates:
     exog_hp_rate_scenario: gh-aggressive
     switch_all_retrofit_hp: false
   grid_decarb:
@@ -28,7 +28,7 @@ ecm_prep:
     tsv_average_days: weekdays
   detail_brkout: [regions, fuel types]
   split_fuel: true
-  pkg_env_costs: include HVAC  
+  pkg_env_costs: include HVAC
 
 run:
   results_directory: ../../results/test_dir

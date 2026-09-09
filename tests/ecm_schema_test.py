@@ -15,9 +15,7 @@ from tests.schema_test_helpers import (
 # ============================================================================
 
 # Paths
-SCHEMA_PATH = (
-    Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
-)
+SCHEMA_PATH = Path(__file__).parent.parent / "ecm_definitions" / "ecm_schema.json"
 JSON_DIR = Path(__file__).parent.parent / "ecm_definitions"
 
 # Files to exclude from validation
@@ -25,15 +23,14 @@ EXCLUDE_FILES = {"ecm_schema.json", "package_ecms.json"}
 
 # ECM JSON files to validate
 ECM_JSON_FILES = [
-    json_file
-    for json_file in JSON_DIR.glob("*.json")
-    if json_file.name not in EXCLUDE_FILES
+    json_file for json_file in JSON_DIR.glob("*.json") if json_file.name not in EXCLUDE_FILES
 ]
 
 
 # ============================================================================
 # Fixtures
 # ============================================================================
+
 
 @pytest.fixture(scope="module")
 def schema():
@@ -50,6 +47,7 @@ def validator(schema):
 # ============================================================================
 # Tests
 # ============================================================================
+
 
 def test_schema_file_exists():
     """Test that the ECM schema file exists at expected location."""
@@ -111,8 +109,7 @@ def test_schema_has_metadata(schema):
     # Verify version format (semantic versioning: x.y.z)
     version = schema.get("version", "")
     assert version.count(".") >= 2, (
-        f"Schema version should be semantic (e.g., 1.0.0), "
-        f"got: {version}"
+        f"Schema version should be semantic (e.g., 1.0.0), got: {version}"
     )
 
 
@@ -169,9 +166,7 @@ def test_ecm_json_schema_validation(json_file, validator):
             # Handle anyOf/oneOf schemas by extracting enum values
             for schema_key in ["anyOf", "oneOf"]:
                 if schema_key in e.schema:
-                    all_enums = extract_enums(
-                        e.schema, validator
-                    )
+                    all_enums = extract_enums(e.schema, validator)
                     # Remove duplicates
                     if all_enums:
                         all_enums = sorted(set(all_enums))
@@ -181,9 +176,7 @@ def test_ecm_json_schema_validation(json_file, validator):
                     all_patterns = extract_patterns(e.schema, validator)
                     if all_patterns:
                         # Show first pattern (usually most relevant)
-                        allowable_info.append(
-                            f"expected pattern: {all_patterns[0]}"
-                        )
+                        allowable_info.append(f"expected pattern: {all_patterns[0]}")
                     break  # Only process once
 
             # Extract direct constraints
@@ -192,20 +185,20 @@ def test_ecm_json_schema_validation(json_file, validator):
             if "type" in e.schema:
                 allowable_info.append(f"expected type: {e.schema['type']}")
             if "pattern" in e.schema:
-                pattern = e.schema['pattern']
+                pattern = e.schema["pattern"]
                 allowable_info.append(f"expected pattern: {pattern}")
             if "minimum" in e.schema:
                 allowable_info.append(f"minimum: {e.schema['minimum']}")
             if "maximum" in e.schema:
                 allowable_info.append(f"maximum: {e.schema['maximum']}")
             if "minLength" in e.schema:
-                min_len = e.schema['minLength']
+                min_len = e.schema["minLength"]
                 allowable_info.append(f"min length: {min_len}")
             if "maxLength" in e.schema:
-                max_len = e.schema['maxLength']
+                max_len = e.schema["maxLength"]
                 allowable_info.append(f"max length: {max_len}")
             if "format" in e.schema:
-                fmt = e.schema['format']
+                fmt = e.schema["format"]
                 allowable_info.append(f"expected format: {fmt}")
 
             msg_parts = [
@@ -217,45 +210,48 @@ def test_ecm_json_schema_validation(json_file, validator):
             ]
 
             # Add actual value section
-            if isinstance(actual_value, (dict, list)) and len(
-                json.dumps(actual_value)
-            ) > 100:
+            if isinstance(actual_value, (dict, list)) and len(json.dumps(actual_value)) > 100:
                 # For large objects, show truncated version
                 value_str = json.dumps(actual_value)[:100] + "..."
-                msg_parts.extend([
-                    "",
-                    "Actual Value:",
-                    f"  {value_str}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Actual Value:",
+                        f"  {value_str}",
+                    ]
+                )
             else:
-                msg_parts.extend([
-                    "",
-                    "Actual Value:",
-                    f"  {json.dumps(actual_value)}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Actual Value:",
+                        f"  {json.dumps(actual_value)}",
+                    ]
+                )
 
             # Add description if available
             if descriptions:
-                msg_parts.extend([
-                    "",
-                    "Description:",
-                    f"  {descriptions[0]}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Description:",
+                        f"  {descriptions[0]}",
+                    ]
+                )
 
             # Add constraints if any
             if allowable_info:
-                msg_parts.extend([
-                    "",
-                    "Expected Constraints:",
-                    f"  {', '.join(allowable_info)}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Expected Constraints:",
+                        f"  {', '.join(allowable_info)}",
+                    ]
+                )
 
             messages.append("\n".join(msg_parts))
 
-        error_message = (
-            f"\n{'='*70}\n"
-            f"{json_file.name} is invalid\n"
-            f"{'='*70}\n\n" +
-            "\n\n".join(f"{msg}" for msg in messages)
+        error_message = f"\n{'=' * 70}\n{json_file.name} is invalid\n{'=' * 70}\n\n" + "\n\n".join(
+            f"{msg}" for msg in messages
         )
         pytest.fail(error_message)

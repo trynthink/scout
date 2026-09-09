@@ -8,11 +8,12 @@ from scout import run
 from argparse import ArgumentParser
 import logging
 import shutil
+
 LogConfig.configure_logging()
 logger = logging.getLogger(__name__)
 
 
-class BatchRun():
+class BatchRun:
     def __init__(self, yml_dir):
         self.yml_dir = yml_dir.resolve()
 
@@ -58,8 +59,9 @@ class BatchRun():
             run_opts = run.parse_args(["-y", str(config_pth.resolve())])
         else:
             custom_results_dir = Path(__file__).resolve().parents[1] / "results" / config_pth.stem
-            run_opts = run.parse_args(["-y", str(config_pth.resolve()),
-                                      "--results_directory", str(custom_results_dir)])
+            run_opts = run.parse_args(
+                ["-y", str(config_pth.resolve()), "--results_directory", str(custom_results_dir)]
+            )
 
         return run_opts
 
@@ -86,7 +88,7 @@ class BatchRun():
             yml_data = Config.load_config(yml)
             yml_data_ecm_prep = {
                 k: v for k, v in yml_data["ecm_prep"].items() if k not in exclude_keys
-                }
+            }
             updated = False
             for i, grp_data in enumerate(yml_group_data):
                 if grp_data == yml_data_ecm_prep:
@@ -101,14 +103,14 @@ class BatchRun():
 
     def run_batch(self):
         """Run ecm_prep.py and run.py using 1 or more configuration files. Configuration files
-            are first grouped together if they have common ecm_prep arguments and ecm_prep.main()
-            is run for each group. run.main() is then run for each individual configuration file.
+        are first grouped together if they have common ecm_prep arguments and ecm_prep.main()
+        is run for each group. run.main() is then run for each individual configuration file.
         """
 
         yml_grps = self.group_common_configs(self.yml_dir)
         for ct, yml_grp in enumerate(yml_grps):
             # Set custom generated directory for each group, write .txt file to document the ymls
-            fp.set_paths({"GENERATED": fp.GENERATED / f"batch_run{ct+1}"})
+            fp.set_paths({"GENERATED": fp.GENERATED / f"batch_run{ct + 1}"})
             paths = [yml.resolve().as_posix() for yml in yml_grp]
 
             for yml_file in paths:
@@ -130,13 +132,13 @@ class BatchRun():
             for ct, config in enumerate(yml_grp):
                 # Set all ECMs inactive
                 run_setup = ECMPrepHelper.update_active_measures(
-                    run_setup,
-                    to_inactive=ecm_prep_opts.ecm_files
+                    run_setup, to_inactive=ecm_prep_opts.ecm_files
                 )
                 # Set yml-specific ECMs active
                 # Find yml-specific individual ECMs not marked inactive or skipped
-                active_ecms = [ecm for ecm in ecm_files_list[ct] if
-                               ecm not in inactive_skipped_ecms]
+                active_ecms = [
+                    ecm for ecm in ecm_files_list[ct] if ecm not in inactive_skipped_ecms
+                ]
                 # Set yml-specific ECMs not marked inactive or skipped active
                 run_setup = ECMPrepHelper.update_active_measures(run_setup, to_active=active_ecms)
                 JsonIO.dump_json(run_setup, fp.GENERATED / "run_setup.json")
@@ -149,9 +151,7 @@ class BatchRun():
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
-        "-b", "--batch",
-        type=Path,
-        help=("Path to directory containing YAML configuration files")
+        "-b", "--batch", type=Path, help=("Path to directory containing YAML configuration files")
     )
 
     opts = parser.parse_args()

@@ -67,29 +67,29 @@ def dict_check(dict1, dict2):
         sorted(dict1.items(), key=sort_key), sorted(dict2.items(), key=sort_key), fillvalue=fill_val
     ):
         # Check keys are equal (handling numpy strings in both tuple and string keys)
-        assert keys_equal(
-            k, k2
-        ), f"Keys don't match: {k} (type: {type(k)}) != {k2} (type: {type(k2)})"
+        assert keys_equal(k, k2), (
+            f"Keys don't match: {k} (type: {type(k)}) != {k2} (type: {type(k2)})"
+        )
         if isinstance(i, dict):
             assert sorted(i.keys()) == sorted(i2.keys()), "Dict keys don't match"
             dict_check(i, i2)
         elif isinstance(i, numpy.ndarray) or isinstance(i, list):
             assert type(i) is type(i2) and len(i) == len(i2), (
-                f"Types or lengths don't match: {type(i)} vs {type(i2)}, " f"{len(i)} vs {len(i2)}"
+                f"Types or lengths don't match: {type(i)} vs {type(i2)}, {len(i)} vs {len(i2)}"
             )
             for x in range(0, len(i)):
                 if isinstance(i[x], str):
-                    assert (
-                        i[x] == i2[x]
-                    ), f"String values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert i[x] == i2[x], (
+                        f"String values don't match at index {x}: {i[x]} != {i2[x]}"
+                    )
                 elif round(i[x], 5) != 0:
-                    assert abs(i[x] - i2[x]) < 10 ** (
-                        -5
-                    ), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert abs(i[x] - i2[x]) < 10 ** (-5), (
+                        f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    )
                 else:
-                    assert abs(i[x] - i2[x]) < 10 ** (
-                        -10
-                    ), f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    assert abs(i[x] - i2[x]) < 10 ** (-10), (
+                        f"Values don't match at index {x}: {i[x]} != {i2[x]}"
+                    )
         elif isinstance(i, str):
             assert i == i2, f"String values don't match: {i} != {i2}"
         else:
@@ -129,7 +129,6 @@ class CommonMethods(object):
         for (k, i), (k2, i2) in itertools.zip_longest(
             sorted(dict1.items()), sorted(dict2.items()), fillvalue=fill_val
         ):
-
             # Confirm that at the current location in the dict structure,
             # the keys are equal; this should fail if one of the dicts
             # is empty, is missing section(s), or has different key names

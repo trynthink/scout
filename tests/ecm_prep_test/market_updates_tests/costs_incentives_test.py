@@ -111,15 +111,17 @@ def test_elec_upgrade_costs(market_test_data):
     base_dir = os.getcwd()
     # Set user options
     opts_all, opts_shares, opts_ign = [
-        copy.deepcopy(market_test_data['opts_state']) for n in range(3)
+        copy.deepcopy(market_test_data["opts_state"]) for n in range(3)
     ]
     # Test three scenarios of electric upgrade cost settings
     opts_all.elec_upgrade_costs, opts_shares.elec_upgrade_costs, opts_ign.elec_upgrade_costs = [
-        'all', 'shares', 'ignore'
+        "all",
+        "shares",
+        "ignore",
     ]
     # Max adoption potential scenario for all three
     opts_all.adopt_scn_usr, opts_shares.adopt_scn_usr, opts_ign.adopt_scn_usr = [
-        'Max adoption potential' for n in range(3)
+        "Max adoption potential" for n in range(3)
     ]
     # Set handyfiles, using the first set of options to set file names
     hf = UsefulInputFiles(opts_all)
@@ -139,49 +141,72 @@ def test_elec_upgrade_costs(market_test_data):
     # Verify that correct settings are yielded for panel upgrades handyvar, then hardcode
     # shares data for that case. Note: no shares data should have been pulled in for the
     # cases where all or no homes are assigned panel share calculations
-    if all([x.panel_shares is None for x in [hv_all, hv_ign]]) and \
-            isinstance(hv_shares.panel_shares, dict):
+    if all([x.panel_shares is None for x in [hv_all, hv_ign]]) and isinstance(
+        hv_shares.panel_shares, dict
+    ):
         hv_shares.panel_shares = {
             "CA": {
                 "stock": {
                     "natural gas": {
                         "BAU w/ HPWH": {"no panel": 0.1, "panel": 0.8, "management": 0.1},
-                        "BAU": {"no panel": 0.1, "panel": 0.8, "management": 0.1}},
+                        "BAU": {"no panel": 0.1, "panel": 0.8, "management": 0.1},
+                    },
                     "electricity": {
                         "BAU w/ HPWH": {"no panel": 0.9, "panel": 0, "management": 0.05},
-                        "BAU": {"no panel": 0.9, "panel": 0, "management": 0.05}}},
+                        "BAU": {"no panel": 0.9, "panel": 0, "management": 0.05},
+                    },
+                },
                 "energy": {
                     "natural gas": {
                         "BAU w/ HPWH": {"no panel": 0.2, "panel": 0.7, "management": 0.1},
-                        "BAU": {"no panel": 0.2, "panel": 0.7, "management": 0.1}},
+                        "BAU": {"no panel": 0.2, "panel": 0.7, "management": 0.1},
+                    },
                     "electricity": {
                         "BAU w/ HPWH": {"no panel": 0.4, "panel": 0.5, "management": 0.1},
-                        "BAU": {"no panel": 0.4, "panel": 0.5, "management": 0.1}}}}}
+                        "BAU": {"no panel": 0.4, "panel": 0.5, "management": 0.1},
+                    },
+                },
+            }
+        }
     else:
         raise ValueError("Variable 'panel_shares' is set incorrectly within UsefulVars object.")
     # Hard code years
     years = ["2009", "2010"]
     hv_all.aeo_years, hv_shares.aeo_years, hv_ign.aeo_years = (years for n in range(3))
     # Hard code retrofit rate
-    hv_all.retro_rate, hv_shares.retro_rate, hv_ign.retro_rate = ({
-        yr: 0.01 for yr in years} for n in range(3))
+    hv_all.retro_rate, hv_shares.retro_rate, hv_ign.retro_rate = (
+        {yr: 0.01 for yr in years} for n in range(3)
+    )
     # Ensure no regional cost adjustment is assessed (this otherwise happens by default)
     hv_all.reg_cost_adj, hv_shares.reg_cost_adj, hv_ign.reg_cost_adj = (None for n in range(3))
     # Hard code cost/conversion variables needed to get the prep routine to run through
-    hv_all.ccosts, hv_shares.ccosts, hv_ign.ccosts = (
-        {y: 1 for y in years} for n in range(3))
+    hv_all.ccosts, hv_shares.ccosts, hv_ign.ccosts = ({y: 1 for y in years} for n in range(3))
     hv_all.ecosts, hv_shares.ecosts, hv_ign.ecosts = (
-        {"residential": {"electricity": {y: 60.0 for y in years},
-                         "natural gas": {y: 11.0 for y in years}}} for n in range(3))
+        {
+            "residential": {
+                "electricity": {y: 60.0 for y in years},
+                "natural gas": {y: 11.0 for y in years},
+            }
+        }
+        for n in range(3)
+    )
     hv_all.carb_int, hv_shares.carb_int, hv_ign.carb_int = (
-        {"residential": {"electricity": {y: 5.0e-08 for y in years},
-                         "natural gas": {y: 5.0e-08 for y in years}}} for n in range(3))
+        {
+            "residential": {
+                "electricity": {y: 5.0e-08 for y in years},
+                "natural gas": {y: 5.0e-08 for y in years},
+            }
+        }
+        for n in range(3)
+    )
     hv_all.ss_conv, hv_shares.ss_conv, hv_ign.ss_conv = (
-        {"electricity": {y: 1 for y in years},
-         "natural gas": {y: 1 for y in years}} for n in range(3))
+        {"electricity": {y: 1 for y in years}, "natural gas": {y: 1 for y in years}}
+        for n in range(3)
+    )
 
     # Function to produce year range dict
-    def yrs(val): return {y: val for y in years}
+    def yrs(val):
+        return {y: val for y in years}
 
     # Set example baseline microsegments (STATE: CA, SFH)
     mseg_in = {
@@ -210,7 +235,7 @@ def test_elec_upgrade_costs(market_test_data):
                             "ASHP": {
                                 "stock": {y: 1 for y in years},
                                 "energy": {y: 100 for y in years},
-                            }
+                            },
                         }
                     },
                     "heating": {
@@ -220,7 +245,7 @@ def test_elec_upgrade_costs(market_test_data):
                                 "energy": {y: 100 for y in years},
                             }
                         }
-                    }
+                    },
                 },
             }
         }
@@ -236,30 +261,34 @@ def test_elec_upgrade_costs(market_test_data):
                         "supply": {
                             "furnace (NG)": {
                                 "performance": {
-                                    "typical": yrs(0.8), "best": yrs(0.8),
-                                    "units": "AFUE", "source": "stub"},
+                                    "typical": yrs(0.8),
+                                    "best": yrs(0.8),
+                                    "units": "AFUE",
+                                    "source": "stub",
+                                },
                                 "installed cost": {
-                                    "typical": {
-                                        "new": yrs(2000),
-                                        "existing": yrs(2000)},
-                                    "best": {
-                                        "new": yrs(2000),
-                                        "existing": yrs(2000)},
-                                    "units": "2014$/unit", "source": "stub"},
+                                    "typical": {"new": yrs(2000), "existing": yrs(2000)},
+                                    "best": {"new": yrs(2000), "existing": yrs(2000)},
+                                    "units": "2014$/unit",
+                                    "source": "stub",
+                                },
                                 "lifetime": {
-                                    "average": yrs(15), "range": yrs(5),
-                                    "units": "years", "source": "stub"},
+                                    "average": yrs(15),
+                                    "range": yrs(5),
+                                    "units": "years",
+                                    "source": "stub",
+                                },
                                 "consumer choice": {
                                     "competed market share": {
                                         "source": "stub",
                                         "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": yrs("NA"), "b2": yrs("NA")}},
+                                        "parameters": {"b1": yrs("NA"), "b2": yrs("NA")},
+                                    },
                                     "competed market": {
                                         "source": "stub",
                                         "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA", "q": "NA"}},
+                                        "parameters": {"p": "NA", "q": "NA"},
+                                    },
                                 },
                             }
                         }
@@ -270,86 +299,106 @@ def test_elec_upgrade_costs(market_test_data):
                         "supply": {
                             "central AC": {
                                 "performance": {
-                                    "typical": yrs(3.5), "best": yrs(3.5),
-                                    "units": "COP", "source": "stub"},
+                                    "typical": yrs(3.5),
+                                    "best": yrs(3.5),
+                                    "units": "COP",
+                                    "source": "stub",
+                                },
                                 "installed cost": {
-                                    "typical": {
-                                        "new": yrs(3000), "existing": yrs(3000)},
-                                    "best": {
-                                        "new": yrs(3000), "existing": yrs(3000)},
-                                    "units": "2014$/unit", "source": "stub"},
+                                    "typical": {"new": yrs(3000), "existing": yrs(3000)},
+                                    "best": {"new": yrs(3000), "existing": yrs(3000)},
+                                    "units": "2014$/unit",
+                                    "source": "stub",
+                                },
                                 "lifetime": {
-                                    "average": yrs(12), "range": yrs(3),
-                                    "units": "years", "source": "stub"},
+                                    "average": yrs(12),
+                                    "range": yrs(3),
+                                    "units": "years",
+                                    "source": "stub",
+                                },
                                 "consumer choice": {
                                     "competed market share": {
                                         "source": "stub",
                                         "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": yrs("NA"), "b2": yrs("NA")}},
+                                        "parameters": {"b1": yrs("NA"), "b2": yrs("NA")},
+                                    },
                                     "competed market": {
                                         "source": "stub",
                                         "model type": "bass diffusion",
-                                        "parameters": {
-                                            "p": "NA", "q": "NA"}},
+                                        "parameters": {"p": "NA", "q": "NA"},
+                                    },
                                 },
                             },
                             "ASHP": {
                                 "performance": {
-                                    "typical": yrs(4.69), "best": yrs(4.69),
-                                    "units": "COP", "source": "addedcooling.json"},
+                                    "typical": yrs(4.69),
+                                    "best": yrs(4.69),
+                                    "units": "COP",
+                                    "source": "addedcooling.json",
+                                },
                                 "installed cost": {
-                                    "typical": {
-                                        "new": yrs(6000), "existing": yrs(6000)},
-                                    "best": {
-                                        "new": yrs(6000), "existing": yrs(6000)},
-                                    "units": "2014$/unit", "source": "stub"},
+                                    "typical": {"new": yrs(6000), "existing": yrs(6000)},
+                                    "best": {"new": yrs(6000), "existing": yrs(6000)},
+                                    "units": "2014$/unit",
+                                    "source": "stub",
+                                },
                                 "lifetime": {
-                                    "average": yrs(15), "range": yrs(5),
-                                    "units": "years", "source": "stub"},
+                                    "average": yrs(15),
+                                    "range": yrs(5),
+                                    "units": "years",
+                                    "source": "stub",
+                                },
                                 "consumer choice": {
                                     "competed market share": {
                                         "source": "stub",
                                         "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": yrs("NA"), "b2": yrs("NA")}},
+                                        "parameters": {"b1": yrs("NA"), "b2": yrs("NA")},
+                                    },
                                     "competed market": {
                                         "source": "stub",
                                         "model type": "bass diffusion",
-                                        "parameters": {"p": "NA", "q": "NA"}},
+                                        "parameters": {"p": "NA", "q": "NA"},
+                                    },
                                 },
-                            }
+                            },
                         }
                     },
                     "heating": {
                         "supply": {
                             "ASHP": {
                                 "performance": {
-                                    "typical": yrs(2.69), "best": yrs(2.69),
-                                    "units": "COP", "source": "addedcooling.json"},
+                                    "typical": yrs(2.69),
+                                    "best": yrs(2.69),
+                                    "units": "COP",
+                                    "source": "addedcooling.json",
+                                },
                                 "installed cost": {
-                                    "typical": {
-                                        "new": yrs(6000), "existing": yrs(6000)},
-                                    "best": {
-                                        "new": yrs(6000), "existing": yrs(6000)},
-                                    "units": "2014$/unit", "source": "stub"},
+                                    "typical": {"new": yrs(6000), "existing": yrs(6000)},
+                                    "best": {"new": yrs(6000), "existing": yrs(6000)},
+                                    "units": "2014$/unit",
+                                    "source": "stub",
+                                },
                                 "lifetime": {
-                                    "average": yrs(15), "range": yrs(5),
-                                    "units": "years", "source": "stub"},
+                                    "average": yrs(15),
+                                    "range": yrs(5),
+                                    "units": "years",
+                                    "source": "stub",
+                                },
                                 "consumer choice": {
                                     "competed market share": {
                                         "source": "stub",
                                         "model type": "logistic regression",
-                                        "parameters": {
-                                            "b1": yrs("NA"), "b2": yrs("NA")}},
+                                        "parameters": {"b1": yrs("NA"), "b2": yrs("NA")},
+                                    },
                                     "competed market": {
                                         "source": "stub",
                                         "model type": "bass diffusion",
-                                        "parameters": {"p": "NA", "q": "NA"}},
+                                        "parameters": {"p": "NA", "q": "NA"},
+                                    },
                                 },
                             }
                         }
-                    }
+                    },
                 },
             }
         }
@@ -359,7 +408,8 @@ def test_elec_upgrade_costs(market_test_data):
     meas_def = {
         "name": "sample measure with shares",
         "measure_type": "full service",
-        "market_entry_year": None, "market_exit_year": None,
+        "market_entry_year": None,
+        "market_exit_year": None,
         "climate_zone": ["CA"],
         "bldg_type": "single family home",
         "structure_type": ["new", "existing"],
@@ -379,34 +429,38 @@ def test_elec_upgrade_costs(market_test_data):
 
     # Stock cost outputs (after applying panel share settings) for 3 test cases
     # (ignore costs, assign all costs, assign costs based on shares of homes needing panels)
-    user_master_mseg_stock_cost = [{
-        "competed": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
-            "efficient": {"2009": 17196.66667, "2010": 16660},
+    user_master_mseg_stock_cost = [
+        {
+            "competed": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
+                "efficient": {"2009": 17196.66667, "2010": 16660},
+            },
+            "total": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
+                "efficient": {"2009": 17196.66667, "2010": 33856.66667},
+            },
         },
-        "total": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
-            "efficient": {"2009": 17196.66667, "2010": 33856.66667},
+        {
+            "competed": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
+                "efficient": {"2009": 19308.83333, "2010": 18661},
+            },
+            "total": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
+                "efficient": {"2009": 19308.83333, "2010": 37969.83333},
+            },
         },
-    }, {
-        "competed": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
-            "efficient": {"2009": 19308.83333, "2010": 18661},
+        {
+            "competed": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
+                "efficient": {"2009": 19126.75, "2010": 18488.5},
+            },
+            "total": {
+                "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
+                "efficient": {"2009": 19126.75, "2010": 37615.25},
+            },
         },
-        "total": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
-            "efficient": {"2009": 19308.83333, "2010": 37969.83333},
-        },
-    }, {
-        "competed": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 2380.0},
-            "efficient": {"2009": 19126.75, "2010": 18488.5},
-        },
-        "total": {
-            "baseline": {"2009": 2456.6666666666665, "2010": 4836.666666666666},
-            "efficient": {"2009": 19126.75, "2010": 37615.25},
-        },
-    }]
+    ]
 
     # Stock output that should be consistent across all three panel share settings
     user_master_mseg_stock = {
@@ -423,10 +477,12 @@ def test_elec_upgrade_costs(market_test_data):
     # Loop through the three sets of panel share settings and test whether output is correct
     # (ignore costs, assign all costs, assign costs based on shares of homes needing panels)
     for ind_p, (hv, opts) in enumerate(
-            zip([hv_ign, hv_all, hv_shares], [opts_ign, opts_all, opts_shares])):
+        zip([hv_ign, hv_all, hv_shares], [opts_ign, opts_all, opts_shares])
+    ):
         measure = Measure(base_dir, hv, None, vars(opts), **meas_def)
         measure.fill_mkts(
-            mseg_in, cpl_in,
+            mseg_in,
+            cpl_in,
             market_test_data["convert_data"],
             market_test_data["tsv_data"],
             opts,

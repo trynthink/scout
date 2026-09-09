@@ -45,9 +45,9 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = fp.INPUTS / 'mseg_res_cdiv.json'
-        self.json_out = fp.INPUTS / 'mseg_res_com_cdiv.json'
-        self.com_tloads = fp.THERMAL_LOADS / 'Com_TLoads_Final.txt'
+        self.json_in = fp.INPUTS / "mseg_res_cdiv.json"
+        self.json_out = fp.INPUTS / "mseg_res_com_cdiv.json"
+        self.com_tloads = fp.THERMAL_LOADS / "Com_TLoads_Final.txt"
         self.aeo_metadata = fp.METADATA_PATH
         self.pivot_year = 1989
 
@@ -83,30 +83,32 @@ class CommercialTranslationDicts(object):
     """
 
     def __init__(self):
-        self.cdivdict = {'new england': 1,
-                         'mid atlantic': 2,
-                         'east north central': 3,
-                         'west north central': 4,
-                         'south atlantic': 5,
-                         'east south central': 6,
-                         'west south central': 7,
-                         'mountain': 8,
-                         'pacific': 9
-                         }
+        self.cdivdict = {
+            "new england": 1,
+            "mid atlantic": 2,
+            "east north central": 3,
+            "west north central": 4,
+            "south atlantic": 5,
+            "east south central": 6,
+            "west south central": 7,
+            "mountain": 8,
+            "pacific": 9,
+        }
 
-        self.bldgtypedict = {'assembly': 1,
-                             'education': 2,
-                             'food sales': 3,
-                             'food service': 4,
-                             'health care': 5,
-                             'lodging': 6,
-                             'large office': 7,
-                             'small office': 8,
-                             'mercantile/service': 9,
-                             'warehouse': 10,
-                             'other': 11,
-                             'unspecified': 12  # for some "other" energy
-                             }
+        self.bldgtypedict = {
+            "assembly": 1,
+            "education": 2,
+            "food sales": 3,
+            "food service": 4,
+            "health care": 5,
+            "lodging": 6,
+            "large office": 7,
+            "small office": 8,
+            "mercantile/service": 9,
+            "warehouse": 10,
+            "other": 11,
+            "unspecified": 12,  # for some "other" energy
+        }
 
         # End use names 8 and 9 changed in AEO 2026; earlier AEOs used
         # 'PCs' and 'non-PC office equipment'. The AEO year is taken from
@@ -116,32 +118,33 @@ class CommercialTranslationDicts(object):
             _aeo_yr = aeo_import_year
         else:
             try:
-                with open(fp.METADATA_PATH, 'r') as _f:
+                with open(fp.METADATA_PATH, "r") as _f:
                     _meta = json.load(_f)
-                _aeo_yr = _meta.get('aeo_base_year', 2025)
+                _aeo_yr = _meta.get("aeo_base_year", 2025)
             except (FileNotFoundError, json.JSONDecodeError):
                 _aeo_yr = 2026  # default to AEO 2026 behaviour
 
         if _aeo_yr >= 2026:  # AEO 2026 or later
-            _eu8 = 'data center'
-            _eu9 = 'office equipment'
+            _eu8 = "data center"
+            _eu9 = "office equipment"
         else:  # pre-AEO 2026
-            _eu8 = 'PCs'
-            _eu9 = 'non-PC office equipment'
+            _eu8 = "PCs"
+            _eu9 = "non-PC office equipment"
 
-        self.endusedict = {'heating': 1,
-                           'cooling': 2,
-                           'water heating': 3,
-                           'ventilation': 4,
-                           'cooking': 5,
-                           'lighting': 6,
-                           'refrigeration': 7,
-                           _eu8: 8,
-                           _eu9: 9,
-                           'other': 10,
-                           'MELs': 10,
-                           'unspecified': 11
-                           }
+        self.endusedict = {
+            "heating": 1,
+            "cooling": 2,
+            "water heating": 3,
+            "ventilation": 4,
+            "cooking": 5,
+            "lighting": 6,
+            "refrigeration": 7,
+            _eu8: 8,
+            _eu9: 9,
+            "other": 10,
+            "MELs": 10,
+            "unspecified": 11,
+        }
 
         # self.mels_techdict = {'distribution transformers': 1,
         #                       'security systems': 2,
@@ -165,52 +168,55 @@ class CommercialTranslationDicts(object):
         #                       'telecom systems': 20  # non-building
         #                       }
 
-        self.mels_techdict = {'distribution transformers': 1,
-                              'kitchen ventilation': 2,
-                              'security systems': 3,
-                              'lab fridges and freezers': 4,
-                              'medical imaging': 5,
-                              'large video boards': 6,
-                              'coffee brewers': 7,
-                              'non-road electric vehicles': 8,
-                              'fume hoods': 9,
-                              'laundry': 10,
-                              'elevators': 11,
-                              'escalators': 12,
-                              'IT equipment': 13,
-                              'office UPS': 14,
-                              'data center UPS': 15,
-                              'shredders': 16,
-                              'private branch exchanges': 17,
-                              'voice-over-IP telecom': 18,
-                              'point-of-sale systems': 19,
-                              'warehouse robots': 20,
-                              'televisions': 21,
-                              'water services': 22,  # non-building
-                              'telecom systems': 23  # non-building
-                              }
+        self.mels_techdict = {
+            "distribution transformers": 1,
+            "kitchen ventilation": 2,
+            "security systems": 3,
+            "lab fridges and freezers": 4,
+            "medical imaging": 5,
+            "large video boards": 6,
+            "coffee brewers": 7,
+            "non-road electric vehicles": 8,
+            "fume hoods": 9,
+            "laundry": 10,
+            "elevators": 11,
+            "escalators": 12,
+            "IT equipment": 13,
+            "office UPS": 14,
+            "data center UPS": 15,
+            "shredders": 16,
+            "private branch exchanges": 17,
+            "voice-over-IP telecom": 18,
+            "point-of-sale systems": 19,
+            "warehouse robots": 20,
+            "televisions": 21,
+            "water services": 22,  # non-building
+            "telecom systems": 23,  # non-building
+        }
 
-        self.fueldict = {'electricity': 1,
-                         'natural gas': 2,
-                         'distillate': 3,
-                         'other fuel': (4, 5, 6, 7, 8)
-                         }
+        self.fueldict = {
+            "electricity": 1,
+            "natural gas": 2,
+            "distillate": 3,
+            "other fuel": (4, 5, 6, 7, 8),
+        }
         # Other fuel includes residual oil (4), propane (5), steam from coal (6),
         # motor gasoline (7), and kerosene (8)
 
-        self.demand_typedict = {'windows conduction': 'WIND_COND',
-                                'windows solar': 'WIND_SOL',
-                                'wall': 'WALL',
-                                'roof': 'ROOF',
-                                'ground': 'GRND',
-                                'floor': 'FLOOR',
-                                'infiltration': 'INFIL',
-                                'ventilation': 'VENT',
-                                'people gain': 'PEOPLE',
-                                'equipment gain': 'EQUIP',
-                                'lighting gain': 'LIGHTS',
-                                'other heat gain': 'REFRIG'
-                                }
+        self.demand_typedict = {
+            "windows conduction": "WIND_COND",
+            "windows solar": "WIND_SOL",
+            "wall": "WALL",
+            "roof": "ROOF",
+            "ground": "GRND",
+            "floor": "FLOOR",
+            "infiltration": "INFIL",
+            "ventilation": "VENT",
+            "people gain": "PEOPLE",
+            "equipment gain": "EQUIP",
+            "lighting gain": "LIGHTS",
+            "other heat gain": "REFRIG",
+        }
 
 
 def json_interpreter(key_series):
@@ -247,8 +253,7 @@ def json_interpreter(key_series):
     # Separate handling for key_series for square footage data, where
     # key_series has only three entries, and complete microsegments,
     # which have at least four entries
-    if 'total square footage' in key_series or \
-       'new square footage' in key_series:
+    if "total square footage" in key_series or "new square footage" in key_series:
         # Set up a list of dict names for the square footage data,
         # which are only specified on a census division and building
         # type basis
@@ -279,19 +284,19 @@ def json_interpreter(key_series):
     # If the end use is heating or cooling, either demand or supply
     # will be specified in the 5th position in the list; if demand is
     # indicated, the demand component should be included in the output
-    if 'demand' in keys:
+    if "demand" in keys:
         # Interpret the demand component specified and append to the list
         interpreted_values.append(cd.demand_typedict[keys[5]])
 
     # If the end use is miscellaneous electric loads ('MELs'),
     # keys will have one additional entry, which should be
     # processed against the dict 'mels_techdict'
-    if 'MELs' in keys:
+    if "MELs" in keys:
         # MELs "other" captures the total "other" electricity not reported
         # as a specific MEL device under MiscElConsump in the data; this
         # case should extract the total "other" to be adjusted later to
         # deduct the electricity under specific MELs
-        if not keys[4] == 'other':
+        if not keys[4] == "other":
             # Interpret the MEL type specified and append to the list
             interpreted_values.append(cd.mels_techdict[keys[4]])
 
@@ -343,40 +348,37 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # efficiency level and preparing to delete placeholder rows
         # (placeholder rows are in the data as imported)
         for idx, row in enumerate(filtered):
-
             # Identify the technology name from the 'Description' column in
             # the data using a regex set up to match any text '.+?' that
             # appears before the first occurrence of one or more spaces
             # followed by a 2 and three other numbers (i.e., 2009 or 2035)
-            tech_name = re.search(r'.+?(?=\s+2[0-9]{3})', row['Description'])
+            tech_name = re.search(r".+?(?=\s+2[0-9]{3})", row["Description"])
 
             # Also check the special case where the technology name is so
             # long that the year number is partially truncated at the end
             # of the string
-            exc_tech_name = re.search(
-                r'.+?(?=\s+2[0-9]{1,2}$)',
-                row['Description'])
+            exc_tech_name = re.search(r".+?(?=\s+2[0-9]{1,2}$)", row["Description"])
 
             # If the regex matched, overwrite the original description with
             # the matching text, which describes the technology without
             # scenario-specific text like '2003 installed base'
             if tech_name:
-                filtered['Description'][idx] = tech_name.group(0)
+                filtered["Description"][idx] = tech_name.group(0)
             # Else check to see if the description indicates a placeholder
             # row, which should be deleted before the technologies are
             # summarized and returned from this function
-            elif re.search('placeholder', row['Description']):
+            elif re.search("placeholder", row["Description"]):
                 rows_to_remove.append(idx)
             # Else check to see if the description is an empty string,
             # and if so, add it to the list of rows to remove
-            elif re.search(r'^(?![\s\S])', row['Description']):
+            elif re.search(r"^(?![\s\S])", row["Description"]):
                 rows_to_remove.append(idx)
             # Else check for a special case where the year in the
             # technology name sought by the tech_name regex didn't match
             # because the year in the name is partially truncated at
             # the end of the technology name string
             elif exc_tech_name:
-                filtered['Description'][idx] = exc_tech_name.group(0)
+                filtered["Description"][idx] = exc_tech_name.group(0)
             # Implicitly, if the text does not match either regex, it
             # is assumed that it does not need to be edited or removed
 
@@ -386,13 +388,12 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # in the descriptions of linear fluorescent bulb types (e.g.,
         # replace 'T8 F32 Commodity' with 'T8 F32') now that year
         # details have been removed
-        if sel[2] == CommercialTranslationDicts().endusedict['lighting']:
+        if sel[2] == CommercialTranslationDicts().endusedict["lighting"]:
             for idx, row in enumerate(filtered):
                 # Identify linear fluorescent types
-                tech_name = re.search('^(T[0-9] F[0-9]{2})',
-                                      row['Description'])
+                tech_name = re.search("^(T[0-9] F[0-9]{2})", row["Description"])
                 if tech_name:
-                    filtered['Description'][idx] = tech_name.group(0)
+                    filtered["Description"][idx] = tech_name.group(0)
 
         return filtered
 
@@ -403,11 +404,15 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # all building and then to
     # all regions so the total DBOUT energy is not dropped downstream.
     filter_scopes = [
-        [sd_array['r'] == sel[0], sd_array['b'] == sel[1],
-         sd_array['s'] == sel[2], sd_array['f'] == sel[3]],
-        [sd_array['r'] == sel[0], sd_array['s'] == sel[2],
-         sd_array['f'] == sel[3]],
-        [sd_array['s'] == sel[2], sd_array['f'] == sel[3]]]
+        [
+            sd_array["r"] == sel[0],
+            sd_array["b"] == sel[1],
+            sd_array["s"] == sel[2],
+            sd_array["f"] == sel[3],
+        ],
+        [sd_array["r"] == sel[0], sd_array["s"] == sel[2], sd_array["f"] == sel[3]],
+        [sd_array["s"] == sel[2], sd_array["f"] == sel[3]],
+    ]
 
     filtered = np.array([], dtype=sd_array.dtype)
     for filters in filter_scopes:
@@ -418,8 +423,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
         # Keep broadening if all SD values are zero in the current scope.
         # This prevents valid DBOUT energy from being forced to zero for
         # building types that only have placeholder SD rows locally.
-        if recfn.structured_to_unstructured(candidate[yrs],
-                                            dtype='<f8').any():
+        if recfn.structured_to_unstructured(candidate[yrs], dtype="<f8").any():
             filtered = candidate
             break
 
@@ -430,7 +434,7 @@ def sd_mseg_percent(sd_array, sel, yrs):
     # types are often differentiated by vintage and technology type
     # numbers), technologies must be identified using the simplified
     # names now recorded in the 'Description' field
-    technames = list(np.unique(filtered['Description']))
+    technames = list(np.unique(filtered["Description"]))
 
     # Truncate the technology names to 43 characters to match the
     # truncated strings used for the cost, performance, and lifetime data
@@ -438,36 +442,36 @@ def sd_mseg_percent(sd_array, sel, yrs):
 
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
-    tval, tval_pct = (
-        np.zeros((len(trunc_technames), len(yrs))) for n in range(2))
+    tval, tval_pct = (np.zeros((len(trunc_technames), len(yrs))) for n in range(2))
 
     # Combine the data recorded for each unique technology
     for idx, name in enumerate(technames):
-
         # Extract entries for a given technology type number
-        entries = filtered[filtered['Description'] == name]
+        entries = filtered[filtered["Description"] == name]
 
         # Calculate the sum of all year columns and write it to the
         # appropriate row in the tval array (note that the recfn module
         # introduces the structured_to_unstructured function to
         # convert the structured array into a standard numpy array,
         # which allows the use of the .sum() function)
-        tval[idx, ] = np.sum(recfn.structured_to_unstructured(
-            entries[yrs], dtype='<f8'), axis=0)
+        tval[idx,] = np.sum(recfn.structured_to_unstructured(entries[yrs], dtype="<f8"), axis=0)
 
         # Calculate the sum of all the year columns (service demand
         # values) weighted by the equipment efficiency for each equipment
         # type and performance level using the same recfn function used
         # for the service demand array 'tval'
-        tval_pct[idx, ] = np.sum(recfn.structured_to_unstructured(
-            entries[yrs], dtype='<f8')/entries['Eff'][:, np.newaxis], axis=0)
+        tval_pct[idx,] = np.sum(
+            recfn.structured_to_unstructured(entries[yrs], dtype="<f8")
+            / entries["Eff"][:, np.newaxis],
+            axis=0,
+        )
 
     # If at least one entry in tval_pct is non-zero (tval_pct.any() == True),
     # suppress any divide by zero warnings and calculate the percentage
     # contribution of each technology by year (since tval_pct is initially
     # a measure of absolute energy service weighted by equipment efficiency)
     if tval_pct.any():
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             tval_pct = tval_pct / np.sum(tval_pct, axis=0)
             tval_pct = np.nan_to_num(tval_pct)  # Replace nan from 0/0 with 0
 
@@ -509,42 +513,65 @@ def catg_data_selector(db_array, sel, section_label, yrs):
     # Also separately handle other fuel types, which must be filtered
     # using a different method since multiple numeric indices for fuel type
     # are combined together
-    if 'SurvFloorTotal' in section_label or 'CMNewFloorSpace' in section_label:
-        filtered = db_array[np.all([db_array['Label'] == section_label,
-                                    db_array['Division'] == sel[0],
-                                    db_array['BldgType'] == sel[1]], axis=0)]
+    if "SurvFloorTotal" in section_label or "CMNewFloorSpace" in section_label:
+        filtered = db_array[
+            np.all(
+                [
+                    db_array["Label"] == section_label,
+                    db_array["Division"] == sel[0],
+                    db_array["BldgType"] == sel[1],
+                ],
+                axis=0,
+            )
+        ]
     elif isinstance(sel[3], tuple):  # Tuple of fuel type codes present
-        filtered = db_array[np.all([db_array['Label'] == section_label,
-                                    db_array['Division'] == sel[0],
-                                    db_array['BldgType'] == sel[1],
-                                    db_array['EndUse'] == sel[2]], axis=0)]
-        filtered = filtered[np.isin(filtered['Fuel'], sel[3])]
+        filtered = db_array[
+            np.all(
+                [
+                    db_array["Label"] == section_label,
+                    db_array["Division"] == sel[0],
+                    db_array["BldgType"] == sel[1],
+                    db_array["EndUse"] == sel[2],
+                ],
+                axis=0,
+            )
+        ]
+        filtered = filtered[np.isin(filtered["Fuel"], sel[3])]
         # Sum over all fuel types selected
-        tyr = np.unique(filtered['Year'])
-        filtered = np.array([(i, filtered[filtered['Year'] == i]['Amount'].sum()) for i in tyr],
-                            dtype=[('Year', 'i4'), ('Amount', 'f8')])
+        tyr = np.unique(filtered["Year"])
+        filtered = np.array(
+            [(i, filtered[filtered["Year"] == i]["Amount"].sum()) for i in tyr],
+            dtype=[("Year", "i4"), ("Amount", "f8")],
+        )
     else:
-        filtered = db_array[np.all([db_array['Label'] == section_label,
-                                    db_array['Division'] == sel[0],
-                                    db_array['BldgType'] == sel[1],
-                                    db_array['EndUse'] == sel[2],
-                                    db_array['Fuel'] == sel[3]], axis=0)]
+        filtered = db_array[
+            np.all(
+                [
+                    db_array["Label"] == section_label,
+                    db_array["Division"] == sel[0],
+                    db_array["BldgType"] == sel[1],
+                    db_array["EndUse"] == sel[2],
+                    db_array["Fuel"] == sel[3],
+                ],
+                axis=0,
+            )
+        ]
 
     # Adjust years reported based on the pivot year
-    filtered['Year'] = filtered['Year'] + UsefulVars().pivot_year
+    filtered["Year"] = filtered["Year"] + UsefulVars().pivot_year
 
     # Further reduce the data by including only those years that are
     # common to all AEO data (based on the custom AEO metadata JSON)
-    filtered = filtered[np.isin(filtered['Year'], yrs)]
+    filtered = filtered[np.isin(filtered["Year"], yrs)]
 
     # From the filtered data, select only the two needed columns,
     # the year and the data
-    desired_cols = filtered[['Year', 'Amount']]
+    desired_cols = filtered[["Year", "Amount"]]
 
     # Recast the year column as string type instead of integer, since
     # the years will become keys in the dicts output to the JSON, and
     # valid JSON cannot have integers are keys
-    desired_cols = desired_cols.astype([('Year', 'U4'), ('Amount', '<f8')])
+    desired_cols = desired_cols.astype([("Year", "U4"), ("Amount", "<f8")])
 
     return desired_cols
 
@@ -607,39 +634,44 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
     # handling due either to differences in the source array or post-
     # data-subset additional manipulation for the data to be in the
     # desired final format
-    if 'demand' in key_series:
+    if "demand" in key_series:
         # Get the data from DBOUT
-        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
+        subset = catg_data_selector(db_array, idx_series, "EndUseConsump", yrs)
 
         # The thermal load data end uses are coded as text strings 'HT'
         # and 'CL' instead of numbers; the numbers in idx_series are
         # thus converted to the appropriate strings
         if idx_series[2] == 1:
-            idx_series[2] = 'HT'
+            idx_series[2] = "HT"
         elif idx_series[2] == 2:
-            idx_series[2] = 'CL'
+            idx_series[2] = "CL"
         else:
-            raise ValueError(
-                'No thermal load data for end use ' + str(idx_series[2]))
+            raise ValueError("No thermal load data for end use " + str(idx_series[2]))
 
         # Get the contribution of the particular thermal load component
         # for the current end use (heating or cooling), census division,
         # and building type (note that in the case of these thermal
         # load microsegments, the final field in idx_series has the
         # text to select the correct thermal load component column)
-        tl_multiplier = load_array[np.all([
-            load_array['CDIV'] == idx_series[0],
-            load_array['BLDG'] == idx_series[1],
-            load_array['ENDUSE'] == idx_series[2]],
-            axis=0)][idx_series[-1]]
+        tl_multiplier = load_array[
+            np.all(
+                [
+                    load_array["CDIV"] == idx_series[0],
+                    load_array["BLDG"] == idx_series[1],
+                    load_array["ENDUSE"] == idx_series[2],
+                ],
+                axis=0,
+            )
+        ][idx_series[-1]]
         # N.B. tl_multiplier is a 1x1 numpy array
 
         # Multiply together the thermal load multiplier and energy use
         # data and construct the dict with years as keys
-        final_dict = {'energy': dict(zip(
-            subset['Year'], subset['Amount'] * tl_multiplier * to_mmbtu)),
-            'stock': 'NA'}
-    elif 'MELs' in key_series:
+        final_dict = {
+            "energy": dict(zip(subset["Year"], subset["Amount"] * tl_multiplier * to_mmbtu)),
+            "stock": "NA",
+        }
+    elif "MELs" in key_series:
         # Miscellaneous Electric Loads (MELs) energy use data are
         # stored in db_array in a separate section with a different
         # label 'MiscElConsump' and with the MEL technology number
@@ -647,47 +679,42 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         # in the 'EndUseConsump' section is 10, but technology specific
         # in the 'MiscElConsump' section, the MEL-specific number is
         # written over the 10 in the 'EndUse' position in idx_series
-        if not key_series[4] == 'other':
+        if not key_series[4] == "other":
             idx_series[2] = idx_series[4]
 
             # Extract the data from DBOUT
-            subset = catg_data_selector(db_array, idx_series, 'MiscElConsump',
-                                        yrs)
+            subset = catg_data_selector(db_array, idx_series, "MiscElConsump", yrs)
         # Extract the total electricity listed as "other"
         else:
             # Extract the electricity "other" from DBOUT
-            subset = catg_data_selector(db_array, idx_series, 'EndUseConsump',
-                                        yrs)
+            subset = catg_data_selector(db_array, idx_series, "EndUseConsump", yrs)
 
         # Convert into dict with years as keys and energy as values
-        final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount'] * to_mmbtu)),
-                      'stock': 'NA'}
-    elif 'new square footage' in key_series:
+        final_dict = {
+            "energy": dict(zip(subset["Year"], subset["Amount"] * to_mmbtu)),
+            "stock": "NA",
+        }
+    elif "new square footage" in key_series:
         # Extract the relevant data from DBOUT
-        subset = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace',
-                                    yrs)
+        subset = catg_data_selector(db_array, idx_series, "CMNewFloorSpace", yrs)
 
         # Convert into dict with years as keys and new square footage as values
-        final_dict = dict(zip(subset['Year'],
-                              subset['Amount']))
-    elif 'total square footage' in key_series:
+        final_dict = dict(zip(subset["Year"], subset["Amount"]))
+    elif "total square footage" in key_series:
         # Extract the relevant data from DBOUT
-        sub1 = catg_data_selector(db_array, idx_series, 'CMNewFloorSpace', yrs)
-        sub2 = catg_data_selector(db_array, idx_series, 'SurvFloorTotal', yrs)
+        sub1 = catg_data_selector(db_array, idx_series, "CMNewFloorSpace", yrs)
+        sub2 = catg_data_selector(db_array, idx_series, "SurvFloorTotal", yrs)
 
         # Combine the surviving floor space and new floor space
         # quantities and construct into final dict
-        final_dict = dict(zip(sub1['Year'],
-                              sub1['Amount'] + sub2['Amount']))
+        final_dict = dict(zip(sub1["Year"], sub1["Amount"] + sub2["Amount"]))
     elif idx_series[2] in sd_end_uses:
         # Extract the relevant data from DBOUT
-        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
+        subset = catg_data_selector(db_array, idx_series, "EndUseConsump", yrs)
 
         # Get percentage contributions for each equipment type that
         # appears in the service demand data
-        [tech_sd, tech_pct, tech_names] = sd_mseg_percent(
-            sd_array, idx_series, yrs)
+        [tech_sd, tech_pct, tech_names] = sd_mseg_percent(sd_array, idx_series, yrs)
 
         # Declare empty list to store dicts generated for each technology
         tech_dict_list = []
@@ -701,11 +728,13 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         # for each technology under the 'stock' key
         for t_i in range(len(tech_pct)):
             tech_dict_list.append(
-                {'energy': dict(zip(subset['Year'],
-                                    tech_pct[t_i] *
-                                    subset['Amount'] * to_mmbtu)),
-                 'stock': dict(zip(subset['Year'],
-                                   tech_sd[t_i]))})
+                {
+                    "energy": dict(
+                        zip(subset["Year"], tech_pct[t_i] * subset["Amount"] * to_mmbtu)
+                    ),
+                    "stock": dict(zip(subset["Year"], tech_sd[t_i])),
+                }
+            )
 
         # The final dict should be {technology: {year: data, ...}, ...}
         final_dict = dict(zip(tech_names, tech_dict_list))
@@ -713,32 +742,31 @@ def data_handler(db_array, sd_array, load_array, key_series, sd_end_uses, yrs):
         # Regular case with no supply/demand separation or service demand data
 
         # Extract the desired data from the DBOUT array
-        subset = catg_data_selector(db_array, idx_series, 'EndUseConsump', yrs)
+        subset = catg_data_selector(db_array, idx_series, "EndUseConsump", yrs)
 
         # Convert into dict with years as keys and energy as values
-        final_dict = {'energy': dict(zip(subset['Year'],
-                                         subset['Amount'] * to_mmbtu)),
-                      'stock': 'NA'}
+        final_dict = {
+            "energy": dict(zip(subset["Year"], subset["Amount"] * to_mmbtu)),
+            "stock": "NA",
+        }
 
     # Return the dict that should end up at the leaf node in the exported JSON
     return final_dict
 
 
 def walk(db_array, sd_array, load_array, sd_end_uses, json_db, years, key_list=[]):
-    """ Proceed recursively through the microsegment data structure
+    """Proceed recursively through the microsegment data structure
     (formatted as a nested dict) to each leaf/terminal node in the
     structure, constructing a list of the applicable keys that define
     the location of the terminal node and then call the appropriate
-    functions to process the imported data. """
+    functions to process the imported data."""
 
     # Explore data structure from current level
     for key, item in json_db.items():
-
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(db_array, sd_array, load_array,
-                 sd_end_uses, item, years, key_list + [key])
+            walk(db_array, sd_array, load_array, sd_end_uses, item, years, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types, and if
@@ -749,8 +777,9 @@ def walk(db_array, sd_array, load_array, sd_end_uses, json_db, years, key_list=[
                 leaf_node_keys = key_list + [key]
 
                 # Extract data from original data sources
-                data_dict = data_handler(db_array, sd_array, load_array,
-                                         leaf_node_keys, sd_end_uses, years)
+                data_dict = data_handler(
+                    db_array, sd_array, load_array, leaf_node_keys, sd_end_uses, years
+                )
 
                 # Set dict key to extracted data
                 json_db[key] = data_dict
@@ -786,9 +815,9 @@ def cleanup_calc(dr, cdiv, bld, years):
     zc = {k: 0 for k in years}
 
     # Obtain sum of all MEL technologies except "other"
-    for mels in dr[cdiv][bld]['electricity']['MELs'].keys():
-        if mels != 'other':
-            zml = dr[cdiv][bld]['electricity']['MELs'][mels]['energy']
+    for mels in dr[cdiv][bld]["electricity"]["MELs"].keys():
+        if mels != "other":
+            zml = dr[cdiv][bld]["electricity"]["MELs"][mels]["energy"]
             # Sum dicts together
             # https://stackoverflow.com/a/46128481
             zc = reduce(reducer, [zc, zml])
@@ -796,14 +825,16 @@ def cleanup_calc(dr, cdiv, bld, years):
     # Remove sum of all MELs from the correct location
     # Make values negative to effect subtraction
     zcneg = {k: -v for k, v in zc.items()}
-    if bld != 'unspecified':
+    if bld != "unspecified":
         # Remove sum of all specific named MELs from MELs > other
-        dr[cdiv][bld]['electricity']['MELs']['other']['energy'] = reduce(
-            reducer, [dr[cdiv][bld]['electricity']['MELs']['other']['energy'], zcneg])
+        dr[cdiv][bld]["electricity"]["MELs"]["other"]["energy"] = reduce(
+            reducer, [dr[cdiv][bld]["electricity"]["MELs"]["other"]["energy"], zcneg]
+        )
     else:
         # Remove sum of all MELs from unspecified
-        dr[cdiv][bld]['electricity']['unspecified']['energy'] = reduce(
-            reducer, [dr[cdiv][bld]['electricity']['unspecified']['energy'], zcneg])
+        dr[cdiv][bld]["electricity"]["unspecified"]["energy"] = reduce(
+            reducer, [dr[cdiv][bld]["electricity"]["unspecified"]["energy"], zcneg]
+        )
 
     return dr
 
@@ -845,8 +876,7 @@ def double_count_cleanup(dr):
     cd = CommercialTranslationDicts()
 
     # Get the years included in the data
-    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)
-                                   [0]]['new square footage'].keys()
+    yrs = dr[list(cd.cdivdict)[0]][list(cd.bldgtypedict)[0]]["new square footage"].keys()
 
     # Clean up the double-counted electricity use
     for cdiv in cd.cdivdict:
@@ -877,23 +907,23 @@ def dtype_eval(entry, prev_dtype=None):
     # Strip leading and trailing spaces off of string
     entry = entry.strip()
 
-    if '.' in entry:
-        dtype = 'f8'
-    elif 'NA'.lower() in entry.lower():
-        dtype = 'f8'
-    elif re.search('[a-zA-Z]+', entry):  # At least one letter somewhere
-        dtype = '<U50'  # Assumed to be no more than 50 characters
+    if "." in entry:
+        dtype = "f8"
+    elif "NA".lower() in entry.lower():
+        dtype = "f8"
+    elif re.search("[a-zA-Z]+", entry):  # At least one letter somewhere
+        dtype = "<U50"  # Assumed to be no more than 50 characters
     else:
-        dtype = 'i4'
+        dtype = "i4"
 
     # Prevent float dtype set for the current column from reverting to int
-    if prev_dtype == 'f8' and dtype == 'i4':
-        dtype = 'f8'
+    if prev_dtype == "f8" and dtype == "i4":
+        dtype = "f8"
 
     return dtype
 
 
-def dtype_array(data_file_path, delim_char=',', hl=None):
+def dtype_array(data_file_path, delim_char=",", hl=None):
     """Use the first two lines (generally) of a file to assess the data type.
 
     Using the csv module, read the header line of a text data file
@@ -917,7 +947,6 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
 
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
-
         # Read the text file, handling two cases: (1) a file with
         # NULL bytes and (2) a file with no NULL bytes. In the former
         # case, the loop inside csv.reader is used to detect NULL
@@ -926,14 +955,17 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # The skipinitialspace option ensures proper reading of
         # double-quoted text strings in the AEO data that have the
         # delimiter inside them (e.g., cooking equipment descriptions).
-        if '\0' in open(data_file_path).read():  # NULL bytes detected
-            filecont = csv.reader((x.replace('\0', '') for x in thefile),
-                                  delimiter=delim_char, skipinitialspace=True,
-                                  escapechar='\\')
+        if "\0" in open(data_file_path).read():  # NULL bytes detected
+            filecont = csv.reader(
+                (x.replace("\0", "") for x in thefile),
+                delimiter=delim_char,
+                skipinitialspace=True,
+                escapechar="\\",
+            )
         else:  # No NULL bytes, proceed normally
-            filecont = csv.reader(thefile,
-                                  delimiter=delim_char, skipinitialspace=True,
-                                  escapechar='\\')
+            filecont = csv.reader(
+                thefile, delimiter=delim_char, skipinitialspace=True, escapechar="\\"
+            )
 
         # Skip the specified number of extraneous leading lines in
         # the file that do not include the column headers
@@ -961,10 +993,9 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         for row in filecont:
             if len(dtypes) == len(row):
                 # Check if row consists entirely of empty strings
-                if all(col == '' for col in row):
+                if all(col == "" for col in row):
                     break
-                dtypes = [dtype_eval(col, dtypes[idx])
-                          for idx, col in enumerate(row)]
+                dtypes = [dtype_eval(col, dtypes[idx]) for idx, col in enumerate(row)]
 
         # Combine data types and header names into list of tuples
         comb_dtypes = list(zip(header_names, dtypes))
@@ -972,7 +1003,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         return comb_dtypes
 
 
-def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
+def data_import(data_file_path, dtype_list, delim_char=",", hl=None, cols=[]):
     """Import data and convert to a numpy structured array.
 
     Read the contents of a data file with a header line and convert
@@ -1007,7 +1038,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # while removing the " that denoted inches; by inserting an
         # escape character before the " denoting inches, the text will
         # be handled correctly by csv.reader
-        if re.match('.*SDOUT', re.escape(str(data_file_path))):
+        if re.match(".*SDOUT", re.escape(str(data_file_path))):
             cont = thefile.read().replace('11"', '11\\"')
             thefile = io.StringIO(cont)
 
@@ -1019,14 +1050,17 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # is used to detect NULL characters and act appropriately (by
         # removing them prior to converting to a csv.reader object)
         # if they are encountered
-        if '\0' in open(data_file_path).read():  # NULL bytes detected
-            filecont = csv.reader((x.replace('\0', '') for x in thefile),
-                                  delimiter=delim_char, skipinitialspace=True,
-                                  escapechar='\\')
+        if "\0" in open(data_file_path).read():  # NULL bytes detected
+            filecont = csv.reader(
+                (x.replace("\0", "") for x in thefile),
+                delimiter=delim_char,
+                skipinitialspace=True,
+                escapechar="\\",
+            )
         else:  # No NULL bytes, proceed normally
-            filecont = csv.reader(thefile,
-                                  delimiter=delim_char, skipinitialspace=True,
-                                  escapechar='\\')
+            filecont = csv.reader(
+                thefile, delimiter=delim_char, skipinitialspace=True, escapechar="\\"
+            )
 
         # Create list to be populated with tuples of each row of data
         # from the data file
@@ -1060,8 +1094,8 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
         # to a float or integer by np.array
         for r_i, row in enumerate(data):
             for f_i, (field, (_, np_type)) in enumerate(zip(row, dtype_list)):
-                if field == '' and np.issubdtype(np_type, np.integer):
-                    print(f"⚠️  Empty int at row {r_i+1}, col {f_i} ")
+                if field == "" and np.issubdtype(np_type, np.integer):
+                    print(f"⚠️  Empty int at row {r_i + 1}, col {f_i} ")
 
         try:
             final_struct = np.array(data, dtype=dtype_list)
@@ -1071,8 +1105,8 @@ def data_import(data_file_path, dtype_list, delim_char=',', hl=None, cols=[]):
                 row = list(row)  # Make row mutable
                 for k, entry in enumerate(row):
                     # Replace 'NA' with 'nan'
-                    if entry == 'NA':
-                        row[k] = 'nan'
+                    if entry == "NA":
+                        row[k] = "nan"
                 # Overwrite existing tuple with new tuple
                 data[i] = tuple(row)
             # With the 'NA' strings replaced, create the numpy array as
@@ -1120,26 +1154,26 @@ def str_cleaner(data_array, column_name, return_str_len=False):
         """
 
         # Replace 'SodiumVapor' with 'Sodium Vapor'
-        text_string = re.sub('SodiumVapor', 'Sodium Vapor', text_string)
+        text_string = re.sub("SodiumVapor", "Sodium Vapor", text_string)
 
         # Check to see if an HTML character reference ampersand or
         # double-quote, or standard double-quote character is in
         # the string
-        html_ampersand_present = re.search('&amp;', text_string)
-        html_double_quote_present = re.search('&quot;', text_string)
-        double_quote_present = re.search('\"', text_string)
+        html_ampersand_present = re.search("&amp;", text_string)
+        html_double_quote_present = re.search("&quot;", text_string)
+        double_quote_present = re.search('"', text_string)
 
         # For data matching purposes, replace the ampersand and quote
         # symbols with consistent characters/strings and eliminate the
         # use of the standalone double-quote character
         if html_ampersand_present:
-            text_string = re.sub('&amp;', '&', text_string)
+            text_string = re.sub("&amp;", "&", text_string)
             str_trunc_len = 50  # Not used in com_mseg_tech
         elif html_double_quote_present:
-            text_string = re.sub('&quot;', '-inch', text_string)
+            text_string = re.sub("&quot;", "-inch", text_string)
             str_trunc_len = 43
         elif double_quote_present:
-            text_string = re.sub('\"', '-inch', text_string)
+            text_string = re.sub('"', "-inch", text_string)
             str_trunc_len = 48
         else:
             str_trunc_len = 50
@@ -1152,10 +1186,9 @@ def str_cleaner(data_array, column_name, return_str_len=False):
     # Check for double quotes in the first entry in the specified column
     # and, assuming all entries in the column are the same, revise all
     # of the entries using the appropriate procedure for the formatting
-    if re.search('(?<=\")([^\"]+)', data_array[column_name][0]):
+    if re.search('(?<=")([^"]+)', data_array[column_name][0]):
         # Operate on each row in the specified column of the structured array
         for row_idx, entry in enumerate(data_array[column_name]):
-
             # Delete leading and trailing spaces
             entry = entry.strip()
 
@@ -1177,7 +1210,6 @@ def str_cleaner(data_array, column_name, return_str_len=False):
     else:
         # Operate on each row in the specified column of the structured array
         for row_idx, entry in enumerate(data_array[column_name]):
-
             # Clean up strings with special characters to ensure that
             # these characters appear consistently across all imported data
             entry, str_trunc_len = special_character_handler(entry)
@@ -1196,9 +1228,11 @@ def str_cleaner(data_array, column_name, return_str_len=False):
         # '"' were present in the technology description strings
         # in the imported text, which suggests a single truncation
         # length might not work to match the strings in these data
-        text = ('Warning: undesired behavior might occur when '
-                'attempting to match technology characteristics '
-                'data (ktek) with service demand data (sdout).')
+        text = (
+            "Warning: undesired behavior might occur when "
+            "attempting to match technology characteristics "
+            "data (ktek) with service demand data (sdout)."
+        )
         print(text)
 
     # Return the appropriate objects based on the return_str_len option
@@ -1216,62 +1250,69 @@ def str_cleaner(data_array, column_name, return_str_len=False):
 
 
 def onsite_prep(generation_file):
-    """ Preps the onsite generation file for commercial
+    """Preps the onsite generation file for commercial
     by adding together all technologies by segment and
     converting building and census division names to
     stings for easier querying"""
 
-    bldgtypedict = {'Assembly': 'assembly',
-                    'Education': 'education',
-                    'Food Sales': 'food sales',
-                    'Food Service': 'food service',
-                    'Health Care': 'health care',
-                    'Lodging': 'lodging',
-                    'Office-Large': 'large office',
-                    'Office-Small': 'small office',
-                    'Merc/Service': 'mercantile/service',
-                    'Warehouse': 'warehouse',
-                    'Other': 'other'
-                    }
+    bldgtypedict = {
+        "Assembly": "assembly",
+        "Education": "education",
+        "Food Sales": "food sales",
+        "Food Service": "food service",
+        "Health Care": "health care",
+        "Lodging": "lodging",
+        "Office-Large": "large office",
+        "Office-Small": "small office",
+        "Merc/Service": "mercantile/service",
+        "Warehouse": "warehouse",
+        "Other": "other",
+    }
 
     # Read in AEO's onsite generation file
     gen_dtypes = dtype_array(generation_file)
-    gen_dtypes[1] = ('Year', '<U50')
+    gen_dtypes[1] = ("Year", "<U50")
     gen_data = data_import(generation_file, gen_dtypes)
 
     # Pull all the unique microsegment combinations
-    years = np.unique(gen_data['Year'])
-    div = np.unique(gen_data['Division'])
-    bld = np.unique(gen_data['BldgType'])
+    years = np.unique(gen_data["Year"])
+    div = np.unique(gen_data["Division"])
+    bld = np.unique(gen_data["BldgType"])
 
     # Define datatypes of OwnUse aggregated
-    gen_dtypes = [('Year', '<U50'),
-                  ('Division', '<i4'),
-                  ('BldgType', '<U50'),
-                  ('OwnUse', '<f8')]
+    gen_dtypes = [("Year", "<U50"), ("Division", "<i4"), ("BldgType", "<U50"), ("OwnUse", "<f8")]
 
     # Sum all onsite generation by microsegment
-    gen_data = np.array([(i, j, k, gen_data[(gen_data['Year'] == i) &
-                                            (gen_data['Division'] == j) &
-                                            (gen_data['BldgType'] == k)][
-                                                'OwnUse'].sum())
-                         for i in years for j in div
-                         for k in bld], dtype=gen_dtypes)
+    gen_data = np.array(
+        [
+            (
+                i,
+                j,
+                k,
+                gen_data[
+                    (gen_data["Year"] == i)
+                    & (gen_data["Division"] == j)
+                    & (gen_data["BldgType"] == k)
+                ]["OwnUse"].sum(),
+            )
+            for i in years
+            for j in div
+            for k in bld
+        ],
+        dtype=gen_dtypes,
+    )
 
     # Factor to convert commercial energy data from TBTU to MMBTU
     to_mmbtu = 1000000  # 1e6
 
     # Convert census division to names
-    cdiv_dct = {str(v): k for k, v in
-                CommercialTranslationDicts().cdivdict.items()}
+    cdiv_dct = {str(v): k for k, v in CommercialTranslationDicts().cdivdict.items()}
 
-    gen_dtypes = [('Year', '<U50'), ('Division', '<U50'),
-                  ('BldgType', '<U50'),
-                  ('OwnUse', '<f8')]
+    gen_dtypes = [("Year", "<U50"), ("Division", "<U50"), ("BldgType", "<U50"), ("OwnUse", "<f8")]
     gen_data = gen_data.astype(gen_dtypes)
 
     # Unit conversion of TBTU to MMBTU
-    gen_data['OwnUse'] = gen_data['OwnUse'] * to_mmbtu
+    gen_data["OwnUse"] = gen_data["OwnUse"] * to_mmbtu
 
     def name_map(data_array, trans_dict):
         newArray = np.copy(data_array)
@@ -1279,60 +1320,66 @@ def onsite_prep(generation_file):
             newArray[data_array == k] = v
         return newArray
 
-    gen_data['Division'] = name_map(gen_data['Division'], cdiv_dct)
-    gen_data['BldgType'] = np.char.rstrip(gen_data['BldgType'])
-    gen_data['BldgType'] = name_map(gen_data['BldgType'], bldgtypedict)
+    gen_data["Division"] = name_map(gen_data["Division"], cdiv_dct)
+    gen_data["BldgType"] = np.char.rstrip(gen_data["BldgType"])
+    gen_data["BldgType"] = name_map(gen_data["BldgType"], bldgtypedict)
 
     return gen_data
 
 
 def onsite_calc(generation_file, json_results):
-    """ Calculates net electricity use using EIA's pre-2021 methodology
-    and adds a new PV technology type. """
+    """Calculates net electricity use using EIA's pre-2021 methodology
+    and adds a new PV technology type."""
 
     def array_mult(dct, factor):
         scaled = {key: val * factor for key, val in dct.items()}
         return scaled
 
     def onsite_pull(cdiv, bld):
-        pull = generation_file[np.all([generation_file['Division'] == cdiv,
-                                       generation_file['BldgType'] == bld],
-                                      axis=0)]
-        years = np.unique(pull['Year'])
-        pull = dict([(i, pull[pull['Year'] == i]['OwnUse'].sum())
-                     for i in years])
+        pull = generation_file[
+            np.all(
+                [generation_file["Division"] == cdiv, generation_file["BldgType"] == bld], axis=0
+            )
+        ]
+        years = np.unique(pull["Year"])
+        pull = dict([(i, pull[pull["Year"] == i]["OwnUse"].sum()) for i in years])
         pull = array_mult(pull, -1)
         return pull
 
     # Pull the onsite generation by census division and building type
-    cdiv = np.unique(generation_file['Division'])
-    bldtype = np.unique(generation_file['BldgType'])
+    cdiv = np.unique(generation_file["Division"])
+    bldtype = np.unique(generation_file["BldgType"])
 
     for div in cdiv:
         for bld in bldtype:
             gen = onsite_pull(div, bld)
 
             # Add onsite generation as new end use
-            elec_slice = json_results[div][bld]['electricity']
-            elec_slice['onsite generation'] = {}
-            elec_slice['onsite generation']['energy'] = gen
-            elec_slice['onsite generation']['stock'] = 'NA'
+            elec_slice = json_results[div][bld]["electricity"]
+            elec_slice["onsite generation"] = {}
+            elec_slice["onsite generation"]["energy"] = gen
+            elec_slice["onsite generation"]["stock"] = "NA"
 
     return json_results
 
 
 def main():
-    """ Import input data files and do other things """
+    """Import input data files and do other things"""
 
     global aeo_import_year
 
     aeo_versions = [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026]
     parser = argparse.ArgumentParser(
-        description='Build commercial microsegments from EIA AEO data.')
+        description="Build commercial microsegments from EIA AEO data."
+    )
     parser.add_argument(
-        '-y', '--year', type=int, default=None,
-        help='Specify year of AEO data to be imported',
-        choices=aeo_versions)
+        "-y",
+        "--year",
+        type=int,
+        default=None,
+        help="Specify year of AEO data to be imported",
+        choices=aeo_versions,
+    )
     args = parser.parse_args()
 
     aeo_import_year = args.year
@@ -1344,16 +1391,16 @@ def main():
     # Import EIA AEO 'SDOUT' service demand file
     serv_dtypes = dtype_array(eiadata.serv_dmd)
     serv_data = data_import(eiadata.serv_dmd, serv_dtypes)
-    serv_data = str_cleaner(serv_data, 'Description')
+    serv_data = str_cleaner(serv_data, "Description")
 
     # Import EIA AEO 'DBOUT' additional data file
     catg_dtypes = dtype_array(eiadata.catg_dmd)
     catg_data = data_import(eiadata.catg_dmd, catg_dtypes)
-    catg_data = str_cleaner(catg_data, 'Label')
+    catg_data = str_cleaner(catg_data, "Label")
 
     # Import thermal loads data
-    load_dtypes = dtype_array(handyvars.com_tloads, '\t')
-    load_data = data_import(handyvars.com_tloads, load_dtypes, '\t')
+    load_dtypes = dtype_array(handyvars.com_tloads, "\t")
+    load_data = data_import(handyvars.com_tloads, load_dtypes, "\t")
 
     # Import and process onsite generation from DGENOUT.txt
     onsite_gen = onsite_prep(eiadata.com_generation)
@@ -1362,24 +1409,22 @@ def main():
     # SDOUT; determine which end uses are present so that the service
     # demand data are not explored unnecessarily when they are not even
     # available for a particular end use
-    serv_data_end_uses = np.unique(serv_data['s'])
+    serv_data_end_uses = np.unique(serv_data["s"])
 
     # Import metadata generated based on EIA AEO data files
-    with open(handyvars.aeo_metadata, 'r') as metadata:
+    with open(handyvars.aeo_metadata, "r") as metadata:
         metajson = json.load(metadata)
 
     # Define years vector using year data from metadata
-    years = list(range(metajson['min year'], metajson['max year'] + 1))
+    years = list(range(metajson["min year"], metajson["max year"] + 1))
 
     # Import empty microsegments JSON file and traverse database structure
     try:
-        with open(handyvars.json_in, 'r') as jsi, open(handyvars.json_out,
-                                                       'w') as jso:
+        with open(handyvars.json_in, "r") as jsi, open(handyvars.json_out, "w") as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
-            result = walk(catg_data, serv_data, load_data,
-                          serv_data_end_uses, msjson, years)
+            result = walk(catg_data, serv_data, load_data, serv_data_end_uses, msjson, years)
 
             # Clean up double-counted unspecified and other energy use
             result = double_count_cleanup(result)
@@ -1391,11 +1436,14 @@ def main():
             json.dump(result, jso, indent=2)
 
     except FileNotFoundError:
-        errtext = ('Confirm that the expected residential data file ' +
-                   handyvars.json_in + ' has already been created and '
-                   'is in the current directory.\n')
+        errtext = (
+            "Confirm that the expected residential data file "
+            + handyvars.json_in
+            + " has already been created and "
+            "is in the current directory.\n"
+        )
         print(errtext)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

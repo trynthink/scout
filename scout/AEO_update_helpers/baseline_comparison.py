@@ -310,16 +310,16 @@ def _build_series_tolerance(year: str | int) -> dict[str, float]:
         # Commercial – distillate
         "cnsm_NA_comm_NA_dfo_othu_usa_qbtu": 0.0,
         # Residential – notable non-zero averages
-        "cnsm_NA_resd_wtht_ng_NA_usa_qbtu": 0.0003,   # 0.03%
+        "cnsm_NA_resd_wtht_ng_NA_usa_qbtu": 0.0003,  # 0.03%
         "cnsm_NA_resd_sph_dfo_NA_usa_qbtu": 0.0016,  # 0.16%
         # Commercial – electricity (non-zero)
         "cnsm_NA_comm_NA_prc_othu_usa_qbtu": 0.0012,  # 0.12%
         "cnsm_NA_comm_NA_prc_wtht_usa_qbtu": 0.0010,  # 0.10%
         # Commercial – distillate (non-zero)
-        "cnsm_NA_comm_NA_dfo_sph_usa_qbtu": 0.0005,   # 0.05%
+        "cnsm_NA_comm_NA_dfo_sph_usa_qbtu": 0.0005,  # 0.05%
         "cnsm_NA_comm_NA_dfo_wtht_usa_qbtu": 0.0004,  # 0.04%
         # Commercial – natural gas (non-zero)
-        "cnsm_NA_comm_NA_ng_spc_usa_qbtu": 0.00009,   # 0.009%
+        "cnsm_NA_comm_NA_ng_spc_usa_qbtu": 0.00009,  # 0.009%
     }
 
     if yr >= 2026:
@@ -341,9 +341,7 @@ def _build_series_tolerance(year: str | int) -> dict[str, float]:
 # Baseline per-series tolerance map (fractions). If a series is missing,
 # the fallback tolerance is 0.0 (zero tolerance).
 # Populated at start of main() via _build_series_tolerance(year).
-SERIES_TOLERANCE: dict[str, float] = _build_series_tolerance(
-    datetime.now().year
-)
+SERIES_TOLERANCE: dict[str, float] = _build_series_tolerance(datetime.now().year)
 
 
 # ---------------------------------------------------------------------------
@@ -375,9 +373,7 @@ def require_api_key() -> str:
 
 
 @on_exception(expo, Exception, max_tries=5)
-def api_query(
-    api_key: str, series_id: str, year: str, verbose: bool
-) -> dict[str, float]:
+def api_query(api_key: str, series_id: str, year: str, verbose: bool) -> dict[str, float]:
     """Query the EIA AEO API for one series and return a {year: value} dict.
 
     Parameters
@@ -550,17 +546,9 @@ def recursive_aggregate(
             accept = True
         elif eu_name == "ceiling fan" and end_use == "other":
             accept = True
-        elif (
-            eu_name == "other"
-            and subkey in uv.separate_other_end_uses
-            and end_use == subkey
-        ):
+        elif eu_name == "other" and subkey in uv.separate_other_end_uses and end_use == subkey:
             accept = True
-        elif (
-            eu_name in uv.heating_end_uses
-            and end_use == "heating"
-            and subkey == "supply"
-        ):
+        elif eu_name in uv.heating_end_uses and end_use == "heating" and subkey == "supply":
             accept = True
         elif eu_name == "cooling" and end_use == "cooling" and subkey == "supply":
             accept = True
@@ -573,9 +561,7 @@ def recursive_aggregate(
         ):
             accept = True
         elif (
-            eu_name in ("MELs", "unspecified")
-            and fuel_name == "electricity"
-            and end_use == "other"
+            eu_name in ("MELs", "unspecified") and fuel_name == "electricity" and end_use == "other"
         ):
             accept = True
         elif eu_name == end_use and subkey == "energy":
@@ -636,11 +622,17 @@ def compare_one_combination(
 
     if not eia_dict:
         if verbose or series_id in SERIES_TOLERANCE:
-            print(f"[SKIP] No EIA data returned for series {series_id} "
-                  f"({bldg} | {fuel} | {end_use}).")
+            print(
+                f"[SKIP] No EIA data returned for series {series_id} ({bldg} | {fuel} | {end_use})."
+            )
         _skipped_log.append(
-            {"reason": "no_eia_data", "series_id": series_id,
-             "building": bldg, "fuel": fuel, "end_use": end_use}
+            {
+                "reason": "no_eia_data",
+                "series_id": series_id,
+                "building": bldg,
+                "fuel": fuel,
+                "end_use": end_use,
+            }
         )
         # hit for: (res, cooking, other fuel)
         return
@@ -669,8 +661,13 @@ def compare_one_combination(
                 f"series {series_id} ({bldg} | {fuel} | {end_use})."
             )
         _skipped_log.append(
-            {"reason": "no_year_overlap", "series_id": series_id,
-             "building": bldg, "fuel": fuel, "end_use": end_use}
+            {
+                "reason": "no_year_overlap",
+                "series_id": series_id,
+                "building": bldg,
+                "fuel": fuel,
+                "end_use": end_use,
+            }
         )
         return
 
@@ -719,10 +716,7 @@ def compare_one_combination(
             )
         else:
             pct_err_str = f"{abs(scout_v - eia_v) / eia_v:.2%}"
-        print(
-            f"  {yr}: Scout = {scout_v:,.1f}   "
-            f"EIA = {eia_v:,.1f}   Error = {pct_err_str}"
-        )
+        print(f"  {yr}: Scout = {scout_v:,.1f}   EIA = {eia_v:,.1f}   Error = {pct_err_str}")
 
     # 5. Update global rollups
     for yr, scout_v, eia_v in joined:
@@ -857,20 +851,25 @@ def report_all_series_summary() -> None:
         avg = rec["avg_pct_err"]
         base_tol = SERIES_TOLERANCE.get(sid, 0.0)
         tol = base_tol if base_tol > 0.0 else min_tol_floor
-        rows.append([
-            rec["building"].upper(),
-            rec["fuel"].title(),
-            rec["end_use"].title(),
-            f"{avg:.6%}",
-            f"{tol:.6%}",
-        ])
+        rows.append(
+            [
+                rec["building"].upper(),
+                rec["fuel"].title(),
+                rec["end_use"].title(),
+                f"{avg:.6%}",
+                f"{tol:.6%}",
+            ]
+        )
 
     print(
         tabulate(
             rows,
             headers=[
-                "Building", "Fuel", "End Use",
-                "Avg Error", "Allowed Error",
+                "Building",
+                "Fuel",
+                "End Use",
+                "Avg Error",
+                "Allowed Error",
             ],
             tablefmt="github",
         )
@@ -898,14 +897,16 @@ def enforce_max_error_or_fail() -> None:
         tol = base_tol if base_tol > 0.0 else min_tol_floor
         eps = 1e-9
         if (avg - tol) > eps and not np.isclose(avg, tol, rtol=1e-9, atol=1e-12):
-            violations.append({
-                "series_id": sid,
-                "avg_pct_err": avg,
-                "tolerance": tol,
-                "building": rec["building"],
-                "fuel": rec["fuel"],
-                "end_use": rec["end_use"],
-            })
+            violations.append(
+                {
+                    "series_id": sid,
+                    "avg_pct_err": avg,
+                    "tolerance": tol,
+                    "building": rec["building"],
+                    "fuel": rec["fuel"],
+                    "end_use": rec["end_use"],
+                }
+            )
 
     if violations:
         print("\nPer-series tolerance violations:")
@@ -920,8 +921,10 @@ def enforce_max_error_or_fail() -> None:
     compared_sids = {rec["series_id"] for rec in _series_results}
     missing = [sid for sid in SERIES_TOLERANCE if sid not in compared_sids]
     if missing:
-        print(f"\n{len(missing)} expected series were never compared "
-              f"(missing from EIA response or no year overlap):")
+        print(
+            f"\n{len(missing)} expected series were never compared "
+            f"(missing from EIA response or no year overlap):"
+        )
         for sid in sorted(missing):
             print(f"  {sid}")
 
@@ -998,10 +1001,7 @@ def parse_args() -> argparse.Namespace:
         "--output",
         type=str,
         default=None,
-        help=(
-            "Path for the text output file. "
-            "Defaults to baseline_comparison_{year}.txt."
-        ),
+        help=("Path for the text output file. Defaults to baseline_comparison_{year}.txt."),
     )
     return parser.parse_args()
 
@@ -1052,12 +1052,8 @@ def main() -> None:
         for bldg in uv.bldg_class_translator.keys():
             for fuel in uv.fuel_type:
                 for end_use in uv.end_use_translator.keys():
-                    filters = FilterStrings(
-                        bldg_class=bldg, fuel=fuel, end_use=end_use
-                    )
-                    compare_one_combination(
-                        mseg, filters, year, verbose, uv, api_key
-                    )
+                    filters = FilterStrings(bldg_class=bldg, fuel=fuel, end_use=end_use)
+                    compare_one_combination(mseg, filters, year, verbose, uv, api_key)
 
         # After all combinations, print summary information
         print_rollups()

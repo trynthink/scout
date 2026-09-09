@@ -2,7 +2,7 @@ name: EIA update check
 
 on:
   push:
-    branches: 
+    branches:
        - master
   workflow_call: {}
   workflow_dispatch: {}

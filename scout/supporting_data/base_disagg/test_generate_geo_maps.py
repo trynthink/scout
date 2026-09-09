@@ -37,10 +37,7 @@ def run_generation_script():
     # Run the script to generate all files
     # Using --force to ensure it runs even if files exist
     subprocess.run(
-        ["python", SCRIPT_PATH, "--all", "--force"],
-        check=True,
-        capture_output=True,
-        text=True
+        ["python", SCRIPT_PATH, "--all", "--force"], check=True, capture_output=True, text=True
     )
     yield
     # Teardown: clean up generated files if necessary
@@ -61,8 +58,7 @@ def test_file_generation(run_generation_script):
     # Check for stock files
     for f in FILE_LIST:
         stock_file = f.replace(".csv", "_Stock.csv")
-        assert stock_file in generated_files, \
-            f"{stock_file} was not generated."
+        assert stock_file in generated_files, f"{stock_file} was not generated."
 
 
 def compare_csv_files(file1_path, file2_path, tolerance=1e-6):
@@ -71,11 +67,10 @@ def compare_csv_files(file1_path, file2_path, tolerance=1e-6):
     df2 = pd.read_csv(file2_path)
 
     # Basic checks
-    assert df1.shape == df2.shape, \
-        f"Shape mismatch between {os.path.basename(file1_path)} and " \
-        f"{os.path.basename(file2_path)}"
-    assert df1.columns.equals(df2.columns), \
-        f"Column mismatch in {os.path.basename(file1_path)}"
+    assert df1.shape == df2.shape, (
+        f"Shape mismatch between {os.path.basename(file1_path)} and {os.path.basename(file2_path)}"
+    )
+    assert df1.columns.equals(df2.columns), f"Column mismatch in {os.path.basename(file1_path)}"
 
     # Sort to ensure proper comparison
     sort_cols = ["End use", "CDIV"]
@@ -89,12 +84,9 @@ def compare_csv_files(file1_path, file2_path, tolerance=1e-6):
     # Compare numeric columns with tolerance
     numeric_cols = df1.select_dtypes(include=np.number).columns
     pd.testing.assert_frame_equal(
-        df1[numeric_cols],
-        df2[numeric_cols],
-        check_exact=False,
-        atol=tolerance,
-        rtol=tolerance
+        df1[numeric_cols], df2[numeric_cols], check_exact=False, atol=tolerance, rtol=tolerance
     )
+
 
 # This is a regression/snapshot test: it doesn't check correctness from
 # first principles, only that output hasn't drifted from a trusted
@@ -150,9 +142,7 @@ def test_state_shares_sum_to_one(run_generation_script):
     End use, or one Technology/End use, within one CDIV) must sum to 1.
     """
     csv_paths = _state_geo_csv_paths()
-    assert csv_paths, (
-        f"No Cdiv/State output files found under {OUTPUT_DIR} to check."
-    )
+    assert csv_paths, f"No Cdiv/State output files found under {OUTPUT_DIR} to check."
 
     for csv_path in csv_paths:
         df = pd.read_csv(csv_path)
@@ -167,8 +157,7 @@ def test_state_shares_sum_to_one(run_generation_script):
         nonzero = row_sums[row_sums.abs() > 1e-9]
         bad = nonzero[(nonzero - 1).abs() > 1e-6]
 
-        id_cols = [c for c in ("Technology", "End use", "CDIV")
-                   if c in df.columns]
+        id_cols = [c for c in ("Technology", "End use", "CDIV") if c in df.columns]
         assert bad.empty, (
             f"{os.path.basename(csv_path)}: state shares do not sum to "
             f"1 for these rows:\n{df.loc[bad.index, id_cols].assign(sum=bad)}"
@@ -184,10 +173,8 @@ def test_gap_row_present_and_sums_to_one(run_generation_script):
     breakdown, so the technology-level "gap" row is tagged Technology ==
     "all"; no other fuel's files should carry a "gap" row.
     """
-    elec_paths = glob.glob(os.path.join(
-        OUTPUT_DIR, "*_end_use", "Com_Cdiv_*_electricity*.csv"))
-    elec_paths += glob.glob(os.path.join(
-        OUTPUT_DIR, "*_technology", "Com_Cdiv_*_electricity*.csv"))
+    elec_paths = glob.glob(os.path.join(OUTPUT_DIR, "*_end_use", "Com_Cdiv_*_electricity*.csv"))
+    elec_paths += glob.glob(os.path.join(OUTPUT_DIR, "*_technology", "Com_Cdiv_*_electricity*.csv"))
     assert elec_paths, "No commercial electricity output files found."
 
     for path in elec_paths:
@@ -196,7 +183,8 @@ def test_gap_row_present_and_sums_to_one(run_generation_script):
         assert not gap_rows.empty, f"No 'gap' row found in {path}"
         if "Technology" in df.columns:
             assert (gap_rows["Technology"] == "all").all(), (
-                f"'gap' row(s) in {path} should be tagged Technology == 'all'")
+                f"'gap' row(s) in {path} should be tagged Technology == 'all'"
+            )
 
         region_cols = [c for c in df.columns if c not in NON_STATE_COLS]
         row_sums = gap_rows[region_cols].sum(axis=1)
@@ -205,10 +193,13 @@ def test_gap_row_present_and_sums_to_one(run_generation_script):
         assert bad.empty, f"'gap' row shares don't sum to 1 in {path}:\n{bad}"
 
     other_paths = [
-        p for p in (
-            glob.glob(os.path.join(OUTPUT_DIR, "*_end_use", "Com_Cdiv_*.csv")) +
-            glob.glob(os.path.join(OUTPUT_DIR, "*_technology", "Com_Cdiv_*.csv")))
-        if "electricity" not in os.path.basename(p)]
+        p
+        for p in (
+            glob.glob(os.path.join(OUTPUT_DIR, "*_end_use", "Com_Cdiv_*.csv"))
+            + glob.glob(os.path.join(OUTPUT_DIR, "*_technology", "Com_Cdiv_*.csv"))
+        )
+        if "electricity" not in os.path.basename(p)
+    ]
     for path in other_paths:
         df = pd.read_csv(path)
         assert (df["End use"] != "gap").all(), f"Unexpected 'gap' row found in {path}"

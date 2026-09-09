@@ -48,9 +48,9 @@ def _parse_terminal_value(val_str, is_unit):
     val_str = str(val_str).strip()
     if is_unit:
         return val_str
-    if val_str.lower() == 'true':
+    if val_str.lower() == "true":
         return True
-    if val_str.lower() == 'false':
+    if val_str.lower() == "false":
         return False
     try:
         return float(val_str)
@@ -122,12 +122,11 @@ def parse_source_details(val):
         fields = ["title", "author", "year", "pages", "url"]
         parts = [x.strip() for x in s.split(";")]
         if len(parts) != len(fields):
-            raise ValueError(
-                f"Expected {len(fields)} fields, got {len(parts)} in '{s}'")
+            raise ValueError(f"Expected {len(fields)} fields, got {len(parts)} in '{s}'")
 
         res = {}
         for f, p in zip(fields, parts):
-            if p in ("NA", "null", "") or pd.isna(p) or p.lower() == 'none':
+            if p in ("NA", "null", "") or pd.isna(p) or p.lower() == "none":
                 res[f] = None
             elif f == "year" or (f == "pages" and "," not in p):
                 res[f] = int(p) if p else None
@@ -156,19 +155,15 @@ def parse_author_details(val):
             "name": val.strip(),
             "organization": None,
             "email": None,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 
     fields = ["name", "organization", "email"]
     parts = [x.strip() for x in val.split(";")]
     if len(parts) != len(fields):
-        raise ValueError(
-            f"Expected {len(fields)} fields, got {len(parts)} in '{val}'")
+        raise ValueError(f"Expected {len(fields)} fields, got {len(parts)} in '{val}'")
 
-    res = {
-        f: (None if p in ("NA", "null", "") or pd.isna(p) else p)
-        for f, p in zip(fields, parts)
-    }
+    res = {f: (None if p in ("NA", "null", "") or pd.isna(p) else p) for f, p in zip(fields, parts)}
     res["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return res
 
@@ -194,53 +189,48 @@ COL_ATTR_MAP = {
     "Switched to Fuel Type": ("fuel_switch_to", parse_identity),
     "Backup Fuel Fraction": ("backup_fuel_fraction", parse_nested_value),
     "Baseline Technology": ("technology", parse_identity),
-    "Baseline Heating and Cooling Technology Pair": (
-        "htcl_tech_link", parse_identity),
+    "Baseline Heating and Cooling Technology Pair": ("htcl_tech_link", parse_identity),
     "Switched to Technology": ("tech_switch_to", parse_identity),
     "Energy Performance": ("energy_efficiency", parse_nested_value),
     "Performance Units": ("energy_efficiency_units", parse_nested_unit),
-    "Performance Source Notes": (
-        ["energy_efficiency_source", "notes"], parse_identity),
+    "Performance Source Notes": (["energy_efficiency_source", "notes"], parse_identity),
     "Performance Source Details": (
-        ["energy_efficiency_source", "source_data"], parse_source_details),
+        ["energy_efficiency_source", "source_data"],
+        parse_source_details,
+    ),
     "Installed Cost": ("installed_cost", parse_nested_value),
     "Cost Units": ("cost_units", parse_nested_unit),
-    "Cost Source Notes": (
-        ["installed_cost_source", "notes"], parse_identity),
-    "Cost Source Details": (
-        ["installed_cost_source", "source_data"], parse_source_details),
+    "Cost Source Notes": (["installed_cost_source", "notes"], parse_identity),
+    "Cost Source Details": (["installed_cost_source", "source_data"], parse_source_details),
     "Electrical Upgrade Costs": ("add_elec_infr_cost", parse_nested_value),
     "Lifetime": ("product_lifetime", parse_nested_value),
     "Lifetime Units": ("product_lifetime_units", parse_nested_unit),
-    "Lifetime Source Notes": (
-        ["product_lifetime_source", "notes"], parse_identity),
-    "Lifetime Source Details": (
-        ["product_lifetime_source", "source_data"], parse_source_details),
-    "Market Scaling Fraction": (
-        "market_scaling_fractions", parse_nested_value),
-    "Market Scaling Source Notes": (
-        ["market_scaling_fractions_source", "notes"], parse_identity),
+    "Lifetime Source Notes": (["product_lifetime_source", "notes"], parse_identity),
+    "Lifetime Source Details": (["product_lifetime_source", "source_data"], parse_source_details),
+    "Market Scaling Fraction": ("market_scaling_fractions", parse_nested_value),
+    "Market Scaling Source Notes": (["market_scaling_fractions_source", "notes"], parse_identity),
     "Market Scaling Source Details": (
         ["market_scaling_fractions_source", "source_data"],
-        parse_source_details),
-    "Author Details": ("_updated_by", parse_author_details)
+        parse_source_details,
+    ),
+    "Author Details": ("_updated_by", parse_author_details),
 }
 
 PKG_COL_ATTR_MAP = {
     "Name": ("name", parse_identity),
     "Measures in Package": ("contributing_ECMs", parse_newline_list),
-    "Additional Energy Savings": (
-        ["benefits", "energy savings increase"], parse_nested_value),
-    "Energy Savings Source Notes": (
-        ["energy_savings_source", "notes"], parse_identity),
+    "Additional Energy Savings": (["benefits", "energy savings increase"], parse_nested_value),
+    "Energy Savings Source Notes": (["energy_savings_source", "notes"], parse_identity),
     "Energy Savings Source Details": (
-        ["energy_savings_source", "source_data"], parse_source_details),
-    "Additional Cost Reductions": (
-        ["benefits", "cost reduction"], parse_nested_value),
-    "Cost Reductions Source Notes": (
-        ["cost_reduction_source", "notes"], parse_identity),
+        ["energy_savings_source", "source_data"],
+        parse_source_details,
+    ),
+    "Additional Cost Reductions": (["benefits", "cost reduction"], parse_nested_value),
+    "Cost Reductions Source Notes": (["cost_reduction_source", "notes"], parse_identity),
     "Cost Reductions Source Details": (
-        ["cost_reduction_source", "source_data"], parse_source_details)
+        ["cost_reduction_source", "source_data"],
+        parse_source_details,
+    ),
 }
 
 CSV_DTYPES = {
@@ -271,7 +261,7 @@ PKG_CSV_DTYPES = {
     "Additional Energy Savings": str,
     "Energy Savings Source Details": str,
     "Additional Cost Reductions": str,
-    "Cost Reductions Source Details": str
+    "Cost Reductions Source Details": str,
 }
 
 # ==========================================
@@ -281,9 +271,7 @@ PKG_CSV_DTYPES = {
 
 def clean_dataframe(df):
     """Normalizes missing values before iteration to avoid logic checks."""
-    return df.replace(
-        {pd.NA: None, "NA": None, "null": None, float('nan'): None, "": None}
-    )
+    return df.replace({pd.NA: None, "NA": None, "null": None, float("nan"): None, "": None})
 
 
 def populate_json(record_dict, mapping_config):
@@ -295,10 +283,8 @@ def populate_json(record_dict, mapping_config):
             try:
                 parsed_val = parser_func(record_dict[col])
             except ValueError as e:
-                meas_name = record_dict.get('Name', 'Unknown')
-                raise ValueError(
-                    f"Error parsing '{col}' for '{meas_name}': {e}"
-                )
+                meas_name = record_dict.get("Name", "Unknown")
+                raise ValueError(f"Error parsing '{col}' for '{meas_name}': {e}")
 
             if isinstance(json_key, list):
                 if json_key[0] not in output_dict:
@@ -323,7 +309,7 @@ def main(base_dir):
     # --- PROCESS INDIVIDUAL MEASURES ---
     raw_df = pd.read_csv(fpi, dtype=CSV_DTYPES)
     m_in_df = clean_dataframe(raw_df)
-    for m in m_in_df.to_dict('records'):
+    for m in m_in_df.to_dict("records"):
         print(f"Generating measure '{m['Name']}'...", end="", flush=True)
         m_out = populate_json(m, COL_ATTR_MAP)
 
@@ -338,14 +324,14 @@ def main(base_dir):
         raw_pkg_df = pd.read_csv(fpi_pk, dtype=PKG_CSV_DTYPES)
         m_pk_in_df = clean_dataframe(raw_pkg_df)
 
-        for m_pk in m_pk_in_df.to_dict('records'):
+        for m_pk in m_pk_in_df.to_dict("records"):
             print(f"Generating package '{m_pk['Name']}'...", end="", flush=True)
             m_pk_out = populate_json(m_pk, PKG_COL_ATTR_MAP)
             pkg_out.append(m_pk_out)
             print("Complete.")
 
         pkg_out_path = os.path.join(fpo, "package_ecms.json")
-        with open(pkg_out_path, 'w+') as jso:
+        with open(pkg_out_path, "w+") as jso:
             json.dump(pkg_out, jso, indent=2)
 
 

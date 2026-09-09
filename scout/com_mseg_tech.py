@@ -51,34 +51,51 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = fp.INPUTS / 'cpl_res_cdiv.json'
-        self.json_out = fp.INPUTS / 'cpl_res_com_cdiv.json'
+        self.json_in = fp.INPUTS / "cpl_res_cdiv.json"
+        self.json_out = fp.INPUTS / "cpl_res_com_cdiv.json"
         self.aeo_metadata = fp.METADATA_PATH
 
         self.cpl_data_skip_lines = 68
-        self.columns_to_keep = ['t', 'v', 'r', 's', 'f', 'eff', 'c1', 'c2',
-                                'c3', 'life', 'y1', 'y2', 'technology name']
+        self.columns_to_keep = [
+            "t",
+            "v",
+            "r",
+            "s",
+            "f",
+            "eff",
+            "c1",
+            "c2",
+            "c3",
+            "life",
+            "y1",
+            "y2",
+            "technology name",
+        ]
 
         self.tpp_data_skip_lines = 100
-        self.tpp_dtypes = [('Proportion', 'f8'), ('Time Pref Premium', 'f8'),
-                           ('Year', 'i4'), ('End Use', 'U32')]
+        self.tpp_dtypes = [
+            ("Proportion", "f8"),
+            ("Time Pref Premium", "f8"),
+            ("Year", "i4"),
+            ("End Use", "U32"),
+        ]
 
         # End use names 8 and 9 changed in AEO 2026; earlier AEOs used
         # 'PCs' and 'non-PC office equipment'. Determine which to use based on
         # AEO year from metadata
         try:
-            with open(self.aeo_metadata, 'r') as _f:
+            with open(self.aeo_metadata, "r") as _f:
                 _meta = json.load(_f)
-            _aeo_yr = _meta.get('aeo_base_year', 2025)
+            _aeo_yr = _meta.get("aeo_base_year", 2025)
         except (FileNotFoundError, json.JSONDecodeError):
             _aeo_yr = 2026  # default to AEO 2026 behaviour
 
         if _aeo_yr >= 2026:  # AEO 2026 or later
-            _eu8 = 'data center'
-            _eu9 = 'office equipment'
+            _eu8 = "data center"
+            _eu9 = "office equipment"
         else:  # pre-AEO 2026
-            _eu8 = 'PCs'
-            _eu9 = 'non-PC office equipment'
+            _eu8 = "PCs"
+            _eu9 = "non-PC office equipment"
 
         self.eu_map = {
             "heating": 1,
@@ -89,16 +106,15 @@ class UsefulVars(object):
             "lighting": 6,
             "refrigeration": 7,
             _eu8: 8,
-            _eu9: 9}
+            _eu9: 9,
+        }
 
         # Set base directory
-        with open(fp.CONVERT_DATA / "ecm_cost_convert.json", 'r') as cc:
+        with open(fp.CONVERT_DATA / "ecm_cost_convert.json", "r") as cc:
             try:
                 self.cconv = json.load(cc)
             except ValueError as e:
-                raise ValueError(
-                    "Error reading in cost conversion data file: " +
-                    str(e)) from None
+                raise ValueError("Error reading in cost conversion data file: " + str(e)) from None
 
 
 class UsefulDicts(object):
@@ -114,13 +130,14 @@ class UsefulDicts(object):
 
     def __init__(self):
         self.kprem_endusedict = {
-            'heating': 'Space Heating',
-            'cooling': 'Space Cooling',
-            'water heating': 'Hot Water Heating',
-            'ventilation': 'Ventilation',
-            'cooking': 'Cooking',
-            'lighting': 'Lighting',
-            'refrigeration': 'Refrigeration'}
+            "heating": "Space Heating",
+            "cooling": "Space Cooling",
+            "water heating": "Hot Water Heating",
+            "ventilation": "Ventilation",
+            "cooking": "Cooking",
+            "lighting": "Lighting",
+            "refrigeration": "Refrigeration",
+        }
 
 
 def units_id(sel, flag):
@@ -150,31 +167,31 @@ def units_id(sel, flag):
 
     # Determine units depending on whether this function was called
     # for cost or performance units
-    if flag == 'cost':
+    if flag == "cost":
         if enduse == 4:  # ventilation
-            theunits = '2022$/1000 cfm'
+            theunits = "2022$/1000 cfm"
         elif enduse == 6:  # lighting
-            theunits = '2022$/1000 lm'
+            theunits = "2022$/1000 lm"
         else:
-            theunits = '2022$/kBTU out/hr'
-    elif flag == 'performance':
+            theunits = "2022$/kBTU out/hr"
+    elif flag == "performance":
         if enduse == 4:  # ventilation
-            theunits = 'cfm-hr/BTU in'
+            theunits = "cfm-hr/BTU in"
         elif enduse == 6:  # lighting
-            theunits = 'lm/W'
+            theunits = "lm/W"
         else:
-            theunits = 'BTU out/BTU in'
+            theunits = "BTU out/BTU in"
 
     return theunits
 
 
 def tech_data_selector(tech_data, sel):
-    """ From the full structured array of cost, performance, and
+    """From the full structured array of cost, performance, and
     lifetime data from the AEO, extract a group of data using numeric
     indices generated from the text indices at the leaf nodes of the
     input microsegments JSON. Each group of data extracted by this
     function will correspond to multiple technologies and performance
-    levels and will require further processing. """
+    levels and will require further processing."""
 
     # Determine whether the data indicated in the 'r' column indicates
     # building type or census division based on the end use indicated
@@ -186,15 +203,15 @@ def tech_data_selector(tech_data, sel):
 
     # Filter technology data based on the specified census
     # division or building type, end use, and fuel type
-    filtered = tech_data[np.all([tech_data['r'] == tmp,
-                                 tech_data['s'] == sel[2],
-                                 tech_data['f'] == sel[3]], axis=0)]
+    filtered = tech_data[
+        np.all([tech_data["r"] == tmp, tech_data["s"] == sel[2], tech_data["f"] == sel[3]], axis=0)
+    ]
 
     return filtered
 
 
 def sd_data_selector(sd_data, sel, years):
-    """ From the full structured array of service demand data from the
+    """From the full structured array of service demand data from the
     AEO, extract just the service demand data corresponding to the
     census division, building type, end use, and fuel type specified by
     each leaf node in the input microsegments JSON. Each group of data
@@ -202,21 +219,28 @@ def sd_data_selector(sd_data, sel, years):
     summed across the three specified markets (column named 'd'), with
     rows for each technology and performance level combination and
     columns for each year, and 2) a list of technology names for
-    each row of the service demand numpy array (the other output). """
+    each row of the service demand numpy array (the other output)."""
 
     # Filter service demand data based on the specified census
     # division, building type, end use, and fuel type
-    filtered = sd_data[np.all([sd_data['r'] == sel[0],
-                               sd_data['b'] == sel[1],
-                               sd_data['s'] == sel[2],
-                               sd_data['f'] == sel[3]], axis=0)]
+    filtered = sd_data[
+        np.all(
+            [
+                sd_data["r"] == sel[0],
+                sd_data["b"] == sel[1],
+                sd_data["s"] == sel[2],
+                sd_data["f"] == sel[3],
+            ],
+            axis=0,
+        )
+    ]
 
     # Identify each technology and performance level using the text
     # in the description field since the technology type and vintage
     # numeric codes are not well-matched to individual technology and
     # performance levels; remove empty strings from the list
-    technames = list(np.unique(filtered['Description']))
-    technames = [x for x in technames if x != '']
+    technames = list(np.unique(filtered["Description"]))
+    technames = [x for x in technames if x != ""]
 
     # Set up numpy array to store restructured data, in which each row
     # will correspond to a single technology
@@ -224,16 +248,16 @@ def sd_data_selector(sd_data, sel, years):
 
     # Combine the service demand for the three markets ['d'] in the data
     for idx, name in enumerate(technames):
-
         # Extract entries for a given technology name
-        entries = filtered[filtered['Description'] == name]
+        entries = filtered[filtered["Description"] == name]
 
         # Calculate the sum of all year columns and write it to the
         # appropriate row in the sd array (note that the .view()
         # function converts the structured array into a standard
         # numpy array, which allows the use of the .sum() function)
-        sd[idx, ] = np.sum(recfn.structured_to_unstructured(
-            entries[list(map(str, years))], dtype='<f8'), axis=0)
+        sd[idx,] = np.sum(
+            recfn.structured_to_unstructured(entries[list(map(str, years))], dtype="<f8"), axis=0
+        )
 
     # Note that each row in sd corresponds to a single performance
     # level for a single technology and the rows are in the same order
@@ -273,7 +297,7 @@ def single_tech_selector(tech_array, specific_name):
         # in the data using a regex set up to match any text '.+?' that
         # appears before the first occurrence of a space followed by a
         # 2 and three other numbers (i.e., 2009 or 2035)
-        tech_name = re.search(r'.+?(?=\s2[0-9]{3})', row['technology name'])
+        tech_name = re.search(r".+?(?=\s2[0-9]{3})", row["technology name"])
 
         # If the technology name regex returned a match, check if there
         # is a match for a linear fluorescent lighting technology; in
@@ -285,8 +309,7 @@ def single_tech_selector(tech_array, specific_name):
             # fluorescent lighting technology in the format 'T# F##',
             # e.g., 'T8 F96', and if it does, extract just that string
             # without any additional text (e.g., 'T8 F96 High Output')
-            lfl_tech_name = re.search('^(T[0-9] F[0-9]{2})',
-                                      tech_name.group(0))
+            lfl_tech_name = re.search("^(T[0-9] F[0-9]{2})", tech_name.group(0))
             if lfl_tech_name:
                 if lfl_tech_name.group(0) != specific_name:
                     rows_to_remove.append(idx)
@@ -296,12 +319,12 @@ def single_tech_selector(tech_array, specific_name):
         # included as part of its name, but it nonetheless should be
         # checked to see if it matches the name passed to the function
         # and removed if there is not a match
-        elif row['technology name'] != specific_name:
+        elif row["technology name"] != specific_name:
             rows_to_remove.append(idx)
         # Else check to see if the description indicates a placeholder
         # row, which should be deleted before the technologies are
         # summarized and returned from this function
-        elif re.search('placeholder', row['technology name']):
+        elif re.search("placeholder", row["technology name"]):
             rows_to_remove.append(idx)
         # Implicitly, if the text does not match any regex, it is
         # assumed that it does not need to be edited or removed
@@ -353,10 +376,10 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     # Using the string in the 'flag' argument, set a variable
     # for the column that contains the desired data to obtain
     # from single_tech_array
-    if flag == 'cost':
-        col = 'c1'
-    elif flag == 'performance':
-        col = 'eff'
+    if flag == "cost":
+        col = "c1"
+    elif flag == "performance":
+        col = "eff"
 
     # Store the number of rows (different performance levels) in
     # single_tech_array and the number of years in the desired
@@ -376,11 +399,11 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
         # Determine the starting and ending column indices for the
         # desired data (cost or performance) related to the
         # technology associated with this row
-        idx_st = row['y1'] - min(years)
+        idx_st = row["y1"] - min(years)
 
         # Calculate end index using the smaller of either the last year
         # of 'years' or the final year of availability for that technology
-        idx_en = min(max(years), row['y2']) - min(years) + 1
+        idx_en = min(max(years), row["y2"]) - min(years) + 1
 
         # If the indices calculated above are in range, record the data
         # (cost or performance) in the calculated location(s)
@@ -399,7 +422,7 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             # demand data technology names
 
             # Identify technology name for the current row of the ktek data
-            name_from_ktek = row['technology name']
+            name_from_ktek = row["technology name"]
 
             # Truncate technology name string from technology data to
             # 44 characters since all of the string descriptions in the
@@ -410,7 +433,7 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             # '-inch' was substituted for '"' or '&quot;'; finally
             # remove any trailing spaces that might create text
             # matching problems
-            if re.search('-inch', name_from_ktek[:43]):
+            if re.search("-inch", name_from_ktek[:43]):
                 length = UsefulVars().trunc_len
             else:
                 length = 44
@@ -429,7 +452,7 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
             # service demand array in the same row as the corresponding
             # cost data
             try:
-                select_sd[idx, ] = sd_array[sd_names.index(name_from_ktek), ]
+                select_sd[idx,] = sd_array[sd_names.index(name_from_ktek),]
             except ValueError:
                 # If no match is found, add the unmatched technology
                 # name to a list
@@ -441,14 +464,14 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
     # non-zero entry in select_sd)
     if select_sd.any():
         # Suppress any divide by zero warnings
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             # Calculate the normalized service demand
-            select_sd = select_sd/np.sum(select_sd, 0)
+            select_sd = select_sd / np.sum(select_sd, 0)
             select_sd = np.nan_to_num(select_sd)  # Replace nan from 0/0 with 0
 
     # Using the normalized service demand as the weights, calculate the
     # weighted arithmetic mean for each year (each column)
-    val_mean = np.sum(np.transpose(select_sd)*single_tech_array[col], 1)
+    val_mean = np.sum(np.transpose(select_sd) * single_tech_array[col], 1)
 
     # Calculate the maximum cost or performance for each year (each
     # column of the technology data array), adjusting for differences
@@ -461,8 +484,10 @@ def cost_perf_extractor(single_tech_array, sd_array, sd_names, years, flag):
 
     # Build complete structured dict with 'typical' and 'best' data
     # converted into dicts themselves, indexed by year
-    final_dict = {'typical': dict(zip(map(str, years), val_mean)),
-                  'best': dict(zip(map(str, years), val_max))}
+    final_dict = {
+        "typical": dict(zip(map(str, years), val_mean)),
+        "best": dict(zip(map(str, years), val_max)),
+    }
 
     return final_dict, non_matching_tech_names
 
@@ -506,19 +531,19 @@ def incentive_extractor(single_tech_array, years):
         # Determine the starting and ending column indices for the
         # desired data (cost or performance) related to the
         # technology associated with this row
-        idx_st = row['y1'] - min(years)
+        idx_st = row["y1"] - min(years)
 
         # Calculate end index using the smaller of either the last year
         # of 'years' or the final year of availability for that technology
-        idx_en = min(max(years), row['y2']) - min(years) + 1
+        idx_en = min(max(years), row["y2"]) - min(years) + 1
 
         # If the indices calculated above are in range, record the data
         # incentive and performance levels in the calculated location(s)
         if idx_en > 0:
             if idx_st < 0:
                 idx_st = 0
-            incentive[idx, idx_st:idx_en] = row['c3']
-            perf[idx, idx_st:idx_en] = row['eff']
+            incentive[idx, idx_st:idx_en] = row["c3"]
+            perf[idx, idx_st:idx_en] = row["eff"]
 
     # For each year, construct a nested list of performance level and
     # incentive quantity lists for all non-zero performance levels
@@ -526,8 +551,9 @@ def incentive_extractor(single_tech_array, years):
     final_dict = dict.fromkeys(map(str, years))
     for yr in range(0, n_years):
         # Construct nested list of performance level and incentive value pairs
-        incent_nl = [[perf[i, yr], incentive[i, yr]] for i in range(0, n_entries)
-                     if perf[i, yr] != 0]
+        incent_nl = [
+            [perf[i, yr], incentive[i, yr]] for i in range(0, n_entries) if perf[i, yr] != 0
+        ]
         # Remove duplicates from nested list and set as value for year key
         # https://stackoverflow.com/questions/2213923/removing-duplicates-from-a-list-of-lists
         final_dict[str(years[yr])] = list(k for k, _ in it.groupby(sorted(incent_nl)))
@@ -572,18 +598,18 @@ def life_extractor(single_tech_array, years):
     for idx, row in enumerate(single_tech_array):
         # Determine the starting and ending column indices for the
         # lifetime of the technology performance level in this row
-        idx_st = row['y1'] - min(years)
+        idx_st = row["y1"] - min(years)
 
         # Calculate end index using the smaller of either the last year
         # of 'years' or the final year of availability for that technology
-        idx_en = min(max(years), row['y2']) - min(years) + 1
+        idx_en = min(max(years), row["y2"]) - min(years) + 1
 
         # If the indices calculated above are in range, record the
         # lifetime in the calculated location(s)
         if idx_en > 0:
             if idx_st < 0:
                 idx_st = 0
-            life[idx, idx_st:idx_en] = row['life']
+            life[idx, idx_st:idx_en] = row["life"]
 
     # Calculate the mean lifetime for each column, excluding 0 values
     with warnings.catch_warnings():
@@ -593,8 +619,7 @@ def life_extractor(single_tech_array, years):
         # mean, which triggers a RuntimeWarning that is suppressed
         # here using the warnings package
         warnings.simplefilter("ignore", category=RuntimeWarning)
-        life_mean = np.apply_along_axis(
-            lambda v: np.mean(v[np.nonzero(v)]), 0, life)
+        life_mean = np.apply_along_axis(lambda v: np.mean(v[np.nonzero(v)]), 0, life)
 
     # In the special case where no performance level is given because
     # the product exits the market before the first year in the 'years'
@@ -627,8 +652,10 @@ def life_extractor(single_tech_array, years):
 
     # Build complete structured dict with 'average' and 'range' data
     # converted into dicts that are indexed by year
-    final_dict = {'average': dict(zip(map(str, years), life_mean)),
-                  'range': dict(zip(map(str, years), life_range))}
+    final_dict = {
+        "average": dict(zip(map(str, years), life_mean)),
+        "range": dict(zip(map(str, years), life_range)),
+    }
 
     return final_dict
 
@@ -662,7 +689,7 @@ def tech_names_extractor(tech_array):
         # in the data using a regex set up to match any text '.+?' that
         # appears before the first occurrence of a space followed by a
         # 2 and three other numbers (e.g., 2009 or 2035)
-        tech_name = re.search(r'.+?(?=\s2[0-9]{3})', row['technology name'])
+        tech_name = re.search(r".+?(?=\s2[0-9]{3})", row["technology name"])
 
         # If the regex matched, check the matching text to see if it
         # corresponds to a linear fluorescent lighting technology
@@ -673,8 +700,7 @@ def tech_names_extractor(tech_array):
         # technology without scenario-specific text like '2003 installed
         # base' to the technames list
         if tech_name:
-            lfl_tech_name = re.search('^(T[0-9] F[0-9]{2})',
-                                      tech_name.group(0))
+            lfl_tech_name = re.search("^(T[0-9] F[0-9]{2})", tech_name.group(0))
             if lfl_tech_name:
                 technames.append(lfl_tech_name.group(0))
             else:
@@ -682,8 +708,8 @@ def tech_names_extractor(tech_array):
         # Else, if the technology name is not from a placeholder row,
         # add the entire name text to the technames list
         else:
-            if not re.search('placeholder', row['technology name']):
-                technames.append(row['technology name'])
+            if not re.search("placeholder", row["technology name"]):
+                technames.append(row["technology name"])
 
     # Reduce the list to only the unique entries
     technames = list(np.unique(technames))
@@ -727,15 +753,13 @@ def tpp_handler(tpp_data, sel, years):
     # though for the particular dicts used here, there should not
     # be a problem
     end_use_num = sel[2]
-    end_use_dict_loc = list(
-        cm.CommercialTranslationDicts().endusedict.values()).index(end_use_num)
-    end_use_json_str = list(
-        cm.CommercialTranslationDicts().endusedict.keys())[end_use_dict_loc]
+    end_use_dict_loc = list(cm.CommercialTranslationDicts().endusedict.values()).index(end_use_num)
+    end_use_json_str = list(cm.CommercialTranslationDicts().endusedict.keys())[end_use_dict_loc]
     end_use_kprem_string = UsefulDicts().kprem_endusedict[end_use_json_str]
 
     # Obtain the time preference data associated with the end use
     # extracted from the dict lookup
-    tpp_subset = tpp_data[tpp_data['End Use'] == end_use_kprem_string]
+    tpp_subset = tpp_data[tpp_data["End Use"] == end_use_kprem_string]
 
     # Initialize dicts for the population fraction/proportion data and
     # corresponding time preferences
@@ -748,22 +772,20 @@ def tpp_handler(tpp_data, sel, years):
     # the current year as the key; time preference premiums generally
     # do not vary by year, but they are included by year for completeness
     for yr in years:
-        population_frac = tpp_subset[tpp_subset['Year'] == yr]['Proportion']
-        premiums = tpp_subset[tpp_subset['Year'] == yr]['Time Pref Premium']
+        population_frac = tpp_subset[tpp_subset["Year"] == yr]["Proportion"]
+        premiums = tpp_subset[tpp_subset["Year"] == yr]["Time Pref Premium"]
         # If any data are found/present, add to dict
         if population_frac.any() and premiums.any():
             proportion_dict[str(yr)] = list(population_frac)
             time_prefs_dict[str(yr)] = list(premiums)
 
     # Combine into one the separate dicts for the parameters of interest
-    combined_dict = {'time preference': time_prefs_dict,
-                     'population fraction': proportion_dict}
+    combined_dict = {"time preference": time_prefs_dict, "population fraction": proportion_dict}
 
     return combined_dict
 
 
-def mseg_technology_handler(
-        tech_data, sd_data, tpp_data, sf_data, sel, years, eu_map):
+def mseg_technology_handler(tech_data, sd_data, tpp_data, sf_data, sel, years, eu_map):
     """Restructures cost, performance, lifetime, and time preference data.
 
     Using external functions that process and reformat specific
@@ -826,7 +848,7 @@ def mseg_technology_handler(
     # the microsegment specified by 'sel' (the same function can also
     # provide units for costs if they have not yet been converted to
     # a per square foot floor area basis)
-    the_performance_units = units_id(sel, 'performance')
+    the_performance_units = units_id(sel, "performance")
 
     # Identify the names (as strings) of all of the technologies
     # included in this microsegment
@@ -847,34 +869,32 @@ def mseg_technology_handler(
         # Extract the cost data in a dict format with 'typical' and
         # 'best' cost cases
         the_cost, cost_non_matching_names = cost_perf_extractor(
-            single_tech_data,
-            filtered_sd_data,
-            sd_names_list,
-            years, 'cost')
+            single_tech_data, filtered_sd_data, sd_names_list, years, "cost"
+        )
 
         # Update the cost data with the conversion factor from
         # $/service capacity (generally $/kBtu/h) to $/ft^2 for both
         # the 'typical' and 'best' cases, then add the units and data
         # source to complete the dict for this technology
-        the_cost['typical'] = dict(zip(
-            sorted(the_cost['typical'].keys()),
-            sorted(the_cost['typical'].values())))
-        the_cost['best'] = dict(zip(
-            sorted(the_cost['best'].keys()),
-            sorted(the_cost['best'].values())))
+        the_cost["typical"] = dict(
+            zip(sorted(the_cost["typical"].keys()), sorted(the_cost["typical"].values()))
+        )
+        the_cost["best"] = dict(
+            zip(sorted(the_cost["best"].keys()), sorted(the_cost["best"].values()))
+        )
         # Set the year that should be assumed for EIA cost dollars
-        cost_yr = '2022'
+        cost_yr = "2022"
         # Find end use service of current microsegment
         eu = [x[0] for x in eu_map.items() if x[1] == sel[2]][0]
         # Set cost units appropriately for the end use service
         if eu == "lighting":
-            eu_cost_units = '$/1000 lm'
+            eu_cost_units = "$/1000 lm"
         elif eu == "ventilation":
-            eu_cost_units = '$/1000 CFM'
+            eu_cost_units = "$/1000 CFM"
         else:
-            eu_cost_units = '$/kBtu/h ' + eu
-        the_cost['units'] = cost_yr + eu_cost_units
-        the_cost['source'] = 'EIA AEO'
+            eu_cost_units = "$/kBtu/h " + eu
+        the_cost["units"] = cost_yr + eu_cost_units
+        the_cost["source"] = "EIA AEO"
 
         # Extract the cost incentive values by performance level
         the_incentives = incentive_extractor(single_tech_data, years)
@@ -882,30 +902,31 @@ def mseg_technology_handler(
         # Extract the performance data, restructure into the appropriate
         # dict format, and append the units and data source
         the_perf, _ = cost_perf_extractor(
-            single_tech_data,
-            filtered_sd_data,
-            sd_names_list,
-            years, 'performance')
-        the_perf['units'] = the_performance_units
-        the_perf['source'] = 'EIA AEO'
+            single_tech_data, filtered_sd_data, sd_names_list, years, "performance"
+        )
+        the_perf["units"] = the_performance_units
+        the_perf["source"] = "EIA AEO"
 
         # Extract the lifetime data, restructure into the appropriate
         # dict format, and append the units and data source
         the_life = life_extractor(single_tech_data, years)
-        the_life['units'] = 'years'
-        the_life['source'] = 'EIA AEO'
+        the_life["units"] = "years"
+        the_life["source"] = "EIA AEO"
 
         # Following the format used for the residential data, combine
         # the cost, performance, and lifetime data for the technology
         # identified by the variable 'tech' into a single dict
         tech_data_dict = {
-            'installed cost': {
-                'before incentives': the_cost,
-                'incentives': {
-                    'by performance tier': the_incentives,
-                    'performance units': the_performance_units}},
-            'performance': the_perf,
-            'lifetime': the_life}
+            "installed cost": {
+                "before incentives": the_cost,
+                "incentives": {
+                    "by performance tier": the_incentives,
+                    "performance units": the_performance_units,
+                },
+            },
+            "performance": the_perf,
+            "lifetime": the_life,
+        }
 
         # Add the data for this technology to the master dict for the
         # entire microsegment (limit the technology name length to
@@ -923,14 +944,14 @@ def mseg_technology_handler(
     # Add time preference premium data for the current end use
     # to the complete dict with all of the technology cost,
     # performance, and lifetime data added
-    complete_mseg_tech_data['consumer choice'] = tpp_handler(
-        tpp_data, sel, years)
+    complete_mseg_tech_data["consumer choice"] = tpp_handler(tpp_data, sel, years)
 
     return complete_mseg_tech_data, mseg_non_matching_names
 
 
-def walk(tech_data, serv_data, tpp_data, db_data, years, json_db, eu_map,
-         key_list=[], no_match_names=[]):
+def walk(
+    tech_data, serv_data, tpp_data, db_data, years, json_db, eu_map, key_list=[], no_match_names=[]
+):
     """Recursively explore the JSON structure and add the appropriate data.
 
     Note that this walk function and the data processing function
@@ -971,12 +992,10 @@ def walk(tech_data, serv_data, tpp_data, db_data, years, json_db, eu_map,
 
     # Explore data structure from current level
     for key, item in json_db.items():
-
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(tech_data, serv_data, tpp_data, db_data,
-                 years, item, eu_map, key_list + [key])
+            walk(tech_data, serv_data, tpp_data, db_data, years, item, eu_map, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types and that
@@ -993,12 +1012,11 @@ def walk(tech_data, serv_data, tpp_data, db_data, years, json_db, eu_map,
                 mseg_codes = cm.json_interpreter(leaf_node_keys)
 
                 # Skip all demand microsegments and end uses coded > 7
-                if 'demand' not in leaf_node_keys and mseg_codes[2] <= 7:
-
+                if "demand" not in leaf_node_keys and mseg_codes[2] <= 7:
                     # Extract data from original data sources
                     data_dict, non_matching_names = mseg_technology_handler(
-                        tech_data, serv_data, tpp_data, db_data,
-                        mseg_codes, years, eu_map)
+                        tech_data, serv_data, tpp_data, db_data, mseg_codes, years, eu_map
+                    )
 
                     # Set dict key to extracted data
                     json_db[key] = data_dict
@@ -1038,7 +1056,7 @@ def kprem_import(data_file_path, dtype_list, hl):
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
         # Open the file contents as a csv reader object
-        filecont = csv.reader(thefile, delimiter='\t')
+        filecont = csv.reader(thefile, delimiter="\t")
 
         # Create list to be populated with tuples for each row of data
         # from the data file
@@ -1065,14 +1083,14 @@ def kprem_import(data_file_path, dtype_list, hl):
             # row (which appears as a list with two empty strings when
             # imported), use the missing columns from the previous row
             # to complete the row entry and append to the data list
-            elif rowlen > 0 and rowlen < dtypelen and row != ['', '']:
+            elif rowlen > 0 and rowlen < dtypelen and row != ["", ""]:
                 # Determine the number of missing columns of data
                 diff = dtypelen - rowlen
 
                 # Construct this line by appending (making a flat list
                 # using extend instead of append) any missing columns
                 # from the previous line
-                row.extend(list(data[len(data)-1][diff:]))
+                row.extend(list(data[len(data) - 1][diff:]))
 
                 # Append constructed line, as a tuple, to the data
                 data.append(tuple(row))
@@ -1158,31 +1176,29 @@ def main():
 
     # Import technology cost, performance, and lifetime data in
     # EIA AEO 'KTEK' data file (2 rows of headers found in ktek.csv)
-    tech_dtypes = cm.dtype_array(eiadata.cpl_data, ',',
-                                 handyvars.cpl_data_skip_lines - 1)
+    tech_dtypes = cm.dtype_array(eiadata.cpl_data, ",", handyvars.cpl_data_skip_lines - 1)
 
-    col_indices, tech_dtypes = dtype_reducer(tech_dtypes,
-                                             handyvars.columns_to_keep)
-    tech_data = cm.data_import(eiadata.cpl_data, tech_dtypes, ',',
-                               handyvars.cpl_data_skip_lines, col_indices)
-    tech_data = cm.str_cleaner(tech_data, 'technology name')
+    col_indices, tech_dtypes = dtype_reducer(tech_dtypes, handyvars.columns_to_keep)
+    tech_data = cm.data_import(
+        eiadata.cpl_data, tech_dtypes, ",", handyvars.cpl_data_skip_lines, col_indices
+    )
+    tech_data = cm.str_cleaner(tech_data, "technology name")
 
     # Import EIA AEO 'KSDOUT' service demand data
     serv_dtypes = cm.dtype_array(cm.EIAData().serv_dmd)
     serv_data = cm.data_import(cm.EIAData().serv_dmd, serv_dtypes)
-    serv_data, tval = cm.str_cleaner(serv_data, 'Description', True)
+    serv_data, tval = cm.str_cleaner(serv_data, "Description", True)
 
     # Import EIA AEO 'KDBOUT' additional data file
     catg_dtypes = cm.dtype_array(cm.EIAData().catg_dmd)
     catg_data = cm.data_import(cm.EIAData().catg_dmd, catg_dtypes)
-    catg_data = cm.str_cleaner(catg_data, 'Label')
+    catg_data = cm.str_cleaner(catg_data, "Label")
 
     # Import EIA AEO 'kprem' time preference premium data
-    tpp_data = kprem_import(eiadata.tpp_data, handyvars.tpp_dtypes,
-                            handyvars.tpp_data_skip_lines)
+    tpp_data = kprem_import(eiadata.tpp_data, handyvars.tpp_dtypes, handyvars.tpp_data_skip_lines)
 
     # Import metadata generated based on EIA AEO data files
-    with open(handyvars.aeo_metadata, 'r') as metadata:
+    with open(handyvars.aeo_metadata, "r") as metadata:
         metajson = json.load(metadata)
 
     # Assign available string truncation length value to UsefulVars
@@ -1190,16 +1206,17 @@ def main():
     UsefulVars.trunc_len = tval
 
     # Define years vector using year data from metadata
-    years = list(range(metajson['min year'], metajson['max year'] + 1))
+    years = list(range(metajson["min year"], metajson["max year"] + 1))
 
     # Import empty microsegments JSON file and traverse database structure
     try:
-        with open(handyvars.json_in, 'r') as jsi, open(handyvars.json_out, 'w') as jso:
+        with open(handyvars.json_in, "r") as jsi, open(handyvars.json_out, "w") as jso:
             msjson = json.load(jsi)
 
             # Proceed recursively through database structure
-            result, nmtn = walk(tech_data, serv_data, tpp_data, catg_data,
-                                years, msjson, handyvars.eu_map)
+            result, nmtn = walk(
+                tech_data, serv_data, tpp_data, catg_data, years, msjson, handyvars.eu_map
+            )
 
             # Print warning message to the standard out with a unique
             # (i.e., non-repeating) list of technologies that didn't have
@@ -1208,26 +1225,31 @@ def main():
             # The technologies that appear in this list might vary from
             # year to year.
             if nmtn:
-                text = ('Warning: some technologies reported in the '
-                        'technology characteristics data were not found to '
-                        'have corresponding service demand data and were '
-                        'thus excluded from the reported technology cost '
-                        'and performance. These technologies are generally '
-                        'absent from or have all zeros for their service '
-                        'demand data.')
+                text = (
+                    "Warning: some technologies reported in the "
+                    "technology characteristics data were not found to "
+                    "have corresponding service demand data and were "
+                    "thus excluded from the reported technology cost "
+                    "and performance. These technologies are generally "
+                    "absent from or have all zeros for their service "
+                    "demand data."
+                )
                 print(text)
                 for item in sorted(list(set(nmtn))):
-                    print('   ' + item)
+                    print("   " + item)
 
             # Write the updated dict of data to a new JSON file
             json.dump(result, jso, indent=2)
 
     except FileNotFoundError:
-        errtext = ('Confirm that the expected residential data file ' +
-                   handyvars.json_in + ' has already been created and '
-                   'is in the current directory.\n')
+        errtext = (
+            "Confirm that the expected residential data file "
+            + handyvars.json_in
+            + " has already been created and "
+            "is in the current directory.\n"
+        )
         print(errtext)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

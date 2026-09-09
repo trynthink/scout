@@ -38,6 +38,7 @@ SCHEMA_CONFIGS = {
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture(params=["mseg", "cpl"], ids=lambda x: x)
 def schema_config(request):
     """Return configuration for the current schema being tested."""
@@ -94,6 +95,7 @@ def data(data_path, schema_config):
 # Tests
 # ============================================================================
 
+
 def test_schema_file_exists(schema_path):
     """Test that schema files exist at expected locations."""
     assert schema_path.exists(), f"Schema file not found at {schema_path}"
@@ -148,29 +150,18 @@ def test_schema_has_metadata(schema, schema_config):
     assert "$schema" in schema, f"{schema_name}: Schema missing $schema"
     assert "$id" in schema, f"{schema_name}: Schema missing $id"
     assert "version" in schema, f"{schema_name}: Schema missing version"
-    assert "title" in schema, (
-        f"{schema_name}: Schema missing title"
-    )
-    assert "description" in schema, (
-        f"{schema_name}: Schema missing description"
-    )
+    assert "title" in schema, f"{schema_name}: Schema missing title"
+    assert "description" in schema, f"{schema_name}: Schema missing description"
 
     # Check values are not empty
-    assert schema.get("version"), (
-        f"{schema_name}: Schema version is empty"
-    )
-    assert schema.get("title"), (
-        f"{schema_name}: Schema title is empty"
-    )
-    assert schema.get("description"), (
-        f"{schema_name}: Schema description is empty"
-    )
+    assert schema.get("version"), f"{schema_name}: Schema version is empty"
+    assert schema.get("title"), f"{schema_name}: Schema title is empty"
+    assert schema.get("description"), f"{schema_name}: Schema description is empty"
 
     # Verify version format (semantic versioning: x.y.z)
     version = schema.get("version", "")
     assert version.count(".") >= 2, (
-        f"{schema_name}: Schema version should be semantic "
-        f"(e.g., 1.0.0), got: {version}"
+        f"{schema_name}: Schema version should be semantic (e.g., 1.0.0), got: {version}"
     )
 
 
@@ -209,8 +200,10 @@ def test_schema_data_validity(schema, data, data_path, schema_config):
             if config["filter_errors"]:
                 skip_error = False
                 for filter_term in config["filter_errors"]:
-                    if (filter_term in e.message and
-                            "does not match any of the regexes" in e.message):
+                    if (
+                        filter_term in e.message
+                        and "does not match any of the regexes" in e.message
+                    ):
                         skip_error = True
                         break
                 if skip_error:
@@ -255,35 +248,40 @@ def test_schema_data_validity(schema, data, data_path, schema_config):
 
             # Add description if available
             if descriptions:
-                msg_parts.extend([
-                    "",
-                    "Description:",
-                    f"  {descriptions[0]}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Description:",
+                        f"  {descriptions[0]}",
+                    ]
+                )
 
             # Add constraints if any
             if allowable_info:
-                msg_parts.extend([
-                    "",
-                    "Expected Constraints:",
-                    f"  {', '.join(allowable_info)}",
-                ])
+                msg_parts.extend(
+                    [
+                        "",
+                        "Expected Constraints:",
+                        f"  {', '.join(allowable_info)}",
+                    ]
+                )
 
             # Add schema path
-            msg_parts.extend([
-                "",
-                "Schema Path:",
-                f"  {schema_path_str}",
-            ])
+            msg_parts.extend(
+                [
+                    "",
+                    "Schema Path:",
+                    f"  {schema_path_str}",
+                ]
+            )
 
             error_messages.append("\n".join(msg_parts))
 
         if error_messages:
             error_report = (
-                f"\n{'='*70}\n"
+                f"\n{'=' * 70}\n"
                 f"{data_path.name} is invalid\n"
-                f"{'='*70}\n\n" +
-                "\n\n".join(f"{msg}" for msg in error_messages)
+                f"{'=' * 70}\n\n" + "\n\n".join(f"{msg}" for msg in error_messages)
             )
             pytest.fail(error_report)
 

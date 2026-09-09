@@ -16,7 +16,7 @@ sequenceDiagram
     GH->>QG: Trigger workflow
 
     par Quality Gates (gate integration tests)
-        QG->>QG: flake8 + JSON validation
+        QG->>QG: pre-commit (ruff) + JSON validation
         QG->>QG: Documentation check
     end
 
@@ -92,7 +92,7 @@ sequenceDiagram
 - **PR to `master`**: Runs on `opened`, `synchronize`, `reopened`, `ready_for_review`, `labeled`
 
 ### Pipeline Structure
-- **Quality gates** (flake8, JSON validation, docs check) must pass before integration tests start
+- **Quality gates** (pre-commit/ruff, JSON validation, docs check) must pass before integration tests start
 - **Unit tests** (Python 3.10, 3.11, 3.12) run in parallel with integration tests — they do **not** block the integration pipeline
 - **Integration tests** start as soon as quality gates pass, without waiting for unit tests
 

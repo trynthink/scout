@@ -42,6 +42,15 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "openpyxl",
-    "flake8 >= 7.0",
+    "ruff >= 0.14",
+    "pre-commit >= 4.0",
     "tabulate",
 ]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["docs/conf.py"]
+
+[tool.ruff.format]
+# Match the double-quote convention already used throughout the codebase
+quote-style = "double"

@@ -1,13 +1,12 @@
 .. Substitutions
 .. |cmd| unicode:: U+2318
 .. |opt| unicode:: U+2325
-.. |editor requirements| replace:: support for syntax-specific code coloring and syntax-specific formatting and there should be linting_ for Python and JSON built-in or available through add-on packages. Python code linting should include checking for compliance with `PEP 8`_ (using the `pycodestyle`_ package) and pyflakes_, at a minimum
+.. |editor requirements| replace:: support for syntax-specific code coloring and syntax-specific formatting and there should be linting_ for Python and JSON built-in or available through add-on packages. Python code linting should include checking for compliance with `PEP 8`_ (using the ruff_ package, which Scout also runs automatically via pre-commit_), at a minimum
 
 .. CONSIDER FIXING EXPLICIT PEP 8 REFERENCE BY MOVING PYTHON LINTING INFORMATION TO A MULTIPLY-REFERENCED FOOTNOTE
 
 .. _PEP 8: https://www.python.org/dev/peps/pep-0008/
-.. _pycodestyle: https://pypi.org/project/pycodestyle/
-.. _pyflakes: https://pypi.python.org/pypi/pyflakes
+.. _pre-commit: https://pre-commit.com/
 .. _linting: https://en.wikipedia.org/wiki/Lint_(software)
 
 
@@ -113,6 +112,11 @@ Once Python 3 is fully installed and a virtual environment is activated, pip3 [#
 .. note::
    For developers: if you intend on editing files within the Scout package directory, such as ``scout/supporting_data`` or ``.py`` files, run ``pip3 install -e ".[dev]"`` to install in editable mode with developer depedendencies.
 
+.. note::
+   For developers: after installing the developer dependencies, run ``pre-commit install`` once from the Scout installation directory. This sets up git hooks that automatically check (and, where possible, fix) code style, syntax, and file structure issues with ruff_ before each commit is created.
+
+.. _ruff: https://docs.astral.sh/ruff/
+
 The Python packages Scout needs are listed under "dependencies" in the |html-filepath| pyproject.toml |html-fp-end| file. If you'd like to confirm that the dependencies were installed successfully, you can run the command below to review the dependencies installed to your environment.
 
 .. code-block:: shell
@@ -150,7 +154,7 @@ Once installed, Package Control is opened via the Command Palette (Tools > Comma
 
 .. _Package Control website: https://packagecontrol.io/docs
 
-We will use Package Control to install the additional features needed for checking Python files. 
+We will use Package Control to install the additional features needed for checking Python files.
 
 3. Install SublimeLinter prerequisites
 --------------------------------------
@@ -186,7 +190,7 @@ Quit and reopen Sublime Text to apply all of the settings changes and new packag
 
 .. Atom instructions, in case they ever become useful, are commented out below.
 
-.. Open the zipped file downloaded from the Atom_ website and drag the Atom application to the Applications folder. 
+.. Open the zipped file downloaded from the Atom_ website and drag the Atom application to the Applications folder.
 
 .. Once Atom is installed, you must add the packages that check Python and JSON files for integrity. Open the Settings (Atom > Preferences), which will open a new tab in your Atom window. In the left sidebar in the newly opened Settings tab, click "Install." Type "linter-pycodestyle" into the search field on the Install page and hit return (make sure "Packages" is selected as the search option). Identify the correct package ("linter-pycodestyle") in the list of search results and click the appropriate "Install" button. Once complete, search again for "linter-jsonlint" and complete the installation.
 
@@ -207,7 +211,7 @@ Some of the software prerequisites for Scout have different versions for 32-bit 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tip::
-   If you have 64-bit Windows installed on your computer, downloading and installing the 64-bit version of Python is recommended. 
+   If you have 64-bit Windows installed on your computer, downloading and installing the 64-bit version of Python is recommended.
 
 Download the executable installer for Windows available on the Python Software Foundation `downloads page`_. Run the installer and follow the on-screen prompts as you would with any other software installer. Be sure that the option in the installer "Add Python 3.x to PATH," where x denotes the current version of Python 3, is checked.
 
@@ -270,7 +274,7 @@ Once installed, Package Control is opened via the Command Palette (Tools > Comma
 
 .. _Package Control website: https://packagecontrol.io/docs
 
-We will use Package Control to install the additional features needed for checking Python files. 
+We will use Package Control to install the additional features needed for checking Python files.
 
 3. Install SublimeLinter prerequisites
 --------------------------------------
@@ -280,7 +284,7 @@ Before proceeding further, `open a command prompt`_ window and type the followin
    python -m pip install pycodestyle
    python -m pip install pyflakes
 
-Once you have 
+Once you have
 
 4. Install SublimeLinter
 ------------------------
@@ -305,7 +309,7 @@ Finally, the Python-specific settings for Sublime Text need to be updated. Open 
 Save the modified file and close the window, then delete |html-filepath| asdf.py\ |html-fp-end|.
 
 Quit and reopen Sublime Text to apply all of the settings changes and new packages that have been installed.
-   
+
 
 .. rubric:: Footnotes
 .. [#f1] pip/pip3 is typically installed at the same time that Python 3 is installed.

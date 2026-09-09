@@ -103,10 +103,6 @@ if __name__ == "__main__":
         required=False,
         help="Run workflow step(s) with profiler",
     )
-    parser.add_argument(
-        "-y", "--yaml",
-        type=str,
-        help=("Path to YAML configuration file")
-    )
+    parser.add_argument("-y", "--yaml", type=str, help=("Path to YAML configuration file"))
     opts = parser.parse_args()
     run_workflow(config=opts.yaml, run_step=opts.run_step, with_profiler=opts.with_profiler)

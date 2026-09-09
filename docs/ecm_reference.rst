@@ -332,7 +332,7 @@ roof, wall, infiltration, ground, windows solar, windows conduction, equipment g
 
 * non-PC office equipment: ``null``
 
-* MELs: distribution transformers, kitchen ventilation, security systems, lab fridges and freezers, medical imaging, large video boards, coffee brewers, non-road electric vehicles, fume hoods, laundry, elevators, escalators, IT equipment, office UPS, data center UPS, shredders, private branch exchanges, voice-over-IP telecom, point-of-sale systems, warehouse robots, televisions, water services, telecom systems, other 
+* MELs: distribution transformers, kitchen ventilation, security systems, lab fridges and freezers, medical imaging, large video boards, coffee brewers, non-road electric vehicles, fume hoods, laundry, elevators, escalators, IT equipment, office UPS, data center UPS, shredders, private branch exchanges, voice-over-IP telecom, point-of-sale systems, warehouse robots, televisions, water services, telecom systems, other
 
 * other: ``null``
 
@@ -394,7 +394,7 @@ Energy efficiency units
      * Pool heaters and pumps (kWh/yr)
      * Portable electric spas (kWh/yr)
      * Wine coolers (kWh/yr)
-   
+
    * All other end uses/equipment types (relative savings (constant) *with* :ref:`add-on measure type <ecm-features-measure-type>` designation)
 
 ..   * Ceiling fan (W)
@@ -732,7 +732,7 @@ energy_efficiency_units
 * **Type:** string, dict
 
 This field specifies the units of the reported energy efficiency values for the ECM. The correct energy efficiency units depend on the building type, end use, and in some cases, equipment type of the technology described by the ECM. The units can be determined using the :ref:`list of energy efficiency units <ecm-energy-efficiency-units>` in the :ref:`ecm-def-reference`. ::
-   
+
    {...
     "energy_efficiency_units": "COP",
     ...}
@@ -1254,7 +1254,7 @@ This field sheds (reduces) a certain percentage of baseline electricity demand (
 shift
 ~~~~~
 * **Parents:** :ref:`json-tsv_features`
-* **Children:** :ref:`json-rel_energy_frac`, :ref:`json-offset_hrs_earlier`, :ref:`json-start`, :ref:`json-stop`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`  
+* **Children:** :ref:`json-rel_energy_frac`, :ref:`json-offset_hrs_earlier`, :ref:`json-start`, :ref:`json-stop`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`
 * **Type:** dict
 
 This field shifts baseline energy loads from one time of day to another by redistributing loads reduced during a certain hour range to earlier times of day. The :ref:`json-start_day` and :ref:`json-stop_day` and :ref:`json-start` and :ref:`json-stop` parameters are used to determine the day and hour ranges from which to shift the load reductions, respectively. The magnitude of the load reduction is defined by the :ref:`json-rel_energy_frac` parameter. The :ref:`json-offset_hrs_earlier` parameter is then used to determine which hour range to redistribute the load reductions to. ::
@@ -1272,10 +1272,10 @@ This field shifts baseline energy loads from one time of day to another by redis
 shape
 ~~~~~
 * **Parents:** :ref:`json-tsv_features`
-* **Children:** :ref:`json-custom-save-day`, `json-custom-save-ann`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`, 
+* **Children:** :ref:`json-custom-save-day`, `json-custom-save-ann`, (optional) :ref:`json-start_day`, :ref:`json-stop_day`,
 * **Type:** dict
 
-The final type of time sensitive ECM feature applies hourly savings fractions to baseline loads in accordance with a custom savings shape that represents either a typical day or all 8760 hours of the year. 
+The final type of time sensitive ECM feature applies hourly savings fractions to baseline loads in accordance with a custom savings shape that represents either a typical day or all 8760 hours of the year.
 
 In the first case, custom hourly savings for a typical day are defined in the :ref:`json-custom-save-day` parameter; the hourly savings are specified as a list with 24 elements, with each element representing the fraction of hourly baseline load that an ECM saves. These hourly savings are applied for each day of the year in the range defined by the :ref:`json-start_day` and :ref:`json-stop_day` parameters, as for the shed and shift features.
 
@@ -1300,7 +1300,7 @@ In the second case, the custom savings shape represents hourly load impacts for 
 start_hour
 ~~~~~~~~~~
 * **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** int
 
 This field indicates the hour of the day (from 1 to 24) that application of a time sensitive ECM feature begins. ::
@@ -1314,7 +1314,7 @@ This field indicates the hour of the day (from 1 to 24) that application of a ti
 stop_hour
 ~~~~~~~~~
 * **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** int
 
 This field indicates the hour of the day (from 1 to 24) that application of a time sensitive ECM feature ends. ::
@@ -1329,7 +1329,7 @@ This field indicates the hour of the day (from 1 to 24) that application of a ti
 start_day
 ~~~~~~~~~~
 * **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** int, list
 
 This field indicates the day of the year (from 1 to 365) that application of a time sensitive ECM feature begins. ::
@@ -1349,7 +1349,7 @@ The field may alternatively be specified in list format to yield two start day v
 stop_day
 ~~~~~~~~~
 * **Parents:** :ref:`json-shed`, :ref:`json-shift`, :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** int, list
 
 This field indicates the day of the year (from 1 to 365) that application of a time sensitive ECM feature ends. ::
@@ -1371,7 +1371,7 @@ The field may alternatively be specified in list format to yield two end day val
 relative energy change fraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shed`, :ref:`json-shift`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** float
 
 This field indicates fraction of baseline hourly loads that a measure sheds and/or shifts to another time period. ::
@@ -1385,7 +1385,7 @@ This field indicates fraction of baseline hourly loads that a measure sheds and/
 offset_hrs_earlier
 ~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shift`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** int
 
 This field indicates the number of hours earlier to shift baseline load reductions. ::
@@ -1399,7 +1399,7 @@ This field indicates the number of hours earlier to shift baseline load reductio
 custom_daily_savings
 ~~~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** list
 
 This field provides a list of 24 fractions that represent the percentage of baseline load saved in each hour of a typical day. ::
@@ -1415,7 +1415,7 @@ This field provides a list of 24 fractions that represent the percentage of base
 custom_annual_savings
 ~~~~~~~~~~~~~~~~~~~~~
 * **Parents:** :ref:`json-shape`
-* **Children:** None, 
+* **Children:** None,
 * **Type:** string
 
 This field points to a CSV file containing measure savings fractions for all 8760 hours of the year. ::

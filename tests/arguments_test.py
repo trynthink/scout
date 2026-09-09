@@ -9,8 +9,7 @@ from scout.ecm_prep_args import ecm_args
 
 
 class Utils:
-    """Shared resources with paths to test yml files and a method for asserting argument values
-    """
+    """Shared resources with paths to test yml files and a method for asserting argument values"""
 
     test_files = Path(__file__).parent / "test_files"
     empty_yml_pth = str(test_files / "empty_config.yml")
@@ -62,8 +61,8 @@ class Utils:
 
 class TestConfig(unittest.TestCase, Utils):
     """Tests to process yml configuration files and parse as arguments within the Config class.
-        These tests cover only methods in Config, addressing both argument parsing from yml
-        files and directly from the command line.
+    These tests cover only methods in Config, addressing both argument parsing from yml
+    files and directly from the command line.
     """
 
     # Expected ecm_prep and run default values; aligns with test_files/default_config.yml
@@ -114,7 +113,7 @@ class TestConfig(unittest.TestCase, Utils):
             "state_appl_regs": None,
             "bps": None,
             "codes": None,
-            "report_stk": None
+            "report_stk": None,
         },
         "run": {
             "results_directory": None,
@@ -125,7 +124,7 @@ class TestConfig(unittest.TestCase, Utils):
             "report_cfs": False,
             "no_comp": False,
             "high_res_comp": False,
-            "write_elec_conv_fracs": False
+            "write_elec_conv_fracs": False,
         },
     }
 
@@ -156,10 +155,12 @@ class TestConfig(unittest.TestCase, Utils):
             "detail_brkout": ["regions", "fuel types"],
             "pkg_env_costs": "include HVAC",
         },
-        "run": {"results_directory": "results/test_dir",
-                "mkt_fracs": True,
-                "trim_vars": False,
-                "report_custom_yrs": []},
+        "run": {
+            "results_directory": "results/test_dir",
+            "mkt_fracs": True,
+            "trim_vars": False,
+            "report_custom_yrs": [],
+        },
     }
 
     def tearDown(self):
@@ -331,15 +332,19 @@ class TestConfig(unittest.TestCase, Utils):
         )
         self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
 
-        cli_args = ["--tsv_type", "power",
-                    "--tsv_daily_hr_restrict", "all",
-                    "--tsv_power_agg", "average"]
+        cli_args = [
+            "--tsv_type",
+            "power",
+            "--tsv_daily_hr_restrict",
+            "all",
+            "--tsv_power_agg",
+            "average",
+        ]
         actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
-        expected_err = ("`tsv_average_days` must be specified if `tsv_power_agg` is 'average'.")
+        expected_err = "`tsv_average_days` must be specified if `tsv_power_agg` is 'average'."
         self.assertTrue(expected_err in actual_err, f"Expected {expected_err} in {actual_err}")
 
-        cli_args = ["--retrofit_type", "increasing",
-                    "--retrofit_multiplier", "1"]
+        cli_args = ["--retrofit_type", "increasing", "--retrofit_multiplier", "1"]
         actual_err = self._get_cfg_args_err_message("ecm_prep", cli_args)
         expected_err = (
             "`retrofit_multiplier` and `retrofit_mult_year` must be specified if `retrofit_type`"
@@ -350,7 +355,7 @@ class TestConfig(unittest.TestCase, Utils):
 
 class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     """Tests to confirm accurate translation of cli/yml arguments to values used in ecm_prep.py.
-        These tests implicitly use the Config class, but focus on methods from ecm_prep_args.py.
+    These tests implicitly use the Config class, but focus on methods from ecm_prep_args.py.
     """
 
     # Expected default values translated in ecm_prep_args; aligns with values translated from
@@ -358,8 +363,10 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     default_translated = {
         "ecm_directory": None,
         "ecm_files": [
-            file.stem for file in fp.ECM_DEF.iterdir() if file.is_file() and
-            file.suffix == '.json' and file.stem != 'package_ecms'],
+            file.stem
+            for file in fp.ECM_DEF.iterdir()
+            if file.is_file() and file.suffix == ".json" and file.stem != "package_ecms"
+        ],
         "ecm_files_regex": [],
         "ecm_packages": [],
         "site_energy": False,
@@ -403,10 +410,12 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
     # test_files/valid_config.yml
     valid_yml_translated = {
         "ecm_directory": "test_files/ecm_definitions",
-        "ecm_files": ["Best Com. Air Sealing (Exist)",
-                      "Best Com. Air Sealing (New)",
-                      "Best Res. Air Sealing (Exist)",
-                      "Best Res. Air Sealing (New)"],
+        "ecm_files": [
+            "Best Com. Air Sealing (Exist)",
+            "Best Com. Air Sealing (New)",
+            "Best Res. Air Sealing (Exist)",
+            "Best Res. Air Sealing (New)",
+        ],
         "ecm_files_regex": ["^Best Res\\. Air Sealing \\((Exist|New)\\)$"],
         "ecm_packages": [],
         "site_energy": True,
@@ -468,7 +477,7 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
             "--detail_brkout",
             "regions",
             "fuel types",
-            "--split_fuel"
+            "--split_fuel",
         ]
         args = ecm_args(cli_args)
         self.assertEqual(args.add_typ_eff, True)
@@ -501,8 +510,10 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
             ]
             args = ecm_args(cli_args)
             self.assertEqual(args.ecm_files, ["Best Com. Air Sealing (Exist)"])
-            self.assertIn("The following ECMs specified with the `ecm_files` argument are not "
-                          "present in", str(warning_context.warnings[0]))
+            self.assertIn(
+                "The following ECMs specified with the `ecm_files` argument are not present in",
+                str(warning_context.warnings[0]),
+            )
 
     def test_translate_from_empty_cfg(self):
         # Translation of empty yml (default args)
@@ -524,8 +535,10 @@ class TestECMPrepArgsTranslate(unittest.TestCase, Utils):
             "--fugitive_emissions",
             "low-gwp refrigerant",
         ]
-        update_dict = {"adopt_scn_restrict": ["Technical potential"],
-                       "fugitive_emissions": [2, 3, None]}
+        update_dict = {
+            "adopt_scn_restrict": ["Technical potential"],
+            "fugitive_emissions": [2, 3, None],
+        }
         args = ecm_args(cli_args)
         expected_args = copy.deepcopy(self.valid_yml_translated)
         expected_args.update(update_dict)

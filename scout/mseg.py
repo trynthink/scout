@@ -16,6 +16,7 @@ class EIAData(object):
         res_energy (str): The file name for the AEO residential energy
             and stock data.
     """
+
     def __init__(self, data_dir=fp.INPUTS):
         self.res_energy = data_dir / "RDM_DBOUT.txt"
         self.res_generation = data_dir / "RDM_DGENOUT.txt"
@@ -49,12 +50,12 @@ class UsefulVars(object):
     """
 
     def __init__(self):
-        self.json_in = fp.INPUTS / 'microsegments.json'
-        self.json_out = fp.INPUTS / 'mseg_res_cdiv.json'
-        self.res_tloads = fp.THERMAL_LOADS / 'Res_TLoads_Final.txt'
+        self.json_in = fp.INPUTS / "microsegments.json"
+        self.json_out = fp.INPUTS / "mseg_res_cdiv.json"
+        self.res_tloads = fp.THERMAL_LOADS / "Res_TLoads_Final.txt"
         self.aeo_metadata = fp.METADATA_PATH
-        self.unused_supply_re = r'^\(b\'(SF|ST |FP).*'
-        self.unused_demand_re = r'^\(b\'(?!(HT|CL|SH)).*'
+        self.unused_supply_re = r"^\(b\'(SF|ST |FP).*"
+        self.unused_demand_re = r"^\(b\'(?!(HT|CL|SH)).*"
 
 
 class SkipLines(object):
@@ -66,6 +67,7 @@ class SkipLines(object):
         json_out (str): Filename for JSON with residential building data added.
         aeo_metadata (str): File name for the custom AEO metadata JSON.
     """
+
     def __init__(self, aeo_import_year, aeo_versions):
         self.aeo_import_year = aeo_import_year
         if self.aeo_import_year == 2015:
@@ -98,35 +100,35 @@ class SkipLines(object):
             self.lt_skip_header = 40
             self.lt_skip_footer = 51
 
+
 # Define a series of dicts that will translate imported JSON
 # microsegment names to AEO microsegment(s)
 
 
 # Census division dict
-cdivdict = {'new england': 1,
-            'mid atlantic': 2,
-            'east north central': 3,
-            'west north central': 4,
-            'south atlantic': 5,
-            'east south central': 6,
-            'west south central': 7,
-            'mountain': 8,
-            'pacific': 9
-            }
+cdivdict = {
+    "new england": 1,
+    "mid atlantic": 2,
+    "east north central": 3,
+    "west north central": 4,
+    "south atlantic": 5,
+    "east south central": 6,
+    "west south central": 7,
+    "mountain": 8,
+    "pacific": 9,
+}
 
 # Building type dict (residential)
-bldgtypedict = {'single family home': 1,
-                'multi family home': 2,
-                'mobile home': 3
-                }
+bldgtypedict = {"single family home": 1, "multi family home": 2, "mobile home": 3}
 
 # Fuel type dict
-fueldict = {'electricity (on site)': 'SL',
-            'electricity': 'EL',
-            'natural gas': 'GS',
-            'distillate': 'DS',
-            'other fuel': ('LG', 'KS', 'CL', 'GE', 'WD')
-            }
+fueldict = {
+    "electricity (on site)": "SL",
+    "electricity": "EL",
+    "natural gas": "GS",
+    "distillate": "DS",
+    "other fuel": ("LG", "KS", "CL", "GE", "WD"),
+}
 # Note that currently in RESDBOUT.txt, electric resistance heaters are
 # categorized under GE (geothermal) fuel. Fuel types "SL" and "NG" have
 # been removed from the "other fuel" category. "SL" (solar) fuel
@@ -174,99 +176,116 @@ fueldict = {'electricity (on site)': 'SL',
 #                         'other appliances': 'OA'}}
 
 # End use dict with revised MELs breakout introduced in AEO 2022
-endusedict = {'total square footage': 'SQ',  # AEO reports ft^2 as an end use
-              'new homes': 'HS',
-              'total homes': 'HT',
-              'heating': 'HT',
-              'secondary heating': 'SH',
-              'cooling': 'CL',
-              'fans and pumps': 'FF',
-              'ceiling fan': 'CFN',
-              'lighting': 'LT',
-              'water heating': 'HW',
-              'refrigeration': 'RF',
-              'cooking': 'CK',
-              'drying': 'DR',
-              'TVs': {'TV': 'TVS',
-                      'set top box': 'STB',
-                      'home theater and audio': 'HTS',
-                      'OTT streaming devices': 'OTT',
-                      'video game consoles': 'VGC'},
-              'computers': {'desktop PC': 'DPC',
-                            'laptop PC': 'LPC',
-                            'monitors': 'MON',
-                            'network equipment': 'NET'},
-              'other': {'clothes washing': 'CW',
-                        'dishwasher': 'DW',
-                        'freezers': 'FZ',
-                        'rechargeables': 'BAT',
-                        'coffee maker': 'COF',
-                        'dehumidifier': 'DEH',
-                        'electric other': 'EO',
-                        'small kitchen appliances': 'KIT',
-                        'microwave': 'MCO',
-                        'smartphones': 'PHN',
-                        'pool heaters': 'PLH',
-                        'pool pumps': 'PLP',
-                        'security system': 'SEC',
-                        'portable electric spas': 'SPA',
-                        'smart speakers': 'SPK',
-                        'tablets': 'TAB',
-                        'wine coolers': 'WCL',
-                        'other appliances': 'OA'}}
+endusedict = {
+    "total square footage": "SQ",  # AEO reports ft^2 as an end use
+    "new homes": "HS",
+    "total homes": "HT",
+    "heating": "HT",
+    "secondary heating": "SH",
+    "cooling": "CL",
+    "fans and pumps": "FF",
+    "ceiling fan": "CFN",
+    "lighting": "LT",
+    "water heating": "HW",
+    "refrigeration": "RF",
+    "cooking": "CK",
+    "drying": "DR",
+    "TVs": {
+        "TV": "TVS",
+        "set top box": "STB",
+        "home theater and audio": "HTS",
+        "OTT streaming devices": "OTT",
+        "video game consoles": "VGC",
+    },
+    "computers": {
+        "desktop PC": "DPC",
+        "laptop PC": "LPC",
+        "monitors": "MON",
+        "network equipment": "NET",
+    },
+    "other": {
+        "clothes washing": "CW",
+        "dishwasher": "DW",
+        "freezers": "FZ",
+        "rechargeables": "BAT",
+        "coffee maker": "COF",
+        "dehumidifier": "DEH",
+        "electric other": "EO",
+        "small kitchen appliances": "KIT",
+        "microwave": "MCO",
+        "smartphones": "PHN",
+        "pool heaters": "PLH",
+        "pool pumps": "PLP",
+        "security system": "SEC",
+        "portable electric spas": "SPA",
+        "smart speakers": "SPK",
+        "tablets": "TAB",
+        "wine coolers": "WCL",
+        "other appliances": "OA",
+    },
+}
 
 # Technology types (supply) dict
-technology_supplydict = {'solar WH': 'SOLAR_WH',
-                         'electric WH': 'ELEC_WH',
-                         'total homes (tech level)': 'ELEC_RAD',
-                         'resistance heat': 'ELEC_RAD',
-                         'ASHP': 'ELEC_HP',
-                         'GSHP': 'GEO_HP',
-                         'central AC': 'CENT_AIR',
-                         'room AC': 'ROOM_AIR',
-                         'linear fluorescent (T-12)': ('LFL', 'T12'),
-                         'linear fluorescent (T-8)': ('LFL', 'T-8'),
-                         'linear fluorescent (LED)': ('LFL', 'LED'),
-                         'general service (incandescent)': ('GSL', 'Inc'),
-                         'general service (CFL)': ('GSL', 'CFL'),
-                         'general service (LED)': ('GSL', 'LED'),
-                         'reflector (incandescent)': ('REF', 'Inc'),
-                         'reflector (CFL)': ('REF', 'CFL'),
-                         'reflector (halogen)': ('REF', 'HAL'),
-                         'reflector (LED)': ('REF', 'LED'),
-                         'external (incandescent)': ('EXT', 'Inc'),
-                         'external (CFL)': ('EXT', 'CFL'),
-                         'external (high pressure sodium)': ('EXT', 'HPS'),
-                         'external (LED)': ('EXT', 'LED'),
-                         'furnace (NG)': 'NG_FA',
-                         'boiler (NG)': 'NG_RAD',
-                         'NGHP': 'NG_HP',
-                         'furnace (distillate)': 'DIST_FA',
-                         'boiler (distillate)': 'DIST_RAD',
-                         'furnace (kerosene)': 'KERO_FA',
-                         'furnace (LPG)': 'LPG_FA',
-                         'stove (wood)': 'WOOD_HT',
-                         'resistance': 'GE2',
-                         'secondary heater (kerosene)': 'KS',
-                         'secondary heater (LPG)': 'LG',
-                         'secondary heater (wood)': 'WD',
-                         'secondary heater (coal)': 'CL',
-                         'secondary heater': ''
-                         }
+technology_supplydict = {
+    "solar WH": "SOLAR_WH",
+    "electric WH": "ELEC_WH",
+    "total homes (tech level)": "ELEC_RAD",
+    "resistance heat": "ELEC_RAD",
+    "ASHP": "ELEC_HP",
+    "GSHP": "GEO_HP",
+    "central AC": "CENT_AIR",
+    "room AC": "ROOM_AIR",
+    "linear fluorescent (T-12)": ("LFL", "T12"),
+    "linear fluorescent (T-8)": ("LFL", "T-8"),
+    "linear fluorescent (LED)": ("LFL", "LED"),
+    "general service (incandescent)": ("GSL", "Inc"),
+    "general service (CFL)": ("GSL", "CFL"),
+    "general service (LED)": ("GSL", "LED"),
+    "reflector (incandescent)": ("REF", "Inc"),
+    "reflector (CFL)": ("REF", "CFL"),
+    "reflector (halogen)": ("REF", "HAL"),
+    "reflector (LED)": ("REF", "LED"),
+    "external (incandescent)": ("EXT", "Inc"),
+    "external (CFL)": ("EXT", "CFL"),
+    "external (high pressure sodium)": ("EXT", "HPS"),
+    "external (LED)": ("EXT", "LED"),
+    "furnace (NG)": "NG_FA",
+    "boiler (NG)": "NG_RAD",
+    "NGHP": "NG_HP",
+    "furnace (distillate)": "DIST_FA",
+    "boiler (distillate)": "DIST_RAD",
+    "furnace (kerosene)": "KERO_FA",
+    "furnace (LPG)": "LPG_FA",
+    "stove (wood)": "WOOD_HT",
+    "resistance": "GE2",
+    "secondary heater (kerosene)": "KS",
+    "secondary heater (LPG)": "LG",
+    "secondary heater (wood)": "WD",
+    "secondary heater (coal)": "CL",
+    "secondary heater": "",
+}
 
 # Technology types (demand) dict
-technology_demanddict = {'windows conduction': 'WIND_COND',
-                         'windows solar': 'WIND_SOL',
-                         'wall': 'WALL',
-                         'roof': 'ROOF',
-                         'ground': 'GRND',
-                         'infiltration': 'INFIL',
-                         'people gain': 'PEOPLE',
-                         'equipment gain': 'EQUIP'}
+technology_demanddict = {
+    "windows conduction": "WIND_COND",
+    "windows solar": "WIND_SOL",
+    "wall": "WALL",
+    "roof": "ROOF",
+    "ground": "GRND",
+    "infiltration": "INFIL",
+    "people gain": "PEOPLE",
+    "equipment gain": "EQUIP",
+}
 
 # Form residential dictlist for use in JSON translator
-res_dictlist = [endusedict, cdivdict, bldgtypedict, fueldict,
-                technology_supplydict, technology_demanddict]
+res_dictlist = [
+    endusedict,
+    cdivdict,
+    bldgtypedict,
+    fueldict,
+    technology_supplydict,
+    technology_demanddict,
+]
 
 
 def json_translator(dictlist, filterformat):
@@ -303,7 +322,7 @@ def json_translator(dictlist, filterformat):
     """
 
     # Set base filtering list of lists (1st element supply filter, 2nd demand)
-    json_translate = [[], '']
+    json_translate = [[], ""]
 
     # Set an indicator for whether a "demand" filtering element has been found
     # (special treatment)
@@ -322,10 +341,9 @@ def json_translator(dictlist, filterformat):
     # update, where "total homes" uses the same filter codes as a heating,
     # electricity, boiler (electric) microsegment in RESDBOUT,
     # but with the relevant data in the "HOUSEHOLDS" column
-    if 'total homes' in filterformat and len(filterformat) == 3:
+    if "total homes" in filterformat and len(filterformat) == 3:
         filterformat = filterformat[0:2]
-        filterformat.extend(['electricity', 'total homes',
-                             'total homes (tech level)'])
+        filterformat.extend(["electricity", "total homes", "total homes (tech level)"])
     # Reduce dictlist as appropriate to filtering information (if not a
     # "demand", microsegment, remove "technology_demanddict" from dictlist;
     # if not a "supply" microsegment", remove "technology_supplydict" from
@@ -334,17 +352,21 @@ def json_translator(dictlist, filterformat):
     # if a microsegment square footage or a new homes update, include only
     # "fueldict", "cdivdict", and "bldgtypedict" (square footage and new
     # homes are included on the fuel type level in the microsegments JSON).
-    if 'demand' in filterformat:
-        dictlist_loop = dictlist[:(len(dictlist) - 2)]
+    if "demand" in filterformat:
+        dictlist_loop = dictlist[: (len(dictlist) - 2)]
         dictlist_add = dictlist[-1]
         dictlist_loop.append(dictlist_add)
-    elif 'total square footage' in filterformat and len(filterformat) == 3 or \
-         'new homes' in filterformat and len(filterformat) == 3:
-        dictlist_loop = dictlist[:(len(dictlist) - 3)]
+    elif (
+        "total square footage" in filterformat
+        and len(filterformat) == 3
+        or "new homes" in filterformat
+        and len(filterformat) == 3
+    ):
+        dictlist_loop = dictlist[: (len(dictlist) - 3)]
     elif len(filterformat) <= 4:
-        dictlist_loop = dictlist[:(len(dictlist) - 2)]
+        dictlist_loop = dictlist[: (len(dictlist) - 2)]
     else:
-        dictlist_loop = dictlist[:(len(dictlist) - 1)]
+        dictlist_loop = dictlist[: (len(dictlist) - 1)]
 
     # Loop through "dictlist" and determine whether any elements of
     # "filterformat" input are in dict keys; if so, add key value to output
@@ -377,13 +399,13 @@ def json_translator(dictlist, filterformat):
                         json_translate[1] = str(j[key])
                     break
             # Flag a "demand" microsegment
-            elif key == 'demand':
+            elif key == "demand":
                 demand_indicator = 1
         # If there was no key match for given dict and we don't have special
         # case of a technology being handled on the end use level, raise error
-        if (match_count == 0 and ms_level != (len(dictlist) - 1)) or \
-           (match_count == 0 and ms_level == (len(dictlist) - 1) and
-           enduse_techlevel == 0):
+        if (match_count == 0 and ms_level != (len(dictlist) - 1)) or (
+            match_count == 0 and ms_level == (len(dictlist) - 1) and enduse_techlevel == 0
+        ):
             raise (KeyError("Filter list element not found in dict keys!"))
 
     # Return updated filtering list of lists: [[supply filter],[demand filter]]
@@ -412,9 +434,16 @@ def thermal_load_select(tl_data, sel):
     """
 
     # Select the appropriate data from the thermal loads data array
-    tl_data_sel = tl_data[numpy.all([tl_data['ENDUSE'] == sel[0][0],
-                                     tl_data['CDIV'] == sel[0][1],
-                                     tl_data['BLDG'] == sel[0][2]], axis=0)]
+    tl_data_sel = tl_data[
+        numpy.all(
+            [
+                tl_data["ENDUSE"] == sel[0][0],
+                tl_data["CDIV"] == sel[0][1],
+                tl_data["BLDG"] == sel[0][2],
+            ],
+            axis=0,
+        )
+    ]
 
     # Extract the demand modifier value (the fraction of heating or
     # cooling load gained/lost through the relevant exterior surface)
@@ -452,28 +481,27 @@ def nrg_stock_select(data, sel):
     group_energy = {}
 
     # Select data for the specified census division and building type
-    data_sel = data[numpy.all([data['CDIV'] == sel[0][1],
-                               data['BLDG'] == sel[0][2]], axis=0)]
+    data_sel = data[numpy.all([data["CDIV"] == sel[0][1], data["BLDG"] == sel[0][2]], axis=0)]
 
     # Multiple end uses can be provided, but try first to see if only
     # one end use is provided; if not, select data for all of the
     # end uses given
     if type(sel[0][0]) is not tuple:
-        data_sel = data_sel[numpy.all(
-            [data_sel['ENDUSE'] == sel[0][0]], axis=0)]
+        data_sel = data_sel[numpy.all([data_sel["ENDUSE"] == sel[0][0]], axis=0)]
     else:
-        data_sel = data_sel[numpy.hstack([numpy.where(
-            data_sel['ENDUSE'] == i) for i in sel[0][0]]).flatten()]
+        data_sel = data_sel[
+            numpy.hstack([numpy.where(data_sel["ENDUSE"] == i) for i in sel[0][0]]).flatten()
+        ]
 
     # Multiple fuel types can be provided, but try first to see if only
     # one fuel type is provided and if not, use a different approach to
     # select data for all of the fuel types indicated
     if type(sel[0][3]) is not tuple:
-        data_sel = data_sel[numpy.all(
-            [data_sel['FUEL'] == sel[0][3]], axis=0)]
+        data_sel = data_sel[numpy.all([data_sel["FUEL"] == sel[0][3]], axis=0)]
     else:
-        data_sel = data_sel[numpy.hstack([numpy.where(
-            data_sel['FUEL'] == i) for i in sel[0][3]]).flatten()]
+        data_sel = data_sel[
+            numpy.hstack([numpy.where(data_sel["FUEL"] == i) for i in sel[0][3]]).flatten()
+        ]
 
     # If an equipment class is specified, select the subset of
     # applicable data as appropriate
@@ -485,11 +513,10 @@ def nrg_stock_select(data, sel):
     if eqp:
         if isinstance(eqp, tuple):  # Lighting
             data_sel = data_sel[
-                numpy.all([data_sel['EQPCLASS'] == eqp[0],
-                           data_sel['BULBTYPE'] == eqp[1]], axis=0)]
+                numpy.all([data_sel["EQPCLASS"] == eqp[0], data_sel["BULBTYPE"] == eqp[1]], axis=0)
+            ]
         else:  # Other end uses
-            data_sel = data_sel[
-                numpy.all([data_sel['EQPCLASS'] == eqp], axis=0)]
+            data_sel = data_sel[numpy.all([data_sel["EQPCLASS"] == eqp], axis=0)]
 
     # Loop through the reduced numpy stock and energy array and
     # combine the reported values together
@@ -499,16 +526,16 @@ def nrg_stock_select(data, sel):
         # EIA categories together), add the new stock and consumption
         # values to the existing values (assume that if the year is
         # present in the group_stock dict it is also in group_energy)
-        if row['YEAR'] in group_stock:
+        if row["YEAR"] in group_stock:
             # Record energy consumption and stock information
             # (change the year to a string to yield a valid
             # JSON dict, where all keys must be strings)
-            group_stock[row['YEAR']] += row['EQSTOCK']
-            group_energy[row['YEAR']] += row['CONSUMPTION']
+            group_stock[row["YEAR"]] += row["EQSTOCK"]
+            group_energy[row["YEAR"]] += row["CONSUMPTION"]
 
         else:
-            group_stock[row['YEAR']] = row['EQSTOCK']
-            group_energy[row['YEAR']] = row['CONSUMPTION']
+            group_stock[row["YEAR"]] = row["EQSTOCK"]
+            group_energy[row["YEAR"]] = row["CONSUMPTION"]
 
     # Convert the numeric year keys in the energy and stock dicts
     # to strings to be compatible with valid JSON
@@ -542,37 +569,50 @@ def sqft_homes_select(data, sel):
     """
 
     # Define initial square footage, new homes, or total homes lists
-    if (endusedict['total square footage'] in sel[0] or
-            endusedict['new homes'] in sel[0] or
-            endusedict['total homes'] in sel[0]):
+    if (
+        endusedict["total square footage"] in sel[0]
+        or endusedict["new homes"] in sel[0]
+        or endusedict["total homes"] in sel[0]
+    ):
         group_out = {}
     else:
-        raise ValueError('Unexpected housing stock filtering information!')
+        raise ValueError("Unexpected housing stock filtering information!")
 
     # Select home count or square footage data based on selection indices
-    if technology_supplydict['total homes (tech level)'] in sel[0]:
-        data_sel = data[numpy.all([data['ENDUSE'] == sel[0][0],
-                                   data['CDIV'] == sel[0][1],
-                                   data['BLDG'] == sel[0][2],
-                                   data['FUEL'] == sel[0][3],
-                                   data['EQPCLASS'] == sel[0][4]], axis=0)]
+    if technology_supplydict["total homes (tech level)"] in sel[0]:
+        data_sel = data[
+            numpy.all(
+                [
+                    data["ENDUSE"] == sel[0][0],
+                    data["CDIV"] == sel[0][1],
+                    data["BLDG"] == sel[0][2],
+                    data["FUEL"] == sel[0][3],
+                    data["EQPCLASS"] == sel[0][4],
+                ],
+                axis=0,
+            )
+        ]
     else:
-        data_sel = data[numpy.all([data['ENDUSE'] == sel[0][0],
-                                   data['CDIV'] == sel[0][1],
-                                   data['BLDG'] == sel[0][2]], axis=0)]
+        data_sel = data[
+            numpy.all(
+                [data["ENDUSE"] == sel[0][0], data["CDIV"] == sel[0][1], data["BLDG"] == sel[0][2]],
+                axis=0,
+            )
+        ]
 
     # Loop through the reduced numpy stock and energy (and ancillary
     # data) array and restructure the reported values
     for idx, row in enumerate(data_sel):
-        if (endusedict['total square footage'] in sel[0] or
-            (endusedict['total homes'] in sel[0] and
-                technology_supplydict['total homes (tech level)'] in sel[0])):
+        if endusedict["total square footage"] in sel[0] or (
+            endusedict["total homes"] in sel[0]
+            and technology_supplydict["total homes (tech level)"] in sel[0]
+        ):
             # Record square foot or total homes information
             # (from "HOUSEHOLDS" column in RESDBOUT)
-            group_out[row['YEAR']] = row['HOUSEHOLDS']
-        elif endusedict['new homes'] in sel[0]:
+            group_out[row["YEAR"]] = row["HOUSEHOLDS"]
+        elif endusedict["new homes"] in sel[0]:
             # Record new homes information (from "EQSTOCK" column in RESDBOUT)
-            group_out[row['YEAR']] = row['EQSTOCK']
+            group_out[row["YEAR"]] = row["EQSTOCK"]
 
     # Convert the numeric year keys in the selected home counts or
     # characteristics dicts to strings to be compatible with valid JSON
@@ -624,24 +664,26 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
     # type string for incandescents between the AEO 2015 and 2017
     # data; this approach might merit revisiting later
     if aeo_years in [42, 36, 31]:  # AEO 2017- formatting
-        lt_with_energy = [('GSL', 'INC'), ('LFL', 'T12'),  # AEO 2017-
-                          ('REF', 'INC'), ('EXT', 'INC')]
+        lt_with_energy = [
+            ("GSL", "INC"),
+            ("LFL", "T12"),  # AEO 2017-
+            ("REF", "INC"),
+            ("EXT", "INC"),
+        ]
     else:  # AEO 2015 formatting
-        lt_with_energy = [('GSL', 'Inc'), ('LFL', 'T12'),
-                          ('REF', 'Inc'), ('EXT', 'Inc')]
+        lt_with_energy = [("GSL", "Inc"), ("LFL", "T12"), ("REF", "Inc"), ("EXT", "Inc")]
 
     # If the end use is lighting, create and prepare an additional
     # text filter for extracting the energy data from the lighting
     # type that has energy data
-    lt_nrg_index = ['GSL', 'LFL', 'REF', 'EXT']
+    lt_nrg_index = ["GSL", "LFL", "REF", "EXT"]
     addl_txt_filter = None
-    if 'lighting' in filterdata:
+    if "lighting" in filterdata:
         if txt_filter[0][4] not in lt_with_energy:
             # Obtain the lighting tuple for the text filter that
             # matches same fixture type, but for the bulb type that
             # has energy data reported
-            new_lt_filt = lt_with_energy[lt_nrg_index.index(
-                txt_filter[0][4][0])]
+            new_lt_filt = lt_with_energy[lt_nrg_index.index(txt_filter[0][4][0])]
 
             # Construct a new text filter using the lighting type
             # that has data available, and avoiding the use of
@@ -651,38 +693,39 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
 
     # Call the appropriate input data selection function and return
     # the desired result based on the type of data requested
-    if 'demand' in filterdata:
+    if "demand" in filterdata:
         # Find baseline heating or cooling energy microsegment (before
         # application of load component); establish reduced numpy array
-        group_energy_base, group_stock = nrg_stock_select(
-            nrg_stock, txt_filter)
+        group_energy_base, group_stock = nrg_stock_select(nrg_stock, txt_filter)
 
         # Given the discovered lists of energy/stock values, ensure
         # length is equal to the number of years currently projected
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy_base) is not aeo_years:
             if len(group_energy_base) != 0:
-                raise (ValueError('Error in length of discovered list!'))
+                raise (ValueError("Error in length of discovered list!"))
 
         # If the end use is secondary heating, change the end use
         # in the filter to 'HT' from 'SH', because both primary and
         # secondary heating are coded as 'HT' in the thermal loads file
-        if txt_filter[0][0] == 'SH':
-            txt_filter[0][0] = 'HT'
+        if txt_filter[0][0] == "SH":
+            txt_filter[0][0] = "HT"
 
         # Find/return appropriate thermal loads component factor
         tloads_component = thermal_load_select(tloads, txt_filter)
 
         # Apply component value to baseline energy values for final list
-        group_energy = {key: val * tloads_component
-                        for key, val in group_energy_base.items()}
+        group_energy = {key: val * tloads_component for key, val in group_energy_base.items()}
 
         # Return combined energy use values and updated version of EIA demand
         # data and thermal loads data with already matched data removed
-        return {'stock': 'NA', 'energy': group_energy}
+        return {"stock": "NA", "energy": group_energy}
 
-    elif 'total square footage' in filterdata or 'new homes' in filterdata or \
-         'total homes' in filterdata:
+    elif (
+        "total square footage" in filterdata
+        or "new homes" in filterdata
+        or "total homes" in filterdata
+    ):
         # Given input numpy array and 'compare from' list, return sq. footage
         # projection lists and reduced numpy array (with matched rows removed)
         group_sqft_homes = sqft_homes_select(nrg_stock, txt_filter)
@@ -701,7 +744,7 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
                     if str(yr) not in group_sqft_homes:
                         group_sqft_homes[str(yr)] = 0
             if len(group_sqft_homes) != aeo_years:
-                raise (ValueError('Error in length of discovered list!'))
+                raise (ValueError("Error in length of discovered list!"))
 
         # Return sq. footage values and updated version of EIA
         # supply data with already matched data removed
@@ -712,28 +755,31 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
         # separately obtain the stock data and do not delete
         # any data, as lighting energy data will need to be called
         # from the input array several times for each fixture type
-        if 'lighting' in filterdata:
+        if "lighting" in filterdata:
             # Determine whether the lighting energy information will
             # need to be obtained separately
             if addl_txt_filter:
                 # Get the lighting energy data
-                group_energy, _ = nrg_stock_select(
-                    nrg_stock, addl_txt_filter)
+                group_energy, _ = nrg_stock_select(nrg_stock, addl_txt_filter)
 
                 # Get the lighting stock data
-                _, group_stock = nrg_stock_select(
-                    nrg_stock, txt_filter)
+                _, group_stock = nrg_stock_select(nrg_stock, txt_filter)
             else:
-                group_energy, group_stock = nrg_stock_select(
-                    nrg_stock, txt_filter)
+                group_energy, group_stock = nrg_stock_select(nrg_stock, txt_filter)
 
             # Obtain the applicable lighting energy correction factors
-            lt_correction = lt_factors[numpy.all(
-                [lt_factors['CDIV'] == txt_filter[0][1],
-                 lt_factors['BLDG'] == txt_filter[0][2],
-                 lt_factors['EQPCLASS'] == txt_filter[0][4][0],
-                 lt_factors['BULBTYPE'] == txt_filter[0][4][1]], axis=0)]
-            lt_correction = lt_correction['FACTOR']
+            lt_correction = lt_factors[
+                numpy.all(
+                    [
+                        lt_factors["CDIV"] == txt_filter[0][1],
+                        lt_factors["BLDG"] == txt_filter[0][2],
+                        lt_factors["EQPCLASS"] == txt_filter[0][4][0],
+                        lt_factors["BULBTYPE"] == txt_filter[0][4][1],
+                    ],
+                    axis=0,
+                )
+            ]
+            lt_correction = lt_correction["FACTOR"]
 
             # Correct the lighting energy data by applying
             # the appropriate weighting factor for the current
@@ -742,24 +788,24 @@ def list_generator(nrg_stock, tloads, filterdata, aeo_years, lt_factors):
             # thus needs to be disassembled before applying the
             # weighting factor)
             if group_energy:
-                group_energy = dict(zip(sorted(group_energy.keys()),
-                                        list(group_energy.values())*lt_correction))
+                group_energy = dict(
+                    zip(sorted(group_energy.keys()), list(group_energy.values()) * lt_correction)
+                )
         else:
             # Given input numpy array and 'compare from' list, return
             # energy/stock projection lists and reduced numpy array
             # (with matched rows removed)
-            group_energy, group_stock = nrg_stock_select(
-                nrg_stock, txt_filter)
+            group_energy, group_stock = nrg_stock_select(nrg_stock, txt_filter)
 
         # Given the discovered lists of energy/stock values, ensure
         # length is equal to the number of years currently projected
         # by AEO. If not, and the list isn't empty, trigger an error.
         if len(group_energy) is not aeo_years:
             if len(group_energy) != 0:
-                raise (ValueError('Error in length of discovered list!'))
+                raise (ValueError("Error in length of discovered list!"))
 
         # Return combined stock/energy use values
-        return {'stock': group_stock, 'energy': group_energy}
+        return {"stock": group_stock, "energy": group_energy}
 
 
 def walk(nrg_stock, loads, json_dict, yrs_range, lt_factors, key_list=[]):
@@ -797,8 +843,7 @@ def walk(nrg_stock, loads, json_dict, yrs_range, lt_factors, key_list=[]):
         # If there are additional levels in the dict, call the function
         # again to advance another level deeper into the data structure
         if isinstance(item, dict):
-            walk(nrg_stock, loads, item, yrs_range,
-                 lt_factors, key_list + [key])
+            walk(nrg_stock, loads, item, yrs_range, lt_factors, key_list + [key])
 
         # If a leaf node has been reached, check if the second entry in
         # the key list is one of the recognized building types, and if
@@ -808,8 +853,7 @@ def walk(nrg_stock, loads, json_dict, yrs_range, lt_factors, key_list=[]):
             if key_list[1] in bldgtypedict.keys():
                 leaf_node_keys = key_list + [key]
                 # Extract data from original data sources
-                data_dict = list_generator(nrg_stock, loads, leaf_node_keys,
-                                           yrs_range, lt_factors)
+                data_dict = list_generator(nrg_stock, loads, leaf_node_keys, yrs_range, lt_factors)
 
                 # Set dict key to extracted data
                 json_dict[key] = data_dict
@@ -849,24 +893,23 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
     """
 
     # Extract the unique fixture types
-    fixture_types = numpy.unique(lt_cpl_data['Application'])
+    fixture_types = numpy.unique(lt_cpl_data["Application"])
 
     # Extract the final year of reported lighting data (and thus
     # all residential data obtained from the AEO) from the CPL data
-    final_year = max(lt_cpl_data['LastYear'])
+    final_year = max(lt_cpl_data["LastYear"])
 
     # Create range object for the year range from the first to last
     # year in the lighting data based on fixed parameters, since the
     # years reported in the lighting data itself may not be consistent
     # across all lighting types reported in the file
-    year_range = range(final_year - n_years + 1,
-                       final_year + 1)
+    year_range = range(final_year - n_years + 1, final_year + 1)
 
     # Construct list of names for numpy structured array
-    col_names = ['Application', 'BulbType'] + list(map(str, year_range))
+    col_names = ["Application", "BulbType"] + list(map(str, year_range))
 
     # Determine dtypes for final numpy array to be returned by this function
-    col_dtypes = ['U4', 'U4'] + ['f8'] * len(year_range)
+    col_dtypes = ["U4", "U4"] + ["f8"] * len(year_range)
 
     # Construct complete dtype specification for numpy structured array
     the_dtype = list(zip(col_names, col_dtypes))
@@ -882,8 +925,7 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
     # and populate a numpy structured array with the resulting values
     for fixture in fixture_types:
         # Identify the unique bulb types for this fixture type
-        bulb_types = numpy.unique(
-            lt_cpl_data[lt_cpl_data['Application'] == fixture]['BulbType'])
+        bulb_types = numpy.unique(lt_cpl_data[lt_cpl_data["Application"] == fixture]["BulbType"])
 
         # Create an empty numpy array to use as an intermediate step
         # to store lighting performance values for each bulb type
@@ -897,33 +939,36 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
         for idx, bulb in enumerate(bulb_types):
             # Obtain the subset of the lighting data corresponding
             # to the current bulb and fixture type
-            single_lt = lt_cpl_data[numpy.all([
-                            lt_cpl_data['Application'] == fixture,
-                            lt_cpl_data['BulbType'] == bulb], axis=0)]
+            single_lt = lt_cpl_data[
+                numpy.all(
+                    [lt_cpl_data["Application"] == fixture, lt_cpl_data["BulbType"] == bulb], axis=0
+                )
+            ]
 
             # Calculate the number of times each value should repeat
             # (to reflect the number of years the value stays the same)
-            n_repeat_times = single_lt['LastYear'] - single_lt['FirstYear'] + 1
+            n_repeat_times = single_lt["LastYear"] - single_lt["FirstYear"] + 1
 
             # Generate numpy array of values using the number of
             # repeats calculated for each value
-            bulb_perf_lm_watts, bulb_perf_watts = [numpy.repeat(
-              single_lt[x], n_repeat_times) for x in ['lm_per_W', 'Watts']]
+            bulb_perf_lm_watts, bulb_perf_watts = [
+                numpy.repeat(single_lt[x], n_repeat_times) for x in ["lm_per_W", "Watts"]
+            ]
 
             # If more than the expected number of performance values
             # appear in the 1D numpy array, truncate the initial values
             bulb_perf_lm_watts, bulb_perf_watts = [
-              bulb_perf_lm_watts[-n_years:], bulb_perf_watts[-n_years:]]
+                bulb_perf_lm_watts[-n_years:],
+                bulb_perf_watts[-n_years:],
+            ]
 
             # If fewer than the expected number of values are present (e.g.,
             # when lighting data begin after the metadata min year), pad the
             # front of the array with the earliest available value.
             if len(bulb_perf_lm_watts) < n_years:
                 pad_n = n_years - len(bulb_perf_lm_watts)
-                bulb_perf_lm_watts = numpy.pad(
-                    bulb_perf_lm_watts, (pad_n, 0), mode='edge')
-                bulb_perf_watts = numpy.pad(
-                    bulb_perf_watts, (pad_n, 0), mode='edge')
+                bulb_perf_lm_watts = numpy.pad(bulb_perf_lm_watts, (pad_n, 0), mode="edge")
+                bulb_perf_watts = numpy.pad(bulb_perf_watts, (pad_n, 0), mode="edge")
 
             # Find and remove spurious performance changes in lm/W
             # performance over time, yielding a final performance array
@@ -933,11 +978,11 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
             # bulbs (i.e., more lm/W) have lower values and thus
             # will have lower energy use associated with them (when
             # these efficiency multipliers are applied)
-            bulb_perf = 1/bulb_perf
+            bulb_perf = 1 / bulb_perf
 
             # Insert the inverted bulb performance (referred to here as
             # bulb efficiency) into the intermediate numpy array
-            fixture_group[idx, ] = bulb_perf
+            fixture_group[idx,] = bulb_perf
 
             # Insert the fixture type and bulb type codes into an
             # intermediate list of lists for later combination with
@@ -947,7 +992,7 @@ def lighting_eff_prep(lt_cpl_data, n_years, n_lt_types):
         # Calculate normalized efficiency weighting factors for each
         # year for all of the bulb types that correspond to this
         # fixture type
-        norm_fixture_group = fixture_group/numpy.sum(fixture_group, 0)
+        norm_fixture_group = fixture_group / numpy.sum(fixture_group, 0)
 
         # Combine each row of normalized efficiency weighting factors
         # with their corresponding fixture and bulb type codes and
@@ -983,8 +1028,11 @@ def chk_false_eff(bulb_perf_lm_watts, bulb_perf_watts):
         # Identify spurious lm/W values as those equal to 99, where the
         # corresponding W performance value is also 99; set these
         # values to the previous performance value in the array
-        if idx > 0 and (bulb_perf_lm_watts[idx] == 99) and (
-           bulb_perf_lm_watts[idx] == bulb_perf_watts[idx]):
+        if (
+            idx > 0
+            and (bulb_perf_lm_watts[idx] == 99)
+            and (bulb_perf_lm_watts[idx] == bulb_perf_watts[idx])
+        ):
             bulb_perf_lm_watts[idx] = bulb_perf_lm_watts[idx - 1]
 
     return bulb_perf_lm_watts
@@ -1035,28 +1083,34 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
 
     # Extract the first year of reported lighting data from the
     # AEO energy and stock data
-    first_yr = min(nrg_stock_data[nrg_stock_data['ENDUSE'] == 'LT']['YEAR'])
+    first_yr = min(nrg_stock_data[nrg_stock_data["ENDUSE"] == "LT"]["YEAR"])
 
     # Obtain census divisions from reported lighting data in the
     # AEO energy and stock data
-    cdiv_list = set(nrg_stock_data[nrg_stock_data['ENDUSE'] == 'LT']['CDIV'])
+    cdiv_list = set(nrg_stock_data[nrg_stock_data["ENDUSE"] == "LT"]["CDIV"])
 
     # Obtain building types from reported lighting data in the
     # AEO energy and stock data
-    bldg_list = set(nrg_stock_data[nrg_stock_data['ENDUSE'] == 'LT']['BLDG'])
+    bldg_list = set(nrg_stock_data[nrg_stock_data["ENDUSE"] == "LT"]["BLDG"])
 
     # Obtain the lighting fixture types from the lighting efficiency
     # factors
-    fixture_types = list(set(lt_eff['Application']))
+    fixture_types = list(set(lt_eff["Application"]))
 
     # Define the dtype for the lighting weighting factors array
-    lt_wf_dtype = [('CDIV', 'i4'), ('BLDG', 'i4'), ('EQPCLASS', 'U4'),
-                   ('BULBTYPE', 'U4'), ('YEAR', 'i4'), ('FACTOR', 'f8')]
+    lt_wf_dtype = [
+        ("CDIV", "i4"),
+        ("BLDG", "i4"),
+        ("EQPCLASS", "U4"),
+        ("BULBTYPE", "U4"),
+        ("YEAR", "i4"),
+        ("FACTOR", "f8"),
+    ]
 
     # Calculate the number of rows for the lighting weighting factors
     # array - unique factors are calculated for each combination of
     # census division, building type, year, fixture type, and bulb type
-    n_rows = len(cdiv_list)*len(bldg_list)*n_yrs*n_lt_types
+    n_rows = len(cdiv_list) * len(bldg_list) * n_yrs * n_lt_types
 
     # Preallocate the structured array for the lighting weighting factors
     lt_wf = numpy.zeros(n_rows, dtype=lt_wf_dtype)
@@ -1071,16 +1125,21 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                 # Select the subset of the lighting energy and stock
                 # data corresponding to the current census division,
                 # building type, and fixture type
-                lt_nrgst = nrg_stock_data[numpy.all(
-                    [nrg_stock_data['ENDUSE'] == 'LT',
-                     nrg_stock_data['CDIV'] == cdiv,
-                     nrg_stock_data['BLDG'] == bldg,
-                     nrg_stock_data['EQPCLASS'] == fixture], axis=0)]
+                lt_nrgst = nrg_stock_data[
+                    numpy.all(
+                        [
+                            nrg_stock_data["ENDUSE"] == "LT",
+                            nrg_stock_data["CDIV"] == cdiv,
+                            nrg_stock_data["BLDG"] == bldg,
+                            nrg_stock_data["EQPCLASS"] == fixture,
+                        ],
+                        axis=0,
+                    )
+                ]
 
                 # Extract the unique (no repeated entries) list of
                 # applicable bulb types for this fixture type
-                bulb_types = list(set(
-                    lt_eff[lt_eff['Application'] == fixture]['BulbType']))
+                bulb_types = list(set(lt_eff[lt_eff["Application"] == fixture]["BulbType"]))
 
                 # Preallocate 1-D array to store total stock for all bulb
                 # types for the current lighting type
@@ -1099,24 +1158,24 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                 for idx, bulb in enumerate(bulb_types):
                     # Obtain the stock for the current bulb type
                     # as a 1-D numpy array (vector with value for each year)
-                    x = lt_nrgst[lt_nrgst['BULBTYPE'] == bulb]
-                    x = numpy.sort(x, order='YEAR')['EQSTOCK']
+                    x = lt_nrgst[lt_nrgst["BULBTYPE"] == bulb]
+                    x = numpy.sort(x, order="YEAR")["EQSTOCK"]
 
                     # Ensure stock vectors align to the expected year count.
                     if len(x) > n_yrs:
                         x = x[-n_yrs:]
                     elif len(x) < n_yrs:
-                        x = numpy.pad(
-                            x, (n_yrs - len(x), 0), mode='constant')
+                        x = numpy.pad(x, (n_yrs - len(x), 0), mode="constant")
 
                     # Obtain the efficiency factors for the current
                     # bulb type though as a numpy structured array
                     # that is next converted into a form that can be
                     # multiplied by another array
                     y = lt_eff[
-                        numpy.all([lt_eff['Application'] == fixture,
-                                   lt_eff['BulbType'] == bulb],
-                                  axis=0)]
+                        numpy.all(
+                            [lt_eff["Application"] == fixture, lt_eff["BulbType"] == bulb], axis=0
+                        )
+                    ]
 
                     # Convert the structured array into a list and strip
                     # off the leading Application and BulbType strings
@@ -1126,8 +1185,8 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                     # the corresponding efficiency factors and
                     # insert them into the appropriate row in the
                     # temporary matrix
-                    tmp_vals = x*y
-                    fixture_array_tmp[idx, ] = tmp_vals
+                    tmp_vals = x * y
+                    fixture_array_tmp[idx,] = tmp_vals
 
                     # Add the stock for this bulb type multiplied by
                     # the corresponding efficiency factors to the total
@@ -1136,7 +1195,7 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
                     # Develop the array of indices for the current bulb type,
                     # where each row corresponds to a single year
                     for st in range(0, n_yrs):
-                        indices = [cdiv, bldg, fixture, bulb, st+first_yr]
+                        indices = [cdiv, bldg, fixture, bulb, st + first_yr]
                         # Add the index values to the intermediate list
                         array_indices.append(indices)
                     # This loop approach is probably not the most runtime
@@ -1146,28 +1205,27 @@ def calc_lighting_factors(nrg_stock_data, lt_eff, n_yrs, n_lt_types):
 
                 # Divide the stock in each row of the intermediate
                 # matrix of lighting weighting factors by the total stock
-                fixture_array_tmp = fixture_array_tmp/total_denom
+                fixture_array_tmp = fixture_array_tmp / total_denom
 
                 # Recast the 2-D array of weighting factors into a 1-D
                 # array to match the number of rows in the indices list
-                fixture_array_1d = numpy.reshape(fixture_array_tmp,
-                                                 numpy.size(fixture_array_tmp))
+                fixture_array_1d = numpy.reshape(fixture_array_tmp, numpy.size(fixture_array_tmp))
 
                 # For each lighting stock multiplier, construct the row
                 # from the indices and the value and insert it into the
                 # final array
                 for idx, val in enumerate(fixture_array_1d):
-                    lt_wf[incr+idx, ] = tuple(array_indices[idx] + [val])
+                    lt_wf[incr + idx,] = tuple(array_indices[idx] + [val])
 
                 # Update the array position increment variable
-                incr += idx+1
+                incr += idx + 1
 
     return lt_wf
 
 
 def onsite_calc(generation_file, json_results):
-    """ Calculates net electricity use using EIA's pre-2021 methodology
-    and adds a new PV technology type. """
+    """Calculates net electricity use using EIA's pre-2021 methodology
+    and adds a new PV technology type."""
 
     def array_mult(dct, factor):
         scaled = {key: val * factor for key, val in dct.items()}
@@ -1178,52 +1236,50 @@ def onsite_calc(generation_file, json_results):
 
     # Read in AEO's onsite generation file
     gen_dtypes = dtype_array(generation_file)
-    gen_dtypes[1] = ('Year', '<U50')
+    gen_dtypes[1] = ("Year", "<U50")
     gen_data = data_import(generation_file, gen_dtypes)
 
     # Define impacted building type
-    res_bld = 'single family home'
+    res_bld = "single family home"
 
     # Pull the onsite generation by census division
     for div in cdivdict:
-        cdiv = gen_data[gen_data['Division'] == cdivdict[div]][
-            ['Year', 'OwnUse']]
-        years = numpy.unique(cdiv['Year'])
-        cdiv['OwnUse'] = cdiv['OwnUse']*to_mmbtu
-        onsite_gen = dict([(i, cdiv[cdiv['Year'] == i][
-                    'OwnUse'].sum()) for i in years])
+        cdiv = gen_data[gen_data["Division"] == cdivdict[div]][["Year", "OwnUse"]]
+        years = numpy.unique(cdiv["Year"])
+        cdiv["OwnUse"] = cdiv["OwnUse"] * to_mmbtu
+        onsite_gen = dict([(i, cdiv[cdiv["Year"] == i]["OwnUse"].sum()) for i in years])
 
         # Add in new onsite generation end use
-        elec_slice = json_results[div][res_bld]['electricity']
-        elec_slice['onsite generation'] = {}
-        elec_slice['onsite generation']['energy'] = array_mult(onsite_gen, -1)
-        elec_slice['onsite generation']['stock'] = 'NA'
+        elec_slice = json_results[div][res_bld]["electricity"]
+        elec_slice["onsite generation"] = {}
+        elec_slice["onsite generation"]["energy"] = array_mult(onsite_gen, -1)
+        elec_slice["onsite generation"]["stock"] = "NA"
 
     return json_results
 
 
 def dtype_eval(entry):
-    """ Takes as input an entry from a standard line (row) of a text
+    """Takes as input an entry from a standard line (row) of a text
     or CSV file and determines its type (only string, float, or
     integer), returning the specified type, which can be added to a
-    list to be used in creating a numpy structured array of the data. """
+    list to be used in creating a numpy structured array of the data."""
 
     # Strip leading and trailing spaces off of string
     entry = entry.strip()
 
-    if '.' in entry:
-        dtype = 'f8'
-    elif 'NA'.lower() in entry.lower():
-        dtype = 'f8'
-    elif re.search('[a-zA-Z]+', entry):  # At least one letter somewhere
-        dtype = '<U50'  # Strings assumed to be no more than 50 characters
+    if "." in entry:
+        dtype = "f8"
+    elif "NA".lower() in entry.lower():
+        dtype = "f8"
+    elif re.search("[a-zA-Z]+", entry):  # At least one letter somewhere
+        dtype = "<U50"  # Strings assumed to be no more than 50 characters
     else:
-        dtype = 'i4'
+        dtype = "i4"
 
     return dtype
 
 
-def dtype_array(data_file_path, delim_char=',', hl=None):
+def dtype_array(data_file_path, delim_char=",", hl=None):
     """Scan a file to assess the data type
 
     Using the csv module, read a text data file to develop a data
@@ -1258,7 +1314,6 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
 
     # Open the target CSV formatted data file
     with open(data_file_path, encoding="latin1") as thefile:
-
         # This use of csv.reader assumes that the default setting of
         # quotechar '"' is appropriate
         filecont = csv.reader(thefile, delimiter=delim_char)
@@ -1279,7 +1334,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         # as the header line ("or" condition in the while loop per
         # De Morgan's laws)
         row = next(filecont)
-        while '' in row or len(row) != len(header_names):
+        while "" in row or len(row) != len(header_names):
             row = next(filecont)
 
         # Determine dtype of the current line in the file
@@ -1291,7 +1346,7 @@ def dtype_array(data_file_path, delim_char=',', hl=None):
         return comb_dtypes
 
 
-def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
+def data_import(data_file_path, dtype_list, delim_char=",", skip_rows=[]):
     """Import data and convert to a numpy structured array.
 
     Read the contents of a data file with a header line and convert
@@ -1315,7 +1370,6 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
 
     # Open the target CSV formatted data file
     with open(data_file_path) as thefile:
-
         # This use of csv.reader assumes that the default setting of
         # quotechar '"' is appropriate; the skipinitialspace option
         # ensures proper reading of double-quoted text strings in the
@@ -1324,12 +1378,12 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         # is used to detect NULL characters and act appropriately (by
         # removing them prior to converting to a csv.reader object)
         # if they are encountered
-        if '\0' in open(data_file_path).read():  # NULL bytes detected
-            filecont = csv.reader((x.replace('\0', '') for x in thefile),
-                                  delimiter=delim_char, skipinitialspace=True)
+        if "\0" in open(data_file_path).read():  # NULL bytes detected
+            filecont = csv.reader(
+                (x.replace("\0", "") for x in thefile), delimiter=delim_char, skipinitialspace=True
+            )
         else:  # No NULL bytes, proceed normally
-            filecont = csv.reader(thefile,
-                                  delimiter=delim_char, skipinitialspace=True)
+            filecont = csv.reader(thefile, delimiter=delim_char, skipinitialspace=True)
 
         # Create list to be populated with tuples of each row of data
         # from the data file
@@ -1348,7 +1402,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
         for row in filecont:
             if row[0].strip() not in skip_rows:
                 if len(tuple(row)) != len(dtype_list):
-                    row = row + [0]*(len(dtype_list)-len(row))
+                    row = row + [0] * (len(dtype_list) - len(row))
                 if not row[8]:
                     row[8] = 0
                 data.append(tuple(row))
@@ -1363,7 +1417,7 @@ def data_import(data_file_path, dtype_list, delim_char=',', skip_rows=[]):
             # In the 2017 AEO data, some consumption data are reported
             # as floating point numbers on the 0.5 for some reason;
             # update the dtype for that column to float
-            dtype_list[7] = (dtype_list[7][0], 'f8')
+            dtype_list[7] = (dtype_list[7][0], "f8")
 
             # With the '' strings replaced with integer coercible
             # values, create the numpy array as originally desired
@@ -1402,29 +1456,28 @@ def str_cleaner(data_array, column_name):
         # Check to see if an HTML character reference ampersand or
         # double-quote, or standard double-quote character is in
         # the string
-        html_ampersand_present = re.search('&amp;', text_string)
-        html_double_quote_present = re.search('&quot;', text_string)
-        double_quote_present = re.search('\"', text_string)
+        html_ampersand_present = re.search("&amp;", text_string)
+        html_double_quote_present = re.search("&quot;", text_string)
+        double_quote_present = re.search('"', text_string)
 
         # For data matching purposes, replace the ampersand and quote
         # symbols with consistent characters/strings and eliminate the
         # use of the standalone double-quote character
         if html_ampersand_present:
-            text_string = re.sub('&amp;', '&', text_string)
+            text_string = re.sub("&amp;", "&", text_string)
         elif html_double_quote_present:
-            text_string = re.sub('&quot;', '-inch', text_string)
+            text_string = re.sub("&quot;", "-inch", text_string)
         elif double_quote_present:
-            text_string = re.sub('\"', '-inch', text_string)
+            text_string = re.sub('"', "-inch", text_string)
 
         return text_string
 
     # Check for double quotes in the first entry in the specified column
     # and, assuming all entries in the column are the same, revise all
     # of the entries using the appropriate procedure for the formatting
-    if re.search('(?<=\")([^\"]+)', data_array[column_name][0]):
+    if re.search('(?<=")([^"]+)', data_array[column_name][0]):
         # Operate on each row in the specified column of the structured array
         for row_idx, entry in enumerate(data_array[column_name]):
-
             # Delete leading and trailing spaces
             entry = entry.strip()
 
@@ -1443,7 +1496,6 @@ def str_cleaner(data_array, column_name):
     else:
         # Operate on each row in the specified column of the structured array
         for row_idx, entry in enumerate(data_array[column_name]):
-
             # Clean up strings with special characters to ensure that
             # these characters appear consistently across all imported data
             entry = special_character_handler(entry)
@@ -1467,25 +1519,22 @@ def update_lighting_dict():
     does not need to take any arguments or return the updated dicts.
     Rather it simply modifies the existing dict in place.
     """
-    technology_supplydict['general service (incandescent)'] = ('GSL', 'INC')
-    technology_supplydict['reflector (incandescent)'] = ('REF', 'INC')
-    technology_supplydict['external (incandescent)'] = ('EXT', 'INC')
+    technology_supplydict["general service (incandescent)"] = ("GSL", "INC")
+    technology_supplydict["reflector (incandescent)"] = ("REF", "INC")
+    technology_supplydict["external (incandescent)"] = ("EXT", "INC")
 
 
 def main():
-    """ Import text and JSON files; run through JSON objects; find
-    analogous text information; replace JSON values; update JSON """
+    """Import text and JSON files; run through JSON objects; find
+    analogous text information; replace JSON values; update JSON"""
 
     # Set up to support user option to specify the year for the
     # AEO data being imported (default if the option is not used
     # should be current year)
     aeo_versions = [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026]
     parser = argparse.ArgumentParser()
-    help_string = 'Specify year of AEO data to be imported'
-    parser.add_argument('-y', '--year',
-                        type=int,
-                        help=help_string,
-                        choices=aeo_versions)
+    help_string = "Specify year of AEO data to be imported"
+    parser.add_argument("-y", "--year", type=int, help=help_string, choices=aeo_versions)
 
     # Get import year specified by user (if any)
     aeo_import_year = parser.parse_args().year
@@ -1496,7 +1545,7 @@ def main():
     skip = SkipLines(aeo_import_year, aeo_versions)
 
     # Import metadata generated based on EIA AEO data files
-    with open(handyvars.aeo_metadata, 'r') as metadata:
+    with open(handyvars.aeo_metadata, "r") as metadata:
         metajson = json.load(metadata)
 
     # Calculate number of years in the AEO data; expecting 32 years
@@ -1506,21 +1555,23 @@ def main():
     # Use AEO data import year specified by user (if any) to determine
     # how to specify the year range to be used for processing the data
     if aeo_import_year == 2015:
-        yrs_range = metajson['max year'] - metajson['min year'] + 1
+        yrs_range = metajson["max year"] - metajson["min year"] + 1
 
         # Import EIA RESDBOUT.txt energy use and stock file
-        ns_dtypes = dtype_array(eiadata.res_energy, '\t')
-        ns_data = data_import(eiadata.res_energy, ns_dtypes, '\t',
-                              ['SF', 'ST', 'FP'])
+        ns_dtypes = dtype_array(eiadata.res_energy, "\t")
+        ns_data = data_import(eiadata.res_energy, ns_dtypes, "\t", ["SF", "ST", "FP"])
     elif aeo_import_year in [2025, 2026, None]:
-        yrs_range = metajson['max year'] - metajson['min year'] + 1
+        yrs_range = metajson["max year"] - metajson["min year"] + 1
         update_lighting_dict()
 
         # Import EIA RESDBOUT.txt energy use and stock file
         ns_dtypes = dtype_array(eiadata.res_energy)
-        ns_data = data_import(eiadata.res_energy, ns_dtypes, ',',
-                              ['SF', 'ST', 'FP', 'HSHE', 'HSHN',
-                               'HSHA', 'CSHA', 'CSHE', 'CSHN'])
+        ns_data = data_import(
+            eiadata.res_energy,
+            ns_dtypes,
+            ",",
+            ["SF", "ST", "FP", "HSHE", "HSHN", "HSHA", "CSHA", "CSHE", "CSHN"],
+        )
 
     # THIS APPROACH MAY NEED TO BE REVISITED IN THE FUTURE; AS IS,
     # IT DOES NOT ENSURE CONSISTENCY WITH THE OTHER AEO INPUT DATA
@@ -1528,44 +1579,71 @@ def main():
 
     # Clean up all the columns from the imported data that have
     # extraneous spaces in their entries
-    ns_data = str_cleaner(ns_data, 'ENDUSE')
-    ns_data = str_cleaner(ns_data, 'EQPCLASS')
-    ns_data = str_cleaner(ns_data, 'BULBTYPE')
+    ns_data = str_cleaner(ns_data, "ENDUSE")
+    ns_data = str_cleaner(ns_data, "EQPCLASS")
+    ns_data = str_cleaner(ns_data, "BULBTYPE")
 
     # For recent AEO formats, derive the year count from imported data
     # to keep all extracted vectors aligned.
     if aeo_import_year in [2025, 2026, None]:
-        yrs_range = len(set(ns_data['YEAR']))
+        yrs_range = len(set(ns_data["YEAR"]))
 
     # Import residential thermal load components data
-    tl_dtypes = dtype_array(handyvars.res_tloads, '\t')
-    tl_data = data_import(handyvars.res_tloads, tl_dtypes, '\t')
+    tl_dtypes = dtype_array(handyvars.res_tloads, "\t")
+    tl_data = data_import(handyvars.res_tloads, tl_dtypes, "\t")
 
     # Explicitly define the lighting data type (note that special)
-    eia_lt_dtype = [('FirstYear', 'i4'), ('LastYear', 'i4'), ('Cost', 'f8'),
-                    ('EE_Sub1', 'f8'), ('EE_Sub2', 'f8'), ('EE_Sub3', 'f8'),
-                    ('EE_Sub4', 'f8'), ('EE_Sub5', 'f8'), ('EE_Sub6', 'f8'),
-                    ('EE_Sub7', 'f8'), ('EE_Sub8', 'f8'), ('EE_Sub9', 'f8'),
-                    ('Sub1', 'f8'), ('Sub2', 'f8'), ('Sub3', 'f8'),
-                    ('Sub4', 'f8'), ('Sub5', 'f8'), ('Sub6', 'f8'),
-                    ('Sub7', 'f8'), ('Sub8', 'f8'), ('Sub9', 'f8'),
-                    ('lm_per_W', 'i4'), ('Watts', 'i4'),
-                    ('Life_hrs', 'i4'), ('CRI', 'i4'),
-                    ('Application', 'U8'), ('BulbType', 'U8'),
-                    ('Beta_1', 'f8'), ('Beta_2', 'f8')]
+    eia_lt_dtype = [
+        ("FirstYear", "i4"),
+        ("LastYear", "i4"),
+        ("Cost", "f8"),
+        ("EE_Sub1", "f8"),
+        ("EE_Sub2", "f8"),
+        ("EE_Sub3", "f8"),
+        ("EE_Sub4", "f8"),
+        ("EE_Sub5", "f8"),
+        ("EE_Sub6", "f8"),
+        ("EE_Sub7", "f8"),
+        ("EE_Sub8", "f8"),
+        ("EE_Sub9", "f8"),
+        ("Sub1", "f8"),
+        ("Sub2", "f8"),
+        ("Sub3", "f8"),
+        ("Sub4", "f8"),
+        ("Sub5", "f8"),
+        ("Sub6", "f8"),
+        ("Sub7", "f8"),
+        ("Sub8", "f8"),
+        ("Sub9", "f8"),
+        ("lm_per_W", "i4"),
+        ("Watts", "i4"),
+        ("Life_hrs", "i4"),
+        ("CRI", "i4"),
+        ("Application", "U8"),
+        ("BulbType", "U8"),
+        ("Beta_1", "f8"),
+        ("Beta_2", "f8"),
+    ]
 
     # Import EIA residential lighting cost, performance, and lifetime
     # data for the purposes of redistributing the energy data, which
     # are reported for only one lighting technology type (bulb type)
     # for each fixture/luminaire type
-    eia_lt = numpy.genfromtxt(rmt.EIAData().r_lt_all, dtype=eia_lt_dtype,
-                              skip_header=skip.lt_skip_header,
-                              skip_footer=skip.lt_skip_footer,
-                              encoding="latin1")
+    eia_lt = numpy.genfromtxt(
+        rmt.EIAData().r_lt_all,
+        dtype=eia_lt_dtype,
+        skip_header=skip.lt_skip_header,
+        skip_footer=skip.lt_skip_footer,
+        encoding="latin1",
+    )
 
     # Compute the number of unique lighting fixture and bulb type combinations
-    n_lt_types = sum([len(set(eia_lt[eia_lt['Application'] == x]['BulbType']))
-                      for x in set(eia_lt['Application'])])
+    n_lt_types = sum(
+        [
+            len(set(eia_lt[eia_lt["Application"] == x]["BulbType"]))
+            for x in set(eia_lt["Application"])
+        ]
+    )
 
     # Obtain normalized lighting efficiencies for each fixture and bulb type
     lt_eff = lighting_eff_prep(eia_lt, yrs_range, n_lt_types)
@@ -1588,8 +1666,7 @@ def main():
             raise TypeError
 
     # Import JSON file and run through updating scheme
-    with open(handyvars.json_in, 'r') as jsi, open(
-         handyvars.json_out, 'w') as jso:
+    with open(handyvars.json_in, "r") as jsi, open(handyvars.json_out, "w") as jso:
         msjson = json.load(jsi)
 
         # Run through JSON objects, determine replacement information
@@ -1604,5 +1681,5 @@ def main():
         json.dump(result, jso, indent=2, default=fix_ints)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

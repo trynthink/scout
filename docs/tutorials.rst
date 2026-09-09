@@ -1274,7 +1274,7 @@ To run ecm_prep.py or run.py with a yaml configuration file you can run one or b
    python scout/ecm_prep.py -y <my_project.yml>
    python scout/run.py -y <my_project.yml>
 
-Scout will parse the .yml file and write arguments for each script, provided there is a corresponding ``ecm_prep`` and/or ``run`` key specifying ecm_prep.py or run.py arguments, respectively.  
+Scout will parse the .yml file and write arguments for each script, provided there is a corresponding ``ecm_prep`` and/or ``run`` key specifying ecm_prep.py or run.py arguments, respectively.
 
 .. Note::
    If other command-line arguments are included (i.e., those other than ``-y``), then they will take precedence over the yaml file if there is overlap between the two.
@@ -1421,7 +1421,7 @@ Exogenous heat pump switching rates
 Assessment of fugitive emissions
 ********************************
 
-``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./scout/supporting_data/convert_data/fugitive_emissions_convert.json\ |html-fp-end|. When this option is selected, the user must provide at least one of "methane-low", "methane-mid", "methane-high", low-gwp refrigerant", "typical refrigerant", and "typical refrigerant no phaseout". Valid options include one option, a combination of one of the three "methane\*" and one of the three "\*refrigerant\*" options. When including more than one, Scout will assess fugitive emissions for the sources together. For fugitive emissions from methane leakage, the user must specify whether lower bound methane leakage rates ("methane-low"), mid-range methane leakage rates ("methane-mid"), or upper bound methane leakage rates ("methane-high") are desired. For fugitive emissions from equipment refrigerant leakage, the user will specify whether to assume that measures use market-available refrigerants and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ ("typical refrigerant"), that measures use market-available refrigerants with no phase-out requirements ("typical refrigerant no phaseout") or to assume that measures use low-GWP refrigerants ("low-gwp refrigerant"). 
+``--fugitive_emissions`` enables assessment of |CO2|-equivalent emissions from two fugitive sources: 1) increased emissions from leakage of equipment refrigerants (e.g., for HVAC and refrigeration equipment), and 2) avoided emissions from reducing natural gas consumption and its fugitive emissions from leakage throughout the natural gas supply chain. Supplementary data and reference information for both of these sources are available in |html-filepath| ./scout/supporting_data/convert_data/fugitive_emissions_convert.json\ |html-fp-end|. When this option is selected, the user must provide at least one of "methane-low", "methane-mid", "methane-high", low-gwp refrigerant", "typical refrigerant", and "typical refrigerant no phaseout". Valid options include one option, a combination of one of the three "methane\*" and one of the three "\*refrigerant\*" options. When including more than one, Scout will assess fugitive emissions for the sources together. For fugitive emissions from methane leakage, the user must specify whether lower bound methane leakage rates ("methane-low"), mid-range methane leakage rates ("methane-mid"), or upper bound methane leakage rates ("methane-high") are desired. For fugitive emissions from equipment refrigerant leakage, the user will specify whether to assume that measures use market-available refrigerants and that those refrigerants phase out according to U.S. EPA's phase-out rules under the `Significant New Alternatives Policy (SNAP)`_ ("typical refrigerant"), that measures use market-available refrigerants with no phase-out requirements ("typical refrigerant no phaseout") or to assume that measures use low-GWP refrigerants ("low-gwp refrigerant").
 
 .. note::
    Currently the ``--fugitive_emissions`` option is not supported for AIA climate regions; if AIA climate regions are selected alongside the ``--fugitive_emissions`` option, the code will automatically switch the run to EMM regions while warning the user.
@@ -1524,7 +1524,7 @@ Alternative emissions intensities
 Time sensitive valuation metrics
 ********************************
 
-The following time sensitive valuation metrics are used to assess and report out ECM impacts on electric load during pre-defined sub-annual time slices, rather than impacts on annual energy use as in the default ECM preparation. Time slice settings are based on 2006 as the `reference year`_ for the purpose of defining the days of the week and number of days in the year. 
+The following time sensitive valuation metrics are used to assess and report out ECM impacts on electric load during pre-defined sub-annual time slices, rather than impacts on annual energy use as in the default ECM preparation. Time slice settings are based on 2006 as the `reference year`_ for the purpose of defining the days of the week and number of days in the year.
 
 ``--tsv_type`` selects the reported metric to represent either change in energy use across multiple hours (e.g., kWh, GWh, TWh) or change in power per hour (e.g., kW, GW, TW). Valid options include "energy" or "power".
 
@@ -1915,7 +1915,7 @@ In each results tab, rows 2-22 include results summed across the entire ECM port
 .. _NREL Cambium scenarios: https://scenarioviewer.nrel.gov
 .. _Scout DECARB scenarios: https://zenodo.org/records/10653885
 .. _EIA Annual Energy Outlook Low Oil and Gas Supply Side Case: https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php
-.. _EIA Annual Energy Outlook Low Zero-carbon Technology Cost: https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php 
+.. _EIA Annual Energy Outlook Low Zero-carbon Technology Cost: https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php
 .. _NREL Cambium Low Renewable Energy Cost Scenario: https://cambium.nrel.gov/?project=579698fe-5a38-4d7c-8611-d0c5969b2e54&mode=view&layout=Default%20Layout
 .. _IECC climate regions: https://codes.iccsafe.org/content/IECC2021P1/chapter-3-ce-general-requirements
 .. _AIA: https://www.eia.gov/consumption/residential/reports/images/climatezone-lg.jpg

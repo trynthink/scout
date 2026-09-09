@@ -1,4 +1,4 @@
-'''
+"""
 ComStock to Scout Thermal Loads Converter
 
 This script processes ComStock Building Energy Simulation Outputs
@@ -27,7 +27,7 @@ Tab seperated text file with columns:
 
 - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL, PEOPLE, GRND,
 EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
-'''
+"""
 
 import pandas as pd
 
@@ -76,7 +76,6 @@ CDIV_MAPPING = {
     "NJ": 2,
     "NY": 2,
     "PA": 2,
-
     # Midwest
     "IN": 3,
     "IL": 3,
@@ -90,7 +89,6 @@ CDIV_MAPPING = {
     "NE": 4,
     "ND": 4,
     "SD": 4,
-
     # South
     "DE": 5,
     "DC": 5,
@@ -109,7 +107,6 @@ CDIV_MAPPING = {
     "LA": 7,
     "OK": 7,
     "TX": 7,
-
     # West
     "AZ": 8,
     "CO": 8,
@@ -145,8 +142,8 @@ BLDG_MAPPING = {
     "Warehouse": 10,
     "SecondarySchool": 12,
     "PrimarySchool": 2,
-    'Grocery': 3,
-    }
+    "Grocery": 3,
+}
 
 EUSES = ["HEAT", "COOL"]
 
@@ -318,7 +315,7 @@ def convert_to_thermalLoads(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
-    '''
+    """
     The "assembly", "other", and "unspecified" building type in the Scout
     are not exit in ComStock
     This fuction Establish rows for "assembly" building type as an
@@ -342,36 +339,36 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
             - 'BLDG': Building type code (1-11)
             - Component fractions: WIND_COND, WIND_SOL, ROOF, WALL, INFIL,
             PEOPLE, GRND, EQUIP_ELEC, EQUIP_NELEC, FLOOR, LIGHTS, VENT
-    '''
+    """
 
     avg_cols = list(set(COMSTOCK_SEGMENT_TO_CATEGORY.values()))
     result_list = []
 
     # Iterate over CDIV × ENDUSE combinations
-    for cdiv in df['CDIV'].unique():
-        for enduse in df['ENDUSE'].unique():
-            subset = df[(df['CDIV'] == cdiv) & (df['ENDUSE'] == enduse)]
+    for cdiv in df["CDIV"].unique():
+        for enduse in df["ENDUSE"].unique():
+            subset = df[(df["CDIV"] == cdiv) & (df["ENDUSE"] == enduse)]
 
             # Establish rows for "Assembly" building type as an weighted average of the rows
             # for "SecondarySchool", "Small. Office", and "Merch./Service"
-            assembly_sub = subset[subset['BLDG'].isin([8, 9, 12])]
+            assembly_sub = subset[subset["BLDG"].isin([8, 9, 12])]
             assembly_avg = (
-                assembly_sub[avg_cols].mul(assembly_sub['weighted_sqft'], axis=0).sum()
-                / assembly_sub['weighted_sqft'].sum()
-                )
+                assembly_sub[avg_cols].mul(assembly_sub["weighted_sqft"], axis=0).sum()
+                / assembly_sub["weighted_sqft"].sum()
+            )
             assembly_avg = assembly_avg.round(4)
 
             # Establish rows for "Other" and "unspecified" building type as
             # an weighted average of the rows for all building types in ComStock
-            other_sub = subset[subset['BLDG'].isin([2, 3, 4, 5, 6, 7, 8, 9, 10, 12])]
+            other_sub = subset[subset["BLDG"].isin([2, 3, 4, 5, 6, 7, 8, 9, 10, 12])]
             other_avg = (
-                other_sub[avg_cols].mul(other_sub['weighted_sqft'], axis=0).sum()
-                / other_sub['weighted_sqft'].sum()
-                )
+                other_sub[avg_cols].mul(other_sub["weighted_sqft"], axis=0).sum()
+                / other_sub["weighted_sqft"].sum()
+            )
             other_avg = other_avg.round(4)
 
-            for bldg in subset['BLDG'].unique():
-                block = subset[subset['BLDG'] == bldg].copy()
+            for bldg in subset["BLDG"].unique():
+                block = subset[subset["BLDG"] == bldg].copy()
 
                 if bldg == 1:
                     for col in avg_cols:
@@ -383,8 +380,8 @@ def add_missing_building_type(df: pd.DataFrame) -> pd.DataFrame:
                 result_list.append(block)
 
     final_df = pd.concat(result_list, ignore_index=True)
-    final_df = final_df.drop(columns=['weighted_sqft'])
-    final_df = final_df[final_df['BLDG'] != 12]
+    final_df = final_df.drop(columns=["weighted_sqft"])
+    final_df = final_df[final_df["BLDG"] != 12]
 
     return final_df
 
@@ -406,5 +403,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()
