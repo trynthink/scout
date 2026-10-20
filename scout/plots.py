@@ -980,13 +980,27 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                                         var_names_compete_save[v]][
                                         str(years[yr])] * unit_translate
 
-                                    # Determine the point shape and fill color
-                                    # used to distinguish ECM points on the
-                                    # cost effectiveness plots. All points are
-                                    # circles; building type is not shown, as
-                                    # ECM names already begin with (R) for
-                                    # residential or (C) for commercial
-                                    results_finmets[(m-1), (len(fin_metrics) + 2)] = "o"
+                                    # Determine the point shape used to
+                                    # distinguish ECM points on the cost
+                                    # effectiveness plots by building type:
+                                    # circle for residential, square for
+                                    # commercial, and triangle for ECMs that
+                                    # apply to both ('Multiple'). Residential
+                                    # building classes are named either
+                                    # 'Residential (...)' or '... Homes (...)'
+                                    # across all output breakout settings
+                                    bldg = results_database_filters[
+                                        'Applicable Building Classes']
+                                    bldg_res = [
+                                        ("Residential" in b or "Homes" in b)
+                                        for b in bldg]
+                                    if bldg_res and all(bldg_res):
+                                        bldg_shp = "o"
+                                    elif bldg_res and not any(bldg_res):
+                                        bldg_shp = "s"
+                                    else:
+                                        bldg_shp = "^"
+                                    results_finmets[(m-1), (len(fin_metrics) + 2)] = bldg_shp
 
                                     # Determine appropriate ECM point fill
                                     # color for applicable end uses
@@ -1606,10 +1620,18 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                     axc.set_xlim(0, 1)
                     axc.set_ylim(0, 1)
 
-            # Add a legend below the plots that distinguishes the applicable
-            # end use of each ECM point by point fill color (building type is
-            # not shown, as ECM names begin with (R) or (C))
+            # Add legends to the right of the plots that distinguish the
+            # applicable building type and end use of each ECM point by point
+            # shape and fill color, respectively
 
+            # Building type legend shapes and text
+            bclasses_shp = ["o", "s", "^"]
+            bclasses_lgnd = ["Residential", "Commercial", "Multiple"]
+            # Building type plots
+            plots1 = []
+            for i in range(len(bclasses_shp)):
+                plots1.append(axc.scatter([], [], color="black",
+                              marker=bclasses_shp[i]))
             # End use legend colors
             euses_col = euses_out_finmets_col + ["#7f7f7f"]
             # End use legend text
@@ -1619,20 +1641,23 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
             for i in range(len(euses_col)):
                 plots2.append(axc.scatter([], [], marker="o",
                               color=euses_col[i]))
-            # End use legend
-            leg2 = axc.legend(plots2, euses_lgnd,
-                              loc='lower left',
-                              frameon=False,
-                              bbox_to_anchor=(0.1, -0.335, 1, 1),
-                              bbox_transform=fig.transFigure,
-                              title='End Use')
-            # Add plot legend; turn off clipping, since the legend sits
-            # below the plot area and would otherwise not be drawn
-            axc.add_artist(leg2)
-            leg2.set_clip_on(False)
-            # Generate cost effectiveness figure
+            # Building type and end use legends, attached to the figure
+            # (rather than to one of the plots) and stacked in the space to
+            # the right of the plots
+            fig.legend(plots1, bclasses_lgnd,
+                       loc='upper left',
+                       frameon=False,
+                       bbox_to_anchor=(0.86, 0.92),
+                       title='Building Type')
+            fig.legend(plots2, euses_lgnd,
+                       loc='upper left',
+                       frameon=False,
+                       bbox_to_anchor=(0.86, 0.66),
+                       title='End Use')
+            # Generate cost effectiveness figure; leave the right side of the
+            # figure free for the legend
             with _pyplot_lock:
-                fig.tight_layout()
+                fig.tight_layout(rect=(0, 0, 0.86, 1))
                 fig.savefig(plot_file_name_finmets, bbox_inches='tight')
                 plt.close(fig)
 

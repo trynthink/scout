@@ -81,9 +81,13 @@
         "CostEffective": {
           "description": "Measure cost effectiveness vs. competed savings.",
           "notes": [
-            "Savings: competed savings in the snapshot year.",
-            "Metrics: for one unit installed in the snapshot year, over the measure lifetime,",
-            "assuming that year's savings every year.",
+            "Savings (x): total savings in the snapshot year, after measure competition",
+            "and under the figure's adoption scenario; can be zero or negative.",
+            "Metrics (y): for one unit installed in the snapshot year, over the measure lifetime,",
+            "assuming that year's savings every year. They use per-unit savings without",
+            "measure competition, so they are the same in the MAP and TP figures.",
+            "Each measure's own lifetime sets its calculation period, so periods differ:",
+            "longer lifetimes raise IRR and lower CCE/CCC; payback can exceed the lifetime.",
             "Each point is a measure with non-zero savings",
             "Codes/standards measures are excluded."
           ],
@@ -105,16 +109,24 @@
               "maxItems": 4,
               "items": {"$ref": "#/definitions/costEffPanel"}
             },
-            "legend": {
-              "description": "End Use legend below the panels.",
+            "legends": {
+              "description": "Two legends for building type and end use.",
               "notes": [
-                "Each point is a circle filled with its measure's end use color;",
-                "'Multiple' (grey) means the measure spans several end use groups.",
-                "Building type is given by the measure name:",
-                "(R) for residential, (C) for commercial."
+                "Point shape shows the measure's building type;",
+                "point fill color shows its end use group.",
+                "'Multiple' means the measure spans several building types or end use groups."
               ],
-              "const": ["HVAC", "Envelope", "Lighting", "Water Heating", "Refrigeration",
-                        "Cooking", "Electronics", "Other", "Multiple"]
+              "properties": {
+                "Building Type": {
+                  "notes": ["Circle: residential; square: commercial; triangle: both."],
+                  "const": ["Residential", "Commercial", "Multiple"]
+                },
+                "End Use": {
+                  "notes": ["'Multiple' is shown in grey."],
+                  "const": ["HVAC", "Envelope", "Lighting", "Water Heating", "Refrigeration",
+                            "Cooking", "Electronics", "Other", "Multiple"]
+                }
+              }
             }
           }
         }
@@ -228,6 +240,20 @@
         },
         "y_axis": {
           "description": "Financial metric.",
+          "notes": [
+            "All metrics are for one unit installed in the snapshot year, over the measure lifetime;",
+            "incremental cost is the measure's installed cost minus the baseline technology's.",
+            "IRR (Internal Rate of Return, %): the discount rate at which lifetime",
+            "energy cost savings exactly repay the incremental cost; higher is better.",
+            "Payback (Simple Payback, years): years of energy cost savings needed",
+            "to repay the incremental cost, without discounting; shorter is better.",
+            "CCE (Cost of Conserved Energy, $/MMBtu saved): incremental cost divided by",
+            "lifetime energy savings (each year's savings discounted at 7%); lower is better.",
+            "CCC (Cost of Conserved CO2, $/t CO2 avoided): incremental cost divided by",
+            "lifetime avoided CO2 (each year's avoided CO2 discounted at 7%); lower is better.",
+            "999 means the metric cannot be calculated, e.g., CCE or CCC when the",
+            "per-unit savings (not the competed savings on the x-axis) are zero or negative."
+          ],
           "properties": {
             "label": {"enum": [
               "IRR (%)",
