@@ -208,9 +208,12 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                          ['Lighting'],
                          ['Water Heating'], ['Refrigeration'], ['Cooking'],
                          ['Computers and Electronics'], ['Other']]
-    cmef = plt.get_cmap("tab20", len(euses_out_finmets))
+    # Use the tab10 colors, skipping its gray (#7f7f7f), which is reserved for
+    # points that span 'Multiple' end uses
+    cmef = plt.get_cmap("tab10").colors
     euses_out_finmets_col = [
-        mpl.colors.rgb2hex(cmef(i)) for i in range(cmef.N)]
+        mpl.colors.rgb2hex(c) for i, c in enumerate(cmef) if i != 7][
+            :len(euses_out_finmets)]
     euses_out_finmets_lgnd = ['HVAC', 'Envelope', 'Lighting', 'Water Heating',
                               'Refrigeration', 'Cooking', 'Electronics',
                               'Other']
@@ -1582,8 +1585,10 @@ def run_plot(meas_summary, a_run, handyvars, measures_objlist, regions,
                              transform=axc.transAxes,
                              zorder=1)
 
-                    # Construct top 5 ECM name labels
-                    label_meas = ''
+                    # Construct top 5 ECM name labels; start the list one line
+                    # down so that it does not overlap the cost effective
+                    # impact label in the top left corner
+                    label_meas = '\n'
                     for i in meas_names_lgnd:
                         label_meas = label_meas + i + '\n'
                     # Plot top 5 ECM name labels
