@@ -375,6 +375,35 @@ def fetch_updates(session, since, states, category_id, include_raw=False):
     return rows, len(matches)
 
 
+def fetch_all(session, states, category_id, include_raw=False):
+    """Query DSIRE for every currently published program, no date filter.
+
+    For a one-time/periodic full-coverage pull rather than an incremental
+    delta -- e.g. expanding beyond the states/programs already reflected
+    in incentives.csv, not just catching what changed recently. Confirmed
+    against the live API that omitting updatedfrom[]/expiredfrom[]
+    entirely returns the same total as updatedfrom[]=2000-01-01 (every
+    program has been touched since then), so this queries /programs once
+    with no date param instead of relying on an arbitrary early cutoff.
+
+    Returns (rows, program_count), same shape as fetch_updates(), with
+    every row's match_reason set to "full_pull".
+    """
+    params = {}
+    if states:
+        params["state[]"] = states
+    if category_id is not None:
+        params["category[]"] = category_id
+
+    rows = []
+    program_ct = 0
+    for program in paginate(session, "/programs", params=params):
+        program_ct += 1
+        rows.extend(flatten_program_split(
+            program, "full_pull", include_raw=include_raw))
+    return rows, program_ct
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=(
@@ -386,7 +415,21 @@ def main():
     parser.add_argument(
         "--since", metavar="YYYY-MM-DD",
         help="Only include programs updated or expired on/after this date. "
-             "Defaults to the date incentives.csv was last modified in git."
+             "Defaults to the date incentives.csv was last modified in git. "
+             "Ignored (with a warning) if --full is also passed."
+    )
+    parser.add_argument(
+        "--full", action="store_true",
+        help="Full database pull: every currently published program in "
+             "scope (per --states/--category), ignoring --since entirely "
+             "-- not just what changed recently. Use this to expand "
+             "coverage to programs/states never looked at before, rather "
+             "than to catch incremental updates (that's the default mode, "
+             "without --full). match_reason is 'full_pull' for every row "
+             "instead of 'updated'/'expired'. This is a much bigger pull "
+             "(confirmed ~1800 Financial Incentive programs nationwide as "
+             "of 2026-10) -- expect it to take noticeably longer than the "
+             "default incremental check."
     )
     parser.add_argument(
         "--states", nargs="+", metavar="STATE",
@@ -432,8 +475,18 @@ def main():
     session = requests.Session()
     session.headers.update({"x-api-key": api_key})
 
-    since = args.since or get_last_update_date(INCENTIVES_CSV)
-    print(f"Checking DSIRE for programs updated or expired since {since}...")
+    if args.full:
+        if args.since:
+            print("Warning: --since is ignored when --full is passed "
+                  "(a full pull has no date cutoff).")
+        since = None
+        print("Doing a full DSIRE pull: every currently published "
+              "program in scope, regardless of when it was last "
+              "touched...")
+    else:
+        since = args.since or get_last_update_date(INCENTIVES_CSV)
+        print(f"Checking DSIRE for programs updated or expired since "
+              f"{since}...")
 
     states_arg = [s.upper() for s in args.states] if args.states else []
     if states_arg == ["TRACKED"]:
@@ -457,8 +510,12 @@ def main():
     else:
         category_id = resolve_category_id(session, args.category)
 
-    rows, program_ct = fetch_updates(
-        session, since, states, category_id, include_raw=args.raw_json)
+    if args.full:
+        rows, program_ct = fetch_all(
+            session, states, category_id, include_raw=args.raw_json)
+    else:
+        rows, program_ct = fetch_updates(
+            session, since, states, category_id, include_raw=args.raw_json)
 
     if not rows:
         print("No matching DSIRE program changes found.")
@@ -482,28 +539,42 @@ def main():
         "updated" not in r["match_reason"], r["state"], r["name"],
     ))
 
-    output_path = (
-        Path(args.output) if args.output
-        else DSIRE_DIR / f"dsire_incentive_updates_{date.today().isoformat()}.csv"
-    )
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        suffix = "_full" if args.full else ""
+        output_path = (
+            DSIRE_DIR
+            / f"dsire_incentive_updates_{date.today().isoformat()}{suffix}.csv"
+        )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
 
-    updated_ct = sum(1 for r in rows if "updated" in r["match_reason"])
-    expired_ct = sum(1 for r in rows if "expired" in r["match_reason"])
     split_ct = sum(1 for r in rows if r["parameter_set_count"] > 1)
-    print(f"\nFound {program_ct} program(s) changed since {since} "
-          f"({total_ct} staging row(s) -- programs bundling several "
-          f"technologies/tiers are split into one row per "
-          f"technology/tier; see 'parameter_set_index'/'parameter_set_"
-          f"count' columns).")
+    if args.full:
+        print(f"\nFound {program_ct} program(s) in scope "
+              f"({total_ct} staging row(s) -- programs bundling several "
+              f"technologies/tiers are split into one row per "
+              f"technology/tier; see 'parameter_set_index'/'parameter_set_"
+              f"count' columns).")
+    else:
+        updated_ct = sum(1 for r in rows if "updated" in r["match_reason"])
+        expired_ct = sum(1 for r in rows if "expired" in r["match_reason"])
+        print(f"\nFound {program_ct} program(s) changed since {since} "
+              f"({total_ct} staging row(s) -- programs bundling several "
+              f"technologies/tiers are split into one row per "
+              f"technology/tier; see 'parameter_set_index'/'parameter_set_"
+              f"count' columns).")
     if unrelated_ct:
         print(f"Filtered out {unrelated_ct} row(s) with no overlap with "
               f"Scout's tracked technologies (solar/wind/EVs/appliances, "
               f"etc.). Re-run with --include-unrelated-tech to see them.")
-    print(f"{len(rows)} row(s) remain ({split_ct} from a split program): "
-          f"{updated_ct} updated, {expired_ct} newly expired.")
+    if args.full:
+        print(f"{len(rows)} row(s) remain ({split_ct} from a split program).")
+    else:
+        print(f"{len(rows)} row(s) remain ({split_ct} from a split program): "
+              f"{updated_ct} updated, {expired_ct} newly expired.")
     print(f"Wrote staging file to {output_path}")
     print("Review each row and hand-translate the relevant ones into "
           "sub_fed/incentives.csv -- this file does not get written to "
