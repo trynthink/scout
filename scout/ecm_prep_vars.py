@@ -1769,9 +1769,9 @@ class UsefulVars(object):
                         # extension
                         backup, mod, scope, ira, increase = [x for x in row.values[8:-9]]
                         # Finalize flag for backup allowance: 'no' (backup not allowed; blanks or
-                        # negative tags), 'required' (incentive requires that the existing fuel-fired
-                        # system be retained as backup, e.g., IRA HEEHRA heat pump rebates), or
-                        # 'yes' (backup allowed but not required)
+                        # negative tags), 'required' (incentive requires that the existing
+                        # fuel-fired system be retained as backup, e.g., IRA HEEHRA heat pump
+                        # rebates), or 'yes' (backup allowed but not required)
                         if not isinstance(backup, str) or backup.strip() in [
                                 "N", "n", "no", "No", "false", "False", ""]:
                             backup = ["no"]
@@ -1812,7 +1812,8 @@ class UsefulVars(object):
                         credit[0], rebate[0] = [
                             x if not numpy.isnan(x) else False for x in (credit[0], rebate[0])]
                         # Pull all parameters together in a master list
-                        # Set program identifier, used in ecm_prep to treat alternative tiers/options
+                        # Set program identifier, used in ecm_prep to treat alternative
+                        # tiers/options
                         # of the same program (and same applicable fraction) as competing rather
                         # than additive; rows without an identifier get a unique one, so they
                         # continue to stack additively as before

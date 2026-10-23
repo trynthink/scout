@@ -5431,8 +5431,9 @@ class Measure(object):
                         if len(rpl) != 0:
                             # Initialize list of replacement incentives, as well as a dict that
                             # groups qualifying incentives by program identifier, scope, IRA flag,
-                            # and applicable fraction; within a group (e.g., performance tiers or whole-home vs.
-                            # partial options of the same program for the same population),
+                            # and applicable fraction; within a group (e.g., performance tiers or
+                            # whole-home vs. partial options of the same program for the same
+                            # population),
                             # only the highest qualifying incentive is used, while incentives
                             # across groups (distinct programs or populations) are additive
                             rpl_vals = []
